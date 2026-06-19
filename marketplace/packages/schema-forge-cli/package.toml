@@ -27,11 +27,11 @@ anyhow = "1.0"
 indexmap = "2.0"
 
 [marketplace]
+production_ready = false
 category = "cli-tools"
 subcategory = "data-modeling"
 tags = ["schema", "json-schema", "sql", "graphql", "validation", "clap-noun-verb"]
 crates_io_ready = true
-production_ready = true
 
 [templates]
 cli = "templates/cli.tmpl"

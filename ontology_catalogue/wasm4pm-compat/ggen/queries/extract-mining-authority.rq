@@ -1,0 +1,28 @@
+# SPARQL Query: Extract Mining Authority Definitions from wasm4pm-compat ontology
+# Purpose: Identify all mining process forms and constraints that graduate to wasm4pm engine
+# for process discovery, variant analysis, and trace abstraction
+# Usage: ggen query extract-mining-authority.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?authority ?rustType ?sourceFile ?description
+WHERE {
+  ?authority a compat:ProcessForm ;
+             compat:rustType ?rustType ;
+             compat:sourceFile ?sourceFile ;
+             compat:graduatesToWasm4pm true ;
+             rdfs:comment ?description .
+
+  FILTER (
+    CONTAINS(?description, "discover") ||
+    CONTAINS(?description, "mining") ||
+    CONTAINS(?description, "variant") ||
+    CONTAINS(?description, "trace") ||
+    CONTAINS(?description, "abstraction") ||
+    CONTAINS(?description, "inductive")
+  )
+}
+ORDER BY ?rustType

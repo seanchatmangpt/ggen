@@ -1,0 +1,582 @@
+@prefix godspeed: <http://yawl.io/godspeed#> .
+@prefix inverse: <http://yawl.io/godspeed/inverse#> .
+@prefix a2a: <http://yawl.io/a2a#> .
+@prefix mcp: <http://yawl.io/mcp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# INVERSE GODSPEED PROTOCOL — 5 Reverse/Remedial Agents
+# ============================================================================
+# Working BACKWARD through the pipeline (Ω⁻¹→Q⁻¹→H⁻¹→Λ⁻¹→Ψ⁻¹)
+# Purpose: Detect violations after the fact, repair state, validate history
+# Principle: "Maximum Backward Safety (Zero State Corruption)"
+# ============================================================================
+
+# Ω⁻¹ PHASE: GIT ARCHAEOLOGIST
+# Role: Analyze git history, detect unsafe operations, rollback risk analysis
+# Principle: "Trust but verify: audit all git operations"
+# Concurrency: Sequential analysis (git history is linear)
+
+inverse:OmegaInverseAgent a inverse:InverseAgent ;
+  rdfs:label "Ω⁻¹ Agent (Git Archaeologist)" ;
+  rdfs:comment "Analyzes git history, detects unsafe operations (force-push, amend), provides rollback guidance" ;
+  inverse:phase inverse:OmegaInversePhase ;
+  inverse:phaseName "Ω⁻¹ (Git Archaeology)" ;
+  inverse:phaseOrder 1 ;
+  inverse:principle "Trust but verify: audit all git operations" ;
+  inverse:direction "Backward (from remote to local)" ;
+
+  # A2A Protocol: Historical analysis
+  a2a:hasProtocol inverse:GitArchaeologyProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Sequential ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:OmegaInverseMCPServer ;
+  mcp:handlesTools mcp:omega_inv_analyze_history, mcp:omega_inv_detect_unsafe_ops, mcp:omega_inv_rollback_analysis ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 1 ;
+    mcp:maxContextTokens 200000 ;
+    mcp:timeoutSeconds 600
+  ] ;
+
+  # Analysis outputs
+  inverse:outputReports (
+    "git-history-audit.json"
+    "unsafe-operations-detected.json"
+    "rollback-risk-analysis.json"
+    "commit-integrity-report.json"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "omega-inv/analyze-history" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:AnalyzeHistoryRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "omega-inv/detect-unsafe-ops" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:DetectUnsafeOpsRequest ;
+    a2a:responseTime 3000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "omega-inv/rollback-analysis" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:RollbackAnalysisRequest ;
+    a2a:responseTime 2000 ;
+  ] .
+
+inverse:GitArchaeologyProtocol a a2a:Protocol ;
+  rdfs:label "Ω⁻¹ Protocol (Git Archaeology)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:historicalAnalysis [ inverse:depthScan "full_history" ; inverse:commitWindow "all" ] ;
+  a2a:auditLogging [ inverse:forensics true ; inverse:immutable true ] .
+
+mcp:OmegaInverseMCPServer a mcp:Server ;
+  rdfs:label "Ω⁻¹ MCP Server (Git Archaeology)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9115 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# Q⁻¹ PHASE: INVARIANT REPAIRMAN
+# Role: Detect broken invariants, suggest repairs, validate fixes
+# Principle: "Invariants once broken, now healed"
+# Concurrency: Parallel repair suggestions
+
+inverse:ThetaInverseAgent a inverse:InverseAgent ;
+  rdfs:label "Q⁻¹ Agent (Invariant Repairman)" ;
+  rdfs:comment "Detects broken invariants, suggests repairs, validates fix integrity" ;
+  inverse:phase inverse:ThetaInversePhase ;
+  inverse:phaseName "Q⁻¹ (Invariant Repair)" ;
+  inverse:phaseOrder 2 ;
+  inverse:principle "Invariants once broken, now healed" ;
+  inverse:direction "Backward (from broken to fixed)" ;
+
+  # A2A Protocol: Repair suggestions
+  a2a:hasProtocol inverse:InvariantRepairProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:ThetaInverseMCPServer ;
+  mcp:handlesTools mcp:theta_inv_detect_broken, mcp:theta_inv_suggest_repairs, mcp:theta_inv_validate_fix ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 12 ;
+    mcp:maxContextTokens 150000 ;
+    mcp:timeoutSeconds 600
+  ] ;
+
+  # Analysis outputs
+  inverse:outputReports (
+    "broken-invariants-detected.json"
+    "repair-suggestions.json"
+    "fix-validation-report.json"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "theta-inv/detect-broken" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:DetectBrokenRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "theta-inv/suggest-repairs" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:SuggestRepairsRequest ;
+    a2a:responseTime 3000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "theta-inv/validate-fix" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:ValidateFixRequest ;
+    a2a:responseTime 2000 ;
+  ] .
+
+inverse:InvariantRepairProtocol a a2a:Protocol ;
+  rdfs:label "Q⁻¹ Protocol (Invariant Repair)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:semanticAnalysis [ inverse:depth "deep" ; inverse:contextTokens 150000 ] ;
+  a2a:repairSuggestions [ inverse:automated true ; inverse:validated true ] .
+
+mcp:ThetaInverseMCPServer a mcp:Server ;
+  rdfs:label "Q⁻¹ MCP Server (Invariant Repair)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9114 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# H⁻¹ PHASE: GUARD AUDITOR
+# Role: Audit for guard violations, generate forensic receipts
+# Principle: "What forbidden patterns exist today?"
+# Concurrency: Parallel auditing
+
+inverse:EtaInverseAgent a inverse:InverseAgent ;
+  rdfs:label "H⁻¹ Agent (Guard Auditor)" ;
+  rdfs:comment "Audits codebase for guard violations, generates forensic receipts, tracks violation history" ;
+  inverse:phase inverse:EtaInversePhase ;
+  inverse:phaseName "H⁻¹ (Guard Audit)" ;
+  inverse:phaseOrder 3 ;
+  inverse:principle "What forbidden patterns exist today?" ;
+  inverse:direction "Backward (scan entire codebase)" ;
+
+  # A2A Protocol: Comprehensive auditing
+  a2a:hasProtocol inverse:GuardAuditProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:EtaInverseMCPServer ;
+  mcp:handlesTools mcp:eta_inv_audit_all, mcp:eta_inv_forensic_receipt, mcp:eta_inv_violation_timeline ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 16 ;
+    mcp:maxContextTokens 100000 ;
+    mcp:timeoutSeconds 300
+  ] ;
+
+  # Forensic outputs
+  inverse:outputReports (
+    "guard-violations-comprehensive.json"
+    "forensic-receipt.json"
+    "violation-timeline.json"
+    "pattern-distribution.json"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "eta-inv/audit-all" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:AuditAllRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "eta-inv/forensic-receipt" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:ForensicReceiptRequest ;
+    a2a:responseTime 2000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "eta-inv/violation-timeline" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:ViolationTimelineRequest ;
+    a2a:responseTime 3000 ;
+  ] .
+
+inverse:GuardAuditProtocol a a2a:Protocol ;
+  rdfs:label "H⁻¹ Protocol (Guard Audit)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:auditScope [ inverse:comprehensive true ; inverse:includeHistory true ] ;
+  a2a:forensicDetailed [ inverse:patterns "all" ; inverse:locations true ; inverse:timestamps true ] .
+
+mcp:EtaInverseMCPServer a mcp:Server ;
+  rdfs:label "H⁻¹ MCP Server (Guard Audit)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9113 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# Λ⁻¹ PHASE: BUILD VALIDATOR
+# Role: Validate build state, detect inconsistencies, verify reproducibility
+# Principle: "Can we rebuild from scratch and get identical results?"
+# Concurrency: Parallel validation across modules
+
+inverse:LambdaInverseAgent a inverse:InverseAgent ;
+  rdfs:label "Λ⁻¹ Agent (Build Validator)" ;
+  rdfs:comment "Validates build state, detects inconsistencies, verifies reproducibility" ;
+  inverse:phase inverse:LambdaInversePhase ;
+  inverse:phaseName "Λ⁻¹ (Build Validation)" ;
+  inverse:phaseOrder 4 ;
+  inverse:principle "Can we rebuild from scratch and get identical results?" ;
+  inverse:direction "Backward (validate build artifacts)" ;
+
+  # A2A Protocol: Build verification
+  a2a:hasProtocol inverse:BuildValidationProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:LambdaInverseMCPServer ;
+  mcp:handlesTools mcp:lambda_inv_validate_state, mcp:lambda_inv_detect_stale, mcp:lambda_inv_reproducibility ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 8 ;
+    mcp:maxContextTokens 120000 ;
+    mcp:timeoutSeconds 900
+  ] ;
+
+  # Validation outputs
+  inverse:outputReports (
+    "build-state-validation.json"
+    "stale-artifacts-detected.json"
+    "reproducibility-report.json"
+    "dependency-inconsistencies.json"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "lambda-inv/validate-state" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:ValidateStateRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "lambda-inv/detect-stale" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:DetectStaleRequest ;
+    a2a:responseTime 3000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "lambda-inv/reproducibility" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:ReproducibilityRequest ;
+    a2a:responseTime 10000 ;
+  ] .
+
+inverse:BuildValidationProtocol a a2a:Protocol ;
+  rdfs:label "Λ⁻¹ Protocol (Build Validation)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:verification [ inverse:checksums true ; inverse:timestamps true ; inverse:reproducibility true ] .
+
+mcp:LambdaInverseMCPServer a mcp:Server ;
+  rdfs:label "Λ⁻¹ MCP Server (Build Validation)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9112 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# Ψ⁻¹ PHASE: FACT VALIDATOR
+# Role: Validate facts against reality, detect stale state, rebuild facts
+# Principle: "Do facts match the actual codebase state?"
+# Concurrency: Parallel fact validation
+
+inverse:PsiInverseAgent a inverse:InverseAgent ;
+  rdfs:label "Ψ⁻¹ Agent (Fact Validator)" ;
+  rdfs:comment "Validates facts against reality, detects stale state, rebuilds facts if needed" ;
+  inverse:phase inverse:PsiInversePhase ;
+  inverse:phaseName "Ψ⁻¹ (Fact Validation)" ;
+  inverse:phaseOrder 5 ;
+  inverse:principle "Do facts match the actual codebase state?" ;
+  inverse:direction "Backward (validate source of truth)" ;
+
+  # A2A Protocol: Fact verification
+  a2a:hasProtocol inverse:FactValidationProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:PsiInverseMCPServer ;
+  mcp:handlesTools mcp:psi_inv_validate_facts, mcp:psi_inv_detect_drift, mcp:psi_inv_rebuild_facts ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 32 ;
+    mcp:maxContextTokens 100000 ;
+    mcp:timeoutSeconds 300
+  ] ;
+
+  # Validation outputs
+  inverse:outputReports (
+    "fact-validation-report.json"
+    "fact-drift-detected.json"
+    "stale-facts-list.json"
+    "fact-reconciliation.json"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "psi-inv/validate-facts" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:ValidateFactsRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "psi-inv/detect-drift" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:DetectDriftRequest ;
+    a2a:responseTime 2000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "psi-inv/rebuild-facts" ;
+    a2a:method a2a:POST ;
+    a2a:messageType inverse:RebuildFactsRequest ;
+    a2a:responseTime 5000 ;
+  ] .
+
+inverse:FactValidationProtocol a a2a:Protocol ;
+  rdfs:label "Ψ⁻¹ Protocol (Fact Validation)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:validation [ inverse:checksums true ; inverse:reconciliation true ; inverse:completeness true ] ;
+  a2a:parallelism [ inverse:maxParallel 32 ] .
+
+mcp:PsiInverseMCPServer a mcp:Server ;
+  rdfs:label "Ψ⁻¹ MCP Server (Fact Validation)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9111 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# INVERSE GODSPEED ORCHESTRATOR (Lead)
+# Role: Coordinates the 5 inverse agents in backward sequence (Ω⁻¹→Q⁻¹→H⁻¹→Λ⁻¹→Ψ⁻¹)
+# Principle: "Maximum Backward Safety (Zero State Corruption)"
+# ============================================================================
+
+inverse:InverseGodspeedOrchestrator a inverse:InverseLead ;
+  rdfs:label "Inverse GODSPEED Orchestrator" ;
+  rdfs:comment "Leads backward audit workflow, detects violations, suggests repairs" ;
+  inverse:coordinatesAgents (
+    inverse:OmegaInverseAgent
+    inverse:ThetaInverseAgent
+    inverse:EtaInverseAgent
+    inverse:LambdaInverseAgent
+    inverse:PsiInverseAgent
+  ) ;
+  inverse:phaseSequence "Ω⁻¹ → Q⁻¹ → H⁻¹ → Λ⁻¹ → Ψ⁻¹ (backward audit)" ;
+  inverse:direction "Backward (detection & repair)" ;
+  inverse:principle "Maximum Backward Safety (Zero State Corruption)" ;
+  inverse:comparisonTarget godspeed:GodspeedOrchestrator ;
+
+  # Orchestration protocol
+  mcp:hasMCPServer mcp:InverseGodspeedOrchestratorMCPServer ;
+  mcp:handlesTools mcp:inverse_audit_sequence, mcp:inverse_detect_violations, mcp:inverse_report ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 1 ;
+    mcp:maxContextTokens 250000 ;
+    mcp:timeoutSeconds 3600
+  ] .
+
+mcp:InverseGodspeedOrchestratorMCPServer a mcp:Server ;
+  rdfs:label "Inverse GODSPEED Orchestrator MCP Server" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9110 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# MESSAGE TYPES (Inverse Godspeed Protocol Messages)
+# ============================================================================
+
+inverse:AnalyzeHistoryRequest a a2a:MessageType ;
+  rdfs:label "Analyze History Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "depth" ; a2a:type xsd:string ]
+                              [ a2a:name "commit_range" ; a2a:type xsd:string ] ) ] .
+
+inverse:DetectBrokenRequest a a2a:MessageType ;
+  rdfs:label "Detect Broken Invariants Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "artifacts" ; a2a:type xsd:string ]
+                              [ a2a:name "invariants" ; a2a:type xsd:string ] ) ] .
+
+inverse:AuditAllRequest a a2a:MessageType ;
+  rdfs:label "Audit All Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "patterns" ; a2a:type xsd:string ]
+                              [ a2a:name "comprehensive" ; a2a:type xsd:boolean ] ) ] .
+
+inverse:ValidateStateRequest a a2a:MessageType ;
+  rdfs:label "Validate State Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "artifacts" ; a2a:type xsd:string ]
+                              [ a2a:name "checksums" ; a2a:type xsd:string ] ) ] .
+
+inverse:ValidateFactsRequest a a2a:MessageType ;
+  rdfs:label "Validate Facts Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "fact_types" ; a2a:type xsd:string ]
+                              [ a2a:name "checksum_validation" ; a2a:type xsd:boolean ] ) ] .
+
+# ============================================================================
+# INVERSE PHASES (Enumeration)
+# ============================================================================
+
+inverse:OmegaInversePhase a inverse:InversePhase ;
+  rdfs:label "Ω⁻¹ Phase" ;
+  inverse:order 1 ;
+  inverse:principle "Trust but verify: audit all git operations" ;
+  inverse:oppositeOf godspeed:OmegaPhase .
+
+inverse:ThetaInversePhase a inverse:InversePhase ;
+  rdfs:label "Q⁻¹ Phase" ;
+  inverse:order 2 ;
+  inverse:principle "Invariants once broken, now healed" ;
+  inverse:oppositeOf godspeed:ThetaPhase .
+
+inverse:EtaInversePhase a inverse:InversePhase ;
+  rdfs:label "H⁻¹ Phase" ;
+  inverse:order 3 ;
+  inverse:principle "What forbidden patterns exist today?" ;
+  inverse:oppositeOf godspeed:EtaPhase .
+
+inverse:LambdaInversePhase a inverse:InversePhase ;
+  rdfs:label "Λ⁻¹ Phase" ;
+  inverse:order 4 ;
+  inverse:principle "Can we rebuild from scratch and get identical results?" ;
+  inverse:oppositeOf godspeed:LambdaPhase .
+
+inverse:PsiInversePhase a inverse:InversePhase ;
+  rdfs:label "Ψ⁻¹ Phase" ;
+  inverse:order 5 ;
+  inverse:principle "Do facts match the actual codebase state?" ;
+  inverse:oppositeOf godspeed:PsiPhase .
+
+# ============================================================================
+# INVERSE Blue OCEAN DIFFERENTIATION
+# ============================================================================
+
+inverse:OmegaInverseBlueOcean a inverse:InverseBlueOcean ;
+  rdfs:label "Ω⁻¹ Blue Ocean (Backward)" ;
+  rdfs:comment "Git archaeology is specialized: only this agent audits history. Forensic analysis." ;
+  inverse:monopoly inverse:GitForensicAuthority ;
+  inverse:advantage "Comprehensive git history audit, unsafe operation detection" .
+
+inverse:ThetaInverseBlueOcean a inverse:InverseBlueOcean ;
+  rdfs:label "Q⁻¹ Blue Ocean (Backward)" ;
+  rdfs:comment "Invariant repair is specialized: only this agent suggests fixes. Validated suggestions." ;
+  inverse:monopoly inverse:InvariantRepairAuthority ;
+  inverse:advantage "Automated repair suggestions, fix validation, integrity checking" .
+
+inverse:EtaInverseBlueOcean a inverse:InverseBlueOcean ;
+  rdfs:label "H⁻¹ Blue Ocean (Backward)" ;
+  rdfs:comment "Guard auditing is specialized: only this agent forensically scans codebase." ;
+  inverse:monopoly inverse:GuardForensicAuthority ;
+  inverse:advantage "Comprehensive violation detection, historical tracking, pattern distribution" .
+
+inverse:LambdaInverseBlueOcean a inverse:InverseBlueOcean ;
+  rdfs:label "Λ⁻¹ Blue Ocean (Backward)" ;
+  rdfs:comment "Build validation is specialized: only this agent verifies reproducibility." ;
+  inverse:monopoly inverse:BuildVerificationAuthority ;
+  inverse:advantage "Stale artifact detection, reproducibility verification, dependency validation" .
+
+inverse:PsiInverseBlueOcean a inverse:InverseBlueOcean ;
+  rdfs:label "Ψ⁻¹ Blue Ocean (Backward)" ;
+  rdfs:comment "Fact validation is specialized: only this agent reconciles facts with reality." ;
+  inverse:monopoly inverse:FactReconciliationAuthority ;
+  inverse:advantage "Fact drift detection, reality reconciliation, source-of-truth validation" .
+
+# ============================================================================
+# COMPARISON: FORWARD vs BACKWARD
+# ============================================================================
+
+inverse:ComparisonMatrix a inverse:ComparisonPattern ;
+  rdfs:label "GODSPEED Forward vs Backward Comparison" ;
+  inverse:forward [
+    inverse:sequence "Ψ→Λ→H→Q→Ω" ;
+    inverse:principle "Maximum Forward Velocity" ;
+    inverse:target "Zero Invariant Breakage" ;
+    inverse:mode "Proactive (prevent violations)" ;
+    inverse:timing "Before commit" ;
+    inverse:authority "Monopoly (one source per phase)" ;
+  ] ;
+  inverse:backward [
+    inverse:sequence "Ω⁻¹→Q⁻¹→H⁻¹→Λ⁻¹→Ψ⁻¹" ;
+    inverse:principle "Maximum Backward Safety" ;
+    inverse:target "Zero State Corruption" ;
+    inverse:mode "Reactive (detect & repair)" ;
+    inverse:timing "After commit (audit)" ;
+    inverse:authority "Monopoly (one forensic source per phase)" ;
+  ] .
+
+# ============================================================================
+# PHASE MATRIX: Forward Agent vs Backward Agent
+# ============================================================================
+
+inverse:PhaseCorrespondence a inverse:CorrespondencePattern ;
+  rdfs:label "Correspondence Matrix" ;
+
+  # Phase 1: Ψ ↔ Ψ⁻¹
+  inverse:correspondence [
+    inverse:forward godspeed:PsiAgent ;
+    inverse:backward inverse:PsiInverseAgent ;
+    inverse:forwardRole "Discovers facts from codebase" ;
+    inverse:backwardRole "Validates facts match codebase" ;
+    inverse:relationship "Symmetric verification" ;
+  ] ;
+
+  # Phase 2: Λ ↔ Λ⁻¹
+  inverse:correspondence [
+    inverse:forward godspeed:LambdaAgent ;
+    inverse:backward inverse:LambdaInverseAgent ;
+    inverse:forwardRole "Builds and compiles" ;
+    inverse:backwardRole "Validates build state & reproducibility" ;
+    inverse:relationship "Symmetric validation" ;
+  ] ;
+
+  # Phase 3: H ↔ H⁻¹
+  inverse:correspondence [
+    inverse:forward godspeed:EtaAgent ;
+    inverse:backward inverse:EtaInverseAgent ;
+    inverse:forwardRole "Enforces guards (fail-fast)" ;
+    inverse:backwardRole "Audits violations (forensic)" ;
+    inverse:relationship "Symmetric enforcement" ;
+  ] ;
+
+  # Phase 4: Q ↔ Q⁻¹
+  inverse:correspondence [
+    inverse:forward godspeed:ThetaAgent ;
+    inverse:backward inverse:ThetaInverseAgent ;
+    inverse:forwardRole "Verifies invariants" ;
+    inverse:backwardRole "Repairs broken invariants" ;
+    inverse:relationship "Symmetric restoration" ;
+  ] ;
+
+  # Phase 5: Ω ↔ Ω⁻¹
+  inverse:correspondence [
+    inverse:forward godspeed:OmegaAgent ;
+    inverse:backward inverse:OmegaInverseAgent ;
+    inverse:forwardRole "Ensures safe git operations" ;
+    inverse:backwardRole "Audits git history (archaeology)" ;
+    inverse:relationship "Symmetric audit" ;
+  ] .

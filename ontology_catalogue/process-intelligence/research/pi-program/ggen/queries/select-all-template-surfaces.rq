@@ -1,0 +1,20 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: All Template Surfaces (34 Tera files)
+# Returns all Tera template sources with project, role, and file size
+# Date: 2026-06-01
+
+SELECT ?template ?title ?sourceType ?projectId ?templateRole ?purpose ?fileSize ?referenced
+WHERE {
+    ?template a pi:Template .
+    ?template dcterms:title ?title .
+    ?template pi:sourceType ?sourceType .
+    ?template pi:projectId ?projectId .
+
+    OPTIONAL { ?template pi:templateRole ?templateRole }
+    OPTIONAL { ?template pi:purpose ?purpose }
+    OPTIONAL { ?template pi:fileSize ?fileSize }
+    OPTIONAL { ?template pi:referenced ?referenced }
+}
+ORDER BY ?projectId ?title

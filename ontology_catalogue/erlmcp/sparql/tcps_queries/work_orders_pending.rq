@@ -1,0 +1,46 @@
+# Query: Extract All Pending Work Orders by Priority
+#
+# Business Logic:
+# - Retrieves work orders that have not been completed or cancelled
+# - Orders by priority (critical > high > medium > low) and creation time
+# - Returns essential work order metadata for processing selection
+#
+# Parameters:
+# - ?status_filter: Optional status to filter (default: "pending")
+#
+# Returns:
+# - work_order_id: Unique identifier for the work order
+# - demand_signal: Source system/trigger that created this work order
+# - bucket: Toyota Production System bucket (reliability/security/cost/compliance)
+# - created_timestamp: When the work order was created
+# - priority: Urgency level (critical/high/medium/low)
+
+PREFIX tcps: <http://example.org/tcps#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?work_order_id ?demand_signal ?bucket ?created_timestamp ?priority
+WHERE {
+  ?work_order rdf:type tcps:WorkOrder ;
+              tcps:workOrderId ?work_order_id ;
+              tcps:demandSignal ?demand_signal ;
+              tcps:bucket ?bucket ;
+              tcps:createdTimestamp ?created_timestamp ;
+              tcps:priority ?priority ;
+              tcps:status ?status .
+
+  # Filter for pending work orders only
+  FILTER(?status = "pending")
+
+  # Optional: Additional status filters can be bound via VALUES
+  # VALUES ?status_filter { "pending" "ready" "blocked" }
+  # FILTER(?status = ?status_filter)
+}
+ORDER BY
+  # Priority ordering: critical > high > medium > low
+  (IF(?priority = "critical", 1,
+      IF(?priority = "high", 2,
+         IF(?priority = "medium", 3, 4))))
+  # Secondary sort by creation time (oldest first)
+  ASC(?created_timestamp)

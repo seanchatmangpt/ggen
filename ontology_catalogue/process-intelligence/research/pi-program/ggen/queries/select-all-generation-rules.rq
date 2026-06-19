@@ -1,0 +1,21 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX gen: <https://process.intelligence/generation-rule/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: All Generation Rules (15 total)
+# Returns all generation rules across all 3 programs with complete metadata
+# Date: 2026-06-01
+
+SELECT ?rule ?title ?program ?query ?template ?outputFile ?status ?blockingIssue
+WHERE {
+    ?rule a pi:GenerationRule .
+    ?rule pi:program ?program .
+
+    OPTIONAL { ?rule dcterms:title ?title }
+    OPTIONAL { ?rule pi:query ?query }
+    OPTIONAL { ?rule pi:template ?template }
+    OPTIONAL { ?rule pi:outputFile ?outputFile }
+    OPTIONAL { ?rule pi:status ?status }
+    OPTIONAL { ?rule pi:blockingIssue ?blockingIssue }
+}
+ORDER BY ?status ?rule

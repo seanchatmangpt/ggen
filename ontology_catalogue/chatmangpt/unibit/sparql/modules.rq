@@ -1,0 +1,12 @@
+PREFIX code: <https://chatmangpt.com/ontology/codegen#>
+
+SELECT ?module ?crate ?crate_path ?module_path ?template ?defines
+WHERE {
+  ?module a code:RustModule ;
+          code:crate ?crate ;
+          code:path ?module_path ;
+          code:template ?template .
+  ?crate code:path ?crate_path .
+  OPTIONAL { ?module code:defines ?defines . }
+}
+ORDER BY ?module_path

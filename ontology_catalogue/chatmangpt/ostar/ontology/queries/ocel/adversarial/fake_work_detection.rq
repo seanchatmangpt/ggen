@@ -1,0 +1,15 @@
+PREFIX ocel: <http://www.ocel-standard.org/ocel/2.0/>
+PREFIX ostar: <http://ostar.manufactory/schema/>
+
+# Detect fake work (theater) patterns in OCEL events
+# Theater shows operators claiming to work but not actually executing
+
+ASK {
+  # Check if any event has suspiciously short duration
+  ?event ocel:activity ?activity .
+  ?event ostar:duration_ns ?duration .
+
+  # Suspicious if duration < 1ms but status is complete
+  FILTER (?duration < 1000000)
+  FILTER (STRSTARTS(?activity, "benchmark") || STRSTARTS(?activity, "compile"))
+}

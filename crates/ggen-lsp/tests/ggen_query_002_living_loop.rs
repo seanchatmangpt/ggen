@@ -102,11 +102,7 @@ fn select_star_raises_query_002_through_headless_gate() {
     let tmp = tempfile::tempdir().expect("create tempdir");
     let root = tmp.path();
 
-    write_project(
-        root,
-        "SELECT * WHERE { ?s ?p ?o }",
-        "Item: {{ name }}\n",
-    );
+    write_project(root, "SELECT * WHERE { ?s ?p ?o }", "Item: {{ name }}\n");
 
     let paths = discover_law_surfaces(root);
     assert!(
@@ -207,11 +203,7 @@ fn select_star_causes_tpl_001_false_positive_flood_blindspot_proven() {
 
     // Template uses `{{ name }}` — legitimate at runtime, but invisible to the
     // static guard when SELECT * gives no explicit projection vars.
-    write_project(
-        root,
-        "SELECT * WHERE { ?s ?p ?o }",
-        "Item: {{ name }}\n",
-    );
+    write_project(root, "SELECT * WHERE { ?s ?p ?o }", "Item: {{ name }}\n");
 
     let paths = discover_law_surfaces(root);
     assert!(

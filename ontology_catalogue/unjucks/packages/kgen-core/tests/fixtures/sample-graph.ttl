@@ -1,0 +1,54 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# People
+ex:alice a foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:email "alice@example.com" ;
+    foaf:age "29"^^xsd:integer ;
+    org:memberOf ex:techcorp ;
+    ex:department "Engineering" ;
+    ex:role "Senior Developer" ;
+    ex:manages ex:webproject .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Smith" ;
+    foaf:email "bob@example.com" ;
+    foaf:age "35"^^xsd:integer ;
+    org:memberOf ex:techcorp ;
+    ex:department "Engineering" ;
+    ex:role "Tech Lead" ;
+    ex:manages ex:mobileproject .
+
+ex:carol a foaf:Person ;
+    foaf:name "Carol Davis" ;
+    foaf:email "carol@example.com" ;
+    foaf:age "31"^^xsd:integer ;
+    org:memberOf ex:techcorp ;
+    ex:department "Design" ;
+    ex:role "UX Designer" ;
+    ex:worksOn ex:webproject, ex:mobileproject .
+
+# Organization
+ex:techcorp a org:Organization ;
+    org:hasName "TechCorp Inc." ;
+    org:hasEmployee ex:alice, ex:bob, ex:carol ;
+    ex:founded "2015"^^xsd:gYear ;
+    ex:headquarters "San Francisco, CA" .
+
+# Projects
+ex:webproject a ex:Project ;
+    ex:hasName "Web Platform Redesign" ;
+    ex:hasBudget "500000"^^xsd:decimal ;
+    ex:hasDeadline "2024-06-30"^^xsd:date ;
+    ex:status "In Progress" ;
+    ex:hasTeamMember ex:alice, ex:carol .
+
+ex:mobileproject a ex:Project ;
+    ex:hasName "Mobile App Development" ;
+    ex:hasBudget "300000"^^xsd:decimal ;
+    ex:hasDeadline "2024-08-15"^^xsd:date ;
+    ex:status "Planning" ;
+    ex:hasTeamMember ex:bob, ex:carol .

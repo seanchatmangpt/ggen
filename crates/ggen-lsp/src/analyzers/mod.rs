@@ -7,8 +7,8 @@ pub mod tera_analyzer;
 pub mod toml_analyzer;
 
 use lsp_max::lsp_types_max::{
-    CallHierarchyItem, CodeLens, CompletionResponse, DocumentSymbol, FoldingRange,
-    Hover, InlayHint, Location, Position, Range, SemanticTokens, TextEdit, TypeHierarchyItem,
+    CallHierarchyItem, CodeLens, CompletionResponse, DocumentSymbol, FoldingRange, Hover,
+    InlayHint, Location, Position, Range, SemanticTokens, TextEdit, TypeHierarchyItem,
     WorkspaceEdit,
 };
 use lsp_max_protocol::MaxDiagnostic;
@@ -20,12 +20,11 @@ pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{
-    is_select_star, lexical_clean, pack_001_diagnostics, select_star_diagnostics,
-    strip_tera_vars, unbound_output_path_diagnostics, unbound_projection_diagnostics,
-    unbound_rule_file_diagnostics, yield_001_diagnostics, yield_003_diagnostics,
-    yield_004_diagnostics, yield_005_diagnostics, TeraAnalyzer, GGEN_OUT_001,
-    GGEN_PACK_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001, GGEN_YIELD_001,
-    GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
+    is_select_star, lexical_clean, pack_001_diagnostics, select_star_diagnostics, strip_tera_vars,
+    unbound_output_path_diagnostics, unbound_projection_diagnostics, unbound_rule_file_diagnostics,
+    yield_001_diagnostics, yield_003_diagnostics, yield_004_diagnostics, yield_005_diagnostics,
+    TeraAnalyzer, GGEN_OUT_001, GGEN_PACK_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001,
+    GGEN_YIELD_001, GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
 };
 pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
 
@@ -40,7 +39,10 @@ pub fn detect_harness_001(
     if diags.is_empty() {
         return Vec::new();
     }
-    let max_diags = diags.into_iter().map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Fixture)).collect();
+    let max_diags = diags
+        .into_iter()
+        .map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Fixture))
+        .collect();
     vec![(index.root.join("Cargo.toml"), max_diags)]
 }
 
@@ -70,7 +72,7 @@ pub fn detect_out_001(
     let mut out = Vec::new();
     for entry in &project.rule_entries {
         if entry.selected_vars.is_empty() {
-            continue; 
+            continue;
         }
         let diags = unbound_output_path_diagnostics(&entry.output_file, &entry.selected_vars);
         if !diags.is_empty() {
@@ -142,7 +144,10 @@ pub fn detect_src_002_003_in_dir(
         };
         let diags = do_not_edit_diagnostics(&content);
         if !diags.is_empty() {
-            let max_diags = diags.into_iter().map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Autopoiesis)).collect();
+            let max_diags = diags
+                .into_iter()
+                .map(|d| to_max_diagnostic(d, lsp_max_protocol::LawAxis::Autopoiesis))
+                .collect();
             out.push((path, max_diags));
         }
     }
@@ -161,11 +166,7 @@ pub fn detect_yield_001(
 ) -> Vec<(std::path::PathBuf, Vec<MaxDiagnostic>)> {
     let mut out = Vec::new();
     for entry in &project.rule_entries {
-        let diags = yield_001_diagnostics(
-            &entry.output_file,
-            &entry.manifest_path,
-            &project.root,
-        );
+        let diags = yield_001_diagnostics(&entry.output_file, &entry.manifest_path, &project.root);
         if !diags.is_empty() {
             out.push((entry.manifest_path.clone(), diags));
         }
@@ -197,11 +198,7 @@ pub fn detect_yield_004(
                     .filter(|&r| r != &entry.rule_id)
                     .cloned()
                     .collect();
-                let diags = yield_004_diagnostics(
-                    &entry.rule_id,
-                    &entry.output_file,
-                    &competing,
-                );
+                let diags = yield_004_diagnostics(&entry.rule_id, &entry.output_file, &competing);
                 if !diags.is_empty() {
                     out.push((entry.manifest_path.clone(), diags));
                 }
@@ -286,7 +283,9 @@ pub fn detect_pack_001(
     out
 }
 
-fn to_max_diagnostic(d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::LawAxis) -> lsp_max_protocol::MaxDiagnostic {
+fn to_max_diagnostic(
+    d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::LawAxis,
+) -> lsp_max_protocol::MaxDiagnostic {
     let code_str = match &d.code {
         Some(lsp_max::lsp_types::NumberOrString::String(s)) => s.clone(),
         Some(lsp_max::lsp_types::NumberOrString::Number(n)) => n.to_string(),
@@ -295,11 +294,10 @@ fn to_max_diagnostic(d: lsp_max::lsp_types::Diagnostic, axis: lsp_max_protocol::
     let mut h = blake3::Hasher::new();
     h.update(d.message.as_bytes());
     let id = format!("{}-{:.8}", code_str, h.finalize().to_hex());
-    
-    let lsp_max_diag: lsp_max::lsp_types_max::Diagnostic = serde_json::from_value(
-        serde_json::to_value(d).unwrap()
-    ).unwrap();
-    
+
+    let lsp_max_diag: lsp_max::lsp_types_max::Diagnostic =
+        serde_json::from_value(serde_json::to_value(d).unwrap()).unwrap();
+
     lsp_max_protocol::MaxDiagnostic {
         lsp: lsp_max_diag.clone(),
         diagnostic_id: id,
@@ -471,12 +469,16 @@ impl DocumentAnalyzer {
 
     pub fn document_symbols(&self, range: Option<Range>) -> Vec<DocumentSymbol> {
         match self {
-            Self::Rdf(a) => a.document_symbols(range).into_iter().map(|s| {
-                serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap()
-            }).collect(),
-            Self::Sparql(a) => a.document_symbols(range).into_iter().map(|s| {
-                serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap()
-            }).collect(),
+            Self::Rdf(a) => a
+                .document_symbols(range)
+                .into_iter()
+                .map(|s| serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap())
+                .collect(),
+            Self::Sparql(a) => a
+                .document_symbols(range)
+                .into_iter()
+                .map(|s| serde_json::from_value(serde_json::to_value(s).unwrap()).unwrap())
+                .collect(),
             Self::Tera(a) => a.document_symbols(range),
             Self::Toml(a) => a.document_symbols(range),
         }
@@ -484,12 +486,16 @@ impl DocumentAnalyzer {
 
     pub fn code_lenses(&self) -> Option<Vec<CodeLens>> {
         match self {
-            Self::Rdf(a) => a.code_lenses().map(|v| v.into_iter().map(|l| {
-                serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.code_lenses().map(|v| v.into_iter().map(|l| {
-                serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap()
-            }).collect()),
+            Self::Rdf(a) => a.code_lenses().map(|v| {
+                v.into_iter()
+                    .map(|l| serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap())
+                    .collect()
+            }),
+            Self::Sparql(a) => a.code_lenses().map(|v| {
+                v.into_iter()
+                    .map(|l| serde_json::from_value(serde_json::to_value(l).unwrap()).unwrap())
+                    .collect()
+            }),
             Self::Tera(a) => a.code_lenses(),
             Self::Toml(a) => a.code_lenses(),
         }
@@ -497,12 +503,16 @@ impl DocumentAnalyzer {
 
     pub fn folding_ranges(&self) -> Option<Vec<FoldingRange>> {
         match self {
-            Self::Rdf(a) => a.folding_ranges().map(|v| v.into_iter().map(|r| {
-                serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.folding_ranges().map(|v| v.into_iter().map(|r| {
-                serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap()
-            }).collect()),
+            Self::Rdf(a) => a.folding_ranges().map(|v| {
+                v.into_iter()
+                    .map(|r| serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap())
+                    .collect()
+            }),
+            Self::Sparql(a) => a.folding_ranges().map(|v| {
+                v.into_iter()
+                    .map(|r| serde_json::from_value(serde_json::to_value(r).unwrap()).unwrap())
+                    .collect()
+            }),
             Self::Tera(a) => a.folding_ranges(),
             Self::Toml(a) => a.folding_ranges(),
         }
@@ -510,12 +520,16 @@ impl DocumentAnalyzer {
 
     pub fn format_document(&self) -> Option<Vec<TextEdit>> {
         match self {
-            Self::Rdf(a) => a.format_document().map(|v| v.into_iter().map(|e| {
-                serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap()
-            }).collect()),
-            Self::Sparql(a) => a.format_document().map(|v| v.into_iter().map(|e| {
-                serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap()
-            }).collect()),
+            Self::Rdf(a) => a.format_document().map(|v| {
+                v.into_iter()
+                    .map(|e| serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap())
+                    .collect()
+            }),
+            Self::Sparql(a) => a.format_document().map(|v| {
+                v.into_iter()
+                    .map(|e| serde_json::from_value(serde_json::to_value(e).unwrap()).unwrap())
+                    .collect()
+            }),
             Self::Tera(a) => a.format_document(),
             Self::Toml(a) => a.format_document(),
         }
@@ -523,12 +537,16 @@ impl DocumentAnalyzer {
 
     pub fn inlay_hints(&self, range: Option<Range>) -> Vec<InlayHint> {
         match self {
-            Self::Rdf(a) => a.inlay_hints(range).into_iter().map(|h| {
-                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect(),
-            Self::Sparql(a) => a.inlay_hints(range).into_iter().map(|h| {
-                serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap()
-            }).collect(),
+            Self::Rdf(a) => a
+                .inlay_hints(range)
+                .into_iter()
+                .map(|h| serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap())
+                .collect(),
+            Self::Sparql(a) => a
+                .inlay_hints(range)
+                .into_iter()
+                .map(|h| serde_json::from_value(serde_json::to_value(h).unwrap()).unwrap())
+                .collect(),
             Self::Tera(a) => a.inlay_hints(range),
             Self::Toml(a) => a.inlay_hints(range),
         }

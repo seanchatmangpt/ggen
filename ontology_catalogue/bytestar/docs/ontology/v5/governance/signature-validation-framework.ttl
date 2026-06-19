@@ -1,0 +1,1041 @@
+@prefix svf: <https://bytestar.org/ontology/governance/signature-validation#> .
+@prefix tip: <https://bytestar.org/ontology/governance/tip#> .
+@prefix ba-gov: <https://bytestar.org/ontology/bytestar-governance#> .
+@prefix crypto: <https://w3id.org/security#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# ===================================================================
+# SIGNATURE VALIDATION FRAMEWORK
+# Comprehensive framework for validating 2-of-3 offline quorum signatures
+# ===================================================================
+
+<https://bytestar.org/ontology/governance/signature-validation>
+    a owl:Ontology ;
+    dc:title "TIP Signature Validation Framework" ;
+    dc:description """Comprehensive framework for validating cryptographic signatures 
+                      in the 2-of-3 offline quorum system. Includes signature verification, 
+                      authority validation, threshold checking, and security measures.""" ;
+    dc:creator "ByteStar Cryptographic Governance System" ;
+    dc:created "2025-08-23"^^xsd:date ;
+    dc:version "1.0.0" ;
+    owl:versionIRI <https://bytestar.org/ontology/governance/signature-validation/1.0.0> ;
+    owl:imports <https://bytestar.org/ontology/governance/tip>,
+                <https://w3id.org/security> ;
+    rdfs:seeAlso <https://bytestar.org/docs/signature-validation> .
+
+# ===================================================================
+# 1. CRYPTOGRAPHIC FOUNDATION CLASSES
+# Core cryptographic classes for signature validation
+# ===================================================================
+
+## Signature Algorithm Classes
+
+svf:SignatureAlgorithm a owl:Class ;
+    rdfs:label "Signature Algorithm" ;
+    rdfs:comment "Cryptographic algorithm used for digital signatures." ;
+    rdfs:subClassOf crypto:SignatureAlgorithm .
+
+svf:ECDSAAlgorithm a owl:Class ;
+    rdfs:label "ECDSA Algorithm" ;
+    rdfs:comment "Elliptic Curve Digital Signature Algorithm." ;
+    rdfs:subClassOf svf:SignatureAlgorithm .
+
+svf:Ed25519Algorithm a owl:Class ;
+    rdfs:label "Ed25519 Algorithm" ;
+    rdfs:comment "Edwards-curve Digital Signature Algorithm (Ed25519)." ;
+    rdfs:subClassOf svf:SignatureAlgorithm .
+
+svf:RSAAlgorithm a owl:Class ;
+    rdfs:label "RSA Algorithm" ;
+    rdfs:comment "Rivest-Shamir-Adleman signature algorithm." ;
+    rdfs:subClassOf svf:SignatureAlgorithm .
+
+## Hash Algorithm Classes
+
+svf:HashAlgorithm a owl:Class ;
+    rdfs:label "Hash Algorithm" ;
+    rdfs:comment "Cryptographic hash algorithm used in signature creation." ;
+    rdfs:subClassOf crypto:MessageDigest .
+
+svf:SHA256Algorithm a owl:Class ;
+    rdfs:label "SHA-256 Algorithm" ;
+    rdfs:comment "Secure Hash Algorithm 256-bit." ;
+    rdfs:subClassOf svf:HashAlgorithm .
+
+svf:SHA3Algorithm a owl:Class ;
+    rdfs:label "SHA-3 Algorithm" ;
+    rdfs:comment "Secure Hash Algorithm 3 (Keccak)." ;
+    rdfs:subClassOf svf:HashAlgorithm .
+
+svf:BLAKE3Algorithm a owl:Class ;
+    rdfs:label "BLAKE3 Algorithm" ;
+    rdfs:comment "BLAKE3 cryptographic hash function." ;
+    rdfs:subClassOf svf:HashAlgorithm .
+
+## Key Management Classes
+
+svf:CryptographicKey a owl:Class ;
+    rdfs:label "Cryptographic Key" ;
+    rdfs:comment "Base class for cryptographic keys used in signatures." ;
+    rdfs:subClassOf crypto:Key .
+
+svf:PublicKey a owl:Class ;
+    rdfs:label "Public Key" ;
+    rdfs:comment "Public key for signature verification." ;
+    rdfs:subClassOf svf:CryptographicKey .
+
+svf:PrivateKey a owl:Class ;
+    rdfs:label "Private Key" ;
+    rdfs:comment "Private key for signature creation (should be kept secure)." ;
+    rdfs:subClassOf svf:CryptographicKey .
+
+svf:KeyPair a owl:Class ;
+    rdfs:label "Key Pair" ;
+    rdfs:comment "Asymmetric cryptographic key pair." ;
+    rdfs:subClassOf crypto:KeyPair .
+
+# ===================================================================
+# 2. SIGNATURE VALIDATION INFRASTRUCTURE
+# Classes for signature validation processes and components
+# ===================================================================
+
+## Validation Engine Classes
+
+svf:SignatureValidationEngine a owl:Class ;
+    rdfs:label "Signature Validation Engine" ;
+    rdfs:comment "Primary engine for validating digital signatures." ;
+    rdfs:subClassOf tip:SignatureValidator .
+
+svf:CryptographicValidator a owl:Class ;
+    rdfs:label "Cryptographic Validator" ;
+    rdfs:comment "Validates cryptographic properties of signatures." ;
+    rdfs:subClassOf svf:SignatureValidationEngine .
+
+svf:AuthorityValidator a owl:Class ;
+    rdfs:label "Authority Validator" ;
+    rdfs:comment "Validates signature authority credentials and permissions." ;
+    rdfs:subClassOf svf:SignatureValidationEngine .
+
+svf:TimestampValidator a owl:Class ;
+    rdfs:label "Timestamp Validator" ;
+    rdfs:comment "Validates signature timestamps and time-based constraints." ;
+    rdfs:subClassOf svf:SignatureValidationEngine .
+
+svf:ThresholdValidator a owl:Class ;
+    rdfs:label "Threshold Validator" ;
+    rdfs:comment "Validates that signature thresholds are met (2-of-3)." ;
+    rdfs:subClassOf tip:QuorumValidator .
+
+## Validation Process Classes
+
+svf:ValidationProcess a owl:Class ;
+    rdfs:label "Validation Process" ;
+    rdfs:comment "Complete process for validating a set of signatures." ;
+    rdfs:subClassOf prov:Activity .
+
+svf:IndividualSignatureValidation a owl:Class ;
+    rdfs:label "Individual Signature Validation" ;
+    rdfs:comment "Validation of a single signature." ;
+    rdfs:subClassOf svf:ValidationProcess .
+
+svf:QuorumValidation a owl:Class ;
+    rdfs:label "Quorum Validation" ;
+    rdfs:comment "Validation of complete quorum signature set." ;
+    rdfs:subClassOf svf:ValidationProcess .
+
+svf:CrossSignatureValidation a owl:Class ;
+    rdfs:label "Cross-Signature Validation" ;
+    rdfs:comment "Validation across multiple signatures for consistency." ;
+    rdfs:subClassOf svf:ValidationProcess .
+
+## Validation Result Classes
+
+svf:ValidationResult a owl:Class ;
+    rdfs:label "Validation Result" ;
+    rdfs:comment "Result of signature validation process." ;
+    rdfs:subClassOf tip:SignatureVerificationResult .
+
+svf:ValidationSuccess a owl:Class ;
+    rdfs:label "Validation Success" ;
+    rdfs:comment "Successful signature validation result." ;
+    rdfs:subClassOf svf:ValidationResult .
+
+svf:ValidationFailure a owl:Class ;
+    rdfs:label "Validation Failure" ;
+    rdfs:comment "Failed signature validation result." ;
+    rdfs:subClassOf svf:ValidationResult .
+
+svf:ValidationError a owl:Class ;
+    rdfs:label "Validation Error" ;
+    rdfs:comment "Error encountered during validation process." ;
+    rdfs:subClassOf svf:ValidationResult .
+
+# ===================================================================
+# 3. AUTHORITY MANAGEMENT SYSTEM
+# Classes for managing signing authorities and their credentials
+# ===================================================================
+
+## Authority Registration Classes
+
+svf:AuthorityRegistry a owl:Class ;
+    rdfs:label "Authority Registry" ;
+    rdfs:comment "Registry of authorized signers and their credentials." ;
+    rdfs:subClassOf owl:Thing .
+
+svf:AuthorityCredential a owl:Class ;
+    rdfs:label "Authority Credential" ;
+    rdfs:comment "Credential proving authority to sign governance proposals." ;
+    rdfs:subClassOf crypto:Credential .
+
+svf:AuthorityCertificate a owl:Class ;
+    rdfs:label "Authority Certificate" ;
+    rdfs:comment "Certificate issued to authorized governance signers." ;
+    rdfs:subClassOf tip:GovernanceCertificate .
+
+## Authority Verification Classes
+
+svf:AuthorityVerifier a owl:Class ;
+    rdfs:label "Authority Verifier" ;
+    rdfs:comment "Component that verifies authority credentials and status." ;
+    rdfs:subClassOf svf:AuthorityValidator .
+
+svf:CredentialChecker a owl:Class ;
+    rdfs:label "Credential Checker" ;
+    rdfs:comment "Checks validity of authority credentials." ;
+    rdfs:subClassOf svf:AuthorityVerifier .
+
+svf:RevocationChecker a owl:Class ;
+    rdfs:label "Revocation Checker" ;
+    rdfs:comment "Checks if authority credentials have been revoked." ;
+    rdfs:subClassOf svf:AuthorityVerifier .
+
+svf:ExpirationChecker a owl:Class ;
+    rdfs:label "Expiration Checker" ;
+    rdfs:comment "Checks if authority credentials have expired." ;
+    rdfs:subClassOf svf:AuthorityVerifier .
+
+## Authority Status Classes
+
+svf:AuthorityStatus a owl:Class ;
+    rdfs:label "Authority Status" ;
+    rdfs:comment "Current status of a signing authority." ;
+    rdfs:subClassOf owl:Thing .
+
+svf:ActiveAuthority a owl:Class ;
+    rdfs:label "Active Authority" ;
+    rdfs:comment "Authority with active signing privileges." ;
+    rdfs:subClassOf svf:AuthorityStatus .
+
+svf:SuspendedAuthority a owl:Class ;
+    rdfs:label "Suspended Authority" ;
+    rdfs:comment "Authority with temporarily suspended signing privileges." ;
+    rdfs:subClassOf svf:AuthorityStatus .
+
+svf:RevokedAuthority a owl:Class ;
+    rdfs:label "Revoked Authority" ;
+    rdfs:comment "Authority with permanently revoked signing privileges." ;
+    rdfs:subClassOf svf:AuthorityStatus .
+
+svf:ExpiredAuthority a owl:Class ;
+    rdfs:label "Expired Authority" ;
+    rdfs:comment "Authority with expired signing privileges." ;
+    rdfs:subClassOf svf:AuthorityStatus .
+
+# ===================================================================
+# 4. OFFLINE SIGNATURE MANAGEMENT
+# Classes for managing offline signature creation and storage
+# ===================================================================
+
+## Offline Signature Classes
+
+svf:OfflineSignatureSystem a owl:Class ;
+    rdfs:label "Offline Signature System" ;
+    rdfs:comment "System for creating and managing offline signatures." ;
+    rdfs:subClassOf owl:Thing .
+
+svf:AirGappedSigner a owl:Class ;
+    rdfs:label "Air-Gapped Signer" ;
+    rdfs:comment "Offline signing device with air-gap security." ;
+    rdfs:subClassOf svf:OfflineSignatureSystem .
+
+svf:HardwareSecurityModule a owl:Class ;
+    rdfs:label "Hardware Security Module" ;
+    rdfs:comment "Hardware device for secure key storage and signing." ;
+    rdfs:subClassOf svf:OfflineSignatureSystem .
+
+svf:ColdStorage a owl:Class ;
+    rdfs:label "Cold Storage" ;
+    rdfs:comment "Offline storage system for private keys." ;
+    rdfs:subClassOf svf:OfflineSignatureSystem .
+
+## Signature Transport Classes
+
+svf:SignatureTransport a owl:Class ;
+    rdfs:label "Signature Transport" ;
+    rdfs:comment "Mechanism for transporting signatures from offline to online systems." ;
+    rdfs:subClassOf owl:Thing .
+
+svf:QRCodeTransport a owl:Class ;
+    rdfs:label "QR Code Transport" ;
+    rdfs:comment "Transport using QR codes for air-gap crossing." ;
+    rdfs:subClassOf svf:SignatureTransport .
+
+svf:USBTransport a owl:Class ;
+    rdfs:label "USB Transport" ;
+    rdfs:comment "Transport using USB devices (with security measures)." ;
+    rdfs:subClassOf svf:SignatureTransport .
+
+svf:NetworkTransport a owl:Class ;
+    rdfs:label "Network Transport" ;
+    rdfs:comment "Network-based transport with encryption." ;
+    rdfs:subClassOf svf:SignatureTransport .
+
+## Signature Storage Classes
+
+svf:SignatureStorage a owl:Class ;
+    rdfs:label "Signature Storage" ;
+    rdfs:comment "Secure storage system for signatures." ;
+    rdfs:subClassOf owl:Thing .
+
+svf:EncryptedStorage a owl:Class ;
+    rdfs:label "Encrypted Storage" ;
+    rdfs:comment "Storage with encryption at rest." ;
+    rdfs:subClassOf svf:SignatureStorage .
+
+svf:DistributedStorage a owl:Class ;
+    rdfs:label "Distributed Storage" ;
+    rdfs:comment "Distributed storage across multiple nodes." ;
+    rdfs:subClassOf svf:SignatureStorage .
+
+svf:ImmutableStorage a owl:Class ;
+    rdfs:label "Immutable Storage" ;
+    rdfs:comment "Write-once storage preventing tampering." ;
+    rdfs:subClassOf svf:SignatureStorage .
+
+# ===================================================================
+# 5. THRESHOLD SIGNATURE SYSTEM
+# Classes for implementing 2-of-3 threshold signatures
+# ===================================================================
+
+## Threshold Signature Classes
+
+svf:ThresholdSignatureScheme a owl:Class ;
+    rdfs:label "Threshold Signature Scheme" ;
+    rdfs:comment "Cryptographic scheme for threshold signatures." ;
+    rdfs:subClassOf tip:ThresholdSignature .
+
+svf:ShamirSecretSharing a owl:Class ;
+    rdfs:label "Shamir Secret Sharing" ;
+    rdfs:comment "Secret sharing scheme for threshold cryptography." ;
+    rdfs:subClassOf svf:ThresholdSignatureScheme .
+
+svf:BonehLynnShacham a owl:Class ;
+    rdfs:label "Boneh-Lynn-Shacham" ;
+    rdfs:comment "BLS threshold signature scheme." ;
+    rdfs:subClassOf svf:ThresholdSignatureScheme .
+
+svf:SchnorrThreshold a owl:Class ;
+    rdfs:label "Schnorr Threshold" ;
+    rdfs:comment "Threshold Schnorr signature scheme." ;
+    rdfs:subClassOf svf:ThresholdSignatureScheme .
+
+## Threshold Components
+
+svf:SecretShare a owl:Class ;
+    rdfs:label "Secret Share" ;
+    rdfs:comment "Share of secret used in threshold signature." ;
+    rdfs:subClassOf crypto:Secret .
+
+svf:PartialSignature a owl:Class ;
+    rdfs:label "Partial Signature" ;
+    rdfs:comment "Individual signature component in threshold scheme." ;
+    rdfs:subClassOf crypto:Signature .
+
+svf:CombinedSignature a owl:Class ;
+    rdfs:label "Combined Signature" ;
+    rdfs:comment "Final signature created by combining partial signatures." ;
+    rdfs:subClassOf tip:MultiSignature .
+
+## Threshold Operations
+
+svf:ShareGeneration a owl:Class ;
+    rdfs:label "Share Generation" ;
+    rdfs:comment "Process of generating secret shares for authorities." ;
+    rdfs:subClassOf prov:Activity .
+
+svf:PartialSigning a owl:Class ;
+    rdfs:label "Partial Signing" ;
+    rdfs:comment "Process of creating partial signatures using shares." ;
+    rdfs:subClassOf prov:Activity .
+
+svf:SignatureCombination a owl:Class ;
+    rdfs:label "Signature Combination" ;
+    rdfs:comment "Process of combining partial signatures into final signature." ;
+    rdfs:subClassOf prov:Activity .
+
+# ===================================================================
+# 6. VALIDATION WORKFLOW CLASSES
+# Classes for orchestrating signature validation workflows
+# ===================================================================
+
+## Workflow Orchestration
+
+svf:ValidationWorkflow a owl:Class ;
+    rdfs:label "Validation Workflow" ;
+    rdfs:comment "Orchestrated workflow for signature validation." ;
+    rdfs:subClassOf prov:Activity .
+
+svf:ParallelValidationWorkflow a owl:Class ;
+    rdfs:label "Parallel Validation Workflow" ;
+    rdfs:comment "Workflow validating signatures in parallel." ;
+    rdfs:subClassOf svf:ValidationWorkflow .
+
+svf:SequentialValidationWorkflow a owl:Class ;
+    rdfs:label "Sequential Validation Workflow" ;
+    rdfs:comment "Workflow validating signatures sequentially." ;
+    rdfs:subClassOf svf:ValidationWorkflow .
+
+## Validation Steps
+
+svf:ValidationStep a owl:Class ;
+    rdfs:label "Validation Step" ;
+    rdfs:comment "Individual step in validation workflow." ;
+    rdfs:subClassOf prov:Activity .
+
+svf:FormatValidationStep a owl:Class ;
+    rdfs:label "Format Validation Step" ;
+    rdfs:comment "Validates signature format and structure." ;
+    rdfs:subClassOf svf:ValidationStep .
+
+svf:CryptographicValidationStep a owl:Class ;
+    rdfs:label "Cryptographic Validation Step" ;
+    rdfs:comment "Validates cryptographic properties of signature." ;
+    rdfs:subClassOf svf:ValidationStep .
+
+svf:AuthorityValidationStep a owl:Class ;
+    rdfs:label "Authority Validation Step" ;
+    rdfs:comment "Validates authority credentials and permissions." ;
+    rdfs:subClassOf svf:ValidationStep .
+
+svf:TimestampValidationStep a owl:Class ;
+    rdfs:label "Timestamp Validation Step" ;
+    rdfs:comment "Validates signature timestamps." ;
+    rdfs:subClassOf svf:ValidationStep .
+
+svf:QuorumValidationStep a owl:Class ;
+    rdfs:label "Quorum Validation Step" ;
+    rdfs:comment "Validates that quorum requirements are met." ;
+    rdfs:subClassOf svf:ValidationStep .
+
+# ===================================================================
+# 7. SECURITY MEASURES AND CONTROLS
+# Classes for security measures and threat mitigation
+# ===================================================================
+
+## Security Control Classes
+
+svf:SecurityControl a owl:Class ;
+    rdfs:label "Security Control" ;
+    rdfs:comment "Security measure for protecting signature validation." ;
+    rdfs:subClassOf owl:Thing .
+
+svf:AccessControl a owl:Class ;
+    rdfs:label "Access Control" ;
+    rdfs:comment "Controls access to signing capabilities." ;
+    rdfs:subClassOf svf:SecurityControl .
+
+svf:MultiFactorAuthentication a owl:Class ;
+    rdfs:label "Multi-Factor Authentication" ;
+    rdfs:comment "Requires multiple authentication factors." ;
+    rdfs:subClassOf svf:AccessControl .
+
+svf:RoleBasedAccessControl a owl:Class ;
+    rdfs:label "Role-Based Access Control" ;
+    rdfs:comment "Access control based on user roles." ;
+    rdfs:subClassOf svf:AccessControl .
+
+## Threat Detection Classes
+
+svf:ThreatDetector a owl:Class ;
+    rdfs:label "Threat Detector" ;
+    rdfs:comment "System for detecting security threats." ;
+    rdfs:subClassOf svf:SecurityControl .
+
+svf:ReplayAttackDetector a owl:Class ;
+    rdfs:label "Replay Attack Detector" ;
+    rdfs:comment "Detects replay attacks on signatures." ;
+    rdfs:subClassOf svf:ThreatDetector .
+
+svf:ForgeryDetector a owl:Class ;
+    rdfs:label "Forgery Detector" ;
+    rdfs:comment "Detects signature forgery attempts." ;
+    rdfs:subClassOf svf:ThreatDetector .
+
+svf:TimingAttackDetector a owl:Class ;
+    rdfs:label "Timing Attack Detector" ;
+    rdfs:comment "Detects timing-based attacks." ;
+    rdfs:subClassOf svf:ThreatDetector .
+
+## Security Audit Classes
+
+svf:SecurityAudit a owl:Class ;
+    rdfs:label "Security Audit" ;
+    rdfs:comment "Audit of security measures and processes." ;
+    rdfs:subClassOf prov:Activity .
+
+svf:ValidationAudit a owl:Class ;
+    rdfs:label "Validation Audit" ;
+    rdfs:comment "Audit of validation processes and results." ;
+    rdfs:subClassOf svf:SecurityAudit .
+
+svf:AccessAudit a owl:Class ;
+    rdfs:label "Access Audit" ;
+    rdfs:comment "Audit of access control and authentication." ;
+    rdfs:subClassOf svf:SecurityAudit .
+
+svf:CryptographicAudit a owl:Class ;
+    rdfs:label "Cryptographic Audit" ;
+    rdfs:comment "Audit of cryptographic implementations." ;
+    rdfs:subClassOf svf:SecurityAudit .
+
+# ===================================================================
+# 8. PROPERTIES - SIGNATURE VALIDATION RELATIONSHIPS
+# Object and data properties for signature validation
+# ===================================================================
+
+## Signature Properties
+
+svf:usesAlgorithm a owl:ObjectProperty ;
+    rdfs:label "uses algorithm" ;
+    rdfs:comment "Specifies signature algorithm used." ;
+    rdfs:domain tip:QuorumSignature ;
+    rdfs:range svf:SignatureAlgorithm .
+
+svf:usesHashAlgorithm a owl:ObjectProperty ;
+    rdfs:label "uses hash algorithm" ;
+    rdfs:comment "Specifies hash algorithm used in signature." ;
+    rdfs:domain tip:QuorumSignature ;
+    rdfs:range svf:HashAlgorithm .
+
+svf:hasPublicKey a owl:ObjectProperty ;
+    rdfs:label "has public key" ;
+    rdfs:comment "Associates authority with their public key." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:PublicKey .
+
+svf:hasKeyPair a owl:ObjectProperty ;
+    rdfs:label "has key pair" ;
+    rdfs:comment "Associates authority with their key pair." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:KeyPair .
+
+## Validation Properties
+
+svf:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by" ;
+    rdfs:comment "Specifies validator that validated the signature." ;
+    rdfs:domain tip:QuorumSignature ;
+    rdfs:range svf:SignatureValidationEngine .
+
+svf:hasValidationResult a owl:ObjectProperty ;
+    rdfs:label "has validation result" ;
+    rdfs:comment "Associates signature with validation result." ;
+    rdfs:domain tip:QuorumSignature ;
+    rdfs:range svf:ValidationResult .
+
+svf:validationPerformedBy a owl:ObjectProperty ;
+    rdfs:label "validation performed by" ;
+    rdfs:comment "Identifies who performed the validation." ;
+    rdfs:domain svf:ValidationProcess ;
+    rdfs:range foaf:Agent .
+
+## Authority Properties
+
+svf:registeredIn a owl:ObjectProperty ;
+    rdfs:label "registered in" ;
+    rdfs:comment "Specifies registry where authority is registered." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:AuthorityRegistry .
+
+svf:hasCredential a owl:ObjectProperty ;
+    rdfs:label "has credential" ;
+    rdfs:comment "Associates authority with their credentials." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:AuthorityCredential .
+
+svf:hasCertificate a owl:ObjectProperty ;
+    rdfs:label "has certificate" ;
+    rdfs:comment "Associates authority with their certificate." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:AuthorityCertificate .
+
+svf:hasStatus a owl:ObjectProperty ;
+    rdfs:label "has status" ;
+    rdfs:comment "Specifies current status of signing authority." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:AuthorityStatus .
+
+## Threshold Properties
+
+svf:hasSecretShare a owl:ObjectProperty ;
+    rdfs:label "has secret share" ;
+    rdfs:comment "Associates authority with their secret share." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range svf:SecretShare .
+
+svf:hasPartialSignature a owl:ObjectProperty ;
+    rdfs:label "has partial signature" ;
+    rdfs:comment "Associates share with its partial signature." ;
+    rdfs:domain svf:SecretShare ;
+    rdfs:range svf:PartialSignature .
+
+svf:combinedInto a owl:ObjectProperty ;
+    rdfs:label "combined into" ;
+    rdfs:comment "Specifies final signature that partial signatures combine into." ;
+    rdfs:domain svf:PartialSignature ;
+    rdfs:range svf:CombinedSignature .
+
+## Security Properties
+
+svf:protectedBy a owl:ObjectProperty ;
+    rdfs:label "protected by" ;
+    rdfs:comment "Specifies security controls protecting the system." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range svf:SecurityControl .
+
+svf:auditedBy a owl:ObjectProperty ;
+    rdfs:label "audited by" ;
+    rdfs:comment "Specifies security audit performed on system." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range svf:SecurityAudit .
+
+svf:detectedBy a owl:ObjectProperty ;
+    rdfs:label "detected by" ;
+    rdfs:comment "Specifies threat detector that identified an issue." ;
+    rdfs:domain svf:ValidationResult ;
+    rdfs:range svf:ThreatDetector .
+
+# ===================================================================
+# 9. DATA PROPERTIES - SIGNATURE METADATA AND METRICS
+# Data properties for signature validation metadata
+# ===================================================================
+
+## Signature Data Properties
+
+svf:signatureValue a owl:DatatypeProperty ;
+    rdfs:label "signature value" ;
+    rdfs:comment "Binary value of the cryptographic signature." ;
+    rdfs:domain tip:QuorumSignature ;
+    rdfs:range xsd:hexBinary .
+
+svf:signatureFormat a owl:DatatypeProperty ;
+    rdfs:label "signature format" ;
+    rdfs:comment "Format specification for the signature (e.g., ASN.1, raw)." ;
+    rdfs:domain tip:QuorumSignature ;
+    rdfs:range xsd:string .
+
+svf:keySize a owl:DatatypeProperty ;
+    rdfs:label "key size" ;
+    rdfs:comment "Size of cryptographic key in bits." ;
+    rdfs:domain svf:CryptographicKey ;
+    rdfs:range xsd:positiveInteger .
+
+svf:curve a owl:DatatypeProperty ;
+    rdfs:label "curve" ;
+    rdfs:comment "Elliptic curve used for ECDSA keys." ;
+    rdfs:domain svf:PublicKey ;
+    rdfs:range xsd:string .
+
+## Validation Data Properties
+
+svf:validationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "validation timestamp" ;
+    rdfs:comment "Timestamp when validation was performed." ;
+    rdfs:domain svf:ValidationProcess ;
+    rdfs:range xsd:dateTime .
+
+svf:validationDuration a owl:DatatypeProperty ;
+    rdfs:label "validation duration" ;
+    rdfs:comment "Time taken to complete validation." ;
+    rdfs:domain svf:ValidationProcess ;
+    rdfs:range xsd:duration .
+
+svf:isValid a owl:DatatypeProperty ;
+    rdfs:label "is valid" ;
+    rdfs:comment "Boolean indicating if signature is valid." ;
+    rdfs:domain svf:ValidationResult ;
+    rdfs:range xsd:boolean .
+
+svf:validationScore a owl:DatatypeProperty ;
+    rdfs:label "validation score" ;
+    rdfs:comment "Confidence score for validation result (0-1)." ;
+    rdfs:domain svf:ValidationResult ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:decimal ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                    [ xsd:maxInclusive "1.0"^^xsd:decimal ]
+                ) ] .
+
+svf:errorCode a owl:DatatypeProperty ;
+    rdfs:label "error code" ;
+    rdfs:comment "Error code for validation failures." ;
+    rdfs:domain svf:ValidationError ;
+    rdfs:range xsd:string .
+
+svf:errorMessage a owl:DatatypeProperty ;
+    rdfs:label "error message" ;
+    rdfs:comment "Human-readable error message." ;
+    rdfs:domain svf:ValidationError ;
+    rdfs:range xsd:string .
+
+## Authority Data Properties
+
+svf:authorityLevel a owl:DatatypeProperty ;
+    rdfs:label "authority level" ;
+    rdfs:comment "Level of authority for signing (1-10)." ;
+    rdfs:domain tip:SigningAuthority ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 10 ]
+                ) ] .
+
+svf:credentialExpiryDate a owl:DatatypeProperty ;
+    rdfs:label "credential expiry date" ;
+    rdfs:comment "Date when authority credentials expire." ;
+    rdfs:domain svf:AuthorityCredential ;
+    rdfs:range xsd:dateTime .
+
+svf:revocationDate a owl:DatatypeProperty ;
+    rdfs:label "revocation date" ;
+    rdfs:comment "Date when authority was revoked." ;
+    rdfs:domain svf:RevokedAuthority ;
+    rdfs:range xsd:dateTime .
+
+svf:suspensionReason a owl:DatatypeProperty ;
+    rdfs:label "suspension reason" ;
+    rdfs:comment "Reason for authority suspension." ;
+    rdfs:domain svf:SuspendedAuthority ;
+    rdfs:range xsd:string .
+
+## Threshold Data Properties
+
+svf:threshold a owl:DatatypeProperty ;
+    rdfs:label "threshold" ;
+    rdfs:comment "Minimum number of signatures required." ;
+    rdfs:domain svf:ThresholdSignatureScheme ;
+    rdfs:range xsd:positiveInteger .
+
+svf:totalShares a owl:DatatypeProperty ;
+    rdfs:label "total shares" ;
+    rdfs:comment "Total number of secret shares." ;
+    rdfs:domain svf:ThresholdSignatureScheme ;
+    rdfs:range xsd:positiveInteger .
+
+svf:shareIndex a owl:DatatypeProperty ;
+    rdfs:label "share index" ;
+    rdfs:comment "Index of secret share in threshold scheme." ;
+    rdfs:domain svf:SecretShare ;
+    rdfs:range xsd:positiveInteger .
+
+svf:shareValue a owl:DatatypeProperty ;
+    rdfs:label "share value" ;
+    rdfs:comment "Value of secret share (should be kept secure)." ;
+    rdfs:domain svf:SecretShare ;
+    rdfs:range xsd:hexBinary .
+
+## Security Data Properties
+
+svf:securityLevel a owl:DatatypeProperty ;
+    rdfs:label "security level" ;
+    rdfs:comment "Security level classification (1-5)." ;
+    rdfs:domain svf:SecurityControl ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 5 ]
+                ) ] .
+
+svf:threatLevel a owl:DatatypeProperty ;
+    rdfs:label "threat level" ;
+    rdfs:comment "Assessed threat level (1-5)." ;
+    rdfs:domain svf:ThreatDetector ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:integer ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive 1 ]
+                    [ xsd:maxInclusive 5 ]
+                ) ] .
+
+svf:auditScore a owl:DatatypeProperty ;
+    rdfs:label "audit score" ;
+    rdfs:comment "Score from security audit (0-100)." ;
+    rdfs:domain svf:SecurityAudit ;
+    rdfs:range [ a rdfs:Datatype ;
+                owl:onDatatype xsd:decimal ;
+                owl:withRestrictions (
+                    [ xsd:minInclusive "0.0"^^xsd:decimal ]
+                    [ xsd:maxInclusive "100.0"^^xsd:decimal ]
+                ) ] .
+
+# ===================================================================
+# 10. SHACL VALIDATION SHAPES
+# Validation constraints for signature validation framework
+# ===================================================================
+
+## Signature Validation Shape
+
+svf:QuorumSignatureValidationShape a sh:NodeShape ;
+    sh:targetClass tip:QuorumSignature ;
+    sh:property [
+        sh:path svf:signatureValue ;
+        sh:datatype xsd:hexBinary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 128 ;
+        sh:message "Signature must have valid binary signature value" ;
+    ] ;
+    sh:property [
+        sh:path svf:usesAlgorithm ;
+        sh:class svf:SignatureAlgorithm ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Signature must specify exactly one algorithm" ;
+    ] ;
+    sh:property [
+        sh:path svf:hasValidationResult ;
+        sh:class svf:ValidationResult ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Signature must have exactly one validation result" ;
+    ] .
+
+## Authority Validation Shape
+
+svf:SigningAuthorityValidationShape a sh:NodeShape ;
+    sh:targetClass tip:SigningAuthority ;
+    sh:property [
+        sh:path svf:hasPublicKey ;
+        sh:class svf:PublicKey ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Authority must have exactly one public key" ;
+    ] ;
+    sh:property [
+        sh:path svf:hasCredential ;
+        sh:class svf:AuthorityCredential ;
+        sh:minCount 1 ;
+        sh:message "Authority must have at least one credential" ;
+    ] ;
+    sh:property [
+        sh:path svf:hasStatus ;
+        sh:class svf:AuthorityStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Authority must have exactly one status" ;
+    ] ;
+    sh:property [
+        sh:path svf:authorityLevel ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Authority level must be between 1 and 10" ;
+    ] .
+
+## Validation Result Shape
+
+svf:ValidationResultShape a sh:NodeShape ;
+    sh:targetClass svf:ValidationResult ;
+    sh:property [
+        sh:path svf:validationTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Validation result must have exactly one timestamp" ;
+    ] ;
+    sh:property [
+        sh:path svf:isValid ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Validation result must specify validity" ;
+    ] ;
+    sh:property [
+        sh:path svf:validationScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Validation score must be between 0.0 and 1.0" ;
+    ] .
+
+## Threshold Configuration Shape
+
+svf:ThresholdSignatureSchemeShape a sh:NodeShape ;
+    sh:targetClass svf:ThresholdSignatureScheme ;
+    sh:property [
+        sh:path svf:threshold ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue 2 ;
+        sh:message "Threshold must be exactly 2" ;
+    ] ;
+    sh:property [
+        sh:path svf:totalShares ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue 3 ;
+        sh:message "Total shares must be exactly 3" ;
+    ] .
+
+# ===================================================================
+# 11. COMPLEX SPARQL CONSTRAINTS
+# Advanced validation rules using SPARQL
+# ===================================================================
+
+## Authority Status Consistency
+
+svf:AuthorityStatusConsistencyConstraint a sh:NodeShape ;
+    sh:targetClass tip:SigningAuthority ;
+    sh:sparql [
+        sh:message "Revoked or expired authorities cannot have active signatures" ;
+        sh:prefixes svf: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this svf:hasStatus ?status .
+                ?status a ?statusType .
+                FILTER (?statusType IN (svf:RevokedAuthority, svf:ExpiredAuthority))
+                
+                ?signature tip:signedBy $this ;
+                           tip:signatureTimestamp ?sigTime .
+                
+                OPTIONAL { ?status svf:revocationDate ?revTime }
+                OPTIONAL { ?cred svf:credentialExpiryDate ?expTime }
+                
+                FILTER (
+                    (?statusType = svf:RevokedAuthority && ?sigTime > ?revTime) ||
+                    (?statusType = svf:ExpiredAuthority && ?sigTime > ?expTime)
+                )
+            }
+        """ ;
+    ] .
+
+## Signature Timestamp Validity
+
+svf:SignatureTimestampValidityConstraint a sh:NodeShape ;
+    sh:targetClass tip:QuorumSignature ;
+    sh:sparql [
+        sh:message "Signature timestamp must be within authority credential validity period" ;
+        sh:prefixes svf: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this tip:signedBy ?authority ;
+                      tip:signatureTimestamp ?sigTime .
+                
+                ?authority svf:hasCredential ?cred .
+                ?cred svf:credentialExpiryDate ?expTime .
+                
+                FILTER (?sigTime > ?expTime)
+            }
+        """ ;
+    ] .
+
+## Quorum Threshold Validation
+
+svf:QuorumThresholdConstraint a sh:NodeShape ;
+    sh:targetClass tip:TypeIntroductionProposal ;
+    sh:sparql [
+        sh:message "TIP must have at least 2 valid signatures from different authorities" ;
+        sh:prefixes svf:, tip: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this tip:hasQuorumSignature ?sig1, ?sig2 .
+                ?sig1 tip:signedBy ?auth1 ;
+                      svf:hasValidationResult ?result1 .
+                ?sig2 tip:signedBy ?auth2 ;
+                      svf:hasValidationResult ?result2 .
+                
+                ?result1 svf:isValid true .
+                ?result2 svf:isValid true .
+                
+                FILTER (?sig1 != ?sig2 && ?auth1 != ?auth2)
+            }
+            HAVING (COUNT(DISTINCT ?sig1) < 2)
+        """ ;
+    ] .
+
+# ===================================================================
+# 12. CONCRETE INSTANCES
+# Example instances of signature validation components
+# ===================================================================
+
+## Algorithm Instances
+
+svf:StandardECDSA a svf:ECDSAAlgorithm ;
+    rdfs:label "Standard ECDSA with P-256" ;
+    rdfs:comment "Standard ECDSA using NIST P-256 curve" ;
+    svf:curve "secp256r1" .
+
+svf:StandardEd25519 a svf:Ed25519Algorithm ;
+    rdfs:label "Standard Ed25519" ;
+    rdfs:comment "Edwards-curve Digital Signature Algorithm Ed25519" ;
+    svf:keySize 256 .
+
+svf:StandardSHA256 a svf:SHA256Algorithm ;
+    rdfs:label "Standard SHA-256" ;
+    rdfs:comment "SHA-256 cryptographic hash function" .
+
+## Validation Engine Instance
+
+svf:MainValidationEngine a svf:SignatureValidationEngine ;
+    rdfs:label "Main Signature Validation Engine" ;
+    rdfs:comment "Primary engine for validating TIP signatures" ;
+    svf:protectedBy svf:MultiFactorAuth,
+                    svf:RoleBasedAccess .
+
+## Authority Registry Instance
+
+svf:TIPAuthorityRegistry a svf:AuthorityRegistry ;
+    rdfs:label "TIP Authority Registry" ;
+    rdfs:comment "Central registry for TIP signing authorities" ;
+    svf:securityLevel 5 .
+
+## Security Control Instances
+
+svf:MultiFactorAuth a svf:MultiFactorAuthentication ;
+    rdfs:label "Multi-Factor Authentication" ;
+    rdfs:comment "Requires multiple authentication factors for access" ;
+    svf:securityLevel 4 .
+
+svf:RoleBasedAccess a svf:RoleBasedAccessControl ;
+    rdfs:label "Role-Based Access Control" ;
+    rdfs:comment "Restricts access based on governance roles" ;
+    svf:securityLevel 3 .
+
+## Threshold Scheme Instance
+
+svf:Standard2of3Threshold a svf:ThresholdSignatureScheme ;
+    rdfs:label "Standard 2-of-3 Threshold Scheme" ;
+    rdfs:comment "Standard threshold signature scheme requiring 2 of 3 signatures" ;
+    svf:threshold 2 ;
+    svf:totalShares 3 .
+
+# ===================================================================
+# END OF SIGNATURE VALIDATION FRAMEWORK ONTOLOGY
+# ===================================================================

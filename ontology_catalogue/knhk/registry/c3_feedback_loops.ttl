@@ -1,0 +1,7 @@
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+knhk:C3_FeedbackLoopsMachineSpeed a owl:Class ;
+    rdfs:label "C3 — Feedback Loops at Machine Speed" ;
+    rdfs:comment "MAPE-K (Monitor, Analyze, Plan, Execute, Knowledge) feedback runs autonomically. No human-in-the-loop in the hot path." .

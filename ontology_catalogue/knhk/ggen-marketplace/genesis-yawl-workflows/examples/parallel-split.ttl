@@ -1,0 +1,142 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Parallel Split Pattern (Synchronizing)
+# After split task, multiple tasks execute in parallel
+# After all complete, join task executes
+# YAWL Pattern: Parallel Split + Synchronization
+
+<http://example.org/workflow/parallel-split> a yawl:WorkflowSpecification ;
+    rdfs:label "Parallel Split Workflow" ;
+    rdfs:comment "Multiple tasks executed in parallel, then synchronized" ;
+    dcterms:created "2024-11-16T00:00:00Z"^^xsd:dateTime ;
+    yawl:hasStartCondition <http://example.org/cond/start> ;
+    yawl:hasEndCondition <http://example.org/cond/end> ;
+    yawl:hasTask <http://example.org/task/start>,
+                  <http://example.org/task/task-a>,
+                  <http://example.org/task/task-b>,
+                  <http://example.org/task/task-c>,
+                  <http://example.org/task/join> ;
+    yawl:hasCondition <http://example.org/cond/start>,
+                      <http://example.org/cond/split-output>,
+                      <http://example.org/cond/path-a>,
+                      <http://example.org/cond/path-b>,
+                      <http://example.org/cond/path-c>,
+                      <http://example.org/cond/sync-input>,
+                      <http://example.org/cond/end> .
+
+# === START TASK ===
+
+<http://example.org/task/start> a yawl:Task ;
+    rdfs:label "Start" ;
+    rdfs:comment "Initial task" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasOutgoingFlow <http://example.org/cond/split-output> .
+
+# === PARALLEL SPLIT TASK ===
+
+<http://example.org/task/split-task> a yawl:Task ;
+    rdfs:label "Split Task" ;
+    rdfs:comment "Task that creates parallel paths (OR split)" ;
+    yawl:hasSplitType yawl:OR ;  # OR split creates parallel execution
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/split-output> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/path-a>,
+                         <http://example.org/cond/path-b>,
+                         <http://example.org/cond/path-c> .
+
+# === PARALLEL EXECUTION TASKS ===
+
+<http://example.org/task/task-a> a yawl:Task ;
+    rdfs:label "Parallel Task A" ;
+    rdfs:comment "Executes in parallel with Task B and C" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/path-a> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/sync-input> .
+
+<http://example.org/task/task-b> a yawl:Task ;
+    rdfs:label "Parallel Task B" ;
+    rdfs:comment "Executes in parallel with Task A and C" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/path-b> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/sync-input> .
+
+<http://example.org/task/task-c> a yawl:Task ;
+    rdfs:label "Parallel Task C" ;
+    rdfs:comment "Executes in parallel with Task A and B" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:hasIncomingFlow <http://example.org/cond/path-c> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/sync-input> .
+
+# === SYNCHRONIZATION (JOIN) TASK ===
+
+<http://example.org/task/join> a yawl:Task ;
+    rdfs:label "Join Task" ;
+    rdfs:comment "Synchronizes completion of parallel tasks (AND join)" ;
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:AND ;  # AND join waits for all inputs
+    yawl:hasIncomingFlow <http://example.org/cond/sync-input> ;
+    yawl:hasOutgoingFlow <http://example.org/cond/end> .
+
+# === CONDITIONS (Places) ===
+
+<http://example.org/cond/start> a yawl:StartCondition ;
+    rdfs:label "Start" ;
+    yawl:hasOutgoingFlow <http://example.org/task/start> ;
+    yawl:initialMarking 1 .
+
+<http://example.org/cond/split-output> a yawl:Condition ;
+    rdfs:label "Split Output" ;
+    rdfs:comment "Output from start task before split" ;
+    yawl:hasIncomingFlow <http://example.org/task/start> ;
+    yawl:hasOutgoingFlow <http://example.org/task/split-task> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/path-a> a yawl:Condition ;
+    rdfs:label "Path A" ;
+    rdfs:comment "Path to parallel task A" ;
+    yawl:hasIncomingFlow <http://example.org/task/split-task> ;
+    yawl:hasOutgoingFlow <http://example.org/task/task-a> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/path-b> a yawl:Condition ;
+    rdfs:label "Path B" ;
+    rdfs:comment "Path to parallel task B" ;
+    yawl:hasIncomingFlow <http://example.org/task/split-task> ;
+    yawl:hasOutgoingFlow <http://example.org/task/task-b> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/path-c> a yawl:Condition ;
+    rdfs:label "Path C" ;
+    rdfs:comment "Path to parallel task C" ;
+    yawl:hasIncomingFlow <http://example.org/task/split-task> ;
+    yawl:hasOutgoingFlow <http://example.org/task/task-c> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/sync-input> a yawl:Condition ;
+    rdfs:label "Synchronization Input" ;
+    rdfs:comment "Collects tokens from all parallel paths for join" ;
+    yawl:hasIncomingFlow <http://example.org/task/task-a>,
+                         <http://example.org/task/task-b>,
+                         <http://example.org/task/task-c> ;
+    yawl:hasOutgoingFlow <http://example.org/task/join> ;
+    yawl:initialMarking 0 .
+
+<http://example.org/cond/end> a yawl:EndCondition ;
+    rdfs:label "End" ;
+    yawl:hasIncomingFlow <http://example.org/task/join> ;
+    yawl:initialMarking 0 .
+
+# === PATTERN METADATA ===
+
+<http://example.org/workflow/parallel-split> yawl:patternName "ParallelSplit" ;
+    yawl:patternCategory "ControlFlow" ;
+    yawl:complexity "MEDIUM" ;
+    yawl:estimatedDuration "PT2H"^^xsd:duration ;
+    yawl:description "Demonstrates parallel task execution with AND split and AND join synchronization" .

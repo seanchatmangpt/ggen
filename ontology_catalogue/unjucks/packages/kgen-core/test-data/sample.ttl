@@ -1,0 +1,54 @@
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Sample KGEN knowledge graph with provenance
+<https://kgen.io/artifact/sample-001> a kgen:Artifact ;
+    dcterms:title "Sample Code Generation Artifact" ;
+    dcterms:created "2025-01-15T10:30:00Z"^^xsd:dateTime ;
+    dcterms:creator <https://kgen.io/agent/backend-dev> ;
+    kgen:hasSourceTemplate <https://kgen.io/template/api-endpoint> ;
+    kgen:generatedFile "/api/users.js" ;
+    kgen:codeHash "a1b2c3d4e5f6789" ;
+    prov:wasGeneratedBy <https://kgen.io/activity/generation-001> .
+
+<https://kgen.io/template/api-endpoint> a kgen:Template ;
+    dcterms:title "REST API Endpoint Template" ;
+    kgen:templateType "nunjucks" ;
+    kgen:targetLanguage "javascript" ;
+    kgen:hasParameter [
+        kgen:paramName "entityName" ;
+        kgen:paramValue "User"
+    ] ;
+    kgen:hasParameter [
+        kgen:paramName "operations" ;
+        kgen:paramValue "CRUD"
+    ] .
+
+<https://kgen.io/agent/backend-dev> a prov:SoftwareAgent ;
+    foaf:name "Backend Developer Agent" ;
+    kgen:agentType "backend-dev" ;
+    kgen:capabilities "api-design", "database-modeling", "security" .
+
+<https://kgen.io/activity/generation-001> a prov:Activity ;
+    prov:startedAtTime "2025-01-15T10:29:45Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-01-15T10:30:15Z"^^xsd:dateTime ;
+    prov:used <https://kgen.io/template/api-endpoint> ;
+    prov:wasAssociatedWith <https://kgen.io/agent/backend-dev> ;
+    kgen:processingTime "30"^^xsd:integer .
+
+# Additional test triples for graph operations
+<https://kgen.io/artifact/sample-002> a kgen:Artifact ;
+    dcterms:title "Database Schema Artifact" ;
+    kgen:generatedFile "/schema/users.sql" ;
+    prov:wasDerivedFrom <https://kgen.io/artifact/sample-001> .
+
+_:blank1 a kgen:Configuration ;
+    kgen:property "database.host" ;
+    kgen:value "localhost" .
+
+_:blank2 a kgen:Configuration ;
+    kgen:property "database.port" ;
+    kgen:value "5432"^^xsd:integer .

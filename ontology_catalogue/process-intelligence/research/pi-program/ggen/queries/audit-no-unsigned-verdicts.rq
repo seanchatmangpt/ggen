@@ -1,0 +1,13 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: Verify all checkpoints have authority signatures (Ed25519 or BLAKE3)
+# Returns unsigned checkpoints (violation if results non-empty)
+SELECT ?checkpoint ?label
+WHERE {
+  ?checkpoint a pi:CHECKPOINT ;
+              rdfs:label ?label .
+  FILTER (!BOUND(?signature))
+  OPTIONAL { ?checkpoint pi:authoritySignature ?signature }
+  FILTER (!BOUND(?signature))
+}

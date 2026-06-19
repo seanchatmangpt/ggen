@@ -1,0 +1,776 @@
+@prefix ba: <http://bytestar.ai/ontology/> .
+@prefix obs: <http://bytestar.ai/ontology/observability/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix doe: <http://bytestar.ai/ontology/doctrine-of-8/> .
+
+# ============================================
+# ByteStar Observability Ontology
+# ============================================
+# Comprehensive observability framework with zero data leakage,
+# privacy-preserving monitoring, and comprehensive system visibility
+# Reuses and extends ba-performance-measurement.ttl and ba-audit-system.ttl
+
+obs:observability-ontology a owl:Ontology ;
+    dct:title "ByteStar Observability Ontology" ;
+    dct:description "Privacy-preserving observability framework providing comprehensive system visibility without data leakage across ByteStar infrastructure" ;
+    dct:version "5.0.0" ;
+    dct:created "2025-01-XX"^^xsd:date ;
+    dct:creator "ByteStar Operations Team" ;
+    owl:versionInfo "Phase 5 - Operations Framework" ;
+    dct:subject "Observability, Monitoring, Privacy, Zero Data Leakage" ;
+    owl:imports ba:performance-measurement ,
+                ba:audit-system ,
+                ba:bytecore-hardware ,
+                ba:deployment-pipeline .
+
+# ============================================
+# CORE OBSERVABILITY CLASSES
+# ============================================
+
+# Main Observability Architecture
+obs:ObservabilitySystem a owl:Class ;
+    rdfs:label "Observability System" ;
+    rdfs:comment "Comprehensive observability platform providing system visibility with privacy protection" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    skos:definition "Observability system provides comprehensive monitoring, logging, tracing, and analytics while ensuring zero data leakage" .
+
+obs:ObservabilityPlatform a owl:Class ;
+    rdfs:label "Observability Platform" ;
+    rdfs:comment "Unified platform for all observability operations" ;
+    rdfs:subClassOf obs:ObservabilitySystem ;
+    skos:definition "Observability platform integrates monitoring, logging, tracing, and alerting into a unified system" .
+
+obs:TelemetryPipeline a owl:Class ;
+    rdfs:label "Telemetry Pipeline" ;
+    rdfs:comment "Pipeline for collecting, processing, and routing telemetry data" ;
+    rdfs:subClassOf ba:DataPipeline ;
+    skos:definition "Telemetry pipeline handles the flow of observability data from sources to destinations with privacy controls" .
+
+obs:ObservabilityAgent a owl:Class ;
+    rdfs:label "Observability Agent" ;
+    rdfs:comment "Agent collecting observability data from system components" ;
+    rdfs:subClassOf ba:Agent ;
+    skos:definition "Observability agent runs on systems to collect metrics, logs, and traces with minimal performance impact" .
+
+# ============================================
+# THE THREE PILLARS OF OBSERVABILITY
+# ============================================
+
+# Metrics
+obs:MetricsSystem a owl:Class ;
+    rdfs:label "Metrics System" ;
+    rdfs:comment "System for collecting and analyzing numerical metrics" ;
+    rdfs:subClassOf obs:ObservabilitySystem ;
+    skos:definition "Metrics system collects, stores, and analyzes time-series numerical data about system performance" .
+
+obs:MetricsCollector a owl:Class ;
+    rdfs:label "Metrics Collector" ;
+    rdfs:comment "Component responsible for collecting metrics data" ;
+    rdfs:subClassOf obs:ObservabilityAgent ;
+    skos:definition "Metrics collector gathers numerical measurements from system components and applications" .
+
+obs:TimeSeriesDatabase a owl:Class ;
+    rdfs:label "Time Series Database" ;
+    rdfs:comment "Specialized database for storing time-series metrics data" ;
+    rdfs:subClassOf ba:Database ;
+    skos:definition "Time series database optimizes storage and querying of timestamped numerical data" .
+
+obs:MetricsAlert a owl:Class ;
+    rdfs:label "Metrics Alert" ;
+    rdfs:comment "Alert triggered by metrics threshold violations" ;
+    rdfs:subClassOf ba:Alert ;
+    skos:definition "Metrics alert notifies operators when system metrics exceed defined thresholds" .
+
+# Logging
+obs:LoggingSystem a owl:Class ;
+    rdfs:label "Logging System" ;
+    rdfs:comment "Centralized logging system for application and system logs" ;
+    rdfs:subClassOf obs:ObservabilitySystem ;
+    skos:definition "Logging system aggregates, processes, and stores log data from distributed systems" .
+
+obs:LogCollector a owl:Class ;
+    rdfs:label "Log Collector" ;
+    rdfs:comment "Agent for collecting and forwarding log data" ;
+    rdfs:subClassOf obs:ObservabilityAgent ;
+    skos:definition "Log collector gathers log entries from applications and system components for central processing" .
+
+obs:LogProcessor a owl:Class ;
+    rdfs:label "Log Processor" ;
+    rdfs:comment "Component for processing and enriching log data" ;
+    rdfs:subClassOf ba:ProcessingEngine ;
+    skos:definition "Log processor parses, enriches, and transforms log data while applying privacy filters" .
+
+obs:LogStorage a owl:Class ;
+    rdfs:label "Log Storage" ;
+    rdfs:comment "Storage system optimized for log data" ;
+    rdfs:subClassOf ba:StorageSystem ;
+    skos:definition "Log storage provides efficient storage and retrieval of structured and unstructured log data" .
+
+obs:LogAnalyzer a owl:Class ;
+    rdfs:label "Log Analyzer" ;
+    rdfs:comment "System for analyzing log patterns and anomalies" ;
+    rdfs:subClassOf ba:AnalysisEngine ;
+    skos:definition "Log analyzer identifies patterns, anomalies, and insights from aggregated log data" .
+
+# Tracing
+obs:TracingSystem a owl:Class ;
+    rdfs:label "Tracing System" ;
+    rdfs:comment "Distributed tracing system for request flow analysis" ;
+    rdfs:subClassOf obs:ObservabilitySystem ;
+    skos:definition "Tracing system tracks requests across distributed services to understand performance and dependencies" .
+
+obs:TraceCollector a owl:Class ;
+    rdfs:label "Trace Collector" ;
+    rdfs:comment "Component collecting distributed trace data" ;
+    rdfs:subClassOf obs:ObservabilityAgent ;
+    skos:definition "Trace collector gathers span data from instrumented applications for trace reconstruction" .
+
+obs:Span a owl:Class ;
+    rdfs:label "Trace Span" ;
+    rdfs:comment "Individual operation within a distributed trace" ;
+    rdfs:subClassOf ba:Event ;
+    skos:definition "Span represents a single operation in a distributed trace with timing and metadata" .
+
+obs:Trace a owl:Class ;
+    rdfs:label "Distributed Trace" ;
+    rdfs:comment "Complete trace of a request across multiple services" ;
+    rdfs:subClassOf ba:Process ;
+    skos:definition "Trace represents the complete journey of a request through distributed system components" .
+
+obs:TraceAnalyzer a owl:Class ;
+    rdfs:label "Trace Analyzer" ;
+    rdfs:comment "System for analyzing trace patterns and performance" ;
+    rdfs:subClassOf ba:AnalysisEngine ;
+    skos:definition "Trace analyzer identifies bottlenecks, error patterns, and performance issues from trace data" .
+
+# ============================================
+# PRIVACY AND DATA PROTECTION
+# ============================================
+
+obs:PrivacyPreservingObservability a owl:Class ;
+    rdfs:label "Privacy-Preserving Observability" ;
+    rdfs:comment "Observability framework ensuring zero data leakage" ;
+    rdfs:subClassOf obs:ObservabilitySystem ;
+    skos:definition "Privacy-preserving observability provides system insights while protecting sensitive data from exposure" .
+
+obs:DataSanitizer a owl:Class ;
+    rdfs:label "Data Sanitizer" ;
+    rdfs:comment "Component removing sensitive data from observability streams" ;
+    rdfs:subClassOf ba:SecurityFilter ;
+    skos:definition "Data sanitizer identifies and removes personally identifiable and sensitive information from telemetry data" .
+
+obs:PrivacyFilter a owl:Class ;
+    rdfs:label "Privacy Filter" ;
+    rdfs:comment "Filter ensuring privacy compliance in observability data" ;
+    rdfs:subClassOf ba:Filter ;
+    skos:definition "Privacy filter enforces data privacy policies by blocking or anonymizing sensitive information" .
+
+obs:AnonymizationEngine a owl:Class ;
+    rdfs:label "Anonymization Engine" ;
+    rdfs:comment "Engine for anonymizing sensitive data in observability streams" ;
+    rdfs:subClassOf ba:ProcessingEngine ;
+    skos:definition "Anonymization engine transforms sensitive data to protect privacy while preserving analytical value" .
+
+obs:DifferentialPrivacy a owl:Class ;
+    rdfs:label "Differential Privacy" ;
+    rdfs:comment "Mathematical privacy framework for observability data" ;
+    rdfs:subClassOf obs:PrivacyPreservingObservability ;
+    skos:definition "Differential privacy adds calibrated noise to data to prevent individual identification in aggregate statistics" .
+
+obs:HomomorphicAggregation a owl:Class ;
+    rdfs:label "Homomorphic Aggregation" ;
+    rdfs:comment "Privacy-preserving aggregation using homomorphic encryption" ;
+    rdfs:subClassOf obs:PrivacyPreservingObservability ;
+    skos:definition "Homomorphic aggregation performs computations on encrypted data without decryption" .
+
+obs:ZeroKnowledgeMonitoring a owl:Class ;
+    rdfs:label "Zero-Knowledge Monitoring" ;
+    rdfs:comment "Monitoring system that proves properties without revealing data" ;
+    rdfs:subClassOf obs:PrivacyPreservingObservability ;
+    skos:definition "Zero-knowledge monitoring verifies system properties and compliance without exposing underlying data" .
+
+# ============================================
+# ALERTING AND INCIDENT RESPONSE
+# ============================================
+
+obs:AlertingSystem a owl:Class ;
+    rdfs:label "Alerting System" ;
+    rdfs:comment "Intelligent alerting system with noise reduction" ;
+    rdfs:subClassOf ba:AlertingSystem ;
+    skos:definition "Alerting system provides intelligent notifications while minimizing false positives and alert fatigue" .
+
+obs:AlertCorrelation a owl:Class ;
+    rdfs:label "Alert Correlation" ;
+    rdfs:comment "System correlating related alerts to reduce noise" ;
+    rdfs:subClassOf ba:CorrelationEngine ;
+    skos:definition "Alert correlation groups related alerts to provide context and reduce notification volume" .
+
+obs:IncidentDetection a owl:Class ;
+    rdfs:label "Incident Detection" ;
+    rdfs:comment "Automated incident detection from observability data" ;
+    rdfs:subClassOf ba:DetectionSystem ;
+    skos:definition "Incident detection automatically identifies service disruptions and performance degradations" .
+
+obs:AnomalyDetection a owl:Class ;
+    rdfs:label "Anomaly Detection" ;
+    rdfs:comment "Machine learning-based anomaly detection" ;
+    rdfs:subClassOf ba:AnomalyDetector ;
+    skos:definition "Anomaly detection uses ML algorithms to identify unusual patterns in system behavior" .
+
+obs:PredictiveAlerting a owl:Class ;
+    rdfs:label "Predictive Alerting" ;
+    rdfs:comment "Proactive alerting based on trend analysis" ;
+    rdfs:subClassOf obs:AlertingSystem ;
+    skos:definition "Predictive alerting warns of potential issues before they become critical problems" .
+
+obs:AlertSuppression a owl:Class ;
+    rdfs:label "Alert Suppression" ;
+    rdfs:comment "System for suppressing redundant or low-priority alerts" ;
+    rdfs:subClassOf ba:Filter ;
+    skos:definition "Alert suppression reduces alert volume by filtering redundant, expected, or low-impact notifications" .
+
+# ============================================
+# PERFORMANCE AND RESOURCE MONITORING
+# ============================================
+
+obs:PerformanceMonitoring a owl:Class ;
+    rdfs:label "Performance Monitoring" ;
+    rdfs:comment "Comprehensive performance monitoring with Doctrine of 8 compliance" ;
+    rdfs:subClassOf obs:MetricsSystem ;
+    skos:definition "Performance monitoring tracks system performance metrics against SLA targets and constraints" .
+
+obs:ResourceMonitoring a owl:Class ;
+    rdfs:label "Resource Monitoring" ;
+    rdfs:comment "Monitoring of system resource utilization" ;
+    rdfs:subClassOf obs:MetricsSystem ;
+    skos:definition "Resource monitoring tracks CPU, memory, storage, and network utilization across infrastructure" .
+
+obs:CapacityPlanning a owl:Class ;
+    rdfs:label "Capacity Planning" ;
+    rdfs:comment "System for analyzing resource trends and planning capacity" ;
+    rdfs:subClassOf ba:PlanningSystem ;
+    skos:definition "Capacity planning analyzes usage trends to predict resource needs and optimize allocation" .
+
+obs:SLIMonitoring a owl:Class ;
+    rdfs:label "SLI Monitoring" ;
+    rdfs:comment "Service Level Indicator monitoring and tracking" ;
+    rdfs:subClassOf obs:PerformanceMonitoring ;
+    skos:definition "SLI monitoring tracks key service quality indicators against defined service level objectives" .
+
+obs:SLOCompliance a owl:Class ;
+    rdfs:label "SLO Compliance" ;
+    rdfs:comment "Service Level Objective compliance tracking" ;
+    rdfs:subClassOf ba:ComplianceSystem ;
+    skos:definition "SLO compliance tracks adherence to service level objectives and error budgets" .
+
+# ============================================
+# BUSINESS INTELLIGENCE AND ANALYTICS
+# ============================================
+
+obs:ObservabilityAnalytics a owl:Class ;
+    rdfs:label "Observability Analytics" ;
+    rdfs:comment "Advanced analytics engine for observability data" ;
+    rdfs:subClassOf ba:AnalyticsEngine ;
+    skos:definition "Observability analytics provides insights and intelligence from aggregated observability data" .
+
+obs:TrendAnalysis a owl:Class ;
+    rdfs:label "Trend Analysis" ;
+    rdfs:comment "System for analyzing trends in observability data" ;
+    rdfs:subClassOf obs:ObservabilityAnalytics ;
+    skos:definition "Trend analysis identifies patterns and trends in system behavior over time" .
+
+obs:BusinessMetrics a owl:Class ;
+    rdfs:label "Business Metrics" ;
+    rdfs:comment "Business-relevant metrics derived from technical observability data" ;
+    rdfs:subClassOf ba:BusinessIntelligence ;
+    skos:definition "Business metrics translate technical observability data into business-relevant insights" .
+
+obs:CostAnalysis a owl:Class ;
+    rdfs:label "Cost Analysis" ;
+    rdfs:comment "Analysis of infrastructure costs based on observability data" ;
+    rdfs:subClassOf ba:CostManagement ;
+    skos:definition "Cost analysis correlates resource utilization with infrastructure costs for optimization" .
+
+obs:EfficiencyAnalysis a owl:Class ;
+    rdfs:label "Efficiency Analysis" ;
+    rdfs:comment "Analysis of system efficiency and optimization opportunities" ;
+    rdfs:subClassOf obs:ObservabilityAnalytics ;
+    skos:definition "Efficiency analysis identifies opportunities to improve resource utilization and performance" .
+
+# ============================================
+# VISUALIZATION AND DASHBOARDS
+# ============================================
+
+obs:ObservabilityDashboard a owl:Class ;
+    rdfs:label "Observability Dashboard" ;
+    rdfs:comment "Interactive dashboard for observability data visualization" ;
+    rdfs:subClassOf ba:Dashboard ;
+    skos:definition "Observability dashboard provides real-time visualization of system health and performance" .
+
+obs:OperationalDashboard a owl:Class ;
+    rdfs:label "Operational Dashboard" ;
+    rdfs:comment "Dashboard focused on operational health and alerts" ;
+    rdfs:subClassOf obs:ObservabilityDashboard ;
+    skos:definition "Operational dashboard provides immediate visibility into system health and active incidents" .
+
+obs:ExecutiveDashboard a owl:Class ;
+    rdfs:label "Executive Dashboard" ;
+    rdfs:comment "High-level dashboard for executive stakeholders" ;
+    rdfs:subClassOf obs:ObservabilityDashboard ;
+    skos:definition "Executive dashboard presents business-relevant metrics and KPIs derived from observability data" .
+
+obs:CustomVisualization a owl:Class ;
+    rdfs:label "Custom Visualization" ;
+    rdfs:comment "Customizable visualization for specific observability needs" ;
+    rdfs:subClassOf ba:Visualization ;
+    skos:definition "Custom visualization provides tailored views of observability data for specific use cases" .
+
+obs:RealtimeVisualization a owl:Class ;
+    rdfs:label "Real-time Visualization" ;
+    rdfs:comment "Live updating visualization of real-time observability data" ;
+    rdfs:subClassOf obs:CustomVisualization ;
+    skos:definition "Real-time visualization provides live updates of system metrics and events as they occur" .
+
+# ============================================
+# INTEGRATION AND AUTOMATION
+# ============================================
+
+obs:ObservabilityIntegration a owl:Class ;
+    rdfs:label "Observability Integration" ;
+    rdfs:comment "Integration layer connecting observability with other systems" ;
+    rdfs:subClassOf ba:IntegrationLayer ;
+    skos:definition "Observability integration connects monitoring data with incident management, automation, and business systems" .
+
+obs:AutomatedRemediation a owl:Class ;
+    rdfs:label "Automated Remediation" ;
+    rdfs:comment "System for automated incident response and remediation" ;
+    rdfs:subClassOf ba:AutomationSystem ;
+    skos:definition "Automated remediation executes predefined responses to known issues without human intervention" .
+
+obs:ChatOpsIntegration a owl:Class ;
+    rdfs:label "ChatOps Integration" ;
+    rdfs:comment "Integration with chat platforms for collaborative incident response" ;
+    rdfs:subClassOf obs:ObservabilityIntegration ;
+    skos:definition "ChatOps integration brings observability alerts and data into team communication channels" .
+
+obs:APIIntegration a owl:Class ;
+    rdfs:label "API Integration" ;
+    rdfs:comment "API layer for external system integration" ;
+    rdfs:subClassOf obs:ObservabilityIntegration ;
+    skos:definition "API integration provides programmatic access to observability data and functions" .
+
+# ============================================
+# CORE PROPERTIES
+# ============================================
+
+# Telemetry Properties
+obs:collectionInterval a owl:DatatypeProperty ;
+    rdfs:label "collection interval" ;
+    rdfs:comment "Interval for collecting telemetry data" ;
+    rdfs:domain obs:ObservabilityAgent ;
+    rdfs:range xsd:duration .
+
+obs:samplingRate a owl:DatatypeProperty ;
+    rdfs:label "sampling rate" ;
+    rdfs:comment "Rate of data sampling for observability" ;
+    rdfs:domain obs:ObservabilityAgent ;
+    rdfs:range xsd:decimal .
+
+obs:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:comment "How long observability data is retained" ;
+    rdfs:domain obs:ObservabilitySystem ;
+    rdfs:range xsd:duration .
+
+obs:dataVolume a owl:DatatypeProperty ;
+    rdfs:label "data volume" ;
+    rdfs:comment "Volume of observability data processed" ;
+    rdfs:domain obs:TelemetryPipeline ;
+    rdfs:range xsd:long .
+
+# Privacy Properties
+obs:privacyLevel a owl:DatatypeProperty ;
+    rdfs:label "privacy level" ;
+    rdfs:comment "Level of privacy protection applied" ;
+    rdfs:domain obs:PrivacyFilter ;
+    rdfs:range xsd:string .
+
+obs:anonymizationMethod a owl:DatatypeProperty ;
+    rdfs:label "anonymization method" ;
+    rdfs:comment "Method used for data anonymization" ;
+    rdfs:domain obs:AnonymizationEngine ;
+    rdfs:range xsd:string .
+
+obs:epsilonValue a owl:DatatypeProperty ;
+    rdfs:label "epsilon value" ;
+    rdfs:comment "Privacy parameter for differential privacy" ;
+    rdfs:domain obs:DifferentialPrivacy ;
+    rdfs:range xsd:decimal .
+
+obs:sensitivityThreshold a owl:DatatypeProperty ;
+    rdfs:label "sensitivity threshold" ;
+    rdfs:comment "Threshold for identifying sensitive data" ;
+    rdfs:domain obs:DataSanitizer ;
+    rdfs:range xsd:decimal .
+
+# Alert Properties
+obs:alertThreshold a owl:DatatypeProperty ;
+    rdfs:label "alert threshold" ;
+    rdfs:comment "Threshold value triggering alerts" ;
+    rdfs:domain obs:MetricsAlert ;
+    rdfs:range xsd:decimal .
+
+obs:escalationLevel a owl:DatatypeProperty ;
+    rdfs:label "escalation level" ;
+    rdfs:comment "Level of alert escalation" ;
+    rdfs:domain obs:MetricsAlert ;
+    rdfs:range xsd:int .
+
+obs:suppressionDuration a owl:DatatypeProperty ;
+    rdfs:label "suppression duration" ;
+    rdfs:comment "Duration for alert suppression" ;
+    rdfs:domain obs:AlertSuppression ;
+    rdfs:range xsd:duration .
+
+obs:correlationWindow a owl:DatatypeProperty ;
+    rdfs:label "correlation window" ;
+    rdfs:comment "Time window for alert correlation" ;
+    rdfs:domain obs:AlertCorrelation ;
+    rdfs:range xsd:duration .
+
+# Performance Properties
+obs:latencyP95 a owl:DatatypeProperty ;
+    rdfs:label "latency P95" ;
+    rdfs:comment "95th percentile latency measurement" ;
+    rdfs:domain obs:PerformanceMonitoring ;
+    rdfs:range xsd:decimal .
+
+obs:throughputRate a owl:DatatypeProperty ;
+    rdfs:label "throughput rate" ;
+    rdfs:comment "System throughput rate" ;
+    rdfs:domain obs:PerformanceMonitoring ;
+    rdfs:range xsd:decimal .
+
+obs:errorRate a owl:DatatypeProperty ;
+    rdfs:label "error rate" ;
+    rdfs:comment "System error rate percentage" ;
+    rdfs:domain obs:PerformanceMonitoring ;
+    rdfs:range xsd:decimal .
+
+obs:availabilityPercentage a owl:DatatypeProperty ;
+    rdfs:label "availability percentage" ;
+    rdfs:comment "System availability percentage" ;
+    rdfs:domain obs:SLIMonitoring ;
+    rdfs:range xsd:decimal .
+
+# Resource Properties
+obs:cpuUtilization a owl:DatatypeProperty ;
+    rdfs:label "CPU utilization" ;
+    rdfs:comment "CPU utilization percentage" ;
+    rdfs:domain obs:ResourceMonitoring ;
+    rdfs:range xsd:decimal .
+
+obs:memoryUtilization a owl:DatatypeProperty ;
+    rdfs:label "memory utilization" ;
+    rdfs:comment "Memory utilization percentage" ;
+    rdfs:domain obs:ResourceMonitoring ;
+    rdfs:range xsd:decimal .
+
+obs:diskUtilization a owl:DatatypeProperty ;
+    rdfs:label "disk utilization" ;
+    rdfs:comment "Disk utilization percentage" ;
+    rdfs:domain obs:ResourceMonitoring ;
+    rdfs:range xsd:decimal .
+
+obs:networkUtilization a owl:DatatypeProperty ;
+    rdfs:label "network utilization" ;
+    rdfs:comment "Network utilization percentage" ;
+    rdfs:domain obs:ResourceMonitoring ;
+    rdfs:range xsd:decimal .
+
+# Trace Properties
+obs:traceId a owl:DatatypeProperty ;
+    rdfs:label "trace ID" ;
+    rdfs:comment "Unique identifier for distributed trace" ;
+    rdfs:domain obs:Trace ;
+    rdfs:range xsd:string .
+
+obs:spanId a owl:DatatypeProperty ;
+    rdfs:label "span ID" ;
+    rdfs:comment "Unique identifier for trace span" ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:string .
+
+obs:spanDuration a owl:DatatypeProperty ;
+    rdfs:label "span duration" ;
+    rdfs:comment "Duration of trace span" ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:duration .
+
+obs:operationName a owl:DatatypeProperty ;
+    rdfs:label "operation name" ;
+    rdfs:comment "Name of operation represented by span" ;
+    rdfs:domain obs:Span ;
+    rdfs:range xsd:string .
+
+# ============================================
+# OBJECT PROPERTIES
+# ============================================
+
+# Collection Relationships
+obs:collects a owl:ObjectProperty ;
+    rdfs:label "collects" ;
+    rdfs:comment "Data collected by observability agent" ;
+    rdfs:domain obs:ObservabilityAgent ;
+    rdfs:range ba:Data .
+
+obs:processes a owl:ObjectProperty ;
+    rdfs:label "processes" ;
+    rdfs:comment "Data processed by telemetry pipeline" ;
+    rdfs:domain obs:TelemetryPipeline ;
+    rdfs:range ba:Data .
+
+obs:stores a owl:ObjectProperty ;
+    rdfs:label "stores" ;
+    rdfs:comment "Data stored by observability system" ;
+    rdfs:domain obs:ObservabilitySystem ;
+    rdfs:range ba:Data .
+
+# Privacy Relationships
+obs:sanitizes a owl:ObjectProperty ;
+    rdfs:label "sanitizes" ;
+    rdfs:comment "Data sanitized by privacy filter" ;
+    rdfs:domain obs:DataSanitizer ;
+    rdfs:range ba:Data .
+
+obs:anonymizes a owl:ObjectProperty ;
+    rdfs:label "anonymizes" ;
+    rdfs:comment "Data anonymized by anonymization engine" ;
+    rdfs:domain obs:AnonymizationEngine ;
+    rdfs:range ba:Data .
+
+# Alert Relationships
+obs:triggers a owl:ObjectProperty ;
+    rdfs:label "triggers" ;
+    rdfs:comment "Alert triggered by condition" ;
+    rdfs:domain ba:Condition ;
+    rdfs:range obs:MetricsAlert .
+
+obs:correlates a owl:ObjectProperty ;
+    rdfs:label "correlates" ;
+    rdfs:comment "Alerts correlated by correlation engine" ;
+    rdfs:domain obs:AlertCorrelation ;
+    rdfs:range obs:MetricsAlert .
+
+obs:suppresses a owl:ObjectProperty ;
+    rdfs:label "suppresses" ;
+    rdfs:comment "Alert suppressed by suppression system" ;
+    rdfs:domain obs:AlertSuppression ;
+    rdfs:range obs:MetricsAlert .
+
+# Trace Relationships
+obs:belongsToTrace a owl:ObjectProperty ;
+    rdfs:label "belongs to trace" ;
+    rdfs:comment "Span belongs to trace" ;
+    rdfs:domain obs:Span ;
+    rdfs:range obs:Trace .
+
+obs:hasChildSpan a owl:ObjectProperty ;
+    rdfs:label "has child span" ;
+    rdfs:comment "Parent-child relationship between spans" ;
+    rdfs:domain obs:Span ;
+    rdfs:range obs:Span .
+
+# Integration Relationships
+obs:integratesWith a owl:ObjectProperty ;
+    rdfs:label "integrates with" ;
+    rdfs:comment "External system integrated with observability" ;
+    rdfs:domain obs:ObservabilityIntegration ;
+    rdfs:range ba:System .
+
+obs:visualizes a owl:ObjectProperty ;
+    rdfs:label "visualizes" ;
+    rdfs:comment "Data visualized by dashboard" ;
+    rdfs:domain obs:ObservabilityDashboard ;
+    rdfs:range ba:Data .
+
+# ============================================
+# SHACL VALIDATION SHAPES
+# ============================================
+
+obs:PrivacyComplianceShape a sh:NodeShape ;
+    sh:targetClass obs:PrivacyPreservingObservability ;
+    rdfs:label "Privacy Compliance Validation" ;
+    rdfs:comment "Validates privacy compliance for observability systems" ;
+    sh:property [
+        sh:path obs:privacyLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("PUBLIC" "INTERNAL" "CONFIDENTIAL" "RESTRICTED") ;
+        sh:minCount 1 ;
+        sh:message "Privacy level must be specified and valid"
+    ] ;
+    sh:property [
+        sh:path obs:sanitizes ;
+        sh:minCount 1 ;
+        sh:message "Privacy-preserving system must sanitize data"
+    ] .
+
+obs:AlertThresholdShape a sh:NodeShape ;
+    sh:targetClass obs:MetricsAlert ;
+    rdfs:label "Alert Threshold Validation" ;
+    rdfs:comment "Validates alert threshold configuration" ;
+    sh:property [
+        sh:path obs:alertThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Alert must have exactly one threshold value"
+    ] ;
+    sh:property [
+        sh:path obs:escalationLevel ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "Escalation level must be between 1 and 5"
+    ] .
+
+obs:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetClass obs:PerformanceMonitoring ;
+    rdfs:label "Performance Compliance Validation" ;
+    rdfs:comment "Validates performance monitoring against Doctrine of 8" ;
+    sh:property [
+        sh:path obs:latencyP95 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ; # 8ms maximum under Doctrine of 8
+        sh:message "P95 latency must comply with Doctrine of 8 (≤8ms)"
+    ] ;
+    sh:property [
+        sh:path obs:errorRate ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 0.1 ; # Maximum 0.1% error rate
+        sh:message "Error rate must not exceed 0.1%"
+    ] .
+
+obs:DataRetentionShape a sh:NodeShape ;
+    sh:targetClass obs:ObservabilitySystem ;
+    rdfs:label "Data Retention Validation" ;
+    rdfs:comment "Validates observability data retention policies" ;
+    sh:property [
+        sh:path obs:retentionPeriod ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive "P30D"^^xsd:duration ; # Minimum 30 days
+        sh:maxInclusive "P7Y"^^xsd:duration ; # Maximum 7 years
+        sh:message "Retention period must be between 30 days and 7 years"
+    ] .
+
+obs:TraceIntegrityShape a sh:NodeShape ;
+    sh:targetClass obs:Trace ;
+    rdfs:label "Trace Integrity Validation" ;
+    rdfs:comment "Validates trace data integrity and completeness" ;
+    sh:property [
+        sh:path obs:traceId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{32}$" ;
+        sh:message "Trace ID must be a valid 32-character hex string"
+    ] .
+
+obs:SamplingRateShape a sh:NodeShape ;
+    sh:targetClass obs:ObservabilityAgent ;
+    rdfs:label "Sampling Rate Validation" ;
+    rdfs:comment "Validates telemetry sampling rates" ;
+    sh:property [
+        sh:path obs:samplingRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ; # Minimum 1% sampling
+        sh:maxInclusive 1.0 ; # Maximum 100% sampling
+        sh:message "Sampling rate must be between 0.01 and 1.0"
+    ] .
+
+# ============================================
+# INSTANCES AND EXAMPLES
+# ============================================
+
+# Main ByteStar Observability Platform
+obs:ByteStarObservability a obs:ObservabilityPlatform ;
+    rdfs:label "ByteStar Observability Platform" ;
+    rdfs:comment "Central observability platform for ByteStar infrastructure" ;
+    obs:retentionPeriod "P90D"^^xsd:duration ;
+    obs:dataVolume 500000000000 ; # 500GB/day
+    ba:operationalStatus "ACTIVE" .
+
+# Privacy-Preserving Components
+obs:ByteStarPrivacyLayer a obs:PrivacyPreservingObservability ;
+    rdfs:label "ByteStar Privacy Layer" ;
+    rdfs:comment "Privacy protection layer for observability data" ;
+    obs:privacyLevel "CONFIDENTIAL" ;
+    obs:sensitivityThreshold 0.95 .
+
+obs:ByteStarDataSanitizer a obs:DataSanitizer ;
+    rdfs:label "ByteStar Data Sanitizer" ;
+    rdfs:comment "Data sanitization for observability streams" ;
+    obs:anonymizationMethod "k-anonymity" ;
+    obs:sensitivityThreshold 0.90 .
+
+# Metrics System
+obs:ByteStarMetrics a obs:MetricsSystem ;
+    rdfs:label "ByteStar Metrics System" ;
+    rdfs:comment "Time-series metrics collection and analysis" ;
+    obs:collectionInterval "PT15S"^^xsd:duration ;
+    obs:samplingRate 1.0 .
+
+obs:ByteStarTimeSeriesDB a obs:TimeSeriesDatabase ;
+    rdfs:label "ByteStar Time Series Database" ;
+    rdfs:comment "High-performance time-series storage" ;
+    obs:retentionPeriod "P90D"^^xsd:duration .
+
+# Logging System
+obs:ByteStarLogging a obs:LoggingSystem ;
+    rdfs:label "ByteStar Logging System" ;
+    rdfs:comment "Centralized log aggregation and analysis" ;
+    obs:dataVolume 100000000000 ; # 100GB/day
+    obs:retentionPeriod "P30D"^^xsd:duration .
+
+# Tracing System
+obs:ByteStarTracing a obs:TracingSystem ;
+    rdfs:label "ByteStar Tracing System" ;
+    rdfs:comment "Distributed tracing for request flow analysis" ;
+    obs:samplingRate 0.1 ; # 10% sampling
+    obs:retentionPeriod "P7D"^^xsd:duration .
+
+# Alerting Configuration
+obs:ByteStarAlerting a obs:AlertingSystem ;
+    rdfs:label "ByteStar Alerting System" ;
+    rdfs:comment "Intelligent alerting with correlation and suppression" ;
+    obs:correlationWindow "PT5M"^^xsd:duration ;
+    obs:suppressionDuration "PT30M"^^xsd:duration .
+
+# Performance Monitoring
+obs:ByteStarPerformance a obs:PerformanceMonitoring ;
+    rdfs:label "ByteStar Performance Monitoring" ;
+    rdfs:comment "Performance monitoring with Doctrine of 8 compliance" ;
+    obs:latencyP95 5.0 ; # 5ms P95 latency
+    obs:throughputRate 50000.0 ; # 50k requests/second
+    obs:errorRate 0.01 ; # 0.01% error rate
+    obs:availabilityPercentage 99.99 .
+
+# Dashboards
+obs:ByteStarOperationalDashboard a obs:OperationalDashboard ;
+    rdfs:label "ByteStar Operational Dashboard" ;
+    rdfs:comment "Real-time operational health dashboard" ;
+    obs:visualizes obs:ByteStarMetrics, obs:ByteStarAlerting .
+
+obs:ByteStarExecutiveDashboard a obs:ExecutiveDashboard ;
+    rdfs:label "ByteStar Executive Dashboard" ;
+    rdfs:comment "Executive-level system health and business metrics" ;
+    obs:visualizes obs:ByteStarPerformance .

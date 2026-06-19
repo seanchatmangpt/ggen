@@ -1,0 +1,536 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://yawl.org/patterns#> .
+@prefix pnet: <http://petri-net.org/schema#> .
+
+# =============================================================================
+# YAWL Workflow Patterns Ontology
+# =============================================================================
+# Complete specification of all 43 YAWL (Yet Another Workflow Language)
+# workflow patterns using Petri net semantics.
+# =============================================================================
+
+<http://yawl.org/patterns>
+  a owl:Ontology ;
+  rdfs:label "YAWL Workflow Patterns" ;
+  rdfs:comment "All 43 YAWL workflow patterns with Petri net semantics" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# Pattern Classes
+# =============================================================================
+
+yawl:WorkflowPattern a owl:Class ;
+  rdfs:label "Workflow Pattern" ;
+  rdfs:comment "Base class for all YAWL workflow patterns" ;
+  .
+
+yawl:BasicControlFlow a owl:Class ;
+  rdfs:subClassOf yawl:WorkflowPattern ;
+  rdfs:label "Basic Control Flow Pattern" ;
+  .
+
+yawl:AdvancedControlFlow a owl:Class ;
+  rdfs:subClassOf yawl:WorkflowPattern ;
+  rdfs:label "Advanced Control Flow Pattern" ;
+  .
+
+yawl:CancellationPattern a owl:Class ;
+  rdfs:subClassOf yawl:WorkflowPattern ;
+  rdfs:label "Cancellation Pattern" ;
+  .
+
+yawl:ResourcePattern a owl:Class ;
+  rdfs:subClassOf yawl:WorkflowPattern ;
+  rdfs:label "Resource Allocation Pattern" ;
+  .
+
+# =============================================================================
+# Petri Net Structure Classes
+# =============================================================================
+
+pnet:Place a owl:Class ;
+  rdfs:label "Place" ;
+  rdfs:comment "A place in a Petri net (holds tokens)" ;
+  .
+
+pnet:Transition a owl:Class ;
+  rdfs:label "Transition" ;
+  rdfs:comment "A transition in a Petri net (fires when enabled)" ;
+  .
+
+pnet:Arc a owl:Class ;
+  rdfs:label "Arc" ;
+  rdfs:comment "Connection between place and transition" ;
+  .
+
+# =============================================================================
+# Individual Pattern Definitions
+# =============================================================================
+
+# 1. Basic Sequential
+yawl:basic_sequential a yawl:BasicControlFlow ;
+  rdfs:label "Basic Sequential" ;
+  rdfs:comment "Simple sequential execution of two tasks" ;
+  yawl:complexity "low" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_finish) ;
+  .
+
+# 2. Parallel Split
+yawl:parallel_split a yawl:BasicControlFlow ;
+  rdfs:label "Parallel Split" ;
+  rdfs:comment "Execute multiple tasks in parallel" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:split yawl:task1 yawl:task2 yawl:join yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_split yawl:t1 yawl:t2 yawl:t_join yawl:t_finish) ;
+  .
+
+# 3. Parallel Join
+yawl:parallel_join a yawl:BasicControlFlow ;
+  rdfs:label "Parallel Join" ;
+  rdfs:comment "Wait for multiple parallel tasks to complete" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:join yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_join yawl:t_finish) ;
+  .
+
+# 4. Exclusive Choice
+yawl:exclusive_choice a yawl:BasicControlFlow ;
+  rdfs:label "Exclusive Choice" ;
+  rdfs:comment "Choose one path from multiple alternatives" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:choice yawl:branch1 yawl:branch2 yawl:merge yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_choice yawl:t1 yawl:t2 yawl:t_merge yawl:t_finish) ;
+  .
+
+# 5. Simple Merge
+yawl:simple_merge a yawl:BasicControlFlow ;
+  rdfs:label "Simple Merge" ;
+  rdfs:comment "Merge multiple paths into one" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:branch1 yawl:branch2 yawl:merge yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_merge yawl:t_finish) ;
+  .
+
+# 6. Iterative Loop
+yawl:iterative_loop a yawl:BasicControlFlow ;
+  rdfs:label "Iterative Loop" ;
+  rdfs:comment "Execute task repeatedly while condition is true" ;
+  yawl:complexity "high" ;
+  yawl:places (yawl:start yawl:condition yawl:action yawl:loop yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_check yawl:t_execute yawl:t_continue yawl:t_finish) ;
+  .
+
+# 7. Multi-Instance
+yawl:multi_instance a yawl:BasicControlFlow ;
+  rdfs:label "Multi-Instance" ;
+  rdfs:comment "Execute task multiple times with different data" ;
+  yawl:complexity "high" ;
+  yawl:places (yawl:start yawl:create yawl:execute yawl:collect yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_create yawl:t_execute yawl:t_collect yawl:t_finish) ;
+  .
+
+# =============================================================================
+# Advanced Control Flow Patterns (8-13)
+# =============================================================================
+
+yawl:interleaved_parallelism a yawl:AdvancedControlFlow ;
+  rdfs:label "Interleaved Parallelism" ;
+  rdfs:comment "Execute multiple tasks in any order" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:interleaved yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_interleave yawl:t1 yawl:t2 yawl:t_merge yawl:t_finish) ;
+  .
+
+yawl:implicit_merge a yawl:AdvancedControlFlow ;
+  rdfs:label "Implicit Merge" ;
+  rdfs:comment "Automatic merge without explicit merge point" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_finish) ;
+  .
+
+yawl:multiple_merge a yawl:AdvancedControlFlow ;
+  rdfs:label "Multiple Merge" ;
+  rdfs:comment "Multiple merge points for complex synchronization" ;
+  yawl:complexity "high" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:merge1 yawl:merge2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_merge1 yawl:t_merge2 yawl:t_finish) ;
+  .
+
+yawl:deferred_choice a yawl:AdvancedControlFlow ;
+  rdfs:label "Deferred Choice" ;
+  rdfs:comment "Choose path when task is ready to execute" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:defer yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_defer yawl:t1 yawl:t2 yawl:t_finish) ;
+  .
+
+yawl:interleaved_routing a yawl:AdvancedControlFlow ;
+  rdfs:label "Interleaved Routing" ;
+  rdfs:comment "Complex routing with multiple path interleaving" ;
+  yawl:complexity "high" ;
+  yawl:places (yawl:start yawl:route1 yawl:route2 yawl:route3 yawl:merge yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_interleave yawl:t_merge yawl:t_finish) ;
+  .
+
+yawl:milestone a yawl:AdvancedControlFlow ;
+  rdfs:label "Milestone" ;
+  rdfs:comment "Define and wait for milestone completion" ;
+  yawl:complexity "medium" ;
+  yawl:places (yawl:start yawl:milestone yawl:action yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_reach yawl:t_wait yawl:t_finish) ;
+  .
+
+# =============================================================================
+# Cancellation Patterns (14-32)
+# =============================================================================
+
+yawl:cancelation a yawl:CancellationPattern ;
+  rdfs:label "Cancellation" ;
+  rdfs:comment "Basic workflow cancellation" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "all" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:cancel yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel yawl:t_finish) ;
+  .
+
+yawl:cancelation_block a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Block" ;
+  rdfs:comment "Cancel execution within a block of activities" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "block" ;
+  yawl:places (yawl:start yawl:cancel_scope yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_cancel_block yawl:t1 yawl:t2 yawl:t_finish) ;
+  .
+
+yawl:cancelation_scope a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Scope" ;
+  rdfs:comment "Cancel within a defined scope" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "scoped" ;
+  yawl:places (yawl:start yawl:cancel_region yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_scope_enter yawl:t1 yawl:t2 yawl:t_scope_exit yawl:t_finish) ;
+  .
+
+yawl:cancelation_thread a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Thread" ;
+  rdfs:comment "Cancel a single execution thread" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "thread" ;
+  yawl:places (yawl:start yawl:thread yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_thread yawl:t_finish) ;
+  .
+
+yawl:cancelation_subprocess a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Subprocess" ;
+  rdfs:comment "Cancel a subprocess execution" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "subprocess" ;
+  yawl:places (yawl:start yawl:subprocess yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_subprocess yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances" ;
+  rdfs:comment "Cancel multiple instance executions" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_multiple yawl:t_finish) ;
+  .
+
+yawl:cancelation_point a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Point" ;
+  rdfs:comment "Define explicit cancellation points" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "point" ;
+  yawl:places (yawl:start yawl:cancel_point yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel yawl:t_finish) ;
+  .
+
+yawl:cancelation_end a yawl:CancellationPattern ;
+  rdfs:label "Cancellation End" ;
+  rdfs:comment "End of cancellation region" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "region_end" ;
+  yawl:places (yawl:start yawl:task yawl:cancel_region_end yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel yawl:t_finish) ;
+  .
+
+yawl:cancelation_cancel a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Action" ;
+  rdfs:comment "Explicit cancellation action" ;
+  yawl:complexity "medium" ;
+  yawl:cancellation_scope "action" ;
+  yawl:places (yawl:start yawl:cancel_trigger yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel yawl:t_finish) ;
+  .
+
+# Cancellation After Patterns
+yawl:cancelation_thread_after a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Thread After" ;
+  rdfs:comment "Cancel thread after completion" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "thread_after" ;
+  yawl:cancellation_trigger "after" ;
+  yawl:places (yawl:start yawl:thread yawl:after_trigger yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_after yawl:t_finish) ;
+  .
+
+yawl:cancelation_subprocess_after a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Subprocess After" ;
+  rdfs:comment "Cancel subprocess after completion" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "subprocess_after" ;
+  yawl:cancellation_trigger "after" ;
+  yawl:places (yawl:start yawl:subprocess yawl:after_trigger yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_after yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_after a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances After" ;
+  rdfs:comment "Cancel multiple instances after completion" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_after" ;
+  yawl:cancellation_trigger "after" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:after_trigger yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_after yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_thread_after a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances Thread After" ;
+  rdfs:comment "Cancel multiple instances thread after completion" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_thread_after" ;
+  yawl:cancellation_trigger "after" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:thread yawl:after_trigger yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_after yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_subprocess_after a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances Subprocess After" ;
+  rdfs:comment "Cancel multiple instances subprocess after" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_subprocess_after" ;
+  yawl:cancellation_trigger "after" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:subprocess yawl:after_trigger yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_after yawl:t_finish) ;
+  .
+
+# Cancellation OR Patterns
+yawl:cancelation_thread_or a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Thread OR" ;
+  rdfs:comment "Cancel thread with OR conditions" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "thread_or" ;
+  yawl:cancellation_trigger "or_condition" ;
+  yawl:places (yawl:start yawl:thread yawl:or_condition yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_or yawl:t_finish) ;
+  .
+
+yawl:cancelation_subprocess_or a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Subprocess OR" ;
+  rdfs:comment "Cancel subprocess with OR conditions" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "subprocess_or" ;
+  yawl:cancellation_trigger "or_condition" ;
+  yawl:places (yawl:start yawl:subprocess yawl:or_condition yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_or yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_or a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances OR" ;
+  rdfs:comment "Cancel instances with OR condition" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_or" ;
+  yawl:cancellation_trigger "or_condition" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:or_condition yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_or yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_thread_or a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances Thread OR" ;
+  rdfs:comment "Cancel instances thread with OR" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_thread_or" ;
+  yawl:cancellation_trigger "or_condition" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:thread yawl:or_condition yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_or yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_subprocess_or a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances Subprocess OR" ;
+  rdfs:comment "Cancel instances subprocess with OR" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_subprocess_or" ;
+  yawl:cancellation_trigger "or_condition" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:subprocess yawl:or_condition yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_or yawl:t_finish) ;
+  .
+
+# Cancellation AND Patterns
+yawl:cancelation_thread_and a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Thread AND" ;
+  rdfs:comment "Cancel thread with AND conditions" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "thread_and" ;
+  yawl:cancellation_trigger "and_condition" ;
+  yawl:places (yawl:start yawl:thread yawl:and_condition yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_and yawl:t_finish) ;
+  .
+
+yawl:cancelation_subprocess_and a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Subprocess AND" ;
+  rdfs:comment "Cancel subprocess with AND conditions" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "subprocess_and" ;
+  yawl:cancellation_trigger "and_condition" ;
+  yawl:places (yawl:start yawl:subprocess yawl:and_condition yawl:task yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_and yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_and a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances AND" ;
+  rdfs:comment "Cancel instances with AND condition" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_and" ;
+  yawl:cancellation_trigger "and_condition" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:and_condition yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t_cancel_and yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_thread_and a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances Thread AND" ;
+  rdfs:comment "Cancel instances thread with AND" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_thread_and" ;
+  yawl:cancellation_trigger "and_condition" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:thread yawl:and_condition yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_and yawl:t_finish) ;
+  .
+
+yawl:cancelation_multiple_instances_subprocess_and a yawl:CancellationPattern ;
+  rdfs:label "Cancellation Multiple Instances Subprocess AND" ;
+  rdfs:comment "Cancel instances subprocess with AND" ;
+  yawl:complexity "high" ;
+  yawl:cancellation_scope "multiple_instances_subprocess_and" ;
+  yawl:cancellation_trigger "and_condition" ;
+  yawl:places (yawl:start yawl:multiple_instances yawl:subprocess yawl:and_condition yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_cancel_and yawl:t_finish) ;
+  .
+
+# =============================================================================
+# Resource Allocation Patterns (38-43)
+# =============================================================================
+
+yawl:implicit_merge_with_allocation a yawl:ResourcePattern ;
+  rdfs:label "Implicit Merge With Allocation" ;
+  rdfs:comment "Implicit merge with resource allocation" ;
+  yawl:complexity "high" ;
+  yawl:resource_allocation "with_allocation" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:merge yawl:resource yawl:allocated yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_merge yawl:t_allocate yawl:t_execute yawl:t_deallocate yawl:t_finish) ;
+  .
+
+yawl:implicit_merge_without_allocation a yawl:ResourcePattern ;
+  rdfs:label "Implicit Merge Without Allocation" ;
+  rdfs:comment "Implicit merge without resource allocation" ;
+  yawl:complexity "medium" ;
+  yawl:resource_allocation "without_allocation" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_finish) ;
+  .
+
+yawl:multiple_merge_with_allocation a yawl:ResourcePattern ;
+  rdfs:label "Multiple Merge With Allocation" ;
+  rdfs:comment "Multiple merge with resource allocation" ;
+  yawl:complexity "high" ;
+  yawl:resource_allocation "with_allocation" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:merge1 yawl:merge2 yawl:resource yawl:allocated yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_merge yawl:t_allocate yawl:t_execute yawl:t_deallocate yawl:t_finish) ;
+  .
+
+yawl:multiple_merge_without_allocation a yawl:ResourcePattern ;
+  rdfs:label "Multiple Merge Without Allocation" ;
+  rdfs:comment "Multiple merge without resource allocation" ;
+  yawl:complexity "high" ;
+  yawl:resource_allocation "without_allocation" ;
+  yawl:places (yawl:start yawl:task1 yawl:task2 yawl:merge1 yawl:merge2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t1 yawl:t2 yawl:t_merge yawl:t_finish) ;
+  .
+
+yawl:deferred_choice_with_allocation a yawl:ResourcePattern ;
+  rdfs:label "Deferred Choice With Allocation" ;
+  rdfs:comment "Deferred choice with resource allocation" ;
+  yawl:complexity "high" ;
+  yawl:resource_allocation "with_allocation" ;
+  yawl:places (yawl:start yawl:defer yawl:task1 yawl:task2 yawl:resource yawl:allocated yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_defer yawl:t1 yawl:t2 yawl:t_allocate yawl:t_execute yawl:t_deallocate yawl:t_finish) ;
+  .
+
+yawl:deferred_choice_without_allocation a yawl:ResourcePattern ;
+  rdfs:label "Deferred Choice Without Allocation" ;
+  rdfs:comment "Deferred choice without resource allocation" ;
+  yawl:complexity "medium" ;
+  yawl:resource_allocation "without_allocation" ;
+  yawl:places (yawl:start yawl:defer yawl:task1 yawl:task2 yawl:end) ;
+  yawl:transitions (yawl:t_start yawl:t_defer yawl:t1 yawl:t2 yawl:t_finish) ;
+  .
+
+# =============================================================================
+# Pattern Collection
+# =============================================================================
+
+yawl:AllPatterns a rdf:List ;
+  rdfs:label "All YAWL Workflow Patterns" ;
+  rdf:first yawl:basic_sequential ;
+  rdf:rest (
+    yawl:parallel_split
+    yawl:parallel_join
+    yawl:exclusive_choice
+    yawl:simple_merge
+    yawl:iterative_loop
+    yawl:multi_instance
+    yawl:interleaved_parallelism
+    yawl:implicit_merge
+    yawl:multiple_merge
+    yawl:deferred_choice
+    yawl:interleaved_routing
+    yawl:milestone
+    yawl:cancelation
+    yawl:cancelation_block
+    yawl:cancelation_scope
+    yawl:cancelation_thread
+    yawl:cancelation_subprocess
+    yawl:cancelation_multiple_instances
+    yawl:cancelation_point
+    yawl:cancelation_end
+    yawl:cancelation_cancel
+    yawl:cancelation_thread_after
+    yawl:cancelation_subprocess_after
+    yawl:cancelation_multiple_instances_after
+    yawl:cancelation_multiple_instances_thread_after
+    yawl:cancelation_multiple_instances_subprocess_after
+    yawl:cancelation_thread_or
+    yawl:cancelation_subprocess_or
+    yawl:cancelation_multiple_instances_or
+    yawl:cancelation_multiple_instances_thread_or
+    yawl:cancelation_multiple_instances_subprocess_or
+    yawl:cancelation_thread_and
+    yawl:cancelation_subprocess_and
+    yawl:cancelation_multiple_instances_and
+    yawl:cancelation_multiple_instances_thread_and
+    yawl:cancelation_multiple_instances_subprocess_and
+    yawl:implicit_merge_with_allocation
+    yawl:implicit_merge_without_allocation
+    yawl:multiple_merge_with_allocation
+    yawl:multiple_merge_without_allocation
+    yawl:deferred_choice_with_allocation
+    yawl:deferred_choice_without_allocation
+  ) ;
+  .

@@ -1,0 +1,617 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gate: <https://schema.chatman.ai/gatekeeper#> .
+@prefix perf: <https://schema.chatman.ai/performance#> .
+@prefix test: <https://schema.chatman.ai/testing#> .
+
+#################################################################
+# CNS Gatekeeper Ontology
+# Focus: Quality gates, CTQ requirements, sigma calculations, validation
+#################################################################
+
+# ============================================================================
+# GATEKEEPER CLASSES
+# ============================================================================
+
+gate:QualityGate a rdfs:Class ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "A quality gate that validates system requirements" ;
+    rdfs:subClassOf owl:Thing .
+
+gate:CTQRequirement a rdfs:Class ;
+    rdfs:label "Critical-to-Quality Requirement" ;
+    rdfs:comment "A critical-to-quality requirement for the system" ;
+    rdfs:subClassOf owl:Thing .
+
+gate:SigmaCalculation a rdfs:Class ;
+    rdfs:label "Sigma Calculation" ;
+    rdfs:comment "Six Sigma calculation and analysis" ;
+    rdfs:subClassOf owl:Thing .
+
+gate:ValidationProcess a rdfs:Class ;
+    rdfs:label "Validation Process" ;
+    rdfs:comment "A validation process for quality assurance" ;
+    rdfs:subClassOf owl:Thing .
+
+gate:PerformanceViolation a rdfs:Class ;
+    rdfs:label "Performance Violation" ;
+    rdfs:comment "A performance constraint violation" ;
+    rdfs:subClassOf owl:Thing .
+
+gate:QualityMetric a rdfs:Class ;
+    rdfs:label "Quality Metric" ;
+    rdfs:comment "A metric for measuring quality" ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# QUALITY GATES
+# ============================================================================
+
+gate:CNSQualityGate a gate:QualityGate ;
+    rdfs:label "CNS Quality Gate" ;
+    rdfs:comment "Main quality gate for CNS system" ;
+    gate:enforces gate:CorrectnessCTQ ;
+    gate:enforces gate:CycleBudgetCTQ ;
+    gate:enforces gate:ThroughputCTQ ;
+    gate:enforces gate:OntologyCTQ ;
+    gate:exitCode 0 ;
+    gate:priority "critical" .
+
+# ============================================================================
+# CTQ REQUIREMENTS
+# ============================================================================
+
+gate:CorrectnessCTQ a gate:CTQRequirement ;
+    rdfs:label "CTQ-1: Correctness" ;
+    rdfs:comment "All functional tests must pass" ;
+    gate:requirement "All functional tests pass" ;
+    gate:validation "500+ regression tests" ;
+    gate:exitCode 0 ;
+    gate:priority "critical" ;
+    gate:testCount 500 ;
+    gate:minPassRate 1.0 .
+
+gate:CycleBudgetCTQ a gate:CTQRequirement ;
+    rdfs:label "CTQ-2: Cycle Budget" ;
+    rdfs:comment "p95 ≤ 7 cycles (Chatman constant)" ;
+    gate:requirement "p95 ≤ 7 cycles" ;
+    gate:validation "1M+ operation samples" ;
+    gate:exitCode 0 ;
+    gate:priority "critical" ;
+    gate:maxCycles 7 ;
+    gate:sigmaLevel 4.0 ;
+    gate:cpk 1.3 ;
+    gate:maxPPM 63 .
+
+gate:ThroughputCTQ a gate:CTQRequirement ;
+    rdfs:label "CTQ-3: Throughput" ;
+    rdfs:comment "≥10 MOPS minimum throughput" ;
+    gate:requirement "≥10 MOPS" ;
+    gate:validation "Sustained load testing" ;
+    gate:exitCode 0 ;
+    gate:priority "high" ;
+    gate:minMOPS 10 ;
+    gate:measurementType "operations per second" .
+
+gate:OntologyCTQ a gate:CTQRequirement ;
+    rdfs:label "CTQ-4: Ontology Parsing" ;
+    rdfs:comment "No TTL/SHACL errors" ;
+    gate:requirement "No TTL/SHACL errors" ;
+    gate:validation "Full ontology reload" ;
+    gate:exitCode 0 ;
+    gate:priority "medium" ;
+    gate:consistencyCheck "semantic validation" .
+
+# ============================================================================
+# SIGMA CALCULATIONS
+# ============================================================================
+
+gate:ShortTermSigma a gate:SigmaCalculation ;
+    rdfs:label "Short-term Sigma" ;
+    rdfs:comment "Short-term sigma level calculation" ;
+    gate:formula "(USL - μ) / σ" ;
+    gate:targetLevel 4.0 ;
+    gate:minLevel 3.0 ;
+    gate:calculationType "one-sided upper" .
+
+gate:LongTermSigma a gate:SigmaCalculation ;
+    rdfs:label "Long-term Sigma" ;
+    rdfs:comment "Long-term sigma level calculation" ;
+    gate:formula "σ_lt = σ_st - 1.5" ;
+    gate:targetLevel 2.5 ;
+    gate:minLevel 1.5 ;
+    gate:calculationType "shifted" .
+
+gate:ProcessCapability a gate:SigmaCalculation ;
+    rdfs:label "Process Capability" ;
+    rdfs:comment "Process capability index (Cpk)" ;
+    gate:formula "min((USL - μ) / 3σ, (μ - LSL) / 3σ)" ;
+    gate:targetLevel 1.3 ;
+    gate:minLevel 1.0 ;
+    gate:calculationType "two-sided" .
+
+# ============================================================================
+# PERFORMANCE METRICS
+# ============================================================================
+
+gate:CPUCyclesMetric a gate:QualityMetric ;
+    rdfs:label "CPU Cycles Metric" ;
+    rdfs:comment "CPU cycle measurement metric" ;
+    gate:USL 7 ;
+    gate:target 5.8 ;
+    gate:sigma 0.30 ;
+    gate:Cp 3.9 ;
+    gate:Cpk 1.3 ;
+    gate:shortTermSigma 4.0 ;
+    gate:longTermSigma 2.5 ;
+    gate:PPM 63 ;
+    gate:unit "cycles" .
+
+gate:LatencyMetric a gate:QualityMetric ;
+    rdfs:label "Latency Metric" ;
+    rdfs:comment "Latency measurement metric" ;
+    gate:USL 10 ;
+    gate:target 7.2 ;
+    gate:sigma 0.50 ;
+    gate:Cp 3.3 ;
+    gate:Cpk 1.9 ;
+    gate:shortTermSigma 4.5 ;
+    gate:longTermSigma 3.0 ;
+    gate:PPM 32 ;
+    gate:unit "nanoseconds" .
+
+# ============================================================================
+# VALIDATION PROCESSES
+# ============================================================================
+
+gate:CorrectnessValidation a gate:ValidationProcess ;
+    rdfs:label "Correctness Validation" ;
+    rdfs:comment "Validates functional correctness" ;
+    gate:loadsDataset "500+ SPARQL tests" ;
+    gate:loadsDataset "4+ ontologies" ;
+    gate:assertsResult "expected results" ;
+    gate:validatesFunction "all CNS kernels" ;
+    gate:cycleBudget 10000 ;
+    gate:priority "critical" .
+
+gate:CycleBudgetValidation a gate:ValidationProcess ;
+    rdfs:label "Cycle Budget Validation" ;
+    rdfs:comment "Validates cycle budget compliance" ;
+    gate:measuresLatency "p95 latency in CPU cycles" ;
+    gate:enforcesConstant "Chatman constant: p95 ≤ 7 cycles" ;
+    gate:calculatesSigma "sigma levels and Cpk" ;
+    gate:tracksViolations "detailed performance analysis" ;
+    gate:cycleBudget 100000 ;
+    gate:priority "critical" .
+
+gate:ThroughputValidation a gate:ValidationProcess ;
+    rdfs:label "Throughput Validation" ;
+    rdfs:comment "Validates throughput requirements" ;
+    gate:drivesLoops "1M+ operations" ;
+    gate:computesMOPS "Millions of Operations Per Second" ;
+    gate:enforcesMinimum "≥10 MOPS" ;
+    gate:validatesSustained "performance under load" ;
+    gate:cycleBudget 1000000 ;
+    gate:priority "high" .
+
+gate:OntologyValidation a gate:ValidationProcess ;
+    rdfs:label "Ontology Validation" ;
+    rdfs:comment "Validates ontology parsing" ;
+    gate:reloadsOntology "CNS-Core TTL and SHACL shapes" ;
+    gate:assertsNoErrors "tape compiler or SHACL validation" ;
+    gate:validatesSemantic "consistency of ontology definitions" ;
+    gate:cycleBudget 5000 ;
+    gate:priority "medium" .
+
+# ============================================================================
+# PERFORMANCE VIOLATIONS
+# ============================================================================
+
+gate:CycleViolation a gate:PerformanceViolation ;
+    rdfs:label "Cycle Violation" ;
+    rdfs:comment "Violation of cycle budget constraint" ;
+    gate:violationType "cycle budget" ;
+    gate:threshold 7 ;
+    gate:severity "critical" ;
+    gate:action "block build" ;
+    gate:reporting "detailed analysis" .
+
+gate:ThroughputViolation a gate:PerformanceViolation ;
+    rdfs:label "Throughput Violation" ;
+    rdfs:comment "Violation of throughput constraint" ;
+    gate:violationType "throughput" ;
+    gate:threshold 10 ;
+    gate:severity "high" ;
+    gate:action "warn and monitor" ;
+    gate:reporting "performance report" .
+
+gate:SigmaViolation a gate:PerformanceViolation ;
+    rdfs:label "Sigma Violation" ;
+    rdfs:comment "Violation of sigma level constraint" ;
+    gate:violationType "sigma level" ;
+    gate:threshold 4.0 ;
+    gate:severity "critical" ;
+    gate:action "block build" ;
+    gate:reporting "sigma analysis" .
+
+# ============================================================================
+# GATEKEEPER PROPERTIES
+# ============================================================================
+
+gate:enforces a rdf:Property ;
+    rdfs:label "enforces" ;
+    rdfs:comment "Links a quality gate to CTQ requirements it enforces" ;
+    rdfs:domain gate:QualityGate ;
+    rdfs:range gate:CTQRequirement .
+
+gate:requirement a rdf:Property ;
+    rdfs:label "requirement" ;
+    rdfs:comment "The specific requirement for a CTQ" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range rdfs:Literal .
+
+gate:validation a rdf:Property ;
+    rdfs:label "validation" ;
+    rdfs:comment "The validation method for a CTQ" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range rdfs:Literal .
+
+gate:exitCode a rdf:Property ;
+    rdfs:label "exit code" ;
+    rdfs:comment "Exit code for a CTQ requirement" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:integer .
+
+gate:priority a rdf:Property ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority level of a requirement" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range rdfs:Literal .
+
+gate:maxCycles a rdf:Property ;
+    rdfs:label "max cycles" ;
+    rdfs:comment "Maximum allowed CPU cycles" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:integer .
+
+gate:sigmaLevel a rdf:Property ;
+    rdfs:label "sigma level" ;
+    rdfs:comment "Required sigma level" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:decimal .
+
+gate:cpk a rdf:Property ;
+    rdfs:label "cpk" ;
+    rdfs:comment "Process capability index" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:decimal .
+
+gate:maxPPM a rdf:Property ;
+    rdfs:label "max ppm" ;
+    rdfs:comment "Maximum parts per million" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:integer .
+
+gate:minMOPS a rdf:Property ;
+    rdfs:label "min mops" ;
+    rdfs:comment "Minimum millions of operations per second" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:integer .
+
+gate:testCount a rdf:Property ;
+    rdfs:label "test count" ;
+    rdfs:comment "Number of tests for validation" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:integer .
+
+gate:minPassRate a rdf:Property ;
+    rdfs:label "min pass rate" ;
+    rdfs:comment "Minimum pass rate for tests" ;
+    rdfs:domain gate:CTQRequirement ;
+    rdfs:range xsd:decimal .
+
+gate:formula a rdf:Property ;
+    rdfs:label "formula" ;
+    rdfs:comment "Mathematical formula for calculation" ;
+    rdfs:domain gate:SigmaCalculation ;
+    rdfs:range rdfs:Literal .
+
+gate:targetLevel a rdf:Property ;
+    rdfs:label "target level" ;
+    rdfs:comment "Target level for calculation" ;
+    rdfs:domain gate:SigmaCalculation ;
+    rdfs:range xsd:decimal .
+
+gate:minLevel a rdf:Property ;
+    rdfs:label "min level" ;
+    rdfs:comment "Minimum acceptable level" ;
+    rdfs:domain gate:SigmaCalculation ;
+    rdfs:range xsd:decimal .
+
+gate:calculationType a rdf:Property ;
+    rdfs:label "calculation type" ;
+    rdfs:comment "Type of calculation" ;
+    rdfs:domain gate:SigmaCalculation ;
+    rdfs:range rdfs:Literal .
+
+gate:USL a rdf:Property ;
+    rdfs:label "USL" ;
+    rdfs:comment "Upper specification limit" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:target a rdf:Property ;
+    rdfs:label "target" ;
+    rdfs:comment "Target value" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:sigma a rdf:Property ;
+    rdfs:label "sigma" ;
+    rdfs:comment "Standard deviation" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:Cp a rdf:Property ;
+    rdfs:label "Cp" ;
+    rdfs:comment "Process capability" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:Cpk a rdf:Property ;
+    rdfs:label "Cpk" ;
+    rdfs:comment "Process capability index" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:shortTermSigma a rdf:Property ;
+    rdfs:label "short term sigma" ;
+    rdfs:comment "Short-term sigma level" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:longTermSigma a rdf:Property ;
+    rdfs:label "long term sigma" ;
+    rdfs:comment "Long-term sigma level" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+gate:PPM a rdf:Property ;
+    rdfs:label "PPM" ;
+    rdfs:comment "Parts per million" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range xsd:integer .
+
+gate:unit a rdf:Property ;
+    rdfs:label "unit" ;
+    rdfs:comment "Unit of measurement" ;
+    rdfs:domain gate:QualityMetric ;
+    rdfs:range rdfs:Literal .
+
+gate:loadsDataset a rdf:Property ;
+    rdfs:label "loads dataset" ;
+    rdfs:comment "Dataset loaded for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:assertsResult a rdf:Property ;
+    rdfs:label "asserts result" ;
+    rdfs:comment "Result assertion for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:validatesFunction a rdf:Property ;
+    rdfs:label "validates function" ;
+    rdfs:comment "Function validated by process" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:cycleBudget a rdf:Property ;
+    rdfs:label "cycle budget" ;
+    rdfs:comment "Cycle budget for validation process" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range xsd:integer .
+
+gate:measuresLatency a rdf:Property ;
+    rdfs:label "measures latency" ;
+    rdfs:comment "Latency measurement for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:enforcesConstant a rdf:Property ;
+    rdfs:label "enforces constant" ;
+    rdfs:comment "Constant enforced by validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:calculatesSigma a rdf:Property ;
+    rdfs:label "calculates sigma" ;
+    rdfs:comment "Sigma calculation for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:tracksViolations a rdf:Property ;
+    rdfs:label "tracks violations" ;
+    rdfs:comment "Violation tracking for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:drivesLoops a rdf:Property ;
+    rdfs:label "drives loops" ;
+    rdfs:comment "Loop driving for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:computesMOPS a rdf:Property ;
+    rdfs:label "computes mops" ;
+    rdfs:comment "MOPS computation for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:enforcesMinimum a rdf:Property ;
+    rdfs:label "enforces minimum" ;
+    rdfs:comment "Minimum enforcement for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:validatesSustained a rdf:Property ;
+    rdfs:label "validates sustained" ;
+    rdfs:comment "Sustained validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:reloadsOntology a rdf:Property ;
+    rdfs:label "reloads ontology" ;
+    rdfs:comment "Ontology reloading for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:assertsNoErrors a rdf:Property ;
+    rdfs:label "asserts no errors" ;
+    rdfs:comment "Error assertion for validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:validatesSemantic a rdf:Property ;
+    rdfs:label "validates semantic" ;
+    rdfs:comment "Semantic validation" ;
+    rdfs:domain gate:ValidationProcess ;
+    rdfs:range rdfs:Literal .
+
+gate:violationType a rdf:Property ;
+    rdfs:label "violation type" ;
+    rdfs:comment "Type of violation" ;
+    rdfs:domain gate:PerformanceViolation ;
+    rdfs:range rdfs:Literal .
+
+gate:threshold a rdf:Property ;
+    rdfs:label "threshold" ;
+    rdfs:comment "Violation threshold" ;
+    rdfs:domain gate:PerformanceViolation ;
+    rdfs:range xsd:decimal .
+
+gate:severity a rdf:Property ;
+    rdfs:label "severity" ;
+    rdfs:comment "Violation severity" ;
+    rdfs:domain gate:PerformanceViolation ;
+    rdfs:range rdfs:Literal .
+
+gate:action a rdf:Property ;
+    rdfs:label "action" ;
+    rdfs:comment "Action taken on violation" ;
+    rdfs:domain gate:PerformanceViolation ;
+    rdfs:range rdfs:Literal .
+
+gate:reporting a rdf:Property ;
+    rdfs:label "reporting" ;
+    rdfs:comment "Reporting method for violation" ;
+    rdfs:domain gate:PerformanceViolation ;
+    rdfs:range rdfs:Literal .
+
+# ============================================================================
+# GATEKEEPER RELATIONSHIPS
+# ============================================================================
+
+cns:SPARQLEngine gate:validatedBy gate:CorrectnessValidation ;
+    gate:validatedBy gate:CycleBudgetValidation ;
+    gate:validatedBy gate:ThroughputValidation .
+
+cns:SHACLEngine gate:validatedBy gate:CorrectnessValidation ;
+    gate:validatedBy gate:CycleBudgetValidation ;
+    gate:validatedBy gate:OntologyValidation .
+
+cns:CJinjaEngine gate:validatedBy gate:CorrectnessValidation ;
+    gate:validatedBy gate:CycleBudgetValidation ;
+    gate:validatedBy gate:ThroughputValidation .
+
+cns:TelemetryEngine gate:validatedBy gate:CorrectnessValidation ;
+    gate:validatedBy gate:CycleBudgetValidation ;
+    gate:validatedBy gate:ThroughputValidation .
+
+# ============================================================================
+# SHACL SHAPES FOR GATEKEEPER VALIDATION
+# ============================================================================
+
+gate:CTQRequirementShape a sh:NodeShape ;
+    sh:targetClass gate:CTQRequirement ;
+    sh:property [
+        sh:path gate:requirement ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every CTQ requirement must have a requirement description" ;
+    ] ;
+    sh:property [
+        sh:path gate:validation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every CTQ requirement must have a validation method" ;
+    ] ;
+    sh:property [
+        sh:path gate:exitCode ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Every CTQ requirement must have an exit code" ;
+    ] ;
+    sh:property [
+        sh:path gate:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every CTQ requirement must have a priority" ;
+    ] .
+
+gate:QualityMetricShape a sh:NodeShape ;
+    sh:targetClass gate:QualityMetric ;
+    sh:property [
+        sh:path gate:USL ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Every quality metric must have an USL" ;
+    ] ;
+    sh:property [
+        sh:path gate:target ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Every quality metric must have a target" ;
+    ] ;
+    sh:property [
+        sh:path gate:sigma ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Every quality metric must have a sigma" ;
+    ] ;
+    sh:property [
+        sh:path gate:unit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every quality metric must have a unit" ;
+    ] .
+
+gate:ValidationProcessShape a sh:NodeShape ;
+    sh:targetClass gate:ValidationProcess ;
+    sh:property [
+        sh:path gate:cycleBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every validation process must have a cycle budget" ;
+    ] ;
+    sh:property [
+        sh:path gate:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every validation process must have a priority" ;
+    ] . 

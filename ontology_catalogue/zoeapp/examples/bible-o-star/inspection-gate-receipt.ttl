@@ -1,0 +1,26 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:ostar:inspection-gate-section> a bos:WallSection ;
+    bos:gateAssignment bos:InspectionGate ;
+    bos:builderName bos:Malkijah ;
+    bos:provenance bos:Nehemiah_3_31 ;
+    bos:verdict bos:Verdict_Inspected ;
+    bos:receiptRelation <urn:ostar:receipt:inspection-gate-999> .
+
+bos:InspectionGate a bos:Gate ;
+    rdfs:label "Inspection Gate (Miphkad)" ;
+    bos:purpose "Final review and census of the assembly" .
+
+bos:Malkijah a bos:Builder ;
+    rdfs:label "Malkijah, son of the goldsmith" .
+
+bos:Nehemiah_3_31 a bos:NationsLedger ;
+    rdfs:label "Nehemiah 3:31" .
+
+bos:Verdict_Inspected a bos:InspectionVerdict ;
+    rdfs:label "Inspected and Approved" .
+
+<urn:ostar:receipt:inspection-gate-999> a bos:Receipt ;
+    rdfs:label "Inspection Gate Receipt #999" .

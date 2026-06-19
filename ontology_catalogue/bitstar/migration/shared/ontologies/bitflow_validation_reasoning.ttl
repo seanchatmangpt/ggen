@@ -1,0 +1,730 @@
+@prefix : <http://bitflow.ai/ontology/validation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix bitflow: <http://bitflow.ai/ontology/core#> .
+@prefix patterns: <http://bitflow.ai/ontology/patterns#> .
+@prefix perf: <http://bitflow.ai/ontology/performance#> .
+@prefix memory: <http://bitflow.ai/ontology/memory#> .
+@prefix sparql: <http://bitflow.ai/sparql/validation#> .
+
+# ========================================
+# BitFlow Validation and Reasoning Ontology v2.0
+# Complete validation framework with SHACL constraints and SWRL rules
+# ========================================
+
+<http://bitflow.ai/ontology/validation> a owl:Ontology ;
+    rdfs:label "BitFlow Validation and Reasoning Ontology v2.0" ;
+    rdfs:comment "Comprehensive validation, constraint checking, and reasoning framework for BitFlow workflow patterns" ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://bitflow.ai/ontology/patterns> ;
+    owl:imports <http://bitflow.ai/ontology/performance> ;
+    owl:imports <http://bitflow.ai/ontology/memory> ;
+    rdfs:seeAlso <http://bitflow.ai/> .
+
+# ========================================
+# Core Validation Classes
+# ========================================
+
+:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Abstract base class for all validation rules" .
+
+:ConstraintViolation a owl:Class ;
+    rdfs:label "Constraint Violation" ;
+    rdfs:comment "Violation of a validation constraint" .
+
+:ValidationResult a owl:Class ;
+    rdfs:label "Validation Result" ;
+    rdfs:comment "Result of validation execution" .
+
+:ValidationSeverity a owl:Class ;
+    rdfs:label "Validation Severity" ;
+    rdfs:comment "Severity level of validation issues" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :Info :Warning :Error :Critical ) ] .
+
+:Info a :ValidationSeverity ;
+    rdfs:label "Info" ;
+    rdfs:comment "Informational message" .
+
+:Warning a :ValidationSeverity ;
+    rdfs:label "Warning" ;
+    rdfs:comment "Warning that should be addressed" .
+
+:Error a :ValidationSeverity ;
+    rdfs:label "Error" ;
+    rdfs:comment "Error that prevents proper operation" .
+
+:Critical a :ValidationSeverity ;
+    rdfs:label "Critical" ;
+    rdfs:comment "Critical error requiring immediate attention" .
+
+# ========================================
+# Validation Categories
+# ========================================
+
+:PatternValidation a owl:Class ;
+    rdfs:subClassOf :ValidationRule ;
+    rdfs:label "Pattern Validation" ;
+    rdfs:comment "Validation rules specific to workflow patterns" .
+
+:PerformanceValidation a owl:Class ;
+    rdfs:subClassOf :ValidationRule ;
+    rdfs:label "Performance Validation" ;
+    rdfs:comment "Validation rules for performance constraints" .
+
+:MemoryValidation a owl:Class ;
+    rdfs:subClassOf :ValidationRule ;
+    rdfs:label "Memory Validation" ;
+    rdfs:comment "Validation rules for memory management" .
+
+:SIMDValidation a owl:Class ;
+    rdfs:subClassOf :ValidationRule ;
+    rdfs:label "SIMD Validation" ;
+    rdfs:comment "Validation rules for SIMD optimization" .
+
+:AtomicValidation a owl:Class ;
+    rdfs:subClassOf :ValidationRule ;
+    rdfs:label "Atomic Validation" ;
+    rdfs:comment "Validation rules for atomic operations" .
+
+:SemanticValidation a owl:Class ;
+    rdfs:subClassOf :ValidationRule ;
+    rdfs:label "Semantic Validation" ;
+    rdfs:comment "Validation of semantic consistency" .
+
+# ========================================
+# Validation Properties
+# ========================================
+
+:ruleName a owl:DatatypeProperty ;
+    rdfs:domain :ValidationRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "Rule Name" ;
+    rdfs:comment "Human-readable name of the validation rule" .
+
+:ruleDescription a owl:DatatypeProperty ;
+    rdfs:domain :ValidationRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "Rule Description" ;
+    rdfs:comment "Detailed description of what the rule validates" .
+
+:violationMessage a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintViolation ;
+    rdfs:range xsd:string ;
+    rdfs:label "Violation Message" ;
+    rdfs:comment "Human-readable description of the violation" .
+
+:violationSeverity a owl:ObjectProperty ;
+    rdfs:domain :ConstraintViolation ;
+    rdfs:range :ValidationSeverity ;
+    rdfs:label "Violation Severity" .
+
+:violationPath a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintViolation ;
+    rdfs:range xsd:string ;
+    rdfs:label "Violation Path" ;
+    rdfs:comment "Path to the violating property or node" .
+
+:violationValue a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintViolation ;
+    rdfs:range xsd:string ;
+    rdfs:label "Violation Value" ;
+    rdfs:comment "The actual value that caused the violation" .
+
+:expectedValue a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintViolation ;
+    rdfs:range xsd:string ;
+    rdfs:label "Expected Value" ;
+    rdfs:comment "The expected or valid value" .
+
+:isValid a owl:DatatypeProperty ;
+    rdfs:domain :ValidationResult ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Valid" ;
+    rdfs:comment "Whether validation passed without violations" .
+
+:violationCount a owl:DatatypeProperty ;
+    rdfs:domain :ValidationResult ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Violation Count" ;
+    rdfs:comment "Total number of violations found" .
+
+:validationTimestamp a owl:DatatypeProperty ;
+    rdfs:domain :ValidationResult ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Validation Timestamp" ;
+    rdfs:comment "When validation was performed" .
+
+:hasViolation a owl:ObjectProperty ;
+    rdfs:domain :ValidationResult ;
+    rdfs:range :ConstraintViolation ;
+    rdfs:label "Has Violation" .
+
+# ========================================
+# Pattern-Specific SHACL Constraints
+# ========================================
+
+# Core Pattern Constraints
+:PatternCoreShape a sh:NodeShape ;
+    sh:targetClass patterns:BitFlowPattern ;
+    rdfs:label "Pattern Core Shape" ;
+    rdfs:comment "Core constraints for all BitFlow patterns" ;
+    sh:property [
+        sh:path patterns:patternID ;
+        sh:name "Pattern ID" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 42 ;
+        sh:message "Pattern ID must be between 0 and 42" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path patterns:maxExecutionTicks ;
+        sh:name "Maximum Execution Ticks" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Maximum execution ticks must be between 1 and 8" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path patterns:handlerFunction ;
+        sh:name "Handler Function" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^pattern_[a-z_]+_handler$" ;
+        sh:message "Handler function must follow naming pattern 'pattern_*_handler'" ;
+        sh:severity sh:Warning
+    ] ;
+    sh:property [
+        sh:path patterns:scratchSize ;
+        sh:name "Scratch Size" ;
+        sh:hasValue 128 ;
+        sh:message "All patterns must use 128-byte scratch space" ;
+        sh:severity sh:Violation
+    ] .
+
+# Performance Constraints
+:PerformanceConstraintShape a sh:NodeShape ;
+    sh:targetClass patterns:BitFlowPattern ;
+    rdfs:label "Performance Constraint Shape" ;
+    rdfs:comment "Performance-related constraints for patterns" ;
+    sh:property [
+        sh:path patterns:isBranchless ;
+        sh:name "Is Branchless" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Branchless optimization flag is required" ;
+        sh:severity sh:Info
+    ] ;
+    sh:property [
+        sh:path patterns:usesAtomicOps ;
+        sh:name "Uses Atomic Operations" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Atomic operations flag is required" ;
+        sh:severity sh:Info
+    ] .
+
+# SIMD Optimization Constraints
+:SIMDOptimizationShape a sh:NodeShape ;
+    sh:targetClass patterns:BitFlowPattern ;
+    rdfs:label "SIMD Optimization Shape" ;
+    rdfs:comment "Constraints for SIMD-optimized patterns" ;
+    sh:sparql [
+        sh:message "Patterns with SIMD features should have lower tick counts" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+            SELECT $this
+            WHERE {
+                $this patterns:requiredFeatures ?features ;
+                      patterns:maxExecutionTicks ?ticks .
+                FILTER(CONTAINS(?features, "SIMD") && ?ticks > 4)
+            }
+        """
+    ] .
+
+# Memory Alignment Constraints
+:MemoryAlignmentShape a sh:NodeShape ;
+    sh:targetClass memory:PatternScratchSpace ;
+    rdfs:label "Memory Alignment Shape" ;
+    rdfs:comment "Memory alignment constraints for scratch spaces" ;
+    sh:property [
+        sh:path memory:size ;
+        sh:hasValue 128 ;
+        sh:message "Scratch space must be exactly 128 bytes" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path memory:alignment ;
+        sh:hasValue memory:Align16 ;
+        sh:message "Scratch space must be 16-byte aligned for SIMD" ;
+        sh:severity sh:Violation
+    ] .
+
+# Telemetry Constraints
+:TelemetryConstraintShape a sh:NodeShape ;
+    sh:targetClass perf:TelemetryFrame ;
+    rdfs:label "Telemetry Constraint Shape" ;
+    rdfs:comment "Constraints for telemetry data" ;
+    sh:property [
+        sh:path perf:ticksUsed ;
+        sh:name "Ticks Used" ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 8 ;
+        sh:message "Ticks used must be between 0 and 8" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path perf:blake3Hash ;
+        sh:name "Blake3 Hash" ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:message "Blake3 hash must be 64 hexadecimal characters" ;
+        sh:severity sh:Warning
+    ] ;
+    sh:property [
+        sh:path perf:simdUtilization ;
+        sh:name "SIMD Utilization" ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "SIMD utilization must be between 0.0 and 1.0" ;
+        sh:severity sh:Warning
+    ] .
+
+# ========================================
+# Complex Constraint Rules
+# ========================================
+
+# Split/Join Consistency
+:SplitJoinConsistencyShape a sh:NodeShape ;
+    sh:targetClass patterns:BitFlowPattern ;
+    rdfs:label "Split/Join Consistency Shape" ;
+    rdfs:comment "Validates split/join type consistency" ;
+    sh:sparql [
+        sh:message "Exclusive choice (XOR-split) should not have AND-join" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            SELECT $this
+            WHERE {
+                $this yawl:hasSplitType yawl:XOR ;
+                      yawl:hasJoinType yawl:AND .
+            }
+        """
+    ] .
+
+# Performance Budget Validation
+:PerformanceBudgetShape a sh:NodeShape ;
+    sh:targetClass perf:TelemetryFrame ;
+    rdfs:label "Performance Budget Shape" ;
+    rdfs:comment "Validates performance stays within budget" ;
+    sh:sparql [
+        sh:message "Pattern execution exceeded tick budget" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX perf: <http://bitflow.ai/ontology/performance#>
+            PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+            SELECT $this
+            WHERE {
+                $this perf:patternID ?patternID ;
+                      perf:ticksUsed ?actualTicks .
+                ?pattern patterns:patternID ?patternID ;
+                         patterns:maxExecutionTicks ?maxTicks .
+                FILTER(?actualTicks > ?maxTicks)
+            }
+        """
+    ] .
+
+# Memory Pool Capacity
+:MemoryPoolCapacityShape a sh:NodeShape ;
+    sh:targetClass memory:MemoryPool ;
+    rdfs:label "Memory Pool Capacity Shape" ;
+    rdfs:comment "Validates memory pool has sufficient capacity" ;
+    sh:sparql [
+        sh:message "Memory pool capacity exhausted" ;
+        sh:severity sh:Critical ;
+        sh:select """
+            PREFIX memory: <http://bitflow.ai/ontology/memory#>
+            SELECT $this
+            WHERE {
+                $this memory:freeBlocks ?free ;
+                      memory:blockCount ?total .
+                FILTER(?free / ?total < 0.1)
+            }
+        """
+    ] .
+
+# ========================================
+# SWRL Reasoning Rules
+# ========================================
+
+# Performance Optimization Rule
+:PerformanceOptimizationRule a swrl:Rule ;
+    rdfs:label "Performance Optimization Rule" ;
+    rdfs:comment "Suggests optimization when patterns exceed performance thresholds" ;
+    swrl:body [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate perf:TelemetryFrame ;
+            swrl:argument1 ?frame
+        ] ;
+        rdf:rest [
+            rdf:first [
+                rdf:type swrl:DatavaluedPropertyAtom ;
+                swrl:propertyPredicate perf:ticksUsed ;
+                swrl:argument1 ?frame ;
+                swrl:argument2 ?ticks
+            ] ;
+            rdf:rest [
+                rdf:first [
+                    rdf:type swrl:DatavaluedPropertyAtom ;
+                    swrl:propertyPredicate perf:patternID ;
+                    swrl:argument1 ?frame ;
+                    swrl:argument2 ?patternID
+                ] ;
+                rdf:rest [
+                    rdf:first [
+                        rdf:type swrl:BuiltinAtom ;
+                        swrl:builtin swrl:greaterThan ;
+                        swrl:arguments ( ?ticks 5 )
+                    ] ;
+                    rdf:rest rdf:nil
+                ]
+            ]
+        ]
+    ] ;
+    swrl:head [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate :OptimizationRecommendation ;
+            swrl:argument1 ?rec
+        ] ;
+        rdf:rest [
+            rdf:first [
+                rdf:type swrl:DatavaluedPropertyAtom ;
+                swrl:propertyPredicate :recommendsPattern ;
+                swrl:argument1 ?rec ;
+                swrl:argument2 ?patternID
+            ] ;
+            rdf:rest rdf:nil
+        ]
+    ] .
+
+# Memory Fragmentation Rule
+:MemoryFragmentationRule a swrl:Rule ;
+    rdfs:label "Memory Fragmentation Rule" ;
+    rdfs:comment "Detects high memory fragmentation requiring defragmentation" ;
+    swrl:body [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate memory:MemoryAllocator ;
+            swrl:argument1 ?allocator
+        ] ;
+        rdf:rest [
+            rdf:first [
+                rdf:type swrl:DatavaluedPropertyAtom ;
+                swrl:propertyPredicate memory:fragmentationRatio ;
+                swrl:argument1 ?allocator ;
+                swrl:argument2 ?fragmentation
+            ] ;
+            rdf:rest [
+                rdf:first [
+                    rdf:type swrl:BuiltinAtom ;
+                    swrl:builtin swrl:greaterThan ;
+                    swrl:arguments ( ?fragmentation 0.3 )
+                ] ;
+                rdf:rest rdf:nil
+            ]
+        ]
+    ] ;
+    swrl:head [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate :DefragmentationRecommendation ;
+            swrl:argument1 ?defrag
+        ] ;
+        rdf:rest [
+            rdf:first [
+                rdf:type swrl:DatavaluedPropertyAtom ;
+                swrl:propertyPredicate :targetAllocator ;
+                swrl:argument1 ?defrag ;
+                swrl:argument2 ?allocator
+            ] ;
+            rdf:rest rdf:nil
+        ]
+    ] .
+
+# SIMD Efficiency Rule
+:SIMDEfficiencyRule a swrl:Rule ;
+    rdfs:label "SIMD Efficiency Rule" ;
+    rdfs:comment "Identifies patterns with low SIMD utilization that could be optimized" ;
+    swrl:body [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate patterns:BitFlowPattern ;
+            swrl:argument1 ?pattern
+        ] ;
+        rdf:rest [
+            rdf:first [
+                rdf:type swrl:DatavaluedPropertyAtom ;
+                swrl:propertyPredicate patterns:requiredFeatures ;
+                swrl:argument1 ?pattern ;
+                swrl:argument2 ?features
+            ] ;
+            rdf:rest [
+                rdf:first [
+                    rdf:type swrl:BuiltinAtom ;
+                    swrl:builtin swrl:contains ;
+                    swrl:arguments ( ?features "SIMD" )
+                ] ;
+                rdf:rest rdf:nil
+            ]
+        ]
+    ] ;
+    swrl:head [
+        rdf:type swrl:AtomList ;
+        rdf:first [
+            rdf:type swrl:ClassAtom ;
+            swrl:classPredicate :SIMDOptimizable ;
+            swrl:argument1 ?pattern
+        ] ;
+        rdf:rest rdf:nil
+    ] .
+
+# ========================================
+# Recommendation Classes
+# ========================================
+
+:OptimizationRecommendation a owl:Class ;
+    rdfs:label "Optimization Recommendation" ;
+    rdfs:comment "Recommendation for performance optimization" .
+
+:DefragmentationRecommendation a owl:Class ;
+    rdfs:label "Defragmentation Recommendation" ;
+    rdfs:comment "Recommendation for memory defragmentation" .
+
+:SIMDOptimizable a owl:Class ;
+    rdfs:label "SIMD Optimizable" ;
+    rdfs:comment "Pattern that can benefit from SIMD optimization" .
+
+:recommendsPattern a owl:DatatypeProperty ;
+    rdfs:domain :OptimizationRecommendation ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Recommends Pattern" .
+
+:targetAllocator a owl:ObjectProperty ;
+    rdfs:domain :DefragmentationRecommendation ;
+    rdfs:range memory:MemoryAllocator ;
+    rdfs:label "Target Allocator" .
+
+# ========================================
+# Validation Execution Engine
+# ========================================
+
+:ValidationEngine a owl:Class ;
+    rdfs:label "Validation Engine" ;
+    rdfs:comment "Engine that executes validation rules" .
+
+:ValidationSession a owl:Class ;
+    rdfs:label "Validation Session" ;
+    rdfs:comment "Single execution of validation rules" .
+
+:executesRule a owl:ObjectProperty ;
+    rdfs:domain :ValidationEngine ;
+    rdfs:range :ValidationRule ;
+    rdfs:label "Executes Rule" .
+
+:hasSession a owl:ObjectProperty ;
+    rdfs:domain :ValidationEngine ;
+    rdfs:range :ValidationSession ;
+    rdfs:label "Has Session" .
+
+:sessionStartTime a owl:DatatypeProperty ;
+    rdfs:domain :ValidationSession ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Session Start Time" .
+
+:sessionEndTime a owl:DatatypeProperty ;
+    rdfs:domain :ValidationSession ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Session End Time" .
+
+:sessionDuration a owl:DatatypeProperty ;
+    rdfs:domain :ValidationSession ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Session Duration" .
+
+:rulesExecuted a owl:DatatypeProperty ;
+    rdfs:domain :ValidationSession ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Rules Executed" .
+
+:totalViolations a owl:DatatypeProperty ;
+    rdfs:domain :ValidationSession ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Total Violations" .
+
+# ========================================
+# SPARQL Query Templates for Validation
+# ========================================
+
+:ValidationStatusQuery a sparql:QueryTemplate ;
+    rdfs:label "Validation Status Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/validation#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        
+        # Get validation results summary
+        SELECT ?shape ?violationCount ?severity
+        WHERE {
+            ?result a :ValidationResult ;
+                    :violationCount ?violationCount .
+            ?result :hasViolation ?violation .
+            ?violation :violationSeverity ?severity .
+            BIND(STRAFTER(STR(?result), "#") AS ?shape)
+        }
+        GROUP BY ?shape ?violationCount ?severity
+        ORDER BY DESC(?violationCount)
+    """ .
+
+:PerformanceViolationsQuery a sparql:QueryTemplate ;
+    rdfs:label "Performance Violations Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/validation#>
+        PREFIX perf: <http://bitflow.ai/ontology/performance#>
+        PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+        
+        # Find performance constraint violations
+        SELECT ?patternID ?actualTicks ?maxTicks ?violation
+        WHERE {
+            ?violation a :ConstraintViolation ;
+                       :violationMessage ?message ;
+                       :violationSeverity :Violation .
+            ?frame perf:patternID ?patternID ;
+                   perf:ticksUsed ?actualTicks .
+            ?pattern patterns:patternID ?patternID ;
+                     patterns:maxExecutionTicks ?maxTicks .
+            FILTER(CONTAINS(?message, "exceeded tick budget"))
+        }
+        ORDER BY DESC(?actualTicks)
+    """ .
+
+:MemoryValidationQuery a sparql:QueryTemplate ;
+    rdfs:label "Memory Validation Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/validation#>
+        PREFIX memory: <http://bitflow.ai/ontology/memory#>
+        
+        # Check memory-related validation issues
+        SELECT ?poolType ?violation ?severity ?message
+        WHERE {
+            ?violation a :ConstraintViolation ;
+                       :violationMessage ?message ;
+                       :violationSeverity ?severity .
+            ?pool memory:poolType ?poolType .
+            FILTER(CONTAINS(?message, "memory") || CONTAINS(?message, "capacity"))
+        }
+        ORDER BY ?severity
+    """ .
+
+:OptimizationRecommendationQuery a sparql:QueryTemplate ;
+    rdfs:label "Optimization Recommendation Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/validation#>
+        PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+        
+        # Get optimization recommendations
+        SELECT ?patternID ?patternName ?recommendation
+        WHERE {
+            ?rec a :OptimizationRecommendation ;
+                 :recommendsPattern ?patternID .
+            ?pattern patterns:patternID ?patternID ;
+                     rdfs:label ?patternName .
+            BIND("Performance optimization recommended" AS ?recommendation)
+        }
+        UNION
+        {
+            ?pattern a :SIMDOptimizable ;
+                     patterns:patternID ?patternID ;
+                     rdfs:label ?patternName .
+            BIND("SIMD optimization available" AS ?recommendation)
+        }
+        ORDER BY ?patternID
+    """ .
+
+# ========================================
+# Validation Configuration
+# ========================================
+
+:BitFlowValidationEngine a :ValidationEngine ;
+    rdfs:label "BitFlow Validation Engine" ;
+    rdfs:comment "Main validation engine for BitFlow system" ;
+    :executesRule :PatternCoreShape, :PerformanceConstraintShape, :SIMDOptimizationShape,
+                  :MemoryAlignmentShape, :TelemetryConstraintShape, :SplitJoinConsistencyShape,
+                  :PerformanceBudgetShape, :MemoryPoolCapacityShape .
+
+:DefaultValidationSession a :ValidationSession ;
+    rdfs:label "Default Validation Session" ;
+    rdfs:comment "Template for validation sessions" ;
+    :rulesExecuted 0 ;
+    :totalViolations 0 .
+
+# ========================================
+# Validation Metrics and Reporting
+# ========================================
+
+:ValidationMetrics a owl:Class ;
+    rdfs:label "Validation Metrics" ;
+    rdfs:comment "Metrics tracking validation performance and effectiveness" .
+
+:rulesPerSecond a owl:DatatypeProperty ;
+    rdfs:domain :ValidationMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Rules Per Second" ;
+    rdfs:comment "Validation rules executed per second" .
+
+:averageViolationsPerRule a owl:DatatypeProperty ;
+    rdfs:domain :ValidationMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Average Violations Per Rule" ;
+    rdfs:comment "Average number of violations found per rule" .
+
+:falsePositiveRate a owl:DatatypeProperty ;
+    rdfs:domain :ValidationMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "False Positive Rate" ;
+    rdfs:comment "Rate of false positive violations (0.0-1.0)" .
+
+:coveragePercentage a owl:DatatypeProperty ;
+    rdfs:domain :ValidationMetrics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Coverage Percentage" ;
+    rdfs:comment "Percentage of system covered by validation rules" .
+
+:BitFlowValidationMetrics a :ValidationMetrics ;
+    rdfs:label "BitFlow Validation Metrics" ;
+    rdfs:comment "Current validation metrics for BitFlow system" ;
+    :rulesPerSecond 1000.0 ;
+    :averageViolationsPerRule 2.5 ;
+    :falsePositiveRate 0.02 ;
+    :coveragePercentage 0.95 .

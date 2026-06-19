@@ -1,0 +1,179 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ZOE LA Mobile — Category Registry Ontology
+# ============================================================================
+# Master taxonomy registry: catalogs every SKOS ConceptScheme used across
+# ZOE LA operations and declares the app navigation tab taxonomy.
+#
+# Schemes defined in other modules are registered here as owl:NamedIndividual
+# for cross-module discovery and code-generation purposes.  This file does NOT
+# redefine the concepts themselves — it only records the scheme IRIs.
+#
+# New scheme: zoe:AppTabScheme — Expo app bottom-tab navigation categories.
+# ============================================================================
+
+zoe:CategoriesOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Category Registry Ontology"@en ;
+  rdfs:comment "Master registry of all SKOS ConceptSchemes used in the ZOE LA Mobile service graph, plus the AppTabScheme taxonomy for Expo navigation."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:created  "2026-05-17"^^xsd:date ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ============================================================================
+# Meta-class: CategoryRegistry
+# ============================================================================
+
+zoe:CategoryRegistry a owl:Class ;
+  rdfs:label      "Category Registry"@en ;
+  rdfs:comment    "Meta-class documenting all SKOS ConceptSchemes registered in the ZOE LA ontology suite. One instance per deployment."@en ;
+  rdfs:subClassOf owl:Thing .
+
+zoe:registryVersion a owl:DatatypeProperty ;
+  rdfs:label      "registry version"@en ;
+  rdfs:comment    "SemVer string for the registry snapshot, incremented when schemes are added or removed."@en ;
+  rdfs:domain     zoe:CategoryRegistry ;
+  rdfs:range      xsd:string ;
+  skos:notation   "registry_version" .
+
+zoe:totalSchemes a owl:DatatypeProperty ;
+  rdfs:label      "total schemes"@en ;
+  rdfs:comment    "Count of ConceptSchemes registered in this registry instance."@en ;
+  rdfs:domain     zoe:CategoryRegistry ;
+  rdfs:range      xsd:integer ;
+  skos:notation   "total_schemes" .
+
+# ── Registry instance ───────────────────────────────────────────────────────
+
+zoe:ZoeLACategoryRegistry a owl:NamedIndividual, zoe:CategoryRegistry ;
+  rdfs:label          "ZOE LA Category Registry"@en ;
+  rdfs:comment        "Singleton registry of all ConceptSchemes in the ZOE LA Mobile ontology suite."@en ;
+  zoe:registryVersion "1.0.0" ;
+  zoe:totalSchemes    13 .
+
+# ============================================================================
+# Cross-module scheme registrations (defined in their respective .ttl files)
+# ============================================================================
+
+zoe:EventCategoryScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Event Category Scheme"@en ;
+  rdfs:comment    "Event categories from event.ttl — classifies church and community events by type."@en ;
+  skos:notation   "event_categories" .
+
+zoe:NeedCategoryScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Need Category Scheme"@en ;
+  rdfs:comment    "Need categories from need.ttl — classifies service needs by care domain."@en ;
+  skos:notation   "need_categories" .
+
+zoe:ResourceCategoryScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Resource Category Scheme"@en ;
+  rdfs:comment    "Resource categories from resource.ttl — classifies tangible and intangible resources available for distribution."@en ;
+  skos:notation   "resource_categories" .
+
+zoe:RouteCategoryScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Route Category Scheme"@en ;
+  rdfs:comment    "Route categories from routes.ttl — classifies service-routing pathways (CARE, FOOD, SHELTER, etc.)."@en ;
+  skos:notation   "route_categories" .
+
+zoe:OutcomeStateScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Outcome State Scheme"@en ;
+  rdfs:comment    "Outcome states from routes.ttl — lifecycle states for service outcomes (OPEN, IN_PROGRESS, CLOSED, etc.)."@en ;
+  skos:notation   "outcome_states" .
+
+zoe:ConsentTypeScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Consent Type Scheme"@en ;
+  rdfs:comment    "Consent types from consent.ttl — classifies consent scope for data sharing and ministry engagement."@en ;
+  skos:notation   "consent_types" .
+
+zoe:RoleScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Role Scheme"@en ;
+  rdfs:comment    "Roles from roles.ttl — staff, volunteer, and member role codes used for access control."@en ;
+  skos:notation   "roles" .
+
+zoe:GenerationSegmentScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Generation Segment Scheme"@en ;
+  rdfs:comment    "Generation segments from generations.ttl — demographic cohort taxonomy (Gen Z, Millennial, Gen X, etc.)."@en ;
+  skos:notation   "generation_segments" .
+
+zoe:EvidenceTypeScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Evidence Type Scheme"@en ;
+  rdfs:comment    "Evidence types from evidence.ttl — classifies proof artifacts attached to care records."@en ;
+  skos:notation   "evidence_types" .
+
+zoe:OcelEventTypeScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "OCEL Event Type Scheme"@en ;
+  rdfs:comment    "OCEL event types from ocel.ttl — object-centric event log event-type taxonomy."@en ;
+  skos:notation   "ocel_event_types" .
+
+zoe:PartnerCategoryScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Partner Category Scheme"@en ;
+  rdfs:comment    "Partner categories from partners.ttl — classifies external ministry and service-provider partners."@en ;
+  skos:notation   "partner_categories" .
+
+zoe:SensitivityScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "Sensitivity Level Scheme"@en ;
+  rdfs:comment    "Data sensitivity levels from permissions.ttl — Public, Sensitive, Confidential classifications for records."@en ;
+  skos:notation   "sensitivity_levels" .
+
+# ============================================================================
+# App Navigation Tab Scheme (new — defined here)
+# ============================================================================
+
+zoe:AppTabScheme a owl:NamedIndividual, skos:ConceptScheme ;
+  rdfs:label      "App Tab Scheme"@en ;
+  rdfs:comment    "Expo bottom-tab navigation categories for the ZOE LA Mobile app. Drives tab-bar rendering and screen routing."@en ;
+  skos:notation   "app_tabs" .
+
+# ── Tab concepts ─────────────────────────────────────────────────────────────
+
+zoe:HomeTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "Home"@en ;
+  rdfs:comment    "Home feed tab — primary landing screen displaying announcements and recent activity."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "HOME" .
+
+zoe:CareTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "ZOE Cares"@en ;
+  rdfs:comment    "Care tab — entry point for submitting, viewing, and managing care requests."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "CARE" .
+
+zoe:EventsTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "Events"@en ;
+  rdfs:comment    "Events tab — calendar and listing of upcoming church and community events."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "EVENTS" .
+
+zoe:ServeTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "Serve"@en ;
+  rdfs:comment    "Serve tab — volunteer opportunity discovery and sign-up."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "SERVE" .
+
+zoe:GroupsTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "Groups"@en ;
+  rdfs:comment    "Groups tab — connect group discovery, membership, and group-specific content."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "GROUPS" .
+
+zoe:ProfileTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "Profile"@en ;
+  rdfs:comment    "Profile tab — personal account management, household details, and preferences."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "PROFILE" .
+
+zoe:AdminTab a owl:NamedIndividual, skos:Concept ;
+  rdfs:label      "Admin"@en ;
+  rdfs:comment    "Admin tab — role-gated administration screens for care leads and system administrators. Only visible to users with CARE or ADMIN roles."@en ;
+  skos:inScheme   zoe:AppTabScheme ;
+  skos:notation   "ADMIN" .
+
+zoe:AppTabScheme skos:hasTopConcept zoe:HomeTab, zoe:CareTab, zoe:EventsTab,
+    zoe:ServeTab, zoe:GroupsTab, zoe:ProfileTab, zoe:AdminTab .

@@ -1,0 +1,17 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Person1 a ex:Person ;
+  rdfs:label "John Doe"^^xsd:string ;
+  ex:age 30 ;
+  ex:email "john.doe@example.org" .
+
+ex:Person2 a ex:Person ;
+  rdfs:label "Jane Smith"^^xsd:string ;
+  ex:age 25 ;
+  ex:email "jane.smith@example.org" .
+
+ex:Person a rdfs:Class ;
+  rdfs:label "Person"^^xsd:string ;
+  rdfs:comment "A human being"^^xsd:string .

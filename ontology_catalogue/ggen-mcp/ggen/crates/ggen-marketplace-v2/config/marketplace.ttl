@@ -1,0 +1,148 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix : <http://ggen.dev/config#> .
+
+# Main marketplace configuration
+:marketplace a ggen:MarketplaceConfig ;
+    rdfs:label "ggen Marketplace Configuration" ;
+    rdfs:comment "Main configuration for ggen template marketplace" ;
+
+    # Registry settings
+    ggen:registryUrl "https://registry.ggen.dev" ;
+    ggen:fallbackRegistries ( "https://backup1.ggen.dev" "https://backup2.ggen.dev" ) ;
+
+    # Local cache settings
+    ggen:cacheDir "~/.ggen/cache" ;
+    ggen:maxCacheSize "1073741824"^^xsd:integer ;  # 1GB
+    ggen:cacheExpiryDays "30"^^xsd:integer ;
+
+    # Download limits
+    ggen:maxDownloadSize "104857600"^^xsd:integer ;  # 100MB
+    ggen:downloadTimeout "300"^^xsd:integer ;  # 5 minutes
+    ggen:maxConcurrentDownloads "5"^^xsd:integer ;
+
+    # Validation settings
+    ggen:validationEnabled "true"^^xsd:boolean ;
+    ggen:strictValidation "true"^^xsd:boolean ;
+    ggen:validateDependencies "true"^^xsd:boolean ;
+    ggen:allowDeprecated "false"^^xsd:boolean ;
+    ggen:allowYanked "false"^^xsd:boolean ;
+
+    # Update settings
+    ggen:autoUpdateEnabled "false"^^xsd:boolean ;
+    ggen:autoUpdateInterval "86400"^^xsd:integer ;  # 24 hours
+    ggen:updateCheckOnInstall "true"^^xsd:boolean ;
+
+    # Security settings
+    ggen:requireSignatures "true"^^xsd:boolean ;
+    ggen:verifyChecksums "true"^^xsd:boolean ;
+    ggen:tlsVerifyPeer "true"^^xsd:boolean ;
+
+    # Telemetry settings
+    ggen:telemetryEnabled "true"^^xsd:boolean ;
+    ggen:telemetryEndpoint "https://telemetry.ggen.dev/v1/metrics" ;
+    ggen:reportErrors "true"^^xsd:boolean ;
+    ggen:anonymizeData "true"^^xsd:boolean ;
+
+    # Performance settings
+    ggen:sparqlQueryTimeout "30"^^xsd:integer ;  # 30 seconds
+    ggen:maxMemoryUsage "536870912"^^xsd:integer ;  # 512MB
+    ggen:enableQueryCache "true"^^xsd:boolean ;
+    ggen:queryCacheSize "1000"^^xsd:integer ;
+
+    # FMEA settings
+    ggen:fmeaEnabled "true"^^xsd:boolean ;
+    ggen:autoRecoveryEnabled "true"^^xsd:boolean ;
+    ggen:maxRecoveryAttempts "3"^^xsd:integer ;
+
+    # Logging settings
+    ggen:logLevel "info" ;
+    ggen:logFormat "json" ;
+    ggen:logDir "~/.ggen/logs" ;
+
+    # References to other configs
+    ggen:hasRegistryConfig :primary-registry, :backup-registry ;
+    ggen:hasValidationRules <validation-rules.ttl> ;
+    ggen:hasStateMachines <state-machines.ttl> .
+
+# Primary registry configuration
+:primary-registry a ggen:RegistryConfig ;
+    ggen:name "Official ggen Registry" ;
+    ggen:url "https://registry.ggen.dev" ;
+    ggen:priority "1"^^xsd:integer ;
+    ggen:enabled "true"^^xsd:boolean ;
+    ggen:authRequired "false"^^xsd:boolean ;
+    ggen:syncInterval "3600"^^xsd:integer ;  # 1 hour
+    ggen:publicKey """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...
+-----END PUBLIC KEY-----""" .
+
+# Backup registry configuration
+:backup-registry a ggen:RegistryConfig ;
+    ggen:name "Backup Registry" ;
+    ggen:url "https://backup1.ggen.dev" ;
+    ggen:priority "2"^^xsd:integer ;
+    ggen:enabled "true"^^xsd:boolean ;
+    ggen:authRequired "false"^^xsd:boolean ;
+    ggen:syncInterval "7200"^^xsd:integer .  # 2 hours
+
+# Package categories configuration
+:categories a rdf:Bag ;
+    rdfs:label "Package Categories" ;
+    rdf:_1 :cat-web ;
+    rdf:_2 :cat-mobile ;
+    rdf:_3 :cat-backend ;
+    rdf:_4 :cat-data ;
+    rdf:_5 :cat-ml ;
+    rdf:_6 :cat-devops .
+
+:cat-web a ggen:Category ;
+    rdfs:label "Web Development" ;
+    ggen:description "Frontend and fullstack web templates" .
+
+:cat-mobile a ggen:Category ;
+    rdfs:label "Mobile Development" ;
+    ggen:description "iOS, Android, and cross-platform mobile templates" .
+
+:cat-backend a ggen:Category ;
+    rdfs:label "Backend Services" ;
+    ggen:description "API, microservices, and backend templates" .
+
+:cat-data a ggen:Category ;
+    rdfs:label "Data & Analytics" ;
+    ggen:description "Data processing, ETL, and analytics templates" .
+
+:cat-ml a ggen:Category ;
+    rdfs:label "Machine Learning" ;
+    ggen:description "ML, AI, and data science templates" .
+
+:cat-devops a ggen:Category ;
+    rdfs:label "DevOps & Infrastructure" ;
+    ggen:description "CI/CD, deployment, and infrastructure templates" .
+
+# Feature flags
+:features a rdf:Bag ;
+    rdf:_1 [
+        ggen:featureName "experimental-neural-search" ;
+        ggen:enabled "false"^^xsd:boolean ;
+        ggen:description "Neural network-based package search"
+    ] ;
+    rdf:_2 [
+        ggen:featureName "distributed-cache" ;
+        ggen:enabled "true"^^xsd:boolean ;
+        ggen:description "Distributed RDF cache across nodes"
+    ] ;
+    rdf:_3 [
+        ggen:featureName "realtime-updates" ;
+        ggen:enabled "true"^^xsd:boolean ;
+        ggen:description "Real-time package update notifications"
+    ] .
+
+# Rate limiting configuration
+:rate-limits a ggen:RateLimitConfig ;
+    ggen:searchQueriesPerMinute "60"^^xsd:integer ;
+    ggen:downloadsPerHour "100"^^xsd:integer ;
+    ggen:publishesPerDay "10"^^xsd:integer ;
+    ggen:burstAllowance "10"^^xsd:integer .

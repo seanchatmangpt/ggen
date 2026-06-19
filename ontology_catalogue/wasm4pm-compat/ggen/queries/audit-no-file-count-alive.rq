@@ -1,0 +1,35 @@
+# SPARQL Query: Reject ALIVE from File Count Alone
+# Purpose: ASK query that fails if any ALIVE checkpoint claim is based solely on file count metrics.
+# Rationale: ALIVE certification must be evidence-based (trybuild receipts, type laws), not file volume.
+# Returns: false if any checkpoint violates this rule; true if all checkpoints are properly grounded.
+# Usage: ggen query audit-no-file-count-alive.rq --format sparql-results
+
+PREFIX audit:   <https://wasm4pm-compat.rs/audit#>
+PREFIX compat:  <https://wasm4pm-compat.rs/ontology#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+ASK
+WHERE {
+  # Find any checkpoint claim
+  ?checkpoint a audit:CheckpointClaim ;
+              audit:checkpointName ?name ;
+              audit:passedAllGates true ;
+              audit:allLawsCovered true .
+
+  # Check if this checkpoint has any explicit receipt evidence
+  ?checkpoint audit:checkpointCommit ?commitHash .
+
+  # Query: does this checkpoint's commit carry explicit trybuild receipts?
+  # If NO receipt evidence exists in the knowledge graph for this commit,
+  # then the checkpoint claim is invalid.
+  FILTER NOT EXISTS {
+    ?commit a audit:CommitEvidence ;
+            audit:commitHash ?commitHash ;
+            audit:carriesReceipt ?receipt .
+    ?receipt a compat:Receipt .
+  }
+}
+# This ASK returns TRUE (failure) if any checkpoint passes its gate claim
+# but has zero receipt evidence in the graph.
+# A properly sealed checkpoint MUST have audit:carriesReceipt triples.

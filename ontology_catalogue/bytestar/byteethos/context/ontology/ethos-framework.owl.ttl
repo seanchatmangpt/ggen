@@ -1,0 +1,339 @@
+@prefix : <https://bytestar.org/ontology/byteethos/ethos-framework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/2002/07/rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix id: <https://bytestar.org/ontology/byteethos/identity-specification#> .
+
+<https://bytestar.org/ontology/byteethos/ethos-framework>
+    a owl:Ontology ;
+    rdfs:label "ETHOS Framework Ontology" ;
+    rdfs:comment """
+    The Ethical Technology and Holistic Oversight System (ETHOS) Framework implementation for ByteStar.
+    
+    This ontology implements the comprehensive ETHOS framework as described in 'On the ETHOS of AI Agents',
+    providing:
+    - Risk-based regulation with 4-tier classification
+    - Decentralized governance through DAOs and smart contracts
+    - Self-Sovereign Identity (SSI) and Soulbound Tokens (SBTs)
+    - Zero-Knowledge Proof compliance verification
+    - Immutable audit trails with cryptographic integrity
+    - Oracle integration for real-time monitoring
+    """ ;
+    owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+                <https://bytestar.org/ontology/byteethos/governance-specification> ,
+                <https://bytestar.org/ontology/byteethos/identity-specification> ;
+    owl:versionInfo "1.0.0" ;
+    owl:versionIRI <https://bytestar.org/ontology/byteethos/ethos-framework/1.0.0> .
+
+#################################################################
+# Core ETHOS Framework Classes
+#################################################################
+
+:ETHOSFramework a owl:Class ;
+    rdfs:label "ETHOS Framework" ;
+    rdfs:comment "The central orchestrating entity for ethical technology and holistic oversight." .
+
+:EthicalAgent a owl:Class ;
+    rdfs:subClassOf bcore:Agent ;
+    rdfs:label "Ethical AI Agent" ;
+    rdfs:comment "An AI agent that operates under ETHOS compliance requirements." .
+
+:OversightMechanism a owl:Class ;
+    rdfs:label "Oversight Mechanism" ;
+    rdfs:comment "Automated or human oversight processes for AI agent behavior monitoring." .
+
+:ComplianceVerification a owl:Class ;
+    rdfs:label "Compliance Verification" ;
+    rdfs:comment "Process to verify an agent's adherence to ethical and regulatory requirements." .
+
+:EthicalPrinciple a owl:Class ;
+    rdfs:label "Ethical Principle" ;
+    rdfs:comment "Fundamental ethical principle governing AI agent behavior." .
+
+#################################################################
+# Decentralized Autonomous Organization (DAO) Framework
+#################################################################
+
+:DAO a owl:Class ;
+    rdfs:label "Decentralized Autonomous Organization" ;
+    rdfs:comment "Blockchain-based organization for decentralized governance of AI agents." .
+
+:DAOProposal a owl:Class ;
+    rdfs:label "DAO Proposal" ;
+    rdfs:comment "A proposal submitted to the DAO for voting and governance decisions." .
+
+:DAOVote a owl:Class ;
+    rdfs:label "DAO Vote" ;
+    rdfs:comment "A vote cast by a DAO member on a proposal." .
+
+:GovernanceToken a owl:Class ;
+    rdfs:label "Governance Token" ;
+    rdfs:comment "Token granting voting rights in DAO governance decisions." .
+
+:SmartContract a owl:Class ;
+    rdfs:label "Smart Contract" ;
+    rdfs:comment "Self-executing contract with terms directly written into code." .
+
+#################################################################
+# Zero-Knowledge Proof Integration
+#################################################################
+
+:ZKProofSystem a owl:Class ;
+    rdfs:label "Zero-Knowledge Proof System" ;
+    rdfs:comment "Cryptographic system enabling compliance verification without revealing sensitive data." .
+
+:ZKCircuit a owl:Class ;
+    rdfs:label "Zero-Knowledge Circuit" ;
+    rdfs:comment "Mathematical representation of computations that can be proven in zero-knowledge." .
+
+:ZKProof a owl:Class ;
+    rdfs:label "Zero-Knowledge Proof" ;
+    rdfs:comment "Cryptographic proof demonstrating compliance without revealing underlying data." .
+
+:ComplianceCircuit a owl:Class ;
+    rdfs:subClassOf :ZKCircuit ;
+    rdfs:label "Compliance Circuit" ;
+    rdfs:comment "ZK circuit specifically designed for proving regulatory compliance." .
+
+#################################################################
+# Oracle Network Integration
+#################################################################
+
+:Oracle a owl:Class ;
+    rdfs:label "Oracle" ;
+    rdfs:comment "External data source providing real-world information to the blockchain." .
+
+:DataFeed a owl:Class ;
+    rdfs:label "Data Feed" ;
+    rdfs:comment "Continuous stream of data from external sources." .
+
+:OracleAttestation a owl:Class ;
+    rdfs:label "Oracle Attestation" ;
+    rdfs:comment "Cryptographically signed assertion about external data." .
+
+:ReputationOracle a owl:Class ;
+    rdfs:subClassOf :Oracle ;
+    rdfs:label "Reputation Oracle" ;
+    rdfs:comment "Oracle providing agent reputation and performance data." .
+
+:ComplianceOracle a owl:Class ;
+    rdfs:subClassOf :Oracle ;
+    rdfs:label "Compliance Oracle" ;
+    rdfs:comment "Oracle monitoring and reporting compliance violations." .
+
+#################################################################
+# Audit and Monitoring Framework
+#################################################################
+
+:AuditTrail a owl:Class ;
+    rdfs:label "Audit Trail" ;
+    rdfs:comment "Immutable record of all agent actions and decisions." .
+
+:AuditEntry a owl:Class ;
+    rdfs:label "Audit Entry" ;
+    rdfs:comment "Individual entry in the audit trail." .
+
+:MonitoringAlert a owl:Class ;
+    rdfs:label "Monitoring Alert" ;
+    rdfs:comment "Automated alert triggered by suspicious or non-compliant behavior." .
+
+:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Quantitative measure of agent performance and behavior." .
+
+:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Evaluation of potential risks associated with an agent or action." .
+
+#################################################################
+# Properties for Framework Integration
+#################################################################
+
+:hasRiskTier a owl:ObjectProperty ;
+    rdfs:label "has risk tier" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range gov:RiskTier ;
+    rdfs:comment "Associates an ethical agent with its assigned risk tier." .
+
+:subjectToOversight a owl:ObjectProperty ;
+    rdfs:label "subject to oversight" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range :OversightMechanism ;
+    rdfs:comment "Indicates which oversight mechanisms apply to an agent." .
+
+:hasIdentityCrystal a owl:ObjectProperty ;
+    rdfs:label "has identity crystal" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range id:IdentityCrystal ;
+    rdfs:comment "Links an agent to its non-transferable identity credential." .
+
+:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range :DAO ;
+    rdfs:comment "Indicates which DAO governs the agent's behavior." .
+
+:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by" ;
+    rdfs:domain :ComplianceVerification ;
+    rdfs:range :ZKProofSystem ;
+    rdfs:comment "Links compliance verification to the ZK proof system used." .
+
+:monitored By a owl:ObjectProperty ;
+    rdfs:label "monitored by" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range :Oracle ;
+    rdfs:comment "Indicates which oracles monitor the agent's behavior." .
+
+:recordedIn a owl:ObjectProperty ;
+    rdfs:label "recorded in" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range :AuditTrail ;
+    rdfs:comment "Links audit entries to their containing audit trail." .
+
+:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:domain :MonitoringAlert ;
+    rdfs:range :EthicalAgent ;
+    rdfs:comment "Indicates which agent triggered a monitoring alert." .
+
+:adheresTo a owl:ObjectProperty ;
+    rdfs:label "adheres to" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range :EthicalPrinciple ;
+    rdfs:comment "Indicates which ethical principles an agent follows." .
+
+:enforcedBy a owl:ObjectProperty ;
+    rdfs:label "enforced by" ;
+    rdfs:domain :EthicalPrinciple ;
+    rdfs:range :SmartContract ;
+    rdfs:comment "Links ethical principles to their enforcement mechanisms." .
+
+#################################################################
+# Data Properties
+#################################################################
+
+:complianceScore a owl:DatatypeProperty ;
+    rdfs:label "compliance score" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numerical score representing agent's compliance level (0.0-1.0)." .
+
+:riskScore a owl:DatatypeProperty ;
+    rdfs:label "risk score" ;
+    rdfs:domain :EthicalAgent ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Numerical score representing agent's risk level (0.0-1.0)." .
+
+:timestamp a owl:DatatypeProperty ;
+    rdfs:label "timestamp" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the audit entry was created." .
+
+:action a owl:DatatypeProperty ;
+    rdfs:label "action" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the action recorded in the audit entry." .
+
+:outcome a owl:DatatypeProperty ;
+    rdfs:label "outcome" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Result or outcome of the recorded action." .
+
+:votingPower a owl:DatatypeProperty ;
+    rdfs:label "voting power" ;
+    rdfs:domain :GovernanceToken ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of votes granted by this governance token." .
+
+:proofValid a owl:DatatypeProperty ;
+    rdfs:label "proof valid" ;
+    rdfs:domain :ZKProof ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates whether the zero-knowledge proof is valid." .
+
+:alertSeverity a owl:DatatypeProperty ;
+    rdfs:label "alert severity" ;
+    rdfs:domain :MonitoringAlert ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Severity level of the monitoring alert (LOW, MEDIUM, HIGH, CRITICAL)." .
+
+#################################################################
+# Ethical Principles Instances
+#################################################################
+
+:Transparency a :EthicalPrinciple ;
+    rdfs:label "Transparency" ;
+    rdfs:comment "Principle requiring open and understandable AI decision-making processes." .
+
+:Fairness a :EthicalPrinciple ;
+    rdfs:label "Fairness" ;
+    rdfs:comment "Principle ensuring equitable treatment across all user groups." .
+
+:Accountability a :EthicalPrinciple ;
+    rdfs:label "Accountability" ;
+    rdfs:comment "Principle establishing clear responsibility for AI decisions and outcomes." .
+
+:Privacy a :EthicalPrinciple ;
+    rdfs:label "Privacy" ;
+    rdfs:comment "Principle protecting individual privacy and data rights." .
+
+:Safety a :EthicalPrinciple ;
+    rdfs:label "Safety" ;
+    rdfs:comment "Principle ensuring AI systems do not cause harm to humans or society." .
+
+:Beneficence a :EthicalPrinciple ;
+    rdfs:label "Beneficence" ;
+    rdfs:comment "Principle requiring AI systems to actively promote human welfare." .
+
+:NonMaleficence a :EthicalPrinciple ;
+    rdfs:label "Non-Maleficence" ;
+    rdfs:comment "Principle requiring AI systems to do no harm." .
+
+:Autonomy a :EthicalPrinciple ;
+    rdfs:label "Autonomy" ;
+    rdfs:comment "Principle respecting human agency and decision-making authority." .
+
+#################################################################
+# SPARQL Rules for Risk-Based Governance
+#################################################################
+
+# Rule: High-risk agents require enhanced oversight
+:HighRiskOversightRule a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskTier ;
+        owl:hasValue gov:HighRisk
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :subjectToOversight ;
+        owl:minCardinality 2
+    ] ;
+    rdfs:comment "High-risk agents must be subject to at least two oversight mechanisms." .
+
+# Rule: Unacceptable risk agents are prohibited
+:UnacceptableRiskProhibition a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasRiskTier ;
+        owl:hasValue gov:UnacceptableRisk
+    ] ;
+    owl:equivalentClass owl:Nothing ;
+    rdfs:comment "Agents with unacceptable risk tier are prohibited from operation." .
+
+# Rule: All agents must have identity crystals
+:IdentityRequirement a owl:Class ;
+    rdfs:subClassOf :EthicalAgent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasIdentityCrystal ;
+        owl:cardinality 1
+    ] ;
+    rdfs:comment "All ethical agents must have exactly one identity crystal." .

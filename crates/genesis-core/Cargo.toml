@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Pure mathematical foundation for the Genesis-bearing interchangeable parts architecture (A = μ(O))."
 repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
 
 [dependencies]
 # Use blake3 for deterministic cryptographic receipts, configured for no_std

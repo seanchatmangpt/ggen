@@ -1,0 +1,151 @@
+@prefix api: <http://example.org/api/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+
+# REST API Specification for User Management
+
+api:UserEndpoint a api:Endpoint ;
+    rdfs:label "User Management API" ;
+    api:basePath "/api/v1/users" ;
+    api:description "CRUD operations for user management" .
+
+api:CreateUser a api:Operation ;
+    api:endpoint api:UserEndpoint ;
+    http:methodName "POST" ;
+    api:path "/" ;
+    api:description "Create a new user" ;
+    api:requestBody api:UserCreateRequest ;
+    api:response api:UserResponse ;
+    api:requiresAuth true ;
+    api:role "admin" .
+
+api:GetUser a api:Operation ;
+    api:endpoint api:UserEndpoint ;
+    http:methodName "GET" ;
+    api:path "/:id" ;
+    api:description "Get user by ID" ;
+    api:response api:UserResponse ;
+    api:requiresAuth true .
+
+api:ListUsers a api:Operation ;
+    api:endpoint api:UserEndpoint ;
+    http:methodName "GET" ;
+    api:path "/" ;
+    api:description "List all users with pagination" ;
+    api:queryParams api:PaginationParams ;
+    api:response api:UserListResponse ;
+    api:requiresAuth true .
+
+api:UpdateUser a api:Operation ;
+    api:endpoint api:UserEndpoint ;
+    http:methodName "PUT" ;
+    api:path "/:id" ;
+    api:description "Update existing user" ;
+    api:requestBody api:UserUpdateRequest ;
+    api:response api:UserResponse ;
+    api:requiresAuth true ;
+    api:role "admin" .
+
+api:DeleteUser a api:Operation ;
+    api:endpoint api:UserEndpoint ;
+    http:methodName "DELETE" ;
+    api:path "/:id" ;
+    api:description "Delete user" ;
+    api:response api:SuccessResponse ;
+    api:requiresAuth true ;
+    api:role "admin" .
+
+# Authentication Endpoints
+
+api:AuthEndpoint a api:Endpoint ;
+    rdfs:label "Authentication API" ;
+    api:basePath "/api/v1/auth" ;
+    api:description "User authentication and authorization" .
+
+api:Login a api:Operation ;
+    api:endpoint api:AuthEndpoint ;
+    http:methodName "POST" ;
+    api:path "/login" ;
+    api:description "User login with email and password" ;
+    api:requestBody api:LoginRequest ;
+    api:response api:TokenResponse ;
+    api:requiresAuth false .
+
+api:Refresh a api:Operation ;
+    api:endpoint api:AuthEndpoint ;
+    http:methodName "POST" ;
+    api:path "/refresh" ;
+    api:description "Refresh JWT token" ;
+    api:requestBody api:RefreshRequest ;
+    api:response api:TokenResponse ;
+    api:requiresAuth false .
+
+# Health Check Endpoint
+
+api:HealthEndpoint a api:Endpoint ;
+    rdfs:label "Health Check API" ;
+    api:basePath "/health" ;
+    api:description "Service health status" .
+
+api:HealthCheck a api:Operation ;
+    api:endpoint api:HealthEndpoint ;
+    http:methodName "GET" ;
+    api:path "/" ;
+    api:description "Check service health" ;
+    api:response api:HealthResponse ;
+    api:requiresAuth false .
+
+# Request/Response Schemas
+
+api:UserCreateRequest a api:Schema ;
+    api:field [
+        api:name "email" ;
+        api:type "String" ;
+        api:required true ;
+        api:validate "email"
+    ] ;
+    api:field [
+        api:name "password" ;
+        api:type "String" ;
+        api:required true ;
+        api:minLength 8
+    ] ;
+    api:field [
+        api:name "name" ;
+        api:type "String" ;
+        api:required true
+    ] .
+
+api:UserResponse a api:Schema ;
+    api:field [
+        api:name "id" ;
+        api:type "Uuid"
+    ] ;
+    api:field [
+        api:name "email" ;
+        api:type "String"
+    ] ;
+    api:field [
+        api:name "name" ;
+        api:type "String"
+    ] ;
+    api:field [
+        api:name "created_at" ;
+        api:type "DateTime"
+    ] .
+
+api:HealthResponse a api:Schema ;
+    api:field [
+        api:name "status" ;
+        api:type "String" ;
+        api:enum "healthy,degraded,unhealthy"
+    ] ;
+    api:field [
+        api:name "database" ;
+        api:type "String"
+    ] ;
+    api:field [
+        api:name "version" ;
+        api:type "String"
+    ] .

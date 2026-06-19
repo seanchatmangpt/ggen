@@ -1,0 +1,328 @@
+# ============================================================================
+# SPARQL Templates for REST API Code Generation
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Query 1: Extract All Endpoints with Full Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?endpoint ?path ?method ?handler ?auth ?ratelimit ?cache
+WHERE {
+    ?api a rest:RestAPI ;
+         rest:hasEndpoint ?endpoint .
+
+    ?endpoint rest:hasRoute ?route ;
+              rest:hasMethod ?method ;
+              rest:hasHandler ?handler .
+
+    ?route rest:path ?path .
+
+    OPTIONAL { ?endpoint rest:hasAuthentication ?auth }
+    OPTIONAL { ?endpoint rest:hasRateLimiter ?ratelimit }
+    OPTIONAL { ?endpoint rest:hasCacheStrategy ?cache }
+}
+ORDER BY ?path ?method
+
+# ----------------------------------------------------------------------------
+# Query 2: Generate Route Handlers by HTTP Method
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?method ?path ?handler ?requestSchema ?responseSchema ?statusCode
+WHERE {
+    ?endpoint rest:hasMethod ?method ;
+              rest:hasRoute ?route ;
+              rest:hasHandler ?handler .
+
+    ?route rest:path ?path .
+
+    OPTIONAL {
+        ?endpoint rest:hasRequestSchema ?requestSchema .
+        ?requestSchema rest:hasValidation ?validation .
+    }
+
+    OPTIONAL {
+        ?endpoint rest:hasResponseSchema ?responseSchema
+    }
+
+    ?method rest:isIdempotent ?idempotent .
+
+    BIND(IF(?method = rest:POST, 201,
+         IF(?method = rest:DELETE, 204, 200)) AS ?statusCode)
+}
+
+# ----------------------------------------------------------------------------
+# Query 3: Extract Validation Rules for Request Schemas
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?fieldName ?validationType ?constraint ?required
+WHERE {
+    ?endpoint rest:hasRequestSchema ?schema .
+
+    ?schema rest:hasValidation ?validation .
+
+    ?validation a ?validationType ;
+                rest:fieldName ?fieldName .
+
+    OPTIONAL { ?validation rest:constraint ?constraint }
+
+    BIND(EXISTS { ?validation a rest:RequiredField } AS ?required)
+}
+ORDER BY ?endpoint ?fieldName
+
+# ----------------------------------------------------------------------------
+# Query 4: Middleware Composition Chain
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?middleware ?order ?type
+WHERE {
+    ?endpoint rest:hasMiddleware ?middleware .
+
+    ?middleware rest:middlewareOrder ?order ;
+                a ?type .
+
+    FILTER(?type != owl:NamedIndividual)
+}
+ORDER BY ?endpoint ?order
+
+# ----------------------------------------------------------------------------
+# Query 5: Generate OpenAPI Specification Components
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?path ?method ?summary ?description ?requestBody ?response ?security
+WHERE {
+    ?endpoint rest:hasRoute ?route ;
+              rest:hasMethod ?method .
+
+    ?route rest:path ?path .
+
+    ?endpoint rdfs:label ?summary .
+
+    OPTIONAL { ?endpoint rdfs:comment ?description }
+
+    OPTIONAL {
+        ?endpoint rest:hasRequestSchema ?reqSchema .
+        ?reqSchema rest:schemaRef ?requestBody .
+    }
+
+    OPTIONAL {
+        ?endpoint rest:hasResponseSchema ?respSchema .
+        ?respSchema rest:schemaRef ?response .
+    }
+
+    OPTIONAL {
+        ?endpoint rest:hasAuthentication ?auth .
+        ?auth rest:authType ?security .
+    }
+}
+ORDER BY ?path ?method
+
+# ----------------------------------------------------------------------------
+# Query 6: Authentication and Authorization Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX sec: <http://ggen.ai/ontology/security#>
+
+SELECT ?endpoint ?authScheme ?authType ?roles ?permissions
+WHERE {
+    ?endpoint rest:hasAuthentication ?authScheme .
+
+    ?authScheme rest:authType ?authType .
+
+    OPTIONAL {
+        ?endpoint rest:hasAuthorization ?role .
+        ?role rdfs:label ?roles ;
+              rest:permissions ?permissions .
+    }
+}
+
+# ----------------------------------------------------------------------------
+# Query 7: Rate Limiting Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?algorithm ?maxRequests ?window ?keyBy
+WHERE {
+    ?endpoint rest:hasRateLimiter ?limiter .
+
+    ?limiter rest:algorithm ?algorithm ;
+             rest:maxRequestsPerMinute ?maxRequests .
+
+    OPTIONAL { ?limiter rest:windowSize ?window }
+    OPTIONAL { ?limiter rest:keyBy ?keyBy }
+}
+
+# ----------------------------------------------------------------------------
+# Query 8: Caching Strategy Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?method ?cacheControl ?maxAge ?varyBy ?etag
+WHERE {
+    ?endpoint rest:hasCacheStrategy ?cache ;
+              rest:hasMethod ?method .
+
+    ?cache rest:cacheControl ?cacheControl ;
+           rest:cacheMaxAge ?maxAge .
+
+    OPTIONAL { ?cache rest:varyBy ?varyBy }
+    OPTIONAL { ?cache rest:useEtag ?etag }
+
+    # Only cache GET and HEAD requests
+    FILTER(?method IN (rest:GET, rest:HEAD))
+}
+
+# ----------------------------------------------------------------------------
+# Query 9: Error Handling Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?errorType ?statusCode ?handler ?logLevel
+WHERE {
+    ?endpoint rest:hasErrorHandler ?errorHandler .
+
+    ?errorHandler rest:errorType ?errorType ;
+                  rest:statusCode ?statusCode .
+
+    OPTIONAL { ?errorHandler rest:handlerName ?handler }
+    OPTIONAL { ?errorHandler rest:logLevel ?logLevel }
+}
+
+# ----------------------------------------------------------------------------
+# Query 10: CRUD Operations with Database Mapping
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?operation ?httpMethod ?path ?dbTable ?dbOperation ?successStatus
+WHERE {
+    ?endpoint a rest:CRUDOperation ;
+              rest:httpMethod ?httpMethod ;
+              rest:hasRoute ?route ;
+              rest:successStatus ?successStatus .
+
+    ?route rest:path ?path .
+
+    ?endpoint rest:dbTable ?dbTable ;
+              rest:dbOperation ?dbOperation .
+
+    BIND(STRAFTER(STR(?endpoint), "#") AS ?operation)
+}
+ORDER BY ?dbTable ?operation
+
+# ----------------------------------------------------------------------------
+# Query 11: Path Parameters and Query Strings
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?path ?pathParam ?queryParam ?paramType ?required
+WHERE {
+    ?endpoint rest:hasRoute ?route .
+
+    ?route rest:path ?path .
+
+    OPTIONAL {
+        ?route rest:pathParameter ?pathParam .
+        ?pathParam rest:paramType ?paramType ;
+                   rest:required ?required .
+    }
+
+    OPTIONAL {
+        ?endpoint rest:queryParameter ?queryParam .
+        ?queryParam rest:paramType ?paramType ;
+                    rest:required ?required .
+    }
+}
+
+# ----------------------------------------------------------------------------
+# Query 12: Content Negotiation and Media Types
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?method ?accepts ?produces ?defaultType
+WHERE {
+    ?endpoint rest:hasMethod ?method .
+
+    OPTIONAL { ?endpoint rest:accepts ?accepts }
+    OPTIONAL { ?endpoint rest:produces ?produces }
+
+    BIND(COALESCE(?produces, "application/json") AS ?defaultType)
+}
+
+# ----------------------------------------------------------------------------
+# Query 13: Generate Complete Router Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?path ?method ?handler ?middleware ?auth ?validate ?ratelimit
+WHERE {
+    ?endpoint rest:hasRoute ?route ;
+              rest:hasMethod ?method ;
+              rest:hasHandler ?handler .
+
+    ?route rest:path ?path .
+
+    OPTIONAL {
+        ?endpoint rest:hasMiddleware ?mw .
+        ?mw rest:middlewareOrder ?order .
+        BIND(CONCAT(?order, ":", STR(?mw)) AS ?middleware)
+    }
+
+    OPTIONAL {
+        ?endpoint rest:hasAuthentication ?auth
+    }
+
+    OPTIONAL {
+        ?endpoint rest:hasRequestSchema ?schema .
+        BIND(true AS ?validate)
+    }
+
+    OPTIONAL {
+        ?endpoint rest:hasRateLimiter ?rl .
+        BIND(true AS ?ratelimit)
+    }
+}
+ORDER BY ?path ?method
+
+# ----------------------------------------------------------------------------
+# Query 14: API Versioning Configuration
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?api ?version ?basePath ?deprecationDate ?successor
+WHERE {
+    ?api a rest:RestAPI ;
+         rest:version ?version ;
+         rest:basePath ?basePath .
+
+    OPTIONAL { ?api rest:deprecationDate ?deprecationDate }
+    OPTIONAL { ?api rest:supersededBy ?successor }
+}
+
+# ----------------------------------------------------------------------------
+# Query 15: Generate Integration Tests
+# ----------------------------------------------------------------------------
+PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+
+SELECT ?endpoint ?method ?path ?requestExample ?expectedStatus ?expectedBody
+WHERE {
+    ?endpoint rest:hasMethod ?method ;
+              rest:hasRoute ?route .
+
+    ?route rest:path ?path .
+
+    OPTIONAL { ?endpoint rest:testRequest ?requestExample }
+    OPTIONAL { ?endpoint rest:expectedResponse ?expectedBody }
+
+    ?method rest:isIdempotent ?idempotent .
+
+    BIND(IF(?method = rest:POST, 201,
+         IF(?method = rest:DELETE, 204, 200)) AS ?expectedStatus)
+}
+ORDER BY ?path ?method

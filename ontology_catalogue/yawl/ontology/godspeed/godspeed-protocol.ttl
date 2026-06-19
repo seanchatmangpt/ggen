@@ -1,0 +1,525 @@
+@prefix godspeed: <http://yawl.io/godspeed#> .
+@prefix a2a: <http://yawl.io/a2a#> .
+@prefix mcp: <http://yawl.io/mcp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# GGEN GODSPEED PROTOCOL — 5 Blue Ocean Agents
+# ============================================================================
+# Each agent specializes in ONE GODSPEED phase (Ψ→Λ→H→Q→Ω)
+# "Blue Ocean" = uncontested domain, maximum specialization per phase
+# ============================================================================
+
+# Ψ PHASE: OBSERVATORY SCOUT
+# Role: Discover facts, analyze context, generate observability reports
+# Principle: "Read facts before exploring" — prevent stale information
+# Concurrency: Parallel fact gathering
+
+godspeed:PsiAgent a godspeed:GodspeedAgent ;
+  rdfs:label "Ψ Agent (Observatory Scout)" ;
+  rdfs:comment "Discovers facts, analyzes codebase context, generates observability reports" ;
+  godspeed:phase godspeed:PsiPhase ;
+  godspeed:phaseName "Ψ (Observatory)" ;
+  godspeed:phaseOrder 1 ;
+  godspeed:principle "Read facts before exploring: Ψ facts only, not vibes" ;
+
+  # A2A Protocol: Broadcast (pull-based fact distribution)
+  a2a:hasProtocol godspeed:PsiProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:PsiMCPServer ;
+  mcp:handlesTools mcp:psi_observatory_run, mcp:psi_facts_query, mcp:psi_facts_validate ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 32 ;
+    mcp:maxContextTokens 100000 ;
+    mcp:timeoutSeconds 300
+  ] ;
+
+  # Observable outputs (facts)
+  godspeed:outputFacts (
+    "modules.json"
+    "gates.json"
+    "reactor.json"
+    "shared-src.json"
+    "deps-conflicts.json"
+    "tests.json"
+    "coverage.json"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "psi/observatory/run" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:ObservatoryRunRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "psi/facts/query" ;
+    a2a:method a2a:GET ;
+    a2a:messageType godspeed:FactsQueryRequest ;
+    a2a:responseTime 500 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "psi/facts/validate" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:FactsValidateRequest ;
+    a2a:responseTime 1000 ;
+  ] .
+
+godspeed:PsiProtocol a a2a:Protocol ;
+  rdfs:label "Ψ Protocol (Observability)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:caching [ godspeed:ttlSeconds 300 ; godspeed:compressionEnabled true ] ;
+  a2a:parallelism [ godspeed:maxParallelDiscovery 8 ; godspeed:batchSize 50 ] .
+
+mcp:PsiMCPServer a mcp:Server ;
+  rdfs:label "Ψ MCP Server (Observatory)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9011 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# Λ PHASE: BUILDER (Compiler, Tester, Validator)
+# Role: Build system, compile code, run tests, validate schema
+# Principle: "compile ≺ test ≺ validate ≺ deploy" — ordered gates
+# Concurrency: Sequential per-module, parallel across modules
+
+godspeed:LambdaAgent a godspeed:GodspeedAgent ;
+  rdfs:label "Λ Agent (Builder)" ;
+  rdfs:comment "Builds system, compiles code, runs tests, validates schema (Maven orchestrator)" ;
+  godspeed:phase godspeed:LambdaPhase ;
+  godspeed:phaseName "Λ (Build)" ;
+  godspeed:phaseOrder 2 ;
+  godspeed:principle "compile ≺ test ≺ validate ≺ deploy" ;
+  godspeed:gatingRule "No commit until dx.sh all is GREEN" ;
+
+  # A2A Protocol: Task-based (command execution)
+  a2a:hasProtocol godspeed:LambdaProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:LambdaMCPServer ;
+  mcp:handlesTools mcp:lambda_compile, mcp:lambda_test, mcp:lambda_validate ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 4 ;
+    mcp:maxContextTokens 150000 ;
+    mcp:timeoutSeconds 1800
+  ] ;
+
+  # Build commands
+  godspeed:dxCommands (
+    "bash scripts/dx.sh compile"
+    "bash scripts/dx.sh all"
+    "bash scripts/dx.sh -pl <module>"
+    "mvn clean verify -P analysis"
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "lambda/compile" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:CompileRequest ;
+    a2a:responseTime 30000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "lambda/test" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:TestRequest ;
+    a2a:responseTime 60000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "lambda/validate" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:ValidateRequest ;
+    a2a:responseTime 10000 ;
+  ] .
+
+godspeed:LambdaProtocol a a2a:Protocol ;
+  rdfs:label "Λ Protocol (Build System)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:ordering a2a:Ordered ;
+  a2a:timeout [ godspeed:connectionTimeoutMs 5000 ; godspeed:executionTimeoutMs 1800000 ] ;
+  a2a:logging a2a:Verbose .
+
+mcp:LambdaMCPServer a mcp:Server ;
+  rdfs:label "Λ MCP Server (Build)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9012 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# H PHASE: GUARD ENFORCER
+# Role: Enforce guards, block forbidden patterns (TODO, mock, stub, fake, etc.)
+# Principle: "blocked patterns are non-negotiable" — fail fast on violations
+# Concurrency: Parallel scanning
+
+godspeed:EtaAgent a godspeed:GodspeedAgent ;
+  rdfs:label "H Agent (Guard Enforcer)" ;
+  rdfs:comment "Enforces HYPER_STANDARDS, blocks forbidden patterns (TODO, mock, stub, fake, etc.)" ;
+  godspeed:phase godspeed:EtaPhase ;
+  godspeed:phaseName "H (Guards)" ;
+  godspeed:phaseOrder 3 ;
+  godspeed:principle "blocked patterns are non-negotiable" ;
+  godspeed:blockingRule "H ∩ content ≠ ∅ → EXIT 2" ;
+
+  # A2A Protocol: Scan-based (pattern detection)
+  a2a:hasProtocol godspeed:EtaProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:EtaMCPServer ;
+  mcp:handlesTools mcp:eta_scan_guards, mcp:eta_check_patterns, mcp:eta_generate_receipt ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 16 ;
+    mcp:maxContextTokens 80000 ;
+    mcp:timeoutSeconds 300
+  ] ;
+
+  # Forbidden patterns (H set)
+  godspeed:forbiddenPatterns (
+    godspeed:TODO
+    godspeed:FIXME
+    godspeed:MockPattern
+    godspeed:StubPattern
+    godspeed:FakePattern
+    godspeed:EmptyReturn
+    godspeed:SilentFallback
+    godspeed:Lie
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "eta/scan" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:ScanRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "eta/check" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:CheckRequest ;
+    a2a:responseTime 2000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "eta/receipt" ;
+    a2a:method a2a:GET ;
+    a2a:messageType godspeed:ReceiptRequest ;
+    a2a:responseTime 500 ;
+  ] .
+
+godspeed:EtaProtocol a a2a:Protocol ;
+  rdfs:label "H Protocol (Guard Enforcement)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:failureMode [ godspeed:onViolation "FAIL_FAST" ; godspeed:exitCode 2 ] ;
+  a2a:parallelism [ godspeed:maxParallelScans 16 ] .
+
+mcp:EtaMCPServer a mcp:Server ;
+  rdfs:label "H MCP Server (Guards)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9013 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# Q PHASE: QUALITY INSPECTOR
+# Role: Check invariants, ensure "real impl ∨ throw", no mocks/stubs/lies
+# Principle: "real code or UnsupportedOperationException" — invariant enforcement
+# Concurrency: Parallel checks
+
+godspeed:ThetaAgent a godspeed:GodspeedAgent ;
+  rdfs:label "Q Agent (Quality Inspector)" ;
+  rdfs:comment "Enforces invariants: real impl ∨ throw, no mocks, no lies, no fallbacks" ;
+  godspeed:phase godspeed:ThetaPhase ;
+  godspeed:phaseName "Q (Invariants)" ;
+  godspeed:phaseOrder 4 ;
+  godspeed:principle "real ∨ throw: real impl OR UnsupportedOperationException" ;
+  godspeed:invariantRule "No negotiation: Q = {real ∨ throw, ¬mock, ¬stub, ¬fallback, ¬lie}" ;
+
+  # A2A Protocol: Semantic analysis (code inspection)
+  a2a:hasProtocol godspeed:ThetaProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Parallel ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:ThetaMCPServer ;
+  mcp:handlesTools mcp:theta_check_impl, mcp:theta_verify_invariants, mcp:theta_report_compliance ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 12 ;
+    mcp:maxContextTokens 120000 ;
+    mcp:timeoutSeconds 600
+  ] ;
+
+  # Invariant checks
+  godspeed:invariantChecks (
+    godspeed:RealImplementation
+    godspeed:NoMocks
+    godspeed:NoSilentFallbacks
+    godspeed:CodeDocumentationMatch
+    godspeed:NoLies
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "theta/check" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:InvariantCheckRequest ;
+    a2a:responseTime 3000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "theta/verify" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:VerifyRequest ;
+    a2a:responseTime 5000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "theta/report" ;
+    a2a:method a2a:GET ;
+    a2a:messageType godspeed:ReportRequest ;
+    a2a:responseTime 1000 ;
+  ] .
+
+godspeed:ThetaProtocol a a2a:Protocol ;
+  rdfs:label "Q Protocol (Quality Invariants)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:analysis [ godspeed:semanticDepth "DEEP" ; godspeed:contextWindow 120000 ] ;
+  a2a:reporting [ godspeed:detailedFindings true ; godspeed:riskAssessment true ] .
+
+mcp:ThetaMCPServer a mcp:Server ;
+  rdfs:label "Q MCP Server (Invariants)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9014 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# Ω PHASE: GIT CUSTODIAN
+# Role: Safe git operations, atomic commits, zero-force discipline
+# Principle: "zero force, specific files, one logical change per commit"
+# Concurrency: Sequential (git is single-threaded)
+
+godspeed:OmegaAgent a godspeed:GodspeedAgent ;
+  rdfs:label "Ω Agent (Git Custodian)" ;
+  rdfs:comment "Manages safe git operations: atomic commits, zero-force discipline, one logical change" ;
+  godspeed:phase godspeed:OmegaPhase ;
+  godspeed:phaseName "Ω (Git)" ;
+  godspeed:phaseOrder 5 ;
+  godspeed:principle "zero force, specific files, one logical change per commit" ;
+  godspeed:gitRule "NEVER: --force, --force-with-lease, amend, add . | DO: specific files, new commits" ;
+
+  # A2A Protocol: Sequential commits (must be ordered)
+  a2a:hasProtocol godspeed:OmegaProtocol ;
+  a2a:messagingStyle a2a:RequestReply ;
+  a2a:concurrency a2a:Sequential ;
+
+  # MCP Capabilities
+  mcp:hasMCPServer mcp:OmegaMCPServer ;
+  mcp:handlesTools mcp:omega_stage, mcp:omega_commit, mcp:omega_push ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 1 ;
+    mcp:maxContextTokens 50000 ;
+    mcp:timeoutSeconds 60
+  ] ;
+
+  # Git safety rules
+  godspeed:safetyRules (
+    godspeed:NoForce
+    godspeed:NoAmend
+    godspeed:SpecificFiles
+    godspeed:OneLogicalChange
+    godspeed:NewCommits
+    godspeed:SessionIDInMessage
+  ) ;
+
+  # Endpoints
+  a2a:endpoint [
+    a2a:name "omega/stage" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:StageRequest ;
+    a2a:responseTime 1000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "omega/commit" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:CommitRequest ;
+    a2a:responseTime 3000 ;
+  ] ;
+  a2a:endpoint [
+    a2a:name "omega/push" ;
+    a2a:method a2a:POST ;
+    a2a:messageType godspeed:PushRequest ;
+    a2a:responseTime 5000 ;
+  ] .
+
+godspeed:OmegaProtocol a a2a:Protocol ;
+  rdfs:label "Ω Protocol (Git Operations)" ;
+  a2a:messageFormat a2a:JSON ;
+  a2a:encryption a2a:TLS12 ;
+  a2a:ordering a2a:Ordered ;
+  a2a:forceProtection [ godspeed:forbidForce true ; godspeed:forbidAmend true ] ;
+  a2a:atomicity [ godspeed:transactional true ; godspeed:rollbackOnFailure true ] .
+
+mcp:OmegaMCPServer a mcp:Server ;
+  rdfs:label "Ω MCP Server (Git)" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9015 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# GODSPEED ORCHESTRATOR (Lead)
+# Role: Coordinates the 5 Blue Ocean agents in sequence (Ψ→Λ→H→Q→Ω)
+# ============================================================================
+
+godspeed:GodspeedOrchestrator a godspeed:GodspeedLeadAgent ;
+  rdfs:label "GODSPEED Orchestrator" ;
+  rdfs:comment "Leads the 5-phase workflow, enforces phase gating, ensures zero drift" ;
+  godspeed:coordinatesAgents (
+    godspeed:PsiAgent
+    godspeed:LambdaAgent
+    godspeed:EtaAgent
+    godspeed:ThetaAgent
+    godspeed:OmegaAgent
+  ) ;
+  godspeed:phaseSequence "Ψ → Λ → H → Q → Ω (strict ordering)" ;
+  godspeed:driftTarget 0.0 ;
+  godspeed:invariantBreakageTarget 0 ;
+  godspeed:principle "Maximum Forward Velocity (Zero Invariant Breakage)" ;
+
+  # Orchestration protocol
+  mcp:hasMCPServer mcp:GodspeedOrchestratorMCPServer ;
+  mcp:handlesTools mcp:godspeed_phase_gate, mcp:godspeed_phase_sequence, mcp:godspeed_report ;
+  mcp:resourceQuota [
+    mcp:maxConcurrentTasks 1 ;
+    mcp:maxContextTokens 200000 ;
+    mcp:timeoutSeconds 3600
+  ] ;
+
+  # Decision tree (PreToolUse)
+  godspeed:preToolUseChecklist (
+    "Ψ gate: Stale facts?"
+    "τ detect: N≥2 quantums?"
+    "Λ context: Which rule file?"
+    "H filter: Will hook block?"
+    "Q check: Real impl ∨ throw?"
+    "Ω guard: Emit channel + session ID?"
+  ) .
+
+mcp:GodspeedOrchestratorMCPServer a mcp:Server ;
+  rdfs:label "GODSPEED Orchestrator MCP Server" ;
+  mcp:host "127.0.0.1" ;
+  mcp:port 9010 ;
+  mcp:protocol mcp:JSONRPCv2 ;
+  mcp:authentication mcp:JWTBearer ;
+  mcp:toolCount 3 .
+
+# ============================================================================
+# MESSAGE TYPES (Godspeed Protocol Messages)
+# ============================================================================
+
+godspeed:ObservatoryRunRequest a a2a:MessageType ;
+  rdfs:label "Observatory Run Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "fact_types" ; a2a:type xsd:string ]
+                               [ a2a:name "parallel" ; a2a:type xsd:boolean ]
+                               [ a2a:name "cache_policy" ; a2a:type xsd:string ] ) ] .
+
+godspeed:CompileRequest a a2a:MessageType ;
+  rdfs:label "Compile Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "modules" ; a2a:type xsd:string ]
+                               [ a2a:name "fast_mode" ; a2a:type xsd:boolean ] ) ] .
+
+godspeed:ScanRequest a a2a:MessageType ;
+  rdfs:label "Scan Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "path" ; a2a:type xsd:string ]
+                               [ a2a:name "patterns" ; a2a:type xsd:string ]
+                               [ a2a:name "fail_fast" ; a2a:type xsd:boolean ] ) ] .
+
+godspeed:InvariantCheckRequest a a2a:MessageType ;
+  rdfs:label "Invariant Check Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "artifact" ; a2a:type xsd:string ]
+                               [ a2a:name "checks" ; a2a:type xsd:string ] ) ] .
+
+godspeed:CommitRequest a a2a:MessageType ;
+  rdfs:label "Commit Request" ;
+  a2a:schema [ a2a:fields ( [ a2a:name "message" ; a2a:type xsd:string ]
+                               [ a2a:name "files" ; a2a:type xsd:string ]
+                               [ a2a:name "session_id" ; a2a:type xsd:string ] ) ] .
+
+# ============================================================================
+# GODSPEED PHASES (Enumeration)
+# ============================================================================
+
+godspeed:PsiPhase a godspeed:GodspeedPhase ;
+  rdfs:label "Ψ Phase" ;
+  godspeed:order 1 ;
+  godspeed:principle "Read facts before exploring" .
+
+godspeed:LambdaPhase a godspeed:GodspeedPhase ;
+  rdfs:label "Λ Phase" ;
+  godspeed:order 2 ;
+  godspeed:principle "compile ≺ test ≺ validate ≺ deploy" .
+
+godspeed:EtaPhase a godspeed:GodspeedPhase ;
+  rdfs:label "H Phase" ;
+  godspeed:order 3 ;
+  godspeed:principle "blocked patterns are non-negotiable" .
+
+godspeed:ThetaPhase a godspeed:GodspeedPhase ;
+  rdfs:label "Q Phase" ;
+  godspeed:order 4 ;
+  godspeed:principle "real code or UnsupportedOperationException" .
+
+godspeed:OmegaPhase a godspeed:GodspeedPhase ;
+  rdfs:label "Ω Phase" ;
+  godspeed:order 5 ;
+  godspeed:principle "zero force, specific files, one logical change" .
+
+# ============================================================================
+# BLUE OCEAN DIFFERENTIATION (Why each agent is "uncontested domain")
+# ============================================================================
+
+godspeed:PsiBlueOcean a godspeed:BlueOceanStrategy ;
+  rdfs:label "Ψ Blue Ocean" ;
+  rdfs:comment "Fact gathering is specialized: only this agent reads/validates facts. Others trust its output." ;
+  godspeed:monopoly godspeed:FactAuthority ;
+  godspeed:advantage "Single source of truth for codebase context" .
+
+godspeed:LambdaBlueOcean a godspeed:BlueOceanStrategy ;
+  rdfs:label "Λ Blue Ocean" ;
+  rdfs:comment "Build orchestration is specialized: only this agent runs dx.sh and Maven. Sequential control." ;
+  godspeed:monopoly godspeed:BuildAuthority ;
+  godspeed:advantage "Deterministic build sequencing, no competing build commands" .
+
+godspeed:EtaBlueOcean a godspeed:BlueOceanStrategy ;
+  rdfs:label "H Blue Ocean" ;
+  rdfs:comment "Guard enforcement is specialized: only this agent scans for forbidden patterns. Fail-fast." ;
+  godspeed:monopoly godspeed:GuardAuthority ;
+  godspeed:advantage "Non-negotiable pattern enforcement, instant feedback" .
+
+godspeed:ThetaBlueOcean a godspeed:BlueOceanStrategy ;
+  rdfs:label "Q Blue Ocean" ;
+  rdfs:comment "Invariant checking is specialized: only this agent verifies real impl vs mocks/lies." ;
+  godspeed:monopoly godspeed:InvariantAuthority ;
+  godspeed:advantage "Deep semantic analysis, comprehensive invariant coverage" .
+
+godspeed:OmegaBlueOcean a godspeed:BlueOceanStrategy ;
+  rdfs:label "Ω Blue Ocean" ;
+  rdfs:comment "Git custody is specialized: only this agent touches git. Zero-force discipline enforced." ;
+  godspeed:monopoly godspeed:GitAuthority ;
+  godspeed:advantage "Safe atomic commits, no git conflicts, reversible operations" .

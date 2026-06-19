@@ -1,0 +1,18 @@
+# OCEL Required Attributes Validation
+# Checks that all OCEL events have the required attributes per OCEL 2.0 standard
+# Required attributes: ocel:activity, ocel:timestamp, ocel:event-id, ocel:object-id, ocel:object-type
+
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX ostar: <https://chatmangpt.com/ontologies/ostar#>
+
+ASK {
+  # Check if any event is missing required attributes
+  FILTER NOT EXISTS {
+    ?event a ocel:Event .
+    ?event ocel:activity ?activity .
+    ?event ocel:timestamp ?timestamp .
+    ?event ocel:event-id ?event_id .
+    ?event ocel:object-id ?object_id .
+    ?event ocel:object-type ?object_type .
+  }
+}

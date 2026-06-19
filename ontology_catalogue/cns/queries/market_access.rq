@@ -1,0 +1,11 @@
+PREFIX cap: <http://chatman.ai/capability#>
+PREFIX ba: <http://chatman.ai/bitactor#>
+
+SELECT ?actor ?market
+WHERE {
+    ?actor cap:hasCapability ?cap .
+    ?cap cap:type cap:MarketDataAccess .
+    ?cap cap:market ?market .
+    ?cap cap:validUntil ?expiry .
+    FILTER(?expiry > NOW())
+}

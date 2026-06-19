@@ -56,16 +56,17 @@ guides = [
 required = []
 optional = ["multi-tenant-saas"]
 
-[features]
-- "Order lifecycle state machine"
-- "Payment processing and refunds"
-- "Multi-warehouse fulfillment"
-- "Shipment tracking"
-- "Returns and exchanges"
-- "Gift orders with messages"
-- "Order splitting and merging"
-- "Backorder handling"
-- "Order analytics"
+features = [
+    "Order lifecycle state machine",
+    "Payment processing and refunds",
+    "Multi-warehouse fulfillment",
+    "Shipment tracking",
+    "Returns and exchanges",
+    "Gift orders with messages",
+    "Order splitting and merging",
+    "Backorder handling",
+    "Order analytics"
+]
 
 [vertical]
 name = "e-commerce"
@@ -76,3 +77,6 @@ complements = [
     "recommendation-engine",
     "customer-loyalty-rewards"
 ]
+
+[marketplace]
+production_ready = false

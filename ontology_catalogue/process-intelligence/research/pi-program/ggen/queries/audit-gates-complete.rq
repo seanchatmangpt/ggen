@@ -1,0 +1,14 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: Verify gate criteria completeness for ALIVE_CLAIM
+# Returns checkpoints where gatesCriteriaMet = gatesCriteriaTotal (valid ALIVE status)
+SELECT ?checkpoint ?label ?gatesMet ?gatesTotal
+WHERE {
+  ?checkpoint a pi:ALIVE_CLAIM ;
+              rdfs:label ?label ;
+              pi:gatesCriteriaMet ?gatesMet ;
+              pi:gatesCriteriaTotal ?gatesTotal .
+  FILTER (?gatesMet = ?gatesTotal)
+}
+ORDER BY ?checkpoint

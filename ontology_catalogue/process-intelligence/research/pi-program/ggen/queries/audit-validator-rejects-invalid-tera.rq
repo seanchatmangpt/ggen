@@ -1,0 +1,15 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX ggen: <https://codegen.org/ggen/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+# AUDIT: Validator Rejects Invalid Tera
+# ASK query: Verifies validator template rejects syntactically invalid Tera templates
+# Passes if: At least one test case with invalid Tera syntax fails validation
+# Date: 2026-06-01
+
+ASK {
+    ?testCase a ggen:ValidatorTestCase .
+    ?testCase ggen:templateInput ?template .
+    ?testCase ggen:validTeraTemplate false .
+    ?testCase ggen:validationResult "FAIL" .
+}

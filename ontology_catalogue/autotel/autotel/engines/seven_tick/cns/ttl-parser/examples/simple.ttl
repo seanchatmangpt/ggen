@@ -1,0 +1,45 @@
+# Simple TTL Example
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+
+# Person definition
+ex:alice a foaf:Person ;
+    foaf:name "Alice Smith" ;
+    foaf:age 30 ;
+    foaf:knows ex:bob, ex:charlie ;
+    foaf:homepage <http://alice.example.org> .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Johnson"@en ;
+    foaf:age 25 ;
+    foaf:knows ex:alice .
+
+ex:charlie a foaf:Person ;
+    foaf:name "Charlie Brown"@en-US ;
+    foaf:age 35 ;
+    foaf:mbox <mailto:charlie@example.org> .
+
+# Collection example
+ex:myList rdf:type rdf:List ;
+    rdf:first 1 ;
+    rdf:rest [
+        rdf:first 2 ;
+        rdf:rest [
+            rdf:first 3 ;
+            rdf:rest rdf:nil
+        ]
+    ] .
+
+# Blank node example
+[ a foaf:Organization ;
+  foaf:name "Anonymous Corp" ;
+  foaf:member ex:alice, ex:bob
+] .
+
+# Typed literals
+ex:data ex:hasValue "42"^^<http://www.w3.org/2001/XMLSchema#integer> ;
+    ex:hasDate "2024-01-01"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    ex:hasFloat 3.14159 ;
+    ex:hasBoolean true .

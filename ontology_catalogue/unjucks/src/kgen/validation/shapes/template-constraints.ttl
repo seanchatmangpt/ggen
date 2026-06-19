@@ -1,0 +1,447 @@
+# KGEN Template Constraint Shapes
+# Specific SHACL shapes for template validation and constraint checking
+# Focuses on Nunjucks template syntax, frontmatter validation, and injection safety
+
+@prefix : <https://kgen.io/shapes/templates#> .@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dash: <http://datashapes.org/dash#> .
+
+<https://kgen.io/shapes/templates> a sh:ShapesGraph ;
+    rdfs:label "KGEN Template Constraint Shapes"@en ;
+    rdfs:comment "SHACL shapes for comprehensive template validation and constraint checking"@en ;
+    dcterms:created "2024-09-12"^^xsd:date .
+
+#################################################################
+#    Template Syntax Validation
+#################################################################
+
+:NunjucksTemplateShape a sh:NodeShape ;
+    sh:targetClass kgen:NunjucksTemplate ;
+    rdfs:label "Nunjucks Template Validation"@en ;
+    sh:severity sh:Violation ;
+    
+    # Validate balanced brackets
+    sh:sparql [
+        sh:message "Nunjucks template must have balanced {{ }} brackets"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                ?this a kgen:NunjucksTemplate .
+                
+                # Count opening and closing brackets
+                BIND(STRLEN(?content) - STRLEN(REPLACE(?content, "{{", "")) AS ?openCount)
+                BIND(STRLEN(?content) - STRLEN(REPLACE(?content, "}}", "")) AS ?closeCount)
+                
+                # Brackets must be balanced
+                FILTER(?openCount != ?closeCount)
+            }
+        """ ;
+    ] ;
+    
+    # Validate control structure syntax
+    sh:sparql [
+        sh:message "Nunjucks control structures must be properly closed"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?content ?controlType
+            WHERE {
+                ?this kgen:hasContent ?content .
+                ?this a kgen:NunjucksTemplate .
+                
+                # Check for unclosed control structures
+                VALUES (?controlType ?openPattern ?closePattern) {
+                    ("if" "{% if" "{% endif %}")
+                    ("for" "{% for" "{% endfor %}")
+                    ("block" "{% block" "{% endblock %}")
+                    ("macro" "{% macro" "{% endmacro %}")
+                    ("set" "{% set" "{% endset %}")
+                }
+                
+                # Count opens and closes
+                BIND(STRLEN(?content) - STRLEN(REPLACE(?content, ?openPattern, "")) / STRLEN(?openPattern) AS ?opens)
+                BIND(STRLEN(?content) - STRLEN(REPLACE(?content, ?closePattern, "")) / STRLEN(?closePattern) AS ?closes)
+                
+                FILTER(?opens != ?closes)
+            }
+        """ ;
+    ] ;
+    
+    # Validate variable references
+    sh:sparql [
+        sh:message "Template variables should follow naming conventions"@en ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT ?this ?content ?invalidVar
+            WHERE {
+                ?this kgen:hasContent ?content .
+                ?this a kgen:NunjucksTemplate .
+                
+                # Extract potential variables (simplified regex simulation)
+                # Looking for patterns that don't match camelCase or snake_case
+                FILTER(CONTAINS(?content, "{{") && 
+                       (CONTAINS(?content, "{{ ") || CONTAINS(?content, " }}")))
+                
+                BIND("Invalid variable spacing detected" AS ?invalidVar)
+            }
+        """ ;
+    ] .
+
+:TemplateSecurityShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    rdfs:label "Template Security Validation"@en ;
+    sh:severity sh:Violation ;
+    
+    # Check for dangerous template constructs
+    sh:sparql [
+        sh:message "Template contains potentially unsafe constructs"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?content ?dangerousConstruct
+            WHERE {
+                ?this kgen:hasContent ?content .
+                
+                # Check for dangerous patterns
+                VALUES ?dangerousConstruct {
+                    "eval("
+                    "Function("
+                    "constructor"
+                    "__proto__"
+                    "process.exit"
+                    "require("
+                    "import("
+                    "child_process"
+                    "fs.unlink"
+                    "fs.rmdir"
+                    "rm -rf"
+                }
+                
+                FILTER(CONTAINS(LCASE(?content), LCASE(?dangerousConstruct)))
+            }
+        """ ;
+    ] ;
+    
+    # Validate shell command usage
+    sh:sparql [
+        sh:message "Template shell commands must be properly sanitized"@en ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                
+                # Look for potential shell command injection
+                FILTER(CONTAINS(?content, "sh:") || 
+                       CONTAINS(?content, "exec:") ||
+                       CONTAINS(?content, "|") ||
+                       CONTAINS(?content, "&&") ||
+                       CONTAINS(?content, "||"))
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Frontmatter Validation
+#################################################################
+
+:FrontmatterConstraintsShape a sh:NodeShape ;
+    sh:targetClass kgen:Frontmatter ;
+    rdfs:label "Frontmatter Constraints"@en ;
+    sh:severity sh:Violation ;
+    
+    # Validate destination paths
+    sh:property [
+        sh:path kgen:hasDestination ;
+        sh:name "Destination Path"@en ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        # Prevent path traversal
+        sh:pattern "^(?!.*\\.\\./).*$" ;
+        sh:message "Destination path must not contain path traversal sequences (../)"@en ;
+    ] ;
+    
+    # Validate injection configuration
+    sh:property [
+        sh:path kgen:injectionType ;
+        sh:name "Injection Type"@en ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "before" "after" "append" "prepend" "replace" "lineAt" ) ;
+        sh:message "Injection type must be one of: before, after, append, prepend, replace, lineAt"@en ;
+    ] ;
+    
+    # Validate injection markers
+    sh:property [
+        sh:path kgen:injectionMarker ;
+        sh:name "Injection Marker"@en ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Injection marker must not be empty if specified"@en ;
+    ] ;
+    
+    # Validate skip conditions
+    sh:sparql [
+        sh:message "Skip condition must be valid boolean expression"@en ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT ?this ?skipIf
+            WHERE {
+                ?this kgen:skipCondition ?skipIf .
+                
+                # Basic validation - should contain valid operators
+                FILTER(!CONTAINS(?skipIf, "&&") && 
+                       !CONTAINS(?skipIf, "||") && 
+                       !CONTAINS(?skipIf, "==") && 
+                       !CONTAINS(?skipIf, "!=") &&
+                       !REGEX(?skipIf, "^[a-zA-Z_][a-zA-Z0-9_]*$") &&
+                       ?skipIf != "true" && ?skipIf != "false")
+            }
+        """ ;
+    ] ;
+    
+    # Validate file permissions
+    sh:property [
+        sh:path kgen:hasPermissions ;
+        sh:name "File Permissions"@en ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-7]{3,4}$" ;
+        sh:message "File permissions must be valid octal notation (e.g., 644, 755, 0644)"@en ;
+    ] ;
+    
+    # Validate shell commands in frontmatter
+    sh:sparql [
+        sh:message "Shell commands in frontmatter must be safe"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?command
+            WHERE {
+                ?this kgen:hasShellCommand ?command .
+                
+                # Check for dangerous shell commands
+                VALUES ?dangerousCmd {
+                    "rm -rf"
+                    "rm -fr"
+                    "del /f"
+                    "format"
+                    "fdisk"
+                    "dd if="
+                    ":(){ :|:& };:"
+                    "chmod 777"
+                    "chown root"
+                    "sudo"
+                    "su -"
+                }
+                
+                FILTER(CONTAINS(LCASE(?command), LCASE(?dangerousCmd)))
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Template Variable Validation
+#################################################################
+
+:VariableSetShape a sh:NodeShape ;
+    sh:targetClass kgen:VariableSet ;
+    rdfs:label "Template Variable Set"@en ;
+    sh:severity sh:Violation ;
+    
+    sh:property [
+        sh:path kgen:hasVariable ;
+        sh:name "Template Variable"@en ;
+        sh:class kgen:Variable ;
+        sh:minCount 0 ;
+        sh:message "Variable set can contain zero or more variables"@en ;
+    ] .
+
+:VariableShape a sh:NodeShape ;
+    sh:targetClass kgen:Variable ;
+    rdfs:label "Template Variable"@en ;
+    sh:severity sh:Violation ;
+    
+    # Variable name validation
+    sh:property [
+        sh:path kgen:hasName ;
+        sh:name "Variable Name"@en ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Variable name must start with letter and contain only alphanumeric characters and underscores"@en ;
+    ] ;
+    
+    # Variable value validation
+    sh:property [
+        sh:path kgen:hasValue ;
+        sh:name "Variable Value"@en ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Variable must have exactly one value"@en ;
+    ] ;
+    
+    # Variable type validation
+    sh:property [
+        sh:path kgen:hasType ;
+        sh:name "Variable Type"@en ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( "string" "number" "boolean" "array" "object" "date" ) ;
+        sh:message "Variable type must be one of: string, number, boolean, array, object, date"@en ;
+    ] ;
+    
+    # Reserved variable names
+    sh:sparql [
+        sh:message "Variable name conflicts with reserved keywords"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?varName
+            WHERE {
+                ?this kgen:hasName ?varName .
+                
+                VALUES ?reservedName {
+                    "this"
+                    "self" 
+                    "super"
+                    "global"
+                    "window"
+                    "document"
+                    "process"
+                    "require"
+                    "module"
+                    "exports"
+                    "__dirname"
+                    "__filename"
+                    "arguments"
+                    "eval"
+                    "constructor"
+                }
+                
+                FILTER(?varName = ?reservedName)
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Template Dependency Validation  
+#################################################################
+
+:TemplateDependencyShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    rdfs:label "Template Dependency Validation"@en ;
+    sh:severity sh:Warning ;
+    
+    # Check for circular dependencies
+    sh:sparql [
+        sh:message "Template has circular dependency"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?dependency
+            WHERE {
+                ?this kgen:dependsOn+ ?dependency .
+                ?dependency kgen:dependsOn+ ?this .
+                FILTER(?this != ?dependency)
+            }
+        """ ;
+    ] ;
+    
+    # Check for missing dependencies
+    sh:sparql [
+        sh:message "Template references undefined template"@en ;
+        sh:severity sh:Violation ;
+        sh:select """
+            SELECT ?this ?missingTemplate
+            WHERE {
+                ?this kgen:hasContent ?content .
+                ?this kgen:extends ?missingTemplate .
+                
+                # Check if extended template exists
+                FILTER NOT EXISTS {
+                    ?missingTemplate a kgen:Template .
+                }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Template Performance Constraints
+#################################################################
+
+:TemplatePerformanceShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    rdfs:label "Template Performance Constraints"@en ;
+    sh:severity sh:Info ;
+    
+    # Template size limits
+    sh:property [
+        sh:path kgen:hasContent ;
+        sh:name "Template Content"@en ;
+        sh:datatype xsd:string ;
+        sh:maxLength 1000000 ; # 1MB limit
+        sh:message "Template content should not exceed 1MB for performance reasons"@en ;
+    ] ;
+    
+    # Complexity warnings
+    sh:sparql [
+        sh:message "Template has high complexity - consider refactoring"@en ;
+        sh:severity sh:Info ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                
+                # Count control structures as complexity indicator
+                BIND((STRLEN(?content) - STRLEN(REPLACE(?content, "{% for", ""))) / 7 AS ?forLoops)
+                BIND((STRLEN(?content) - STRLEN(REPLACE(?content, "{% if", ""))) / 6 AS ?ifBlocks)
+                BIND(?forLoops + ?ifBlocks AS ?complexity)
+                
+                FILTER(?complexity > 20)
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    Template Quality Validation
+#################################################################
+
+:TemplateQualityShape a sh:NodeShape ;
+    sh:targetClass kgen:Template ;
+    rdfs:label "Template Quality Metrics"@en ;
+    sh:severity sh:Info ;
+    
+    # Documentation requirements
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Template Documentation"@en ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:message "Template should include documentation comments"@en ;
+    ] ;
+    
+    # Maintainability checks
+    sh:sparql [
+        sh:message "Template should have descriptive variable names"@en ;
+        sh:severity sh:Info ;
+        sh:select """
+            SELECT ?this ?content
+            WHERE {
+                ?this kgen:hasContent ?content .
+                
+                # Look for single-letter variables (poor naming)
+                FILTER(REGEX(?content, "\\{\\{\\s*[a-z]\\s*\\}\\}", "i"))
+            }
+        """ ;
+    ] .
+
+# End of KGEN Template Constraint Shapes
+# Focuses on template syntax, security, frontmatter validation, and performance
+# Complements main attestation shapes with template-specific constraints

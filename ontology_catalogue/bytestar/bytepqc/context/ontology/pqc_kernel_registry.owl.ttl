@@ -1,0 +1,42 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric/kernel-registry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/pqc-fabric/kernel-registry>
+  owl:imports <https://bytestar.org/ontology/bytestar-core> .
+
+<https://bytestar.org/ontology/pqc-fabric/kernel-registry>
+  a owl:Ontology ;
+  rdfs:label "PQC Fabric Kernel Registry" ;
+  rdfs:comment "A comprehensive registry of all Post-Quantum Cryptography related kernels within the ByteStar ecosystem." .
+
+### Dilithium Kernels (Tier 1 - Signatures)
+:k_pqc_unpack_sig a bcore:Kernel ; rdfs:label "k_pqc_unpack_sig" .
+:k_pqc_unpack_pk a bcore:Kernel ; rdfs:label "k_pqc_unpack_pk" .
+:k_pqc_shake_msg a bcore:Kernel ; rdfs:label "k_pqc_shake_msg" .
+:k_pqc_expand_matrix_A a bcore:Kernel ; rdfs:label "k_pqc_expand_matrix_A" .
+:k_pqc_ntt_forward_vec a bcore:Kernel ; rdfs:label "k_pqc_ntt_forward_vec" .
+:k_pqc_matrix_vec_mul a bcore:Kernel ; rdfs:label "k_pqc_matrix_vec_mul" .
+:k_pqc_ntt_inverse_vec a bcore:Kernel ; rdfs:label "k_pqc_ntt_inverse_vec" .
+:k_pqc_reconstruct_w1 a bcore:Kernel ; rdfs:label "k_pqc_reconstruct_w1" .
+:k_pqc_compute_c_prime a bcore:Kernel ; rdfs:label "k_pqc_compute_c_prime" .
+:k_pqc_const_time_cmp a bcore:Kernel ; rdfs:label "k_pqc_const_time_cmp" .
+
+### Kyber Kernels (Tier 1 - KEM)
+:k_pqc_kyber_keygen a bcore:Kernel ; rdfs:label "k_pqc_kyber_keygen" .
+:k_pqc_kyber_encap a bcore:Kernel ; rdfs:label "k_pqc_kyber_encap" .
+:k_pqc_kyber_decap a bcore:Kernel ; rdfs:label "k_pqc_kyber_decap" .
+:k_pqc_kyber_poly_uniform a bcore:Kernel ; rdfs:label "k_pqc_kyber_poly_uniform" .
+:k_pqc_kyber_cbd a bcore:Kernel ; rdfs:label "k_pqc_kyber_cbd" .
+:k_pqc_kyber_ntt a bcore:Kernel ; rdfs:label "k_pqc_kyber_ntt" .
+:k_pqc_kyber_invntt a bcore:Kernel ; rdfs:label "k_pqc_kyber_invntt" .
+:k_pqc_kyber_basemul a bcore:Kernel ; rdfs:label "k_pqc_kyber_basemul" .
+:k_pqc_kyber_poly_compress a bcore:Kernel ; rdfs:label "k_pqc_kyber_poly_compress" .
+:k_pqc_kyber_poly_decompress a bcore:Kernel ; rdfs:label "k_pqc_kyber_poly_decompress" .
+
+### Innovation Kernels
+:k_pqc_polymorphic_verify a bcore:Kernel ; rdfs:label "k_pqc_polymorphic_verify" .
+:k_pqc_ntt_batch_dispatch a bcore:Kernel ; rdfs:label "k_pqc_ntt_batch_dispatch" .
+:k_pqc_precog_voucher_gen a bcore:Kernel ; rdfs:label "k_pqc_precog_voucher_gen" .
+:k_pqc_precog_voucher_redeem a bcore:Kernel ; rdfs:label "k_pqc_precog_voucher_redeem" .

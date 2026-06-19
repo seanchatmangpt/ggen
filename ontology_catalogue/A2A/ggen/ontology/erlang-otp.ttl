@@ -1,0 +1,741 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix erl: <https://erlang.org/otp/> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+#
+# Erlang OTP Comprehensive Ontology
+# =================================
+# A comprehensive RDF/TTL ontology for Erlang OTP patterns including
+# behaviors, ETS tables, error handling, HotCI, message passing,
+# and monitoring patterns.
+#
+
+# Ontology Metadata
+<https://a2a.com/ontology/erlang-otp> a owl:Ontology ;
+    rdfs:label "Erlang OTP Comprehensive Ontology" ;
+    rdfs:comment "Comprehensive ontology for Erlang OTP patterns and best practices" ;
+    owl:versionInfo "1.0.0" ;
+    schema:dateModified "2026-02-03" ;
+    schema:publisher "A2A Systems" .
+
+# ===== CORE ONTOLOGY CLASSES =====
+
+# Base Classes
+erl:component a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "Base class for all Erlang components" .
+
+erl:behaviour a owl:Class ;
+    rdfs:label "OTP Behaviour" ;
+    rdfs:comment "Base class for OTP behaviours" ;
+    rdfs:subClassOf erl:component .
+
+erl:module a owl:Class ;
+    rdfs:label "Erlang Module" ;
+    rdfs:comment "Base class for Erlang modules" ;
+    rdfs:subClassOf erl:component .
+
+# ===== CORE OTP BEHAVIOURS =====
+
+erl:application a owl:Class ;
+    rdfs:label "Erlang Application" ;
+    rdfs:comment "Top-level OTP application behaviour" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:gen_server a owl:Class ;
+    rdfs:label "Gen Server" ;
+    rdfs:comment "Generic server process behaviour with synchronous calls" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:gen_statem a owl:Class ;
+    rdfs:label "Gen Statem" ;
+    rdfs:comment "Generic finite state machine behaviour with states and events" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:gen_fsm a owl:Class ;
+    rdfs:label "Gen FSM" ;
+    rdfs:comment "Generic finite state machine (legacy)" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:supervisor a owl:Class ;
+    rdfs:label "Supervisor" ;
+    rdfs:comment "Process supervisor behaviour for fault tolerance" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:cowboy_handler a owl:Class ;
+    rdfs:label "Cowboy Handler" ;
+    rdfs:comment "Cowboy HTTP request handler" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:cowboy_loop a owl:Class ;
+    rdfs:label "Cowboy Loop" ;
+    rdfs:comment "Cowboy streaming handler" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:gen_event a owl:Class ;
+    rdfs:label "Gen Event" ;
+    rdfs:comment "Generic event handler behaviour" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:worker a owl:Class ;
+    rdfs:label "Worker Process" ;
+    rdfs:comment "Generic worker process" ;
+    rdfs:subClassOf erl:behaviour .
+
+# ===== ETS TABLE PATTERNS =====
+
+erl:ets_table a owl:Class ;
+    rdfs:label "ETS Table" ;
+    rdfs:comment "Erlang Term Storage table" ;
+    rdfs:subClassOf erl:component .
+
+erl:ets_bag a owl:Class ;
+    rdfs:label "ETS Bag" ;
+    rdfs:comment "ETS bag table allowing duplicate keys" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_set a owl:Class ;
+    rdfs:label "ETS Set" ;
+    rdfs:comment "ETS set table with unique keys" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_ordered_set a owl:Class ;
+    rdfs:label "ETS Ordered Set" ;
+    rdfs:comment "ETS set with ordered keys" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_private_table a owl:Class ;
+    rdfs:label "ETS Private Table" ;
+    rdfs:comment "ETS table private to a process" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_public_table a owl:Class ;
+    rdfs:label "ETS Public Table" ;
+    rdfs:comment "ETS table visible to all processes" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_named_table a owl:Class ;
+    rdfs:label "ETS Named Table" ;
+    rdfs:comment "ETS table with a registered name" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_cache a owl:Class ;
+    rdfs:label "ETS Cache" ;
+    rdfs:comment "Cache pattern using ETS" ;
+    rdfs:subClassOf erl:ets_table .
+
+erl:ets_registry a owl:Class ;
+    rdfs:label "ETS Registry" ;
+    rdfs:comment "Registry pattern using ETS" ;
+    rdfs:subClassOf erl:ets_table .
+
+# ===== ERROR HANDLING PATTERNS =====
+
+erl:error_handler a owl:Class ;
+    rdfs:label "Error Handler" ;
+    rdfs:comment "Error handling pattern" ;
+    rdfs:subClassOf erl:component .
+
+erl:crash_handler a owl:Class ;
+    rdfs:label "Crash Handler" ;
+    rdfs:comment "Process crash handling pattern" ;
+    rdfs:subClassOf erl:error_handler .
+
+erl:retry_handler a owl:Class ;
+    rdfs:label "Retry Handler" ;
+    rdfs:comment "Retry logic pattern" ;
+    rdfs:subClassOf erl:error_handler .
+
+erl:circuit_breaker a owl:Class ;
+    rdfs:label "Circuit Breaker" ;
+    rdfs:comment "Circuit breaker pattern for fault tolerance" ;
+    rdfs:subClassOf erl:error_handler .
+
+erl:backoff_strategy a owl:Class ;
+    rdfs:label "Backoff Strategy" ;
+    rdfs:comment "Backoff strategy for retries" ;
+    rdfs:subClassOf erl:component .
+
+erl:supervisor_strategy a owl:Class ;
+    rdfs:label "Supervisor Strategy" ;
+    rdfs:comment "Supervisor restart strategy" ;
+    rdfs:subClassOf erl:component .
+
+# ===== HOTCI INTEGRATION PATTERNS =====
+
+erl:hotci_module a owl:Class ;
+    rdfs:label "HotCI Module" ;
+    rdfs:comment "Module supporting hot code loading" ;
+    rdfs:subClassOf erl:module .
+
+erl:hotci_process a owl:Class ;
+    rdfs:label "HotCI Process" ;
+    rdfs:comment "Process supporting hot code upgrade" ;
+    rdfs:subClassOf erl:behaviour .
+
+erl:release_handler a owl:Class ;
+    rdfs:label "Release Handler" ;
+    rdfs:comment "Release handling for HotCI" ;
+    rdfs:subClassOf erl:component .
+
+erl:version_manager a owl:Class ;
+    rdfs:label "Version Manager" ;
+    rdfs:comment "Version management for HotCI" ;
+    rdfs:subClassOf erl:component .
+
+erl:rollback_handler a owl:Class ;
+    rdfs:label "Rollback Handler" ;
+    rdfs:comment "Rollback handling for HotCI failures" ;
+    rdfs:subClassOf erl:component .
+
+erl:upgrade_monitor a owl:Class ;
+    rdfs:label "Upgrade Monitor" ;
+    rdfs:comment "Monitor for upgrade operations" ;
+    rdfs:subClassOf erl:component .
+
+# ===== MESSAGE PASSING PATTERNS =====
+
+erl:protocol a owl:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "Message passing protocol" ;
+    rdfs:subClassOf erl:component .
+
+erl:request_reply a owl:Class ;
+    rdfs:label "Request-Reply Protocol" ;
+    rdfs:comment "Request-reply message pattern" ;
+    rdfs:subClassOf erl:protocol .
+
+erl:cast_pattern a owl:Class ;
+    rdfs:label "Cast Pattern" ;
+    rdfs:comment "Asynchronous message pattern" ;
+    rdfs:subClassOf erl:protocol .
+
+erl:forwarder a owl:Class ;
+    rdfs:label "Forwarder" ;
+    rdfs:comment "Message forwarder pattern" ;
+    rdfs:subClassOf erl:protocol .
+
+erl:broadcast a owl:Class ;
+    rdfs:label "Broadcast" ;
+    rdfs:comment "Broadcast message pattern" ;
+    rdfs:subClassOf erl:protocol .
+
+erl:queue_pattern a owl:Class ;
+    rdfs:label "Queue Pattern" ;
+    rdfs:comment "Message queue pattern" ;
+    rdfs:subClassOf erl:protocol .
+
+erl:pubsub_pattern a owl:Class ;
+    rdfs:label "PubSub Pattern" ;
+    rdfs:comment "Publish-subscribe pattern" ;
+    rdfs:subClassOf erl:protocol .
+
+# ===== MONITORING PATTERNS =====
+
+erl:metric_collector a owl:Class ;
+    rdfs:label "Metric Collector" ;
+    rdfs:comment "Metric collection pattern" ;
+    rdfs:subClassOf erl:component .
+
+erl:telemetry_handler a owl:Class ;
+    rdfs:label "Telemetry Handler" ;
+    rdfs:comment "Telemetry event handler" ;
+    rdfs:subClassOf erl:component .
+
+erl:health_check a owl:Class ;
+    rdfs:label "Health Check" ;
+    rdfs:comment "Health check pattern" ;
+    rdfs:subClassOf erl:component .
+
+erl:performance_monitor a owl:Class ;
+    rdfs:label "Performance Monitor" ;
+    rdfs:comment "Performance monitoring pattern" ;
+    rdfs:subClassOf erl:metric_collector .
+
+erl:logging_handler a owl:Class ;
+    rdfs:label "Logging Handler" ;
+    rdfs:comment "Logging pattern" ;
+    rdfs:subClassOf erl:component .
+
+erl:tracing_handler a owl:Class ;
+    rdfs:label "Tracing Handler" ;
+    rdfs:comment "Tracing pattern" ;
+    rdfs:subClassOf erl:component .
+
+erl:alert_handler a owl:Class ;
+    rdfs:label "Alert Handler" ;
+    rdfs:comment "Alert handling pattern" ;
+    rdfs:subClassOf erl:component .
+
+# ===== LOGGING PATTERNS =====
+
+erl:logger_config a owl:Class ;
+    rdfs:label "Logger Configuration" ;
+    rdfs:comment "Logger configuration pattern" ;
+    rdfs:subClassOf erl:component .
+
+erl:log_level a owl:Class ;
+    rdfs:label "Log Level" ;
+    rdfs:comment "Log level enumeration" .
+
+erl:log_format a owl:Class ;
+    rdfs:label "Log Format" ;
+    rdfs:comment "Log format enumeration" .
+
+# ===== PROPERTIES =====
+
+# Core Properties
+a2a:module_name a owl:DatatypeProperty ;
+    rdfs:label "Module Name" ;
+    rdfs:domain erl:module ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of the Erlang module" .
+
+a2a:behaviour_type a owl:DatatypeProperty ;
+    rdfs:label "Behaviour Type" ;
+    rdfs:domain erl:behaviour ;
+    rdfs:range erl:behaviour ;
+    rdfs:comment "The type of behaviour implemented" .
+
+a2a:application_name a owl:DatatypeProperty ;
+    rdfs:label "Application Name" ;
+    rdfs:domain erl:application ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of the OTP application" .
+
+a2a:version a owl:DatatypeProperty ;
+    rdfs:label "Version" ;
+    rdfs:domain erl:application ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version string for the application" .
+
+a2a:description a owl:DatatypeProperty ;
+    rdfs:label "Description" ;
+    rdfs:domain owl:Class ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable description" .
+
+# ETS Table Properties
+a2a:ets_table_name a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Name" ;
+    rdfs:domain erl:ets_table ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the ETS table" .
+
+a2a:ets_table_type a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Type" ;
+    rdfs:domain erl:ets_table ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of ETS table" .
+
+# ETS Table Type enumeration
+erl:ets_type_set a rdfs:Class ;
+    rdfs:label "ETS Set Type" ;
+    rdfs:comment "ETS set table type" .
+
+erl:ets_type_bag a rdfs:Class ;
+    rdfs:label "ETS Bag Type" ;
+    rdfs:comment "ETS bag table type" .
+
+erl:ets_type_ordered_set a rdfs:Class ;
+    rdfs:Label "ETS Ordered Set Type" ;
+    rdfs:comment "ETS ordered set table type" .
+
+erl:ets_type_private a rdfs:Class ;
+    rdfs:label "ETS Private Type" ;
+    rdfs:comment "ETS private table type" .
+
+erl:ets_type_public a rdfs:Class ;
+    rdfs:label "ETS Public Type" ;
+    rdfs:comment "ETS public table type" .
+
+erl:ets_type_named a rdfs:Class ;
+    rdfs:label "ETS Named Type" ;
+    rdfs:comment "ETS named table type" .
+
+a2a:ets_table_key_type a owl:DatatypeProperty ;
+    rdfs:label "ETS Key Type" ;
+    rdfs:domain erl:ets_table ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of keys in ETS table" .
+
+a2a:ets_table_value_type a owl:DatatypeProperty ;
+    rdfs:label "ETS Value Type" ;
+    rdfs:domain erl:ets_table ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of values in ETS table" .
+
+a2a:ets_table_options a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Options" ;
+    rdfs:domain erl:ets_table ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Additional ETS table options" .
+
+a2a:ets_table_size a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Size" ;
+    rdfs:domain erl:ets_table ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Initial size of ETS table" .
+
+# Supervisor Properties
+a2a:supervisor_strategy a owl:DatatypeProperty ;
+    rdfs:label "Supervisor Strategy" ;
+    rdfs:domain erl:supervisor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Supervisor restart strategy" .
+
+a2a:supervisor_intensity a owl:DatatypeProperty ;
+    rdfs:label "Supervisor Intensity" ;
+    rdfs:domain erl:supervisor ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum restarts within time period" .
+
+a2a:supervisor_period a owl:DatatypeProperty ;
+    rdfs:label "Supervisor Period" ;
+    rdfs:domain erl:supervisor ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Time period for restart intensity" .
+
+a2a:child_spec a owl:ObjectProperty ;
+    rdfs:label "Child Specification" ;
+    rdfs:domain erl:supervisor ;
+    rdfs:range erl:component ;
+    rdfs:comment "Child process specification" .
+
+# HotCI Properties
+a2a:hotci_enabled a owl:DatatypeProperty ;
+    rdfs:label "HotCI Enabled" ;
+    rdfs:domain erl:hotci_module ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether HotCI is enabled" .
+
+a2a:version_compatibility a owl:DatatypeProperty ;
+    rdfs:label "Version Compatibility" ;
+    rdfs:domain erl:hotci_module ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version compatibility range" .
+
+a2a:rollback_supported a owl:DatatypeProperty ;
+    rdfs:label "Rollback Supported" ;
+    rdfs:domain erl:hotci_module ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether rollback is supported" .
+
+a2a:upgrade_monitoring a owl:DatatypeProperty ;
+    rdfs:label "Upgrade Monitoring" ;
+    rdfs:domain erl:hotci_module ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether upgrade monitoring is enabled" .
+
+# Message Passing Properties
+a2a:protocol_type a owl:DatatypeProperty ;
+    rdfs:label "Protocol Type" ;
+    rdfs:domain erl:protocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of message protocol" .
+
+a2a:message_format a owl:DatatypeProperty ;
+    rdfs:label "Message Format" ;
+    rdfs:domain erl:protocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Format of messages" .
+
+a2a:timeout a owl:DatatypeProperty ;
+    rdfs:label "Timeout" ;
+    rdfs:domain owl:Class ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Timeout in milliseconds" .
+
+# Monitoring Properties
+a2a:metric_name a owl:DatatypeProperty ;
+    rdfs:label "Metric Name" ;
+    rdfs:domain erl:metric_collector ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the metric" .
+
+a2a:metric_type a owl:DatatypeProperty ;
+    rdfs:label "Metric Type" ;
+    rdfs:domain erl:metric_collector ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of metric" .
+
+a2a:collection_interval a owl:DatatypeProperty ;
+    rdfs:label "Collection Interval" ;
+    rdfs:domain erl:metric_collector ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Collection interval in milliseconds" .
+
+a2a:alert_threshold a owl:DatatypeProperty ;
+    rdfs:label "Alert Threshold" ;
+    rdfs:domain erl:alert_handler ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Alert threshold value" .
+
+a2a:alert_level a owl:DatatypeProperty ;
+    rdfs:label "Alert Level" ;
+    rdfs:domain erl:alert_handler ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Alert severity level" .
+
+# Error Handling Properties
+a2a:error_type a owl:DatatypeProperty ;
+    rdfs:label "Error Type" ;
+    rdfs:domain erl:error_handler ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of error" .
+
+a2a:max_retries a owl:DatatypeProperty ;
+    rdfs:label "Max Retries" ;
+    rdfs:domain erl:retry_handler ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum number of retries" .
+
+a2a:retry_delay a owl:DatatypeProperty ;
+    rdfs:label "Retry Delay" ;
+    rdfs:domain erl:retry_handler ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Delay between retries in milliseconds" .
+
+a2a:backoff_type a owl:DatatypeProperty ;
+    rdfs:label "Backoff Type" ;
+    rdfs:domain erl:backoff_strategy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of backoff strategy" .
+
+# Logging Properties
+a2a:log_level a owl:DatatypeProperty ;
+    rdfs:label "Log Level" ;
+    rdfs:domain erl:logging_handler ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Log level" .
+
+a2a:log_format a owl:DatatypeProperty ;
+    rdfs:label "Log Format" ;
+    rdfs:domain erl:logging_handler ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Log format" .
+
+a2a:log_rotation a owl:DatatypeProperty ;
+    rdfs:label "Log Rotation" ;
+    rdfs:domain erl:logging_handler ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Log rotation size in bytes" .
+
+a2a:log_retention a owl:DatatypeProperty ;
+    rdfs:label "Log Retention" ;
+    rdfs:domain erl:logging_handler ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Log retention period in days" .
+
+# ===== OBJECT PROPERTIES =====
+
+a2a:has_child a owl:ObjectProperty ;
+    rdfs:label "Has Child" ;
+    rdfs:domain erl:supervisor ;
+    rdfs:range erl:component ;
+    rdfs:comment "Supervisor has child process" .
+
+a2a:depends_on a owl:ObjectProperty ;
+    rdfs:label "Depends On" ;
+    rdfs:domain erl:component ;
+    rdfs:range erl:component ;
+    rdfs:comment "Component depends on another component" .
+
+a2a:monitors a owl:ObjectProperty ;
+    rdfs:label "Monitors" ;
+    rdfs:domain erl:metric_collector ;
+    rdfs:range erl:component ;
+    rdfs:comment "Monitor watches a component" .
+
+a2a:handles a owl:ObjectProperty ;
+    rdfs:label "Handles" ;
+    rdfs:domain erl:handler ;
+    rdfs:range erl:component ;
+    rdfs:comment "Handler processes component events" .
+
+a2a:sends_to a owl:ObjectProperty ;
+    rdfs:label "Sends To" ;
+    rdfs:domain erl:protocol ;
+    rdfs:range erl:component ;
+    rdfs:comment "Protocol sends messages to target" .
+
+a2a:receives_from a owl:ObjectProperty ;
+    rdfs:label "Receives From" ;
+    rdfs:domain erl:protocol ;
+    rdfs:range erl:component ;
+    rdfs:comment "Protocol receives messages from source" .
+
+a2a:configures a owl:ObjectProperty ;
+    rdfs:label "Configures" ;
+    rdfs:domain erl:component ;
+    rdfs:range erl:component ;
+    rdfs:comment "Component configures another component" .
+
+# ===== SHACL VALIDATION CONSTRAINTS =====
+
+# ETS Table Validation
+a2a:ets_table_shape a sh:NodeShape ;
+    sh:targetClass erl:ets_table ;
+    sh:property [
+        sh:path a2a:ets_table_name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "ETSTable must have a name"^^xsd:string ;
+    ] ;
+    sh:property [
+        sh:path a2a:ets_table_type ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(set|bag|ordered_set|private|public|named)$" ;
+        sh:message "ETSTable type must be one of: set, bag, ordered_set, private, public, named"^^xsd:string ;
+    ] .
+
+# Supervisor Validation
+a2a:supervisor_shape a sh:NodeShape ;
+    sh:targetClass erl:supervisor ;
+    sh:property [
+        sh:path a2a:supervisor_strategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(one_for_one|one_for_all|rest_for_one|simple_one_for_one)$" ;
+        sh:message "Supervisor strategy must be one of: one_for_one, one_for_all, rest_for_one, simple_one_for_one"^^xsd:string ;
+    ] ;
+    sh:property [
+        sh:path a2a:supervisor_intensity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Supervisor intensity must be between 1 and 100"^^xsd:string ;
+    ] ;
+    sh:property [
+        sh:path a2a:supervisor_period ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 3600 ;
+        sh:message "Supervisor period must be between 1 and 3600 seconds"^^xsd:string ;
+    ] .
+
+# HotCI Module Validation
+a2a:hotci_module_shape a sh:NodeShape ;
+    sh:targetClass erl:hotci_module ;
+    sh:property [
+        sh:path a2a:hotci_enabled ;
+        sh:hasValue true ;
+        sh:or ([
+            sh:hasValue true
+        ] [
+            sh:hasValue false
+        ]) ;
+        sh:message "HotCI enabled must be boolean"^^xsd:string ;
+    ] ;
+    sh:property [
+        sh:path a2a:version_compatibility ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+(\\.[0-9]+)?" ;
+        sh:message "Version compatibility must be in format X.Y or X.Y.Z"^^xsd:string ;
+    ] .
+
+# Metric Collector Validation
+a2a:metric_collector_shape a sh:NodeShape ;
+    sh:targetClass erl:metric_collector ;
+    sh:property [
+        sh:path a2a:metric_name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z_][a-zA-Z0-9_]*$" ;
+        sh:message "Metric name must be valid identifier"^^xsd:string ;
+    ] ;
+    sh:property [
+        sh:path a2a:metric_type ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(counter|gauge|histogram|summary)$" ;
+        sh:message "Metric type must be one of: counter, gauge, histogram, summary"^^xsd:string ;
+    ] .
+
+# ===== EXAMPLE INSTANCES =====
+
+# Example GenServer
+<https://example.com/gen_server/my_cache> a erl:gen_server ;
+    a2a:module_name "my_cache" ;
+    a2a:behaviour_type erl:gen_server ;
+    a2a:description "Simple cache gen_server implementation" .
+
+# Example Supervisor
+<https://example.com/supervisor/my_app> a erl:supervisor ;
+    a2a:module_name "my_app_supervisor" ;
+    a2a:supervisor_strategy "one_for_one" ;
+    a2a:supervisor_intensity 5 ;
+    a2a:supervisor_period 10 ;
+    a2a:description "Main application supervisor" .
+
+# Example ETS Table
+<https://example.com/ets/registry> a erl:ets_registry ;
+    a2a:ets_table_name "process_registry" ;
+    a2a:ets_table_type "set" ;
+    a2a:ets_table_key_type "pid" ;
+    a2a:ets_table_value_type "term" ;
+    a2a:ets_table_size 1000 ;
+    a2a:description "Process registry using ETS" .
+
+# Example HotCI Module
+<https://example.com/hotci/my_service> a erl:hotci_module ;
+    a2a:module_name "my_service" ;
+    a2a:hotci_enabled true ;
+    a2a:version_compatibility "2.0.0" ;
+    a2a:rollback_supported true ;
+    a2a:upgrade_monitoring true ;
+    a2a:description "HotCI-enabled service module" .
+
+# Example Metric Collector
+<https://example.com/metrics/requests> a erl:metric_collector ;
+    a2a:metric_name "request_count" ;
+    a2a:metric_type "counter" ;
+    a2a:collection_interval 1000 ;
+    a2a:description "Request counter metric" .
+
+# Example Error Handler
+<https://example.com/errors/retry> a erl:retry_handler ;
+    a2a:module_name "retry_handler" ;
+    a2a:max_retries 3 ;
+    a2a:retry_delay 1000 ;
+    a2a:backoff_type "exponential" ;
+    a2a:description "Exponential backoff retry handler" .
+
+# Example Protocol
+<https://example.com/protocols/rest> a erl:request_reply ;
+    a2a:protocol_type "request_reply" ;
+    a2a:message_format "json" ;
+    a2a:timeout 5000 ;
+    a2a:description "REST API request-reply protocol" .
+
+# Example Alert Handler
+<https://example.com/alerts/memory> a erl:alert_handler ;
+    a2a:metric_name "memory_usage" ;
+    a2a:alert_threshold 0.8 ;
+    a2a:alert_level "warning" ;
+    a2a:description "Memory usage alert handler" .
+
+# Example Logger
+<https://example.com/logger/app> a erl:logging_handler ;
+    a2a:log_level "info" ;
+    a2a:log_format "json" ;
+    a2a:log_rotation 10485760 ;
+    a2a:log_retention 30 ;
+    a2a:description "Application JSON logger" .

@@ -55,3 +55,6 @@ cargo run
 [docs]
 quick_start = "Simple Hello World starter for learning ggen"
 use_cases = "Getting started, learning Rust, testing ggen"
+
+[marketplace]
+production_ready = false

@@ -1,0 +1,635 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cyber: <http://cns.ai/ontology/cybersecurity#> .
+
+# SHACL Constraints for Cybersecurity System Validation
+# Critical security rules enforced at sub-millisecond speeds
+# BitActor integration for ultra-fast threat validation
+
+#####################################################################
+# Asset Security Constraints
+#####################################################################
+
+cyber:AssetShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:Asset ;
+    sh:property [
+        sh:path cyber:assetID ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]{4,64}$" ;
+        sh:name "Asset ID validation" ;
+        sh:description "Asset ID must be 4-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path cyber:criticality ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Criticality validation" ;
+        sh:description "Asset criticality must be rated 1-10"
+    ] ;
+    sh:property [
+        sh:path cyber:confidentialityLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "public" "internal" "confidential" "restricted" "top_secret" ) ;
+        sh:name "Confidentiality level validation" ;
+        sh:description "Confidentiality level must be from approved classification"
+    ] ;
+    sh:property [
+        sh:path cyber:assetType ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "Asset type requirement" ;
+        sh:description "All assets must have a defined type"
+    ] .
+
+#####################################################################
+# Network Asset Security Constraints
+#####################################################################
+
+cyber:NetworkAssetShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:NetworkAsset ;
+    sh:property [
+        sh:path cyber:ipAddress ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$" ;
+        sh:name "IP address validation" ;
+        sh:description "IP address must be valid IPv4 or IPv6 format"
+    ] ;
+    sh:property [
+        sh:path cyber:macAddress ;
+        sh:datatype xsd:string ;
+        sh:pattern "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" ;
+        sh:name "MAC address validation" ;
+        sh:description "MAC address must be valid format"
+    ] ;
+    sh:property [
+        sh:path cyber:port ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:name "Port number validation" ;
+        sh:description "Port number must be between 1 and 65535"
+    ] ;
+    sh:property [
+        sh:path cyber:protocol ;
+        sh:datatype xsd:string ;
+        sh:in ( "TCP" "UDP" "ICMP" "HTTP" "HTTPS" "FTP" "SSH" "TELNET" "SMTP" "DNS" "DHCP" "SNMP" ) ;
+        sh:name "Protocol validation" ;
+        sh:description "Protocol must be from approved list"
+    ] .
+
+#####################################################################
+# Threat Validation Constraints
+#####################################################################
+
+cyber:ThreatShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:Threat ;
+    sh:property [
+        sh:path cyber:threatID ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 128 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Threat ID validation" ;
+        sh:description "Threat ID must be 8-128 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path cyber:severity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Threat severity validation" ;
+        sh:description "Threat severity must be rated 1-10"
+    ] ;
+    sh:property [
+        sh:path cyber:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Detection confidence validation" ;
+        sh:description "Detection confidence must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path cyber:firstSeen ;
+        sh:datatype xsd:dateTime ;
+        sh:name "First seen timestamp requirement" ;
+        sh:description "All threats must have first seen timestamp"
+    ] .
+
+cyber:MalwareShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:Malware ;
+    sh:property [
+        sh:path cyber:md5Hash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-fA-F0-9]{32}$" ;
+        sh:name "MD5 hash validation" ;
+        sh:description "MD5 hash must be 32 hexadecimal characters"
+    ] ;
+    sh:property [
+        sh:path cyber:sha256Hash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:name "SHA256 hash validation" ;
+        sh:description "SHA256 hash must be 64 hexadecimal characters"
+    ] ;
+    sh:property [
+        sh:path cyber:fileSize ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 2147483647 ; # 2GB max file size
+        sh:name "File size validation" ;
+        sh:description "File size must be positive and reasonable"
+    ] ;
+    sh:property [
+        sh:path cyber:threatFamily ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 64 ;
+        sh:name "Threat family requirement" ;
+        sh:description "Malware must be assigned to a threat family"
+    ] .
+
+#####################################################################
+# Attack Validation Constraints
+#####################################################################
+
+cyber:AttackShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:Attack ;
+    sh:property [
+        sh:path cyber:attackID ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Attack ID validation" ;
+        sh:description "Attack ID must be 8-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path cyber:sourceIP ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" ;
+        sh:name "Source IP validation" ;
+        sh:description "Source IP must be valid IPv4 address"
+    ] ;
+    sh:property [
+        sh:path cyber:destinationIP ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" ;
+        sh:name "Destination IP validation" ;
+        sh:description "Destination IP must be valid IPv4 address"
+    ] ;
+    sh:property [
+        sh:path cyber:sourcePort ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:name "Source port validation" ;
+        sh:description "Source port must be valid port number"
+    ] ;
+    sh:property [
+        sh:path cyber:destinationPort ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:name "Destination port validation" ;
+        sh:description "Destination port must be valid port number"
+    ] ;
+    sh:property [
+        sh:path cyber:attackTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Attack timestamp requirement" ;
+        sh:description "All attacks must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path cyber:duration ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 86400.0 ; # 24 hours max
+        sh:name "Attack duration validation" ;
+        sh:description "Attack duration must be between 0 and 24 hours"
+    ] .
+
+cyber:NetworkAttackShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:NetworkAttack ;
+    sh:property [
+        sh:path cyber:packetCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10000000 ; # 10M packets max
+        sh:name "Packet count validation" ;
+        sh:description "Packet count must be positive and reasonable"
+    ] ;
+    sh:property [
+        sh:path cyber:byteCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1073741824 ; # 1GB max
+        sh:name "Byte count validation" ;
+        sh:description "Byte count must be positive and reasonable"
+    ] .
+
+#####################################################################
+# Security Event Constraints - Ultra-fast validation
+#####################################################################
+
+cyber:SecurityEventShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:SecurityEvent ;
+    sh:property [
+        sh:path cyber:eventID ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 128 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Event ID validation" ;
+        sh:description "Event ID must be 8-128 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path cyber:eventType ;
+        sh:datatype xsd:string ;
+        sh:in ( "login" "logout" "file_access" "network_connection" "malware_detection" "intrusion_attempt" "vulnerability_scan" "privilege_escalation" "data_exfiltration" "system_compromise" ) ;
+        sh:name "Event type validation" ;
+        sh:description "Event type must be from approved list"
+    ] ;
+    sh:property [
+        sh:path cyber:eventSeverity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Event severity validation" ;
+        sh:description "Event severity must be rated 1-10"
+    ] ;
+    sh:property [
+        sh:path cyber:riskScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:name "Risk score validation" ;
+        sh:description "Risk score must be between 0.0 and 10.0"
+    ] ;
+    sh:property [
+        sh:path cyber:falsePositiveProbability ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "False positive probability validation" ;
+        sh:description "False positive probability must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path cyber:eventTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Event timestamp requirement" ;
+        sh:description "All events must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path cyber:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000000.0 ; # 1ms maximum latency
+        sh:name "Processing latency constraint" ;
+        sh:description "Event processing must complete within 1ms"
+    ] ;
+    sh:property [
+        sh:path cyber:ticksUsed ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ; # BitActor 8-tick guarantee
+        sh:name "CPU ticks constraint" ;
+        sh:description "Event processing must use ≤8 CPU ticks"
+    ] .
+
+#####################################################################
+# Vulnerability Constraints
+#####################################################################
+
+cyber:VulnerabilityShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:Vulnerability ;
+    sh:property [
+        sh:path cyber:cveID ;
+        sh:datatype xsd:string ;
+        sh:pattern "^CVE-[0-9]{4}-[0-9]{4,}$" ;
+        sh:name "CVE ID validation" ;
+        sh:description "CVE ID must follow standard format"
+    ] ;
+    sh:property [
+        sh:path cyber:cvssScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:name "CVSS score validation" ;
+        sh:description "CVSS score must be between 0.0 and 10.0"
+    ] ;
+    sh:property [
+        sh:path cyber:exploitability ;
+        sh:datatype xsd:string ;
+        sh:in ( "unproven" "proof_of_concept" "functional" "high" "not_defined" ) ;
+        sh:name "Exploitability validation" ;
+        sh:description "Exploitability must be from CVSS standard levels"
+    ] ;
+    sh:property [
+        sh:path cyber:impactScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:name "Impact score validation" ;
+        sh:description "Impact score must be between 0.0 and 10.0"
+    ] ;
+    sh:property [
+        sh:path cyber:disclosureDate ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Disclosure date requirement" ;
+        sh:description "All vulnerabilities must have disclosure date"
+    ] .
+
+cyber:ZeroDayVulnerabilityShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:ZeroDayVulnerability ;
+    sh:property [
+        sh:path cyber:cvssScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 7.0 ; # Zero-days should be high severity
+        sh:maxInclusive 10.0 ;
+        sh:name "Zero-day severity constraint" ;
+        sh:description "Zero-day vulnerabilities must have CVSS ≥7.0"
+    ] ;
+    sh:property [
+        sh:path cyber:patchAvailable ;
+        sh:hasValue false ; # Zero-days have no patch by definition
+        sh:name "Zero-day patch constraint" ;
+        sh:description "Zero-day vulnerabilities must have no available patch"
+    ] .
+
+#####################################################################
+# Security Control Constraints - Performance requirements
+#####################################################################
+
+cyber:SecurityControlShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:SecurityControl ;
+    sh:property [
+        sh:path cyber:realTimeProcessing ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ; # Real-time processing required
+        sh:name "Real-time processing requirement" ;
+        sh:description "Security controls must have real-time processing enabled"
+    ] ;
+    sh:property [
+        sh:path cyber:detectionAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 80.0 ; # Minimum 80% accuracy
+        sh:maxInclusive 100.0 ;
+        sh:name "Detection accuracy validation" ;
+        sh:description "Detection accuracy must be ≥80%"
+    ] ;
+    sh:property [
+        sh:path cyber:responseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000.0 ; # 1 second maximum response
+        sh:name "Response time constraint" ;
+        sh:description "Security control response time must be ≤1 second"
+    ] .
+
+cyber:IDSShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:IDS ;
+    sh:property [
+        sh:path cyber:detectionAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 90.0 ; # Higher accuracy for IDS
+        sh:maxInclusive 100.0 ;
+        sh:name "IDS detection accuracy" ;
+        sh:description "IDS must have ≥90% detection accuracy"
+    ] ;
+    sh:property [
+        sh:path cyber:responseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 100.0 ; # 100ms maximum for IDS
+        sh:name "IDS response time" ;
+        sh:description "IDS response time must be ≤100ms"
+    ] .
+
+cyber:IPSShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:IPS ;
+    sh:property [
+        sh:path cyber:responseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 10.0 ; # 10ms maximum for IPS (blocking)
+        sh:name "IPS response time" ;
+        sh:description "IPS response time must be ≤10ms for real-time blocking"
+    ] .
+
+#####################################################################
+# Incident Response Constraints
+#####################################################################
+
+cyber:SecurityIncidentShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:SecurityIncident ;
+    sh:property [
+        sh:path cyber:incidentID ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Incident ID validation" ;
+        sh:description "Incident ID must be 8-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path cyber:incidentStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "new" "investigating" "contained" "eradicated" "recovered" "closed" ) ;
+        sh:name "Incident status validation" ;
+        sh:description "Incident status must be from approved workflow states"
+    ] ;
+    sh:property [
+        sh:path cyber:containmentTime ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1440.0 ; # 24 hours maximum
+        sh:name "Containment time validation" ;
+        sh:description "Containment time must be between 0 and 24 hours"
+    ] ;
+    sh:property [
+        sh:path cyber:recoveryTime ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10080.0 ; # 7 days maximum
+        sh:name "Recovery time validation" ;
+        sh:description "Recovery time must be between 0 and 7 days"
+    ] ;
+    sh:property [
+        sh:path cyber:businessImpact ;
+        sh:datatype xsd:string ;
+        sh:in ( "none" "minimal" "moderate" "significant" "severe" "catastrophic" ) ;
+        sh:name "Business impact validation" ;
+        sh:description "Business impact must be from approved scale"
+    ] ;
+    sh:property [
+        sh:path cyber:assignedAnalyst ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "Analyst assignment requirement" ;
+        sh:description "All incidents must have an assigned analyst"
+    ] .
+
+#####################################################################
+# Threat Intelligence Constraints
+#####################################################################
+
+cyber:IOCShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:IOC ;
+    sh:property [
+        sh:path cyber:iocType ;
+        sh:datatype xsd:string ;
+        sh:in ( "ip_address" "domain" "url" "file_hash" "email" "registry_key" "mutex" "user_agent" ) ;
+        sh:name "IOC type validation" ;
+        sh:description "IOC type must be from standard taxonomy"
+    ] ;
+    sh:property [
+        sh:path cyber:iocValue ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 512 ;
+        sh:name "IOC value validation" ;
+        sh:description "IOC value must be between 1 and 512 characters"
+    ] ;
+    sh:property [
+        sh:path cyber:reputation ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -1.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Reputation score validation" ;
+        sh:description "Reputation score must be between -1.0 (malicious) and 1.0 (trusted)"
+    ] .
+
+cyber:ThreatIntelligenceShape rdf:type sh:NodeShape ;
+    sh:targetClass cyber:ThreatIntelligence ;
+    sh:property [
+        sh:path cyber:source ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 128 ;
+        sh:name "Intelligence source validation" ;
+        sh:description "Intelligence source must be specified"
+    ] ;
+    sh:property [
+        sh:path cyber:reliability ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Source reliability validation" ;
+        sh:description "Source reliability must be between 0.0 and 1.0"
+    ] .
+
+#####################################################################
+# BitActor Performance Constraints
+#####################################################################
+
+cyber:BitActorPerformanceShape rdf:type sh:NodeShape ;
+    sh:targetNode cyber:Asset ;
+    sh:property [
+        sh:path cyber:bitactorID ;
+        sh:datatype xsd:string ;
+        sh:pattern "^bitactor_cyber_[0-9a-f]{8}$" ;
+        sh:name "BitActor ID format" ;
+        sh:description "BitActor ID must follow format 'bitactor_cyber_########'"
+    ] ;
+    sh:sparql [
+        sh:message "Security events must complete within 8 CPU ticks" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cyber" ;
+                sh:namespace "http://cns.ai/ontology/cybersecurity#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cyber:generatesEvent ?event .
+                ?event cyber:ticksUsed ?ticks .
+                FILTER (?ticks > 8)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Critical security events must have sub-millisecond processing" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cyber" ;
+                sh:namespace "http://cns.ai/ontology/cybersecurity#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cyber:generatesEvent ?event .
+                ?event cyber:eventSeverity ?severity .
+                ?event cyber:processingLatency ?latency .
+                FILTER (?severity >= 8 && ?latency > 1000000)
+            }
+        """
+    ] .
+
+#####################################################################
+# Threat Correlation and Response Rules
+#####################################################################
+
+cyber:ThreatCorrelationShape rdf:type sh:NodeShape ;
+    sh:targetNode cyber:Asset ;
+    sh:sparql [
+        sh:message "High-value assets with critical vulnerabilities require immediate attention" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cyber" ;
+                sh:namespace "http://cns.ai/ontology/cybersecurity#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cyber:criticality ?criticality .
+                $this cyber:hasVulnerability ?vuln .
+                ?vuln cyber:cvssScore ?cvss .
+                FILTER (?criticality >= 8 && ?cvss >= 7.0)
+                FILTER NOT EXISTS { ?this cyber:protects ?control }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Assets under active attack must trigger incident response" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cyber" ;
+                sh:namespace "http://cns.ai/ontology/cybersecurity#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?attack cyber:affects $this .
+                ?attack cyber:attackTimestamp ?timestamp .
+                FILTER (?timestamp > (NOW() - "PT1H"^^xsd:duration))
+                FILTER NOT EXISTS { 
+                    ?incident a cyber:SecurityIncident .
+                    ?incident cyber:affects $this .
+                    ?incident cyber:incidentStatus ?status .
+                    FILTER (?status IN ("investigating", "contained"))
+                }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Zero-day vulnerabilities require emergency response" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cyber" ;
+                sh:namespace "http://cns.ai/ontology/cybersecurity#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cyber:hasVulnerability ?vuln .
+                ?vuln a cyber:ZeroDayVulnerability .
+                ?vuln cyber:disclosureDate ?disclosure .
+                FILTER (?disclosure > (NOW() - "P7D"^^xsd:duration))
+            }
+        """
+    ] .

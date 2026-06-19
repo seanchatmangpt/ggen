@@ -1,0 +1,457 @@
+@prefix yawl: <http://cns.litigation/yawl#> .
+@prefix recursive: <http://cns.litigation/recursive#> .
+@prefix sparql: <http://cns.litigation/sparql#> .
+@prefix trinity: <http://cns.litigation/trinity#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Recursive Validation Workflow: Tests Self-Referential SPARQL Patterns
+# This workflow validates SPARQL's ability to handle recursive queries and 
+# self-modifying semantic structures
+
+:RecursiveValidationWorkflow a yawl:YAWLSpecification ;
+    yawl:name "Recursive SPARQL Validation Workflow" ;
+    yawl:version "1.0.0" ;
+    yawl:description "Validates recursive and self-referential SPARQL operations" ;
+    
+    # Trinity Framework - Meta Level 4 (Recursive)
+    trinity:tickBudget 16 ;
+    trinity:hopDepthMax 8 ;
+    trinity:metaLevel 4 ;
+    trinity:recursionSafe true ;
+    trinity:maxRecursionDepth 5 ;
+    
+    # Input/Output Conditions
+    yawl:inputCondition :StartRecursiveValidation ;
+    yawl:outputCondition :RecursiveValidationComplete ;
+    
+    # Recursive Test Tasks
+    yawl:task [
+        a yawl:CompositeTask ;
+        yawl:id :TestPropertyPathRecursion ;
+        yawl:name "Test Property Path Recursion" ;
+        yawl:decomposesTo :PropertyPathSubnet ;
+        trinity:tickCost 4 ;
+        recursive:depth 0 ;
+        yawl:split yawl:AND
+    ] ;
+    
+    yawl:task [
+        a yawl:CompositeTask ;
+        yawl:id :TestTransitiveClosure ;
+        yawl:name "Test Transitive Closure Operations" ;
+        yawl:decomposesTo :TransitiveClosureSubnet ;
+        trinity:tickCost 4 ;
+        recursive:depth 0 ;
+        yawl:join yawl:AND ;
+        yawl:split yawl:AND
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestSelfReferentialQueries ;
+        yawl:name "Test Self-Referential SPARQL Queries" ;
+        recursive:selfReference true ;
+        sparql:query """
+            # Query that references itself in the results
+            CONSTRUCT {
+                ?concept recursive:definesItself ?concept .
+                ?concept recursive:depth ?newDepth .
+            } WHERE {
+                {
+                    SELECT ?concept (COUNT(*) as ?depth) WHERE {
+                        ?concept recursive:relatedTo* ?concept .
+                    }
+                    GROUP BY ?concept
+                }
+                BIND(?depth + 1 AS ?newDepth)
+            }
+        """ ;
+        trinity:tickCost 3 ;
+        yawl:join yawl:AND ;
+        yawl:split yawl:XOR
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestRecursiveConstruct ;
+        yawl:name "Test Recursive CONSTRUCT Operations" ;
+        recursive:maxIterations 5 ;
+        sparql:query """
+            # Recursive CONSTRUCT that builds upon previous results
+            CONSTRUCT {
+                ?parent recursive:hasDescendant ?descendant .
+                ?descendant recursive:generation ?nextGen .
+            } WHERE {
+                ?parent recursive:hasChild ?child .
+                ?child recursive:hasChild* ?descendant .
+                ?child recursive:generation ?gen .
+                BIND(?gen + 1 AS ?nextGen)
+            }
+        """ ;
+        trinity:tickCost 4 ;
+        yawl:join yawl:XOR
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :ValidateRecursionLimits ;
+        yawl:name "Validate Recursion Depth Limits" ;
+        recursive:testInfiniteRecursion true ;
+        sparql:validation """
+            # Ensure recursive queries respect depth limits
+            SELECT ?maxDepth WHERE {
+                ?query recursive:executedWith ?config .
+                ?config recursive:maxDepth ?maxDepth .
+                ?query recursive:actualDepth ?actualDepth .
+                FILTER(?actualDepth <= ?maxDepth)
+            }
+        """ ;
+        trinity:tickCost 2
+    ] ;
+    
+    # Control Flow with Recursive Conditions
+    yawl:flow [
+        yawl:from :StartRecursiveValidation ;
+        yawl:to :TestPropertyPathRecursion
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestPropertyPathRecursion ;
+        yawl:to :TestTransitiveClosure
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestTransitiveClosure ;
+        yawl:to :TestSelfReferentialQueries
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestSelfReferentialQueries ;
+        yawl:to :TestRecursiveConstruct ;
+        yawl:predicate "?selfRefResult = 'success'"
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestSelfReferentialQueries ;
+        yawl:to :ValidateRecursionLimits ;
+        yawl:predicate "?selfRefResult = 'bounded'"
+    ] ;
+    
+    yawl:flow [
+        yawl:from :TestRecursiveConstruct ;
+        yawl:to :ValidateRecursionLimits
+    ] ;
+    
+    yawl:flow [
+        yawl:from :ValidateRecursionLimits ;
+        yawl:to :RecursiveValidationComplete
+    ] .
+
+# Subnet: Property Path Recursion Tests
+:PropertyPathSubnet a yawl:YAWLSubnet ;
+    yawl:name "Property Path Recursion Tests" ;
+    recursive:allowInfinite false ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :SetupRecursiveGraph ;
+        yawl:name "Setup Recursive Test Graph" ;
+        sparql:update """
+            INSERT DATA {
+                GRAPH <recursive:test> {
+                    <node:a> recursive:connectedTo <node:b> .
+                    <node:b> recursive:connectedTo <node:c> .
+                    <node:c> recursive:connectedTo <node:d> .
+                    <node:d> recursive:connectedTo <node:a> .  # Creates cycle
+                    
+                    <concept:x> recursive:subConceptOf <concept:y> .
+                    <concept:y> recursive:subConceptOf <concept:z> .
+                    <concept:z> recursive:subConceptOf <concept:x> .  # Creates cycle
+                }
+            }
+        """
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestZeroOrMorePath ;
+        yawl:name "Test Zero-or-More Property Path (*)" ;
+        sparql:query """
+            SELECT ?start ?end (COUNT(?intermediate) as ?pathLength) WHERE {
+                GRAPH <recursive:test> {
+                    ?start recursive:connectedTo* ?end .
+                    ?start recursive:connectedTo* ?intermediate .  
+                    ?intermediate recursive:connectedTo* ?end .
+                }
+            }
+            GROUP BY ?start ?end
+            ORDER BY ?pathLength
+        """ ;
+        recursive:expectedResults [
+            recursive:cyclicPaths true ;
+            recursive:maxPathLength 4  # Should detect cycle limit
+        ]
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestOneOrMorePath ;
+        yawl:name "Test One-or-More Property Path (+)" ;
+        sparql:query """
+            SELECT ?concept ?related WHERE {
+                GRAPH <recursive:test> {
+                    ?concept recursive:subConceptOf+ ?related .
+                    FILTER(?concept != ?related)  # Exclude reflexive
+                }
+            }
+        """ ;
+        recursive:expectedBehavior "finite_result_despite_cycle"
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :TestPathWithNegation ;
+        yawl:name "Test Property Path with Negation" ;
+        sparql:query """
+            SELECT ?x ?y WHERE {
+                GRAPH <recursive:test> {
+                    ?x recursive:connectedTo* ?y .
+                    FILTER NOT EXISTS {
+                        ?x recursive:connectedTo ?y .  # Direct connection
+                    }
+                }
+            }
+        """ ;
+        recursive:testComplexity "indirect_connections_only"
+    ] .
+
+# Subnet: Transitive Closure Tests
+:TransitiveClosureSubnet a yawl:YAWLSubnet ;
+    yawl:name "Transitive Closure Validation" ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :ComputeTransitiveClosure ;
+        sparql:query """
+            # Compute full transitive closure
+            CONSTRUCT {
+                ?x recursive:transitivelyConnectedTo ?z .
+                ?path recursive:hasLength ?length .
+            } WHERE {
+                SELECT ?x ?z (MIN(?pathLength) as ?length) WHERE {
+                    ?x recursive:connectedTo+ ?z .
+                    {
+                        SELECT ?x ?z (COUNT(?hop) as ?pathLength) WHERE {
+                            ?x recursive:connectedTo* ?hop .
+                            ?hop recursive:connectedTo* ?z .
+                        }
+                        GROUP BY ?x ?z
+                    }
+                }
+                GROUP BY ?x ?z
+            }
+        """ ;
+        recursive:computationType "minimal_paths"
+    ] ;
+    
+    yawl:task [
+        a yawl:AtomicTask ;
+        yawl:id :ValidateTransitivity ;
+        sparql:validation """
+            # Validate transitive property holds
+            ASK WHERE {
+                ?x recursive:transitivelyConnectedTo ?y .
+                ?y recursive:transitivelyConnectedTo ?z .
+                ?x recursive:transitivelyConnectedTo ?z .
+            }
+        """ ;
+        recursive:property "transitivity"
+    ] .
+
+# Recursive Depth Testing
+:RecursiveDepthTest a recursive:DepthTest ;
+    recursive:name "Recursion Depth Validation" ;
+    recursive:description "Tests behavior at various recursion depths" ;
+    
+    recursive:depthLevel [
+        recursive:level 1 ;
+        recursive:query """
+            SELECT ?x WHERE {
+                ?x recursive:level1Property ?y .
+            }
+        """ ;
+        recursive:expectedComplexity "O(n)"
+    ] ;
+    
+    recursive:depthLevel [
+        recursive:level 2 ;
+        recursive:query """
+            SELECT ?x WHERE {
+                ?x recursive:level1Property ?y .
+                ?y recursive:level1Property ?z .
+            }
+        """ ;
+        recursive:expectedComplexity "O(n^2)"
+    ] ;
+    
+    recursive:depthLevel [
+        recursive:level 3 ;
+        recursive:query """
+            SELECT ?x WHERE {
+                ?x recursive:level1Property ?y .
+                ?y recursive:level1Property ?z .
+                ?z recursive:level1Property ?w .
+            }
+        """ ;
+        recursive:expectedComplexity "O(n^3)"
+    ] ;
+    
+    recursive:depthLevel [
+        recursive:level 4 ;
+        recursive:query """
+            SELECT ?x WHERE {
+                ?x recursive:level1Property+ ?w .
+                FILTER(recursive:pathLength(?x, ?w) = 4)
+            }
+        """ ;
+        recursive:expectedComplexity "O(n^4)"
+    ] ;
+    
+    recursive:depthLevel [
+        recursive:level 5 ;
+        recursive:query """
+            SELECT ?x WHERE {
+                ?x recursive:level1Property+ ?w .
+                FILTER(recursive:pathLength(?x, ?w) = 5)
+            }
+        """ ;
+        recursive:expectedBehavior "depth_limit_reached" ;
+        recursive:shouldTerminate true
+    ] .
+
+# Self-Modifying Recursive Queries
+:SelfModifyingRecursiveTest a recursive:SelfModifyingTest ;
+    recursive:name "Self-Modifying Recursive Structures" ;
+    recursive:description "Tests SPARQL queries that modify their own execution context" ;
+    
+    recursive:iteration [
+        recursive:step 1 ;
+        sparql:update """
+            INSERT {
+                ?concept recursive:learnsAbout ?newConcept .
+                ?newConcept recursive:discoveredAt ?timestamp .
+            } WHERE {
+                ?concept recursive:relatedTo ?other .
+                FILTER NOT EXISTS {
+                    ?concept recursive:learnsAbout ?other .
+                }
+                BIND(CONCAT("learned_", STR(?other)) AS ?newConcept)
+                BIND(NOW() AS ?timestamp)
+            }
+        """
+    ] ;
+    
+    recursive:iteration [
+        recursive:step 2 ;
+        sparql:update """
+            # Second iteration operates on results of first
+            INSERT {
+                ?concept recursive:hasComplexRelation ?target .
+            } WHERE {
+                ?concept recursive:learnsAbout ?learned .
+                ?learned recursive:discoveredAt ?time .
+                ?otherConcept recursive:learnsAbout ?otherLearned .
+                ?otherLearned recursive:discoveredAt ?otherTime .
+                FILTER(?time < ?otherTime)
+                BIND(?otherConcept AS ?target)
+            }
+        """
+    ] ;
+    
+    recursive:terminationCondition """
+        # Stop when no new knowledge is generated
+        ASK WHERE {
+            FILTER NOT EXISTS {
+                ?x recursive:learnsAbout ?y .
+                ?y recursive:discoveredAt ?time .
+                FILTER(?time > ?previousMaxTime)
+            }
+        }
+    """ .
+
+# Adversarial Recursive Tests
+:AdversarialRecursiveTests a recursive:AdversarialTestSuite ;
+    recursive:description "Tests designed to break recursive SPARQL processing" ;
+    
+    recursive:attack [
+        a recursive:InfiniteRecursionAttack ;
+        recursive:description "Attempt to create infinite recursion" ;
+        sparql:maliciousPattern """
+            # This should be detected and limited
+            SELECT ?x WHERE {
+                ?x recursive:relatedTo+ ?x .
+            }
+        """ ;
+        recursive:expectedOutcome recursive:depthLimitEnforced
+    ] ;
+    
+    recursive:attack [
+        a recursive:ExponentialExplosion ;
+        recursive:description "Exponentially expanding recursive query" ;
+        sparql:maliciousPattern """
+            SELECT ?combinations WHERE {
+                ?x recursive:connectedTo* ?y .
+                ?y recursive:connectedTo* ?z .
+                ?z recursive:connectedTo* ?w .
+                ?w recursive:connectedTo* ?v .
+                BIND(CONCAT(?x, ?y, ?z, ?w, ?v) AS ?combinations)
+            }
+        """ ;
+        recursive:expectedOutcome recursive:complexityLimitEnforced
+    ] ;
+    
+    recursive:attack [
+        a recursive:SelfModifyingBomb ;
+        recursive:description "Query that tries to modify its own structure during execution" ;
+        sparql:maliciousPattern """
+            INSERT {
+                ?this recursive:modifiesItself true .
+                ?this sparql:query ?newQuery .
+            } WHERE {
+                BIND(THIS_QUERY AS ?this)
+                BIND("malicious query content" AS ?newQuery)
+            }
+        """ ;
+        recursive:expectedOutcome recursive:selfModificationBlocked
+    ] .
+
+# Performance Validation for Recursive Queries
+:RecursivePerformanceValidation a recursive:PerformanceValidation ;
+    recursive:description "Validates performance characteristics of recursive operations" ;
+    
+    recursive:benchmark [
+        recursive:name "Simple property path performance" ;
+        recursive:pattern "?x prop+ ?y" ;
+        recursive:expectedTime "< 1ms" ;
+        recursive:dataSize 1000
+    ] ;
+    
+    recursive:benchmark [
+        recursive:name "Complex transitive closure" ;
+        recursive:pattern "?x (prop1/prop2)* ?y" ;
+        recursive:expectedTime "< 10ms" ;
+        recursive:dataSize 1000
+    ] ;
+    
+    recursive:benchmark [
+        recursive:name "Deep recursion performance degradation" ;
+        recursive:measureComplexity [
+            recursive:depth 1 ;
+            recursive:depth 2 ;
+            recursive:depth 3 ;
+            recursive:depth 4 ;
+            recursive:depth 5
+        ] ;
+        recursive:expectedGrowth "polynomial" ;
+        recursive:maxAcceptableTime "100ms"
+    ] .

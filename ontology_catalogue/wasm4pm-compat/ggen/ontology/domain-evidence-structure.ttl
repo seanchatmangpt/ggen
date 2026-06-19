@@ -1,0 +1,357 @@
+# Domain Ontology: Evidence Structure
+# Defines types, properties, and classes for evidence carriers, witnesses, lifecycle stages,
+# and admission/refusal boundaries.
+#
+# Companion to wasm4pm-compat-integrated.ttl
+
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix domain: <https://wasm4pm-compat.rs/domain#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+
+<https://wasm4pm-compat.rs/domain/evidence-structure>
+    a owl:Ontology ;
+    rdfs:label "Evidence Structure Domain Ontology" ;
+    rdfs:comment "Domain-specific definitions for evidence types, witness markers, lifecycle stages, and admission/refusal boundaries." ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# EVIDENCE CARRIER CLASSES
+# ============================================================================
+
+domain:EvidenceCarrier
+    a rdfs:Class ;
+    rdfs:label "Evidence Carrier" ;
+    rdfs:comment "The universal Evidence<T, State, W> type bundle. A value T tagged with a lifecycle State and a Witness W via PhantomData — zero runtime cost." ;
+    owl:equivalentClass compat:Evidence .
+
+domain:RawEvidence
+    a rdfs:Class ;
+    rdfs:label "Raw Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Raw, W> — untrusted input as it arrives from the outside world. Not yet parsed or judged against any witness." .
+
+domain:ParsedEvidence
+    a rdfs:Class ;
+    rdfs:label "Parsed Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Parsed, W> — structurally parsed but not yet judged at the boundary. Well-formed shape accepted by the format decoder." .
+
+domain:AdmittedEvidence
+    a rdfs:Class ;
+    rdfs:label "Admitted Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Admitted, W> — admitted across the boundary against a named Witness. Only admitted evidence is eligible for projection, export, or receipt." .
+
+domain:RefusedEvidence
+    a rdfs:Class ;
+    rdfs:label "Refused Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Refused, W> — terminal refusal carrying a specific named law reason. Cannot be coerced back to Admitted." .
+
+domain:ProjectedEvidence
+    a rdfs:Class ;
+    rdfs:label "Projected Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Projected, W> — result of a named, accounted lossy projection under an explicit LossPolicy with a LossReport." .
+
+domain:ExportableEvidence
+    a rdfs:Class ;
+    rdfs:label "Exportable Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Exportable, W> — cleared to leave the crate as an external/wasm4pm value. Admitted (and possibly projected) and now allowed to cross the export boundary." .
+
+domain:ReceiptedEvidence
+    a rdfs:Class ;
+    rdfs:label "Receipted Evidence" ;
+    rdfs:subClassOf domain:EvidenceCarrier ;
+    rdfs:comment "Evidence<T, Receipted, W> — sealed inside a provenance-bearing receipt. Records provenance and the witness it answered to. Strongest structural stage." .
+
+# ============================================================================
+# WITNESS MARKER CLASSES
+# ============================================================================
+
+domain:StandardWitness
+    a rdfs:Class ;
+    rdfs:label "Standard Witness" ;
+    rdfs:subClassOf domain:WitnessMarker ;
+    rdfs:comment "A witness marker naming a published interchange/data standard (e.g. OCEL 2.0, XES 1849-2016). Evidence tagged with a Standard witness must conform to that standard's schema." .
+
+domain:PaperWitness
+    a rdfs:Class ;
+    rdfs:label "Paper Witness" ;
+    rdfs:subClassOf domain:WitnessMarker ;
+    rdfs:comment "A witness marker naming an academic paper defining a model or model family (e.g. POWL, WF-net soundness, OC-Petri-nets, OCPQ)." .
+
+domain:ApiGrammarWitness
+    a rdfs:Class ;
+    rdfs:label "API Grammar Witness" ;
+    rdfs:subClassOf domain:WitnessMarker ;
+    rdfs:comment "A witness marker naming an API grammar a consumer must speak to interoperate (e.g. pm4py call shape, pmax consumer grammar)." .
+
+domain:RustLawWitness
+    a rdfs:Class ;
+    rdfs:label "Rust Law Witness" ;
+    rdfs:subClassOf domain:WitnessMarker ;
+    rdfs:comment "A witness marker naming a Rust-language law this crate enforces structurally (e.g. typestate admission, forbid(unsafe_code))." .
+
+domain:InternalBridgeWitness
+    a rdfs:Class ;
+    rdfs:label "Internal Bridge Witness" ;
+    rdfs:subClassOf domain:WitnessMarker ;
+    rdfs:comment "A witness marker naming an internal bridge toward graduation (e.g. the wasm4pm engine bridge). Marks the boundary where compat ends and wasm4pm begins." .
+
+# ============================================================================
+# WITNESS MARKER INSTANCES (key process-mining witnesses)
+# ============================================================================
+
+domain:OcelStandardWitness
+    a domain:StandardWitness ;
+    rdfs:label "OCEL 2.0 Standard Witness" ;
+    compat:rustType "Ocel20" ;
+    compat:witnessKey "ocel-2.0" ;
+    compat:witnessTitle "OCEL 2.0" ;
+    compat:witnessYear 2023 ;
+    skos:definition "The object-centric event log standard (OCEL 2.0). Evidence tagged with this witness conforms to https://ocel-standard.org/." ;
+    prov:wasAttributedTo <https://ocel-standard.org/> .
+
+domain:XesStandardWitness
+    a domain:StandardWitness ;
+    rdfs:label "XES Standard Witness" ;
+    compat:rustType "Xes1849" ;
+    compat:witnessKey "xes-1849-2016" ;
+    compat:witnessTitle "XES (IEEE 1849-2016)" ;
+    compat:witnessYear 2016 ;
+    skos:definition "The eXtensible Event Stream interchange standard (IEEE 1849-2016). Evidence conforms to the XES XML schema." ;
+    prov:wasAttributedTo <http://www.xes-standard.org/> .
+
+domain:BpmnStandardWitness
+    a domain:StandardWitness ;
+    rdfs:label "BPMN 2.0 Standard Witness" ;
+    compat:rustType "Bpmn20" ;
+    compat:witnessTitle "BPMN 2.0" ;
+    compat:witnessYear 2011 ;
+    skos:definition "Business Process Model and Notation 2.0. Evidence models conform to the BPMN 2.0 metamodel (https://www.omg.org/spec/BPMN/2.0/)." ;
+    prov:wasAttributedTo <https://www.omg.org/spec/BPMN/> .
+
+domain:PowlPaperWitness
+    a domain:PaperWitness ;
+    rdfs:label "POWL Paper Witness" ;
+    compat:rustType "PowlPaper" ;
+    compat:witnessKey "powl-paper" ;
+    compat:witnessTitle "POWL: Partially Ordered Workflow Language" ;
+    compat:witnessYear 2023 ;
+    skos:definition "Partially Ordered Workflow Language (Kourani and van Zelst, 2023). Extends classical block structures with explicit partial ordering." .
+
+domain:WfNetSoundnessPaperWitness
+    a domain:PaperWitness ;
+    rdfs:label "WF-Net Soundness Paper Witness" ;
+    compat:rustType "WfNetSoundnessPaper" ;
+    compat:witnessKey "wfnet-soundness-paper" ;
+    compat:witnessTitle "The Application of Petri Nets to Workflow Management" ;
+    compat:witnessYear 1998 ;
+    skos:definition "WF-net soundness criterion (van der Aalst, 1998). A WF-net is sound iff it has proper termination, option to complete, and no dead transitions." .
+
+domain:Wasm4pmBridgeWitness
+    a domain:InternalBridgeWitness ;
+    rdfs:label "wasm4pm Bridge Witness" ;
+    compat:rustType "Wasm4pmBridge" ;
+    compat:witnessKey "wasm4pm-bridge" ;
+    compat:witnessTitle "wasm4pm Graduation Bridge" ;
+    skos:definition "The internal bridge toward the wasm4pm execution engine. Evidence tagged with this witness is ready to cross the graduation boundary for engine-side processing." .
+
+# ============================================================================
+# LIFECYCLE STAGE CLASSES
+# ============================================================================
+
+domain:LifecycleStageClass
+    a rdfs:Class ;
+    rdfs:label "Lifecycle Stage" ;
+    rdfs:comment "One of the seven canonical evidence lifecycle stages. Implements the sealed EvidenceState trait." .
+
+domain:RawStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Raw" ;
+    compat:rustType "Raw" ;
+    skos:definition "Untrusted input as it arrives from the outside world. Entry stage. Must never be exported as if admitted." ;
+    compat:successorState domain:ParsedStage, domain:RefusedStage .
+
+domain:ParsedStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Parsed" ;
+    compat:rustType "Parsed" ;
+    skos:definition "Structurally parsed but not yet judged at the boundary. Well-formed shape accepted but not yet put through admission." ;
+    compat:successorState domain:AdmittedStage, domain:RefusedStage .
+
+domain:AdmittedStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Admitted" ;
+    compat:rustType "Admitted" ;
+    skos:definition "Admitted across the boundary against a named Witness. Only admitted evidence is eligible for projection, export, or receipt." ;
+    compat:successorState domain:ProjectedStage, domain:ExportableStage, domain:ReceiptedStage .
+
+domain:RefusedStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Refused" ;
+    compat:rustType "Refused" ;
+    skos:definition "Terminal refusal: a specific named law was broken at the boundary. Cannot be coerced back to Admitted." ;
+    owl:disjointWith domain:AdmittedStage, domain:ProjectedStage, domain:ExportableStage, domain:ReceiptedStage .
+
+domain:ProjectedStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Projected" ;
+    compat:rustType "Projected" ;
+    skos:definition "Result of a named, accounted lossy projection under a LossPolicy with a LossReport." ;
+    compat:successorState domain:ExportableStage, domain:ReceiptedStage .
+
+domain:ExportableStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Exportable" ;
+    compat:rustType "Exportable" ;
+    skos:definition "Cleared to leave the crate as an external/wasm4pm value. Admitted (and possibly projected)." ;
+    compat:successorState domain:ReceiptedStage .
+
+domain:ReceiptedStage
+    a domain:LifecycleStageClass ;
+    rdfs:label "Receipted" ;
+    compat:rustType "Receipted" ;
+    skos:definition "Sealed inside a provenance-bearing receipt. Strongest structural stage — the natural hand-off for wasm4pm graduation." ;
+    owl:disjointWith domain:RawStage, domain:ParsedStage .
+
+# ============================================================================
+# ADMISSION AND REFUSAL VERDICT CLASSES
+# ============================================================================
+
+domain:AdmissionVerdict
+    a rdfs:Class ;
+    rdfs:label "Admission Verdict" ;
+    rdfs:comment "Admission<T, W> — proves at the type level that an Admit impl accepted a value against witness W. Only sanctioned Raw → Admitted path." ;
+    owl:equivalentClass compat:Admission ;
+    rdfs:subClassOf rdf:Statement .
+
+domain:RefusalVerdict
+    a rdfs:Class ;
+    rdfs:label "Refusal Verdict" ;
+    rdfs:comment "Refusal<R, W> — carries a specific named reason R and witness W. Bare InvalidInput is forbidden. Each reason is a named law." ;
+    owl:equivalentClass compat:Refusal ;
+    rdfs:subClassOf rdf:Statement .
+
+domain:AdmissionBoundary
+    a rdfs:Class ;
+    rdfs:label "Admission Boundary" ;
+    rdfs:comment "The structural boundary where Raw evidence is judged against a witness and either admitted or refused. Only sanctioned point for verdict issuance." .
+
+# ============================================================================
+# PROPERTIES FOR EVIDENCE LIFECYCLE
+# ============================================================================
+
+domain:carriedValue
+    a rdf:Property ;
+    rdfs:label "carried value" ;
+    rdfs:comment "The actual data value T carried inside an Evidence<T, State, W> envelope. Type T is application-specific (EventLog, PetriNet, etc.)." ;
+    rdfs:domain domain:EvidenceCarrier ;
+    rdfs:range owl:Thing .
+
+domain:evidenceState
+    a rdf:Property ;
+    rdfs:label "evidence state" ;
+    rdfs:comment "The lifecycle stage (Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted) of this evidence as a PhantomData tag." ;
+    rdfs:domain domain:EvidenceCarrier ;
+    rdfs:range domain:LifecycleStageClass .
+
+domain:evidenceWitness
+    a rdf:Property ;
+    rdfs:label "evidence witness" ;
+    rdfs:comment "The witness marker (W parameter in Evidence<T, State, W>) this evidence answers to. Discriminates Ocel20 from Xes1849, etc." ;
+    rdfs:domain domain:EvidenceCarrier ;
+    rdfs:range domain:WitnessMarker .
+
+domain:admissionVerdictOf
+    a rdf:Property ;
+    rdfs:label "admission verdict of" ;
+    rdfs:comment "Relates an Admission verdict to the evidence that triggered it." ;
+    rdfs:domain domain:AdmissionVerdict ;
+    rdfs:range domain:EvidenceCarrier .
+
+domain:refusalReasonType
+    a rdf:Property ;
+    rdfs:label "refusal reason type" ;
+    rdfs:comment "The specific named law reason R of a Refusal<R, W>. Examples: DanglingEventObjectLink, MissingFinalMarking, WitnessDiscrimination." ;
+    rdfs:domain domain:RefusalVerdict ;
+    rdfs:range xsd:string .
+
+domain:refusalVerdictOf
+    a rdf:Property ;
+    rdfs:label "refusal verdict of" ;
+    rdfs:comment "Relates a Refusal verdict to the evidence that triggered it." ;
+    rdfs:domain domain:RefusalVerdict ;
+    rdfs:range domain:EvidenceCarrier .
+
+# ============================================================================
+# LOSS ACCOUNTING CLASSES AND PROPERTIES
+# ============================================================================
+
+domain:LossReport
+    a rdfs:Class ;
+    rdfs:label "Loss Report" ;
+    rdfs:comment "LossReport<From, To, Items> — accounting for lossy projections. Every non-refusing projection emits a named LossReport." .
+
+domain:ProjectionName
+    a rdfs:Class ;
+    rdfs:label "Projection Name" ;
+    rdfs:comment "A &'static str newtype identifying a specific lossy transformation. Examples: 'OCEL2XES', 'Flatten', 'AbstractTraces'." .
+
+domain:LossPolicy
+    a rdfs:Class ;
+    rdfs:label "Loss Policy" ;
+    rdfs:comment "Decision on how to handle loss in a projection: RefuseLoss, AllowNamedProjection, or AllowLossWithReport." .
+
+domain:projectionNameValue
+    a rdf:Property ;
+    rdfs:label "projection name value" ;
+    rdfs:comment "The string identifier of a ProjectionName (e.g., 'OCEL2XES')." ;
+    rdfs:domain domain:ProjectionName ;
+    rdfs:range xsd:string .
+
+domain:lossFromType
+    a rdf:Property ;
+    rdfs:label "loss from type" ;
+    rdfs:comment "The source type in a LossReport<From, To, Items>." ;
+    rdfs:domain domain:LossReport ;
+    rdfs:range xsd:string .
+
+domain:lossToType
+    a rdf:Property ;
+    rdfs:label "loss to type" ;
+    rdfs:comment "The target type in a LossReport<From, To, Items>." ;
+    rdfs:domain domain:LossReport ;
+    rdfs:range xsd:string .
+
+domain:lossItemCount
+    a rdf:Property ;
+    rdfs:label "loss item count" ;
+    rdfs:comment "The number of items lost in a projection (cardinality of the Items set in LossReport<From, To, Items>)." ;
+    rdfs:domain domain:LossReport ;
+    rdfs:range xsd:integer .
+
+domain:lossPolicy
+    a rdf:Property ;
+    rdfs:label "loss policy" ;
+    rdfs:comment "The LossPolicy that governed this projection." ;
+    rdfs:domain domain:LossReport ;
+    rdfs:range domain:LossPolicy .
+
+# ============================================================================
+# CLOSED-WORLD STATEMENT
+# ============================================================================
+
+<https://wasm4pm-compat.rs/domain/evidence-structure>
+    skos:note "All evidence classes and witness markers declared here are exhaustive. The seven lifecycle stages and their transitions form a complete state machine. No evidence state or witness type exists outside this ontology that is valid in wasm4pm-compat." .
+
+# ============================================================================
+# END OF DOMAIN ONTOLOGY: EVIDENCE STRUCTURE
+# ============================================================================

@@ -1,0 +1,21 @@
+# SPARQL Query: Extract all WitnessMarker instances with full template-compatible bindings
+# Variable names match witness-marker.tera exactly.
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-syntax-ns#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?rustType ?witnessKey ?witnessTitle ?witnessYear ?witnessFamily ?paperReference ?description
+WHERE {
+  ?marker a compat:WitnessMarker ;
+          compat:rustType     ?rustType ;
+          compat:witnessKey   ?witnessKey ;
+          compat:witnessTitle ?witnessTitle .
+
+  OPTIONAL { ?marker compat:witnessYear    ?witnessYear . }
+  OPTIONAL { ?marker compat:witnessFamily  ?witnessFamily . }
+  OPTIONAL { ?marker compat:paperReference ?paperReference . }
+  OPTIONAL { ?marker compat:description   ?description . }
+}
+ORDER BY ?rustType

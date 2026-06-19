@@ -1,0 +1,21 @@
+# SPARQL Query: Select Process Forms
+# Authority: wasm4pm-compat Type-Law Atlas
+# Purpose: Extract all lawful process forms for documentation and definition
+# Template Target: process-form.tera → process-forms-20260601.md
+
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?form_name ?structure_constraint ?sound_marking ?admissible_states ?witness_label
+WHERE {
+  ?form a compat:ProcessForm ;
+    rdfs:label ?form_name ;
+    compat:structure_constraint ?structure_constraint ;
+    compat:sound_marking ?sound_marking ;
+    compat:admissible_states ?admissible_states ;
+    compat:witness_marker ?witness .
+
+  ?witness rdfs:label ?witness_label .
+}
+ORDER BY ?form_name

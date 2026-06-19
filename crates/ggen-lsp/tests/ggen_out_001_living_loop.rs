@@ -398,9 +398,8 @@ async fn analyze_and_observe_records_live_out_001_receipt_chain() {
     let rq_src = std::fs::read_to_string(&rq_path).expect("read rq");
     let raised = state.analyze_and_observe(&rq_uri, &rq_src).await;
     assert!(
-        raised.iter().any(
-            |(u, diags)| u == &manifest_uri && diags.iter().any(|d| is_code(&d.lsp, "GGEN-OUT-001"))
-        ),
+        raised.iter().any(|(u, diags)| u == &manifest_uri
+            && diags.iter().any(|d| is_code(&d.lsp, "GGEN-OUT-001"))),
         "analyze_and_observe must raise GGEN-OUT-001 on the ggen.toml manifest. \
          published: {raised:?}"
     );

@@ -1,0 +1,501 @@
+@prefix ts: <http://cns-litigation.com/trigger-swarm#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+@prefix vda: <http://van-der-aalst.com/patterns#> .
+@prefix ls: <http://legal-swarm.ai/ontology/> .
+@prefix lsworkflow: <http://legal-swarm.ai/ontology/workflow/> .
+
+# TriggerSwarm Master DAG State Machine Controller
+# Campaign Automation with Deterministic 8-Tick execution window
+# Implements all 43 Van der Aalst patterns with zero-tick BitActor messaging
+
+ts:TriggerSwarmWorkflow a yawl:Specification ;
+    rdfs:label "TriggerSwarm Campaign Control DAG" ;
+    yawl:version "2.0" ;
+    yawl:author "CNS Legal Swarm System" ;
+    yawl:description "Master state machine for automated legal campaign control with DAG sequencing and 8-tick deterministic execution" ;
+    vda:pattern vda:SequencePattern, vda:ParallelSplitPattern, vda:SynchronizationPattern, 
+               vda:ExclusiveChoicePattern, vda:MultiChoicePattern, vda:StructuredSynchronizingMerge,
+               vda:DeferredChoice, vda:Milestone, vda:CancelActivity, vda:CancelCase ;
+    ba:messagingMode ba:ZeroTick ;
+    ts:executionWindow "8-ticks"^^xsd:integer ;
+    ts:deterministic true ;
+    ts:campaignTypes ts:ContradictionCampaign, ts:FilingCampaign, ts:BarComplaintCampaign, ts:IPProtectionCampaign .
+
+# ============================================================================
+# CAMPAIGN STATE DEFINITIONS
+# ============================================================================
+
+# Campaign State Enumeration
+ts:CampaignState a owl:Class ;
+    rdfs:label "Campaign State" ;
+    rdfs:comment "Legal campaign execution state in DAG workflow" .
+
+ts:CampaignIdle a ts:CampaignState ;
+    rdfs:label "Campaign Idle" ;
+    rdfs:comment "Campaign system idle, monitoring for triggers" .
+
+ts:CampaignInitializing a ts:CampaignState ;
+    rdfs:label "Campaign Initializing" ;
+    rdfs:comment "Campaign initialization and resource allocation" .
+
+ts:CampaignAnalyzing a ts:CampaignState ;
+    rdfs:label "Campaign Analyzing" ;
+    rdfs:comment "Evidence analysis and contradiction detection phase" .
+
+ts:CampaignPlanning a ts:CampaignState ;
+    rdfs:label "Campaign Planning" ;
+    rdfs:comment "Strategic planning and workflow coordination" .
+
+ts:CampaignExecuting a ts:CampaignState ;
+    rdfs:label "Campaign Executing" ;
+    rdfs:comment "Active execution of legal campaign workflows" .
+
+ts:CampaignMonitoring a ts:CampaignState ;
+    rdfs:label "Campaign Monitoring" ;
+    rdfs:comment "Real-time monitoring and adjustment phase" .
+
+ts:CampaignCompleting a ts:CampaignState ;
+    rdfs:label "Campaign Completing" ;
+    rdfs:comment "Campaign completion and cleanup phase" .
+
+ts:CampaignComplete a ts:CampaignState ;
+    rdfs:label "Campaign Complete" ;
+    rdfs:comment "Campaign successfully completed" .
+
+ts:CampaignError a ts:CampaignState ;
+    rdfs:label "Campaign Error" ;
+    rdfs:comment "Campaign error state requiring intervention" .
+
+ts:CampaignSuspended a ts:CampaignState ;
+    rdfs:label "Campaign Suspended" ;
+    rdfs:comment "Campaign temporarily suspended" .
+
+# ============================================================================
+# ROOT CAMPAIGN CONTROLLER
+# ============================================================================
+
+ts:CampaignController a yawl:CompositeTask ;
+    rdfs:label "Master Campaign Controller" ;
+    rdfs:comment "Root task controlling all legal campaign workflows" ;
+    yawl:flowsInto ts:EventMonitor ;
+    ba:tickDelay 0 ;
+    ts:currentState ts:CampaignIdle ;
+    ts:priority ts:Critical ;
+    ts:controllerMode ts:Autonomous ;
+    ts:swarmCoordination true .
+
+# Event Monitor - Persistent Trigger Pattern (Van der Aalst Pattern 27)
+ts:EventMonitor a yawl:AtomicTask ;
+    rdfs:label "Legal Event Monitor" ;
+    rdfs:comment "Continuous monitoring for legal events and triggers" ;
+    yawl:flowsInto ts:TriggerClassification ;
+    vda:pattern vda:PersistentTrigger ;
+    ba:tickDelay 0 ;
+    ts:monitorTypes ts:DeadlineAlert, ts:FilingTrigger, ts:EvidenceAlert, ts:OpponentAction,
+                   ts:JurisdictionalChange, ts:CaseStatusUpdate, ts:ComplianceDeadline ;
+    ts:pollingInterval "PT1M"^^xsd:duration ;
+    ts:alertThreshold ts:Immediate .
+
+# Trigger Classification - Exclusive Choice Pattern (Van der Aalst Pattern 4)
+ts:TriggerClassification a yawl:AtomicTask ;
+    rdfs:label "Trigger Event Classification" ;
+    rdfs:comment "Classify incoming trigger events for appropriate campaign routing" ;
+    yawl:flowsInto ts:ContradictionTrigger, ts:FilingTrigger, ts:BarComplaintTrigger, 
+                   ts:IPProtectionTrigger, ts:EmergencyTrigger ;
+    vda:pattern vda:ExclusiveChoicePattern ;
+    ba:tickDelay 0 ;
+    ba:decisionLogic [
+        ts:condition "triggerType == 'CONTRADICTION_DETECTED'" ;
+        ts:target ts:ContradictionTrigger
+    ], [
+        ts:condition "triggerType == 'FILING_DEADLINE'" ;
+        ts:target ts:FilingTrigger
+    ], [
+        ts:condition "triggerType == 'BAR_COMPLAINT'" ;
+        ts:target ts:BarComplaintTrigger
+    ], [
+        ts:condition "triggerType == 'IP_VIOLATION'" ;
+        ts:target ts:IPProtectionTrigger
+    ], [
+        ts:condition "urgencyLevel == 'EMERGENCY'" ;
+        ts:target ts:EmergencyTrigger
+    ] .
+
+# ============================================================================
+# CAMPAIGN TRIGGER BRANCHES
+# ============================================================================
+
+# Contradiction Campaign Trigger
+ts:ContradictionTrigger a yawl:CompositeTask ;
+    rdfs:label "Contradiction Campaign Trigger" ;
+    rdfs:comment "Trigger for contradiction detection and exploitation campaign" ;
+    yawl:decomposesTo ts:ContradictionCampaignNet ;
+    yawl:flowsInto ts:CampaignSync ;
+    ba:tickDelay 0 ;
+    ts:stateTransition [
+        ts:from ts:CampaignIdle ;
+        ts:to ts:CampaignInitializing ;
+        ts:trigger ts:ContradictionDetected
+    ] ;
+    ts:swarmTargets ts:ContradictionSwarm, ts:EvidenceSwarm, ts:AnalysisSwarm .
+
+# Filing Campaign Trigger
+ts:FilingTrigger a yawl:CompositeTask ;
+    rdfs:label "Filing Campaign Trigger" ;
+    rdfs:comment "Trigger for automated legal filing campaign" ;
+    yawl:decomposesTo ts:FilingCampaignNet ;
+    yawl:flowsInto ts:CampaignSync ;
+    ba:tickDelay 0 ;
+    ts:stateTransition [
+        ts:from ts:CampaignIdle ;
+        ts:to ts:CampaignInitializing ;
+        ts:trigger ts:FilingDeadlineApproaching
+    ] ;
+    ts:swarmTargets ts:FilingSwarm, ts:DocumentSwarm, ts:ComplianceSwarm .
+
+# Bar Complaint Campaign Trigger
+ts:BarComplaintTrigger a yawl:CompositeTask ;
+    rdfs:label "Bar Complaint Campaign Trigger" ;
+    rdfs:comment "Trigger for automated bar complaint filing campaign" ;
+    yawl:decomposesTo ts:BarComplaintCampaignNet ;
+    yawl:flowsInto ts:CampaignSync ;
+    ba:tickDelay 0 ;
+    ts:stateTransition [
+        ts:from ts:CampaignIdle ;
+        ts:to ts:CampaignInitializing ;
+        ts:trigger ts:AttorneyMisconductDetected
+    ] ;
+    ts:swarmTargets ts:BarSwarm, ts:EthicsSwarm, ts:JurisdictionSwarm .
+
+# IP Protection Campaign Trigger
+ts:IPProtectionTrigger a yawl:CompositeTask ;
+    rdfs:label "IP Protection Campaign Trigger" ;
+    rdfs:comment "Trigger for intellectual property protection campaign" ;
+    yawl:decomposesTo ts:IPProtectionCampaignNet ;
+    yawl:flowsInto ts:CampaignSync ;
+    ba:tickDelay 0 ;
+    ts:stateTransition [
+        ts:from ts:CampaignIdle ;
+        ts:to ts:CampaignInitializing ;
+        ts:trigger ts:IPViolationDetected
+    ] ;
+    ts:swarmTargets ts:IPSwarm, ts:ExportControlSwarm, ts:PatentSwarm .
+
+# Emergency Campaign Trigger - Cancel Case Pattern (Van der Aalst Pattern 20)
+ts:EmergencyTrigger a yawl:AtomicTask ;
+    rdfs:label "Emergency Campaign Trigger" ;
+    rdfs:comment "Emergency trigger that can cancel ongoing campaigns" ;
+    yawl:flowsInto ts:EmergencyResponseNet ;
+    vda:pattern vda:CancelCase ;
+    ba:tickDelay 0 ;
+    ts:cancellationScope ts:AllActiveCampaigns ;
+    ts:emergencyTypes ts:CourtOrderReceived, ts:InjunctionIssued, ts:EthicsViolation,
+                      ts:JurisdictionalConflict, ts:ClientEmergency .
+
+# ============================================================================
+# CAMPAIGN EXECUTION NETWORKS
+# ============================================================================
+
+# Contradiction Campaign Network
+ts:ContradictionCampaignNet a yawl:NetElement ;
+    rdfs:label "Contradiction Detection Campaign" ;
+    yawl:rootTask ts:ContradictionAnalysis ;
+    ts:campaignType ts:ContradictionCampaign ;
+    ts:executionPattern ts:ParallelAnalysis ;
+    ts:expectedDuration "PT2H"^^xsd:duration .
+
+ts:ContradictionAnalysis a yawl:AtomicTask ;
+    rdfs:label "Evidence Contradiction Analysis" ;
+    yawl:flowsInto ts:ContradictionExploitation ;
+    ba:tickDelay 1 ;
+    ts:analysisTypes ts:TemporalContradiction, ts:SpatialContradiction, ts:LogicalContradiction,
+                     ts:DocumentaryContradiction, ts:TestimonyContradiction ;
+    ts:confidenceThreshold "0.85"^^xsd:decimal .
+
+ts:ContradictionExploitation a yawl:AtomicTask ;
+    rdfs:label "Contradiction Strategic Exploitation" ;
+    yawl:flowsInto ts:FilingPreparation ;
+    ba:tickDelay 1 ;
+    ts:exploitationTactics ts:MotionToStrike, ts:SummaryJudgment, ts:Impeachment,
+                           ts:DiscoveryViolation, ts:SanctionsMotion .
+
+# Filing Campaign Network
+ts:FilingCampaignNet a yawl:NetElement ;
+    rdfs:label "Automated Legal Filing Campaign" ;
+    yawl:rootTask ts:FilingAnalysis ;
+    ts:campaignType ts:FilingCampaign ;
+    ts:executionPattern ts:SequentialFiling ;
+    ts:expectedDuration "PT4H"^^xsd:duration .
+
+ts:FilingAnalysis a yawl:AtomicTask ;
+    rdfs:label "Filing Requirements Analysis" ;
+    yawl:flowsInto ts:DocumentGeneration ;
+    ba:tickDelay 1 ;
+    ts:analysisAspects ts:JurisdictionalRequirements, ts:ProceduralCompliance,
+                       ts:FilingDeadlines, ts:ServiceRequirements .
+
+ts:DocumentGeneration a yawl:AtomicTask ;
+    rdfs:label "Legal Document Generation" ;
+    yawl:flowsInto ts:QualityAssurance ;
+    ba:tickDelay 1 ;
+    ts:documentTypes ts:Motion, ts:Brief, ts:Pleadings, ts:Discovery, ts:Exhibits .
+
+# Bar Complaint Campaign Network
+ts:BarComplaintCampaignNet a yawl:NetElement ;
+    rdfs:label "Automated Bar Complaint Campaign" ;
+    yawl:rootTask ts:EthicsAnalysis ;
+    ts:campaignType ts:BarComplaintCampaign ;
+    ts:executionPattern ts:EthicsInvestigation ;
+    ts:expectedDuration "PT6H"^^xsd:duration .
+
+ts:EthicsAnalysis a yawl:AtomicTask ;
+    rdfs:label "Attorney Ethics Violation Analysis" ;
+    yawl:flowsInto ts:ComplaintPreparation ;
+    ba:tickDelay 1 ;
+    ts:ethicsViolations ts:ConflictOfInterest, ts:ClientFundsMishandling, ts:ProfessionalNegligence,
+                        ts:CourtroomMisconduct, ts:DisclosureViolations .
+
+ts:ComplaintPreparation a yawl:AtomicTask ;
+    rdfs:label "Bar Complaint Document Preparation" ;
+    yawl:flowsInto ts:JurisdictionalFiling ;
+    ba:tickDelay 1 ;
+    ts:complaintComponents ts:ViolationNarrative, ts:EvidenceAttachment, ts:WitnessStatements,
+                           ts:RegulatoryReferences, ts:SanctionsRequest .
+
+# IP Protection Campaign Network
+ts:IPProtectionCampaignNet a yawl:NetElement ;
+    rdfs:label "IP Protection Campaign" ;
+    yawl:rootTask ts:IPViolationAnalysis ;
+    ts:campaignType ts:IPProtectionCampaign ;
+    ts:executionPattern ts:IPEnforcement ;
+    ts:expectedDuration "PT8H"^^xsd:duration .
+
+ts:IPViolationAnalysis a yawl:AtomicTask ;
+    rdfs:label "IP Violation Analysis" ;
+    yawl:flowsInto ts:ProtectionStrategy ;
+    ba:tickDelay 1 ;
+    ts:violationTypes ts:PatentInfringement, ts:TrademarkViolation, ts:CopyrightInfringement,
+                      ts:TradeSecretTheft, ts:ExportControlViolation .
+
+ts:ProtectionStrategy a yawl:AtomicTask ;
+    rdfs:label "IP Protection Strategy Development" ;
+    yawl:flowsInto ts:EnforcementAction ;
+    ba:tickDelay 1 ;
+    ts:protectionMethods ts:CeaseAndDesist, ts:DMCA_Takedown, ts:InjunctiveRelief,
+                         ts:DamagesCalculation, ts:CriminalReferral .
+
+# ============================================================================
+# PARALLEL EXECUTION AND SYNCHRONIZATION
+# ============================================================================
+
+# Campaign Synchronization - Synchronization Pattern (Van der Aalst Pattern 3)
+ts:CampaignSync a yawl:AtomicTask ;
+    rdfs:label "Campaign Synchronization Point" ;
+    rdfs:comment "Synchronize parallel campaign executions" ;
+    yawl:flowsInto ts:ResultsAnalysis ;
+    vda:pattern vda:SynchronizationPattern ;
+    ba:tickDelay 0 ;
+    ba:waitForAll ts:ContradictionTrigger, ts:FilingTrigger, ts:BarComplaintTrigger, ts:IPProtectionTrigger ;
+    ts:syncTimeout "PT30M"^^xsd:duration .
+
+# Results Analysis - Parallel Split Pattern (Van der Aalst Pattern 2)
+ts:ResultsAnalysis a yawl:AtomicTask ;
+    rdfs:label "Campaign Results Analysis" ;
+    rdfs:comment "Parallel analysis of campaign results" ;
+    yawl:flowsInto ts:EffectivenessAnalysis, ts:ComplianceReview, ts:PerformanceMetrics ;
+    vda:pattern vda:ParallelSplitPattern ;
+    ba:tickDelay 1 ;
+    ba:parallelExecution true .
+
+ts:EffectivenessAnalysis a yawl:AtomicTask ;
+    rdfs:label "Campaign Effectiveness Analysis" ;
+    yawl:flowsInto ts:FinalSync ;
+    ba:tickDelay 1 ;
+    ts:metrics ts:ContradictionsFound, ts:FilingsCompleted, ts:ComplaintsFiled,
+               ts:IPProtected, ts:SuccessRate, ts:TimeToCompletion .
+
+ts:ComplianceReview a yawl:AtomicTask ;
+    rdfs:label "Legal Compliance Review" ;
+    yawl:flowsInto ts:FinalSync ;
+    ba:tickDelay 1 ;
+    ts:complianceAreas ts:CourtRules, ts:BarRegulations, ts:EthicsCompliance,
+                       ts:IPLawCompliance, ts:JurisdictionalRequirements .
+
+ts:PerformanceMetrics a yawl:AtomicTask ;
+    rdfs:label "Performance Metrics Collection" ;
+    yawl:flowsInto ts:FinalSync ;
+    ba:tickDelay 1 ;
+    ts:performanceAreas ts:ExecutionTime, ts:ResourceUtilization, ts:ErrorRate,
+                        ts:SwarmCoordination, ts:BitActorPerformance .
+
+# Final Synchronization - Structured Synchronizing Merge (Van der Aalst Pattern 7)
+ts:FinalSync a yawl:AtomicTask ;
+    rdfs:label "Final Campaign Synchronization" ;
+    rdfs:comment "Final synchronization before campaign completion" ;
+    yawl:flowsInto ts:CampaignCompletion ;
+    vda:pattern vda:StructuredSynchronizingMerge ;
+    ba:tickDelay 0 ;
+    ba:waitForAll ts:EffectivenessAnalysis, ts:ComplianceReview, ts:PerformanceMetrics .
+
+# ============================================================================
+# ERROR HANDLING AND RECOVERY
+# ============================================================================
+
+# Error Handler - Exception Handling Pattern
+ts:ErrorHandler a yawl:AtomicTask ;
+    rdfs:label "Campaign Error Handler" ;
+    rdfs:comment "Comprehensive error handling and recovery" ;
+    ba:tickDelay 0 ;
+    ts:errorTypes ts:DeadlineViolation, ts:ComplianceFailure, ts:SwarmFailure,
+                  ts:DocumentationError, ts:CommunicationFailure ;
+    ts:recoveryActions ts:AutomaticRetry, ts:ManualIntervention, ts:CampaignSuspension,
+                       ts:EmergencyEscalation, ts:SystemShutdown .
+
+# State Recovery - Milestone Pattern (Van der Aalst Pattern 18)
+ts:StateRecovery a yawl:AtomicTask ;
+    rdfs:label "Campaign State Recovery" ;
+    rdfs:comment "Recover campaign state from checkpoint" ;
+    vda:pattern vda:Milestone ;
+    ba:tickDelay 0 ;
+    ts:checkpoints ts:InitializationComplete, ts:AnalysisComplete, ts:PlanningComplete,
+                   ts:ExecutionMidpoint, ts:MonitoringActive, ts:CompletionReady ;
+    ts:recoveryStrategy ts:LastKnownGoodState .
+
+# ============================================================================
+# CAMPAIGN COMPLETION
+# ============================================================================
+
+# Campaign Completion
+ts:CampaignCompletion a yawl:AtomicTask ;
+    rdfs:label "Campaign Completion Handler" ;
+    rdfs:comment "Finalize campaign and update system state" ;
+    yawl:flowsInto ts:PostCampaignTasks ;
+    ba:tickDelay 1 ;
+    ts:completionCriteria ts:AllObjectivesMet, ts:AllFilingsComplete, ts:ComplianceVerified,
+                          ts:PerformanceAcceptable, ts:NoOutstandingErrors ;
+    ts:finalState ts:CampaignComplete .
+
+# Post-Campaign Tasks - Multiple Instances Pattern (Van der Aalst Pattern 12)
+ts:PostCampaignTasks a yawl:AtomicTask ;
+    rdfs:label "Post-Campaign Processing" ;
+    rdfs:comment "Execute post-campaign cleanup and reporting tasks" ;
+    yawl:flowsInto ts:ReportGeneration, ts:DataArchival, ts:PerformanceTuning,
+                   ts:NextCampaignPrep ;
+    vda:pattern vda:MultipleInstancesWithoutSynchronization ;
+    ba:tickDelay 0 ;
+    ba:parallelExecution true .
+
+ts:ReportGeneration a yawl:AtomicTask ;
+    rdfs:label "Campaign Report Generation" ;
+    yawl:flowsInto ts:WorkflowComplete ;
+    ba:tickDelay 1 ;
+    ts:reportTypes ts:ExecutiveSummary, ts:DetailedAnalysis, ts:ComplianceReport,
+                   ts:PerformanceReport, ts:LessonsLearned .
+
+ts:DataArchival a yawl:AtomicTask ;
+    rdfs:label "Campaign Data Archival" ;
+    yawl:flowsInto ts:WorkflowComplete ;
+    ba:tickDelay 1 ;
+    ts:archivalTypes ts:CampaignData, ts:EvidenceRecords, ts:FilingDocuments,
+                     ts:CommunicationLogs, ts:PerformanceMetrics .
+
+ts:PerformanceTuning a yawl:AtomicTask ;
+    rdfs:label "System Performance Tuning" ;
+    yawl:flowsInto ts:WorkflowComplete ;
+    ba:tickDelay 1 ;
+    ts:tuningAreas ts:SwarmOptimization, ts:WorkflowEfficiency, ts:ResourceAllocation,
+                   ts:CommunicationPaths, ts:ErrorReduction .
+
+ts:NextCampaignPrep a yawl:AtomicTask ;
+    rdfs:label "Next Campaign Preparation" ;
+    yawl:flowsInto ts:WorkflowComplete ;
+    ba:tickDelay 1 ;
+    ts:prepAreas ts:StrategyUpdates, ts:ResourcePlanning, ts:SwarmConfiguration,
+                 ts:WorkflowOptimization, ts:ComplianceUpdates .
+
+# Final Workflow Completion
+ts:WorkflowComplete a yawl:AtomicTask ;
+    rdfs:label "TriggerSwarm Workflow Complete" ;
+    ba:tickDelay 0 ;
+    ts:status ts:Completed ;
+    ts:timestamp "xsd:dateTime" ;
+    ts:metrics ts:TotalExecutionTime, ts:CampaignSuccessRate, ts:ComplianceScore,
+               ts:SwarmEfficiency, ts:BitActorPerformance ;
+    ts:nextState ts:CampaignIdle .
+
+# ============================================================================
+# BITACTOR MESSAGING CONFIGURATION
+# ============================================================================
+
+# Zero-Tick Messaging System
+ba:TriggerSwarmMessaging a ba:MessagingConfiguration ;
+    ba:tickDelay 0 ;
+    ba:messageQueue ba:PriorityQueue ;
+    ba:processingMode ba:Asynchronous ;
+    ba:errorHandling ba:RetryWithExponentialBackoff ;
+    ba:messageTypes ba:CampaignTrigger, ba:StateTransition, ba:SwarmCoordination,
+                    ba:ErrorNotification, ba:PerformanceMetric, ba:CompletionSignal ;
+    ba:queueCapacity 10000 ;
+    ba:messageTimeout "PT5M"^^xsd:duration .
+
+# State Persistence Configuration
+ts:StatePersistence a ts:PersistenceConfiguration ;
+    ts:persistenceMode ts:RealTime ;
+    ts:storageBackend ts:DistributedDatabase ;
+    ts:replicationFactor 3 ;
+    ts:consistencyLevel ts:StrongConsistency ;
+    ts:backupInterval "PT15M"^^xsd:duration ;
+    ts:recoveryTimeout "PT2M"^^xsd:duration .
+
+# Performance Monitoring Configuration
+ts:PerformanceMonitoring a ts:MonitoringConfiguration ;
+    ts:metricsCollection ts:RealTime ;
+    ts:alertThresholds [
+        ts:metric ts:ExecutionTime ;
+        ts:threshold "PT30M"^^xsd:duration ;
+        ts:severity ts:Warning
+    ], [
+        ts:metric ts:ErrorRate ;
+        ts:threshold "0.05"^^xsd:decimal ;
+        ts:severity ts:Critical
+    ], [
+        ts:metric ts:ComplianceScore ;
+        ts:threshold "0.95"^^xsd:decimal ;
+        ts:severity ts:Warning
+    ] ;
+    ts:alertingTargets ts:SystemAdministrator, ts:LegalCounsel, ts:ComplianceOfficer .
+
+# ============================================================================
+# WORKFLOW DATA AND VARIABLES
+# ============================================================================
+
+ts:CampaignData a yawl:DataVariable ;
+    ts:campaignId xsd:string ;
+    ts:campaignType xsd:string ;
+    ts:triggerId xsd:string ;
+    ts:urgencyLevel xsd:string ;
+    ts:jurisdiction xsd:string ;
+    ts:targetSwarms rdf:List ;
+    ts:executionWindow xsd:integer ;
+    ts:startTime xsd:dateTime ;
+    ts:expectedCompletion xsd:dateTime ;
+    ts:currentState xsd:string ;
+    ts:progress xsd:decimal ;
+    ts:resourceAllocation rdf:List ;
+    ts:performanceMetrics rdf:List .
+
+# SLA and Performance Definitions
+ts:ServiceLevelAgreement a ts:SLADefinition ;
+    ts:campaignInitiation "PT5M"^^xsd:duration ;
+    ts:contradictionDetection "PT15M"^^xsd:duration ;
+    ts:filingCompletion "PT2H"^^xsd:duration ;
+    ts:barComplaintFiling "PT4H"^^xsd:duration ;
+    ts:ipProtectionResponse "PT1H"^^xsd:duration ;
+    ts:overallCompletionRate "0.98"^^xsd:decimal ;
+    ts:complianceRate "0.99"^^xsd:decimal ;
+    ts:errorRecoveryTime "PT10M"^^xsd:duration .

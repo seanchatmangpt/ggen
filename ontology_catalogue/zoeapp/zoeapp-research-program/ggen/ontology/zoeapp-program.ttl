@@ -1,0 +1,23 @@
+@prefix ostar: <urn:ostar:ontology#> .
+@prefix zoe: <urn:zoeapp:program#> .
+
+<urn:zoeapp:program:RouteCapability> a ostar:Law ;
+    ostar:lawId "ZoeRouteCapability" ;
+    ostar:hasTransition [
+        ostar:inputValue "route_create" ;
+        ostar:selectCondition "RouteValidation" ;
+    ] .
+
+<urn:zoeapp:program:RLSPolicyCapability> a ostar:Law ;
+    ostar:lawId "ZoeRLSPolicyCapability" ;
+    ostar:hasTransition [
+        ostar:inputValue "policy_define" ;
+        ostar:selectCondition "RLSPolicyValidation" ;
+    ] .
+
+<urn:zoeapp:program:GovernanceChecklistCapability> a ostar:Law ;
+    ostar:lawId "ZoeGovernanceChecklistCapability" ;
+    ostar:hasTransition [
+        ostar:inputValue "checklist_audit" ;
+        ostar:selectCondition "GovernanceAudit" ;
+    ] .

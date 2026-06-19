@@ -1,0 +1,320 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvc: <https://gitvan.dev/ontology/config#> .
+@prefix ex: <http://example.org/invalid/> .
+
+# ============================================================================
+# GitVan Invalid Configuration Instances
+# Version: 4.0.0
+# Description: Examples of invalid configurations for SHACL validation testing
+# ============================================================================
+
+# ============================================================================
+# Example 1: Missing Required Fields
+# ============================================================================
+
+ex:missingRequiredFieldsConfig a gvc:Configuration ;
+    gvc:hasJobsConfig ex:jobsConfigMissingRequired ;
+    gvc:hasTemplateConfig ex:templateConfigMissingRequired ;
+    rdfs:label "Configuration with Missing Required Fields" ;
+    rdfs:comment "INVALID: Missing required configuration fields" .
+
+# Missing jobsDir
+ex:jobsConfigMissingRequired a gvc:JobsConfig ;
+    gvc:jobIgnorePatterns ( "node_modules/**" ) ;
+    rdfs:label "Invalid Jobs Config" ;
+    rdfs:comment "INVALID: Missing required jobsDir" .
+
+# Missing templateEngine
+ex:templateConfigMissingRequired a gvc:TemplateConfig ;
+    gvc:templateDirs ( "templates" ) ;
+    gvc:templateAutoescape false ;
+    gvc:templateNoCache false ;
+    rdfs:label "Invalid Template Config" ;
+    rdfs:comment "INVALID: Missing required templateEngine" .
+
+# ============================================================================
+# Example 2: Invalid Datatypes
+# ============================================================================
+
+ex:invalidDatatypesConfig a gvc:Configuration ;
+    gvc:hasRootDir 12345 ;
+    gvc:hasLockConfig ex:lockConfigInvalidDatatype ;
+    gvc:hasRuntimeConfig ex:runtimeConfigInvalidDatatype ;
+    rdfs:label "Configuration with Invalid Datatypes" ;
+    rdfs:comment "INVALID: Using wrong datatypes for properties" .
+
+# rootDir should be string, not integer
+# (already shown above as 12345)
+
+# lockTimeout should be integer, using string
+ex:lockConfigInvalidDatatype a gvc:LockConfig ;
+    gvc:lockRef "refs/gitvan/locks" ;
+    gvc:lockTimeout "not-a-number" ;
+    gvc:lockRetries 3 ;
+    rdfs:label "Invalid Lock Config (Wrong Datatype)" ;
+    rdfs:comment "INVALID: lockTimeout must be integer" .
+
+# runtimeSandbox should be boolean, using integer
+ex:runtimeConfigInvalidDatatype a gvc:RuntimeConfig ;
+    gvc:runtimeTimezone "UTC" ;
+    gvc:runtimeLocale "en-US" ;
+    gvc:runtimeDeterministic true ;
+    gvc:runtimeSandbox 1 ;
+    rdfs:label "Invalid Runtime Config (Wrong Datatype)" ;
+    rdfs:comment "INVALID: runtimeSandbox must be boolean" .
+
+# ============================================================================
+# Example 3: Values Out of Range
+# ============================================================================
+
+ex:outOfRangeConfig a gvc:Configuration ;
+    gvc:hasLockConfig ex:lockConfigOutOfRange ;
+    gvc:hasAIConfig ex:aiConfigOutOfRange ;
+    gvc:hasDaemonConfig ex:daemonConfigOutOfRange ;
+    rdfs:label "Configuration with Out-of-Range Values" ;
+    rdfs:comment "INVALID: Values outside allowed ranges" .
+
+# lockTimeout: must be between 1 and 300000 ms
+ex:lockConfigOutOfRange a gvc:LockConfig ;
+    gvc:lockRef "refs/gitvan/locks" ;
+    gvc:lockTimeout 500000 ;
+    gvc:lockRetries 3 ;
+    rdfs:label "Invalid Lock Config (Out of Range)" ;
+    rdfs:comment "INVALID: lockTimeout 500000 exceeds max of 300000" .
+
+# aiTemperature: must be between 0.0 and 2.0
+# aiMaxTokens: must be between 1 and 1000000
+ex:aiConfigOutOfRange a gvc:AIConfig ;
+    gvc:aiProvider "ollama" ;
+    gvc:aiModel "qwen3-coder:30b" ;
+    gvc:aiTemperature 3.5 ;
+    gvc:aiMaxTokens 5000000 ;
+    rdfs:label "Invalid AI Config (Out of Range)" ;
+    rdfs:comment "INVALID: temperature 3.5 > 2.0, maxTokens 5000000 > 1000000" .
+
+# daemonPollMs: must be between 100 and 60000
+# daemonLookback: must be between 1 and 3600
+# daemonMaxPerTick: must be between 1 and 1000
+ex:daemonConfigOutOfRange a gvc:DaemonConfig ;
+    gvc:daemonPollMs 1 ;
+    gvc:daemonLookback 10000 ;
+    gvc:daemonMaxPerTick 5000 ;
+    rdfs:label "Invalid Daemon Config (Out of Range)" ;
+    rdfs:comment "INVALID: poll too low (1ms < 100ms), lookback too high (10000s > 3600s), maxPerTick too high (5000 > 1000)" .
+
+# ============================================================================
+# Example 4: Invalid Enumeration Values
+# ============================================================================
+
+ex:invalidEnumConfig a gvc:Configuration ;
+    gvc:hasTemplateConfig ex:templateConfigInvalidEnum ;
+    gvc:hasAIConfig ex:aiConfigInvalidEnum ;
+    rdfs:label "Configuration with Invalid Enumeration Values" ;
+    rdfs:comment "INVALID: Using values outside allowed enumerations" .
+
+# templateEngine must be one of: nunjucks, handlebars, ejs
+ex:templateConfigInvalidEnum a gvc:TemplateConfig ;
+    gvc:templateEngine "jinja2" ;
+    gvc:templateDirs ( "templates" ) ;
+    gvc:templateAutoescape false ;
+    gvc:templateNoCache false ;
+    rdfs:label "Invalid Template Config (Invalid Engine)" ;
+    rdfs:comment "INVALID: templateEngine 'jinja2' not in allowed values (nunjucks, handlebars, ejs)" .
+
+# aiProvider must be one of: ollama, anthropic, openai, local
+ex:aiConfigInvalidEnum a gvc:AIConfig ;
+    gvc:aiProvider "huggingface" ;
+    gvc:aiModel "bert" ;
+    gvc:aiTemperature 0.5 ;
+    gvc:aiMaxTokens 1024 ;
+    rdfs:label "Invalid AI Config (Invalid Provider)" ;
+    rdfs:comment "INVALID: aiProvider 'huggingface' not in allowed values" .
+
+# ============================================================================
+# Example 5: Invalid Pattern Values
+# ============================================================================
+
+ex:invalidPatternConfig a gvc:Configuration ;
+    gvc:hasReceiptConfig ex:receiptConfigInvalidRef ;
+    gvc:hasRuntimeConfig ex:runtimeConfigInvalidLocale ;
+    rdfs:label "Configuration with Invalid Pattern Values" ;
+    rdfs:comment "INVALID: Values not matching required patterns" .
+
+# receiptRef must start with "refs/"
+# lockRef must start with "refs/"
+ex:receiptConfigInvalidRef a gvc:ReceiptConfig ;
+    gvc:receiptRef "heads/master" ;
+    gvc:receiptEnabled true ;
+    gvc:receiptCompress false ;
+    rdfs:label "Invalid Receipt Config (Invalid Ref)" ;
+    rdfs:comment "INVALID: receiptRef 'heads/master' must start with 'refs/'" .
+
+# runtimeLocale must match BCP 47 pattern (^[a-z]{2}(-[A-Z]{2})?$)
+ex:runtimeConfigInvalidLocale a gvc:RuntimeConfig ;
+    gvc:runtimeTimezone "UTC" ;
+    gvc:runtimeLocale "English-USA" ;
+    gvc:runtimeDeterministic true ;
+    gvc:runtimeSandbox true ;
+    rdfs:label "Invalid Runtime Config (Invalid Locale)" ;
+    rdfs:comment "INVALID: runtimeLocale 'English-USA' doesn't match BCP 47 pattern" .
+
+# ============================================================================
+# Example 6: Missing Conditional Dependencies
+# ============================================================================
+
+ex:missingConditionalDependencyConfig a gvc:Configuration ;
+    gvc:hasAIConfig ex:aiConfigMissingDependency ;
+    rdfs:label "Configuration with Missing Conditional Dependency" ;
+    rdfs:comment "INVALID: Anthropic provider requires apiKey" .
+
+# If aiProvider is 'anthropic', aiApiKey is required
+ex:aiConfigMissingDependency a gvc:AIConfig ;
+    gvc:aiProvider "anthropic" ;
+    gvc:aiModel "claude-opus-4-5" ;
+    gvc:aiTemperature 0.5 ;
+    gvc:aiMaxTokens 4096 ;
+    rdfs:label "Invalid AI Config (Missing API Key)" ;
+    rdfs:comment "INVALID: anthropic provider requires gvc:aiApiKey property" .
+
+# ============================================================================
+# Example 7: Invalid Number Ranges for Sampl ing Parameters
+# ============================================================================
+
+ex:invalidSamplingParamsConfig a gvc:Configuration ;
+    gvc:hasAIConfig ex:aiConfigInvalidSampling ;
+    rdfs:label "Configuration with Invalid Sampling Parameters" ;
+    rdfs:comment "INVALID: Sampling parameters outside valid ranges" .
+
+# aiTopP must be between 0.0 and 1.0
+# aiTopK must be positive integer (> 0)
+# aiRepeatPenalty must be non-negative
+ex:aiConfigInvalidSampling a gvc:AIConfig ;
+    gvc:aiProvider "ollama" ;
+    gvc:aiModel "qwen3-coder:30b" ;
+    gvc:aiTemperature 0.7 ;
+    gvc:aiMaxTokens 4096 ;
+    gvc:aiTopP 1.5 ;
+    gvc:aiTopK 0 ;
+    gvc:aiRepeatPenalty -0.5 ;
+    rdfs:label "Invalid AI Config (Invalid Sampling)" ;
+    rdfs:comment "INVALID: topP > 1.0, topK = 0 (must be > 0), repeatPenalty < 0" .
+
+# ============================================================================
+# Example 8: Multiple Violations in Single Config
+# ============================================================================
+
+ex:multipleViolationsConfig a gvc:Configuration ;
+    gvc:hasRootDir 42 ;
+    gvc:hasAIConfig ex:aiConfigMultipleViolations ;
+    gvc:hasDaemonConfig ex:daemonConfigMultipleViolations ;
+    rdfs:label "Configuration with Multiple Violations" ;
+    rdfs:comment "INVALID: Contains multiple SHACL constraint violations" .
+
+# Multiple violations: invalid provider, temperature out of range, missing apiKey
+ex:aiConfigMultipleViolations a gvc:AIConfig ;
+    gvc:aiProvider "unknown" ;
+    gvc:aiModel "unknown-model" ;
+    gvc:aiTemperature 5.0 ;
+    gvc:aiMaxTokens 0 ;
+    rdfs:label "Invalid AI Config (Multiple Issues)" ;
+    rdfs:comment "INVALID: invalid provider, temperature 5.0 > 2.0, maxTokens 0 < 1" .
+
+# Daemon config with conflicting poll/lookback values
+ex:daemonConfigMultipleViolations a gvc:DaemonConfig ;
+    gvc:daemonPollMs 100000 ;
+    gvc:daemonLookback 10 ;
+    gvc:daemonMaxPerTick 0 ;
+    rdfs:label "Invalid Daemon Config (Multiple Issues)" ;
+    rdfs:comment "INVALID: poll too high, lookback too low, maxPerTick must be >= 1" .
+
+# ============================================================================
+# Example 9: Type Mismatch (Wrong Class Type)
+# ============================================================================
+
+ex:typeMismatchConfig a gvc:Configuration ;
+    gvc:hasJobsConfig ex:templateWrongType ;
+    rdfs:label "Configuration with Type Mismatch" ;
+    rdfs:comment "INVALID: Config section has wrong rdf:type" .
+
+# Declaring a TemplateConfig where JobsConfig is expected
+ex:templateWrongType a gvc:TemplateConfig ;
+    gvc:jobsDir "jobs" ;
+    gvc:jobScanPatterns ( "jobs/**/*.mjs" ) ;
+    rdfs:label "Wrong Type For Jobs Config" ;
+    rdfs:comment "INVALID: This is TemplateConfig but used as JobsConfig" .
+
+# ============================================================================
+# Example 10: Cardinality Violations
+# ============================================================================
+
+ex:cardinalityViolationConfig a gvc:Configuration ;
+    gvc:hasAIConfig ex:aiConfig1 ;
+    gvc:hasAIConfig ex:aiConfig2 ;
+    rdfs:label "Configuration with Cardinality Violation" ;
+    rdfs:comment "INVALID: Multiple instances of single-valued property" .
+
+# Should only have one AI config
+ex:aiConfig1 a gvc:AIConfig ;
+    gvc:aiProvider "ollama" ;
+    gvc:aiModel "model1" ;
+    gvc:aiTemperature 0.5 ;
+    gvc:aiMaxTokens 2048 .
+
+ex:aiConfig2 a gvc:AIConfig ;
+    gvc:aiProvider "anthropic" ;
+    gvc:aiModel "model2" ;
+    gvc:aiTemperature 0.6 ;
+    gvc:aiMaxTokens 4096 ;
+    gvc:aiApiKey "sk-ant-..." .
+
+# ============================================================================
+# Example 11: Empty Required String Fields
+# ============================================================================
+
+ex:emptyStringConfig a gvc:Configuration ;
+    gvc:hasRootDir "" ;
+    gvc:hasJobsConfig ex:jobsConfigEmptyString ;
+    rdfs:label "Configuration with Empty String Fields" ;
+    rdfs:comment "INVALID: Required string fields are empty" .
+
+ex:jobsConfigEmptyString a gvc:JobsConfig ;
+    gvc:jobsDir "" ;
+    gvc:jobScanPatterns ( "jobs/**/*.mjs" ) ;
+    rdfs:label "Invalid Jobs Config (Empty Dir)" ;
+    rdfs:comment "INVALID: jobsDir is empty string" .
+
+# ============================================================================
+# Example 12: Missing Multiple Required Properties
+# ============================================================================
+
+ex:missingMultipleRequiredConfig a gvc:Configuration ;
+    rdfs:label "Configuration Missing All Sections" ;
+    rdfs:comment "INVALID: Missing all required configuration sections" .
+
+# No jobs, template, receipt, lock, ai, runtime, daemon, events, or graph config
+# Each of these is required
+
+# ============================================================================
+# Summary of Invalid Configurations
+# ============================================================================
+
+# The following invalid examples demonstrate:
+#
+# 1. ex:missingRequiredFieldsConfig - Missing required properties within config sections
+# 2. ex:invalidDatatypesConfig - Properties with wrong XSD datatypes
+# 3. ex:outOfRangeConfig - Numeric properties outside min/max constraints
+# 4. ex:invalidEnumConfig - Properties with values outside allowed enumerations
+# 5. ex:invalidPatternConfig - String values not matching regex patterns
+# 6. ex:missingConditionalDependencyConfig - Conditional constraints violated (anthropic without API key)
+# 7. ex:invalidSamplingParamsConfig - Invalid ranges for AI sampling parameters
+# 8. ex:multipleViolationsConfig - Single config with multiple types of violations
+# 9. ex:typeMismatchConfig - Configuration sections with wrong rdf:type
+# 10. ex:cardinalityViolationConfig - Cardinality constraint violations (maxCount)
+# 11. ex:emptyStringConfig - Empty required string properties
+# 12. ex:missingMultipleRequiredConfig - Configuration completely missing required sections
+#
+# Each of these configurations will fail SHACL validation when validated against
+# the shapes defined in config-ontology.ttl. They are useful for testing validation
+# logic and error reporting.

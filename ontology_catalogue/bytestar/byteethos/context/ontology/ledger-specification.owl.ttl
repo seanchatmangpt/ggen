@@ -1,0 +1,25 @@
+@prefix : <https://bytestar.org/ontology/byteethos/ledger-specification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteethos/ledger-specification>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos Ledger Specification" ;
+  rdfs:comment "The formal specification for the PQC-sealed, append-only ledger, including the structure of LedgerSegments and the consensus mechanisms." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.0.0" .
+
+bcore:LedgerSegment rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :containsPackage ; owl:allValuesFrom bcore:FinalizedProofPackage ] .
+
+:containsPackage a owl:ObjectProperty ;
+    rdfs:domain bcore:LedgerSegment ;
+    rdfs:range bcore:FinalizedProofPackage .
+
+:hasConsensusMechanism a owl:ObjectProperty ;
+    rdfs:domain bcore:ByteEthos ;
+    rdfs:range :ConsensusMechanism .
+
+:ConsensusMechanism a owl:Class .
+:ProofOfAgreement a :ConsensusMechanism .
+:ProofOfReputation a :ConsensusMechanism .

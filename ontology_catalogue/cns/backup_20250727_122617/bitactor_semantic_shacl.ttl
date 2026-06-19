@@ -1,0 +1,380 @@
+@prefix ba: <http://bitactor.org/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# BitActor Semantic SHACL Validation Shapes
+# Real-time validation constraints for 8-tick performance guarantee
+
+# Signal Validation Shape
+ba:SignalShape a sh:NodeShape ;
+    sh:targetClass ba:Signal ;
+    sh:property [
+        sh:path ba:hasId ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Signal must have exactly one unsigned integer ID"
+    ] ;
+    sh:property [
+        sh:path ba:hasType ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Signal type must be unsigned byte (0-255)"
+    ] ;
+    sh:property [
+        sh:path ba:hasPayload ;
+        sh:datatype xsd:unsignedLong ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Signal must have exactly one payload"
+    ] ;
+    sh:property [
+        sh:path ba:hasTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Signal must have exactly one timestamp"
+    ] .
+
+# Semantic Signal Shape
+ba:SemanticSignalShape a sh:NodeShape ;
+    sh:targetClass ba:SemanticSignal ;
+    sh:property [
+        sh:path ba:hasSubject ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic signal must have exactly one subject"
+    ] ;
+    sh:property [
+        sh:path ba:hasPredicate ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic signal must have exactly one predicate"
+    ] ;
+    sh:property [
+        sh:path ba:hasObject ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic signal must have exactly one object"
+    ] ;
+    sh:property [
+        sh:path ba:hasSemanticContext ;
+        sh:class ba:TripleStore ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic signal can have at most one triple store context"
+    ] .
+
+# Performance Budget Shape
+ba:TickBudgetShape a sh:NodeShape ;
+    sh:targetClass ba:TickBudget ;
+    sh:property [
+        sh:path ba:tickLimit ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Tick limit must be between 1 and 8 for real-time guarantees"
+    ] .
+
+# Handler Validation Shape
+ba:HandlerShape a sh:NodeShape ;
+    sh:targetClass ba:Handler ;
+    sh:property [
+        sh:path ba:hasTickBudget ;
+        sh:class ba:TickBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Handler must have exactly one tick budget"
+    ] ;
+    sh:property [
+        sh:path ba:hasHash ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Handler must have dispatch hash for O(1) lookup"
+    ] .
+
+# Execution Result Shape
+ba:ExecutionResultShape a sh:NodeShape ;
+    sh:targetClass ba:ExecutionResult ;
+    sh:property [
+        sh:path ba:actualTicks ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 8 ;
+        sh:message "Actual ticks must be between 0 and 8"
+    ] ;
+    sh:property [
+        sh:path ba:executionStatus ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "SUCCESS" "TIMEOUT" "ERROR" "BUDGET_EXCEEDED" ) ;
+        sh:message "Execution status must be valid enum value"
+    ] ;
+    sh:property [
+        sh:path ba:hasTraceId ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Execution result must have trace ID for telemetry"
+    ] .
+
+# SPARQL Query Shape
+ba:SPARQLQueryShape a sh:NodeShape ;
+    sh:targetClass ba:SPARQLQuery ;
+    sh:property [
+        sh:path ba:queryComplexity ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:message "Query complexity must be 1-8 ticks for real-time execution"
+    ] .
+
+# Query Signal Shape
+ba:QuerySignalShape a sh:NodeShape ;
+    sh:targetClass ba:QuerySignal ;
+    sh:property [
+        sh:path ba:hasQuery ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 1024 ;
+        sh:message "Query must be 10-1024 characters for performance"
+    ] .
+
+# Engine Configuration Shape
+ba:EngineShape a sh:NodeShape ;
+    sh:targetClass ba:Engine ;
+    sh:property [
+        sh:path ba:maxSignals ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 256 ;
+        sh:maxInclusive 4096 ;
+        sh:message "Max signals must be 256-4096 for optimal performance"
+    ] ;
+    sh:property [
+        sh:path ba:dispatchTableSize ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 256 ;
+        sh:maxInclusive 1024 ;
+        sh:message "Dispatch table size must be 256-1024"
+    ] ;
+    sh:property [
+        sh:path ba:hasTripleStore ;
+        sh:class ba:TripleStore ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Engine must have exactly one triple store"
+    ] .
+
+# Memory Pool Shape
+ba:MemoryPoolShape a sh:NodeShape ;
+    sh:targetClass ba:MemoryPool ;
+    sh:property [
+        sh:path ba:poolSize ;
+        sh:datatype xsd:unsignedInt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1024 ;
+        sh:maxInclusive 65536 ;
+        sh:message "Memory pool size must be 1KB-64KB"
+    ] ;
+    sh:property [
+        sh:path ba:alignmentBytes ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( 8 16 32 64 ) ;
+        sh:message "Memory alignment must be 8, 16, 32, or 64 bytes"
+    ] .
+
+# Priority Validation Shape
+ba:PriorityShape a sh:NodeShape ;
+    sh:targetClass ba:Signal ;
+    sh:property [
+        sh:path ba:hasPriority ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Priority must be 0-255 if specified"
+    ] .
+
+# SIMD Optimization Shape
+ba:SIMDShape a sh:NodeShape ;
+    sh:targetClass ba:Handler ;
+    sh:property [
+        sh:path ba:vectorizable ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Vectorizable flag is optional boolean"
+    ] ;
+    sh:property [
+        sh:path ba:batchSize ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:in ( 4 8 16 32 ) ;
+        sh:message "Batch size must be 4, 8, 16, or 32 for SIMD alignment"
+    ] .
+
+# Validation Signal Shape
+ba:ValidationSignalShape a sh:NodeShape ;
+    sh:targetClass ba:ValidationSignal ;
+    sh:property [
+        sh:path ba:hasShape ;
+        sh:class ba:SHACLShape ;
+        sh:minCount 1 ;
+        sh:message "Validation signal must reference at least one SHACL shape"
+    ] .
+
+# Cross-Property Constraints
+
+# Rule: Semantic handlers must have vectorizable flag
+ba:SemanticHandlerRule a sh:NodeShape ;
+    sh:targetClass ba:SemanticHandler ;
+    sh:property [
+        sh:path ba:vectorizable ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Semantic handlers must specify vectorizable capability"
+    ] .
+
+# Rule: Optimized handlers must have fast tick budget
+ba:OptimizedHandlerRule a sh:NodeShape ;
+    sh:targetClass ba:OptimizedHandler ;
+    sh:property [
+        sh:path ba:hasTickBudget ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path ba:tickLimit ;
+                sh:maxInclusive 4
+            ]
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "Optimized handlers must have ≤4 tick budget"
+    ] .
+
+# Rule: Cached queries must have complexity ≤2
+ba:CachedQueryRule a sh:NodeShape ;
+    sh:targetClass ba:CachedQuery ;
+    sh:property [
+        sh:path ba:queryComplexity ;
+        sh:maxInclusive 2 ;
+        sh:message "Cached queries must have complexity ≤2 ticks"
+    ] .
+
+# Performance Constraint Rules
+
+# Rule: High priority signals must complete within 4 ticks
+ba:HighPriorityRule a sh:NodeShape ;
+    sh:targetNode [
+        sh:property [
+            sh:path ba:hasPriority ;
+            sh:minInclusive 200
+        ]
+    ] ;
+    sh:property [
+        sh:path ba:actualTicks ;
+        sh:maxInclusive 4 ;
+        sh:message "High priority signals (≥200) must complete within 4 ticks"
+    ] .
+
+# Rule: Debug signals can exceed normal budget
+ba:DebugSignalRule a sh:NodeShape ;
+    sh:targetNode [
+        sh:property [
+            sh:path ba:hasType ;
+            sh:hasValue 128
+        ]
+    ] ;
+    sh:property [
+        sh:path ba:actualTicks ;
+        sh:maxInclusive 16 ;
+        sh:message "Debug signals can use up to 16 ticks"
+    ] .
+
+# Telemetry Constraints
+
+# Rule: Execution results must have monotonic trace IDs
+ba:TraceIdRule a sh:NodeShape ;
+    sh:targetClass ba:ExecutionResult ;
+    sh:sparql [
+        sh:select """
+            SELECT $this WHERE {
+                $this ba:hasTraceId ?id1 .
+                ?other ba:hasTraceId ?id2 .
+                ?other ba:hasTimestamp ?time2 .
+                $this ba:hasTimestamp ?time1 .
+                FILTER(?time2 > ?time1 && ?id2 <= ?id1)
+            }
+        """ ;
+        sh:message "Trace IDs must be monotonically increasing with timestamp"
+    ] .
+
+# Memory Safety Rules
+
+# Rule: Memory pools must not exceed total system memory
+ba:MemoryLimitRule a sh:NodeShape ;
+    sh:targetClass ba:Engine ;
+    sh:sparql [
+        sh:select """
+            SELECT $this WHERE {
+                $this ba:hasMemoryPool ?pool .
+                ?pool ba:poolSize ?size .
+                FILTER(?size > 67108864)  # 64MB limit
+            }
+        """ ;
+        sh:message "Memory pool cannot exceed 64MB for embedded systems"
+    ] .
+
+# Signal Ordering Rules
+
+# Rule: Signals with same timestamp must have unique IDs
+ba:UniqueIdRule a sh:NodeShape ;
+    sh:targetClass ba:Signal ;
+    sh:sparql [
+        sh:select """
+            SELECT $this WHERE {
+                $this ba:hasId ?id ;
+                     ba:hasTimestamp ?time .
+                ?other ba:hasId ?id ;
+                      ba:hasTimestamp ?time .
+                FILTER($this != ?other)
+            }
+        """ ;
+        sh:message "Signals with same timestamp must have unique IDs"
+    ] .
+
+# Handler Hash Collision Prevention
+ba:HashCollisionRule a sh:NodeShape ;
+    sh:targetClass ba:Handler ;
+    sh:sparql [
+        sh:select """
+            SELECT $this WHERE {
+                $this ba:hasHash ?hash .
+                ?other ba:hasHash ?hash .
+                FILTER($this != ?other)
+            }
+        """ ;
+        sh:message "Handler dispatch hashes must be unique (no collisions)"
+    ] .

@@ -85,9 +85,7 @@ impl SparqlAnalyzer {
         }
 
         // E0011 — CONSTRUCT should carry ORDER BY (required under strict_mode).
-        if sparql_kind(&self.source) == SparqlKind::Construct
-            && !query_has_order_by(&self.source)
-        {
+        if sparql_kind(&self.source) == SparqlKind::Construct && !query_has_order_by(&self.source) {
             diags.push(diag::max_whole_line(
                 0,
                 DiagnosticSeverity::WARNING,
@@ -98,9 +96,7 @@ impl SparqlAnalyzer {
         }
 
         // E0013 — SELECT should carry ORDER BY (required under strict_mode).
-        if sparql_kind(&self.source) == SparqlKind::Select
-            && !query_has_order_by(&self.source)
-        {
+        if sparql_kind(&self.source) == SparqlKind::Select && !query_has_order_by(&self.source) {
             diags.push(diag::max_whole_line(
                 0,
                 DiagnosticSeverity::WARNING,
@@ -111,8 +107,7 @@ impl SparqlAnalyzer {
         }
 
         // E0015 — Identity CONSTRUCT (no-op mapping).
-        if sparql_kind(&self.source) == SparqlKind::Construct
-            && is_identity_construct(&self.source)
+        if sparql_kind(&self.source) == SparqlKind::Construct && is_identity_construct(&self.source)
         {
             diags.push(diag::max_whole_line(
                 0,
@@ -296,9 +291,9 @@ mod tests {
         let q = "SELECT ?s WHERE { VALUES ?s { <http://x> } }";
         let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
         let diags = analyzer.diagnostics();
-        assert!(diags
-            .iter()
-            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0010".into()))));
+        assert!(diags.iter().any(
+            |d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0010".into()))
+        ));
     }
 
     #[test]
@@ -306,9 +301,9 @@ mod tests {
         let q = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
         let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
         let diags = analyzer.diagnostics();
-        assert!(diags
-            .iter()
-            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0011".into()))));
+        assert!(diags.iter().any(
+            |d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0011".into()))
+        ));
     }
 
     #[test]
@@ -316,9 +311,9 @@ mod tests {
         let q = "SELECT ?s WHERE { ?s ?p ?o }";
         let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
         let diags = analyzer.diagnostics();
-        assert!(diags
-            .iter()
-            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0013".into()))));
+        assert!(diags.iter().any(
+            |d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0013".into()))
+        ));
     }
 
     #[test]
@@ -326,16 +321,16 @@ mod tests {
         let q = "CONSTRUCT WHERE { ?s ?p ?o }";
         let analyzer = SparqlAnalyzer::new_from_content(q).expect("analyzer");
         let diags = analyzer.diagnostics();
-        assert!(diags
-            .iter()
-            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0015".into()))));
+        assert!(diags.iter().any(
+            |d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0015".into()))
+        ));
 
         let q2 = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
         let analyzer2 = SparqlAnalyzer::new_from_content(q2).expect("analyzer");
         let diags2 = analyzer2.diagnostics();
-        assert!(diags2
-            .iter()
-            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0015".into()))));
+        assert!(diags2.iter().any(
+            |d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0015".into()))
+        ));
     }
 
     #[test]

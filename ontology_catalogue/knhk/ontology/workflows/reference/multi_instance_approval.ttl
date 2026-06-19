@@ -1,0 +1,69 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Patterns 12-15: Multi-Instance Approval Workflow
+# Demonstrates: MI Without Sync, MI With Design-Time Knowledge, MI With Runtime Knowledge
+
+<#MultiInstanceApproval> a yawl:Specification ;
+    yawl:uri <http://example.org/workflows/multi-instance-approval> ;
+    yawl:name "Multi-Instance Approval" ;
+    yawl:documentation "Reference workflow demonstrating multi-instance patterns (12-15)" ;
+    yawl:hasDecomposition <#MultiInstanceApprovalNet> .
+
+<#MultiInstanceApprovalNet> a yawl:Net ;
+    yawl:id "multi_instance_approval_net" ;
+    yawl:name "Multi-Instance Approval Net" ;
+    yawl:isRootNet true ;
+    yawl:hasInputCondition <#start> ;
+    yawl:hasOutputCondition <#end> ;
+    yawl:hasTask <#submitRequest> ;
+    yawl:hasTask <#approveRequest> ;
+    yawl:hasTask <#finalizeDecision> .
+
+<#start> a yawl:InputCondition ;
+    yawl:id "start" ;
+    yawl:name "Start" .
+
+# Submit request
+<#submitRequest> a yawl:Task ;
+    yawl:id "submit_request" ;
+    yawl:name "Submit Request" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow1> .
+
+# Pattern 12-15: Multiple Instance Task
+<#approveRequest> a yawl:MultipleInstanceTask ;
+    yawl:id "approve_request" ;
+    yawl:name "Approve Request" ;
+    yawl:documentation "Pattern 12-15: Multiple Instance with runtime knowledge" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:minimum "3" ;  # At least 3 approvers
+    yawl:maximum "10" ;  # At most 10 approvers
+    yawl:threshold "2" ;  # Need 2 approvals to continue
+    yawl:hasCreationMode yawl:CreationModeDynamic ;
+    yawl:flowsInto <#flow2> .
+
+# Finalize decision
+<#finalizeDecision> a yawl:Task ;
+    yawl:id "finalize_decision" ;
+    yawl:name "Finalize Decision" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow3> .
+
+<#end> a yawl:OutputCondition ;
+    yawl:id "end" ;
+    yawl:name "End" .
+
+# Flows
+<#flow1> a yawl:FlowsInto ;
+    yawl:nextElementRef <#approveRequest> .
+
+<#flow2> a yawl:FlowsInto ;
+    yawl:nextElementRef <#finalizeDecision> .
+
+<#flow3> a yawl:FlowsInto ;
+    yawl:nextElementRef <#end> .

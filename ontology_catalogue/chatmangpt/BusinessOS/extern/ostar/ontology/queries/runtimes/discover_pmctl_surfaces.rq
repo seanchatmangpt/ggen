@@ -1,0 +1,16 @@
+
+PREFIX proj: <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?commandName ?description ?pmctlTarget ?category
+WHERE {
+  ?cmd a ostar:GovernanceCommand ;
+       rdfs:label ?commandName .
+
+  OPTIONAL { ?cmd rdfs:comment ?description }
+  OPTIONAL { ?cmd ostar:pmctlTarget ?pmctlTarget }
+  OPTIONAL { ?cmd ostar:commandCategory ?category }
+}
+ORDER BY ?commandName

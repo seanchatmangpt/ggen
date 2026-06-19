@@ -49,3 +49,6 @@ shells = ["bash", "zsh", "fish", "powershell"]
 command_types = ["file-operations", "git", "package-managers", "docker", "kubernetes"]
 safety_features = ["validation", "dry-run", "dangerous-detection", "confirmation"]
 learning_features = ["pattern-recognition", "personalization", "workflow-detection"]
+
+[marketplace]
+production_ready = false

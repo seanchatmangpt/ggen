@@ -1,0 +1,495 @@
+@prefix : <https://ontology.ethos.bytestar.io/ssi-identity#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix did: <https://www.w3.org/ns/did/v1#> .
+@prefix vc: <https://www.w3.org/2018/credentials/v1#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ethos: <https://ontology.ethos.bytestar.io/core#> .
+
+<https://ontology.ethos.bytestar.io/ssi-identity> 
+    rdf:type owl:Ontology ;
+    dc:title "ETHOS Self-Sovereign Identity and Soulbound Token Ontology" ;
+    dc:description "Ontological framework for AI agent identity management, verifiable credentials, and non-transferable compliance tokens" ;
+    dc:creator "ByteStar ETHOS Identity Management Lead" ;
+    dc:created "2025-08-21"^^xsd:date ;
+    dc:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "This ontology defines the semantic structure for Self-Sovereign Identity (SSI) principles and Soulbound Token (SBT) implementation within the ETHOS governance framework." .
+
+#################################################################
+#    Classes
+#################################################################
+
+### Core Identity Classes
+
+:IdentityCrystal rdf:type owl:Class ;
+    rdfs:subClassOf :SoulboundToken ;
+    rdfs:label "Identity Crystal" ;
+    rdfs:comment "A cryptographically secured, non-transferable identity token that represents verified agent characteristics and compliance status." ;
+    rdfs:seeAlso <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4105763> .
+
+:SoulboundToken rdf:type owl:Class ;
+    rdfs:label "Soulbound Token" ;
+    rdfs:comment "A non-transferable, revocable digital token permanently bound to its owner's identity." ;
+    owl:disjointWith :TransferableAsset .
+
+:DecentralizedIdentifier rdf:type owl:Class ;
+    rdfs:subClassOf did:DID ;
+    rdfs:label "Decentralized Identifier" ;
+    rdfs:comment "A globally unique identifier that does not require a centralized registry." .
+
+:DIDDocument rdf:type owl:Class ;
+    rdfs:subClassOf did:DIDDocument ;
+    rdfs:label "DID Document" ;
+    rdfs:comment "A document containing cryptographic material, verification methods, and service endpoints for a DID." .
+
+:VerifiableCredential rdf:type owl:Class ;
+    rdfs:subClassOf vc:VerifiableCredential ;
+    rdfs:label "Verifiable Credential" ;
+    rdfs:comment "A tamper-evident credential that has authorship that can be cryptographically verified." .
+
+:VerifiablePresentation rdf:type owl:Class ;
+    rdfs:subClassOf vc:VerifiablePresentation ;
+    rdfs:label "Verifiable Presentation" ;
+    rdfs:comment "A tamper-evident presentation encoded in such a way that authorship of the data can be trusted after a process of cryptographic verification." .
+
+:CredentialSchema rdf:type owl:Class ;
+    rdfs:label "Credential Schema" ;
+    rdfs:comment "A machine-readable definition of the structure and validation rules for verifiable credentials." .
+
+### Agent Identity Classes
+
+:AgentIdentity rdf:type owl:Class ;
+    rdfs:subClassOf foaf:Agent, ethos:ByteStarAgent ;
+    rdfs:label "Agent Identity" ;
+    rdfs:comment "The persistent identity of an AI agent within the ETHOS system." .
+
+:AgentProfile rdf:type owl:Class ;
+    rdfs:label "Agent Profile" ;
+    rdfs:comment "A collection of verified attributes and capabilities associated with an agent identity." .
+
+:ComplianceCertificate rdf:type owl:Class ;
+    rdfs:subClassOf :SoulboundToken ;
+    rdfs:label "Compliance Certificate" ;
+    rdfs:comment "A non-transferable token certifying compliance with specific regulations or standards." .
+
+:ReputationToken rdf:type owl:Class ;
+    rdfs:subClassOf :SoulboundToken ;
+    rdfs:label "Reputation Token" ;
+    rdfs:comment "A non-transferable token representing earned reputation or achievement." .
+
+:RiskAssessment rdf:type owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "An evaluation of the risk profile associated with an agent or credential." .
+
+### Authority and Governance Classes
+
+:IssuingAuthority rdf:type owl:Class ;
+    rdfs:subClassOf :AgentIdentity ;
+    rdfs:label "Issuing Authority" ;
+    rdfs:comment "An entity authorized to issue verifiable credentials or soulbound tokens." .
+
+:TrustedVerifier rdf:type owl:Class ;
+    rdfs:subClassOf :AgentIdentity ;
+    rdfs:label "Trusted Verifier" ;
+    rdfs:comment "An entity authorized to verify credentials and presentations." .
+
+:AuthorityDelegation rdf:type owl:Class ;
+    rdfs:label "Authority Delegation" ;
+    rdfs:comment "A cryptographically signed delegation of issuing authority from one entity to another." .
+
+:GovernanceRegistry rdf:type owl:Class ;
+    rdfs:label "Governance Registry" ;
+    rdfs:comment "A decentralized registry of trusted authorities and their capabilities." .
+
+### Collection and Organization Classes
+
+:TokenCollection rdf:type owl:Class ;
+    rdfs:label "Token Collection" ;
+    rdfs:comment "A grouping of related soulbound tokens under a common theme or issuer." .
+
+:CredentialSuite rdf:type owl:Class ;
+    rdfs:label "Credential Suite" ;
+    rdfs:comment "A collection of related verifiable credentials that form a complete identity profile." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+### Identity Relationships
+
+:hasIdentityCrystal rdf:type owl:ObjectProperty ;
+    rdfs:domain :AgentIdentity ;
+    rdfs:range :IdentityCrystal ;
+    rdfs:label "has identity crystal" ;
+    rdfs:comment "Associates an agent identity with its identity crystal." .
+
+:ownsSoulboundToken rdf:type owl:ObjectProperty ;
+    rdfs:domain :AgentIdentity ;
+    rdfs:range :SoulboundToken ;
+    rdfs:label "owns soulbound token" ;
+    rdfs:comment "Indicates ownership of a non-transferable token." ;
+    owl:propertyChainAxiom ( :hasIdentityCrystal :bindsToToken ) .
+
+:issuesSoulboundToken rdf:type owl:ObjectProperty ;
+    rdfs:domain :IssuingAuthority ;
+    rdfs:range :SoulboundToken ;
+    rdfs:label "issues soulbound token" ;
+    rdfs:comment "Indicates that an authority issued a specific soulbound token." .
+
+:bindsToToken rdf:type owl:ObjectProperty ;
+    rdfs:domain :IdentityCrystal ;
+    rdfs:range :SoulboundToken ;
+    rdfs:label "binds to token" ;
+    rdfs:comment "Permanently associates an identity crystal with a soulbound token." .
+
+### DID and Document Relationships
+
+:hasDecentralizedIdentifier rdf:type owl:ObjectProperty ;
+    rdfs:domain :AgentIdentity ;
+    rdfs:range :DecentralizedIdentifier ;
+    rdfs:label "has decentralized identifier" ;
+    rdfs:comment "Associates an agent with its decentralized identifier." .
+
+:resolvedByDocument rdf:type owl:ObjectProperty ;
+    rdfs:domain :DecentralizedIdentifier ;
+    rdfs:range :DIDDocument ;
+    rdfs:label "resolved by document" ;
+    rdfs:comment "Links a DID to its corresponding DID document." .
+
+:authenticatesUsing rdf:type owl:ObjectProperty ;
+    rdfs:domain :AgentIdentity ;
+    rdfs:range :VerificationMethod ;
+    rdfs:label "authenticates using" ;
+    rdfs:comment "Specifies the verification method used for authentication." .
+
+### Credential Relationships
+
+:holdsCredential rdf:type owl:ObjectProperty ;
+    rdfs:domain :AgentIdentity ;
+    rdfs:range :VerifiableCredential ;
+    rdfs:label "holds credential" ;
+    rdfs:comment "Indicates that an agent holds a verifiable credential." .
+
+:issuesCredential rdf:type owl:ObjectProperty ;
+    rdfs:domain :IssuingAuthority ;
+    rdfs:range :VerifiableCredential ;
+    rdfs:label "issues credential" ;
+    rdfs:comment "Indicates that an authority issued a verifiable credential." .
+
+:presentsCredential rdf:type owl:ObjectProperty ;
+    rdfs:domain :VerifiablePresentation ;
+    rdfs:range :VerifiableCredential ;
+    rdfs:label "presents credential" ;
+    rdfs:comment "Links a presentation to the credentials it contains." .
+
+:conformsToSchema rdf:type owl:ObjectProperty ;
+    rdfs:domain :VerifiableCredential ;
+    rdfs:range :CredentialSchema ;
+    rdfs:label "conforms to schema" ;
+    rdfs:comment "Indicates that a credential conforms to a specific schema." .
+
+### Authority and Governance Relationships
+
+:delegatesAuthorityTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :IssuingAuthority ;
+    rdfs:range :AuthorityDelegation ;
+    rdfs:label "delegates authority to" ;
+    rdfs:comment "Creates a delegation of issuing authority." .
+
+:hasAuthority rdf:type owl:ObjectProperty ;
+    rdfs:domain :IssuingAuthority ;
+    rdfs:range :AuthorityDelegation ;
+    rdfs:label "has authority" ;
+    rdfs:comment "Indicates current authority to issue specific types of tokens." .
+
+:registeredInGovernance rdf:type owl:ObjectProperty ;
+    rdfs:domain :IssuingAuthority ;
+    rdfs:range :GovernanceRegistry ;
+    rdfs:label "registered in governance" ;
+    rdfs:comment "Indicates registration in the governance registry." .
+
+:verifiedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :VerifiableCredential ;
+    rdfs:range :TrustedVerifier ;
+    rdfs:label "verified by" ;
+    rdfs:comment "Indicates verification by a trusted entity." .
+
+### Collection and Organizational Relationships
+
+:partOfCollection rdf:type owl:ObjectProperty ;
+    rdfs:domain :SoulboundToken ;
+    rdfs:range :TokenCollection ;
+    rdfs:label "part of collection" ;
+    rdfs:comment "Indicates that a token is part of a specific collection." .
+
+:hasRiskAssessment rdf:type owl:ObjectProperty ;
+    rdfs:domain :AgentIdentity ;
+    rdfs:range :RiskAssessment ;
+    rdfs:label "has risk assessment" ;
+    rdfs:comment "Associates an identity with its risk assessment." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+### Token Properties
+
+:tokenId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SoulboundToken ;
+    rdfs:range xsd:string ;
+    rdfs:label "token ID" ;
+    rdfs:comment "Unique identifier for a soulbound token." .
+
+:tokenType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SoulboundToken ;
+    rdfs:range xsd:string ;
+    rdfs:label "token type" ;
+    rdfs:comment "The type classification of the soulbound token." .
+
+:isRevoked rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SoulboundToken ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is revoked" ;
+    rdfs:comment "Indicates whether the token has been revoked." .
+
+:revokedAt rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SoulboundToken ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "revoked at" ;
+    rdfs:comment "Timestamp when the token was revoked." .
+
+:revokeReason rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SoulboundToken ;
+    rdfs:range xsd:string ;
+    rdfs:label "revoke reason" ;
+    rdfs:comment "Reason for token revocation." .
+
+:createdAt rdf:type owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( :SoulboundToken :VerifiableCredential ) ] ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" ;
+    rdfs:comment "Timestamp of creation." .
+
+:expiresAt rdf:type owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( :SoulboundToken :VerifiableCredential ) ] ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "expires at" ;
+    rdfs:comment "Expiration timestamp." .
+
+### Risk and Compliance Properties
+
+:riskTier rdf:type owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( :AgentIdentity :IdentityCrystal ) ] ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+                 owl:oneOf ( "low" "medium" "high" "critical" ) ] ;
+    rdfs:label "risk tier" ;
+    rdfs:comment "Risk classification tier." .
+
+:riskScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RiskAssessment ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+                 owl:onDatatype xsd:float ;
+                 owl:withRestrictions ( [ xsd:minInclusive "0.0"^^xsd:float ]
+                                      [ xsd:maxInclusive "1.0"^^xsd:float ] ) ] ;
+    rdfs:label "risk score" ;
+    rdfs:comment "Numerical risk score between 0.0 and 1.0." .
+
+:complianceLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ComplianceCertificate ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+                 owl:oneOf ( "basic" "standard" "premium" "enterprise" ) ] ;
+    rdfs:label "compliance level" ;
+    rdfs:comment "Level of compliance certification." .
+
+:complianceStandard rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ComplianceCertificate ;
+    rdfs:range xsd:string ;
+    rdfs:label "compliance standard" ;
+    rdfs:comment "The compliance standard or regulation." .
+
+### Cryptographic Properties
+
+:publicKeyMultibase rdf:type owl:DatatypeProperty ;
+    rdfs:domain :VerificationMethod ;
+    rdfs:range xsd:string ;
+    rdfs:label "public key multibase" ;
+    rdfs:comment "Public key encoded in multibase format." .
+
+:signatureValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CryptographicProof ;
+    rdfs:range xsd:string ;
+    rdfs:label "signature value" ;
+    rdfs:comment "The cryptographic signature value." .
+
+:proofPurpose rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CryptographicProof ;
+    rdfs:range xsd:string ;
+    rdfs:label "proof purpose" ;
+    rdfs:comment "The purpose of the cryptographic proof." .
+
+:nonce rdf:type owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( :IdentityCrystal :VerifiableCredential ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "nonce" ;
+    rdfs:comment "Cryptographic nonce for replay protection." .
+
+### Authority Properties
+
+:authorityScope rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuthorityDelegation ;
+    rdfs:range xsd:string ;
+    rdfs:label "authority scope" ;
+    rdfs:comment "The scope of delegated authority." .
+
+:maxTokens rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuthorityDelegation ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "max tokens" ;
+    rdfs:comment "Maximum number of tokens that can be issued under this delegation." .
+
+:mintedCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuthorityDelegation ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "minted count" ;
+    rdfs:comment "Current number of tokens minted under this delegation." .
+
+:validUntil rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuthorityDelegation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "valid until" ;
+    rdfs:comment "Expiration date of the authority delegation." .
+
+#################################################################
+#    Individuals
+#################################################################
+
+### Standard Token Types
+
+:IdentityTokenType rdf:type :TokenType ;
+    rdfs:label "Identity Token Type" ;
+    rdfs:comment "Token type for basic identity verification." .
+
+:ComplianceTokenType rdf:type :TokenType ;
+    rdfs:label "Compliance Token Type" ;
+    rdfs:comment "Token type for compliance certifications." .
+
+:ReputationTokenType rdf:type :TokenType ;
+    rdfs:label "Reputation Token Type" ;
+    rdfs:comment "Token type for reputation and achievements." .
+
+:AchievementTokenType rdf:type :TokenType ;
+    rdfs:label "Achievement Token Type" ;
+    rdfs:comment "Token type for specific achievements." .
+
+### Standard Risk Tiers
+
+:LowRiskTier rdf:type :RiskTier ;
+    rdfs:label "Low Risk Tier" ;
+    rdfs:comment "Minimal risk profile for standard operations." .
+
+:MediumRiskTier rdf:type :RiskTier ;
+    rdfs:label "Medium Risk Tier" ;
+    rdfs:comment "Moderate risk profile requiring additional verification." .
+
+:HighRiskTier rdf:type :RiskTier ;
+    rdfs:label "High Risk Tier" ;
+    rdfs:comment "High risk profile requiring enhanced monitoring." .
+
+:CriticalRiskTier rdf:type :RiskTier ;
+    rdfs:label "Critical Risk Tier" ;
+    rdfs:comment "Critical risk profile requiring maximum security measures." .
+
+### Standard Compliance Levels
+
+:BasicCompliance rdf:type :ComplianceLevel ;
+    rdfs:label "Basic Compliance" ;
+    rdfs:comment "Basic compliance verification." .
+
+:StandardCompliance rdf:type :ComplianceLevel ;
+    rdfs:label "Standard Compliance" ;
+    rdfs:comment "Standard compliance with industry regulations." .
+
+:PremiumCompliance rdf:type :ComplianceLevel ;
+    rdfs:label "Premium Compliance" ;
+    rdfs:comment "Premium compliance with enhanced verification." .
+
+:EnterpriseCompliance rdf:type :ComplianceLevel ;
+    rdfs:label "Enterprise Compliance" ;
+    rdfs:comment "Enterprise-grade compliance with full audit trail." .
+
+#################################################################
+#    Constraints and Rules
+#################################################################
+
+### Token Constraints
+
+:SoulboundTokenConstraints rdf:type owl:Class ;
+    rdfs:subClassOf :SoulboundToken ;
+    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                      owl:onProperty :ownsSoulboundToken ;
+                      owl:cardinality "1"^^xsd:nonNegativeInteger ] ;
+    rdfs:comment "Constraint ensuring soulbound tokens have exactly one owner." .
+
+### Authority Constraints
+
+:AuthorityDelegationConstraints rdf:type owl:Class ;
+    rdfs:subClassOf :AuthorityDelegation ;
+    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                      owl:onProperty :mintedCount ;
+                      owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                         owl:onDatatype xsd:nonNegativeInteger ;
+                                         owl:withRestrictions ( [ xsd:maxInclusive :maxTokens ] ) ] ] ;
+    rdfs:comment "Constraint ensuring minted count does not exceed maximum tokens." .
+
+### Temporal Constraints
+
+:TemporalValidityConstraints rdf:type owl:Class ;
+    rdfs:subClassOf [ owl:unionOf ( :SoulboundToken :VerifiableCredential :AuthorityDelegation ) ] ;
+    rdfs:subClassOf [ rdf:type owl:Restriction ;
+                      owl:onProperty :createdAt ;
+                      owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                          owl:onDatatype xsd:dateTime ;
+                                          owl:withRestrictions ( [ xsd:maxInclusive "now"^^xsd:dateTime ] ) ] ] ;
+    rdfs:comment "Constraint ensuring creation timestamp is not in the future." .
+
+#################################################################
+#    Annotations
+#################################################################
+
+### Provenance Annotations
+
+:ProvenanceAnnotation rdf:type owl:AnnotationProperty ;
+    rdfs:label "provenance annotation" ;
+    rdfs:comment "Annotation for tracking the provenance of identity assertions." .
+
+:AuditTrail rdf:type owl:AnnotationProperty ;
+    rdfs:label "audit trail" ;
+    rdfs:comment "Annotation for maintaining complete audit trails." .
+
+:VerificationStatus rdf:type owl:AnnotationProperty ;
+    rdfs:label "verification status" ;
+    rdfs:comment "Annotation for tracking verification status." .
+
+### Privacy Annotations
+
+:PrivacyLevel rdf:type owl:AnnotationProperty ;
+    rdfs:label "privacy level" ;
+    rdfs:comment "Annotation indicating the privacy level of information." .
+
+:SelectiveDisclosure rdf:type owl:AnnotationProperty ;
+    rdfs:label "selective disclosure" ;
+    rdfs:comment "Annotation supporting selective disclosure of attributes." .
+
+### Governance Annotations
+
+:GovernancePolicy rdf:type owl:AnnotationProperty ;
+    rdfs:label "governance policy" ;
+    rdfs:comment "Annotation linking to applicable governance policies." .
+
+:ComplianceFramework rdf:type owl:AnnotationProperty ;
+    rdfs:label "compliance framework" ;
+    rdfs:comment "Annotation indicating applicable compliance frameworks." .

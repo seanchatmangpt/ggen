@@ -1,0 +1,864 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix kgen: <http://kgen.ai/ontology/> .
+@prefix kgenattest: <http://kgen.ai/ontology/attest/> .
+@prefix kmkt: <http://kgen.ai/ontology/marketplace/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ==============================================================================
+# KGEN Marketplace Ontology - Knowledge Pack Marketplace
+# ==============================================================================
+
+<http://kgen.ai/ontology/marketplace> a owl:Ontology ;
+    dcterms:title "KGEN Marketplace Ontology"@en ;
+    dcterms:description "Ontology defining marketplace entities for knowledge pack distribution and commerce"@en ;
+    dcterms:creator "KGEN System"@en ;
+    dcterms:created "2025-09-12"^^xsd:date ;
+    dcterms:modified "2025-09-12"^^xsd:date ;
+    owl:versionInfo "1.0.0"@en ;
+    owl:imports <http://kgen.ai/ontology/>, <http://kgen.ai/ontology/attest>, <http://www.w3.org/ns/prov#> ;
+    vann:preferredNamespacePrefix "kmkt" ;
+    vann:preferredNamespaceUri "http://kgen.ai/ontology/marketplace/" ;
+    rdfs:seeAlso <https://kgen.ai/marketplace> ;
+    dcterms:license <https://opensource.org/licenses/MIT> .
+
+# ==============================================================================
+# Core Marketplace Classes
+# ==============================================================================
+
+kmkt:KPack a owl:Class ;
+    rdfs:label "Knowledge Pack"@en ;
+    rdfs:comment "A packaged collection of knowledge artifacts with content addressing and attestation"@en ;
+    rdfs:subClassOf kgen:Artifact, prov:Collection ;
+    rdfs:seeAlso <https://ipfs.io/>, <https://oci.org/> .
+
+kmkt:Listing a owl:Class ;
+    rdfs:label "Marketplace Listing"@en ;
+    rdfs:comment "A marketplace listing for a knowledge pack with N-dimensional faceted metadata"@en ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:seeAlso <https://schema.org/Product> .
+
+kmkt:Receipt a owl:Class ;
+    rdfs:label "Transaction Receipt"@en ;
+    rdfs:comment "A cryptographically signed receipt for marketplace transactions"@en ;
+    rdfs:subClassOf prov:Entity, kgenattest:Attestation .
+
+kmkt:ValueVector a owl:Class ;
+    rdfs:label "Value Vector"@en ;
+    rdfs:comment "Multi-dimensional value representation supporting multiple currencies and payment models"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kmkt:Marketplace a owl:Class ;
+    rdfs:label "Marketplace"@en ;
+    rdfs:comment "A marketplace instance hosting knowledge pack listings"@en ;
+    rdfs:subClassOf prov:Collection .
+
+# ==============================================================================
+# Content Addressing and Distribution Classes
+# ==============================================================================
+
+kmkt:ContentAddress a owl:Class ;
+    rdfs:label "Content Address"@en ;
+    rdfs:comment "Content-addressed identifier for immutable artifacts"@en ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:seeAlso <https://multiformats.io/> .
+
+kmkt:ArtifactReference a owl:Class ;
+    rdfs:label "Artifact Reference"@en ;
+    rdfs:comment "Reference to a content-addressed artifact within a KPack"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kmkt:Registry a owl:Class ;
+    rdfs:label "Registry"@en ;
+    rdfs:comment "Abstract registry for storing and retrieving knowledge packs"@en ;
+    rdfs:subClassOf prov:Collection .
+
+kmkt:NPMRegistry a owl:Class ;
+    rdfs:label "NPM Registry"@en ;
+    rdfs:comment "NPM-compatible registry backend"@en ;
+    rdfs:subClassOf kmkt:Registry .
+
+kmkt:OCIRegistry a owl:Class ;
+    rdfs:label "OCI Registry"@en ;
+    rdfs:comment "OCI-compatible container registry backend"@en ;
+    rdfs:subClassOf kmkt:Registry .
+
+kmkt:GitRegistry a owl:Class ;
+    rdfs:label "Git Registry"@en ;
+    rdfs:comment "Git-based registry backend using Git LFS"@en ;
+    rdfs:subClassOf kmkt:Registry .
+
+# ==============================================================================
+# Facet and Classification Classes
+# ==============================================================================
+
+kmkt:Facet a owl:Class ;
+    rdfs:label "Facet"@en ;
+    rdfs:comment "A facet for N-dimensional classification of knowledge packs"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:FacetDimension a owl:Class ;
+    rdfs:label "Facet Dimension"@en ;
+    rdfs:comment "A dimension in the N-dimensional facet space"@en ;
+    rdfs:subClassOf skos:ConceptScheme .
+
+kmkt:Domain a owl:Class ;
+    rdfs:label "Domain"@en ;
+    rdfs:comment "Domain classification facet (e.g., finance, healthcare, retail)"@en ;
+    rdfs:subClassOf kmkt:Facet .
+
+kmkt:ArtifactType a owl:Class ;
+    rdfs:label "Artifact Type"@en ;
+    rdfs:comment "Type classification facet (e.g., API, schema, template)"@en ;
+    rdfs:subClassOf kmkt:Facet .
+
+kmkt:ComplianceLevel a owl:Class ;
+    rdfs:label "Compliance Level"@en ;
+    rdfs:comment "Compliance classification facet (e.g., SOX, GDPR, HIPAA)"@en ;
+    rdfs:subClassOf kmkt:Facet .
+
+kmkt:MaturityLevel a owl:Class ;
+    rdfs:label "Maturity Level"@en ;
+    rdfs:comment "Maturity classification facet (e.g., experimental, stable, deprecated)"@en ;
+    rdfs:subClassOf kmkt:Facet .
+
+kmkt:LicenseType a owl:Class ;
+    rdfs:label "License Type"@en ;
+    rdfs:comment "License classification facet (e.g., MIT, Apache, Commercial)"@en ;
+    rdfs:subClassOf kmkt:Facet .
+
+# ==============================================================================
+# Payment and Currency Classes
+# ==============================================================================
+
+kmkt:Currency a owl:Class ;
+    rdfs:label "Currency"@en ;
+    rdfs:comment "A currency for marketplace transactions"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kmkt:FiatCurrency a owl:Class ;
+    rdfs:label "Fiat Currency"@en ;
+    rdfs:comment "Traditional fiat currency (USD, EUR, etc.)"@en ;
+    rdfs:subClassOf kmkt:Currency .
+
+kmkt:Cryptocurrency a owl:Class ;
+    rdfs:label "Cryptocurrency"@en ;
+    rdfs:comment "Digital cryptocurrency (BTC, ETH, etc.)"@en ;
+    rdfs:subClassOf kmkt:Currency .
+
+kmkt:Token a owl:Class ;
+    rdfs:label "Token"@en ;
+    rdfs:comment "Platform-specific token or credit"@en ;
+    rdfs:subClassOf kmkt:Currency .
+
+kmkt:PaymentPolicy a owl:Class ;
+    rdfs:label "Payment Policy"@en ;
+    rdfs:comment "Policy defining payment terms and conditions"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kmkt:PricingModel a owl:Class ;
+    rdfs:label "Pricing Model"@en ;
+    rdfs:comment "Model for pricing knowledge packs"@en ;
+    rdfs:subClassOf owl:Thing .
+
+kmkt:FreePricing a owl:Class ;
+    rdfs:label "Free Pricing"@en ;
+    rdfs:comment "Free/open source pricing model"@en ;
+    rdfs:subClassOf kmkt:PricingModel .
+
+kmkt:FixedPricing a owl:Class ;
+    rdfs:label "Fixed Pricing"@en ;
+    rdfs:comment "Fixed price per download/usage"@en ;
+    rdfs:subClassOf kmkt:PricingModel .
+
+kmkt:SubscriptionPricing a owl:Class ;
+    rdfs:label "Subscription Pricing"@en ;
+    rdfs:comment "Subscription-based pricing model"@en ;
+    rdfs:subClassOf kmkt:PricingModel .
+
+kmkt:UsagePricing a owl:Class ;
+    rdfs:label "Usage Pricing"@en ;
+    rdfs:comment "Pay-per-use pricing model"@en ;
+    rdfs:subClassOf kmkt:PricingModel .
+
+# ==============================================================================
+# Trust and Reputation Classes
+# ==============================================================================
+
+kmkt:Publisher a owl:Class ;
+    rdfs:label "Publisher"@en ;
+    rdfs:comment "Entity that publishes knowledge packs to the marketplace"@en ;
+    rdfs:subClassOf prov:Agent, foaf:Agent .
+
+kmkt:Consumer a owl:Class ;
+    rdfs:label "Consumer"@en ;
+    rdfs:comment "Entity that consumes knowledge packs from the marketplace"@en ;
+    rdfs:subClassOf prov:Agent, foaf:Agent .
+
+kmkt:Reputation a owl:Class ;
+    rdfs:label "Reputation"@en ;
+    rdfs:comment "Reputation score and metrics for marketplace participants"@en ;
+    rdfs:subClassOf prov:Entity .
+
+kmkt:Review a owl:Class ;
+    rdfs:label "Review"@en ;
+    rdfs:comment "User review and rating of a knowledge pack"@en ;
+    rdfs:subClassOf prov:Entity .
+
+kmkt:QualityScore a owl:Class ;
+    rdfs:label "Quality Score"@en ;
+    rdfs:comment "Automated quality assessment score"@en ;
+    rdfs:subClassOf kgen:QualityMetric .
+
+kmkt:SecurityScan a owl:Class ;
+    rdfs:label "Security Scan"@en ;
+    rdfs:comment "Security scan results for a knowledge pack"@en ;
+    rdfs:subClassOf kgenattest:AttestationPredicate .
+
+# ==============================================================================
+# Metadata and Discovery Classes
+# ==============================================================================
+
+kmkt:Manifest a owl:Class ;
+    rdfs:label "KPack Manifest"@en ;
+    rdfs:comment "Manifest file describing a knowledge pack's contents and metadata"@en ;
+    rdfs:subClassOf kgen:ConfigurationArtifact .
+
+kmkt:Keyword a owl:Class ;
+    rdfs:label "Keyword"@en ;
+    rdfs:comment "Keyword for discovery and search"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:Tag a owl:Class ;
+    rdfs:label "Tag"@en ;
+    rdfs:comment "Tag for categorization and filtering"@en ;
+    rdfs:subClassOf skos:Concept .
+
+kmkt:SearchIndex a owl:Class ;
+    rdfs:label "Search Index"@en ;
+    rdfs:comment "Search index for marketplace discovery"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# ==============================================================================
+# Core Properties - KPack Structure
+# ==============================================================================
+
+# KPack identification and metadata
+kmkt:hasManifest a owl:ObjectProperty ;
+    rdfs:label "has manifest"@en ;
+    rdfs:comment "Relates a KPack to its manifest"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:Manifest .
+
+kmkt:hasContentAddress a owl:ObjectProperty ;
+    rdfs:label "has content address"@en ;
+    rdfs:comment "Content-addressed identifier for the KPack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:ContentAddress .
+
+kmkt:hasArtifact a owl:ObjectProperty ;
+    rdfs:label "has artifact"@en ;
+    rdfs:comment "Artifacts contained in the KPack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:ArtifactReference .
+
+kmkt:packageId a owl:DatatypeProperty ;
+    rdfs:label "package ID"@en ;
+    rdfs:comment "Unique identifier for the knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range xsd:string .
+
+kmkt:packageName a owl:DatatypeProperty ;
+    rdfs:label "package name"@en ;
+    rdfs:comment "Human-readable name of the knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range xsd:string .
+
+kmkt:packageVersion a owl:DatatypeProperty ;
+    rdfs:label "package version"@en ;
+    rdfs:comment "Semantic version of the knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range xsd:string .
+
+kmkt:packageDescription a owl:DatatypeProperty ;
+    rdfs:label "package description"@en ;
+    rdfs:comment "Description of the knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range xsd:string .
+
+# Content addressing properties
+kmkt:addressType a owl:DatatypeProperty ;
+    rdfs:label "address type"@en ;
+    rdfs:comment "Type of content address (CID, SHA256, etc.)"@en ;
+    rdfs:domain kmkt:ContentAddress ;
+    rdfs:range xsd:string .
+
+kmkt:addressValue a owl:DatatypeProperty ;
+    rdfs:label "address value"@en ;
+    rdfs:comment "The content address value"@en ;
+    rdfs:domain kmkt:ContentAddress ;
+    rdfs:range xsd:string .
+
+kmkt:addressSize a owl:DatatypeProperty ;
+    rdfs:label "address size"@en ;
+    rdfs:comment "Size of content in bytes"@en ;
+    rdfs:domain kmkt:ContentAddress ;
+    rdfs:range xsd:integer .
+
+# Artifact reference properties
+kmkt:artifactPath a owl:DatatypeProperty ;
+    rdfs:label "artifact path"@en ;
+    rdfs:comment "Path to artifact within the KPack"@en ;
+    rdfs:domain kmkt:ArtifactReference ;
+    rdfs:range xsd:string .
+
+kmkt:artifactContentAddress a owl:ObjectProperty ;
+    rdfs:label "artifact content address"@en ;
+    rdfs:comment "Content address of the referenced artifact"@en ;
+    rdfs:domain kmkt:ArtifactReference ;
+    rdfs:range kmkt:ContentAddress .
+
+kmkt:artifactType a owl:DatatypeProperty ;
+    rdfs:label "artifact type"@en ;
+    rdfs:comment "MIME type of the artifact"@en ;
+    rdfs:domain kmkt:ArtifactReference ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# Facet and Classification Properties
+# ==============================================================================
+
+# Facet assignment
+kmkt:hasFacet a owl:ObjectProperty ;
+    rdfs:label "has facet"@en ;
+    rdfs:comment "Assigns a facet to a knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:Facet .
+
+kmkt:inDimension a owl:ObjectProperty ;
+    rdfs:label "in dimension"@en ;
+    rdfs:comment "Assigns a facet to a dimension"@en ;
+    rdfs:domain kmkt:Facet ;
+    rdfs:range kmkt:FacetDimension .
+
+# Specific facet properties
+kmkt:hasDomain a owl:ObjectProperty ;
+    rdfs:label "has domain"@en ;
+    rdfs:comment "Domain classification of the knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:Domain .
+
+kmkt:hasArtifactType a owl:ObjectProperty ;
+    rdfs:label "has artifact type"@en ;
+    rdfs:comment "Artifact type classification"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:ArtifactType .
+
+kmkt:hasComplianceLevel a owl:ObjectProperty ;
+    rdfs:label "has compliance level"@en ;
+    rdfs:comment "Compliance requirements met by the pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:ComplianceLevel .
+
+kmkt:hasMaturityLevel a owl:ObjectProperty ;
+    rdfs:label "has maturity level"@en ;
+    rdfs:comment "Maturity level of the knowledge pack"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:MaturityLevel .
+
+kmkt:hasLicenseType a owl:ObjectProperty ;
+    rdfs:label "has license type"@en ;
+    rdfs:comment "License under which the pack is distributed"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:LicenseType .
+
+# Facet metadata
+kmkt:facetWeight a owl:DatatypeProperty ;
+    rdfs:label "facet weight"@en ;
+    rdfs:comment "Weight/relevance of the facet assignment (0.0-1.0)"@en ;
+    rdfs:domain kmkt:Facet ;
+    rdfs:range xsd:decimal .
+
+kmkt:facetConfidence a owl:DatatypeProperty ;
+    rdfs:label "facet confidence"@en ;
+    rdfs:comment "Confidence in the facet assignment (0.0-1.0)"@en ;
+    rdfs:domain kmkt:Facet ;
+    rdfs:range xsd:decimal .
+
+# ==============================================================================
+# Marketplace Listing Properties
+# ==============================================================================
+
+# Listing relationships
+kmkt:listsKPack a owl:ObjectProperty ;
+    rdfs:label "lists KPack"@en ;
+    rdfs:comment "Knowledge pack being listed"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:KPack .
+
+kmkt:listedBy a owl:ObjectProperty ;
+    rdfs:label "listed by"@en ;
+    rdfs:comment "Publisher who created the listing"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Publisher .
+
+kmkt:inMarketplace a owl:ObjectProperty ;
+    rdfs:label "in marketplace"@en ;
+    rdfs:comment "Marketplace containing the listing"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Marketplace .
+
+# Listing metadata
+kmkt:listingTitle a owl:DatatypeProperty ;
+    rdfs:label "listing title"@en ;
+    rdfs:comment "Title of the marketplace listing"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string .
+
+kmkt:listingDescription a owl:DatatypeProperty ;
+    rdfs:label "listing description"@en ;
+    rdfs:comment "Marketing description of the listing"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:string .
+
+kmkt:listedAt a owl:DatatypeProperty ;
+    rdfs:label "listed at"@en ;
+    rdfs:comment "Timestamp when listing was created"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:dateTime .
+
+kmkt:updatedAt a owl:DatatypeProperty ;
+    rdfs:label "updated at"@en ;
+    rdfs:comment "Timestamp when listing was last updated"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:dateTime .
+
+# ==============================================================================
+# Value and Payment Properties
+# ==============================================================================
+
+# Value vector properties
+kmkt:hasValueVector a owl:ObjectProperty ;
+    rdfs:label "has value vector"@en ;
+    rdfs:comment "Value vector for the knowledge pack"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:ValueVector .
+
+kmkt:hasPricingModel a owl:ObjectProperty ;
+    rdfs:label "has pricing model"@en ;
+    rdfs:comment "Pricing model for the listing"@en ;
+    rdfs:domain kmkt:ValueVector ;
+    rdfs:range kmkt:PricingModel .
+
+kmkt:acceptsCurrency a owl:ObjectProperty ;
+    rdfs:label "accepts currency"@en ;
+    rdfs:comment "Currency accepted for payment"@en ;
+    rdfs:domain kmkt:ValueVector ;
+    rdfs:range kmkt:Currency .
+
+kmkt:hasPaymentPolicy a owl:ObjectProperty ;
+    rdfs:label "has payment policy"@en ;
+    rdfs:comment "Payment policy governing transactions"@en ;
+    rdfs:domain kmkt:ValueVector ;
+    rdfs:range kmkt:PaymentPolicy .
+
+# Currency properties
+kmkt:currencyCode a owl:DatatypeProperty ;
+    rdfs:label "currency code"@en ;
+    rdfs:comment "ISO code or symbol for the currency"@en ;
+    rdfs:domain kmkt:Currency ;
+    rdfs:range xsd:string .
+
+kmkt:currencyName a owl:DatatypeProperty ;
+    rdfs:label "currency name"@en ;
+    rdfs:comment "Human-readable name of the currency"@en ;
+    rdfs:domain kmkt:Currency ;
+    rdfs:range xsd:string .
+
+kmkt:exchangeRate a owl:DatatypeProperty ;
+    rdfs:label "exchange rate"@en ;
+    rdfs:comment "Exchange rate to base currency"@en ;
+    rdfs:domain kmkt:Currency ;
+    rdfs:range xsd:decimal .
+
+# Pricing properties
+kmkt:basePrice a owl:DatatypeProperty ;
+    rdfs:label "base price"@en ;
+    rdfs:comment "Base price in the currency"@en ;
+    rdfs:domain kmkt:PricingModel ;
+    rdfs:range xsd:decimal .
+
+kmkt:subscriptionPeriod a owl:DatatypeProperty ;
+    rdfs:label "subscription period"@en ;
+    rdfs:comment "Period for subscription pricing (monthly, yearly)"@en ;
+    rdfs:domain kmkt:SubscriptionPricing ;
+    rdfs:range xsd:string .
+
+kmkt:usageUnit a owl:DatatypeProperty ;
+    rdfs:label "usage unit"@en ;
+    rdfs:comment "Unit for usage-based pricing (per download, per MB)"@en ;
+    rdfs:domain kmkt:UsagePricing ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# Transaction and Receipt Properties
+# ==============================================================================
+
+# Receipt relationships
+kmkt:forListing a owl:ObjectProperty ;
+    rdfs:label "for listing"@en ;
+    rdfs:comment "Listing that was purchased"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range kmkt:Listing .
+
+kmkt:purchasedBy a owl:ObjectProperty ;
+    rdfs:label "purchased by"@en ;
+    rdfs:comment "Consumer who made the purchase"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range kmkt:Consumer .
+
+kmkt:paidTo a owl:ObjectProperty ;
+    rdfs:label "paid to"@en ;
+    rdfs:comment "Publisher who received payment"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range kmkt:Publisher .
+
+# Transaction details
+kmkt:transactionId a owl:DatatypeProperty ;
+    rdfs:label "transaction ID"@en ;
+    rdfs:comment "Unique identifier for the transaction"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range xsd:string .
+
+kmkt:purchaseDate a owl:DatatypeProperty ;
+    rdfs:label "purchase date"@en ;
+    rdfs:comment "Date and time of purchase"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range xsd:dateTime .
+
+kmkt:amountPaid a owl:DatatypeProperty ;
+    rdfs:label "amount paid"@en ;
+    rdfs:comment "Amount paid for the purchase"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range xsd:decimal .
+
+kmkt:paidInCurrency a owl:ObjectProperty ;
+    rdfs:label "paid in currency"@en ;
+    rdfs:comment "Currency used for payment"@en ;
+    rdfs:domain kmkt:Receipt ;
+    rdfs:range kmkt:Currency .
+
+# ==============================================================================
+# Trust and Quality Properties
+# ==============================================================================
+
+# Publisher/Consumer properties
+kmkt:publisherId a owl:DatatypeProperty ;
+    rdfs:label "publisher ID"@en ;
+    rdfs:comment "Unique identifier for the publisher"@en ;
+    rdfs:domain kmkt:Publisher ;
+    rdfs:range xsd:string .
+
+kmkt:publisherName a owl:DatatypeProperty ;
+    rdfs:label "publisher name"@en ;
+    rdfs:comment "Display name of the publisher"@en ;
+    rdfs:domain kmkt:Publisher ;
+    rdfs:range xsd:string .
+
+kmkt:verifiedPublisher a owl:DatatypeProperty ;
+    rdfs:label "verified publisher"@en ;
+    rdfs:comment "Whether the publisher is verified"@en ;
+    rdfs:domain kmkt:Publisher ;
+    rdfs:range xsd:boolean .
+
+# Reputation properties
+kmkt:hasReputation a owl:ObjectProperty ;
+    rdfs:label "has reputation"@en ;
+    rdfs:comment "Reputation score for the agent"@en ;
+    rdfs:domain [ owl:unionOf ( kmkt:Publisher kmkt:Consumer ) ] ;
+    rdfs:range kmkt:Reputation .
+
+kmkt:reputationScore a owl:DatatypeProperty ;
+    rdfs:label "reputation score"@en ;
+    rdfs:comment "Numerical reputation score (0.0-1.0)"@en ;
+    rdfs:domain kmkt:Reputation ;
+    rdfs:range xsd:decimal .
+
+kmkt:reviewCount a owl:DatatypeProperty ;
+    rdfs:label "review count"@en ;
+    rdfs:comment "Number of reviews contributing to reputation"@en ;
+    rdfs:domain kmkt:Reputation ;
+    rdfs:range xsd:integer .
+
+# Review properties
+kmkt:hasReview a owl:ObjectProperty ;
+    rdfs:label "has review"@en ;
+    rdfs:comment "Review of the knowledge pack"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Review .
+
+kmkt:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "reviewed by"@en ;
+    rdfs:comment "Consumer who wrote the review"@en ;
+    rdfs:domain kmkt:Review ;
+    rdfs:range kmkt:Consumer .
+
+kmkt:rating a owl:DatatypeProperty ;
+    rdfs:label "rating"@en ;
+    rdfs:comment "Numerical rating (1-5 stars)"@en ;
+    rdfs:domain kmkt:Review ;
+    rdfs:range xsd:integer .
+
+kmkt:reviewText a owl:DatatypeProperty ;
+    rdfs:label "review text"@en ;
+    rdfs:comment "Textual review content"@en ;
+    rdfs:domain kmkt:Review ;
+    rdfs:range xsd:string .
+
+kmkt:reviewDate a owl:DatatypeProperty ;
+    rdfs:label "review date"@en ;
+    rdfs:comment "Date the review was written"@en ;
+    rdfs:domain kmkt:Review ;
+    rdfs:range xsd:dateTime .
+
+# Quality assessment properties
+kmkt:hasQualityScore a owl:ObjectProperty ;
+    rdfs:label "has quality score"@en ;
+    rdfs:comment "Automated quality assessment"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:QualityScore .
+
+kmkt:hasSecurityScan a owl:ObjectProperty ;
+    rdfs:label "has security scan"@en ;
+    rdfs:comment "Security scan results"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:SecurityScan .
+
+# ==============================================================================
+# Search and Discovery Properties
+# ==============================================================================
+
+# Keyword and tag properties
+kmkt:hasKeyword a owl:ObjectProperty ;
+    rdfs:label "has keyword"@en ;
+    rdfs:comment "Keywords for search and discovery"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Keyword .
+
+kmkt:hasTag a owl:ObjectProperty ;
+    rdfs:label "has tag"@en ;
+    rdfs:comment "Tags for categorization"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range kmkt:Tag .
+
+kmkt:keywordText a owl:DatatypeProperty ;
+    rdfs:label "keyword text"@en ;
+    rdfs:comment "The keyword string"@en ;
+    rdfs:domain kmkt:Keyword ;
+    rdfs:range xsd:string .
+
+kmkt:tagName a owl:DatatypeProperty ;
+    rdfs:label "tag name"@en ;
+    rdfs:comment "The tag name"@en ;
+    rdfs:domain kmkt:Tag ;
+    rdfs:range xsd:string .
+
+# Search index properties
+kmkt:indexedAt a owl:DatatypeProperty ;
+    rdfs:label "indexed at"@en ;
+    rdfs:comment "When the item was indexed for search"@en ;
+    rdfs:domain kmkt:SearchIndex ;
+    rdfs:range xsd:dateTime .
+
+kmkt:searchRank a owl:DatatypeProperty ;
+    rdfs:label "search rank"@en ;
+    rdfs:comment "Search ranking score"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:decimal .
+
+# Download and usage statistics
+kmkt:downloadCount a owl:DatatypeProperty ;
+    rdfs:label "download count"@en ;
+    rdfs:comment "Number of times the pack has been downloaded"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:integer .
+
+kmkt:lastDownloaded a owl:DatatypeProperty ;
+    rdfs:label "last downloaded"@en ;
+    rdfs:comment "Date of last download"@en ;
+    rdfs:domain kmkt:Listing ;
+    rdfs:range xsd:dateTime .
+
+# ==============================================================================
+# Registry and Storage Properties
+# ==============================================================================
+
+# Registry properties
+kmkt:registryType a owl:DatatypeProperty ;
+    rdfs:label "registry type"@en ;
+    rdfs:comment "Type of registry backend (npm, oci, git)"@en ;
+    rdfs:domain kmkt:Registry ;
+    rdfs:range xsd:string .
+
+kmkt:registryURL a owl:DatatypeProperty ;
+    rdfs:label "registry URL"@en ;
+    rdfs:comment "URL of the registry endpoint"@en ;
+    rdfs:domain kmkt:Registry ;
+    rdfs:range xsd:anyURI .
+
+kmkt:storedIn a owl:ObjectProperty ;
+    rdfs:label "stored in"@en ;
+    rdfs:comment "Registry where the KPack is stored"@en ;
+    rdfs:domain kmkt:KPack ;
+    rdfs:range kmkt:Registry .
+
+# Marketplace properties
+kmkt:marketplaceName a owl:DatatypeProperty ;
+    rdfs:label "marketplace name"@en ;
+    rdfs:comment "Name of the marketplace"@en ;
+    rdfs:domain kmkt:Marketplace ;
+    rdfs:range xsd:string .
+
+kmkt:marketplaceURL a owl:DatatypeProperty ;
+    rdfs:label "marketplace URL"@en ;
+    rdfs:comment "URL of the marketplace"@en ;
+    rdfs:domain kmkt:Marketplace ;
+    rdfs:range xsd:anyURI .
+
+kmkt:hasListing a owl:ObjectProperty ;
+    rdfs:label "has listing"@en ;
+    rdfs:comment "Listings in the marketplace"@en ;
+    rdfs:domain kmkt:Marketplace ;
+    rdfs:range kmkt:Listing .
+
+# ==============================================================================
+# Named Individuals - Standard Values
+# ==============================================================================
+
+# Standard domains
+kmkt:FinanceDomain a kmkt:Domain ;
+    rdfs:label "Finance Domain"@en ;
+    skos:prefLabel "finance" ;
+    rdfs:comment "Financial services and banking" .
+
+kmkt:HealthcareDomain a kmkt:Domain ;
+    rdfs:label "Healthcare Domain"@en ;
+    skos:prefLabel "healthcare" ;
+    rdfs:comment "Healthcare and medical services" .
+
+kmkt:RetailDomain a kmkt:Domain ;
+    rdfs:label "Retail Domain"@en ;
+    skos:prefLabel "retail" ;
+    rdfs:comment "Retail and e-commerce" .
+
+kmkt:ManufacturingDomain a kmkt:Domain ;
+    rdfs:label "Manufacturing Domain"@en ;
+    skos:prefLabel "manufacturing" ;
+    rdfs:comment "Manufacturing and supply chain" .
+
+# Standard artifact types
+kmkt:APIType a kmkt:ArtifactType ;
+    rdfs:label "API Artifact Type"@en ;
+    skos:prefLabel "api" ;
+    rdfs:comment "API specifications and implementations" .
+
+kmkt:SchemaType a kmkt:ArtifactType ;
+    rdfs:label "Schema Artifact Type"@en ;
+    skos:prefLabel "schema" ;
+    rdfs:comment "Data schemas and ontologies" .
+
+kmkt:TemplateType a kmkt:ArtifactType ;
+    rdfs:label "Template Artifact Type"@en ;
+    skos:prefLabel "template" ;
+    rdfs:comment "Code generation templates" .
+
+kmkt:ConfigurationType a kmkt:ArtifactType ;
+    rdfs:label "Configuration Artifact Type"@en ;
+    skos:prefLabel "configuration" ;
+    rdfs:comment "Configuration files and settings" .
+
+# Standard compliance levels
+kmkt:SOXCompliance a kmkt:ComplianceLevel ;
+    rdfs:label "SOX Compliance"@en ;
+    skos:prefLabel "sox" ;
+    rdfs:comment "Sarbanes-Oxley Act compliance" .
+
+kmkt:GDPRCompliance a kmkt:ComplianceLevel ;
+    rdfs:label "GDPR Compliance"@en ;
+    skos:prefLabel "gdpr" ;
+    rdfs:comment "General Data Protection Regulation compliance" .
+
+kmkt:HIPAACompliance a kmkt:ComplianceLevel ;
+    rdfs:label "HIPAA Compliance"@en ;
+    skos:prefLabel "hipaa" ;
+    rdfs:comment "Health Insurance Portability and Accountability Act compliance" .
+
+# Standard maturity levels
+kmkt:ExperimentalMaturity a kmkt:MaturityLevel ;
+    rdfs:label "Experimental Maturity"@en ;
+    skos:prefLabel "experimental" ;
+    rdfs:comment "Early development, subject to breaking changes" .
+
+kmkt:BetaMaturity a kmkt:MaturityLevel ;
+    rdfs:label "Beta Maturity"@en ;
+    skos:prefLabel "beta" ;
+    rdfs:comment "Feature complete, limited production use" .
+
+kmkt:StableMaturity a kmkt:MaturityLevel ;
+    rdfs:label "Stable Maturity"@en ;
+    skos:prefLabel "stable" ;
+    rdfs:comment "Production ready with backwards compatibility" .
+
+kmkt:DeprecatedMaturity a kmkt:MaturityLevel ;
+    rdfs:label "Deprecated Maturity"@en ;
+    skos:prefLabel "deprecated" ;
+    rdfs:comment "No longer maintained, use alternatives" .
+
+# Standard license types
+kmkt:MITLicense a kmkt:LicenseType ;
+    rdfs:label "MIT License"@en ;
+    skos:prefLabel "mit" ;
+    rdfs:comment "MIT open source license" .
+
+kmkt:ApacheLicense a kmkt:LicenseType ;
+    rdfs:label "Apache License"@en ;
+    skos:prefLabel "apache-2.0" ;
+    rdfs:comment "Apache 2.0 open source license" .
+
+kmkt:CommercialLicense a kmkt:LicenseType ;
+    rdfs:label "Commercial License"@en ;
+    skos:prefLabel "commercial" ;
+    rdfs:comment "Commercial proprietary license" .
+
+# Standard currencies
+kmkt:USD a kmkt:FiatCurrency ;
+    rdfs:label "US Dollar"@en ;
+    kmkt:currencyCode "USD" ;
+    kmkt:currencyName "US Dollar" .
+
+kmkt:EUR a kmkt:FiatCurrency ;
+    rdfs:label "Euro"@en ;
+    kmkt:currencyCode "EUR" ;
+    kmkt:currencyName "Euro" .
+
+kmkt:BTC a kmkt:Cryptocurrency ;
+    rdfs:label "Bitcoin"@en ;
+    kmkt:currencyCode "BTC" ;
+    kmkt:currencyName "Bitcoin" .
+
+kmkt:ETH a kmkt:Cryptocurrency ;
+    rdfs:label "Ethereum"@en ;
+    kmkt:currencyCode "ETH" ;
+    kmkt:currencyName "Ethereum" .
+
+kmkt:KGenCredits a kmkt:Token ;
+    rdfs:label "KGEN Credits"@en ;
+    kmkt:currencyCode "KGEN" ;
+    kmkt:currencyName "KGEN Platform Credits" .

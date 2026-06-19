@@ -1,0 +1,245 @@
+@prefix : <https://kgen.dev/workshop#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://www.foaf.org/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix kgen: <https://kgen.dev/ontology#> .
+
+# KGEN Project Charter as RDF Graph
+# Self-Hosting Bootstrap System
+
+:KGENProject a kgen:Project ;
+    dct:title "KGEN - Knowledge Graph Engineering Next Generation" ;
+    dct:description "Revolutionary code generation system using RDF graphs and SHACL validation" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-01-12T00:00:00Z"^^xsd:dateTime ;
+    kgen:version "1.0.0" ;
+    kgen:status "active" ;
+    kgen:charter :ProjectCharter .
+
+:ProjectCharter a kgen:Charter ;
+    dct:title "KGEN v1 Project Charter" ;
+    dct:description "Comprehensive charter for KGEN development and enterprise adoption" ;
+    kgen:hasStakeholder :ProjectSponsor, :TechnicalLead, :QualityAssurance, :BusinessAnalyst ;
+    kgen:hasMilestone :M1_CoreSystem, :M2_Integration, :M3_Validation, :M4_Production ;
+    kgen:hasCTQ :CTQ_Performance, :CTQ_Quality, :CTQ_Usability, :CTQ_Reliability .
+
+# Stakeholders
+:ProjectSponsor a kgen:Stakeholder ;
+    foaf:name "Enterprise Leadership" ;
+    kgen:role "sponsor" ;
+    kgen:responsibility "Strategic oversight and resource allocation" ;
+    kgen:interest "ROI, market positioning, competitive advantage" ;
+    kgen:influence "high" ;
+    kgen:communication "monthly steering committee" .
+
+:TechnicalLead a kgen:Stakeholder ;
+    foaf:name "Chief Architect" ;
+    kgen:role "technical_lead" ;
+    kgen:responsibility "Architecture design and technical validation" ;
+    kgen:interest "Technical excellence, scalability, maintainability" ;
+    kgen:influence "high" ;
+    kgen:communication "daily standups, weekly reviews" .
+
+:QualityAssurance a kgen:Stakeholder ;
+    foaf:name "QA Manager" ;
+    kgen:role "quality_lead" ;
+    kgen:responsibility "Quality standards and testing strategy" ;
+    kgen:interest "Defect prevention, test coverage, reliability" ;
+    kgen:influence "medium" ;
+    kgen:communication "sprint reviews, quality gates" .
+
+:BusinessAnalyst a kgen:Stakeholder ;
+    foaf:name "Requirements Analyst" ;
+    kgen:role "business_analyst" ;
+    kgen:responsibility "Requirements gathering and validation" ;
+    kgen:interest "User satisfaction, feature completeness" ;
+    kgen:influence "medium" ;
+    kgen:communication "weekly requirements reviews" .
+
+# Critical To Quality (CTQ) Metrics
+:CTQ_Performance a kgen:CTQMetric ;
+    dct:title "System Performance" ;
+    kgen:target "Sub-second response time for code generation" ;
+    kgen:measure "Response time in milliseconds" ;
+    kgen:threshold "< 1000ms" ;
+    kgen:priority "high" .
+
+:CTQ_Quality a kgen:CTQMetric ;
+    dct:title "Code Quality" ;
+    kgen:target "Generated code meets enterprise standards" ;
+    kgen:measure "Static analysis score" ;
+    kgen:threshold "> 95%" ;
+    kgen:priority "high" .
+
+:CTQ_Usability a kgen:CTQMetric ;
+    dct:title "Developer Experience" ;
+    kgen:target "Intuitive API and clear documentation" ;
+    kgen:measure "Developer satisfaction score" ;
+    kgen:threshold "> 4.5/5" ;
+    kgen:priority "medium" .
+
+:CTQ_Reliability a kgen:CTQMetric ;
+    dct:title "System Reliability" ;
+    kgen:target "99.9% uptime for generation services" ;
+    kgen:measure "Availability percentage" ;
+    kgen:threshold "> 99.9%" ;
+    kgen:priority "high" .
+
+# Project Milestones
+:M1_CoreSystem a kgen:Milestone ;
+    dct:title "Core System Implementation" ;
+    kgen:dueDate "2025-03-31T23:59:59Z"^^xsd:dateTime ;
+    kgen:deliverables "RDF parser, SHACL validator, basic code generation" ;
+    kgen:criteria "All core components pass integration tests" ;
+    kgen:status "in_progress" ;
+    kgen:progress 75 .
+
+:M2_Integration a kgen:Milestone ;
+    dct:title "Enterprise Integration" ;
+    kgen:dueDate "2025-06-30T23:59:59Z"^^xsd:dateTime ;
+    kgen:deliverables "CI/CD integration, security compliance, API gateway" ;
+    kgen:criteria "Successfully deployed in test environment" ;
+    kgen:status "planned" ;
+    kgen:progress 0 .
+
+:M3_Validation a kgen:Milestone ;
+    dct:title "Comprehensive Testing & Validation" ;
+    kgen:dueDate "2025-09-30T23:59:59Z"^^xsd:dateTime ;
+    kgen:deliverables "Performance testing, security audit, user acceptance" ;
+    kgen:criteria "All CTQ metrics met, security clearance obtained" ;
+    kgen:status "planned" ;
+    kgen:progress 0 .
+
+:M4_Production a kgen:Milestone ;
+    dct:title "Production Deployment" ;
+    kgen:dueDate "2025-12-31T23:59:59Z"^^xsd:dateTime ;
+    kgen:deliverables "Production deployment, training materials, support documentation" ;
+    kgen:criteria "Live system operational, team trained" ;
+    kgen:status "planned" ;
+    kgen:progress 0 .
+
+# Technical Architecture
+:KGENArchitecture a kgen:Architecture ;
+    kgen:hasComponent :RDFEngine, :SHACLValidator, :CodeGenerator, :TemplateEngine ;
+    kgen:pattern "microservices" ;
+    kgen:deployment "containerized" ;
+    kgen:scalability "horizontal" .
+
+:RDFEngine a kgen:Component ;
+    dct:title "RDF Processing Engine" ;
+    kgen:responsibility "Parse and query RDF graphs" ;
+    kgen:technology "Apache Jena, SPARQL" ;
+    kgen:interface "REST API, GraphQL" .
+
+:SHACLValidator a kgen:Component ;
+    dct:title "SHACL Validation Engine" ;
+    kgen:responsibility "Validate RDF data against shapes" ;
+    kgen:technology "TopBraid SHACL API" ;
+    kgen:interface "Validation API" .
+
+:CodeGenerator a kgen:Component ;
+    dct:title "Code Generation Engine" ;
+    kgen:responsibility "Generate code from RDF templates" ;
+    kgen:technology "Nunjucks, AST manipulation" ;
+    kgen:interface "Generation API" .
+
+:TemplateEngine a kgen:Component ;
+    dct:title "Template Processing Engine" ;
+    kgen:responsibility "Process and render templates" ;
+    kgen:technology "Nunjucks, Handlebars" ;
+    kgen:interface "Template API" .
+
+# Self-Hosting Capabilities
+:SelfHostingSystem a kgen:SelfHostingCapability ;
+    dct:title "KGEN Self-Hosting Bootstrap" ;
+    kgen:generates :ChacterDocumentation, :WorkshopMaterials, :APIDocumentation ;
+    kgen:validates :SelfGeneratedOutput ;
+    kgen:demonstrates :DogfoodingApproach .
+
+:ChacterDocumentation a kgen:GeneratedArtifact ;
+    dct:title "Generated Charter Documentation" ;
+    kgen:sourceRDF :ProjectCharter ;
+    kgen:template :LaTeXCharterTemplate ;
+    kgen:outputFormat "PDF", "DOCX", "HTML" .
+
+:WorkshopMaterials a kgen:GeneratedArtifact ;
+    dct:title "Workshop Training Materials" ;
+    kgen:sourceRDF :KGENProject ;
+    kgen:template :WorkshopTemplate ;
+    kgen:outputFormat "HTML", "PDF", "Interactive" .
+
+:APIDocumentation a kgen:GeneratedArtifact ;
+    dct:title "API Documentation" ;
+    kgen:sourceRDF :KGENArchitecture ;
+    kgen:template :OpenAPITemplate ;
+    kgen:outputFormat "JSON", "HTML", "Markdown" .
+
+# Workshop Configuration
+:WorkshopConfig a kgen:Configuration ;
+    kgen:targetAudience "enterprise_developers", "architects", "project_managers" ;
+    kgen:duration "2_days" ;
+    kgen:format "hybrid" ;
+    kgen:materials :GettingStartedGuide, :HandsOnLabs, :BestPractices .
+
+:GettingStartedGuide a kgen:Material ;
+    dct:title "KGEN Getting Started Guide" ;
+    kgen:generatedFrom :KGENProject ;
+    kgen:format "interactive_tutorial" ;
+    kgen:duration "2_hours" .
+
+:HandsOnLabs a kgen:Material ;
+    dct:title "Hands-On Laboratory Exercises" ;
+    kgen:generatedFrom :KGENArchitecture ;
+    kgen:format "code_exercises" ;
+    kgen:duration "6_hours" .
+
+:BestPractices a kgen:Material ;
+    dct:title "Enterprise Best Practices" ;
+    kgen:generatedFrom :ProjectCharter ;
+    kgen:format "presentation_slides" ;
+    kgen:duration "4_hours" .
+
+# Validation and Testing
+:ValidationSuite a kgen:TestSuite ;
+    kgen:validates :SelfHostingSystem ;
+    kgen:hasTest :SelfGenerationTest, :OutputQualityTest, :RecursiveValidationTest ;
+    kgen:coverage 100 ;
+    kgen:automation "full" .
+
+:SelfGenerationTest a kgen:Test ;
+    dct:title "Self-Generation Capability Test" ;
+    kgen:verifies "KGEN can generate its own documentation" ;
+    kgen:input :ProjectCharter ;
+    kgen:expectedOutput :ChacterDocumentation ;
+    kgen:criteria "Generated output matches expected format and content" .
+
+:OutputQualityTest a kgen:Test ;
+    dct:title "Generated Output Quality Test" ;
+    kgen:verifies "All generated artifacts meet quality standards" ;
+    kgen:metrics "completeness", "accuracy", "formatting" ;
+    kgen:threshold "> 95%" .
+
+:RecursiveValidationTest a kgen:Test ;
+    dct:title "Recursive Self-Validation Test" ;
+    kgen:verifies "KGEN can validate its own outputs" ;
+    kgen:approach "dogfooding" ;
+    kgen:recursion_depth 3 .
+
+# Provenance and Traceability
+:GenerationProvenance a prov:Activity ;
+    prov:used :ProjectCharter ;
+    prov:generated :ChacterDocumentation ;
+    prov:wasAssociatedWith :KGENProject ;
+    prov:startedAtTime "2025-01-12T00:00:00Z"^^xsd:dateTime .
+
+:WorkshopProvenance a prov:Activity ;
+    prov:used :KGENProject ;
+    prov:generated :WorkshopMaterials ;
+    prov:wasAssociatedWith :SelfHostingSystem ;
+    prov:startedAtTime "2025-01-12T00:00:00Z"^^xsd:dateTime .

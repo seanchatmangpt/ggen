@@ -1,0 +1,331 @@
+# Healthcare SPARQL Queries for HIPAA Compliance and Data Governance
+# Prefixes for semantic interoperability
+
+PREFIX healthcare: <http://chatmangpt.io/healthcare/ontology/>
+PREFIX phi: <http://chatmangpt.io/phi/ontology/>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+###############################################################################
+# QUERY 1: PHI Lineage Tracking (PROV-O)
+# Purpose: Track Protected Health Information from source to all transformations
+# Returns: Full provenance chain showing data custody, transformations, and access
+###############################################################################
+
+CONSTRUCT {
+  ?phi a phi:ProtectedHealthInformation ;
+    phi:patient_id ?patient ;
+    phi:element_type ?element_type ;
+    phi:created_at ?created ;
+    phi:data_location ?location ;
+    prov:wasGeneratedBy ?activity ;
+    prov:wasDerivedFrom ?source ;
+    prov:wasAttributedTo ?actor ;
+    prov:hadPrimarySource ?primary .
+
+  ?activity a prov:Activity ;
+    prov:startedAtTime ?start_time ;
+    prov:endedAtTime ?end_time ;
+    prov:wasAssociatedWith ?actor ;
+    prov:used ?phi ;
+    phi:transformation_type ?transform_type ;
+    phi:audit_timestamp ?audit_time .
+
+  ?actor a prov:Agent ;
+    foaf:name ?actor_name ;
+    healthcare:actor_type ?actor_type ;
+    healthcare:credentials_verified ?verified .
+
+  ?source a phi:ProtectedHealthInformation ;
+    phi:element_type ?source_type .
+}
+WHERE {
+  # Match PHI records for a patient
+  ?phi healthcare:patient_id ?patient ;
+    phi:element_type ?element_type ;
+    phi:created_at ?created ;
+    phi:data_location ?location ;
+    prov:wasGeneratedBy ?activity ;
+    prov:wasDerivedFrom ?source ;
+    prov:wasAttributedTo ?actor ;
+    prov:hadPrimarySource ?primary .
+
+  # Get activity details
+  ?activity a prov:Activity ;
+    prov:startedAtTime ?start_time ;
+    prov:endedAtTime ?end_time ;
+    prov:wasAssociatedWith ?actor ;
+    prov:used ?phi ;
+    phi:transformation_type ?transform_type ;
+    phi:audit_timestamp ?audit_time .
+
+  # Get actor credentials
+  ?actor a prov:Agent ;
+    foaf:name ?actor_name ;
+    healthcare:actor_type ?actor_type ;
+    healthcare:credentials_verified ?verified .
+
+  # Get source PHI
+  ?source a phi:ProtectedHealthInformation ;
+    phi:element_type ?source_type .
+
+  # Optional: Filter by patient
+  FILTER (?patient = ?PATIENT_ID)
+}
+
+###############################################################################
+# QUERY 2: Consent Enforcement via ODRL
+# Purpose: Verify access requests against patient consent directives
+# Returns: Applicable ODRL policies, constraints, and permit/deny decisions
+###############################################################################
+
+CONSTRUCT {
+  ?consent a odrl:Policy ;
+    odrl:uid ?consent_id ;
+    odrl:profile <http://www.w3.org/ns/odrl/2/profile/full> ;
+    odrl:target ?resource ;
+    odrl:permission ?permission ;
+    odrl:prohibition ?prohibition ;
+    odrl:obligation ?obligation ;
+    dct:issued ?issued ;
+    dct:valid ?valid ;
+    dct:expires ?expires ;
+    healthcare:consent_status ?status ;
+    healthcare:patient_signature ?signature ;
+    healthcare:witness ?witness .
+
+  ?permission a odrl:Permission ;
+    odrl:action ?action ;
+    odrl:assigner ?actor ;
+    odrl:assignee ?accessor ;
+    odrl:constraint ?constraint ;
+    odrl:duty ?duty .
+
+  ?constraint a odrl:Constraint ;
+    odrl:leftOperand ?operand ;
+    odrl:operator ?operator ;
+    odrl:rightOperand ?value ;
+    healthcare:constraint_description ?description .
+
+  ?prohibition a odrl:Prohibition ;
+    odrl:action ?prohibited_action ;
+    odrl:target ?prohibited_resource .
+
+  ?obligation a odrl:Obligation ;
+    odrl:action ?obligation_action ;
+    healthcare:obligation_deadline ?deadline .
+}
+WHERE {
+  # Match consent policies for patient
+  ?consent a odrl:Policy ;
+    odrl:uid ?consent_id ;
+    odrl:target ?resource ;
+    odrl:permission ?permission ;
+    healthcare:patient_id ?patient ;
+    healthcare:consent_status ?status ;
+    dct:issued ?issued ;
+    dct:valid ?valid ;
+    dct:expires ?expires ;
+    healthcare:patient_signature ?signature ;
+    healthcare:witness ?witness .
+
+  # Get permission details
+  ?permission a odrl:Permission ;
+    odrl:action ?action ;
+    odrl:assigner ?actor ;
+    odrl:assignee ?accessor ;
+    odrl:constraint ?constraint ;
+    odrl:duty ?duty .
+
+  # Get constraints on permission
+  ?constraint a odrl:Constraint ;
+    odrl:leftOperand ?operand ;
+    odrl:operator ?operator ;
+    odrl:rightOperand ?value ;
+    healthcare:constraint_description ?description .
+
+  # Optional: Match prohibitions
+  OPTIONAL {
+    ?consent odrl:prohibition ?prohibition .
+    ?prohibition a odrl:Prohibition ;
+      odrl:action ?prohibited_action ;
+      odrl:target ?prohibited_resource .
+  }
+
+  # Optional: Match obligations
+  OPTIONAL {
+    ?consent odrl:obligation ?obligation .
+    ?obligation a odrl:Obligation ;
+      odrl:action ?obligation_action ;
+      healthcare:obligation_deadline ?deadline .
+  }
+
+  # Filter: Only active, non-expired consents
+  FILTER (?patient = ?PATIENT_ID && ?status = "active" && ?expires > NOW())
+}
+
+###############################################################################
+# QUERY 3: HIPAA Audit Trail with 6-Year Retention
+# Purpose: Query audit logs for compliance verification and breach detection
+# Returns: Complete access history with actor, timestamp, action, and outcome
+###############################################################################
+
+CONSTRUCT {
+  ?audit_entry a healthcare:AuditEntry ;
+    healthcare:audit_id ?audit_id ;
+    healthcare:timestamp ?timestamp ;
+    healthcare:event_type ?event_type ;
+    healthcare:actor ?actor ;
+    healthcare:actor_ip ?ip ;
+    healthcare:patient_id ?patient ;
+    healthcare:resource_type ?resource ;
+    healthcare:action_taken ?action ;
+    healthcare:access_granted ?granted ;
+    healthcare:enforcement_point ?enforcement ;
+    healthcare:encryption_in_transit ?encrypted ;
+    healthcare:encryption_at_rest ?at_rest ;
+    healthcare:integrity_verified ?integrity ;
+    dct:created ?created ;
+    dct:modified ?modified ;
+    healthcare:retention_until ?retention_until ;
+    healthcare:archival_status ?archival .
+
+  ?actor a prov:Agent ;
+    foaf:name ?actor_name ;
+    healthcare:actor_type ?actor_type ;
+    healthcare:organization ?org ;
+    healthcare:authentication_method ?auth_method ;
+    healthcare:mfa_verified ?mfa .
+}
+WHERE {
+  # Match audit entries within 6-year retention window
+  ?audit_entry a healthcare:AuditEntry ;
+    healthcare:audit_id ?audit_id ;
+    healthcare:timestamp ?timestamp ;
+    healthcare:event_type ?event_type ;
+    healthcare:actor ?actor ;
+    healthcare:actor_ip ?ip ;
+    healthcare:patient_id ?patient ;
+    healthcare:resource_type ?resource ;
+    healthcare:action_taken ?action ;
+    healthcare:access_granted ?granted ;
+    healthcare:enforcement_point ?enforcement ;
+    healthcare:encryption_in_transit ?encrypted ;
+    healthcare:encryption_at_rest ?at_rest ;
+    healthcare:integrity_verified ?integrity ;
+    dct:created ?created ;
+    dct:modified ?modified ;
+    healthcare:retention_until ?retention_until ;
+    healthcare:archival_status ?archival .
+
+  # Get actor details
+  ?actor a prov:Agent ;
+    foaf:name ?actor_name ;
+    healthcare:actor_type ?actor_type ;
+    healthcare:organization ?org ;
+    healthcare:authentication_method ?auth_method ;
+    healthcare:mfa_verified ?mfa .
+
+  # Filter: Within 6-year retention window and for specific patient
+  FILTER (
+    ?patient = ?PATIENT_ID &&
+    ?retention_until >= (NOW() - "P6Y"^^xsd:duration) &&
+    ?timestamp >= (NOW() - "P6Y"^^xsd:duration)
+  )
+}
+ORDER BY DESC(?timestamp)
+
+###############################################################################
+# QUERY 4: Patient Privacy Verification
+# Purpose: Verify patient privacy controls are enabled and audit access
+# Returns: Privacy settings, consent status, data minimization checks
+###############################################################################
+
+CONSTRUCT {
+  ?patient a fhir:Patient ;
+    fhir:identifier ?patient_id ;
+    healthcare:privacy_level ?privacy_level ;
+    healthcare:data_minimization ?minimized ;
+    healthcare:anonymization_enabled ?anonymized ;
+    healthcare:access_control_type ?access_control ;
+    healthcare:breach_notification_sent ?breach_notified ;
+    healthcare:last_privacy_audit ?last_audit ;
+    healthcare:privacy_compliant ?compliant ;
+    healthcare:privacy_issue_count ?issue_count ;
+    odrl:hasPolicy ?consent ;
+    phi:sensitive_data_elements ?sensitive_count ;
+    phi:authorized_accessors ?accessor_count ;
+    phi:unauthorized_access_attempts ?unauthorized_attempts ;
+    phi:data_retention_policy ?retention_policy ;
+    healthcare:gdpr_compliant ?gdpr ;
+    healthcare:ccpa_compliant ?ccpa ;
+    healthcare:lgpd_compliant ?lgpd .
+
+  ?consent a odrl:Policy ;
+    odrl:uid ?consent_id ;
+    healthcare:consent_status ?consent_status ;
+    dct:expires ?consent_expires .
+
+  ?accessor a prov:Agent ;
+    foaf:name ?accessor_name ;
+    healthcare:access_reason ?reason ;
+    healthcare:access_scope ?scope ;
+    healthcare:access_timestamp ?access_time .
+}
+WHERE {
+  # Match patient privacy settings
+  ?patient a fhir:Patient ;
+    fhir:identifier ?patient_id ;
+    healthcare:privacy_level ?privacy_level ;
+    healthcare:data_minimization ?minimized ;
+    healthcare:anonymization_enabled ?anonymized ;
+    healthcare:access_control_type ?access_control ;
+    healthcare:breach_notification_sent ?breach_notified ;
+    healthcare:last_privacy_audit ?last_audit ;
+    healthcare:privacy_issue_count ?issue_count ;
+    phi:sensitive_data_elements ?sensitive_count ;
+    phi:authorized_accessors ?accessor_count ;
+    phi:unauthorized_access_attempts ?unauthorized_attempts ;
+    phi:data_retention_policy ?retention_policy ;
+    healthcare:gdpr_compliant ?gdpr ;
+    healthcare:ccpa_compliant ?ccpa ;
+    healthcare:lgpd_compliant ?lgpd .
+
+  # Compute compliance
+  BIND(
+    IF(
+      ?minimized = true &&
+      ?anonymized = true &&
+      ?access_control = "role_based" &&
+      ?unauthorized_attempts = 0,
+      true,
+      false
+    ) AS ?compliant
+  )
+
+  # Get associated consents
+  OPTIONAL {
+    ?patient odrl:hasPolicy ?consent .
+    ?consent a odrl:Policy ;
+      odrl:uid ?consent_id ;
+      healthcare:consent_status ?consent_status ;
+      dct:expires ?consent_expires .
+  }
+
+  # Get authorized accessors and their activity
+  OPTIONAL {
+    ?patient phi:has_accessor ?accessor .
+    ?accessor a prov:Agent ;
+      foaf:name ?accessor_name ;
+      healthcare:access_reason ?reason ;
+      healthcare:access_scope ?scope ;
+      healthcare:access_timestamp ?access_time .
+  }
+
+  # Filter: Specific patient
+  FILTER (?patient_id = ?PATIENT_ID)
+}

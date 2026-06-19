@@ -1,0 +1,261 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix config: <http://knowd.io/config#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ============================================================================
+# KnowD Configuration SHACL Shapes
+# ============================================================================
+# These SHACL shapes validate configuration settings to ensure they meet
+# requirements before being applied to the server.
+
+# Generic Server Setting Shape
+
+config:ServerSettingShape a sh:NodeShape ;
+    sh:targetClass config:ServerSetting ;
+    sh:property [
+        sh:path config:key ;
+        sh:name "Configuration Key" ;
+        sh:description "Every setting must have exactly one unique key" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Configuration key is required and must be a non-empty string" ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:name "Configuration Value" ;
+        sh:description "Every setting must have exactly one value" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Configuration value is required" ;
+    ] ;
+    sh:property [
+        sh:path config:modifiedAt ;
+        sh:name "Modification Timestamp" ;
+        sh:description "Timestamp of last modification" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Modified timestamp must be a valid dateTime" ;
+    ] .
+
+# Port Validation Shape
+
+config:PortShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key "http.addr" .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:pattern "^([a-zA-Z0-9.-]+)?:[0-9]{1,5}$" ;
+        sh:message "HTTP address must be in format 'host:port' or ':port' where port is 1-5 digits" ;
+    ] .
+
+# Boolean Value Shape
+
+config:BooleanValueShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key ?key .
+                VALUES ?key {
+                    "store.watch_packs"
+                    "planner.cbo"
+                    "shacl.enabled"
+                    "query.plan_cache_persist"
+                    "vector.enabled"
+                    "wasm.enabled"
+                    "encryption.enabled"
+                    "encryption.key_rotation"
+                    "encryption.backup_unencrypted"
+                    "gdpr.enabled"
+                }
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:in ("true" "false") ;
+        sh:message "Boolean configuration values must be 'true' or 'false'" ;
+    ] .
+
+# Integer Value Shape
+
+config:IntegerValueShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key ?key .
+                VALUES ?key {
+                    "planner.analyze_sample"
+                    "planner.analyze_ttl"
+                    "query.stream_max_bytes"
+                    "query.plan_cache_size"
+                }
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:pattern "^[0-9]+$" ;
+        sh:message "Integer configuration values must contain only digits" ;
+    ] .
+
+# Store Type Validation
+
+config:StoreTypeShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key "store.type" .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:in ("mem" "disk" "memory" "persistent") ;
+        sh:message "Store type must be one of: mem, disk, memory, persistent" ;
+    ] .
+
+# Cluster Mode Validation
+
+config:ClusterModeShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key "cluster.mode" .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:in ("" "leader" "follower" "standalone") ;
+        sh:message "Cluster mode must be one of: leader, follower, standalone, or empty" ;
+    ] .
+
+# Encryption Key Source Validation
+
+config:EncryptionKeySourceShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key "encryption.key_source" .
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:in ("env" "file" "inline") ;
+        sh:message "Encryption key source must be one of: env, file, inline" ;
+    ] .
+
+# Plan Cache Size Validation
+
+config:PlanCacheSizeShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key "query.plan_cache_size" .
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:message "Plan cache size must be between 1 and 10000" ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this WHERE {
+                $this config:value ?value .
+                BIND(xsd:integer(?value) AS ?intValue)
+                FILTER(?intValue < 1 || ?intValue > 10000)
+            }
+        """ ;
+    ] .
+
+# Analyze Sample Size Validation
+
+config:AnalyzeSampleShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key "planner.analyze_sample" .
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:message "Analyze sample size must be between 100 and 1000000" ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this WHERE {
+                $this config:value ?value .
+                BIND(xsd:integer(?value) AS ?intValue)
+                FILTER(?intValue < 100 || ?intValue > 1000000)
+            }
+        """ ;
+    ] .
+
+# Directory Path Validation
+
+config:DirectoryPathShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT ?this WHERE {
+                ?this config:key ?key .
+                VALUES ?key {
+                    "data.dir"
+                    "receipts.dir"
+                }
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path config:value ;
+        sh:minLength 1 ;
+        sh:pattern "^[^<>:\"|?*\\x00-\\x1f]+$" ;
+        sh:message "Directory path must be valid and not contain illegal characters" ;
+    ] .
+
+# Consistency Constraint: Encryption enabled requires key source
+
+config:EncryptionConsistencyShape a sh:NodeShape ;
+    sh:targetSubjectsOf config:key ;
+    sh:sparql [
+        sh:message "When encryption is enabled, encryption.key_source must be configured" ;
+        sh:select """
+            PREFIX config: <http://knowd.io/config#>
+            SELECT $this WHERE {
+                ?encryptionEnabled config:key "encryption.enabled" ;
+                                   config:value "true" .
+                OPTIONAL {
+                    ?keySource config:key "encryption.key_source" ;
+                               config:value ?source .
+                }
+                FILTER(!BOUND(?source) || ?source = "")
+                BIND(?encryptionEnabled AS $this)
+            }
+        """ ;
+    ] .

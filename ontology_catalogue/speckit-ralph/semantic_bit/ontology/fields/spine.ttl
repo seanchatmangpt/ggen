@@ -1,0 +1,101 @@
+@prefix insa: <https://w3id.org/insa/ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix field: <https://w3id.org/insa/field/> .
+
+# --- Access Field ---
+field:ACCESS_BADGE
+    a insa:SemanticField ;
+    insa:hasFieldId "FIELD-ACCESS-BADGE" ;
+    skos:prefLabel "Access Admission Field" ;
+    insa:hasSlug "access" ;
+    insa:hasSelectionRule "Grant if BADGE_PRESENT, BADGE_RECOGNIZED, HOLDER_ACTIVE, DOOR_ALLOWED, and TIME_ALLOWED" ;
+    insa:hasPosition [
+        insa:hasIndex 0 ; insa:hasMask "0x01" ; insa:hasMeaning "BADGE_PRESENT" ;
+        skos:definition "A badge was presented to the reader."
+    ] , [
+        insa:hasIndex 1 ; insa:hasMask "0x02" ; insa:hasMeaning "BADGE_RECOGNIZED" ;
+        skos:definition "The presented badge was recognized."
+    ] , [
+        insa:hasIndex 2 ; insa:hasMask "0x04" ; insa:hasMeaning "HOLDER_ACTIVE" ;
+        skos:definition "The badge holder is active."
+    ] , [
+        insa:hasIndex 3 ; insa:hasMask "0x08" ; insa:hasMeaning "DOOR_ALLOWED" ;
+        skos:definition "The door is allowed for this holder."
+    ] , [
+        insa:hasIndex 4 ; insa:hasMask "0x10" ; insa:hasMeaning "TIME_ALLOWED" ;
+        skos:definition "The time is allowed for this access attempt."
+    ] , [
+        insa:hasIndex 5 ; insa:hasMask "0x20" ; insa:hasMeaning "GRANTED" ;
+        skos:definition "The access attempt has been granted by rule."
+    ] , [
+        insa:hasIndex 6 ; insa:hasMask "0x40" ; insa:hasMeaning "RECORDED" ;
+        skos:definition "The access attempt has been recorded."
+    ] , [
+        insa:hasIndex 7 ; insa:hasMask "0x80" ; insa:hasMeaning "REVIEW_REQUIRED" ;
+        skos:definition "The access attempt requires review."
+    ] .
+
+# --- Status8 ---
+field:STATUS8
+    a insa:SemanticField ;
+    insa:hasFieldId "FIELD-STATUS8" ;
+    skos:prefLabel "Status8 Field" ;
+    insa:hasSlug "status8" ;
+    insa:hasPosition [
+        insa:hasIndex 0 ; insa:hasMask "0x01" ; insa:hasMeaning "OK" ;
+        skos:definition "The system is in a normal operational state."
+    ] , [
+        insa:hasIndex 1 ; insa:hasMask "0x02" ; insa:hasMeaning "WARN" ;
+        skos:definition "The system has detected a non-blocking anomaly."
+    ] , [
+        insa:hasIndex 2 ; insa:hasMask "0x04" ; insa:hasMeaning "BLOCKED" ;
+        skos:definition "The system is prevented from moving forward."
+    ] , [
+        insa:hasIndex 3 ; insa:hasMask "0x08" ; insa:hasMeaning "UNKNOWN" ;
+        skos:definition "The state cannot be determined."
+    ] , [
+        insa:hasIndex 4 ; insa:hasMask "0x10" ; insa:hasMeaning "SKIPPED" ;
+        skos:definition "The operation was intentionally bypassed."
+    ] , [
+        insa:hasIndex 5 ; insa:hasMask "0x20" ; insa:hasMeaning "STALE" ;
+        skos:definition "The evidence supporting the status is out of date."
+    ] , [
+        insa:hasIndex 6 ; insa:hasMask "0x40" ; insa:hasMeaning "RECEIPTED" ;
+        skos:definition "The status has been immutably recorded."
+    ] , [
+        insa:hasIndex 7 ; insa:hasMask "0x80" ; insa:hasMeaning "REPLAYABLE" ;
+        skos:definition "The status transition can be deterministically replayed."
+    ] .
+
+# --- ConditionCode8 ---
+field:CONDITION8
+    a insa:SemanticField ;
+    insa:hasFieldId "FIELD-CONDITION8" ;
+    skos:prefLabel "ConditionCode8 Field" ;
+    insa:hasSlug "condition8" ;
+    insa:hasPosition [
+        insa:hasIndex 0 ; insa:hasMask "0x01" ; insa:hasMeaning "OK" ;
+        skos:definition "Outcome: Permitted."
+    ] , [
+        insa:hasIndex 1 ; insa:hasMask "0x02" ; insa:hasMeaning "WARN" ;
+        skos:definition "Outcome: Permitted with audit flag."
+    ] , [
+        insa:hasIndex 2 ; insa:hasMask "0x04" ; insa:hasMeaning "BLOCKED" ;
+        skos:definition "Outcome: Terminated by safety gate."
+    ] , [
+        insa:hasIndex 3 ; insa:hasMask "0x08" ; insa:hasMeaning "RETRY" ;
+        skos:definition "Outcome: Transient failure, re-attempt allowed."
+    ] , [
+        insa:hasIndex 4 ; insa:hasMask "0x10" ; insa:hasMeaning "ESCALATE" ;
+        skos:definition "Outcome: Human-in-the-loop required."
+    ] , [
+        insa:hasIndex 5 ; insa:hasMask "0x20" ; insa:hasMeaning "REFUSE" ;
+        skos:definition "Outcome: Policy violation, motion denied."
+    ] , [
+        insa:hasIndex 6 ; insa:hasMask "0xAB" ; insa:hasMeaning "ABEND" ;
+        skos:definition "Outcome: Abnormal end, system panic."
+    ] , [
+        insa:hasIndex 7 ; insa:hasMask "0xFF" ; insa:hasMeaning "UNKNOWN" ;
+        skos:definition "Outcome: Undefined behavior."
+    ] .

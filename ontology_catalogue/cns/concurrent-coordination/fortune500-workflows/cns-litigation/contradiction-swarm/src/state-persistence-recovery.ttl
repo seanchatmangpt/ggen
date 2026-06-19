@@ -1,0 +1,496 @@
+@prefix spr: <http://cns-litigation.com/state-persistence-recovery#> .
+@prefix ts: <http://cns-litigation.com/trigger-swarm#> .
+@prefix csm: <http://cns-litigation.com/campaign-state-machine#> .
+@prefix edt: <http://cns-litigation.com/event-driven-triggers#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+
+# State Persistence and Recovery System
+# Provides fault-tolerant state management with automatic recovery
+# Implements checkpointing, rollback, and disaster recovery
+
+spr:StatePersistenceSystem a owl:Class ;
+    rdfs:label "State Persistence System" ;
+    rdfs:comment "Comprehensive state persistence and recovery system for legal campaign automation" ;
+    spr:version "2.0" ;
+    spr:consistencyModel spr:StrongConsistency ;
+    spr:durabilityGuarantee spr:ACID ;
+    spr:recoveryObjective "PT30S"^^xsd:duration ;
+    spr:dataLossObjective "PT0S"^^xsd:duration .
+
+# ============================================================================
+# PERSISTENCE ARCHITECTURE
+# ============================================================================
+
+# Storage Backend Configuration
+spr:StorageBackend a owl:Class ;
+    rdfs:label "Storage Backend" ;
+    rdfs:comment "Distributed storage backend for state persistence" .
+
+spr:DistributedDatabase a spr:StorageBackend ;
+    rdfs:label "Distributed Database" ;
+    rdfs:comment "Distributed database with ACID guarantees" ;
+    spr:technology spr:PostgreSQL ;
+    spr:replicationMode spr:SynchronousReplication ;
+    spr:replicationFactor 3 ;
+    spr:consistencyLevel spr:StrongConsistency ;
+    spr:partitioning spr:HashPartitioning ;
+    spr:backupStrategy spr:ContinuousBackup .
+
+spr:ObjectStorage a spr:StorageBackend ;
+    rdfs:label "Object Storage" ;
+    rdfs:comment "Object storage for large state snapshots" ;
+    spr:technology spr:S3Compatible ;
+    spr:durability "99.999999999%"^^xsd:decimal ;
+    spr:availability "99.99%"^^xsd:decimal ;
+    spr:encryption spr:AES256 ;
+    spr:versioning true .
+
+spr:EventStore a spr:StorageBackend ;
+    rdfs:label "Event Store" ;
+    rdfs:comment "Event sourcing store for audit trail" ;
+    spr:technology spr:EventStoreDB ;
+    spr:eventRetention "P7Y"^^xsd:duration ;
+    spr:snapshotInterval 1000 ;
+    spr:streamProjections true .
+
+# ============================================================================
+# STATE MANAGEMENT
+# ============================================================================
+
+# State Snapshot System
+spr:StateSnapshot a owl:Class ;
+    rdfs:label "State Snapshot" ;
+    rdfs:comment "Point-in-time snapshot of campaign state" .
+
+spr:CampaignStateSnapshot a spr:StateSnapshot ;
+    rdfs:label "Campaign State Snapshot" ;
+    rdfs:comment "Complete snapshot of campaign execution state" ;
+    spr:snapshotId xsd:string ;
+    spr:campaignId xsd:string ;
+    spr:snapshotTime xsd:dateTime ;
+    spr:currentState csm:State ;
+    spr:executionContext csm:ExecutionContext ;
+    spr:swarmStates rdf:List ;
+    spr:eventHistory rdf:List ;
+    spr:resourceAllocations rdf:List ;
+    spr:performanceMetrics rdf:List ;
+    spr:checksumHash xsd:string ;
+    spr:compressionRatio xsd:decimal .
+
+# Checkpoint Management
+spr:CheckpointManager a owl:Class ;
+    rdfs:label "Checkpoint Manager" ;
+    rdfs:comment "Manages automated checkpoint creation and cleanup" ;
+    spr:checkpointInterval "PT5M"^^xsd:duration ;
+    spr:maxCheckpoints 100 ;
+    spr:checkpointTriggers spr:TimeInterval, spr:StateTransition, spr:CriticalEvents ;
+    spr:compressionEnabled true ;
+    spr:encryptionEnabled true .
+
+# Checkpoint Strategies
+spr:CheckpointStrategy a owl:Class ;
+    rdfs:label "Checkpoint Strategy" ;
+    rdfs:comment "Strategy for creating checkpoints" .
+
+spr:PeriodicCheckpoint a spr:CheckpointStrategy ;
+    rdfs:label "Periodic Checkpoint" ;
+    rdfs:comment "Time-based checkpoint creation" ;
+    spr:interval "PT5M"^^xsd:duration ;
+    spr:priority 5 .
+
+spr:StateTransitionCheckpoint a spr:CheckpointStrategy ;
+    rdfs:label "State Transition Checkpoint" ;
+    rdfs:comment "Checkpoint on state transitions" ;
+    spr:triggerStates csm:CampaignAnalyzing, csm:CampaignExecuting, csm:CampaignCompleting ;
+    spr:priority 8 .
+
+spr:CriticalEventCheckpoint a spr:CheckpointStrategy ;
+    rdfs:label "Critical Event Checkpoint" ;
+    rdfs:comment "Checkpoint on critical events" ;
+    spr:triggerEvents edt:ContradictionDetected, edt:DeadlineApproaching, edt:EmergencyShutdown ;
+    spr:priority 9 .
+
+spr:ErrorRecoveryCheckpoint a spr:CheckpointStrategy ;
+    rdfs:label "Error Recovery Checkpoint" ;
+    rdfs:comment "Checkpoint before error recovery attempts" ;
+    spr:triggerConditions spr:ErrorDetected, spr:RecoveryInitiated ;
+    spr:priority 10 .
+
+# ============================================================================
+# RECOVERY MECHANISMS
+# ============================================================================
+
+# Recovery Manager
+spr:RecoveryManager a owl:Class ;
+    rdfs:label "Recovery Manager" ;
+    rdfs:comment "Manages system recovery operations" ;
+    spr:recoveryTimeout "PT2M"^^xsd:duration ;
+    spr:maxRecoveryAttempts 5 ;
+    spr:recoveryStrategies spr:AutomaticRecovery, spr:FailoverRecovery, spr:ManualRecovery ;
+    spr:healthCheckInterval "PT10S"^^xsd:duration .
+
+# Recovery Strategies
+spr:RecoveryStrategy a owl:Class ;
+    rdfs:label "Recovery Strategy" ;
+    rdfs:comment "Strategy for system recovery" .
+
+spr:AutomaticRecovery a spr:RecoveryStrategy ;
+    rdfs:label "Automatic Recovery" ;
+    rdfs:comment "Automatic recovery from last known good state" ;
+    spr:maxAttempts 3 ;
+    spr:backoffStrategy spr:ExponentialBackoff ;
+    spr:failureThreshold 3 ;
+    spr:recoveryActions [
+        spr:action "loadLastCheckpoint" ;
+        spr:action "validateStateIntegrity" ;
+        spr:action "resumeFromCheckpoint" ;
+        spr:action "notifyStakeholders"
+    ] .
+
+spr:FailoverRecovery a spr:RecoveryStrategy ;
+    rdfs:label "Failover Recovery" ;
+    rdfs:comment "Failover to standby system" ;
+    spr:failoverTargets spr:StandbyInstance1, spr:StandbyInstance2 ;
+    spr:failoverTime "PT30S"^^xsd:duration ;
+    spr:stateSync spr:SynchronousReplication ;
+    spr:healthCheck spr:ContinuousMonitoring .
+
+spr:PointInTimeRecovery a spr:RecoveryStrategy ;
+    rdfs:label "Point-in-Time Recovery" ;
+    rdfs:comment "Recovery to specific point in time" ;
+    spr:recoveryGranularity "PT1M"^^xsd:duration ;
+    spr:eventReplay true ;
+    spr:stateValidation true ;
+    spr:rollbackCapable true .
+
+spr:DisasterRecovery a spr:RecoveryStrategy ;
+    rdfs:label "Disaster Recovery" ;
+    rdfs:comment "Full disaster recovery procedures" ;
+    spr:recoveryTimeObjective "PT15M"^^xsd:duration ;
+    spr:recoveryPointObjective "PT1M"^^xsd:duration ;
+    spr:backupLocations spr:GeographicallyDistributed ;
+    spr:dataReplication spr:CrossRegion .
+
+# ============================================================================
+# STATE VALIDATION AND INTEGRITY
+# ============================================================================
+
+# State Validator
+spr:StateValidator a owl:Class ;
+    rdfs:label "State Validator" ;
+    rdfs:comment "Validates state integrity and consistency" ;
+    spr:validationRules spr:SchemaValidation, spr:ReferentialIntegrity, 
+                        spr:BusinessRuleValidation, spr:TemporalConsistency ;
+    spr:validationTimeout "PT30S"^^xsd:duration ;
+    spr:errorTolerance spr:ZeroTolerance .
+
+# Validation Rules
+spr:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Rule for state validation" .
+
+spr:SchemaValidation a spr:ValidationRule ;
+    rdfs:label "Schema Validation" ;
+    rdfs:comment "Validates state against defined schema" ;
+    spr:schemaFiles "campaign-schema.json", "state-machine-schema.json" ;
+    spr:strictMode true ;
+    spr:errorHandling spr:FailFast .
+
+spr:ReferentialIntegrity a spr:ValidationRule ;
+    rdfs:label "Referential Integrity" ;
+    rdfs:comment "Validates referential integrity constraints" ;
+    spr:foreignKeys spr:CampaignId, spr:SwarmId, spr:StateId ;
+    spr:cascadeRules spr:PreventOrphanedRecords ;
+    spr:integrityLevel spr:Strict .
+
+spr:BusinessRuleValidation a spr:ValidationRule ;
+    rdfs:label "Business Rule Validation" ;
+    rdfs:comment "Validates business logic constraints" ;
+    spr:rules [
+        spr:rule "campaignState must be valid state machine state" ;
+        spr:rule "ticksConsumed <= totalTickWindow" ;
+        spr:rule "resourceAllocation <= availableResources" ;
+        spr:rule "swarmCoordination must be consistent"
+    ] .
+
+spr:TemporalConsistency a spr:ValidationRule ;
+    rdfs:label "Temporal Consistency" ;
+    rdfs:comment "Validates temporal consistency of events and states" ;
+    spr:timeOrderingRules spr:StrictChronological ;
+    spr:clockSynchronization spr:NTPSynchronized ;
+    spr:timezoneTreatment spr:UTC .
+
+# Integrity Monitoring
+spr:IntegrityMonitor a owl:Class ;
+    rdfs:label "Integrity Monitor" ;
+    rdfs:comment "Continuous monitoring of state integrity" ;
+    spr:monitoringInterval "PT1M"^^xsd:duration ;
+    spr:checksumValidation true ;
+    spr:corruptionDetection spr:RealTime ;
+    spr:alerting spr:ImmediateNotification .
+
+# ============================================================================
+# TRANSACTION MANAGEMENT
+# ============================================================================
+
+# Transaction Manager
+spr:TransactionManager a owl:Class ;
+    rdfs:label "Transaction Manager" ;
+    rdfs:comment "Manages distributed transactions for state changes" ;
+    spr:isolationLevel spr:ReadCommitted ;
+    spr:lockingStrategy spr:OptimisticLocking ;
+    spr:transactionTimeout "PT2M"^^xsd:duration ;
+    spr:deadlockDetection true ;
+    spr:rollbackCapability true .
+
+# Distributed Transaction Support
+spr:DistributedTransaction a owl:Class ;
+    rdfs:label "Distributed Transaction" ;
+    rdfs:comment "Distributed transaction across multiple systems" ;
+    spr:protocol spr:TwoPhaseCommit ;
+    spr:coordinatorNode spr:PrimaryNode ;
+    spr:participantNodes spr:AllStorageNodes ;
+    spr:timeoutHandling spr:AutomaticRollback ;
+    spr:recoveryLog spr:DurableLog .
+
+# ACID Properties Implementation
+spr:ACIDProperties a owl:Class ;
+    rdfs:label "ACID Properties" ;
+    rdfs:comment "ACID transaction properties implementation" .
+
+spr:Atomicity a spr:ACIDProperties ;
+    rdfs:label "Atomicity" ;
+    rdfs:comment "All-or-nothing transaction execution" ;
+    spr:implementation spr:WriteAheadLogging ;
+    spr:rollbackSupport true .
+
+spr:Consistency a spr:ACIDProperties ;
+    rdfs:label "Consistency" ;
+    rdfs:comment "Database consistency maintenance" ;
+    spr:implementation spr:ConstraintValidation ;
+    spr:integrityChecks spr:Comprehensive .
+
+spr:Isolation a spr:ACIDProperties ;
+    rdfs:label "Isolation" ;
+    rdfs:comment "Transaction isolation guarantees" ;
+    spr:implementation spr:MVCC ;
+    spr:level spr:ReadCommitted .
+
+spr:Durability a spr:ACIDProperties ;
+    rdfs:label "Durability" ;
+    rdfs:comment "Persistent storage guarantees" ;
+    spr:implementation spr:ForcedWrites ;
+    spr:syncMode spr:Synchronous .
+
+# ============================================================================
+# BACKUP AND ARCHIVAL
+# ============================================================================
+
+# Backup Manager
+spr:BackupManager a owl:Class ;
+    rdfs:label "Backup Manager" ;
+    rdfs:comment "Automated backup and archival system" ;
+    spr:backupTypes spr:FullBackup, spr:IncrementalBackup, spr:DifferentialBackup ;
+    spr:backupSchedule spr:Automated ;
+    spr:retentionPolicy spr:LegalRetention ;
+    spr:compression true ;
+    spr:encryption true .
+
+# Backup Strategies
+spr:BackupStrategy a owl:Class ;
+    rdfs:label "Backup Strategy" ;
+    rdfs:comment "Strategy for data backup" .
+
+spr:FullBackup a spr:BackupStrategy ;
+    rdfs:label "Full Backup" ;
+    rdfs:comment "Complete backup of all data" ;
+    spr:frequency "P1D"^^xsd:duration ;
+    spr:compressionRatio "0.3"^^xsd:decimal ;
+    spr:estimatedDuration "PT2H"^^xsd:duration .
+
+spr:IncrementalBackup a spr:BackupStrategy ;
+    rdfs:label "Incremental Backup" ;
+    rdfs:comment "Backup of changes since last backup" ;
+    spr:frequency "PT1H"^^xsd:duration ;
+    spr:baselineRequired spr:FullBackup ;
+    spr:chainLength 24 .
+
+spr:ContinuousBackup a spr:BackupStrategy ;
+    rdfs:label "Continuous Backup" ;
+    rdfs:comment "Real-time backup of critical changes" ;
+    spr:latency "PT5S"^^xsd:duration ;
+    spr:criticalEvents edt:ContradictionDetected, edt:DeadlineApproaching ;
+    spr:priority 10 .
+
+# Archival System
+spr:ArchivalSystem a owl:Class ;
+    rdfs:label "Archival System" ;
+    rdfs:comment "Long-term data archival system" ;
+    spr:archivalTriggers spr:LegalRetentionPeriod, spr:CaseCompletion ;
+    spr:archivalFormat spr:ImmutableFormat ;
+    spr:compressionLevel spr:Maximum ;
+    spr:retrievalTime "PT1H"^^xsd:duration .
+
+# Legal Retention Compliance
+spr:LegalRetention a owl:Class ;
+    rdfs:label "Legal Retention" ;
+    rdfs:comment "Legal document retention requirements" ;
+    spr:retentionPeriods [
+        spr:documentType "litigation_files" ; spr:period "P7Y"^^xsd:duration ;
+        spr:documentType "evidence_records" ; spr:period "P10Y"^^xsd:duration ;
+        spr:documentType "bar_complaints" ; spr:period "P10Y"^^xsd:duration ;
+        spr:documentType "ip_filings" ; spr:period "P20Y"^^xsd:duration ;
+        spr:documentType "audit_trails" ; spr:period "P7Y"^^xsd:duration
+    ] ;
+    spr:complianceMonitoring spr:Automated ;
+    spr:destructionProtocol spr:SecureErasure .
+
+# ============================================================================
+# MONITORING AND ALERTING
+# ============================================================================
+
+# State Health Monitor
+spr:StateHealthMonitor a owl:Class ;
+    rdfs:label "State Health Monitor" ;
+    rdfs:comment "Monitors health and performance of state management" ;
+    spr:healthMetrics spr:StateConsistency, spr:ReplicationLag, spr:CheckpointLatency,
+                      spr:RecoveryTime, spr:StorageUtilization ;
+    spr:monitoringInterval "PT30S"^^xsd:duration ;
+    spr:alertThresholds spr:ProactiveThresholds .
+
+# Performance Metrics
+spr:PerformanceMetrics a owl:Class ;
+    rdfs:label "Performance Metrics" ;
+    rdfs:comment "Performance metrics for state management" .
+
+spr:CheckpointLatency a spr:PerformanceMetrics ;
+    rdfs:label "Checkpoint Latency" ;
+    rdfs:comment "Time to create state checkpoint" ;
+    spr:target "PT10S"^^xsd:duration ;
+    spr:warning "PT30S"^^xsd:duration ;
+    spr:critical "PT60S"^^xsd:duration .
+
+spr:RecoveryTime a spr:PerformanceMetrics ;
+    rdfs:label "Recovery Time" ;
+    rdfs:comment "Time to recover from failure" ;
+    spr:target "PT30S"^^xsd:duration ;
+    spr:warning "PT2M"^^xsd:duration ;
+    spr:critical "PT5M"^^xsd:duration .
+
+spr:ReplicationLag a spr:PerformanceMetrics ;
+    rdfs:label "Replication Lag" ;
+    rdfs:comment "Lag in data replication" ;
+    spr:target "PT1S"^^xsd:duration ;
+    spr:warning "PT5S"^^xsd:duration ;
+    spr:critical "PT15S"^^xsd:duration .
+
+# Alert Configuration
+spr:AlertConfiguration a owl:Class ;
+    rdfs:label "Alert Configuration" ;
+    rdfs:comment "Configuration for state management alerts" ;
+    spr:alertChannels spr:Email, spr:SMS, spr:PagerDuty, spr:Slack ;
+    spr:escalationLevels [
+        spr:level "WARNING" ; spr:delay "PT0S"^^xsd:duration ;
+        spr:level "CRITICAL" ; spr:delay "PT0S"^^xsd:duration ;
+        spr:level "EMERGENCY" ; spr:delay "PT0S"^^xsd:duration
+    ] ;
+    spr:notificationTemplates spr:StandardTemplates .
+
+# ============================================================================
+# SECURITY AND ENCRYPTION
+# ============================================================================
+
+# Encryption Manager
+spr:EncryptionManager a owl:Class ;
+    rdfs:label "Encryption Manager" ;
+    rdfs:comment "Manages encryption for state data" ;
+    spr:encryptionAlgorithm spr:AES256GCM ;
+    spr:keyManagement spr:HSMBased ;
+    spr:keyRotation "P90D"^^xsd:duration ;
+    spr:encryptionScope spr:AllPersistentData .
+
+# Key Management
+spr:KeyManagement a owl:Class ;
+    rdfs:label "Key Management" ;
+    rdfs:comment "Cryptographic key management system" ;
+    spr:keyStorage spr:HardwareSecurityModule ;
+    spr:keyEscrow spr:LegalCompliance ;
+    spr:accessControl spr:RoleBasedAccess ;
+    spr:auditLogging spr:Comprehensive .
+
+# Access Control
+spr:AccessControl a owl:Class ;
+    rdfs:label "Access Control" ;
+    rdfs:comment "Access control for state management operations" ;
+    spr:authenticationMethod spr:MultiFactorAuth ;
+    spr:authorizationModel spr:RoleBasedAccessControl ;
+    spr:sessionManagement spr:SecureTokens ;
+    spr:auditTrail spr:ImmutableLog .
+
+# ============================================================================
+# PROPERTIES AND RELATIONSHIPS
+# ============================================================================
+
+# Object Properties
+spr:hasCheckpoint rdf:type owl:ObjectProperty ;
+    rdfs:label "has checkpoint" ;
+    rdfs:comment "Checkpoint associated with this state" ;
+    rdfs:domain csm:CampaignStateMachine ;
+    rdfs:range spr:StateSnapshot .
+
+spr:hasRecoveryStrategy rdf:type owl:ObjectProperty ;
+    rdfs:label "has recovery strategy" ;
+    rdfs:comment "Recovery strategy for this system" ;
+    rdfs:domain spr:RecoveryManager ;
+    rdfs:range spr:RecoveryStrategy .
+
+spr:hasBackupStrategy rdf:type owl:ObjectProperty ;
+    rdfs:label "has backup strategy" ;
+    rdfs:comment "Backup strategy for this system" ;
+    rdfs:domain spr:BackupManager ;
+    rdfs:range spr:BackupStrategy .
+
+spr:recoversFrom rdf:type owl:ObjectProperty ;
+    rdfs:label "recovers from" ;
+    rdfs:comment "Checkpoint used for recovery" ;
+    rdfs:domain spr:RecoveryStrategy ;
+    rdfs:range spr:StateSnapshot .
+
+# Data Properties
+spr:snapshotId rdf:type owl:DatatypeProperty ;
+    rdfs:label "snapshot ID" ;
+    rdfs:comment "Unique identifier for state snapshot" ;
+    rdfs:domain spr:StateSnapshot ;
+    rdfs:range xsd:string .
+
+spr:checkpointInterval rdf:type owl:DatatypeProperty ;
+    rdfs:label "checkpoint interval" ;
+    rdfs:comment "Interval between automatic checkpoints" ;
+    rdfs:domain spr:CheckpointManager ;
+    rdfs:range xsd:duration .
+
+spr:recoveryTimeout rdf:type owl:DatatypeProperty ;
+    rdfs:label "recovery timeout" ;
+    rdfs:comment "Maximum time allowed for recovery operation" ;
+    rdfs:domain spr:RecoveryManager ;
+    rdfs:range xsd:duration .
+
+spr:replicationFactor rdf:type owl:DatatypeProperty ;
+    rdfs:label "replication factor" ;
+    rdfs:comment "Number of data replicas" ;
+    rdfs:domain spr:StorageBackend ;
+    rdfs:range xsd:integer .
+
+spr:compressionRatio rdf:type owl:DatatypeProperty ;
+    rdfs:label "compression ratio" ;
+    rdfs:comment "Data compression ratio achieved" ;
+    rdfs:range xsd:decimal .
+
+spr:checksumHash rdf:type owl:DatatypeProperty ;
+    rdfs:label "checksum hash" ;
+    rdfs:comment "Cryptographic hash for integrity verification" ;
+    rdfs:range xsd:string .

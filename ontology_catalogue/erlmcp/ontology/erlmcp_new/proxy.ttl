@@ -1,0 +1,161 @@
+# =============================================================================
+# erlmcp Proxy/Relay Ontology
+# =============================================================================
+# Defines MCP Proxy/Relay Server for routing requests to backend services
+#
+# Features:
+#   - Request routing to multiple backend MCP servers
+#   - Load balancing strategies (round-robin, least-connections, random)
+#   - Health checking and failover
+#   - Request/response transformation
+#   - Rate limiting per backend
+#   - Circuit breaking for faulty backends
+# =============================================================================
+
+@prefix proxy: <http://erlmcp.org/schema/proxy/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+proxy:MCPRelay a rdfs:Class ;
+    rdfs:label "MCP Relay" ;
+    rdfs:comment "Proxies MCP requests to backend servers" ;
+    rdfs:subClassOf otp:GenServer .
+
+proxy:Backend a rdfs:Class ;
+    rdfs:label "Backend" ;
+    rdfs:comment "Backend MCP server configuration" .
+
+proxy:HealthCheck a rdfs:Class ;
+    rdfs:label "Health Check" ;
+    rdfs:comment "Health check configuration for backends" .
+
+proxy:LoadBalancer a rdfs:Class ;
+    rdfs:label "Load Balancer" ;
+    rdfs:comment "Load balancing strategy" .
+
+# -----------------------------------------------------------------------------
+# Load Balancing Strategies
+# -----------------------------------------------------------------------------
+
+proxy:RoundRobin a proxy:LoadBalancer ;
+    rdfs:label "Round Robin" ;
+    rdfs:comment "Distribute requests sequentially across backends" .
+
+proxy:LeastConnections a proxy:LoadBalancer ;
+    rdfs:label "Least Connections" ;
+    rdfs:comment "Route to backend with fewest active connections" .
+
+proxy:Random a proxy:LoadBalancer ;
+    rdfs:label "Random" ;
+    rdfs:comment "Random backend selection" .
+
+proxy:WeightedRoundRobin a proxy:LoadBalancer ;
+    rdfs:label "Weighted Round Robin" ;
+    rdfs:comment "Weighted distribution based on backend capacity" .
+
+proxy:IPHash a proxy:LoadBalancer ;
+    rdfs:label "IP Hash" ;
+    rdfs:comment "Consistent hashing based on client IP" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+proxy:hasBackend a rdf:Property ;
+    rdfs:domain proxy:MCPRelay ;
+    rdfs:range proxy:Backend ;
+    rdfs:label "has backend" .
+
+proxy:backendUrl a rdf:Property ;
+    rdfs:domain proxy:Backend ;
+    rdfs:range xsd:string ;
+    rdfs:label "backend URL" .
+
+proxy:backendWeight a rdf:Property ;
+    rdfs:domain proxy:Backend ;
+    rdfs:range xsd:integer ;
+    rdfs:label "backend weight" .
+
+proxy:maxConnections a rdf:Property ;
+    rdfs:domain proxy:Backend ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max connections" .
+
+proxy:healthCheckInterval a rdf:Property ;
+    rdfs:domain proxy:HealthCheck ;
+    rdfs:range xsd:integer ;
+    rdfs:label "health check interval (seconds)" .
+
+proxy:healthCheckTimeout a rdf:Property ;
+    rdfs:domain proxy:HealthCheck ;
+    rdfs:range xsd:integer ;
+    rdfs:label "health check timeout (seconds)" .
+
+proxy:unhealthyThreshold a rdf:Property ;
+    rdfs:domain proxy:HealthCheck ;
+    rdfs:range xsd:integer ;
+    rdfs:label "unhealthy threshold" .
+
+proxy:healthyThreshold a rdf:Property ;
+    rdfs:domain proxy:HealthCheck ;
+    rdfs:range xsd:integer ;
+    rdfs:label "healthy threshold" .
+
+proxy:hasLoadBalancer a rdf:Property ;
+    rdfs:domain proxy:MCPRelay ;
+    rdfs:range proxy:LoadBalancer ;
+    rdfs:label "has load balancer" .
+
+proxy:hasHealthCheck a rdf:Property ;
+    rdfs:domain proxy:Backend ;
+    rdfs:range proxy:HealthCheck ;
+    rdfs:label "has health check" .
+
+proxy:retryPolicy a rdf:Property ;
+    rdfs:domain proxy:MCPRelay ;
+    rdfs:range proxy:RetryPolicy ;
+    rdfs:label "retry policy" .
+
+proxy:RetryPolicy a rdfs:Class ;
+    rdfs:label "Retry Policy" ;
+    rdfs:comment "Defines retry behavior for failed requests" .
+
+proxy:maxRetries a rdf:Property ;
+    rdfs:domain proxy:RetryPolicy ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max retries" .
+
+proxy:backoffMs a rdf:Property ;
+    rdfs:domain proxy:RetryPolicy ;
+    rdfs:range xsd:integer ;
+    rdfs:label "backoff milliseconds" .
+
+proxy:circuitBreakerThreshold a rdf:Property ;
+    rdfs:domain proxy:Backend ;
+    rdfs:range xsd:integer ;
+    rdfs:label "circuit breaker threshold" .
+
+# -----------------------------------------------------------------------------
+# Instances
+# -----------------------------------------------------------------------------
+
+proxy:DefaultRelay a proxy:MCPRelay ;
+    rdfs:label "Default MCP Relay" ;
+    proxy:hasLoadBalancer proxy:RoundRobin ;
+    proxy:retryPolicy proxy:DefaultRetryPolicy .
+
+proxy:DefaultRetryPolicy a proxy:RetryPolicy ;
+    proxy:maxRetries 3 ;
+    proxy:backoffMs 100 .
+
+proxy:DefaultHealthCheck a proxy:HealthCheck ;
+    proxy:healthCheckInterval 30 ;
+    proxy:healthCheckTimeout 5 ;
+    proxy:unhealthyThreshold 3 ;
+    proxy:healthyThreshold 2 .

@@ -1,0 +1,76 @@
+@prefix : <https://bytestar.org/ontology/pqc-fabric/ntt-fabric#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bactor: <https://bytestar.org/ontology/bytestar-byteactor#> .
+@prefix bflow: <https://bytestar.org/ontology/bytestar-byteflow#> .
+@prefix pqckernel: <https://bytestar.org/ontology/pqc-fabric/kernel-registry#> .
+
+<https://bytestar.org/ontology/pqc-fabric/ntt-fabric>
+  a owl:Ontology ;
+  rdfs:label "PQC Assimilation Canon: NTT Fabric" ;
+  rdfs:comment "Defines the GPU-Accelerated 'NTT Fabric' as a system-wide service for offloading Number Theoretic Transform calculations." .
+
+### Core Components
+
+:GPUDispatchCore a bcore:Subsystem ;
+  rdfs:label "GPU Dispatch Core" ;
+  rdfs:comment "A dedicated ByteActor core responsible for batching and offloading NTT calculations to the GPU." .
+
+:NTTRingBuffer a bcore:RingBuffer ;
+  rdfs:label "NTT Ring Buffer" ;
+  rdfs:comment "A high-throughput SPSC ring buffer used for asynchronous communication of NTT-specific jobs between ByteActor cores and the GPU Dispatch Core." .
+
+:NTTJob a bcore:MemoryCrystal ;
+  rdfs:label "NTT Job" ;
+  rdfs:comment "A data structure representing a single NTT computation request, including input polynomial(s) and a handle for the output location." ;
+  bcore:hasProperty :inputPolynomials, :outputHandle .
+
+:inputPolynomials a owl:DatatypeProperty ;
+  rdfs:label "input polynomials" ;
+  rdfs:domain :NTTJob ;
+  rdfs:range xsd:base64Binary ;
+  rdfs:comment "The serialized input polynomial data for the NTT computation." .
+
+:outputHandle a owl:DatatypeProperty ;
+  rdfs:label "output handle" ;
+  rdfs:domain :NTTJob ;
+  rdfs:range xsd:string ;
+  rdfs:comment "A unique identifier or memory address where the result of the NTT computation should be written." .
+
+### Relationships and Workflows
+
+:offloadsTo a owl:ObjectProperty ;
+  rdfs:label "offloads to" ;
+  rdfs:domain bactor:ByteActorCore ;
+  rdfs:range :GPUDispatchCore ;
+  rdfs:comment "Indicates that a ByteActor core offloads NTT computations to the GPU Dispatch Core." .
+
+:submitsToRing a owl:ObjectProperty ;
+  rdfs:label "submits to ring" ;
+  rdfs:domain bactor:ByteActorCore ;
+  rdfs:range :NTTRingBuffer ;
+  rdfs:comment "A ByteActor core submits an NTT job to the NTT Ring Buffer." .
+
+:pullsFromRing a owl:ObjectProperty ;
+  rdfs:label "pulls from ring" ;
+  rdfs:domain :GPUDispatchCore ;
+  rdfs:range :NTTRingBuffer ;
+  rdfs:comment "The GPU Dispatch Core pulls NTT jobs from the NTT Ring Buffer." .
+
+:receivesFrom a owl:ObjectProperty ;
+  rdfs:label "receives from" ;
+  rdfs:domain bactor:ByteActorCore ;
+  rdfs:range :GPUDispatchCore ;
+  rdfs:comment "A ByteActor core receives completed NTT results from the GPU Dispatch Core." .
+
+:NTTFabricWorkflow a bcore:Pattern ;
+  rdfs:label "NTT Fabric Offloading Workflow" ;
+  bcore:hasHopCount "3"^^xsd:integer ;
+  bcore:hasKernelSequence (
+    pqckernel:k_pqc_ntt_batch_dispatch # Kernel to submit jobs to ring
+    # The actual GPU computation happens asynchronously, outside the ByteActor hop count
+    # A separate kernel would retrieve results from a return ring buffer
+  ) ;
+  rdfs:comment "The workflow for offloading NTT computations to the GPU Fabric, enabling asynchronous processing." .

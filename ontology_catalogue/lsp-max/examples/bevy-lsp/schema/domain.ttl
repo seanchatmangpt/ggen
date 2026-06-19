@@ -1,0 +1,43 @@
+# ggen v26_5_19: Schema.org Example Ontology
+# Uses schema.org (standard ontology) instead of custom namespace.
+#
+# In BIG BANG 80/20 mode, replace this with:
+# 1. Your actual user data (CSV → RDF conversion)
+# 2. A chosen standard ontology (schema.org, FOAF, Dublin Core, SKOS)
+# 3. Only custom triples if schema.org + standard combo doesn't fit
+#
+# Why? Because Seth built 3-month custom ontology for what schema.org does in 5 minutes.
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+
+# Example: Using schema.org Person and properties
+# This is a real, standard vocabulary used by Google, Microsoft, Yahoo, Yandex
+# See: https://schema.org/Person
+
+schema:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Schema.org Person type - standard vocabulary for person data" .
+
+# Properties from schema.org
+schema:name a rdf:Property ;
+    rdfs:domain schema:Person ;
+    rdfs:label "name" ;
+    rdfs:comment "The name of the person (from schema.org)" .
+
+schema:email a rdf:Property ;
+    rdfs:domain schema:Person ;
+    rdfs:label "email" ;
+    rdfs:comment "The email address (from schema.org)" .
+
+schema:age a rdf:Property ;
+    rdfs:domain schema:Person ;
+    rdfs:label "age" ;
+    rdfs:comment "The age of the person (from schema.org)" .
+
+# NEXT STEPS:
+# 1. Load your actual CSV/JSON user data
+# 2. Validate with 10 real users (not friends)
+# 3. Only extend schema.org if needed (stay standard-first)
+# 4. Run: ggen sync --validate-only

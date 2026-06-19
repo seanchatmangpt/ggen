@@ -1,0 +1,55 @@
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex: <http://example.org/> .
+
+# Sprint data
+ex:sprint-q1-2025 rdf:type ex:Sprint ;
+    ex:sprintName "Q1 2025 Sprint - Knowledge Hooks + Ollama AI" ;
+    ex:sprintGoal "Complete Knowledge Hook system with Ollama AI integration" ;
+    ex:startDate "2025-01-20"^^xsd:date ;
+    ex:endDate "2025-02-17"^^xsd:date .
+
+# Developer data
+ex:alice rdf:type ex:Developer ;
+    ex:developerName "Alice Chen" ;
+    ex:developerEmail "alice@example.com" .
+
+ex:bob rdf:type ex:Developer ;
+    ex:developerName "Bob Rodriguez" ;
+    ex:developerEmail "bob@example.com" .
+
+ex:carol rdf:type ex:Developer ;
+    ex:developerName "Carol Kim" ;
+    ex:developerEmail "carol@example.com" .
+
+# Story data
+ex:story-1 rdf:type ex:Story ;
+    ex:storyTitle "Knowledge Hook Registry" ;
+    ex:storyPoints 8 ;
+    ex:storyStatus "done" .
+
+ex:story-2 rdf:type ex:Story ;
+    ex:storyTitle "SPARQL Predicate Engine" ;
+    ex:storyPoints 13 ;
+    ex:storyStatus "done" .
+
+ex:story-3 rdf:type ex:Story ;
+    ex:storyTitle "Ollama AI Provider" ;
+    ex:storyPoints 5 ;
+    ex:storyStatus "done" .
+
+ex:story-4 rdf:type ex:Story ;
+    ex:storyTitle "RDF to Zod Conversion" ;
+    ex:storyPoints 8 ;
+    ex:storyStatus "in-progress" .
+
+# Impediment data
+ex:impediment-1 rdf:type ex:Impediment ;
+    ex:impedimentTitle "Ollama model loading performance issues" ;
+    ex:impedimentAge 72.5 ;
+    ex:impedimentSeverity "high" .
+
+ex:impediment-2 rdf:type ex:Impediment ;
+    ex:impedimentTitle "Complex SPARQL queries causing timeouts" ;
+    ex:impedimentAge 48.0 ;
+    ex:impedimentSeverity "critical" .

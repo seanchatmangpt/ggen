@@ -1,0 +1,8 @@
+
+    @prefix compliance: <http://example.org/compliance#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    
+    compliance:ComplianceFramework a rdfs:Class .
+    compliance:AuditRequired a compliance:Requirement .
+    compliance:DataGovernance a compliance:Requirement .
+  

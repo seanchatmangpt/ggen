@@ -1,0 +1,24 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Same semantic content but different formatting and ordering
+ex:Bob    rdf:type  foaf:Person ;
+          foaf:name  "Bob Johnson" ;
+          foaf:mbox  <mailto:bob@example.com> ;
+          foaf:age   25 .
+
+ex:Alice  rdf:type  foaf:Person ;
+          foaf:name  "Alice Smith" ;
+          foaf:knows ex:Bob ;
+          foaf:age   30 .
+
+# Different blank node label but same properties
+_:person1 rdf:type foaf:Person ;
+          foaf:name "Charlie Brown" ;
+          foaf:age 35 .
+
+ex:Company1  rdf:type    ex:Organization ;
+             rdfs:label  "Example Corp" ;
+             ex:employee ex:Alice, ex:Bob .

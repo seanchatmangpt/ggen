@@ -1,0 +1,40 @@
+# =============================================================================
+# SPARQL Query: Extract Sandbox Configuration
+# =============================================================================
+# Purpose: Extract sandbox security configuration for code generation
+# =============================================================================
+
+PREFIX sandbox: <http://erlmcp.org/schema/sandbox/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?config a sandbox:SandboxConfig ;
+        sandbox:hasPermission ?permission ;
+        sandbox:hasResourceLimit ?limit ;
+        sandbox:allowedPaths ?allowedPaths ;
+        sandbox:deniedPaths ?deniedPaths ;
+        sandbox:allowedHosts ?allowedHosts ;
+        sandbox:auditEnabled ?auditEnabled .
+
+    ?limit a sandbox:ResourceLimit ;
+        sandbox:maxCpuPercent ?cpu ;
+        sandbox:maxMemoryMb ?memory ;
+        sandbox:maxTimeoutSec ?timeout ;
+        sandbox:maxFileSizeMb ?fileSize .
+}
+WHERE {
+    ?config a sandbox:SandboxConfig .
+
+    OPTIONAL { ?config sandbox:hasPermission ?permission . }
+    OPTIONAL {
+        ?config sandbox:hasResourceLimit ?limit .
+        OPTIONAL { ?limit sandbox:maxCpuPercent ?cpu . }
+        OPTIONAL { ?limit sandbox:maxMemoryMb ?memory . }
+        OPTIONAL { ?limit sandbox:maxTimeoutSec ?timeout . }
+        OPTIONAL { ?limit sandbox:maxFileSizeMb ?fileSize . }
+    }
+    OPTIONAL { ?config sandbox:allowedPaths ?allowedPaths . }
+    OPTIONAL { ?config sandbox:deniedPaths ?deniedPaths . }
+    OPTIONAL { ?config sandbox:allowedHosts ?allowedHosts . }
+    OPTIONAL { ?config sandbox:auditEnabled ?auditEnabled . }
+}

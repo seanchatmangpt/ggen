@@ -1,0 +1,160 @@
+@prefix : <https://bytestar.org/ontology/byteflow/dflss-fabrication-shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix dflsf: <https://bytestar.org/ontology/byteflow/dflss-fabrication#> .
+
+<https://bytestar.org/ontology/byteflow/dflss-fabrication-shapes>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow DfLSS Fabrication SHACL Shapes" ;
+  rdfs:comment "SHACL shapes for validating DfLSS design proposals and fabrication results." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    dflsf: .
+
+#################################################################
+# DfLSS Design Proposal Validation
+#################################################################
+
+:DesignProposalShape a sh:NodeShape ;
+  sh:targetClass dflsf:DesignProposal ;
+  sh:property [
+    sh:path dflsf:isSubjectToFMEA ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class dflsf:FMEA ;
+    sh:message "A DesignProposal must be subject to exactly one FMEA." ;
+  ] ;
+  sh:property [
+    sh:path dflsf:hasCTQVerification ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class dflsf:CTQVerification ;
+    sh:message "A DesignProposal must have exactly one CTQ Verification." ;
+  ] ;
+  sh:property [
+    sh:path dflsf:hasValidationResult ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class dflsf:FabricationValidationResult ;
+    sh:message "A DesignProposal must have exactly one FabricationValidationResult." ;
+  ] .
+
+:FMEAShape a sh:NodeShape ;
+  sh:targetClass dflsf:FMEA ;
+  sh:property [
+    sh:path dflsf:hasRPN ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class dflsf:RiskPriorityNumber ;
+    sh:message "An FMEA must have exactly one RPN." ;
+  ] ;
+  sh:property [
+    sh:path dflsf:hasSeverity ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Severity must be an integer between 1 and 10." ;
+  ] ;
+  sh:property [
+    sh:path dflsf:hasOccurrence ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Occurrence must be an integer between 1 and 10." ;
+  ] ;
+  sh:property [
+    sh:path dflsf:hasDetection ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Detection must be an integer between 1 and 10." ;
+  ] .
+
+:RiskPriorityNumberShape a sh:NodeShape ;
+  sh:targetClass dflsf:RiskPriorityNumber ;
+  sh:property [
+    sh:path dflsf:rpnValue ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:message "RPN value must be a positive integer." ;
+  ] .
+
+:CTQVerificationShape a sh:NodeShape ;
+  sh:targetClass dflsf:CTQVerification ;
+  sh:property [
+    sh:path dflsf:ctqTargetValue ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "CTQ Verification must have a target value." ;
+  ] ;
+  sh:property [
+    sh:path dflsf:ctqActualValue ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "CTQ Verification must have an actual value." ;
+  ] ;
+  sh:sparql [
+    sh:message "CTQ Actual Value must meet or exceed the Target Value (for 'higher is better' metrics)." ;
+    sh:select """
+      SELECT $this WHERE {
+        $this dflsf:ctqActualValue ?actual .
+        $this dflsf:ctqTargetValue ?target .
+        FILTER (?actual < ?target)
+      }
+    """ ;
+  ] .
+
+:FabricationValidationResultShape a sh:NodeShape ;
+  sh:targetClass dflsf:FabricationValidationResult ;
+  sh:property [
+    sh:path dflsf:isApprovedForFabrication ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "FabricationValidationResult must specify if it is approved for fabrication." ;
+  ] .
+
+# Rule: A Design Proposal is approved for fabrication only if its RPN is below a certain threshold (e.g., 100)
+# and all CTQ actual values meet or exceed their targets.
+:ApprovalRule a sh:NodeShape ;
+  sh:targetClass dflsf:FabricationValidationResult ;
+  sh:sparql [
+    sh:message "Design Proposal not approved: RPN too high or CTQ targets not met." ;
+    sh:select """
+      SELECT $this WHERE {
+        $this dflsf:isApprovedForFabrication true .
+        ?proposal dflsf:hasValidationResult $this .
+        ?proposal dflsf:isSubjectToFMEA ?fmea .
+        ?fmea dflsf:hasRPN ?rpn .
+        ?rpn dflsf:rpnValue ?rpnVal .
+        FILTER (?rpnVal > 100) # Example threshold
+      }
+    """ ;
+  ] ;
+  sh:sparql [
+    sh:message "Design Proposal not approved: Not all CTQ targets met." ;
+    sh:select """
+      SELECT $this WHERE {
+        $this dflsf:isApprovedForFabrication true .
+        ?proposal dflsf:hasValidationResult $this .
+        ?proposal dflsf:hasCTQVerification ?ctqVer .
+        ?ctqVer dflsf:ctqActualValue ?actual .
+        ?ctqVer dflsf:ctqTargetValue ?target .
+        FILTER (?actual < ?target)
+      }
+    """ ;
+  ] .

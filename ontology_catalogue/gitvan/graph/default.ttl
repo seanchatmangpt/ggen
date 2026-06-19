@@ -1,0 +1,21 @@
+# GitVan Default Graph
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+
+<https://gitvan.dev/project/> a gv:Project ;
+    dct:title "GitVan Project" ;
+    dct:description "A GitVan-powered development automation project" ;
+    dct:created "2025-09-20T17:20:48.341Z"^^xsd:dateTime ;
+    gv:version "1.0.0" ;
+    gv:status gv:Active .
+
+<https://gitvan.dev/graph/default/> a gv:Graph ;
+    dct:title "Default Graph" ;
+    dct:description "Default graph location for GitVan operations" ;
+    gv:graphType gv:DefaultGraph ;
+    gv:baseIRI "https://gitvan.dev/graph/default/" ;
+    gv:persistenceEnabled true ;
+    gv:autoSave true .

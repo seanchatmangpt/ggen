@@ -1,0 +1,258 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix togaf:  <https://ggen.dev/ontology/togaf#> .
+@prefix arch:   <https://ggen.dev/ontology/arch#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# TOGAF / ArchiMate Vocabulary — ggen enterprise ontology seed
+# =============================================================================
+# This ontology encodes the TOGAF ADM metamodel and ArchiMate 3.1 core element
+# taxonomy as RDF classes and properties. It is the single source of truth from
+# which all four architecture views (Business, Data, Application, Technology)
+# are generated via SPARQL SELECT + Tera templates.
+#
+# Formula: A = μ(O)  — each VIEW is a SPARQL projection of this graph.
+# =============================================================================
+
+togaf:Ontology a owl:Ontology ;
+    rdfs:label "TOGAF/ArchiMate Enterprise Vocabulary" ;
+    owl:versionInfo "3.1.0" .
+
+# ─── ADM Phases ──────────────────────────────────────────────────────────────
+
+togaf:ADMPhase a owl:Class ;
+    rdfs:label "ADM Phase" ;
+    rdfs:comment "A phase in the TOGAF Architecture Development Method cycle." .
+
+togaf:Preliminary  a togaf:ADMPhase ; rdfs:label "Preliminary" ; togaf:phaseCode "P" .
+togaf:PhaseA       a togaf:ADMPhase ; rdfs:label "Architecture Vision" ; togaf:phaseCode "A" .
+togaf:PhaseB       a togaf:ADMPhase ; rdfs:label "Business Architecture" ; togaf:phaseCode "B" .
+togaf:PhaseC_Data  a togaf:ADMPhase ; rdfs:label "Data Architecture" ; togaf:phaseCode "C-Data" .
+togaf:PhaseC_App   a togaf:ADMPhase ; rdfs:label "Application Architecture" ; togaf:phaseCode "C-App" .
+togaf:PhaseD       a togaf:ADMPhase ; rdfs:label "Technology Architecture" ; togaf:phaseCode "D" .
+togaf:PhaseE       a togaf:ADMPhase ; rdfs:label "Opportunities & Solutions" ; togaf:phaseCode "E" .
+togaf:PhaseF       a togaf:ADMPhase ; rdfs:label "Migration Planning" ; togaf:phaseCode "F" .
+togaf:PhaseG       a togaf:ADMPhase ; rdfs:label "Implementation Governance" ; togaf:phaseCode "G" .
+togaf:PhaseH       a togaf:ADMPhase ; rdfs:label "Architecture Change Management" ; togaf:phaseCode "H" .
+
+togaf:phaseCode a owl:DatatypeProperty ;
+    rdfs:domain togaf:ADMPhase ;
+    rdfs:range  xsd:string .
+
+# ─── Architecture Layers (ArchiMate 3.1) ─────────────────────────────────────
+
+togaf:ArchitectureLayer a owl:Class ;
+    rdfs:label "Architecture Layer" .
+
+togaf:BusinessLayer     a togaf:ArchitectureLayer ; rdfs:label "Business" .
+togaf:ApplicationLayer  a togaf:ArchitectureLayer ; rdfs:label "Application" .
+togaf:TechnologyLayer   a togaf:ArchitectureLayer ; rdfs:label "Technology" .
+togaf:MotivationLayer   a togaf:ArchitectureLayer ; rdfs:label "Motivation" .
+togaf:StrategyLayer     a togaf:ArchitectureLayer ; rdfs:label "Strategy" .
+togaf:PhysicalLayer     a togaf:ArchitectureLayer ; rdfs:label "Physical" .
+
+# ─── Core Element Classes ────────────────────────────────────────────────────
+
+# Business Layer
+togaf:BusinessActor a owl:Class ;
+    rdfs:label "Business Actor" ;
+    rdfs:comment "An organizational entity capable of performing behavior." ;
+    togaf:layer togaf:BusinessLayer .
+
+togaf:BusinessRole a owl:Class ;
+    rdfs:label "Business Role" ;
+    rdfs:comment "The responsibility for performing specific behavior." ;
+    togaf:layer togaf:BusinessLayer .
+
+togaf:BusinessProcess a owl:Class ;
+    rdfs:label "Business Process" ;
+    rdfs:comment "A sequence of behaviors producing a result." ;
+    togaf:layer togaf:BusinessLayer .
+
+togaf:BusinessCapability a owl:Class ;
+    rdfs:label "Business Capability" ;
+    rdfs:comment "An ability owned by the enterprise." ;
+    togaf:layer togaf:BusinessLayer .
+
+togaf:BusinessService a owl:Class ;
+    rdfs:label "Business Service" ;
+    rdfs:comment "Explicitly defined exposed behavior." ;
+    togaf:layer togaf:BusinessLayer .
+
+togaf:DataObject a owl:Class ;
+    rdfs:label "Data Object" ;
+    rdfs:comment "A passive element that holds data." ;
+    togaf:layer togaf:BusinessLayer .
+
+# Application Layer
+togaf:ApplicationComponent a owl:Class ;
+    rdfs:label "Application Component" ;
+    rdfs:comment "A modular, deployable, replaceable part of a software system." ;
+    togaf:layer togaf:ApplicationLayer .
+
+togaf:ApplicationService a owl:Class ;
+    rdfs:label "Application Service" ;
+    rdfs:comment "Behavior the application exposes to the environment." ;
+    togaf:layer togaf:ApplicationLayer .
+
+togaf:ApplicationInterface a owl:Class ;
+    rdfs:label "Application Interface" ;
+    rdfs:comment "A point of access to application functionality." ;
+    togaf:layer togaf:ApplicationLayer .
+
+# Technology Layer
+togaf:TechnologyService a owl:Class ;
+    rdfs:label "Technology Service" ;
+    rdfs:comment "Infrastructure capabilities exposed to higher layers." ;
+    togaf:layer togaf:TechnologyLayer .
+
+togaf:Node a owl:Class ;
+    rdfs:label "Node" ;
+    rdfs:comment "A computational or physical resource hosting components." ;
+    togaf:layer togaf:TechnologyLayer .
+
+togaf:Artifact a owl:Class ;
+    rdfs:label "Artifact" ;
+    rdfs:comment "A physical piece of data used or produced by a technical element." ;
+    togaf:layer togaf:TechnologyLayer .
+
+# ─── Relationships ────────────────────────────────────────────────────────────
+
+togaf:implementsCapability a owl:ObjectProperty ;
+    rdfs:label "implements capability" ;
+    rdfs:domain togaf:ApplicationComponent ;
+    rdfs:range  togaf:BusinessCapability .
+
+togaf:realizedBy a owl:ObjectProperty ;
+    rdfs:label "realized by" ;
+    rdfs:comment "The element is realized by the target infrastructure node." .
+
+togaf:handlesDataObject a owl:ObjectProperty ;
+    rdfs:label "handles data object" ;
+    rdfs:domain togaf:ApplicationComponent ;
+    rdfs:range  togaf:DataObject .
+
+togaf:conformsTo a owl:ObjectProperty ;
+    rdfs:label "conforms to" ;
+    rdfs:comment "Compliance relationship to a standard or regulation." .
+
+togaf:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:domain togaf:BusinessProcess ;
+    rdfs:range  togaf:BusinessProcess .
+
+togaf:associatedPhase a owl:ObjectProperty ;
+    rdfs:label "associated phase" ;
+    rdfs:range togaf:ADMPhase .
+
+togaf:layer a owl:ObjectProperty ;
+    rdfs:label "architecture layer" ;
+    rdfs:range togaf:ArchitectureLayer .
+
+togaf:dataClassification a owl:DatatypeProperty ;
+    rdfs:label "data classification" ;
+    rdfs:comment "Sensitivity classification: public | internal | confidential | restricted" ;
+    rdfs:range xsd:string .
+
+togaf:owner a owl:DatatypeProperty ;
+    rdfs:label "owner" ;
+    rdfs:comment "Email or identifier of the architecture owner." ;
+    rdfs:range xsd:string .
+
+togaf:status a owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:comment "Lifecycle status: draft | approved | deprecated | retired" ;
+    rdfs:range xsd:string .
+
+togaf:version a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:range xsd:string .
+
+# ─── Compliance Standards ─────────────────────────────────────────────────────
+
+togaf:ComplianceStandard a owl:Class ;
+    rdfs:label "Compliance Standard" .
+
+togaf:PCI_DSS  a togaf:ComplianceStandard ; rdfs:label "PCI DSS" .
+togaf:SOC2     a togaf:ComplianceStandard ; rdfs:label "SOC 2" .
+togaf:ISO27001 a togaf:ComplianceStandard ; rdfs:label "ISO 27001" .
+togaf:GDPR     a togaf:ComplianceStandard ; rdfs:label "GDPR" .
+togaf:HIPAA    a togaf:ComplianceStandard ; rdfs:label "HIPAA" .
+togaf:FedRAMP  a togaf:ComplianceStandard ; rdfs:label "FedRAMP" .
+
+# =============================================================================
+# Example Enterprise Architecture — Fortune 5 Payment Domain
+# =============================================================================
+
+arch:PaymentProcessingCapability a togaf:BusinessCapability ;
+    rdfs:label "Payment Processing" ;
+    togaf:owner "arch-board@corp.example" ;
+    togaf:status "approved" ;
+    togaf:associatedPhase togaf:PhaseB .
+
+arch:FraudDetectionCapability a togaf:BusinessCapability ;
+    rdfs:label "Fraud Detection" ;
+    togaf:owner "arch-board@corp.example" ;
+    togaf:status "approved" ;
+    togaf:associatedPhase togaf:PhaseB .
+
+arch:PaymentTransactionData a togaf:DataObject ;
+    rdfs:label "Payment Transaction" ;
+    togaf:dataClassification "restricted" ;
+    togaf:owner "data-steward@corp.example" ;
+    togaf:conformsTo togaf:PCI_DSS .
+
+arch:CustomerPIIData a togaf:DataObject ;
+    rdfs:label "Customer PII" ;
+    togaf:dataClassification "confidential" ;
+    togaf:owner "privacy-officer@corp.example" ;
+    togaf:conformsTo togaf:GDPR ;
+    togaf:conformsTo togaf:HIPAA .
+
+arch:PaymentService a togaf:ApplicationComponent ;
+    rdfs:label "Payment Service" ;
+    togaf:implementsCapability arch:PaymentProcessingCapability ;
+    togaf:handlesDataObject arch:PaymentTransactionData ;
+    togaf:realizedBy arch:PaymentCluster ;
+    togaf:conformsTo togaf:PCI_DSS ;
+    togaf:owner "payment-team@corp.example" ;
+    togaf:status "approved" ;
+    togaf:version "4.2.1" .
+
+arch:FraudDetectionService a togaf:ApplicationComponent ;
+    rdfs:label "Fraud Detection Service" ;
+    togaf:implementsCapability arch:FraudDetectionCapability ;
+    togaf:handlesDataObject arch:PaymentTransactionData ;
+    togaf:realizedBy arch:MLCluster ;
+    togaf:owner "fraud-team@corp.example" ;
+    togaf:status "approved" ;
+    togaf:version "2.1.0" .
+
+arch:AuthorizationService a togaf:ApplicationComponent ;
+    rdfs:label "Authorization Service" ;
+    togaf:implementsCapability arch:PaymentProcessingCapability ;
+    togaf:handlesDataObject arch:CustomerPIIData ;
+    togaf:realizedBy arch:AuthCluster ;
+    togaf:conformsTo togaf:SOC2 ;
+    togaf:owner "iam-team@corp.example" ;
+    togaf:status "approved" ;
+    togaf:version "3.0.0" .
+
+arch:PaymentCluster a togaf:Node ;
+    rdfs:label "Payment Kubernetes Cluster" ;
+    togaf:owner "platform-team@corp.example" ;
+    togaf:status "approved" .
+
+arch:MLCluster a togaf:Node ;
+    rdfs:label "ML Training & Inference Cluster" ;
+    togaf:owner "platform-team@corp.example" ;
+    togaf:status "approved" .
+
+arch:AuthCluster a togaf:Node ;
+    rdfs:label "Auth Kubernetes Cluster" ;
+    togaf:owner "platform-team@corp.example" ;
+    togaf:status "approved" .

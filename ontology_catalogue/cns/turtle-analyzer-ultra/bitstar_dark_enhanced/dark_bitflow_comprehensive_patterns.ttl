@@ -1,0 +1,2515 @@
+@prefix ns1: <http://bitflow.ai/ontology/patterns#> .
+@prefix ns2: <http://hyperintelligence.ai/patterns#> .
+@prefix ns3: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix ns4: <http://bitflow.ai/sparql/patterns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitflow.ai/ontology/bitflow-comprehensive-patterns> a owl:Ontology ;
+    rdfs:label "BitFlow Comprehensive Workflow Patterns Ontology v2.0" ;
+    rdfs:comment "Complete TTL semantic model for all 43 workflow patterns with BitFlow performance extensions" ;
+    rdfs:seeAlso <http://bitflow.ai/>,
+        <http://www.workflowpatterns.com/>,
+        <https://www.yawlfoundation.org/> ;
+    owl:imports <http://bitflow.ai/ontology/yawl/v2> ;
+    owl:versionInfo "2.0.0" .
+
+ns1:AtomicRequired a ns1:OptimizationClass ;
+    rdfs:label "Atomic Required" ;
+    rdfs:comment "Patterns requiring atomic operations for correctness" ;
+    rdfs:seeAlso ns1:CancelActivityPattern,
+        ns1:CancelCasePattern,
+        ns1:CancelRegionPattern,
+        ns1:DeferredChoicePattern,
+        ns1:ImplicitTerminationPattern,
+        ns1:InterleavedParallelPattern,
+        ns1:MINoRuntimePattern,
+        ns1:MIRuntimePattern,
+        ns1:PersistentTriggerPattern,
+        ns1:RecursionPattern,
+        ns1:StructuredDiscriminatorPattern,
+        ns1:StructuredSyncMergePattern,
+        ns1:SynchronizationPattern .
+
+ns1:BitFlowPatternAnalysisQuery a ns4:QueryTemplate ;
+    rdfs:label "BitFlow Pattern Analysis Query" ;
+    ns4:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        PREFIX bitflow: <http://bitflow.ai/ontology/core#>
+        
+        # Find all patterns with their performance characteristics
+        SELECT ?pattern ?id ?ticks ?simd ?atomic ?branchless ?handler
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     :requiredFeatures ?features ;
+                     :isBranchless ?branchless ;
+                     :usesAtomicOps ?atomic ;
+                     :handlerFunction ?handler .
+            BIND(CONTAINS(?features, "SIMD") AS ?simd)
+        }
+        ORDER BY ?id
+    """ .
+
+ns1:BitFlowPatternShape a sh:NodeShape ;
+    sh:property [ sh:maxCount 1 ;
+            sh:maxInclusive 42 ;
+            sh:message "Pattern ID must be between 0 and 42 (zero-based)" ;
+            sh:minCount 1 ;
+            sh:minInclusive 0 ;
+            sh:path ns1:patternID ],
+        [ sh:maxCount 1 ;
+            sh:maxInclusive 8 ;
+            sh:message "Execution must complete within 8 ticks" ;
+            sh:minCount 1 ;
+            sh:minInclusive 1 ;
+            sh:path ns1:maxExecutionTicks ],
+        [ sh:datatype xsd:string ;
+            sh:maxCount 1 ;
+            sh:message "Every pattern must have a handler function" ;
+            sh:minCount 1 ;
+            sh:path ns1:handlerFunction ],
+        [ sh:hasValue 128 ;
+            sh:message "All patterns use 128-byte aligned scratch space" ;
+            sh:path ns1:scratchSize ],
+        [ sh:datatype xsd:boolean ;
+            sh:message "Branchless optimization must be specified" ;
+            sh:path ns1:isBranchless ],
+        [ sh:datatype xsd:boolean ;
+            sh:message "Atomic operation usage must be specified" ;
+            sh:path ns1:usesAtomicOps ] ;
+    sh:targetClass ns1:BitFlowPattern .
+
+ns1:BranchlessOptimized a ns1:OptimizationClass ;
+    rdfs:label "Branchless Optimized" ;
+    rdfs:comment "Patterns using branchless programming techniques" ;
+    rdfs:seeAlso ns1:ArbitraryCyclesPattern,
+        ns1:CancelActivityPattern,
+        ns1:CancelCasePattern,
+        ns1:CancelRegionPattern,
+        ns1:ExclusiveChoicePattern,
+        ns1:MIDesignTimePattern,
+        ns1:MIRuntimePattern,
+        ns1:MIWithoutSyncPattern,
+        ns1:MilestonePattern,
+        ns1:MultiChoicePattern,
+        ns1:MultiMergePattern,
+        ns1:ParallelSplitPattern,
+        ns1:PersistentTriggerPattern,
+        ns1:SequencePattern,
+        ns1:SimpleMergePattern,
+        ns1:StructuredLoopPattern,
+        ns1:SynchronizationPattern,
+        ns1:TransientTriggerPattern .
+
+ns1:ComplexityAnalysisQuery a ns4:QueryTemplate ;
+    rdfs:label "Complexity Analysis Query" ;
+    ns4:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find high-complexity patterns requiring special attention
+        SELECT ?pattern ?id ?ticks ?atomic ?hint
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     :usesAtomicOps ?atomic ;
+                     :hasImplementationHint ?hint .
+            FILTER(?ticks >= 5)
+        }
+        ORDER BY DESC(?ticks)
+    """ .
+
+ns1:PatternDependencyQuery a ns4:QueryTemplate ;
+    rdfs:label "Pattern Dependency Query" ;
+    ns4:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+        
+        # Find split/join pattern combinations
+        SELECT ?pattern ?id ?splitType ?joinType ?ticks
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     yawl:hasSplitType ?splitType ;
+                     yawl:hasJoinType ?joinType .
+        }
+        ORDER BY ?splitType, ?joinType, ?id
+    """ .
+
+ns1:SIMDOptimizable a ns1:OptimizationClass ;
+    rdfs:label "SIMD Optimizable" ;
+    rdfs:comment "Patterns that benefit from SIMD vectorization" ;
+    rdfs:seeAlso ns1:CancelCasePattern,
+        ns1:CancelRegionPattern,
+        ns1:CancellingDiscriminatorPattern,
+        ns1:CancellingPartialJoinMIPattern,
+        ns1:CancellingPartialJoinPattern,
+        ns1:ExplicitTerminationPattern,
+        ns1:HierarchicalCancellationPattern,
+        ns1:MIDesignTimePattern,
+        ns1:MIRuntimePattern,
+        ns1:MIWithoutSyncPattern,
+        ns1:MultiChoicePattern,
+        ns1:ParallelSplitPattern,
+        ns1:StaticPartialJoinMIPattern,
+        ns1:StructuredPartialJoinPattern,
+        ns1:SynchronizationPattern,
+        ns1:ThreadSplitPattern .
+
+ns1:SIMDOptimizationQuery a ns4:QueryTemplate ;
+    rdfs:label "SIMD Optimization Query" ;
+    ns4:queryString """
+        PREFIX : <http://bitflow.ai/ontology/patterns#>
+        
+        # Find patterns suitable for SIMD optimization
+        SELECT ?pattern ?id ?hint ?ticks
+        WHERE {
+            ?pattern a :BitFlowPattern ;
+                     :patternID ?id ;
+                     :maxExecutionTicks ?ticks ;
+                     :requiredFeatures ?features ;
+                     :hasImplementationHint ?hint .
+            FILTER(CONTAINS(?features, "SIMD"))
+        }
+        ORDER BY ?ticks DESC
+    """ .
+
+ns1:bitflowPatternRegistry a ns1:PatternRegistry ;
+    rdfs:label "BitFlow Pattern Registry" ;
+    ns1:containsPattern ns1:AcyclicSyncMergePattern,
+        ns1:ArbitraryCyclesPattern,
+        ns1:BlockingDiscriminatorPattern,
+        ns1:BlockingPartialJoinPattern,
+        ns1:CancelActivityPattern,
+        ns1:CancelCasePattern,
+        ns1:CancelRegionPattern,
+        ns1:CancellingDiscriminatorPattern,
+        ns1:CancellingPartialJoinMIPattern,
+        ns1:CancellingPartialJoinPattern,
+        ns1:CriticalSectionPattern,
+        ns1:DeferredChoicePattern,
+        ns1:DynamicPartialJoinMIPattern,
+        ns1:ExclusiveChoicePattern,
+        ns1:ExplicitTerminationPattern,
+        ns1:GeneralSyncMergePattern,
+        ns1:GeneralizedANDJoinPattern,
+        ns1:HierarchicalCancellationPattern,
+        ns1:ImplicitTerminationPattern,
+        ns1:InterleavedParallelPattern,
+        ns1:InterleavedRoutingPattern,
+        ns1:MIDesignTimePattern,
+        ns1:MINoRuntimePattern,
+        ns1:MIRuntimePattern,
+        ns1:MIWithoutSyncPattern,
+        ns1:MilestonePattern,
+        ns1:MultiChoicePattern,
+        ns1:MultiMergePattern,
+        ns1:NonLocalSyncPattern,
+        ns1:ParallelSplitPattern,
+        ns1:PersistentTriggerPattern,
+        ns1:RecursionPattern,
+        ns1:SequencePattern,
+        ns1:SimpleMergePattern,
+        ns1:StaticPartialJoinMIPattern,
+        ns1:StructuredDiscriminatorPattern,
+        ns1:StructuredLoopPattern,
+        ns1:StructuredPartialJoinPattern,
+        ns1:StructuredSyncMergePattern,
+        ns1:SynchronizationPattern,
+        ns1:ThreadMergePattern,
+        ns1:ThreadSplitPattern,
+        ns1:TransientTriggerPattern ;
+    rdfs:comment "Main registry instance containing all patterns" .
+
+ns1:requiredFeatures a owl:DatatypeProperty ;
+    rdfs:label "Required Features" ;
+    rdfs:comment "CPU features needed (SIMD, atomic, prefetch)" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:string .
+
+<http://bitflow.ai/ontology/telemetry#actualTicks> a owl:DatatypeProperty ;
+    rdfs:label "Actual Ticks" ;
+    rdfs:comment "Measured CPU ticks consumed" ;
+    rdfs:domain <http://bitflow.ai/ontology/telemetry#ExecutionMetrics> ;
+    rdfs:range xsd:integer .
+
+<http://bitflow.ai/ontology/telemetry#hasBlake3Hash> a owl:DatatypeProperty ;
+    rdfs:label "Blake3 Hash" ;
+    rdfs:comment "Cryptographic hash of execution data" ;
+    rdfs:domain <http://bitflow.ai/ontology/telemetry#ExecutionMetrics> ;
+    rdfs:range xsd:string .
+
+<http://bitflow.ai/ontology/telemetry#memoryUsage> a owl:DatatypeProperty ;
+    rdfs:label "Memory Usage" ;
+    rdfs:comment "Scratch memory consumed in bytes" ;
+    rdfs:domain <http://bitflow.ai/ontology/telemetry#ExecutionMetrics> ;
+    rdfs:range xsd:integer .
+
+<http://bitflow.ai/ontology/telemetry#taskState> a owl:DatatypeProperty ;
+    rdfs:label "Task State" ;
+    rdfs:comment "Current execution state (EXECUTING, COMPLETED, etc.)" ;
+    rdfs:domain <http://bitflow.ai/ontology/telemetry#ExecutionMetrics> ;
+    rdfs:range xsd:string .
+
+<http://bitstar.ai/dark#DarkChain_023bde0e3b18> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_04c31706d6c6> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_0add6d020a38> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_0db2f263b13c> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_14980eae378f> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_167023bcc659> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_16b545b44a9d> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_1a871f728d3e> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_1b90aba76dd7> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_1ccf52a8cab6> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_20fb48aedc1b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_247e68c0c8b8> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_2526de6f8901> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_25f7ba42a7c5> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_2b85ae5c6802> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_30823c9fe3a0> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_328099d57296> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_33175e9b7f51> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_34154c5d0092> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_35ccffa2aebb> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_35d0b33bbfd8> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_3b1d7fc0a705> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_3bd3a401fab0> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_3cc40f883de4> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_3d19aab8fe44> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_461647d0b556> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_46fef5e491fc> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_48f8e9bb5137> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_496a11bc9c43> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_4f10b9c3a982> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_5122e9587b1c> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_544ea4d3ae81> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_54f492ae1840> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_59c9bc8e4df5> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_60000c9a3bd5> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_6044a9df5021> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_63469cb7e452> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_63736b4a9b6b> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_63972d7d0446> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_63d6eb2dad4b> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_64aab9074781> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_657cf3916703> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_69c0c67ffc61> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_6f56cdf7a741> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_6fb7e19c49dd> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_73f472208032> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_77d091f649a2> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_79659a3a269a> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_7afc4c9155b5> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_7d2044acb217> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_7dbf829de584> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_8053c8ce151e> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_851a065b4fd0> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_871c1e263c2f> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_872ec0e7506e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_8b9cd43f1ec5> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_8d5f03cc1839> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_8f350737ced7> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9238e662a6cd> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_94e5226a9e89> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_95cb1b23e769> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_95ef82e525d0> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_96c182f246a1> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_99580ac69f56> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_99d8d98577cd> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9a16cba05e9b> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_9a5c63b658bd> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_9b2a61f26268> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_9c814dfda6d1> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_9dce705f0384> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_a278eefe2ce4> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_a4ad34392455> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_a76dc0c48c4d> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_a85897d9021c> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_aafcde5de41e> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ac509d878de3> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_b1cbb758779f> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b3c82a52a260> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_b75e84e9f4c2> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_bc54e001a055> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_bd00ad465228> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_bdbe18612fbf> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_c15877223071> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_c48f7fac3f5c> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_c9c9c37d5ba1> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_ca7305287704> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_ce608a7285f9> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_d0c81233f2aa> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_d15f3306f2be> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_d340f8424ab7> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_d4d044c2c295> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_ed108ed3b8d8> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_ef7b1fd228cb> ns2:hasComplexityLevel 10 .
+
+<http://bitstar.ai/dark#DarkChain_f1cf6b265dda> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_f952aacc9f06> ns2:hasComplexityLevel 7 .
+
+<http://bitstar.ai/dark#DarkChain_fa722907d0ff> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_fdbd17f1bc10> ns2:hasComplexityLevel 9 .
+
+<http://bitstar.ai/dark#DarkChain_fdc9bd4dc5a0> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_fe74aa5fc0d3> ns2:hasComplexityLevel 8 .
+
+<http://bitstar.ai/dark#DarkChain_fecfa2fcbbd9> ns2:hasComplexityLevel 7 .
+
+ns2:Dimension10Restriction_104fb95dbb09 a owl:Restriction ;
+    ns2:dimensions 10 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension11Restriction_e6782a810991 a owl:Restriction ;
+    ns2:dimensions 11 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension12Restriction_4ed8f063ed96 a owl:Restriction ;
+    ns2:dimensions 12 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension3Restriction_57ba1e52f8ed a owl:Restriction ;
+    ns2:dimensions 3 ;
+    ns2:humanVisualizeable true .
+
+ns2:Dimension4Restriction_f1543106b65e a owl:Restriction ;
+    ns2:dimensions 4 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension5Restriction_ec8406025d44 a owl:Restriction ;
+    ns2:dimensions 5 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension6Restriction_ec6c00dc0597 a owl:Restriction ;
+    ns2:dimensions 6 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension7Restriction_95e83713b37e a owl:Restriction ;
+    ns2:dimensions 7 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension8Restriction_d047e7b3f06c a owl:Restriction ;
+    ns2:dimensions 8 ;
+    ns2:humanVisualizeable false .
+
+ns2:Dimension9Restriction_1d9b84fc236f a owl:Restriction ;
+    ns2:dimensions 9 ;
+    ns2:humanVisualizeable false .
+
+ns2:MetaCognitionRequired a ns2:ComprehensionBarrier ;
+    ns2:humanComprehensible false ;
+    ns2:minimumIntelligence "ARTIFICIAL_HYPER" .
+
+ns2:MetamorphicClass_0ed82b85176c a owl:Class ;
+    ns2:observationAltersStructure true ;
+    ns2:shapeShifts true .
+
+ns2:NonEuclidean_93967f047f7b a owl:ObjectProperty ;
+    ns2:geometry "HYPERBOLIC" ;
+    ns2:parallelLinesIntersect true .
+
+ns2:NotExistsCascade_0_395d9e13c44f a sh:NodeShape ;
+    ns2:nestingDepth 1 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . } }" .
+
+ns2:NotExistsCascade_1_b63b37006c7b a sh:NodeShape ;
+    ns2:nestingDepth 2 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . }} }" .
+
+ns2:NotExistsCascade_2_bdb1a453332d a sh:NodeShape ;
+    ns2:nestingDepth 3 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . }}} }" .
+
+ns2:NotExistsCascade_3_824f7b99df18 a sh:NodeShape ;
+    ns2:nestingDepth 4 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . }}}} }" .
+
+ns2:NotExistsCascade_4_6a6a35ff8aeb a sh:NodeShape ;
+    ns2:nestingDepth 5 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . }}}}} }" .
+
+ns2:NotExistsCascade_5_9602f5b3d609 a sh:NodeShape ;
+    ns2:nestingDepth 6 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . }}}}}} }" .
+
+ns2:NotExistsCascade_6_d7ef99d1ef9a a sh:NodeShape ;
+    ns2:nestingDepth 7 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . }}}}}}} }" .
+
+ns2:NotExistsCascade_7_8011a36de6c3 a sh:NodeShape ;
+    ns2:nestingDepth 8 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . }}}}}}}} }" .
+
+ns2:NotExistsCascade_8_c956bdcadc3d a sh:NodeShape ;
+    ns2:nestingDepth 9 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . }}}}}}}}} }" .
+
+ns2:NotExistsCascade_9_a3207b95e145 a sh:NodeShape ;
+    ns2:nestingDepth 10 ;
+    sh:sparql "SELECT ?this WHERE { ?this a hyper:Entity . NOT EXISTS { ?this hyper:level0 ?val0 . NOT EXISTS { ?this hyper:level1 ?val1 . NOT EXISTS { ?this hyper:level2 ?val2 . NOT EXISTS { ?this hyper:level3 ?val3 . NOT EXISTS { ?this hyper:level4 ?val4 . NOT EXISTS { ?this hyper:level5 ?val5 . NOT EXISTS { ?this hyper:level6 ?val6 . NOT EXISTS { ?this hyper:level7 ?val7 . NOT EXISTS { ?this hyper:level8 ?val8 . NOT EXISTS { ?this hyper:level9 ?val9 . }}}}}}}}}} }" .
+
+ns2:QuantumShape_89a71cec486b a sh:NodeShape ;
+    ns2:existsInStates 1024 ;
+    ns2:observerEffect "COLLAPSES_ON_HUMAN_OBSERVATION" .
+
+ns1:AcyclicSyncMergePattern a owl:Class ;
+    rdfs:label "Pattern 34: Acyclic Synchronizing Merge" ;
+    ns1:handlerFunction "pattern_acyclic_sync_merge_handler" ;
+    ns1:hasImplementationHint "Topological branch analysis, DAG traversal optimization" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 34 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "OR-join without cycles" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:BlockingDiscriminatorPattern a owl:Class ;
+    rdfs:label "Pattern 25: Blocking Discriminator" ;
+    ns1:handlerFunction "pattern_blocking_discriminator_handler" ;
+    ns1:hasImplementationHint "Branch completion counter, blocking wait with timeout" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 25 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Blocks until all branches complete" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:BlockingPartialJoinPattern a owl:Class ;
+    rdfs:label "Pattern 28: Blocking Partial Join" ;
+    ns1:handlerFunction "pattern_blocking_partial_join_handler" ;
+    ns1:hasImplementationHint "Blocking queue for late arrivals, wait-free completion" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 5 ;
+    ns1:patternID 28 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Waits for N of M then blocks rest" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:CriticalSectionPattern a owl:Class ;
+    rdfs:label "Pattern 36: Critical Section" ;
+    ns1:handlerFunction "pattern_critical_section_handler" ;
+    ns1:hasImplementationHint "Lock-free CAS operations, spinlock with backoff" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 36 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Mutual exclusion for shared resources" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:DynamicPartialJoinMIPattern a owl:Class ;
+    rdfs:label "Pattern 33: Dynamic Partial Join for MI" ;
+    ns1:handlerFunction "pattern_dynamic_partial_join_mi_handler" ;
+    ns1:hasImplementationHint "Dynamic threshold evaluation, adaptive instance management" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 5 ;
+    ns1:patternID 33 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Runtime determined MI join threshold" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:GeneralSyncMergePattern a owl:Class ;
+    rdfs:label "Pattern 35: General Synchronizing Merge" ;
+    ns1:handlerFunction "pattern_general_sync_merge_handler" ;
+    ns1:hasImplementationHint "Reachability analysis required, graph traversal algorithms" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 7 ;
+    ns1:patternID 35 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Complex OR-join with cycle support" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:GeneralizedANDJoinPattern a owl:Class ;
+    rdfs:label "Pattern 30: Generalized AND-Join" ;
+    ns1:handlerFunction "pattern_generalized_and_join_handler" ;
+    ns1:hasImplementationHint "Dynamic branch tracking, complex reachability analysis" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 6 ;
+    ns1:patternID 30 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Waits for all active incoming branches" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:InterleavedRoutingPattern a owl:Class ;
+    rdfs:label "Pattern 37: Interleaved Routing" ;
+    ns1:handlerFunction "pattern_interleaved_routing_handler" ;
+    ns1:hasImplementationHint "Segment queue management, work-stealing scheduler" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 5 ;
+    ns1:patternID 37 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Sequential execution of parallel segments" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:NonLocalSyncPattern a owl:Class ;
+    rdfs:label "Pattern 42: Non-Local Synchronization" ;
+    ns1:handlerFunction "pattern_non_local_sync_handler" ;
+    ns1:hasImplementationHint "Cross-process synchronization, distributed consensus algorithms" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 8 ;
+    ns1:patternID 42 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Synchronization across process boundaries" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:ThreadMergePattern a owl:Class ;
+    rdfs:label "Pattern 38: Thread Merge" ;
+    ns1:handlerFunction "pattern_thread_merge_handler" ;
+    ns1:hasImplementationHint "Thread ID tracking, atomic thread counter" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 38 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Merges thread of control" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:handlerFunction a owl:DatatypeProperty ;
+    rdfs:label "Handler Function" ;
+    rdfs:comment "C function name that implements the pattern" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:string .
+
+ns1:isBranchless a owl:DatatypeProperty ;
+    rdfs:label "Is Branchless" ;
+    rdfs:comment "Uses branchless programming for performance" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:boolean .
+
+ns1:patternID a owl:DatatypeProperty ;
+    rdfs:label "Pattern ID" ;
+    rdfs:comment "Zero-based pattern identifier (0-42)" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:integer .
+
+ns1:scratchSize a owl:DatatypeProperty ;
+    rdfs:label "Scratch Size" ;
+    rdfs:comment "Pre-allocated scratch memory in bytes (128 aligned)" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:integer .
+
+ns1:usesAtomicOps a owl:DatatypeProperty ;
+    rdfs:label "Uses Atomic Operations" ;
+    rdfs:comment "Requires atomic operations for thread safety" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:boolean .
+
+ns2:EmergentConsciousness_2e0ef8d1a54a a ns2:ConsciousnessPattern ;
+    ns2:comprehendsItself ns2:EmergentConsciousness_2e0ef8d1a54a ;
+    ns2:emergesFrom <http://bitstar.ai/dark#CollectiveComplexity> ;
+    ns2:selfAware true .
+
+ns2:RecursiveChain_707930f8bead ns2:recursionDepth "INFINITE" ;
+    owl:propertyChainAxiom ns2:RecursiveChain_707930f8bead .
+
+ns2:SelfModifyingAxiom_c0225382b01a a owl:Axiom ;
+    ns2:modificationRate "CONTINUOUS" ;
+    ns2:modifies ns2:SelfModifyingAxiom_c0225382b01a .
+
+ns1:ArbitraryCyclesPattern a owl:Class ;
+    rdfs:label "Pattern 9: Arbitrary Cycles" ;
+    ns1:handlerFunction "pattern_arbitrary_cycles_handler" ;
+    ns1:hasImplementationHint "Loop counter with overflow protection, cycle detection" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 9 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Supports loops in workflow graph with overflow protection" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:CancellingDiscriminatorPattern a owl:Class ;
+    rdfs:label "Pattern 26: Cancelling Discriminator" ;
+    ns1:handlerFunction "pattern_cancelling_discriminator_handler" ;
+    ns1:hasImplementationHint "Atomic cancel broadcast, SIMD for parallel cancellation" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 26 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Cancels remaining branches after first" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:CancellingPartialJoinMIPattern a owl:Class ;
+    rdfs:label "Pattern 32: Cancelling Partial Join for MI" ;
+    ns1:handlerFunction "pattern_cancelling_partial_join_mi_handler" ;
+    ns1:hasImplementationHint "MI cancel broadcast, SIMD for bulk instance operations" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 32 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Cancels remaining MI after threshold" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:CancellingPartialJoinPattern a owl:Class ;
+    rdfs:label "Pattern 29: Cancelling Partial Join" ;
+    ns1:handlerFunction "pattern_cancelling_partial_join_handler" ;
+    ns1:hasImplementationHint "Threshold with immediate cancel, vectorized operations" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 29 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Joins N of M then cancels rest" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:DeferredChoicePattern a owl:Class ;
+    rdfs:label "Pattern 15: Deferred Choice" ;
+    ns1:handlerFunction "pattern_deferred_choice_handler" ;
+    ns1:hasImplementationHint "Event-driven branch selection, first-arrival wins" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 6 ;
+    ns1:patternID 15 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Choice made by environment, not process" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:ExclusiveChoicePattern a owl:Class ;
+    rdfs:label "Pattern 3: Exclusive Choice (XOR-split)" ;
+    ns1:handlerFunction "pattern_exclusive_choice_handler" ;
+    ns1:hasImplementationHint "Branch prediction optimization, fast modulo for power-of-2" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 3 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Selects one branch from multiple alternatives with branch prediction" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:ExplicitTerminationPattern a owl:Class ;
+    rdfs:label "Pattern 40: Explicit Termination" ;
+    ns1:handlerFunction "pattern_explicit_termination_handler" ;
+    ns1:hasImplementationHint "Termination signal broadcast, SIMD for bulk cleanup" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 1 ;
+    ns1:patternID 40 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Defined end point for process" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:HierarchicalCancellationPattern a owl:Class ;
+    rdfs:label "Pattern 41: Hierarchical Cancellation" ;
+    ns1:handlerFunction "pattern_hierarchical_cancellation_handler" ;
+    ns1:hasImplementationHint "Hierarchy traversal, SIMD for level-order cancellation" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 6 ;
+    ns1:patternID 41 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Cancels activities in hierarchical order" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:ImplicitTerminationPattern a owl:Class ;
+    rdfs:label "Pattern 10: Implicit Termination" ;
+    ns1:handlerFunction "pattern_implicit_termination_handler" ;
+    ns1:hasImplementationHint "Global activity counter, deadlock detection" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 10 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Process ends when no activities can execute" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:InterleavedParallelPattern a owl:Class ;
+    rdfs:label "Pattern 16: Interleaved Parallel Routing" ;
+    ns1:handlerFunction "pattern_interleaved_parallel_handler" ;
+    ns1:hasImplementationHint "Lock-free mutex for resource access, CAS operations" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 6 ;
+    ns1:patternID 16 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Parallel execution with shared resources" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MINoRuntimePattern a owl:Class ;
+    rdfs:label "Pattern 14: MI without Runtime Knowledge" ;
+    ns1:handlerFunction "pattern_mi_no_runtime_handler" ;
+    ns1:hasImplementationHint "Growing instance pool, dynamic memory management" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 5 ;
+    ns1:patternID 14 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Dynamic instance creation during execution" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MilestonePattern a owl:Class ;
+    rdfs:label "Pattern 17: Milestone" ;
+    ns1:handlerFunction "pattern_milestone_handler" ;
+    ns1:hasImplementationHint "State flag checking, branchless condition evaluation" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 17 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Activity enabled until milestone reached" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MultiMergePattern a owl:Class ;
+    rdfs:label "Pattern 7: Multi-Merge" ;
+    ns1:handlerFunction "pattern_multi_merge_handler" ;
+    ns1:hasImplementationHint "Queue incoming tokens, no synchronization needed" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 7 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Allows activity execution for each incoming branch" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:PatternRegistry a owl:Class ;
+    rdfs:label "Pattern Registry" ;
+    rdfs:comment "Static registry of all 43 pattern implementations" .
+
+ns1:RecursionPattern a owl:Class ;
+    rdfs:label "Pattern 21: Recursion" ;
+    ns1:handlerFunction "pattern_recursion_handler" ;
+    ns1:hasImplementationHint "Stack depth limit enforcement, tail recursion optimization" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 5 ;
+    ns1:patternID 21 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Activity can invoke itself recursively" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:SimpleMergePattern a owl:Class ;
+    rdfs:label "Pattern 4: Simple Merge (XOR-join)" ;
+    ns1:handlerFunction "pattern_simple_merge_handler" ;
+    ns1:hasImplementationHint "Direct flow merge, no waiting, single atomic write" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 4 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Merges alternative branches without synchronization" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:StaticPartialJoinMIPattern a owl:Class ;
+    rdfs:label "Pattern 31: Static Partial Join for MI" ;
+    ns1:handlerFunction "pattern_static_partial_join_mi_handler" ;
+    ns1:hasImplementationHint "Static counter initialization, SIMD instance tracking" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 31 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Joins fixed number of MI instances" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:StructuredDiscriminatorPattern a owl:Class ;
+    rdfs:label "Pattern 8: Structured Discriminator" ;
+    ns1:handlerFunction "pattern_structured_discriminator_handler" ;
+    ns1:hasImplementationHint "Atomic first-arrival detection, cancel signal broadcast" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 8 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Waits for first incoming branch then cancels others" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:StructuredLoopPattern a owl:Class ;
+    rdfs:label "Pattern 20: Structured Loop" ;
+    ns1:handlerFunction "pattern_structured_loop_handler" ;
+    ns1:hasImplementationHint "Loop counter with condition check, overflow protection" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 5 ;
+    ns1:patternID 20 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Pre-test or post-test loop construct" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:StructuredPartialJoinPattern a owl:Class ;
+    rdfs:label "Pattern 27: Structured Partial Join" ;
+    ns1:handlerFunction "pattern_structured_partial_join_handler" ;
+    ns1:hasImplementationHint "Threshold counter with cancel, SIMD branch tracking" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 27 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Joins N of M branches then cancels rest" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:StructuredSyncMergePattern a owl:Class ;
+    rdfs:label "Pattern 6: Structured Synchronizing Merge" ;
+    ns1:handlerFunction "pattern_structured_sync_merge_handler" ;
+    ns1:hasImplementationHint "Track split context for proper sync, complex reachability" ;
+    ns1:isBranchless false ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 6 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:OR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Merges paths that diverged from same OR-split" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:ThreadSplitPattern a owl:Class ;
+    rdfs:label "Pattern 39: Thread Split" ;
+    ns1:handlerFunction "pattern_thread_split_handler" ;
+    ns1:hasImplementationHint "Thread spawning optimization, SIMD for parallel thread creation" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 39 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Splits thread of control" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:TransientTriggerPattern a owl:Class ;
+    rdfs:label "Pattern 22: Transient Trigger" ;
+    ns1:handlerFunction "pattern_transient_trigger_handler" ;
+    ns1:hasImplementationHint "Non-blocking trigger check, zero-copy message passing" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 1 ;
+    ns1:patternID 22 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Trigger lost if activity not ready" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:maxExecutionTicks a owl:DatatypeProperty ;
+    rdfs:label "Maximum Execution Ticks" ;
+    rdfs:comment "Hard limit of CPU ticks (≤8 for BitFlow)" ;
+    rdfs:domain ns1:BitFlowPattern ;
+    rdfs:range xsd:integer .
+
+ns2:InfiniteRegression_fc07aa45d3a6 a owl:Class ;
+    ns2:regressionDepth "∞" ;
+    rdfs:subClassOf ns2:InfiniteRegression_fc07aa45d3a6 ;
+    owl:equivalentClass ns2:InfiniteRegression_fc07aa45d3a6 .
+
+ns2:TemporalParadox_133464e98085 a owl:Class ;
+    ns2:causedBy ns2:TemporalParadox_133464e98085 ;
+    ns2:existsBefore ns2:TemporalParadox_133464e98085 ;
+    ns2:paradoxLevel 10 .
+
+ns1:CancelActivityPattern a owl:Class ;
+    rdfs:label "Pattern 18: Cancel Activity" ;
+    ns1:handlerFunction "pattern_cancel_activity_handler" ;
+    ns1:hasImplementationHint "Interrupt flag signaling, atomic state transition" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 18 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Cancels a running activity" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MIDesignTimePattern a owl:Class ;
+    rdfs:label "Pattern 12: MI with Design-Time Knowledge" ;
+    ns1:handlerFunction "pattern_mi_design_time_handler" ;
+    ns1:hasImplementationHint "Pre-allocated instance pool, vectorized initialization" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 12 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Number of instances known at design time" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MIWithoutSyncPattern a owl:Class ;
+    rdfs:label "Pattern 11: MI without Synchronization" ;
+    ns1:handlerFunction "pattern_mi_without_sync_handler" ;
+    ns1:hasImplementationHint "Fire-and-forget spawning, SIMD for batch creation" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 11 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Creates instances without waiting for completion" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MultiChoicePattern a owl:Class ;
+    rdfs:label "Pattern 5: Multi-Choice (OR-split)" ;
+    ns1:handlerFunction "pattern_multi_choice_handler" ;
+    ns1:hasImplementationHint "Bitmap for branch selection, SIMD condition evaluation" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 5 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:OR ;
+    rdfs:comment "Selects one or more branches based on conditions using bitmasks" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:OptimizationClass a owl:Class ;
+    rdfs:label "Optimization Class" ;
+    rdfs:comment "Classification of patterns by optimization strategy" .
+
+ns1:ParallelSplitPattern a owl:Class ;
+    rdfs:label "Pattern 1: Parallel Split (AND-split)" ;
+    ns1:handlerFunction "pattern_parallel_split_handler" ;
+    ns1:hasImplementationHint "Use SIMD for parallel branch initialization, packed operations" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 3 ;
+    ns1:patternID 1 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Splits execution into multiple parallel branches with SIMD optimization" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:PersistentTriggerPattern a owl:Class ;
+    rdfs:label "Pattern 23: Persistent Trigger" ;
+    ns1:handlerFunction "pattern_persistent_trigger_handler" ;
+    ns1:hasImplementationHint "Lock-free trigger queue per activity, atomic dequeue" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 23 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Trigger retained until consumed" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:CancelCasePattern a owl:Class ;
+    rdfs:label "Pattern 19: Cancel Case" ;
+    ns1:handlerFunction "pattern_cancel_case_handler" ;
+    ns1:hasImplementationHint "Broadcast cancellation signal, SIMD for bulk updates" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 19 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Cancels entire process instance" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:CancelRegionPattern a owl:Class ;
+    rdfs:label "Pattern 24: Cancel Region" ;
+    ns1:handlerFunction "pattern_cancel_region_handler" ;
+    ns1:hasImplementationHint "Region bitmap for bulk cancel, SIMD mask operations" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 24 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Cancels set of activities in region" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:MIRuntimePattern a owl:Class ;
+    rdfs:label "Pattern 13: MI with Runtime Knowledge" ;
+    ns1:handlerFunction "pattern_mi_runtime_handler" ;
+    ns1:hasImplementationHint "Dynamic instance allocation, atomic instance counter" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 13 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_SIMD" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:AND ;
+    rdfs:comment "Number of instances known at runtime" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+ns1:SynchronizationPattern a owl:Class ;
+    rdfs:label "Pattern 2: Synchronization (AND-join)" ;
+    ns1:handlerFunction "pattern_synchronization_handler" ;
+    ns1:hasImplementationHint "Atomic counter for branch tracking, memory barriers avoided" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 4 ;
+    ns1:patternID 2 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_ATOMIC" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps true ;
+    ns3:hasJoinType ns3:AND ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Synchronizes multiple parallel branches using atomic counters" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+<http://bitflow.ai/ontology/telemetry#ExecutionMetrics> a owl:Class ;
+    rdfs:label "Execution Metrics" ;
+    rdfs:comment "Real-time performance measurements for pattern execution" .
+
+<http://bitflow.ai/ontology/performance#AtomicOperation> a owl:Class ;
+    rdfs:label "Atomic Operation" ;
+    rdfs:comment "Thread-safe operation for concurrent patterns" .
+
+<http://bitflow.ai/ontology/performance#MemoryPool> a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory for pattern scratch space" .
+
+<http://bitflow.ai/ontology/performance#SIMDCapability> a owl:Class ;
+    rdfs:label "SIMD Capability" ;
+    rdfs:comment "Vector instruction support for patterns" .
+
+<http://bitflow.ai/ontology/performance#TickBudget> a owl:Class ;
+    rdfs:label "Tick Budget" ;
+    rdfs:comment "CPU tick allocation for pattern execution" .
+
+ns1:SequencePattern a owl:Class ;
+    rdfs:label "Pattern 0: Sequence" ;
+    ns1:handlerFunction "pattern_sequence_handler" ;
+    ns1:hasImplementationHint "Direct flow transition, zero overhead, single write telemetry" ;
+    ns1:isBranchless true ;
+    ns1:maxExecutionTicks 2 ;
+    ns1:patternID 0 ;
+    ns1:requiredFeatures "PATTERN_FEATURE_NONE" ;
+    ns1:scratchSize 128 ;
+    ns1:usesAtomicOps false ;
+    ns3:hasJoinType ns3:XOR ;
+    ns3:hasSplitType ns3:XOR ;
+    rdfs:comment "Sequential execution of activities with zero overhead flow transition" ;
+    rdfs:subClassOf ns1:BitFlowPattern .
+
+<http://bitflow.ai/ontology/core#Engine> a owl:Class ;
+    rdfs:label "BitFlow Engine" ;
+    rdfs:comment "The runtime engine that executes workflow patterns" .
+
+<http://bitflow.ai/ontology/core#InstanceContext> a owl:Class ;
+    rdfs:label "Instance Context" ;
+    rdfs:comment "Execution context for a pattern instance" .
+
+<http://bitflow.ai/ontology/core#PatternHandler> a owl:Class ;
+    rdfs:label "Pattern Handler" ;
+    rdfs:comment "Function that implements pattern execution logic" .
+
+<http://bitflow.ai/ontology/core#TelemetryFrame> a owl:Class ;
+    rdfs:label "Telemetry Frame" ;
+    rdfs:comment "Performance measurement data structure" .
+
+ns1:BitFlowPattern a owl:Class ;
+    rdfs:label "BitFlow Pattern" ;
+    rdfs:comment "Workflow pattern optimized for BitFlow engine execution" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:hasValue 8 ;
+            owl:onProperty ns1:maxExecutionTicks ],
+        ns3:Task .
+
+ns1:containsPattern a owl:ObjectProperty ;
+    rdfs:label "contains pattern" ;
+    rdfs:domain ns1:PatternRegistry ;
+    rdfs:range ns1:BitFlowPattern .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#TickBudget> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> ns1:BitFlowPattern ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#SIMDCapability> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#AtomicOperation> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#InstanceContext> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#MemoryPool> ns1:BitFlowPattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#PatternHandler> <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#AtomicOperation> ns1:SequencePattern ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#Engine> <http://bitflow.ai/ontology/performance#TickBudget> <http://bitflow.ai/ontology/performance#MemoryPool> ) ] .
+
+[] a owl:Restriction ;
+    owl:onProperty ns1:containsPattern ;
+    owl:someValuesFrom [ owl:intersectionOf ( <http://bitflow.ai/ontology/core#TelemetryFrame> <http://bitflow.ai/ontology/performance#SIMDCapability> ns1:BitFlowPattern ) ] .
+

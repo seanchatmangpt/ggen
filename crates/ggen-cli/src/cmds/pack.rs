@@ -92,7 +92,7 @@ pub struct InstallOutput {
 
 /// Add (install) a pack by name
 #[verb]
-pub fn add(pack_name: String, force: Option<bool>) -> Result<AddOutput> {
+pub fn add(#[arg(index = 1)] pack_name: String, force: Option<bool>) -> Result<AddOutput> {
     validate_pack_name(&pack_name)?;
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
@@ -163,7 +163,7 @@ pub fn add(pack_name: String, force: Option<bool>) -> Result<AddOutput> {
 
 /// Remove an installed pack
 #[verb]
-pub fn remove(pack_name: String) -> Result<RemoveOutput> {
+pub fn remove(#[arg(index = 1)] pack_name: String) -> Result<RemoveOutput> {
     validate_pack_name(&pack_name)?;
 
     // Step 1: Resolve lock_path
@@ -269,7 +269,7 @@ pub fn list(verbose: Option<bool>, category: Option<String>) -> Result<ListOutpu
 
 /// Show detailed pack information
 #[verb]
-pub fn show(pack_id: String) -> Result<ShowOutput> {
+pub fn show(#[arg(index = 1)] pack_id: String) -> Result<ShowOutput> {
     let detail = show_pack(&pack_id).map_err(|e| {
         NounVerbError::execution_error(format!("Failed to get pack '{}': {}", pack_id, e))
     })?;
@@ -298,7 +298,7 @@ pub fn show(pack_id: String) -> Result<ShowOutput> {
 
 /// Search for packs
 #[verb]
-pub fn search(query: String, limit: Option<usize>) -> Result<SearchOutput> {
+pub fn search(#[arg(index = 1)] query: String, limit: Option<usize>) -> Result<SearchOutput> {
     let results = perform_search(&query, limit)?;
     let total = results.len();
     log::info!("Found {} result(s) for '{}'", total, query);

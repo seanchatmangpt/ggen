@@ -1,0 +1,30 @@
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?clients_uri a <http://www.w3.org/ns/org#Organization> ;
+    <http://www.w3.org/ns/org#identifier> ?id ;
+    <http://xmlns.com/foaf/0.1/name> ?name ;
+    <http://www.w3.org/ns/org#classification> ?type ;
+    <http://xmlns.com/foaf/0.1/mbox> ?email ;
+    <http://schema.org/telephone> ?phone ;
+    <http://schema.org/url> ?website ;
+    <http://schema.org/industry> ?industry ;
+    <http://www.w3.org/ns/org#status> ?status ;
+    <http://schema.org/estimatedSalary> ?lifetime_value ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?activity_uri .
+}
+
+WHERE {
+  # Variables bound from data source
+  BIND(IRI(CONCAT("http://businessos.dev/id/clients/{id}", STR(?id))) AS ?clients_uri)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/clients/", STR(?id))) AS ?activity_uri)
+}

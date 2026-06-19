@@ -1,0 +1,437 @@
+# Weaver Stack Bindings Ontology
+# Defines technology stack mappings, template paths, and output directories for Nuxt/Vue ecosystem
+
+@prefix weaver: <https://weaver.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix stack: <https://weaver.dev/ontology/stack#> .
+
+# Technology Stack Definitions
+
+weaver:TechnologyStack
+    a rdfs:Class ;
+    rdfs:comment "Base class for technology stack definitions" ;
+    weaver:hasComponent "frontend", "backend", "database", "testing" ;
+    weaver:hasBinding "artifact_mapping", "template_binding", "directory_structure" .
+
+weaver:NuxtVueStack
+    a weaver:TechnologyStack ;
+    rdfs:comment "Nuxt.js with Vue.js technology stack configuration" ;
+    weaver:stackName "nuxt-vue-typescript" ;
+    weaver:version "3.x" ;
+    weaver:primaryFramework "Nuxt.js" ;
+    weaver:uiFramework "Vue.js" ;
+    weaver:language "TypeScript" ;
+    weaver:styling "Tailwind CSS", "Nuxt UI Pro" ;
+    weaver:stateManagement "Pinia", "Composables" ;
+    weaver:routing "File-based routing" ;
+    weaver:serverEngine "Nitro" ;
+    weaver:bundler "Vite" ;
+    weaver:testingFramework "Vitest" ;
+    weaver:packageManager "pnpm" .
+
+# Directory Structure Bindings
+
+weaver:DirectoryStructure
+    a rdfs:Class ;
+    rdfs:comment "Directory structure mapping for artifact generation" ;
+    weaver:rootDirectory "/Users/sac/remo/dashboard" ;
+    weaver:sourceDirectory "app" ;
+    weaver:serverDirectory "server" ;
+    weaver:testDirectory "tests" ;
+    weaver:publicDirectory "public" ;
+    weaver:configDirectory "config" .
+
+weaver:NuxtDirectoryBinding
+    a weaver:DirectoryStructure ;
+    rdfs:comment "Nuxt.js specific directory structure bindings" ;
+    
+    # Application directories
+    weaver:componentDir "app/components" ;
+    weaver:pageDir "app/pages" ;
+    weaver:layoutDir "app/layouts" ;
+    weaver:composableDir "app/composables" ;
+    weaver:utilDir "app/utils" ;
+    weaver:pluginDir "app/plugins" ;
+    weaver:middlewareDir "app/middleware" ;
+    weaver:typeDir "app/types" ;
+    
+    # Server directories
+    weaver:apiDir "server/api" ;
+    weaver:middlewareServerDir "server/middleware" ;
+    weaver:utilServerDir "server/utils" ;
+    weaver:serviceDir "server/services" ;
+    
+    # Test directories
+    weaver:unitTestDir "tests/unit" ;
+    weaver:integrationTestDir "tests/integration" ;
+    weaver:e2eTestDir "tests/e2e" ;
+    weaver:componentTestDir "tests/components" ;
+    
+    # Configuration and docs
+    weaver:configDir "config" ;
+    weaver:docsDir "docs" ;
+    weaver:scriptsDir "scripts" .
+
+# Template Path Mappings
+
+weaver:TemplatePath
+    a rdfs:Class ;
+    rdfs:comment "Template file path configuration for code generation" ;
+    weaver:baseTemplatePath "docs/weaver/templates" ;
+    weaver:templateEngine "Go Templates" ;
+    weaver:templateExtension ".go.tmpl" .
+
+weaver:VueTemplateBinding
+    a weaver:TemplatePath ;
+    rdfs:comment "Vue component template path mappings" ;
+    weaver:componentTemplate "docs/weaver/templates/vue/component.go.tmpl" ;
+    weaver:dashboardTemplate "docs/weaver/templates/vue/dashboard.go.tmpl" ;
+    weaver:formTemplate "docs/weaver/templates/vue/form.go.tmpl" ;
+    weaver:modalTemplate "docs/weaver/templates/vue/modal.go.tmpl" ;
+    weaver:tableTemplate "docs/weaver/templates/vue/table.go.tmpl" ;
+    weaver:chartTemplate "docs/weaver/templates/vue/chart.go.tmpl" ;
+    
+    # Specialized dashboard templates
+    weaver:securityDashboardTemplate "docs/weaver/templates/vue/security-dashboard.go.tmpl" ;
+    weaver:mlDashboardTemplate "docs/weaver/templates/vue/ml-dashboard.go.tmpl" ;
+    weaver:pqcDashboardTemplate "docs/weaver/templates/vue/pqc-dashboard.go.tmpl" ;
+    weaver:governanceDashboardTemplate "docs/weaver/templates/vue/governance-dashboard.go.tmpl" ;
+    weaver:analyticsDashboardTemplate "docs/weaver/templates/vue/analytics-dashboard.go.tmpl" .
+
+weaver:APITemplateBinding
+    a weaver:TemplatePath ;
+    rdfs:comment "API endpoint template path mappings" ;
+    weaver:baseAPITemplate "docs/weaver/templates/api/endpoint.go.tmpl" ;
+    weaver:crudTemplate "docs/weaver/templates/api/crud.go.tmpl" ;
+    weaver:authTemplate "docs/weaver/templates/api/auth.go.tmpl" ;
+    weaver:middlewareTemplate "docs/weaver/templates/api/middleware.go.tmpl" ;
+    
+    # Specialized API templates
+    weaver:securityAPITemplate "docs/weaver/templates/api/security-endpoint.go.tmpl" ;
+    weaver:mlAPITemplate "docs/weaver/templates/api/ml-endpoint.go.tmpl" ;
+    weaver:pqcAPITemplate "docs/weaver/templates/api/pqc-endpoint.go.tmpl" ;
+    weaver:governanceAPITemplate "docs/weaver/templates/api/governance-endpoint.go.tmpl" ;
+    weaver:analyticsAPITemplate "docs/weaver/templates/api/analytics-endpoint.go.tmpl" .
+
+weaver:ComposableTemplateBinding
+    a weaver:TemplatePath ;
+    rdfs:comment "Composable function template path mappings" ;
+    weaver:baseComposableTemplate "docs/weaver/templates/composable/composable.go.tmpl" ;
+    weaver:dataComposableTemplate "docs/weaver/templates/composable/data-composable.go.tmpl" ;
+    weaver:authComposableTemplate "docs/weaver/templates/composable/auth-composable.go.tmpl" ;
+    weaver:validationComposableTemplate "docs/weaver/templates/composable/validation-composable.go.tmpl" ;
+    
+    # Specialized composable templates
+    weaver:securityComposableTemplate "docs/weaver/templates/composable/useSecurity.go.tmpl" ;
+    weaver:mlComposableTemplate "docs/weaver/templates/composable/useMLPipeline.go.tmpl" ;
+    weaver:pqcComposableTemplate "docs/weaver/templates/composable/usePqcEvidence.go.tmpl" ;
+    weaver:governanceComposableTemplate "docs/weaver/templates/composable/useGovernance.go.tmpl" ;
+    weaver:analyticsComposableTemplate "docs/weaver/templates/composable/useAnalytics.go.tmpl" .
+
+# Output Path Bindings
+
+weaver:OutputPathMapping
+    a rdfs:Class ;
+    rdfs:comment "Output path mapping for generated artifacts" ;
+    weaver:pathPattern "{directory}/{subdirectory}/{filename}.{extension}" ;
+    weaver:namingConvention "kebab-case", "PascalCase", "camelCase" .
+
+# Vue Component Output Bindings
+weaver:VueComponentOutput
+    a weaver:OutputPathMapping ;
+    rdfs:comment "Vue component output path configurations" ;
+    
+    # Security components
+    weaver:securityDashboardOutput "app/components/security/SecurityIncidentDashboard.vue" ;
+    weaver:threatIntelligenceOutput "app/components/security/ThreatIntelligencePanel.vue" ;
+    weaver:incidentResponseOutput "app/components/security/IncidentResponseActions.vue" ;
+    weaver:securityModalOutput "app/components/security/SecurityIncidentModal.vue" ;
+    
+    # ML components
+    weaver:mlDashboardOutput "app/components/ml/MLPipelineDashboard.vue" ;
+    weaver:modelMetricsOutput "app/components/ml/ModelMetricsCard.vue" ;
+    weaver:pipelineVisualizationOutput "app/components/ml/PipelineVisualization.vue" ;
+    weaver:modelDeploymentOutput "app/components/ml/ModelDeploymentPanel.vue" ;
+    
+    # PQC components
+    weaver:pqcDashboardOutput "app/components/pqc/PqcEvidenceDashboard.vue" ;
+    weaver:cryptoKeyManagerOutput "app/components/pqc/CryptographicKeyManager.vue" ;
+    weaver:complianceStatusOutput "app/components/pqc/ComplianceStatusPanel.vue" ;
+    
+    # Governance components
+    weaver:governanceDashboardOutput "app/components/governance/GovernanceDashboard.vue" ;
+    weaver:approvalWorkflowOutput "app/components/governance/ApprovalWorkflowCard.vue" ;
+    weaver:policyManagerOutput "app/components/governance/PolicyManager.vue" ;
+    
+    # Analytics components
+    weaver:analyticsDashboardOutput "app/components/analytics/AnalyticsDashboard.vue" ;
+    weaver:metricsChartOutput "app/components/analytics/MetricsChart.vue" ;
+    weaver:realTimeMonitorOutput "app/components/analytics/RealTimeMonitor.vue" .
+
+# API Endpoint Output Bindings
+weaver:APIEndpointOutput
+    a weaver:OutputPathMapping ;
+    rdfs:comment "API endpoint output path configurations" ;
+    
+    # Security APIs
+    weaver:securityIncidentsAPI "server/api/security/incidents.ts" ;
+    weaver:securityIncidentsGetAPI "server/api/security/incidents.get.ts" ;
+    weaver:securityIncidentsPostAPI "server/api/security/incidents.post.ts" ;
+    weaver:threatIntelligenceAPI "server/api/security/threat-intelligence.ts" ;
+    weaver:incidentResponseAPI "server/api/security/incident-response.ts" ;
+    
+    # ML APIs
+    weaver:mlPipelinesAPI "server/api/ml/pipelines.ts" ;
+    weaver:mlPipelinesGetAPI "server/api/ml/pipelines.get.ts" ;
+    weaver:mlPipelinesPostAPI "server/api/ml/pipelines.post.ts" ;
+    weaver:mlModelsAPI "server/api/ml/models.ts" ;
+    weaver:mlMetricsAPI "server/api/ml/metrics.ts" ;
+    
+    # PQC APIs
+    weaver:pqcEvidenceAPI "server/api/pqc/evidence.ts" ;
+    weaver:pqcKeysAPI "server/api/pqc/keys.ts" ;
+    weaver:pqcValidationAPI "server/api/pqc/validation.ts" ;
+    weaver:cryptoOperationsAPI "server/api/pqc/operations.ts" ;
+    
+    # Governance APIs
+    weaver:governanceRequestsAPI "server/api/governance/requests.ts" ;
+    weaver:governanceApprovalAPI "server/api/governance/approvals.ts" ;
+    weaver:governancePoliciesAPI "server/api/governance/policies.ts" ;
+    
+    # Analytics APIs
+    weaver:analyticsMetricsAPI "server/api/analytics/metrics.ts" ;
+    weaver:analyticsEventsAPI "server/api/analytics/events.ts" ;
+    weaver:analyticsReportsAPI "server/api/analytics/reports.ts" .
+
+# Composable Output Bindings
+weaver:ComposableOutput
+    a weaver:OutputPathMapping ;
+    rdfs:comment "Composable function output path configurations" ;
+    
+    # Security composables
+    weaver:securityIncidentsComposable "app/composables/useSecurityIncidents.ts" ;
+    weaver:threatIntelligenceComposable "app/composables/useThreatIntelligence.ts" ;
+    weaver:incidentResponseComposable "app/composables/useIncidentResponse.ts" ;
+    
+    # ML composables
+    weaver:mlPipelineComposable "app/composables/useMLPipeline.ts" ;
+    weaver:modelMetricsComposable "app/composables/useModelMetrics.ts" ;
+    weaver:anomalyDetectionComposable "app/composables/useAnomalyDetection.ts" ;
+    
+    # PQC composables
+    weaver:pqcEvidenceComposable "app/composables/usePqcEvidence.ts" ;
+    weaver:cryptoKeysComposable "app/composables/useCryptographicKeys.ts" ;
+    weaver:complianceComposable "app/composables/useCompliance.ts" ;
+    
+    # Governance composables
+    weaver:governanceRequestComposable "app/composables/useGovernanceRequests.ts" ;
+    weaver:approvalWorkflowComposable "app/composables/useApprovalWorkflow.ts" ;
+    weaver:complianceMetricsComposable "app/composables/useComplianceMetrics.ts" ;
+    
+    # Analytics composables
+    weaver:analyticsComposable "app/composables/useAnalytics.ts" ;
+    weaver:metricsComposable "app/composables/useMetrics.ts" ;
+    weaver:realTimeDataComposable "app/composables/useRealTimeData.ts" .
+
+# Type Definition Output Bindings
+weaver:TypeDefinitionOutput
+    a weaver:OutputPathMapping ;
+    rdfs:comment "TypeScript type definition output paths" ;
+    
+    # Domain-specific types
+    weaver:securityTypes "app/types/security.d.ts" ;
+    weaver:mlTypes "app/types/ml.d.ts" ;
+    weaver:cryptoTypes "app/types/crypto.d.ts" ;
+    weaver:governanceTypes "app/types/governance.d.ts" ;
+    weaver:analyticsTypes "app/types/analytics.d.ts" ;
+    
+    # Common types
+    weaver:apiTypes "app/types/api.d.ts" ;
+    weaver:commonTypes "app/types/common.d.ts" ;
+    weaver:utilityTypes "app/types/utils.d.ts" ;
+    weaver:validationTypes "app/types/validation.d.ts" .
+
+# Test Output Bindings
+weaver:TestOutput
+    a weaver:OutputPathMapping ;
+    rdfs:comment "Test file output path configurations" ;
+    
+    # Component tests
+    weaver:securityDashboardTest "tests/components/security/SecurityIncidentDashboard.test.ts" ;
+    weaver:mlDashboardTest "tests/components/ml/MLPipelineDashboard.test.ts" ;
+    weaver:pqcDashboardTest "tests/components/pqc/PqcEvidenceDashboard.test.ts" ;
+    weaver:governanceDashboardTest "tests/components/governance/GovernanceDashboard.test.ts" ;
+    
+    # Composable tests
+    weaver:securityComposableTest "tests/composables/useSecurityIncidents.test.ts" ;
+    weaver:mlComposableTest "tests/composables/useMLPipeline.test.ts" ;
+    weaver:pqcComposableTest "tests/composables/usePqcEvidence.test.ts" ;
+    weaver:governanceComposableTest "tests/composables/useGovernanceRequests.test.ts" ;
+    
+    # API tests
+    weaver:securityAPITest "tests/api/security/incidents.test.ts" ;
+    weaver:mlAPITest "tests/api/ml/pipelines.test.ts" ;
+    weaver:pqcAPITest "tests/api/pqc/evidence.test.ts" ;
+    weaver:governanceAPITest "tests/api/governance/requests.test.ts" ;
+    
+    # Integration tests
+    weaver:securityIntegrationTest "tests/integration/security-workflow.test.ts" ;
+    weaver:mlIntegrationTest "tests/integration/ml-pipeline.test.ts" ;
+    weaver:pqcIntegrationTest "tests/integration/pqc-compliance.test.ts" ;
+    weaver:governanceIntegrationTest "tests/integration/governance-approval.test.ts" .
+
+# Stack Configuration Mappings
+
+weaver:StackConfiguration
+    a rdfs:Class ;
+    rdfs:comment "Technology stack configuration settings" ;
+    weaver:configurationFiles "nuxt.config.ts", "package.json", "tsconfig.json", "tailwind.config.js", "vitest.config.ts" .
+
+weaver:NuxtStackConfig
+    a weaver:StackConfiguration ;
+    rdfs:comment "Nuxt.js specific stack configuration" ;
+    
+    # Build and development
+    weaver:buildTool "Vite" ;
+    weaver:bundler "Rollup" ;
+    weaver:devMode "true" ;
+    weaver:hotReload "true" ;
+    weaver:sourceMap "true" ;
+    
+    # CSS and styling
+    weaver:cssFramework "Tailwind CSS" ;
+    weaver:uiLibrary "Nuxt UI Pro" ;
+    weaver:cssPreprocessor "PostCSS" ;
+    weaver:designSystem "true" ;
+    
+    # TypeScript configuration
+    weaver:strictMode "true" ;
+    weaver:typeChecking "true" ;
+    weaver:eslintIntegration "true" ;
+    weaver:prettierIntegration "true" ;
+    
+    # Testing configuration
+    weaver:unitTesting "Vitest" ;
+    weaver:e2eTesting "Playwright" ;
+    weaver:testCoverage "true" ;
+    weaver:testWatcher "true" ;
+    
+    # Performance and optimization
+    weaver:treeshaking "true" ;
+    weaver:codesplitting "true" ;
+    weaver:lazyLoading "true" ;
+    weaver:compression "gzip" ;
+    
+    # Security settings
+    weaver:contentSecurityPolicy "true" ;
+    weaver:crossOriginEmbedderPolicy "true" ;
+    weaver:strictTransportSecurity "true" ;
+    weaver:xssProtection "true" .
+
+# Artifact Generation Rules
+
+weaver:GenerationRule
+    a rdfs:Class ;
+    rdfs:comment "Rules for artifact generation and template processing" ;
+    weaver:ruleType "naming", "structure", "dependency", "validation" .
+
+weaver:NamingConventionRule
+    a weaver:GenerationRule ;
+    rdfs:comment "Naming convention rules for different artifact types" ;
+    
+    # Component naming
+    weaver:componentNaming "PascalCase" ;
+    weaver:componentPrefix "" ;
+    weaver:componentSuffix "Dashboard", "Panel", "Card", "Modal" ;
+    
+    # Composable naming
+    weaver:composableNaming "camelCase" ;
+    weaver:composablePrefix "use" ;
+    weaver:composableSuffix "" ;
+    
+    # API naming
+    weaver:apiNaming "kebab-case" ;
+    weaver:apiPrefix "" ;
+    weaver:apiSuffix ".ts", ".get.ts", ".post.ts" ;
+    
+    # Type naming
+    weaver:typeNaming "PascalCase" ;
+    weaver:typePrefix "" ;
+    weaver:typeSuffix "Type", "Interface", "Enum" .
+
+weaver:StructureRule
+    a weaver:GenerationRule ;
+    rdfs:comment "Structural rules for generated artifacts" ;
+    
+    # Component structure
+    weaver:componentStructure "template", "script", "style" ;
+    weaver:scriptSetup "true" ;
+    weaver:compositionAPI "true" ;
+    weaver:typeScript "true" ;
+    
+    # API structure
+    weaver:apiStructure "route_handler", "validation", "business_logic", "response" ;
+    weaver:errorHandling "true" ;
+    weaver:inputValidation "true" ;
+    weaver:responseFormat "JSON" ;
+    
+    # Composable structure
+    weaver:composableStructure "state", "actions", "computed", "effects" ;
+    weaver:reactiveState "true" ;
+    weaver:asyncSupport "true" ;
+    weaver:errorHandling "true" .
+
+weaver:DependencyRule
+    a weaver:GenerationRule ;
+    rdfs:comment "Dependency management rules for artifacts" ;
+    
+    # Component dependencies
+    weaver:componentDependencies "composables", "types", "utilities" ;
+    weaver:autoImport "true" ;
+    weaver:lazyImport "false" ;
+    
+    # API dependencies
+    weaver:apiDependencies "validation", "database", "authentication" ;
+    weaver:middlewareChain "auth", "validation", "error_handling" ;
+    
+    # Composable dependencies
+    weaver:composableDependencies "api_client", "types", "utilities" ;
+    weaver:circularDependencyCheck "true" .
+
+# Technology Integration Mappings
+
+weaver:IntegrationMapping
+    a rdfs:Class ;
+    rdfs:comment "Integration mappings between different technologies in the stack" ;
+    weaver:integrationType "data_flow", "authentication", "state_management", "error_handling" .
+
+weaver:DataFlowIntegration
+    a weaver:IntegrationMapping ;
+    rdfs:comment "Data flow integration between frontend and backend" ;
+    weaver:apiClient "ofetch" ;
+    weaver:stateManagement "Pinia" ;
+    weaver:caching "true" ;
+    weaver:realTimeUpdates "WebSocket" ;
+    weaver:optimisticUpdates "true" .
+
+weaver:AuthenticationIntegration
+    a weaver:IntegrationMapping ;
+    rdfs:comment "Authentication integration across the stack" ;
+    weaver:authProvider "Supabase Auth" ;
+    weaver:tokenStorage "httpOnly cookies" ;
+    weaver:sessionManagement "true" ;
+    weaver:roleBasedAccess "true" ;
+    weaver:multiFactorAuth "true" .
+
+weaver:TestingIntegration
+    a weaver:IntegrationMapping ;
+    rdfs:comment "Testing integration and configuration" ;
+    weaver:unitTestRunner "Vitest" ;
+    weaver:componentTesting "@vue/test-utils" ;
+    weaver:apiTesting "supertest" ;
+    weaver:e2eTesting "Playwright" ;
+    weaver:mockingLibrary "vi.mock" ;
+    weaver:coverageReporting "true" .

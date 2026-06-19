@@ -1,0 +1,236 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix : <http://example.com/api#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# User Shape - Validates User entities
+:UserShape a sh:NodeShape ;
+    sh:targetClass :User ;
+    sh:property [
+        sh:path :id ;
+        sh:name "User ID" ;
+        sh:description "Unique identifier for the user" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:pattern "^[a-zA-Z0-9-_]+$" ;
+        sh:message "User ID is required and must be alphanumeric with hyphens/underscores"
+    ] ;
+    sh:property [
+        sh:path :name ;
+        sh:name "User Name" ;
+        sh:description "Full name of the user" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:message "User name is required and must be between 1-255 characters"
+    ] ;
+    sh:property [
+        sh:path :email ;
+        sh:name "User Email" ;
+        sh:description "Email address of the user" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Valid email address is required"
+    ] ;
+    sh:property [
+        sh:path :createdAt ;
+        sh:name "Created Date" ;
+        sh:description "When the user was created" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Creation date is required"
+    ] .
+
+# REST API Shape - Validates API definitions
+:RestAPIShape a sh:NodeShape ;
+    sh:targetClass :RestAPI ;
+    sh:property [
+        sh:path :name ;
+        sh:name "API Name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "API must have a name"
+    ] ;
+    sh:property [
+        sh:path :version ;
+        sh:name "API Version" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "API version must follow semantic versioning (x.y.z)"
+    ] ;
+    sh:property [
+        sh:path :baseUrl ;
+        sh:name "Base URL" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^https?://" ;
+        sh:message "Base URL is required and must start with http:// or https://"
+    ] ;
+    sh:property [
+        sh:path :hasEndpoint ;
+        sh:name "API Endpoints" ;
+        sh:class :RestEndpoint ;
+        sh:minCount 1 ;
+        sh:message "API must have at least one endpoint"
+    ] .
+
+# REST Endpoint Shape - Validates endpoint definitions
+:RestEndpointShape a sh:NodeShape ;
+    sh:targetClass :RestEndpoint ;
+    sh:property [
+        sh:path :method ;
+        sh:name "HTTP Method" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("GET" "POST" "PUT" "PATCH" "DELETE" "HEAD" "OPTIONS") ;
+        sh:message "HTTP method is required and must be a valid HTTP verb"
+    ] ;
+    sh:property [
+        sh:path :path ;
+        sh:name "Endpoint Path" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^/" ;
+        sh:message "Endpoint path is required and must start with /"
+    ] ;
+    sh:property [
+        sh:path :description ;
+        sh:name "Endpoint Description" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Endpoint description is required and must be at least 10 characters"
+    ] .
+
+# Data Model Shape - Validates data model definitions
+:DataModelShape a sh:NodeShape ;
+    sh:targetClass :DataModel ;
+    sh:property [
+        sh:path :hasField ;
+        sh:name "Model Fields" ;
+        sh:class :Field ;
+        sh:minCount 1 ;
+        sh:message "Data model must have at least one field"
+    ] .
+
+# Field Shape - Validates field definitions
+:FieldShape a sh:NodeShape ;
+    sh:targetClass :Field ;
+    sh:property [
+        sh:path :name ;
+        sh:name "Field Name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Field name is required and must be a valid identifier"
+    ] ;
+    sh:property [
+        sh:path :type ;
+        sh:name "Field Type" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Field type is required"
+    ] ;
+    sh:property [
+        sh:path :required ;
+        sh:name "Field Required" ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Field required flag is required"
+    ] .
+
+# Parameter Shape - Validates parameter definitions
+:ParameterShape a sh:NodeShape ;
+    sh:targetClass :QueryParameter, :PathParameter ;
+    sh:property [
+        sh:path :name ;
+        sh:name "Parameter Name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Parameter name is required and must be a valid identifier"
+    ] ;
+    sh:property [
+        sh:path :type ;
+        sh:name "Parameter Type" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Parameter type is required"
+    ] ;
+    sh:property [
+        sh:path :description ;
+        sh:name "Parameter Description" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:message "Parameter description is required and must be at least 5 characters"
+    ] .
+
+# Business Rules
+
+# Rule: DELETE endpoints should return a confirmation response
+:DeleteEndpointRule a sh:NodeShape ;
+    sh:targetNode [
+        sh:filterShape [
+            sh:property [
+                sh:path :method ;
+                sh:hasValue "DELETE"
+            ]
+        ]
+    ] ;
+    sh:property [
+        sh:path :returns ;
+        sh:minCount 1 ;
+        sh:message "DELETE endpoints must specify a return type for confirmation"
+    ] .
+
+# Rule: POST endpoints should accept input data
+:PostEndpointRule a sh:NodeShape ;
+    sh:targetNode [
+        sh:filterShape [
+            sh:property [
+                sh:path :method ;
+                sh:hasValue "POST"
+            ]
+        ]
+    ] ;
+    sh:property [
+        sh:path :accepts ;
+        sh:minCount 1 ;
+        sh:message "POST endpoints should specify what data they accept"
+    ] .
+
+# Rule: PUT endpoints should accept input data
+:PutEndpointRule a sh:NodeShape ;
+    sh:targetNode [
+        sh:filterShape [
+            sh:property [
+                sh:path :method ;
+                sh:hasValue "PUT"
+            ]
+        ]
+    ] ;
+    sh:property [
+        sh:path :accepts ;
+        sh:minCount 1 ;
+        sh:message "PUT endpoints should specify what data they accept"
+    ] .

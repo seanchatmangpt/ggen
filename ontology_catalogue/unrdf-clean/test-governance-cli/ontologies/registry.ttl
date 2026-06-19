@@ -1,0 +1,49 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix reg: <http://example.org/registry#> .
+
+# UNRDF Registry - Sample Universe
+# This defines the canonical universe of entities
+
+reg:Registry
+  a reg:UniverseRegistry ;
+  rdfs:label "UNRDF Main Registry" ;
+  reg:version "1.0.0" .
+
+# Entity Classes
+reg:Project
+  a rdfs:Class ;
+  rdfs:label "Project" ;
+  rdfs:comment "A software project" .
+
+reg:Feature
+  a rdfs:Class ;
+  rdfs:label "Feature" ;
+  rdfs:comment "A feature within a project" .
+
+# Sample Projects
+reg:Project_001
+  a reg:Project ;
+  rdfs:label "Core System" ;
+  reg:status "active" ;
+  reg:createdAt "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+reg:Project_002
+  a reg:Project ;
+  rdfs:label "Extension Module" ;
+  reg:status "active" ;
+  reg:createdAt "2024-02-01T00:00:00Z"^^xsd:dateTime .
+
+# Sample Features
+reg:Feature_001
+  a reg:Feature ;
+  rdfs:label "Authentication" ;
+  reg:belongsTo reg:Project_001 ;
+  reg:priority "high" .
+
+reg:Feature_002
+  a reg:Feature ;
+  rdfs:label "API Gateway" ;
+  reg:belongsTo reg:Project_001 ;
+  reg:priority "medium" .

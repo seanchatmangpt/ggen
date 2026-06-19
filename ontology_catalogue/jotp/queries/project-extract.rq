@@ -1,0 +1,89 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX jpat:   <https://jgen.dev/ontology/java/patterns#>
+PREFIX jproj:  <https://jgen.dev/ontology/java/project#>
+PREFIX eip:    <https://jgen.dev/ontology/java/messaging#>
+
+# =============================================================================
+# Unified Project Extraction Query
+# Extracts all elements needed to generate a complete project from Turtle
+# =============================================================================
+
+SELECT ?elementType ?element ?name ?value ?category ?template ?primitive
+       ?complexity ?intent ?groupId ?artifactId ?version ?packageName
+WHERE {
+    # Project metadata
+    {
+        ?project a jproj:Project .
+        ?project jproj:hasName ?name .
+        BIND("project" AS ?elementType)
+        BIND(?project AS ?element)
+    }
+    UNION
+    # Project properties
+    {
+        ?project a jproj:Project .
+        { ?project jproj:hasGroupId ?value . BIND("project-groupId" AS ?elementType) }
+        UNION
+        { ?project jproj:hasVersion ?value . BIND("project-version" AS ?elementType) }
+        UNION
+        { ?project jproj:hasJavaVersion ?value . BIND("project-javaVersion" AS ?elementType) }
+        BIND(?project AS ?element)
+        BIND(?project AS ?name)
+    }
+    UNION
+    # Modules
+    {
+        ?project a jproj:Project .
+        ?project jproj:hasModule ?element .
+        ?element rdfs:label ?name .
+        OPTIONAL { ?element jproj:hasPackageName ?packageName }
+        BIND("module" AS ?elementType)
+    }
+    UNION
+    # Patterns used by modules
+    {
+        ?module a jproj:Module .
+        ?module jproj:usesPattern ?element .
+        ?element rdfs:label ?name .
+        ?element jpat:hasTemplate ?template .
+        OPTIONAL { ?element eip:mapsToPrimitive ?primitive }
+        OPTIONAL { ?element eip:hasComplexity ?complexity }
+        OPTIONAL { ?element jpat:hasIntent ?intent }
+        OPTIONAL {
+            { ?element a eip:FoundationPattern . BIND("foundation" AS ?category) }
+            UNION
+            { ?element a eip:RoutingPattern . BIND("routing" AS ?category) }
+            UNION
+            { ?element a eip:OrchestrationPattern . BIND("orchestration" AS ?category) }
+            UNION
+            { ?element a eip:ResiliencePattern . BIND("resilience" AS ?category) }
+            UNION
+            { ?element a jpat:CreationalPattern . BIND("creational" AS ?category) }
+            UNION
+            { ?element a jpat:BehavioralPattern . BIND("behavioral" AS ?category) }
+            UNION
+            { ?element a jpat:StructuralPattern . BIND("structural" AS ?category) }
+            UNION
+            { ?element a jpat:DataPattern . BIND("data" AS ?category) }
+            UNION
+            { ?element a jpat:ErrorPattern . BIND("error" AS ?category) }
+        }
+        BIND("pattern" AS ?elementType)
+        BIND(?module AS ?value)
+    }
+    UNION
+    # Dependencies
+    {
+        ?module a jproj:Module .
+        ?module jproj:hasDependency ?element .
+        ?element rdfs:label ?name .
+        OPTIONAL { ?element jproj:dependencyGroupId ?groupId }
+        OPTIONAL { ?element jproj:dependencyArtifactId ?artifactId }
+        OPTIONAL { ?element jproj:dependencyVersion ?version }
+        BIND("dependency" AS ?elementType)
+        BIND(?module AS ?value)
+    }
+}
+ORDER BY ?elementType ?name

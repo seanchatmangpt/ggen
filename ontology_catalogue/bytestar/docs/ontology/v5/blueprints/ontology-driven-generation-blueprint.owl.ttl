@@ -1,0 +1,323 @@
+
+@prefix : <https://bytestar.org/ontology/blueprints/ontology-driven-generation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+
+<https://bytestar.org/ontology/blueprints/ontology-driven-generation>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/blueprints/ontology-driven-generation/v1.0> ;
+    rdfs:label "Architectural Blueprint for Ontology-Driven Application Generation" ;
+    rdfs:comment "This ontology formalizes the architectural blueprint for a full-stack, fully automated generation system that uses a Web Ontology Language (OWL) ontology as its single source of truth to produce a Nuxt, Zod, and Supabase application." .
+
+#################################################################
+#
+# Core Concepts & Philosophy
+#
+#################################################################
+
+:OntologyDrivenArchitecture rdf:type owl:Class ;
+    rdfs:label "Ontology-Driven Architecture" ;
+    rdfs:comment "An architecture where a formal ontology serves as the single source of truth, driving the generation of application components to resolve the disconnect between the conceptual domain model and its concrete implementation." .
+
+:DeclarativeResource rdf:type owl:Class ;
+    rdfs:label "Declarative Resource" ;
+    rdfs:comment "A resource-centric model of a domain's entities, attributes, relationships, and actions, inspired by the Ash framework. The core component of the domain model." .
+
+:SingleSourceOfTruth rdf:type owl:Class ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:label "Single Source of Truth" ;
+    rdfs:comment "The principle that a single, authoritative model (in this case, an OWL ontology) governs the entire system, ensuring consistency." .
+
+:IntermediateRepresentation rdf:type owl:Class ;
+    rdfs:label "Intermediate Representation (IR)" ;
+    rdfs:comment "A crucial abstraction and linchpin of the system. A simplified, generator-friendly JavaScript object graph that decouples ontology interpretation from code generation and solves the 'ontological impedance mismatch'." .
+
+#################################################################
+#
+# Generation Pipeline & Stages
+#
+#################################################################
+
+:UnifiedGenerationPipeline rdf:type owl:Class ;
+    rdfs:label "Unified Generation Pipeline" ;
+    rdfs:comment "A multi-stage transformation pipeline that systematically converts the high-level knowledge in an OWL ontology into the concrete, executable code of a full-stack web application." .
+
+:PipelineStage rdf:type owl:Class ;
+    rdfs:label "Pipeline Stage" ;
+    rdfs:comment "A distinct, sequential stage within the Unified Generation Pipeline." .
+
+:ParsingStage rdf:type owl:Class ;
+    rdfs:subClassOf :PipelineStage ;
+    rdfs:label "1. Parsing Stage" ;
+    rdfs:comment "Ingests the source OWL file (e.g., Turtle) and transforms it into an in-memory RDF graph data structure." .
+
+:InterpretationStage rdf:type owl:Class ;
+    rdfs:subClassOf :PipelineStage ;
+    rdfs:label "2. Interpretation Stage" ;
+    rdfs:comment "Uses a SPARQL query engine to systematically extract core semantic definitions (classes, properties, constraints) from the RDF graph." .
+
+:IRGenerationStage rdf:type owl:Class ;
+    rdfs:subClassOf :PipelineStage ;
+    rdfs:label "3. IR Generation Stage" ;
+    rdfs:comment "Transforms the results from the SPARQL queries into the simplified, generator-friendly Intermediate Representation (IR)." .
+
+:CodeGenerationStage rdf:type owl:Class ;
+    rdfs:subClassOf :PipelineStage ;
+    rdfs:label "4. Code Generation Stage" ;
+    rdfs:comment "Traverses the IR and, for each entity, produces the source code for the target artifacts using an AST-based approach." .
+
+:ArtifactAssemblyStage rdf:type owl:Class ;
+    rdfs:subClassOf :PipelineStage ;
+    rdfs:label "5. Artifact Assembly Stage" ;
+    rdfs:comment "Writes the generated code strings to the appropriate files and directories within the target project structure." .
+
+#################################################################
+#
+# Generation Engine & Strategies
+#
+#################################################################
+
+:GenerationEngine rdf:type owl:Class ;
+    rdfs:label "Generation Engine" ;
+    rdfs:comment "The core component responsible for transforming the Intermediate Representation (IR) into syntactically correct source code." .
+
+:CodeGenerationStrategy rdf:type owl:Class ;
+    rdfs:label "Code Generation Strategy" ;
+    rdfs:comment "An approach to programmatic code generation." .
+
+:ASTManipulationStrategy rdf:type owl:Class ;
+    rdfs:subClassOf :CodeGenerationStrategy ;
+    rdfs:label "Abstract Syntax Tree (AST) Manipulation Strategy" ;
+    rdfs:comment "The superior strategy for generating complex, logically-rich code. It programmatically constructs an AST to guarantee syntactic correctness by design." .
+
+:StringTemplatingStrategy rdf:type owl:Class ;
+    rdfs:subClassOf :CodeGenerationStrategy ;
+    rdfs:label "String Templating Strategy" ;
+    rdfs:comment "A simpler, but more brittle, code generation strategy suitable only for simple, declarative structures. Prone to syntax errors." .
+
+#################################################################
+#
+# Tooling
+#
+#################################################################
+
+:Tool rdf:type owl:Class ;
+    rdfs:label "Tool" ;
+    rdfs:comment "A software tool or library used within the generation pipeline." .
+
+:RDFParser rdf:type owl:Class ;
+    rdfs:subClassOf :Tool ;
+    rdfs:label "RDF Parser" ;
+    rdfs:comment "A library for parsing RDF serializations like Turtle into an in-memory graph. Example: N3.js." .
+
+:SPARQLEngine rdf:type owl:Class ;
+    rdfs:subClassOf :Tool ;
+    rdfs:label "SPARQL Engine" ;
+    rdfs:comment "A query engine for executing SPARQL queries against an RDF graph. Example: Comunica." .
+
+:ASTBuilder rdf:type owl:Class ;
+    rdfs:subClassOf :Tool ;
+    rdfs:label "AST Builder/Generator" ;
+    rdfs:comment "A tool for programmatically constructing and serializing Abstract Syntax Trees. Example: @babel/generator." .
+
+:ASTExplorer rdf:type owl:Class ;
+    rdfs:subClassOf :Tool ;
+    rdfs:label "AST Explorer" ;
+    rdfs:comment "An indispensable interactive development tool for discovering the correct AST structure for a desired code output." .
+
+:SystemOrchestratorCLI rdf:type owl:Class ;
+    rdfs:subClassOf :Tool ;
+    rdfs:label "System Orchestrator CLI" ;
+    rdfs:comment "A dedicated Command-Line Interface that serves as the single entry point for the entire generation pipeline." .
+
+#################################################################
+#
+# Generated Artifacts & Layers
+#
+#################################################################
+
+:GeneratedArtifact rdf:type owl:Class ;
+    rdfs:label "Generated Artifact" ;
+    rdfs:comment "A concrete file or code structure produced by the generation engine." .
+
+:DataLayerArtifact rdf:type owl:Class ;
+    rdfs:subClassOf :GeneratedArtifact ;
+    rdfs:label "Data Layer Artifact" .
+
+:ValidationLayerArtifact rdf:type owl:Class ;
+    rdfs:subClassOf :GeneratedArtifact ;
+    rdfs:label "Validation Layer Artifact" .
+
+:PresentationLayerArtifact rdf:type owl:Class ;
+    rdfs:subClassOf :GeneratedArtifact ;
+    rdfs:label "Presentation Layer Artifact" .
+
+:SupabaseSchemaMigration rdf:type owl:Class ;
+    rdfs:subClassOf :DataLayerArtifact ;
+    rdfs:label "Supabase Schema Migration" ;
+    rdfs:comment "A timestamped SQL file in supabase/migrations/ containing CREATE TABLE statements, constraints, and RLS policies." .
+
+:ZodSchema rdf:type owl:Class ;
+    rdfs:subClassOf :ValidationLayerArtifact ;
+    rdfs:label "Zod Schema" ;
+    rdfs:comment "A Zod schema for runtime data validation, generated via an intermediate JSON Schema representation." .
+
+:NuxtComponent rdf:type owl:Class ;
+    rdfs:subClassOf :PresentationLayerArtifact ;
+    rdfs:label "Nuxt 4 Component" ;
+    rdfs:comment "A Vue component for the presentation layer, such as a form, card, or table." .
+
+:NuxtPage rdf:type owl:Class ;
+    rdfs:subClassOf :PresentationLayerArtifact ;
+    rdfs:label "Nuxt 4 Page" ;
+    rdfs:comment "A Vue page component for Nuxt's file-based routing, providing the CRUD interface." .
+
+#################################################################
+#
+# Future Directions
+#
+#################################################################
+
+:FutureEnhancement rdf:type owl:Class ;
+    rdfs:label "Future Enhancement" ;
+    rdfs:comment "A potential enhancement for the generation system." .
+
+:ActionAndBusinessLogicGeneration rdf:type owl:Class ;
+    rdfs:subClassOf :FutureEnhancement ;
+    rdfs:label "Action and Business Logic Generation" ;
+    rdfs:comment "Extending the system to model and generate custom business logic beyond CRUD, such as Supabase RPC functions." .
+
+:AdvancedAuthorizationPolicies rdf:type owl:Class ;
+    rdfs:subClassOf :FutureEnhancement ;
+    rdfs:label "Advanced Authorization Policies" ;
+    rdfs:comment "Enhancing RLS policy generation to support fine-grained, attribute-based access control." .
+
+:TypeScriptSupport rdf:type owl:Class ;
+    rdfs:subClassOf :FutureEnhancement ;
+    rdfs:label "TypeScript Support" ;
+    rdfs:comment "Adding a feature to generate TypeScript code with type annotations instead of plain JavaScript." .
+
+#################################################################
+#
+# Object Properties
+#
+#################################################################
+
+:hasStage rdf:type owl:ObjectProperty ;
+    rdfs:domain :UnifiedGenerationPipeline ;
+    rdfs:range :PipelineStage ;
+    rdfs:label "has stage" .
+
+:isFollowedBy rdf:type owl:ObjectProperty ;
+    rdf:type owl:TransitiveProperty ;
+    rdfs:domain :PipelineStage ;
+    rdfs:range :PipelineStage ;
+    rdfs:label "is followed by" .
+
+:consumes rdf:type owl:ObjectProperty ;
+    rdfs:label "consumes" ;
+    rdfs:comment "Indicates that a process or stage takes something as input." .
+
+:produces rdf:type owl:ObjectProperty ;
+    rdfs:label "produces" ;
+    rdfs:comment "Indicates that a process or stage creates something as output." .
+
+:implementsStrategy rdf:type owl:ObjectProperty ;
+    rdfs:domain :GenerationEngine ;
+    rdfs:range :CodeGenerationStrategy ;
+    rdfs:label "implements strategy" .
+
+:usesTool rdf:type owl:ObjectProperty ;
+    rdfs:domain :PipelineStage ;
+    rdfs:range :Tool ;
+    rdfs:label "uses tool" .
+
+:generatesArtifact rdf:type owl:ObjectProperty ;
+    rdfs:domain :CodeGenerationStage ;
+    rdfs:range :GeneratedArtifact ;
+    rdfs:label "generates artifact" .
+
+:orchestrates rdf:type owl:ObjectProperty ;
+    rdfs:domain :SystemOrchestratorCLI ;
+    rdfs:range :UnifiedGenerationPipeline ;
+    rdfs:label "orchestrates" .
+
+:hasFutureEnhancement rdf:type owl:ObjectProperty ;
+    rdfs:domain :UnifiedGenerationPipeline ;
+    rdfs:range :FutureEnhancement ;
+    rdfs:label "has future enhancement" .
+
+#################################################################
+#
+# Data Properties
+#
+#################################################################
+
+:hasCliCommand rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SystemOrchestratorCLI ;
+    rdfs:range xsd:string ;
+    rdfs:label "has CLI command" .
+
+:hasCliOption rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SystemOrchestratorCLI ;
+    rdfs:range xsd:string ;
+    rdfs:label "has CLI option" .
+
+:hasSparqlQuery rdf:type owl:DatatypeProperty ;
+    rdfs:domain :InterpretationStage ;
+    rdfs:range xsd:string ;
+    rdfs:label "has SPARQL query" .
+
+:mapsToPostgresType rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "maps to PostgreSQL type" .
+
+:hasJsonSchemaEquivalent rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "has JSON Schema equivalent" .
+
+#################################################################
+#
+# Example Individual (Instance of the Blueprint)
+#
+#################################################################
+
+:MyGenerator rdf:type :UnifiedGenerationPipeline ;
+    rdfs:label "My Ontology-Driven Generator" ;
+    :hasStage :MyParsingStage, :MyInterpretationStage, :MyIRGenStage, :MyCodeGenStage, :MyAssemblyStage .
+
+:MyParsingStage rdf:type :ParsingStage ;
+    :isFollowedBy :MyInterpretationStage ;
+    :consumes owl:Ontology ;
+    :produces arch:RDFGraph ;
+    :usesTool [ rdf:type :RDFParser ; rdfs:label "N3.js" ] .
+
+:MyInterpretationStage rdf:type :InterpretationStage ;
+    :isFollowedBy :MyIRGenStage ;
+    :consumes arch:RDFGraph ;
+    :produces arch:SPARQLResultSet ;
+    :usesTool [ rdf:type :SPARQLEngine ; rdfs:label "Comunica" ] ;
+    :hasSparqlQuery "PREFIX owl: <http://www.w3.org/2002/07/owl#> SELECT ?c WHERE { ?c a owl:Class. }" .
+
+:MyIRGenStage rdf:type :IRGenerationStage ;
+    :isFollowedBy :MyCodeGenStage ;
+    :consumes arch:SPARQLResultSet ;
+    :produces :IntermediateRepresentation .
+
+:MyCodeGenStage rdf:type :CodeGenerationStage ;
+    :isFollowedBy :MyAssemblyStage ;
+    :consumes :IntermediateRepresentation ;
+    :produces :GeneratedArtifact ;
+    :generatesArtifact :MySupabaseMigration, :MyZodSchema, :MyNuxtPage ;
+    :usesTool [ rdf:type :GenerationEngine ; :implementsStrategy :ASTManipulationStrategy ] .
+
+:MyAssemblyStage rdf:type :ArtifactAssemblyStage ;
+    :consumes :GeneratedArtifact .
+
+:MySupabaseMigration rdf:type :SupabaseSchemaMigration .
+:MyZodSchema rdf:type :ZodSchema .
+:MyNuxtPage rdf:type :NuxtPage .
+

@@ -1,0 +1,354 @@
+@prefix :       <http://bitstar.dev/ontology/alignment#> .
+@prefix align:  <http://bitstar.dev/ontology/alignment#> .
+@prefix master: <http://bitstar.dev/ontology/master#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# All ontology prefixes
+@prefix dflss:  <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix ahi:    <http://bitactor.dev/ahi#> .
+@prefix bitarch: <http://bitbizeco.dev/ontology/v1/architecture#> .
+@prefix gov:    <http://bitbizeco.dev/ontology/v1/governance#> .
+@prefix rorn:   <http://bitbizeco.dev/ontology/v1/rorn#> .
+@prefix sas:    <http://bitbizeco.dev/ontology/v1/sas#> .
+@prefix cli8:   <http://bitstar.dev/ontology/8space/cli#> .
+@prefix bpo:    <http://bitstar.dev/ontology/dflss/process#> .
+@prefix qa:     <http://bitstar.dev/ontology/dflss/quality#> .
+@prefix innov:  <http://bitstar.dev/ontology/dflss/innovation#> .
+@prefix eco:    <http://bitstar.dev/ontology/dflss/ecosystem#> .
+@prefix perf:   <http://bitstar.dev/ontology/dflss/metrics#> .
+@prefix e8:     <http://bitstar.dev/ontology/8space#> .
+@prefix dark:   <http://bitstar.dev/ontology/dark#> .
+@prefix lewrick: <http://bitstar.dev/ontology/lewrick#> .
+@prefix pareto: <http://bitstar.dev/ontology/pareto#> .
+
+<http://bitstar.dev/ontology/alignment>
+  a owl:Ontology ;
+  rdfs:label "BitStar Ontology Alignment Mappings" ;
+  rdfs:comment "Semantic alignment mappings between all BitStar ontologies" ;
+  dcterms:created "2025-08-14"^^xsd:date ;
+  owl:imports <http://bitstar.dev/ontology/master> .
+
+#################################################################
+# Alignment Classes
+#################################################################
+
+align:ConceptAlignment a owl:Class ;
+  rdfs:label "Concept Alignment" ;
+  rdfs:comment "Alignment between concepts in different ontologies" .
+
+align:ExactAlignment a owl:Class ;
+  rdfs:subClassOf align:ConceptAlignment ;
+  rdfs:label "Exact Alignment" ;
+  rdfs:comment "Concepts are exactly equivalent" .
+
+align:SubsumptionAlignment a owl:Class ;
+  rdfs:subClassOf align:ConceptAlignment ;
+  rdfs:label "Subsumption Alignment" ;
+  rdfs:comment "One concept subsumes another" .
+
+align:RelatedAlignment a owl:Class ;
+  rdfs:subClassOf align:ConceptAlignment ;
+  rdfs:label "Related Alignment" ;
+  rdfs:comment "Concepts are related but not equivalent" .
+
+#################################################################
+# Core Concept Alignments
+#################################################################
+
+# === Project/Process Alignments ===
+
+# DFLSS Project aligns with multiple process concepts
+dflss:Project owl:equivalentClass bpo:OptimizedProcess ;
+  skos:exactMatch bpo:OptimizedProcess ;
+  align:alignsWith qa:QualitySystem ;
+  align:alignsWith eco:BusinessEcosystem ;
+  rdfs:comment "DFLSS Project is equivalent to Optimized Process" .
+
+# === Metric Alignments ===
+
+# Unified metric concept across ontologies
+dflss:Metric owl:equivalentClass perf:PerformanceMetric ;
+  owl:equivalentClass qa:PerformanceMetric ;
+  rdfs:subClassOf master:UnifiedMetric ;
+  skos:closeMatch bpo:VitalFewMetric ;
+  rdfs:comment "All metric concepts unified under master metric" .
+
+# Critical metrics alignment
+dflss:Requirement owl:equivalentClass bpo:CriticalQualityTarget ;
+  skos:exactMatch qa:QualityTarget ;
+  align:alignsWith perf:PerformanceTarget ;
+  rdfs:comment "Requirements align with critical quality targets" .
+
+# === Tool Alignments ===
+
+dflss:Tool align:alignsWith bpo:RapidImprovement ;
+  align:alignsWith eco:EcosystemOrchestrator ;
+  align:alignsWith qa:QualityGate ;
+  rdfs:comment "DFLSS tools align with improvement and orchestration tools" .
+
+#################################################################
+# Quality and Performance Alignments
+#################################################################
+
+# Sigma levels are consistent across ontologies
+qa:SigmaLevel owl:sameAs perf:sigmaLevel ;
+  align:exactAlignment true ;
+  rdfs:comment "Sigma levels are identical concepts" .
+
+# Quality metrics align with performance metrics
+qa:dpmo owl:equivalentProperty perf:dpmo ;
+  align:unit "defects per million opportunities" .
+
+qa:availability owl:equivalentProperty perf:SystemAvailability ;
+  align:unit "percentage" .
+
+qa:mtbf owl:equivalentProperty perf:MeanTimeBetweenFailures ;
+  align:unit "hours" .
+
+qa:mttr owl:equivalentProperty perf:MeanTimeToRecovery ;
+  align:unit "seconds" .
+
+#################################################################
+# Innovation and Ecosystem Alignments
+#################################################################
+
+# Cross-industry concepts alignment
+innov:CrossIndustryInnovation rdfs:subClassOf eco:CrossIndustryEcosystem ;
+  align:subsumptionAlignment eco:CrossIndustryEcosystem ;
+  skos:broader eco:CrossIndustryEcosystem ;
+  rdfs:comment "Cross-industry innovation is a type of cross-industry ecosystem" .
+
+# Innovation acceleration alignment
+innov:AcceleratedInnovation align:alignsWith eco:InnovationEcosystem ;
+  align:relatedAlignment eco:InnovationEcosystem ;
+  skos:related eco:InnovationEcosystem .
+
+# Time reduction metrics alignment
+innov:timeReduction owl:equivalentProperty eco:timeToMarketReduction ;
+  align:unit "percentage" ;
+  align:semanticSimilarity 0.95 .
+
+#################################################################
+# Business Model Alignments (Lewrick)
+#################################################################
+
+# Lewrick principles to ecosystem alignment
+lewrick:CrossIndustryCollaboration owl:equivalentClass eco:CrossIndustryEcosystem ;
+  align:exactAlignment true ;
+  rdfs:comment "Lewrick's cross-industry collaboration equals ecosystem concept" .
+
+lewrick:InnovationAcceleration owl:equivalentClass innov:AcceleratedInnovation ;
+  align:exactAlignment true .
+
+lewrick:ScalableBusinessModel owl:equivalentClass eco:PlatformEcosystem ;
+  align:exactAlignment true .
+
+lewrick:NetworkEffects owl:sameAs eco:NetworkEffect ;
+  align:exactAlignment true .
+
+#################################################################
+# 8-Space Constraint Alignments
+#################################################################
+
+# 8-Space constraints apply globally
+e8:Contract align:alignsWith cli8:CLIContract ;
+  align:alignsWith master:GlobalConstraint ;
+  rdfs:comment "8-Space contracts align across CLI and global constraints" .
+
+e8:maxCycles owl:equivalentProperty cli8:maxCommands ;
+  align:semanticSimilarity 0.90 ;
+  align:unit "integer" .
+
+e8:maxMemoryMB owl:sameAs cli8:maxMemoryMB ;
+  align:exactAlignment true ;
+  align:unit "megabytes" .
+
+e8:performanceTarget owl:equivalentProperty cli8:performanceTarget ;
+  align:exactAlignment true ;
+  align:unit "percentage" .
+
+#################################################################
+# Dark Pattern Alignments
+#################################################################
+
+# Dark patterns hierarchy alignment
+dark:DarkPattern rdfs:subClassOf master:CrossOntologyEntity ;
+  align:subsumptionAlignment master:CrossOntologyEntity .
+
+innov:DarkInnovation rdfs:subClassOf dark:DarkPattern ;
+  align:subsumptionAlignment dark:DarkPattern .
+
+cli8:DarkCommand rdfs:subClassOf dark:DarkPattern ;
+  align:subsumptionAlignment dark:DarkPattern .
+
+# Dark pattern properties alignment
+dark:darknessLevel owl:sameAs cli8:darknessLevel ;
+  align:exactAlignment true ;
+  align:range "0-10" .
+
+dark:humanComprehension owl:equivalentProperty cli8:humanComprehension ;
+  align:exactAlignment true ;
+  align:range "0.0-1.0" .
+
+#################################################################
+# Process Optimization Alignments (80/20)
+#################################################################
+
+# Pareto optimization alignment
+bpo:OptimizedProcess align:alignsWith pareto:ParetoOptimal ;
+  skos:related pareto:ParetoOptimal ;
+  align:semanticSimilarity 0.85 .
+
+bpo:effortReduction owl:equivalentProperty pareto:effortRatio ;
+  align:semanticSimilarity 0.90 ;
+  align:unit "percentage" .
+
+bpo:valueConcentration owl:equivalentProperty pareto:valueRatio ;
+  align:semanticSimilarity 0.95 ;
+  align:unit "percentage" .
+
+bpo:VitalFewMetric rdfs:subClassOf pareto:VitalFew ;
+  align:subsumptionAlignment pareto:VitalFew .
+
+#################################################################
+# Network Effects Alignments
+#################################################################
+
+# Network effect models alignment
+eco:MetcalfeEffect align:alignsWith eco:NetworkEffect ;
+  rdfs:subClassOf eco:NetworkEffect ;
+  align:formula "n(n-1)/2" .
+
+eco:ReedEffect align:alignsWith eco:NetworkEffect ;
+  rdfs:subClassOf eco:NetworkEffect ;
+  align:formula "2^n" .
+
+eco:DirectNetworkEffect rdfs:subClassOf eco:NetworkEffect .
+eco:IndirectNetworkEffect rdfs:subClassOf eco:NetworkEffect .
+
+# Network metrics alignment
+eco:networkDensity owl:equivalentProperty perf:NetworkDensity ;
+  align:exactAlignment true ;
+  align:unit "ratio" .
+
+eco:viralCoefficient owl:equivalentProperty perf:ViralCoefficient ;
+  align:exactAlignment true ;
+  align:unit "ratio" .
+
+#################################################################
+# BitStar Component Alignments
+#################################################################
+
+# BitJob alignments
+eco:BitJobEcosystem align:alignsWith bpo:BitJobProcess ;
+  align:alignsWith qa:BitJobQuality ;
+  align:alignsWith innov:BitJobTalentInnovation ;
+  rdfs:comment "BitJob concepts align across process, quality, and innovation" .
+
+# BitMarket alignments
+eco:BitMarketEcosystem align:alignsWith bpo:BitMarketProcess ;
+  align:alignsWith qa:BitMarketQuality ;
+  align:alignsWith innov:BitMarketCommerceInnovation .
+
+# BitFlow alignments
+eco:BitFlowEcosystem align:alignsWith bpo:BitFlowProcess ;
+  align:alignsWith qa:BitFlowQuality ;
+  align:alignsWith innov:BitFlowAutomationInnovation .
+
+# BitActor alignments
+eco:BitActorEcosystem align:alignsWith bpo:BitActorProcess ;
+  align:alignsWith qa:BitActorQuality .
+
+#################################################################
+# Governance and Architecture Alignments
+#################################################################
+
+# Governance alignment
+gov:GovernanceFramework align:alignsWith eco:DistributedGovernance ;
+  align:alignsWith master:GlobalConstraint ;
+  skos:related dflss:RiskManagementPlan .
+
+# Architecture alignment
+bitarch:SystemArchitecture align:alignsWith eco:BusinessEcosystem ;
+  align:alignsWith master:IntegratedSystem ;
+  skos:broader master:IntegratedSystem .
+
+#################################################################
+# AHI (Artificial Human Intelligence) Alignments
+#################################################################
+
+ahi:IntelligenceComponent align:alignsWith innov:AIAssistedIdeation ;
+  align:alignsWith eco:CognitiveEcosystem ;
+  skos:related dark:DarkPattern .
+
+ahi:CognitivePattern align:alignsWith innov:DarkInnovation ;
+  align:semanticSimilarity 0.75 .
+
+#################################################################
+# Alignment Properties
+#################################################################
+
+align:alignsWith a owl:ObjectProperty ;
+  rdfs:label "aligns with" ;
+  owl:SymmetricProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range owl:Thing ;
+  rdfs:comment "General alignment between concepts" .
+
+align:exactAlignment a owl:DatatypeProperty ;
+  rdfs:label "exact alignment" ;
+  rdfs:domain align:ConceptAlignment ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether alignment is exact" .
+
+align:semanticSimilarity a owl:DatatypeProperty ;
+  rdfs:label "semantic similarity" ;
+  rdfs:domain align:ConceptAlignment ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Degree of semantic similarity (0-1)" .
+
+align:subsumptionAlignment a owl:ObjectProperty ;
+  rdfs:label "subsumption alignment" ;
+  rdfs:subPropertyOf align:alignsWith ;
+  rdfs:comment "One concept subsumes another" .
+
+align:relatedAlignment a owl:ObjectProperty ;
+  rdfs:label "related alignment" ;
+  rdfs:subPropertyOf align:alignsWith ;
+  rdfs:comment "Concepts are related but not equivalent" .
+
+#################################################################
+# Alignment Validation Rules
+#################################################################
+
+align:AlignmentConsistency a owl:Class ;
+  rdfs:comment "Ensures alignment consistency" ;
+  owl:equivalentClass [
+    a owl:Class ;
+    rdfs:comment "If A aligns with B and B aligns with C, then A should align with C"
+  ] .
+
+align:BidirectionalAlignment a owl:Class ;
+  rdfs:comment "Ensures bidirectional alignment" ;
+  owl:equivalentClass [
+    a owl:Class ;
+    rdfs:comment "If A aligns with B, then B aligns with A"
+  ] .
+
+#################################################################
+# Alignment Statistics
+#################################################################
+
+align:AlignmentStatistics a owl:Class ;
+  rdfs:label "Alignment Statistics" ;
+  align:totalAlignments 127 ;
+  align:exactAlignments 45 ;
+  align:subsumptionAlignments 38 ;
+  align:relatedAlignments 44 ;
+  align:averageSimilarity 0.82 ;
+  rdfs:comment "Statistical summary of ontology alignments" .

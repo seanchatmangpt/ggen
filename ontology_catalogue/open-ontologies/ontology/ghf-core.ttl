@@ -1,0 +1,41 @@
+@prefix ghf:   <https://open-ontologies.org/profile/github-factory#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+#################################################################
+# GHF Core Ontology
+#################################################################
+
+ghf:OpenOntologies a ghf:GitHubRepository ;
+    ghf:name "open-ontologies" ;
+    ghf:description "AI-native ontology engine CLI" ;
+    ghf:visibility "public" ;
+    ghf:hasLabel ghf:LabelBug, ghf:LabelFeature, ghf:LabelSecurity, ghf:LabelDocumentation, ghf:LabelInfrastructure, ghf:LabelTesting, ghf:LabelPerformance, ghf:LabelRefactor ;
+    ghf:hasEnvironment ghf:EnvProd, ghf:EnvAudit ;
+    ghf:hasBranchProtection ghf:BranchProtectionMain .
+
+ghf:LabelBug a ghf:Label ; ghf:name "bug" ; ghf:color "d73a4a" ; ghf:description "Something isn't working" .
+ghf:LabelFeature a ghf:Label ; ghf:name "enhancement" ; ghf:color "a2eeef" ; ghf:description "New feature or request" .
+ghf:LabelSecurity a ghf:Label ; ghf:name "security" ; ghf:color "e99695" ; ghf:description "Security related issue" .
+ghf:LabelDocumentation a ghf:Label ; ghf:name "documentation" ; ghf:color "0075ca" ; ghf:description "Improvements or additions to documentation" .
+ghf:LabelInfrastructure a ghf:Label ; ghf:name "infrastructure" ; ghf:color "5319e7" ; ghf:description "Infrastructure or CI/CD" .
+ghf:LabelTesting a ghf:Label ; ghf:name "testing" ; ghf:color "fbca04" ; ghf:description "Test coverage and improvements" .
+ghf:LabelPerformance a ghf:Label ; ghf:name "performance" ; ghf:color "006b75" ; ghf:description "Performance improvements" .
+ghf:LabelRefactor a ghf:Label ; ghf:name "refactor" ; ghf:color "f29513" ; ghf:description "Code refactoring" .
+
+ghf:EnvProd a ghf:Environment ; ghf:name "prod" .
+ghf:EnvAudit a ghf:Environment ; ghf:name "audit" .
+
+ghf:BranchProtectionMain a ghf:BranchProtection ;
+    ghf:branch "main" ;
+    ghf:requireSignedCommits true ;
+    ghf:requiredReviewCount 1 ;
+    ghf:enforceAdmins true .
+
+ghf:Unit1 a ghf:ContributionUnit ;
+    ghf:jtbdId "JTBD-001" ;
+    ghf:persona "architect" ;
+    ghf:targetRepository ghf:OpenOntologies .

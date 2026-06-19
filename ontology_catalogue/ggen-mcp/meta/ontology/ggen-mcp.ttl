@@ -1,0 +1,109 @@
+@prefix ggen: <https://ggen-mcp.dev/domain#> .
+@prefix ddd: <https://ddd-patterns.dev/schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ggen:OntologyManagement a ddd:BoundedContext ;
+    rdfs:label "Ontology Management" ;
+    ddd:owns ( ggen:Ontology ggen:SPARQLQuery ) ;
+    ddd:publishesEvent ggen:OntologyLoaded .
+
+ggen:Ontology a ddd:AggregateRoot ;
+    rdfs:label "Ontology" ;
+    ddd:hasProperty ggen:id ;
+    ddd:hasProperty ggen:path ;
+    ddd:hasProperty ggen:graph ;
+    ddd:hasInvariant [
+        rdfs:label "Must have valid RDF graph" ;
+        sh:path ggen:graph ;
+        sh:minCount 1
+    ] ;
+    ddd:hasInvariant [
+        rdfs:label "ID must match pattern" ;
+        sh:path ggen:id ;
+        sh:pattern "^ont-[a-z0-9]{10}$"
+    ] .
+
+ggen:SPARQLQuery a ddd:ValueObject ;
+    rdfs:label "SPARQL Query" ;
+    ddd:hasProperty ggen:queryString ;
+    ddd:hasProperty ggen:queryType .
+
+ggen:LoadOntologyCommand a ddd:Command ;
+    rdfs:label "Load Ontology" ;
+    ddd:hasParameter ggen:path ;
+    ddd:emitsEvent ggen:OntologyLoaded .
+
+ggen:OntologyLoaded a ddd:DomainEvent ;
+    rdfs:label "Ontology Loaded" ;
+    ddd:hasProperty ggen:ontologyId ;
+    ddd:hasProperty ggen:timestamp .
+
+ggen:CodeGeneration a ddd:BoundedContext ;
+    rdfs:label "Code Generation" ;
+    ddd:owns ( ggen:Template ggen:Receipt ) ;
+    ddd:publishesEvent ggen:CodeGenerated .
+
+ggen:Template a ddd:ValueObject ;
+    rdfs:label "Template" ;
+    ddd:hasProperty ggen:path ;
+    ddd:hasProperty ggen:content .
+
+ggen:Receipt a ddd:AggregateRoot ;
+    rdfs:label "Receipt" ;
+    ddd:hasProperty ggen:receiptId ;
+    ddd:hasProperty ggen:ontologyHash ;
+    ddd:hasProperty ggen:templateHash ;
+    ddd:hasProperty ggen:artifactHash ;
+    ddd:hasInvariant [
+        rdfs:label "Must have all hashes" ;
+        sh:and (
+            [ sh:path ggen:ontologyHash ; sh:minCount 1 ]
+            [ sh:path ggen:templateHash ; sh:minCount 1 ]
+            [ sh:path ggen:artifactHash ; sh:minCount 1 ]
+        )
+    ] .
+
+ggen:GenerateCodeCommand a ddd:Command ;
+    rdfs:label "Generate Code" ;
+    ddd:hasParameter ggen:ontologyId ;
+    ddd:hasParameter ggen:templatePath ;
+    ddd:emitsEvent ggen:CodeGenerated .
+
+ggen:CodeGenerated a ddd:DomainEvent ;
+    rdfs:label "Code Generated" ;
+    ddd:hasProperty ggen:receiptId ;
+    ddd:hasProperty ggen:artifactPath .
+
+ggen:GenerationWorkflow a ddd:Workflow ;
+    rdfs:label "Code Generation Workflow" ;
+    ddd:steps (
+        ggen:LoadOntologyStep
+        ggen:ExecuteSPARQLStep
+        ggen:RenderTemplateStep
+        ggen:ValidateOutputStep
+        ggen:WriteArtifactStep
+        ggen:CreateReceiptStep
+    ) ;
+    ddd:invariant [
+        rdfs:label "Determinism" ;
+        rdfs:comment "Same ontology + template = same output"
+    ] ;
+    ddd:invariant [
+        rdfs:label "Completeness" ;
+        rdfs:comment "No TODO in generated code"
+    ] .
+
+ggen:CompletenessPolicy a ddd:Policy ;
+    rdfs:label "Completeness Policy" ;
+    rdfs:comment "Generated code must be complete. No TODO allowed." ;
+    ddd:appliesTo ggen:GeneratedArtifact ;
+    ddd:validates [
+        sh:pattern "^((?!TODO).)*$"
+    ] .
+
+ggen:BigBang8020Policy a ddd:Policy ;
+    rdfs:label "Big Bang 80/20 Policy" ;
+    rdfs:comment "Single-pass generation. Complete or fail." ;
+    ddd:appliesTo ggen:GenerationWorkflow .

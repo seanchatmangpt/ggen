@@ -1,0 +1,18 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+ex:person1 a foaf:Person ;
+    foaf:name "John Doe" ;
+    foaf:age 30 ;
+    foaf:email "john.doe@example.com" ;
+    foaf:homepage <http://johndoe.example.com> ;
+    dcterms:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    foaf:knows ex:person2 .
+
+ex:person2 a foaf:Person ;
+    foaf:name "Jane Smith" ;
+    foaf:age 28 ;
+    foaf:email "jane.smith@example.com" ;
+    foaf:workplaceHomepage <http://acme.example.com> .

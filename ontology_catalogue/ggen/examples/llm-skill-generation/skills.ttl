@@ -1,0 +1,42 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix a2a: <http://example.org/a2a#> .
+@prefix ex: <http://example.org/skills#> .
+
+# Rust Skills
+ex:SearchFiles a a2a:Skill ;
+    rdfs:label "Search Files" ;
+    a2a:skillName "search_files" ;
+    a2a:hasSystemPrompt "Search files by pattern using glob syntax" ;
+    a2a:hasImplementationHint "Use the glob crate for pattern matching" ;
+    a2a:targetLanguage "rust" ;
+    a2a:hasInputPattern "path: String, pattern: String" ;
+    a2a:hasOutputType "Vec<PathBuf>" .
+
+ex:ReadConfig a a2a:Skill ;
+    rdfs:label "Read Configuration" ;
+    a2a:skillName "read_config" ;
+    a2a:hasSystemPrompt "Read and parse configuration files (TOML, YAML, JSON)" ;
+    a2a:hasImplementationHint "Use serde and config crates for parsing" ;
+    a2a:targetLanguage "rust" ;
+    a2a:hasInputPattern "path: String" ;
+    a2a:hasOutputType "Result<Config>" .
+
+# Elixir Skills
+ex:ProcessQueue a a2a:Skill ;
+    rdfs:label "Process Queue" ;
+    a2a:skillName "process_queue" ;
+    a2a:hasSystemPrompt "Process items from a GenStage queue" ;
+    a2a:hasImplementationHint "Use GenStage for backpressure-aware processing" ;
+    a2a:targetLanguage "elixir" ;
+    a2a:hasInputPattern "queue_pid: pid, options: Keyword.t" ;
+    a2a:hasOutputType ":ok | {:error, reason}" .
+
+ex:CacheData a a2a:Skill ;
+    rdfs:label "Cache Data" ;
+    a2a:skillName "cache_data" ;
+    a2a:hasSystemPrompt "Cache data in ETS table for fast access" ;
+    a2a:hasImplementationHint "Use :ets.new with named table for persistence" ;
+    a2a:targetLanguage "elixir" ;
+    a2a:hasInputPattern "key: any(), value: any(), ttl: integer" ;
+    a2a:hasOutputType ":ok | {:error, reason}" .

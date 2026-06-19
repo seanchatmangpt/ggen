@@ -1,0 +1,15 @@
+
+PREFIX proj: <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?toolName ?toolDescription ?wasmModule
+WHERE {
+  ?tool a ostar:McpTool ;
+        rdfs:label ?toolName .
+
+  OPTIONAL { ?tool rdfs:comment ?toolDescription }
+  OPTIONAL { ?tool ostar:hasWasmModule ?wasmModule }
+}
+ORDER BY ?toolName

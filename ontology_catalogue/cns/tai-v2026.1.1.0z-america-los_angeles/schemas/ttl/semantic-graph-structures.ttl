@@ -1,0 +1,415 @@
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# TAI Semantic Graph Structures Schema
+# Defines semantic relationships, soft logic, and semantic gravity
+
+# ===== SEMANTIC CLASSES =====
+
+# Semantic Node
+tai:SemanticNode a owl:Class ;
+    rdfs:label "Semantic Node" ;
+    rdfs:comment "Node in semantic graph carrying meaning and relationships" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# Semantic Edge
+tai:SemanticEdge a owl:Class ;
+    rdfs:label "Semantic Edge" ;
+    rdfs:comment "Weighted edge in semantic graph representing relationships" ;
+    rdfs:subClassOf tai:Connection, tai:SemanticConstruct .
+
+# Semantic Cluster
+tai:SemanticCluster a owl:Class ;
+    rdfs:label "Semantic Cluster" ;
+    rdfs:comment "Group of semantically related nodes" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# Concept
+tai:Concept a owl:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "Abstract concept or idea in semantic space" ;
+    rdfs:subClassOf tai:SemanticNode .
+
+# Semantic Attractor
+tai:SemanticAttractor a owl:Class ;
+    rdfs:label "Semantic Attractor" ;
+    rdfs:comment "Point in semantic space that attracts related concepts" ;
+    rdfs:subClassOf tai:SemanticNode .
+
+# Semantic Field
+tai:SemanticField a owl:Class ;
+    rdfs:label "Semantic Field" ;
+    rdfs:comment "Region of semantic space with related concepts" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# ===== SOFT LOGIC CLASSES =====
+
+# Soft Logic Rule
+tai:SoftLogicRule a owl:Class ;
+    rdfs:label "Soft Logic Rule" ;
+    rdfs:comment "Probabilistic or fuzzy logic rule for inference" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# Fuzzy Set
+tai:FuzzySet a owl:Class ;
+    rdfs:label "Fuzzy Set" ;
+    rdfs:comment "Fuzzy set with membership degrees" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# Probabilistic Inference
+tai:ProbabilisticInference a owl:Class ;
+    rdfs:label "Probabilistic Inference" ;
+    rdfs:comment "Probabilistic reasoning or inference process" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# Soft Constraint
+tai:SoftConstraint a owl:Class ;
+    rdfs:label "Soft Constraint" ;
+    rdfs:comment "Constraint with varying degrees of violation tolerance" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# Uncertainty
+tai:Uncertainty a owl:Class ;
+    rdfs:label "Uncertainty" ;
+    rdfs:comment "Measure of uncertainty or ambiguity in semantic relationships" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# ===== SEMANTIC GRAVITY CLASSES =====
+
+# Gravity Well
+tai:SemanticGravityWell a owl:Class ;
+    rdfs:label "Semantic Gravity Well" ;
+    rdfs:comment "Region of high semantic attraction" ;
+    rdfs:subClassOf tai:SemanticField .
+
+# Gravity Gradient
+tai:SemanticGravityGradient a owl:Class ;
+    rdfs:label "Semantic Gravity Gradient" ;
+    rdfs:comment "Gradient field showing semantic attraction direction and strength" ;
+    rdfs:subClassOf tai:SemanticField .
+
+# Semantic Mass
+tai:SemanticMass a owl:Class ;
+    rdfs:label "Semantic Mass" ;
+    rdfs:comment "Measure of semantic density or importance" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+# ===== SEMANTIC NODE PROPERTIES =====
+
+tai:hasSemanticValue a owl:DatatypeProperty ;
+    rdfs:label "has semantic value" ;
+    rdfs:comment "Semantic value or meaning representation" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range xsd:string .
+
+tai:hasSemanticType a owl:DatatypeProperty ;
+    rdfs:label "has semantic type" ;
+    rdfs:comment "Type or category of semantic node" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range xsd:string .
+
+tai:hasActivationLevel a owl:DatatypeProperty ;
+    rdfs:label "has activation level" ;
+    rdfs:comment "Current activation level of semantic node (0.0-1.0)" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range xsd:double .
+
+tai:hasSemanticDensity a owl:DatatypeProperty ;
+    rdfs:label "has semantic density" ;
+    rdfs:comment "Density of semantic information at node" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range xsd:double .
+
+tai:hasConceptualDepth a owl:DatatypeProperty ;
+    rdfs:label "has conceptual depth" ;
+    rdfs:comment "Depth of conceptual abstraction" ;
+    rdfs:domain tai:Concept ;
+    rdfs:range xsd:integer .
+
+# ===== SEMANTIC EDGE PROPERTIES =====
+
+tai:hasSemanticRelationType a owl:DatatypeProperty ;
+    rdfs:label "has semantic relation type" ;
+    rdfs:comment "Type of semantic relationship (similarity, causation, etc.)" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range xsd:string .
+
+tai:hasSemanticStrength a owl:DatatypeProperty ;
+    rdfs:label "has semantic strength" ;
+    rdfs:comment "Strength of semantic relationship (0.0-1.0)" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range xsd:double .
+
+tai:isDirectional a owl:DatatypeProperty ;
+    rdfs:label "is directional" ;
+    rdfs:comment "Whether semantic edge has direction" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range xsd:boolean .
+
+tai:hasSymmetry a owl:DatatypeProperty ;
+    rdfs:label "has symmetry" ;
+    rdfs:comment "Degree of symmetry in bidirectional relationship" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range xsd:double .
+
+tai:connectsSemanticNodes a owl:ObjectProperty ;
+    rdfs:label "connects semantic nodes" ;
+    rdfs:comment "Semantic edge connects these nodes" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range tai:SemanticNode .
+
+tai:hasSourceNode a owl:ObjectProperty ;
+    rdfs:label "has source node" ;
+    rdfs:comment "Source node of directed semantic edge" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range tai:SemanticNode .
+
+tai:hasTargetNode a owl:ObjectProperty ;
+    rdfs:label "has target node" ;
+    rdfs:comment "Target node of directed semantic edge" ;
+    rdfs:domain tai:SemanticEdge ;
+    rdfs:range tai:SemanticNode .
+
+# ===== SOFT LOGIC PROPERTIES =====
+
+tai:hasTruthValue a owl:DatatypeProperty ;
+    rdfs:label "has truth value" ;
+    rdfs:comment "Soft truth value between 0.0 and 1.0" ;
+    rdfs:domain tai:SoftLogicRule ;
+    rdfs:range xsd:double .
+
+tai:hasConfidenceInterval a owl:DatatypeProperty ;
+    rdfs:label "has confidence interval" ;
+    rdfs:comment "Confidence interval for probabilistic inference" ;
+    rdfs:domain tai:ProbabilisticInference ;
+    rdfs:range xsd:string .
+
+tai:hasProbability a owl:DatatypeProperty ;
+    rdfs:label "has probability" ;
+    rdfs:comment "Probability value (0.0-1.0)" ;
+    rdfs:domain tai:ProbabilisticInference ;
+    rdfs:range xsd:double .
+
+tai:hasMembershipDegree a owl:DatatypeProperty ;
+    rdfs:label "has membership degree" ;
+    rdfs:comment "Degree of membership in fuzzy set (0.0-1.0)" ;
+    rdfs:domain tai:FuzzySet ;
+    rdfs:range xsd:double .
+
+tai:hasMembershipFunction a owl:DatatypeProperty ;
+    rdfs:label "has membership function" ;
+    rdfs:comment "Mathematical function defining fuzzy set membership" ;
+    rdfs:domain tai:FuzzySet ;
+    rdfs:range xsd:string .
+
+tai:hasUncertaintyType a owl:DatatypeProperty ;
+    rdfs:label "has uncertainty type" ;
+    rdfs:comment "Type of uncertainty (aleatory, epistemic, etc.)" ;
+    rdfs:domain tai:Uncertainty ;
+    rdfs:range xsd:string .
+
+tai:hasUncertaintyMeasure a owl:DatatypeProperty ;
+    rdfs:label "has uncertainty measure" ;
+    rdfs:comment "Quantitative measure of uncertainty" ;
+    rdfs:domain tai:Uncertainty ;
+    rdfs:range xsd:double .
+
+# ===== SEMANTIC GRAVITY PROPERTIES =====
+
+tai:hasGravitationalStrength a owl:DatatypeProperty ;
+    rdfs:label "has gravitational strength" ;
+    rdfs:comment "Strength of semantic gravitational field" ;
+    rdfs:domain tai:SemanticGravityWell ;
+    rdfs:range xsd:double .
+
+tai:hasAttractionRadius a owl:DatatypeProperty ;
+    rdfs:label "has attraction radius" ;
+    rdfs:comment "Radius of semantic attraction influence" ;
+    rdfs:domain tai:SemanticAttractor ;
+    rdfs:range xsd:double .
+
+tai:hasSemanticMassValue a owl:DatatypeProperty ;
+    rdfs:label "has semantic mass value" ;
+    rdfs:comment "Numerical value of semantic mass" ;
+    rdfs:domain tai:SemanticMass ;
+    rdfs:range xsd:double .
+
+tai:hasGravityVector a owl:DatatypeProperty ;
+    rdfs:label "has gravity vector" ;
+    rdfs:comment "Direction and magnitude of semantic gravity" ;
+    rdfs:domain tai:SemanticGravityGradient ;
+    rdfs:range xsd:string .
+
+tai:attractsNode a owl:ObjectProperty ;
+    rdfs:label "attracts node" ;
+    rdfs:comment "Semantic attractor attracts this node" ;
+    rdfs:domain tai:SemanticAttractor ;
+    rdfs:range tai:SemanticNode .
+
+tai:isAttractedTo a owl:ObjectProperty ;
+    rdfs:label "is attracted to" ;
+    rdfs:comment "Node is attracted to this attractor" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range tai:SemanticAttractor ;
+    owl:inverseOf tai:attractsNode .
+
+# ===== SEMANTIC CLUSTERING =====
+
+tai:belongsToCluster a owl:ObjectProperty ;
+    rdfs:label "belongs to cluster" ;
+    rdfs:comment "Node belongs to semantic cluster" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range tai:SemanticCluster .
+
+tai:hasClusterCentroid a owl:ObjectProperty ;
+    rdfs:label "has cluster centroid" ;
+    rdfs:comment "Centroid node of semantic cluster" ;
+    rdfs:domain tai:SemanticCluster ;
+    rdfs:range tai:SemanticNode .
+
+tai:hasClusterRadius a owl:DatatypeProperty ;
+    rdfs:label "has cluster radius" ;
+    rdfs:comment "Radius of semantic cluster" ;
+    rdfs:domain tai:SemanticCluster ;
+    rdfs:range xsd:double .
+
+tai:hasClusterCohesion a owl:DatatypeProperty ;
+    rdfs:label "has cluster cohesion" ;
+    rdfs:comment "Cohesion measure of cluster (0.0-1.0)" ;
+    rdfs:domain tai:SemanticCluster ;
+    rdfs:range xsd:double .
+
+tai:hasIntraClusterDistance a owl:DatatypeProperty ;
+    rdfs:label "has intra-cluster distance" ;
+    rdfs:comment "Average distance between nodes within cluster" ;
+    rdfs:domain tai:SemanticCluster ;
+    rdfs:range xsd:double .
+
+# ===== SUGGESTION MECHANISMS =====
+
+tai:Suggestion a owl:Class ;
+    rdfs:label "Suggestion" ;
+    rdfs:comment "Suggested connection or relationship (soft logic)" ;
+    rdfs:subClassOf tai:Connection .
+
+tai:SuggestionEngine a owl:Class ;
+    rdfs:label "Suggestion Engine" ;
+    rdfs:comment "Mechanism for generating semantic suggestions" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+tai:generatesSuggestion a owl:ObjectProperty ;
+    rdfs:label "generates suggestion" ;
+    rdfs:comment "Engine generates this suggestion" ;
+    rdfs:domain tai:SuggestionEngine ;
+    rdfs:range tai:Suggestion .
+
+tai:suggestsConnection a owl:ObjectProperty ;
+    rdfs:label "suggests connection" ;
+    rdfs:comment "Suggests connection between semantic entities" ;
+    rdfs:domain tai:Suggestion ;
+    rdfs:range tai:SemanticNode .
+
+tai:hasSuggestionReason a owl:DatatypeProperty ;
+    rdfs:label "has suggestion reason" ;
+    rdfs:comment "Reasoning behind suggestion" ;
+    rdfs:domain tai:Suggestion ;
+    rdfs:range xsd:string .
+
+tai:hasSuggestionScore a owl:DatatypeProperty ;
+    rdfs:label "has suggestion score" ;
+    rdfs:comment "Confidence score for suggestion (0.0-1.0)" ;
+    rdfs:domain tai:Suggestion ;
+    rdfs:range xsd:double .
+
+tai:isAccepted a owl:DatatypeProperty ;
+    rdfs:label "is accepted" ;
+    rdfs:comment "Whether suggestion has been accepted" ;
+    rdfs:domain tai:Suggestion ;
+    rdfs:range xsd:boolean .
+
+# ===== SEMANTIC EVOLUTION =====
+
+tai:SemanticEvolution a owl:Class ;
+    rdfs:label "Semantic Evolution" ;
+    rdfs:comment "Evolution of semantic structures over time" ;
+    rdfs:subClassOf tai:SemanticConstruct, tai:TemporalConstruct .
+
+tai:evolvesSemantics a owl:ObjectProperty ;
+    rdfs:label "evolves semantics" ;
+    rdfs:comment "Semantic entity undergoes evolution" ;
+    rdfs:domain tai:SemanticEvolution ;
+    rdfs:range tai:SemanticConstruct .
+
+tai:hasEvolutionPressure a owl:DatatypeProperty ;
+    rdfs:label "has evolution pressure" ;
+    rdfs:comment "Pressure driving semantic evolution" ;
+    rdfs:domain tai:SemanticEvolution ;
+    rdfs:range xsd:double .
+
+tai:hasAdaptationRate a owl:DatatypeProperty ;
+    rdfs:label "has adaptation rate" ;
+    rdfs:comment "Rate of semantic adaptation" ;
+    rdfs:domain tai:SemanticEvolution ;
+    rdfs:range xsd:double .
+
+# ===== SEMANTIC FIELD PROPERTIES =====
+
+tai:hasFieldStrength a owl:DatatypeProperty ;
+    rdfs:label "has field strength" ;
+    rdfs:comment "Strength of semantic field" ;
+    rdfs:domain tai:SemanticField ;
+    rdfs:range xsd:double .
+
+tai:hasFieldGradient a owl:DatatypeProperty ;
+    rdfs:label "has field gradient" ;
+    rdfs:comment "Gradient of semantic field strength" ;
+    rdfs:domain tai:SemanticField ;
+    rdfs:range xsd:double .
+
+tai:encompassesNode a owl:ObjectProperty ;
+    rdfs:label "encompasses node" ;
+    rdfs:comment "Semantic field encompasses this node" ;
+    rdfs:domain tai:SemanticField ;
+    rdfs:range tai:SemanticNode .
+
+tai:isWithinField a owl:ObjectProperty ;
+    rdfs:label "is within field" ;
+    rdfs:comment "Node is within semantic field" ;
+    rdfs:domain tai:SemanticNode ;
+    rdfs:range tai:SemanticField ;
+    owl:inverseOf tai:encompassesNode .
+
+# ===== SEMANTIC METRICS =====
+
+tai:SemanticMetrics a owl:Class ;
+    rdfs:label "Semantic Metrics" ;
+    rdfs:comment "Metrics for measuring semantic graph properties" ;
+    rdfs:subClassOf tai:SemanticConstruct .
+
+tai:hasGraphDensity a owl:DatatypeProperty ;
+    rdfs:label "has graph density" ;
+    rdfs:comment "Density of semantic graph connections" ;
+    rdfs:domain tai:SemanticMetrics ;
+    rdfs:range xsd:double .
+
+tai:hasAveragePathLength a owl:DatatypeProperty ;
+    rdfs:label "has average path length" ;
+    rdfs:comment "Average path length in semantic graph" ;
+    rdfs:domain tai:SemanticMetrics ;
+    rdfs:range xsd:double .
+
+tai:hasClusteringCoefficient a owl:DatatypeProperty ;
+    rdfs:label "has clustering coefficient" ;
+    rdfs:comment "Clustering coefficient of semantic graph" ;
+    rdfs:domain tai:SemanticMetrics ;
+    rdfs:range xsd:double .
+
+tai:hasSmallWorldness a owl:DatatypeProperty ;
+    rdfs:label "has small worldness" ;
+    rdfs:comment "Small-world property measure" ;
+    rdfs:domain tai:SemanticMetrics ;
+    rdfs:range xsd:double .

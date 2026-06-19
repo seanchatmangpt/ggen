@@ -1,0 +1,124 @@
+@prefix : <https://bytestar.org/ontology/economic-calculus#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tg: <https://bytestar.org/ontology/trojan-gift#> .
+@prefix metrics: <https://bytestar.org/ontology/metrics#> .
+@prefix marketplace: <https://bytestar.org/ontology/marketplace#> .
+
+<https://bytestar.org/ontology/economic-calculus>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/economic-calculus/v1.0> ;
+    rdfs:comment "Ontology formalizing the AHI Calculus of Explosion within the ByteStar ecosystem, modeling the growth dynamics of the Trojan Gift." ;
+    owl:imports tg: ,
+                metrics: ,
+                marketplace: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:ExplosionCalculus rdf:type owl:Class ;
+    rdfs:comment "The formal calculus describing the self-accelerating growth of the Trojan Gift model." .
+
+:StateVariable rdf:type owl:Class ;
+    rdfs:comment "A measurable quantity representing the state of the economic system at a given time." .
+
+:InstallCount rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "N(t): Active Trojan Gift installs (orgs running their own Supabase+Nuxt)." .
+
+:CanonicalCoverage rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "C_i(t): Canonical coverage at org i (fraction of useful tables/APIs mapped to canon)." .
+
+:ActiveLensCount rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "L_i(t): Active Value Lenses at org i (salable shadow products)." .
+
+:MarketplaceSupply rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "S(t): Total marketplace supply (distinct shadow SKUs)." .
+
+:DemandIntensity rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "D(t): Demand intensity (paying queries/subscriptions per epoch)." .
+
+:LensPrice rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "p_l(t): Price for a specific lens l." .
+
+:Revenue rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "R(t): Revenue (ByteStar's cut) from sold quantities." .
+
+:TrustIndex rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "T(t): Trust index inferred from receipts quality/uptime/latency." .
+
+:SemanticAmplification rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "kappa(t): Semantic amplification (how much more supply a unit of coverage unlocks due to ontology reuse)." .
+
+:DP_BudgetRemaining rdf:type owl:Class ;
+    rdfs:subClassOf :StateVariable ;
+    rdfs:comment "B_i(t): Remaining DP budget at org i." .
+
+:DynamicEquation rdf:type owl:Class ;
+    rdfs:comment "An equation describing the change in a state variable over time." .
+
+:ExplosionCondition rdf:type owl:Class ;
+    rdfs:comment "A condition that, when met, indicates the system is in a self-accelerating growth regime." .
+
+:ControlLever rdf:type owl:Class ;
+    rdfs:comment "A policy or action that can be adjusted to influence the system dynamics." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasStateVariable rdf:type owl:ObjectProperty ;
+    rdfs:domain :ExplosionCalculus ;
+    rdfs:range :StateVariable ;
+    rdfs:comment "The Explosion Calculus involves various state variables." .
+
+:governedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :StateVariable ;
+    rdfs:range :DynamicEquation ;
+    rdfs:comment "A state variable is governed by a dynamic equation." .
+
+:leadsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :DynamicEquation ;
+    rdfs:range :ExplosionCondition ;
+    rdfs:comment "A dynamic equation can lead to an explosion condition." .
+
+:influencedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :StateVariable ;
+    rdfs:range :ControlLever ;
+    rdfs:comment "A state variable can be influenced by a control lever." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasEquationFormula rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DynamicEquation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The mathematical formula for the dynamic equation." .
+
+:hasThresholdCondition rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ExplosionCondition ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The condition that defines the explosion threshold." .
+
+:hasDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ControlLever ;
+    rdfs:range xsd:string ;
+    rdfs:comment "A description of the control lever." .
+
+:hasValueAtTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain :StateVariable ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The numerical value of a state variable at a given time." .
+

@@ -1,0 +1,31 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+
+# Extract all CognitionBreed instances as witness marker bindings.
+# Maps breed fields to the witness_marker!() template variables.
+#
+# rustType    = breedLabel + "Paper"  (e.g. "AbductiveIbePaper")
+# witnessKey  = "cognition/" + breedId with underscores replaced by hyphens
+# witnessTitle = breedLabel (human-facing algorithm name)
+# witnessYear  = None (years are in citation prose; add compat:witnessYear per-breed to override)
+# witnessFamily = "Paper"
+# description  = citation (truncated to first 120 chars for docstring readability)
+
+SELECT ?rustType ?witnessKey ?witnessTitle ?witnessYear ?witnessFamily ?description
+WHERE {
+  ?b a compat:CognitionBreed ;
+     compat:breedId    ?breedId ;
+     compat:breedLabel ?breedLabel ;
+     compat:citation   ?citation .
+
+  BIND(CONCAT(?breedLabel, "Paper") AS ?rustType)
+  BIND(CONCAT("cognition/", REPLACE(?breedId, "_", "-")) AS ?witnessKey)
+  BIND(?breedLabel AS ?witnessTitle)
+  BIND("Paper" AS ?witnessFamily)
+  BIND(IF(STRLEN(?citation) > 120, CONCAT(SUBSTR(?citation, 1, 117), "..."), ?citation) AS ?description)
+
+  # Year: optional override via compat:witnessYear; defaults to empty (None)
+  OPTIONAL { ?b compat:witnessYear ?witnessYear }
+}
+ORDER BY ?breedId

@@ -1,0 +1,37 @@
+# @name: create_project
+# @category: projects
+# @description: Create a new project entity with organizational context
+# @params: ?project_id, ?project_name, ?description, ?owner_id, ?start_date, ?end_date, ?status
+# @returns: prov:Collection with org:hasMembership and schema:description
+# @version: 1.0
+# @stability: stable
+#
+# Status values: "active", "paused", "completed", "archived"
+
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?project a prov:Collection ;
+    schema:identifier ?project_id ;
+    rdfs:label ?project_name ;
+    schema:description ?description ;
+    schema:dateCreated ?start_date ;
+    schema:dateEnded ?end_date ;
+    schema:status ?status ;
+    prov:wasAttributedTo ?owner ;
+    prov:hadMember ?owner .
+
+  ?owner a prov:Agent ;
+    schema:identifier ?owner_id ;
+    schema:role "Project Owner" .
+}
+
+WHERE {
+  BIND(IRI(CONCAT("http://businessos.dev/id/projects/", STR(?project_id))) AS ?project)
+  BIND(IRI(CONCAT("http://businessos.dev/id/users/", STR(?owner_id))) AS ?owner)
+}

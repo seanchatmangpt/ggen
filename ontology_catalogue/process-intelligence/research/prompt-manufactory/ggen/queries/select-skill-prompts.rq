@@ -1,0 +1,17 @@
+PREFIX pm:   <https://pi-research.dev/ontology/prompt-manufactory#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Select skill prompts
+# Used by skill.md.tera to render skill documentation
+
+SELECT ?skillId ?skillLabel ?skillMission ?skillRefusal
+WHERE {
+  ?skill a pm:Skill ;
+    rdfs:label ?skillLabel ;
+    pm:mission ?skillMission .
+
+  BIND(STRAFTER(STR(?skill), "#") AS ?skillId)
+  OPTIONAL { ?skill rdfs:comment ?skillRefusal . }
+}
+ORDER BY ?skillLabel

@@ -1,0 +1,378 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ip: <http://cns-litigation.org/ip-ontology#> .
+@prefix emp: <http://cns-litigation.org/employment-ontology#> .
+@prefix legal: <http://cns-litigation.org/legal-ontology#> .
+@prefix inventor: <http://cns-litigation.org/inventor-rights#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# Inventor Rights Analysis Patterns
+
+<http://cns-litigation.org/inventor-rights> a owl:Ontology ;
+    rdfs:label "Inventor Rights Analysis Patterns" ;
+    rdfs:comment "Comprehensive patterns for analyzing inventor rights, attribution claims, and compensation in employment contexts" ;
+    owl:versionInfo "1.0.0" ;
+    legal:jurisdiction "US Federal Patent Law, State Employment Law" ;
+    legal:applicableLaw "35 USC § 116 (Joint Inventors), 35 USC § 261 (Assignment)" .
+
+# Core Inventor Rights Classes
+
+inventor:InventorRights a owl:Class ;
+    rdfs:label "Inventor Rights" ;
+    rdfs:comment "Rights belonging to inventors of patentable inventions" ;
+    rdfs:subClassOf legal:IntellectualPropertyRights .
+
+inventor:AttributionRights a owl:Class ;
+    rdfs:label "Attribution Rights" ;
+    rdfs:comment "Right to be named as inventor on patent applications" ;
+    rdfs:subClassOf inventor:InventorRights .
+
+inventor:MoralRights a owl:Class ;
+    rdfs:label "Moral Rights" ;
+    rdfs:comment "Personal, non-transferable rights of inventors" ;
+    rdfs:subClassOf inventor:InventorRights .
+
+inventor:CompensationRights a owl:Class ;
+    rdfs:label "Compensation Rights" ;
+    rdfs:comment "Rights to compensation for inventions" ;
+    rdfs:subClassOf inventor:InventorRights .
+
+inventor:ContinuationRights a owl:Class ;
+    rdfs:label "Continuation Rights" ;
+    rdfs:comment "Rights related to continuation applications" ;
+    rdfs:subClassOf inventor:InventorRights .
+
+inventor:ForeignFilingRights a owl:Class ;
+    rdfs:label "Foreign Filing Rights" ;
+    rdfs:comment "Rights related to foreign patent applications" ;
+    rdfs:subClassOf inventor:InventorRights .
+
+# Inventorship Classes
+
+inventor:SoloInventor a owl:Class ;
+    rdfs:label "Solo Inventor" ;
+    rdfs:comment "Single inventor of a patentable invention" ;
+    rdfs:subClassOf legal:Person .
+
+inventor:JointInventor a owl:Class ;
+    rdfs:label "Joint Inventor" ;
+    rdfs:comment "One of multiple inventors of a patentable invention" ;
+    rdfs:subClassOf legal:Person .
+
+inventor:PrimaryInventor a owl:Class ;
+    rdfs:label "Primary Inventor" ;
+    rdfs:comment "Lead inventor with primary creative contribution" ;
+    rdfs:subClassOf inventor:JointInventor .
+
+inventor:SecondaryInventor a owl:Class ;
+    rdfs:label "Secondary Inventor" ;
+    rdfs:comment "Contributing inventor with secondary role" ;
+    rdfs:subClassOf inventor:JointInventor .
+
+# Invention Contribution Classes
+
+inventor:InventiveContribution a owl:Class ;
+    rdfs:label "Inventive Contribution" ;
+    rdfs:comment "Specific contribution to patentable invention" .
+
+inventor:ConceptualContribution a owl:Class ;
+    rdfs:label "Conceptual Contribution" ;
+    rdfs:comment "Contribution to invention concept or theory" ;
+    rdfs:subClassOf inventor:InventiveContribution .
+
+inventor:ImplementationContribution a owl:Class ;
+    rdfs:label "Implementation Contribution" ;
+    rdfs:comment "Contribution to invention implementation" ;
+    rdfs:subClassOf inventor:InventiveContribution .
+
+inventor:RefinementContribution a owl:Class ;
+    rdfs:label "Refinement Contribution" ;
+    rdfs:comment "Contribution to invention refinement or optimization" ;
+    rdfs:subClassOf inventor:InventiveContribution .
+
+inventor:ReductionToPracticeContribution a owl:Class ;
+    rdfs:label "Reduction to Practice Contribution" ;
+    rdfs:comment "Contribution to reducing invention to practice" ;
+    rdfs:subClassOf inventor:InventiveContribution .
+
+# Rights Analysis Patterns
+
+inventor:AttributionAnalysisPattern a owl:Class ;
+    rdfs:label "Attribution Analysis Pattern" ;
+    rdfs:comment "Pattern for analyzing attribution rights and claims" .
+
+inventor:CorrectInventorshipDetermination a inventor:AttributionAnalysisPattern ;
+    rdfs:label "Correct Inventorship Determination" ;
+    rdfs:comment "Analysis to determine correct inventors" ;
+    inventor:analysisSteps [
+        inventor:step1 "Identify all persons who contributed to conception" ;
+        inventor:step2 "Evaluate conception vs. reduction to practice contributions" ;
+        inventor:step3 "Apply joint inventorship legal standards" ;
+        inventor:step4 "Determine inventive entity"
+    ] ;
+    inventor:legalStandards [
+        legal:standard "35 USC § 116 - Joint Inventors" ;
+        legal:test "Burroughs Wellcome test for joint inventorship" ;
+        legal:requirement "Each inventor must contribute to conception of at least one claim"
+    ] .
+
+inventor:MisnamedInventorPattern a inventor:AttributionAnalysisPattern ;
+    rdfs:label "Misnamed Inventor Pattern" ;
+    rdfs:comment "Pattern for detecting incorrectly named inventors" ;
+    inventor:detectionRules [
+        inventor:rule1 "Person named as inventor who did not contribute to conception" ;
+        inventor:rule2 "Person who contributed to conception not named as inventor" ;
+        inventor:rule3 "Incorrect assessment of joint vs. sole inventorship"
+    ] ;
+    inventor:remediation [
+        inventor:correctiveAction "File corrective assignment or patent correction" ;
+        inventor:timing "Before patent issuance preferred" ;
+        inventor:complexity "Moderate to high depending on patent status"
+    ] .
+
+# Compensation Analysis Patterns
+
+inventor:CompensationAnalysisPattern a owl:Class ;
+    rdfs:label "Compensation Analysis Pattern" ;
+    rdfs:comment "Pattern for analyzing inventor compensation rights" .
+
+inventor:EmployeeInventorCompensation a inventor:CompensationAnalysisPattern ;
+    rdfs:label "Employee Inventor Compensation" ;
+    rdfs:comment "Analysis of compensation rights for employee inventors" ;
+    inventor:compensationFactors [
+        inventor:factor "Employment agreement terms" ;
+        inventor:factor "Invention assignment provisions" ;
+        inventor:factor "Company compensation policies" ;
+        inventor:factor "State law requirements" ;
+        inventor:factor "Industry standards"
+    ] ;
+    inventor:compensationTypes [
+        inventor:type "Salary continuation (work-for-hire)" ;
+        inventor:type "Inventor bonus programs" ;
+        inventor:type "Royalty sharing arrangements" ;
+        inventor:type "Equity participation" ;
+        inventor:type "Recognition awards"
+    ] .
+
+# State-Specific Compensation Requirements
+
+inventor:CaliforniaInventorCompensation a inventor:CompensationAnalysisPattern ;
+    rdfs:label "California Inventor Compensation" ;
+    rdfs:comment "California-specific inventor compensation analysis" ;
+    legal:jurisdiction "California" ;
+    legal:statute "California Labor Code Section 2870-2872" ;
+    inventor:requirements [
+        inventor:requirement "Assignment must be reasonable and necessary" ;
+        inventor:requirement "Cannot assign rights to inventions developed on own time" ;
+        inventor:requirement "Must provide notice of assignment requirements"
+    ] .
+
+inventor:DelawareInventorCompensation a inventor:CompensationAnalysisPattern ;
+    rdfs:label "Delaware Inventor Compensation" ;
+    rdfs:comment "Delaware-specific inventor compensation analysis" ;
+    legal:jurisdiction "Delaware" ;
+    legal:statute "Delaware Code Title 19, Chapter 8" ;
+    inventor:requirements [
+        inventor:requirement "Employee invention assignments generally enforceable" ;
+        inventor:requirement "Compensation through salary typically adequate" ;
+        inventor:requirement "Special compensation not required by statute"
+    ] .
+
+# Joint Inventorship Analysis Patterns
+
+inventor:JointInventorshipAnalysisPattern a owl:Class ;
+    rdfs:label "Joint Inventorship Analysis Pattern" ;
+    rdfs:comment "Pattern for analyzing joint inventorship situations" .
+
+inventor:ContributionQuantificationPattern a inventor:JointInventorshipAnalysisPattern ;
+    rdfs:label "Contribution Quantification Pattern" ;
+    rdfs:comment "Pattern for quantifying inventor contributions" ;
+    inventor:quantificationMethod [
+        inventor:method "Technical contribution assessment" ;
+        inventor:method "Innovation impact analysis" ;
+        inventor:method "Claim coverage evaluation" ;
+        inventor:method "Prior art distinction analysis"
+    ] ;
+    inventor:contributionWeights [
+        inventor:conceptualWeight "40%"^^xsd:decimal ;
+        inventor:implementationWeight "30%"^^xsd:decimal ;
+        inventor:refinementWeight "20%"^^xsd:decimal ;
+        inventor:reductionToPracticeWeight "10%"^^xsd:decimal
+    ] .
+
+inventor:JointOwnershipIssuesPattern a inventor:JointInventorshipAnalysisPattern ;
+    rdfs:label "Joint Ownership Issues Pattern" ;
+    rdfs:comment "Pattern for analyzing joint ownership complications" ;
+    inventor:ownershipIssues [
+        inventor:issue "Each joint owner can practice invention without consent" ;
+        inventor:issue "Each joint owner can license without consent or accounting" ;
+        inventor:issue "Joint owners cannot sue for infringement without joining all owners" ;
+        inventor:issue "Assignment requires all joint owners' consent"
+    ] ;
+    inventor:mitigationStrategies [
+        inventor:strategy "Explicit joint ownership agreement" ;
+        inventor:strategy "Assignment to single entity" ;
+        inventor:strategy "Cross-licensing arrangements" ;
+        inventor:strategy "Joint exploitation agreement"
+    ] .
+
+# Moral Rights Analysis (International Considerations)
+
+inventor:MoralRightsAnalysisPattern a owl:Class ;
+    rdfs:label "Moral Rights Analysis Pattern" ;
+    rdfs:comment "Pattern for analyzing moral rights in international contexts" .
+
+inventor:AttributionRightsMaintenance a inventor:MoralRightsAnalysisPattern ;
+    rdfs:label "Attribution Rights Maintenance" ;
+    rdfs:comment "Maintaining attribution rights across jurisdictions" ;
+    legal:jurisdiction "International" ;
+    inventor:considerations [
+        inventor:consideration "European moral rights requirements" ;
+        inventor:consideration "Attribution requirements in patent applications" ;
+        inventor:consideration "Publication and disclosure attribution" ;
+        inventor:consideration "Assignment vs. licensing implications"
+    ] .
+
+# Foreign Filing Rights Analysis
+
+inventor:ForeignFilingAnalysisPattern a owl:Class ;
+    rdfs:label "Foreign Filing Analysis Pattern" ;
+    rdfs:comment "Pattern for analyzing foreign filing rights and restrictions" .
+
+inventor:ExportControlForeignFiling a inventor:ForeignFilingAnalysisPattern ;
+    rdfs:label "Export Control Foreign Filing" ;
+    rdfs:comment "Analysis of export control implications for foreign filing" ;
+    inventor:exportControlFactors [
+        inventor:factor "Technology classification under ITAR/EAR" ;
+        inventor:factor "Foreign inventor nationality" ;
+        inventor:factor "Destination country restrictions" ;
+        inventor:factor "License requirements for foreign filing"
+    ] ;
+    inventor:filingRestrictions [
+        inventor:restriction "ITAR-controlled technology requires State Department license" ;
+        inventor:restriction "EAR-controlled technology may require Commerce Department license" ;
+        inventor:restriction "Some technologies prohibited from certain countries" ;
+        inventor:restriction "Foreign inventor access restrictions"
+    ] .
+
+# Inventor Rights Violation Patterns
+
+inventor:RightsViolationPattern a owl:Class ;
+    rdfs:label "Rights Violation Pattern" ;
+    rdfs:comment "Pattern for detecting inventor rights violations" .
+
+inventor:AttributionViolation a inventor:RightsViolationPattern ;
+    rdfs:label "Attribution Violation" ;
+    rdfs:comment "Violation of inventor attribution rights" ;
+    inventor:violationTypes [
+        inventor:type "Failure to name actual inventor" ;
+        inventor:type "Naming non-inventor as inventor" ;
+        inventor:type "Incorrect joint inventorship determination" ;
+        inventor:type "Misrepresentation of contribution level"
+    ] ;
+    inventor:consequences [
+        inventor:consequence "Patent invalidity risk" ;
+        inventor:consequence "Inventorship correction proceedings" ;
+        inventor:consequence "Potential damages to unnamed inventor" ;
+        inventor:consequence "Assignment validity questions"
+    ] .
+
+inventor:CompensationViolation a inventor:RightsViolationPattern ;
+    rdfs:label "Compensation Violation" ;
+    rdfs:comment "Violation of inventor compensation rights" ;
+    inventor:violationTypes [
+        inventor:type "Failure to provide agreed compensation" ;
+        inventor:type "Inadequate consideration for assignment" ;
+        inventor:type "Violation of state law compensation requirements" ;
+        inventor:type "Breach of inventor bonus programs"
+    ] ;
+    inventor:remedies [
+        inventor:remedy "Monetary damages for unpaid compensation" ;
+        inventor:remedy "Specific performance of compensation agreements" ;
+        inventor:remedy "Reversion of assignment rights" ;
+        inventor:remedy "Injunctive relief"
+    ] .
+
+# Rights Remediation Patterns
+
+inventor:RightsRemediationPattern a owl:Class ;
+    rdfs:label "Rights Remediation Pattern" ;
+    rdfs:comment "Pattern for remedying inventor rights violations" .
+
+inventor:InventorshipCorrection a inventor:RightsRemediationPattern ;
+    rdfs:label "Inventorship Correction" ;
+    rdfs:comment "Process for correcting inventor designation" ;
+    inventor:correctionMethods [
+        inventor:method "Certificate of correction (pre-issuance)" ;
+        inventor:method "Reissue application (post-issuance)" ;
+        inventor:method "Corrective assignment" ;
+        inventor:method "Supplemental examination"
+    ] ;
+    inventor:timeline [
+        inventor:phase "Identification of error: Immediate" ;
+        inventor:phase "Evidence gathering: 2-4 weeks" ;
+        inventor:phase "Correction filing: 1-2 weeks" ;
+        inventor:phase "USPTO processing: 3-6 months"
+    ] .
+
+inventor:CompensationNegotiation a inventor:RightsRemediationPattern ;
+    rdfs:label "Compensation Negotiation" ;
+    rdfs:comment "Process for negotiating inventor compensation" ;
+    inventor:negotiationFactors [
+        inventor:factor "Commercial value of invention" ;
+        inventor:factor "Inventor contribution level" ;
+        inventor:factor "Company policy and precedent" ;
+        inventor:factor "Industry compensation standards" ;
+        inventor:factor "Legal risk assessment"
+    ] ;
+    inventor:compensationStructures [
+        inventor:structure "Lump sum payment" ;
+        inventor:structure "Royalty percentage" ;
+        inventor:structure "Milestone-based payments" ;
+        inventor:structure "Equity participation" ;
+        inventor:structure "Enhanced benefits package"
+    ] .
+
+# Rights Documentation Patterns
+
+inventor:RightsDocumentationPattern a owl:Class ;
+    rdfs:label "Rights Documentation Pattern" ;
+    rdfs:comment "Pattern for documenting inventor rights and agreements" .
+
+inventor:InventorAgreementDocumentation a inventor:RightsDocumentationPattern ;
+    rdfs:label "Inventor Agreement Documentation" ;
+    rdfs:comment "Documentation for inventor rights agreements" ;
+    inventor:documentationElements [
+        inventor:element "Clear inventorship determination" ;
+        inventor:element "Contribution acknowledgment" ;
+        inventor:element "Compensation terms" ;
+        inventor:element "Assignment provisions" ;
+        inventor:element "Attribution requirements" ;
+        inventor:element "Foreign filing considerations"
+    ] ;
+    inventor:legalRequirements [
+        inventor:requirement "Written agreement preferred" ;
+        inventor:requirement "Adequate consideration" ;
+        inventor:requirement "Clear scope definition" ;
+        inventor:requirement "Compliance with state laws"
+    ] .
+
+# Performance Metrics for Inventor Rights Analysis
+
+inventor:AnalysisMetrics a owl:Class ;
+    rdfs:label "Inventor Rights Analysis Metrics" ;
+    rdfs:comment "Performance metrics for inventor rights analysis" ;
+    inventor:accuracyMetrics [
+        inventor:inventorshipAccuracy "0.96"^^xsd:decimal ;
+        inventor:contributionAssessmentAccuracy "0.91"^^xsd:decimal ;
+        inventor:compensationAnalysisAccuracy "0.88"^^xsd:decimal ;
+        inventor:rightsDeterminationAccuracy "0.94"^^xsd:decimal
+    ] ;
+    inventor:processingMetrics [
+        inventor:averageAnalysisTime "2.5 hours"^^xsd:decimal ;
+        inventor:complexCaseAnalysisTime "6.0 hours"^^xsd:decimal ;
+        inventor:documentationTime "1.5 hours"^^xsd:decimal ;
+        inventor:remediationPlanningTime "3.0 hours"^^xsd:decimal
+    ] .

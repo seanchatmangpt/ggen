@@ -1,0 +1,40 @@
+@prefix : <https://bytestar.org/ontology/bytestar-governance#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-governance>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Governance & Finality" ;
+  rdfs:comment "PoA/PoR consensus, identity crystals, program charters, CTQs." .
+
+### Identity & non-transferability
+:IdentityCrystal a owl:Class ; rdfs:subClassOf bs:Crystal .
+:transferable a owl:DatatypeProperty ; rdfs:domain :IdentityCrystal ; rdfs:range xsd:boolean .
+:boundToEntity a owl:ObjectProperty ; rdfs:domain :IdentityCrystal ; rdfs:range rdfs:Resource .
+
+### Validators & consensus mechanisms
+:Validator a owl:Class .
+:ProofOfAgreement a owl:Class .
+:ProofOfReputation a owl:Class .
+
+:approves a owl:ObjectProperty ; rdfs:domain :Validator ; rdfs:range bs:Crystal .
+:weight a owl:DatatypeProperty ; rdfs:domain :Validator ; rdfs:range xsd:decimal .
+:reputation a owl:DatatypeProperty ; rdfs:domain :Validator ; rdfs:range xsd:decimal .
+
+### Consensus thresholds
+:quorum a owl:DatatypeProperty ; rdfs:domain :ProofOfAgreement ; rdfs:range xsd:integer .
+:weightThreshold a owl:DatatypeProperty ; rdfs:domain :ProofOfReputation ; rdfs:range xsd:decimal .
+
+### Program governance
+:ProgramCharter a owl:Class .
+:CTQ a owl:Class .
+:tracksCTQ a owl:ObjectProperty ; rdfs:domain :ProgramCharter ; rdfs:range :CTQ .
+:enforces a owl:ObjectProperty ; rdfs:domain bs:ByteEthos ; rdfs:range :ProgramCharter .
+
+### Finality mechanisms
+:finalizes a owl:ObjectProperty ; rdfs:domain bs:ByteEthos ; rdfs:range bs:LedgerSegment .
+:consensusReached a owl:DatatypeProperty ; rdfs:domain bs:LedgerSegment ; rdfs:range xsd:boolean .
+:finalityHeight a owl:DatatypeProperty ; rdfs:domain bs:LedgerSegment ; rdfs:range xsd:integer .

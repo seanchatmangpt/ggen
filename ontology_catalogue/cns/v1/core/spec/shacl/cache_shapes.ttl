@@ -1,0 +1,5 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix cache: <https://cns.dev/cache#> .
+
+cache:LRUShape a sh:NodeShape ; sh:targetClass cache:LRU .
+cache:TTLCacheShape a sh:NodeShape ; sh:targetClass cache:TTLCache .

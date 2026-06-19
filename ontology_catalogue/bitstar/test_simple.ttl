@@ -1,0 +1,6 @@
+# Simple BitActor TTL Test
+@prefix bf: <http://bitflow.ai/> .
+
+bf:Task1 bf:input 42 .
+bf:Task1 bf:operation bf:Double .
+bf:Task1 bf:tickBudget 8 .

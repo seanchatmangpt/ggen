@@ -5,7 +5,31 @@
 use anyhow::Result;
 use assert_cmd::Command;
 use predicates::prelude::*;
-use std::env;
+use serial_test::serial;
+
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally per binary; do not share across crates.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn unset(key: &'static str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::remove_var(key);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
 
 /// E2E tests for GitHub API integration
 ///
@@ -129,21 +153,16 @@ fn test_github_repo_auto_detection() -> Result<()> {
 }
 
 #[test]
+#[serial(GITHUB_TOKEN)]
 fn test_github_commands_handle_missing_token() -> Result<()> {
     // Test that commands work or fail gracefully without GITHUB_TOKEN
-    // Temporarily unset GITHUB_TOKEN if it exists
-    let original_token = env::var("GITHUB_TOKEN").ok();
-    env::remove_var("GITHUB_TOKEN");
+    // Temporarily unset GITHUB_TOKEN if it exists; guard restores on Drop.
+    let _token_guard = EnvVarGuard::unset("GITHUB_TOKEN");
 
     let mut cmd = Command::cargo_bin("ggen")?;
     cmd.arg("ci").arg("pages").arg("status");
 
     let output = cmd.output()?;
-
-    // Restore original token
-    if let Some(token) = original_token {
-        env::set_var("GITHUB_TOKEN", token);
-    }
 
     // Command should run (might fail due to rate limiting, but shouldn't crash)
     let stdout = String::from_utf8_lossy(&output.stdout);

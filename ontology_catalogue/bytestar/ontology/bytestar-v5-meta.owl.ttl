@@ -1,0 +1,91 @@
+@prefix : <https://bytestar.org/ontology/v5/meta#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix fab: <https://bytestar.org/ontology/v5/fabrication#> .
+
+<https://bytestar.org/ontology/v5/meta>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/fabrication> ;
+  rdfs:label "ByteStar v5 Meta-Ontology - The Governance of Governance" ;
+  rdfs:comment "This ontology defines the rules that govern the ByteStar ontologies themselves. It enables the system to reason about its own structure, versions, and evolution." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Core Meta-Concepts
+# #################################################################
+
+:Canon a owl:Class ;
+    rdfs:label "Canon" ;
+    rdfs:comment "A collection of ontologies that represents a complete, coherent, and versioned body of law for the ecosystem." .
+
+:Release a owl:Class ;
+    rdfs:label "Release" ;
+    rdfs:comment "An immutable, PQC-sealed instance of a Canon, identified by a specific version number." .
+
+:FabricationPlan a owl:Class ;
+    rdfs:label "Fabrication Plan" ;
+    rdfs:comment "A plan that consumes a specific Release of the Canon to produce a physical system artifact." .
+
+# #################################################################
+# II. Meta-Properties
+# #################################################################
+
+:hasReleaseVersion a owl:DatatypeProperty ;
+    rdfs:label "has release version" ;
+    rdfs:domain :Release ;
+    rdfs:range xsd:string .
+
+:hasContentHash a owl:DatatypeProperty ;
+    rdfs:label "has content hash" ;
+    rdfs:comment "The PQC-sealed cryptographic hash of a Release, ensuring its immutability." ;
+    rdfs:domain :Release ;
+    rdfs:range xsd:hexBinary .
+
+:isComposedOfCanon a owl:ObjectProperty ;
+    rdfs:domain :Release ;
+    rdfs:range :Canon .
+
+:targetsRelease a owl:ObjectProperty ;
+    rdfs:domain :FabricationPlan ;
+    rdfs:range :Release .
+
+# #################################################################
+# III. Meta-Axioms (The Governance of the Governance)
+# #################################################################
+
+# Axiom: A Release is defined by its version. A specific version number must always refer to the same content.
+:hasReleaseVersion a owl:FunctionalProperty .
+:hasContentHash a owl:FunctionalProperty .
+
+# Axiom: The Pattern Registry must contain exactly 43 patterns.
+# This is a constraint on any individual that is a Pattern Registry.
+:PatternRegistry a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty fab:containsPattern ;
+        owl:cardinality "43"^^xsd:nonNegativeInteger
+    ] .
+
+# Axiom: A Fabrication Plan must only target constant-time kernels.
+# This is modeled by restricting the range of the :producesArtifact property when the domain is a FabricationPlan.
+:FabricationPlan rdfs:subClassOf [ 
+    a owl:Restriction ;
+    owl:onProperty fab:producesArtifact ;
+    owl:allValuesFrom [
+        a owl:Class ;
+        owl:intersectionOf (
+            core:Kernel
+            [
+                a owl:Restriction ;
+                owl:onProperty core:hasTickCost ;
+                owl:allValuesFrom [
+                    a rdfs:Datatype ;
+                    owl:onDatatype xsd:integer ;
+                    owl:withRestrictions ([xsd:maxInclusive "8"^^xsd:integer])
+                ]
+            ]
+        )
+    ]
+] .

@@ -1,0 +1,19 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix job: <http://unjucks.dev/job/> .
+@prefix skill: <http://unjucks.dev/skill/> .
+@prefix schema: <http://schema.org/> .
+
+<http://example.org/job/senior-developer> a job:JobPosting ;
+    schema:title "Senior Full Stack Developer" ;
+    schema:description "Build scalable web applications" ;
+    job:requiresSkill skill:JavaScript, skill:React, skill:Node.js, skill:AWS ;
+    job:prefersSkill skill:TypeScript, skill:Docker, skill:Kubernetes ;
+    job:hasMinSalary 120000 ;
+    job:hasMaxSalary 150000 ;
+    job:hasYearsExperience 5 ;
+    job:hasLocation "San Francisco, CA" ;
+    job:offeredBy [
+        a schema:Organization ;
+        schema:name "TechCorp Inc" ;
+        schema:description "Leading technology company"
+    ] .

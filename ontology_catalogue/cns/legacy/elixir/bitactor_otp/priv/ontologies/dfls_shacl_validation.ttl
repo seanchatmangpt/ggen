@@ -1,0 +1,519 @@
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix otp: <http://cns.bitactor.io/ontology/otp#> .
+@prefix bitactor: <http://cns.bitactor.io/ontology/bitactor#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# DFLS SHACL VALIDATION RULES
+# Six Sigma quality constraints for mass production of Erlang/OTP systems
+
+# ============================================================================
+# SIX SIGMA QUALITY CONSTRAINTS
+# ============================================================================
+
+dfls:SixSigmaQualityShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:SixSigmaMetric ;
+    sh:property [
+        sh:path dfls:defectRate ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxInclusive 0.00034 ;  # Six Sigma: 3.4 defects per million
+        sh:message "Defect rate must not exceed 0.00034 (Six Sigma target)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Every Six Sigma metric must have a human-readable label" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties ( rdf:type rdfs:comment ) .
+
+dfls:LeanProcessShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:LeanProcess ;
+    sh:property [
+        sh:path dfls:wastePercentage ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 0.1 ;  # Max 10% waste
+        sh:message "Waste percentage must be between 0% and 10% for lean compliance" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:sparql [
+        sh:message "Lean processes must demonstrate continuous improvement" ;
+        sh:prefixes dfls: ;
+        sh:select """
+            SELECT ?this ?wastePercentage
+            WHERE {
+                ?this dfls:wastePercentage ?wastePercentage .
+                FILTER(?wastePercentage > 0.05)  # Flag processes >5% waste for review
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# ============================================================================
+# ERLANG/OTP QUALITY CONSTRAINTS
+# ============================================================================
+
+dfls:GenServerQualityShape
+    a sh:NodeShape ;
+    sh:targetClass otp:GenServer ;
+    sh:property [
+        sh:path otp:hasModule ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;  # Valid Erlang module name
+        sh:message "GenServer must have exactly one valid Erlang module name" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otp:hasState ;
+        sh:class otp:ServerState ;
+        sh:minCount 1 ;
+        sh:message "GenServer must have at least one state definition" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Quality constraint: GenServers in DFLS systems must have timeout handling
+    sh:sparql [
+        sh:message "DFLS GenServers must implement timeout handling for reliability" ;
+        sh:prefixes otp: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a otp:GenServer .
+                FILTER NOT EXISTS { ?this otp:hasTimeoutHandler ?handler }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+dfls:SupervisorQualityShape
+    a sh:NodeShape ;
+    sh:targetClass otp:Supervisor ;
+    sh:property [
+        sh:path otp:hasRestartStrategy ;
+        sh:class otp:RestartStrategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Supervisor must have exactly one restart strategy" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otp:hasChildSpec ;
+        sh:class otp:ChildSpec ;
+        sh:minCount 1 ;
+        sh:message "Supervisor must have at least one child specification" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # DFLS Quality Gate: Maximum restart frequency (simplified)
+    sh:property [
+        sh:path otp:maxRestarts ;
+        sh:maxInclusive 10 ;  # Maximum restarts for Six Sigma compliance
+        sh:message "Supervisor max restarts must not exceed 10 for Six Sigma compliance" ;
+        sh:severity sh:Violation ;
+    ] .
+
+dfls:ChildSpecQualityShape
+    a sh:NodeShape ;
+    sh:targetClass otp:ChildSpec ;
+    sh:property [
+        sh:path otp:restartType ;
+        sh:in (otp:Permanent otp:Temporary otp:Transient) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Child spec must have exactly one valid restart type" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path otp:shutdownTimeout ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxInclusive 30000 ;  # Max 30 seconds for graceful shutdown
+        sh:message "Shutdown timeout must be positive and ≤30 seconds for DFLS compliance" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Lean constraint: Minimize shutdown time
+    sh:property [
+        sh:path otp:shutdownTimeout ;
+        sh:lessThan 5000 ;  # Prefer <5 second shutdown
+        sh:message "Consider reducing shutdown timeout to <5s for lean operation" ;
+        sh:severity sh:Info ;
+    ] .
+
+# ============================================================================
+# BITACTOR PERFORMANCE CONSTRAINTS
+# ============================================================================
+
+dfls:UltraFastGenServerShape
+    a sh:NodeShape ;
+    sh:targetClass bitactor:UltraFastGenServer ;
+    sh:property [
+        sh:path bitactor:messageLatency ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxInclusive 0.0005 ;  # <500μs for ultra-fast
+        sh:message "Ultra-fast GenServer must achieve <500μs message latency" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path bitactor:hasNIFModule ;
+        sh:class bitactor:NIFModule ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Ultra-fast GenServer must have exactly one NIF module" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Performance budget constraint
+    sh:sparql [
+        sh:message "BitActor performance budget exceeded - review implementation" ;
+        sh:prefixes bitactor: ;
+        sh:select """
+            SELECT ?this ?latency ?cpuUsage ?memoryUsage
+            WHERE {
+                ?this a bitactor:UltraFastGenServer ;
+                      bitactor:messageLatency ?latency ;
+                      bitactor:cpuUsage ?cpuUsage ;
+                      bitactor:memoryUsage ?memoryUsage .
+                # Combined performance budget check
+                BIND(?latency * 1000 + ?cpuUsage + ?memoryUsage AS ?performanceBudget)
+                FILTER(?performanceBudget > 100)  # Arbitrary performance budget
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+dfls:NIFModuleQualityShape
+    a sh:NodeShape ;
+    sh:targetClass bitactor:NIFModule ;
+    sh:property [
+        sh:path bitactor:hasSourceFile ;
+        sh:datatype xsd:string ;
+        sh:pattern ".*\\.c$" ;  # Must be C source file
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "NIF module must reference exactly one C source file" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Memory safety constraint
+    sh:sparql [
+        sh:message "NIF modules must implement memory safety checks" ;
+        sh:prefixes bitactor: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a bitactor:NIFModule .
+                FILTER NOT EXISTS { ?this bitactor:hasMemorySafetyCheck true }
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+dfls:MemoryPoolShape
+    a sh:NodeShape ;
+    sh:targetClass bitactor:MemoryPool ;
+    sh:property [
+        sh:path bitactor:allocationEfficiency ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.95 ;  # >95% efficiency for lean operation
+        sh:maxInclusive 1.0 ;
+        sh:message "Memory pool must achieve >95% allocation efficiency" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Zero-waste memory constraint
+    sh:sparql [
+        sh:message "Memory fragmentation exceeds lean manufacturing limits" ;
+        sh:prefixes bitactor: ;
+        sh:select """
+            SELECT ?this ?efficiency ?fragmentation
+            WHERE {
+                ?this a bitactor:MemoryPool ;
+                      bitactor:allocationEfficiency ?efficiency ;
+                      bitactor:fragmentation ?fragmentation .
+                FILTER(?fragmentation > 0.05)  # >5% fragmentation is waste
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# ============================================================================
+# DFLS WORKFLOW QUALITY GATES
+# ============================================================================
+
+dfls:QualityGateShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:QualityGate ;
+    sh:property [
+        sh:path dfls:hasQualityCheck ;
+        sh:class dfls:SixSigmaMetric ;
+        sh:minCount 1 ;
+        sh:message "Quality gate must have at least one Six Sigma quality check" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Quality gate must have pass criteria
+    sh:sparql [
+        sh:message "Quality gate must define clear pass/fail criteria" ;
+        sh:prefixes dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a dfls:QualityGate .
+                FILTER NOT EXISTS { 
+                    ?this dfls:hasPassCriteria ?criteria .
+                    ?criteria dfls:threshold ?threshold .
+                }
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+dfls:ControlChartShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:ControlChart ;
+    sh:property [
+        sh:path dfls:upperControlLimit ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Control chart must have exactly one upper control limit" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path dfls:lowerControlLimit ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Control chart must have exactly one lower control limit" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Statistical validity constraint
+    sh:sparql [
+        sh:message "Upper control limit must be greater than lower control limit" ;
+        sh:prefixes dfls: ;
+        sh:select """
+            SELECT ?this ?ucl ?lcl
+            WHERE {
+                ?this a dfls:ControlChart ;
+                      dfls:upperControlLimit ?ucl ;
+                      dfls:lowerControlLimit ?lcl .
+                FILTER(?ucl <= ?lcl)
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+dfls:FMEAShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:FMEA ;
+    sh:property [
+        sh:path dfls:riskPriorityNumber ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000 ;  # RPN range: 1-1000
+        sh:message "Risk Priority Number must be between 1 and 1000" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # DFLS target: RPN < 100 after mitigation
+    sh:property [
+        sh:path dfls:riskPriorityNumber ;
+        sh:maxInclusive 100 ;
+        sh:message "DFLS target: Risk Priority Number should be <100 after mitigation" ;
+        sh:severity sh:Warning ;
+    ] ;
+    # FMEA completeness check
+    sh:sparql [
+        sh:message "FMEA must have complete analysis (Severity, Occurrence, Detection)" ;
+        sh:prefixes dfls: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a dfls:FMEA .
+                FILTER NOT EXISTS { 
+                    ?this dfls:severity ?severity ;
+                          dfls:occurrence ?occurrence ;
+                          dfls:detection ?detection .
+                    FILTER(?severity >= 1 && ?severity <= 10)
+                    FILTER(?occurrence >= 1 && ?occurrence <= 10)
+                    FILTER(?detection >= 1 && ?detection <= 10)
+                }
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# MASS PRODUCTION WORKFLOW CONSTRAINTS
+# ============================================================================
+
+dfls:ProductionWorkflowShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:ProductionWorkflow ;
+    sh:property [
+        sh:path dfls:hasInputOntology ;
+        sh:class owl:Ontology ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Production workflow must have exactly one input ontology" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path dfls:hasOutputCode ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Production workflow must generate at least one output code file" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Quality assurance: Generated code must pass validation
+    sh:sparql [
+        sh:message "Generated code must pass quality validation" ;
+        sh:prefixes dfls: ;
+        sh:select """
+            SELECT ?this ?outputCode
+            WHERE {
+                ?this a dfls:ProductionWorkflow ;
+                      dfls:hasOutputCode ?outputCode .
+                FILTER NOT EXISTS { ?this dfls:codeQualityScore ?score }
+                # All generated code must have quality score
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+dfls:JinjaTemplateShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:JinjaTemplate ;
+    sh:property [
+        sh:path dfls:templateType ;
+        sh:class dfls:TemplateType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Jinja template must have exactly one template type" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Template quality constraints
+    sh:sparql [
+        sh:message "Jinja templates must follow naming conventions" ;
+        sh:prefixes dfls: rdfs: ;
+        sh:select """
+            SELECT ?this ?label
+            WHERE {
+                ?this a dfls:JinjaTemplate ;
+                      rdfs:label ?label .
+                FILTER(!REGEX(?label, "^[A-Z][a-zA-Z0-9_]*Template$"))
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# ============================================================================
+# SYSTEM INTEGRATION CONSTRAINTS
+# ============================================================================
+
+dfls:DFLSSystemIntegrationShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:DFLSSystem ;
+    sh:property [
+        sh:path dfls:hasQualityTarget ;
+        sh:class dfls:SixSigmaMetric ;
+        sh:minCount 1 ;
+        sh:message "DFLS system must have at least one Six Sigma quality target" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path dfls:hasSupervisionTree ;
+        sh:class otp:Supervisor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "DFLS system must have exactly one supervision tree" ;
+        sh:severity sh:Violation ;
+    ] ;
+    # Integration quality check
+    sh:sparql [
+        sh:message "DFLS system must integrate BitActor for performance targets" ;
+        sh:prefixes dfls: bitactor: otp: ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a dfls:DFLSSystem ;
+                      dfls:hasSupervisionTree ?supervisor .
+                ?supervisor otp:hasChildSpec ?childSpec .
+                ?childSpec otp:module ?module .
+                FILTER NOT EXISTS { 
+                    ?module a bitactor:UltraFastGenServer 
+                }
+                # At least one child should be ultra-fast for performance
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# ============================================================================
+# PERFORMANCE BUDGET CONSTRAINTS
+# ============================================================================
+
+dfls:PerformanceBudgetShape
+    a sh:NodeShape ;
+    sh:targetNode dfls:SystemPerformanceBudget ;
+    sh:sparql [
+        sh:message "System exceeds performance budget - optimize critical path" ;
+        sh:prefixes dfls: bitactor: ;
+        sh:select """
+            SELECT ?totalLatency ?totalCPU ?totalMemory
+            WHERE {
+                {
+                    SELECT (SUM(?latency) AS ?totalLatency) 
+                           (SUM(?cpu) AS ?totalCPU)
+                           (SUM(?memory) AS ?totalMemory)
+                    WHERE {
+                        ?component bitactor:messageLatency ?latency ;
+                                  bitactor:cpuUsage ?cpu ;
+                                  bitactor:memoryUsage ?memory .
+                    }
+                }
+                # System-wide performance budget
+                FILTER(?totalLatency > 0.001)     # >1ms total latency
+                FILTER(?totalCPU > 0.8)          # >80% CPU usage
+                FILTER(?totalMemory > 0.9)       # >90% memory usage
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# CONTINUOUS IMPROVEMENT CONSTRAINTS
+# ============================================================================
+
+dfls:ContinuousImprovementShape
+    a sh:NodeShape ;
+    sh:targetClass dfls:DFLSSystem ;
+    sh:sparql [
+        sh:message "DFLS system should show continuous improvement metrics" ;
+        sh:prefixes dfls: ;
+        sh:select """
+            SELECT ?this ?currentDefectRate ?previousDefectRate
+            WHERE {
+                ?this a dfls:DFLSSystem ;
+                      dfls:hasQualityTarget ?currentTarget ;
+                      dfls:hasPreviousQualityTarget ?previousTarget .
+                ?currentTarget dfls:defectRate ?currentDefectRate .
+                ?previousTarget dfls:defectRate ?previousDefectRate .
+                # Improvement check: current should be better than previous
+                FILTER(?currentDefectRate >= ?previousDefectRate)
+            }
+        """ ;
+        sh:severity sh:Info ;
+    ] .
+
+# ============================================================================
+# END OF SHACL VALIDATION RULES
+# ============================================================================

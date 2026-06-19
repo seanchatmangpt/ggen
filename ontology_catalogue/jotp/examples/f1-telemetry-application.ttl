@@ -1,0 +1,418 @@
+# Telemetry Application - Full Composition Example
+# Demonstrates composing a complete telemetry service with multiple services
+# using Vaughn Vernon's Reactive Messaging Patterns for JOTP
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix app:   <https://jgen.dev/ontology/java/enterprise#> .
+@prefix eip:   <https://jgen.dev/ontology/java/messaging#> .
+@prefix saga:  <https://jgen.dev/ontology/java/saga#> .
+
+# =============================================================================
+# APPLICATION: TELEMETRY SERVICE
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryApplication> a app:Application ;
+    rdfs:label "Formula 1 Telemetry Service" ;
+    rdfs:comment "Complete telemetry processing pipeline for crash analysis" ;
+    app:hasName "telemetry-service" ;
+    app:hasSupervisorStrategy app:ONE_FOR_ONE ;
+    app:hasMaxRestarts 10 ;
+    app:hasRestartWindow "PT1M" .
+
+# =============================================================================
+# SERVICE: INGRESS (Data Ingestion)
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#IngressService> a app:Service ;
+    rdfs:label "Telemetry Ingress" ;
+    app:hasName "ingress" ;
+    app:hasInitialState <https://jgen.dev/ontology/java/example#IngressState> ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#IngressHandler> ;
+    app:usesPattern eip:ContentBasedRouter ;
+    app:usesPattern eip:WireTap ;
+    app:hasHealthCheck <https://jgen.dev/ontology/java/example#IngressHealthCheck> ;
+    app:hasConfig <https://jgen.dev/ontology/java/example#IngressConfig> .
+
+<https://jgen.dev/ontology/java/example#IngressState> a app:StateType ;
+    rdfs:comment "State for ingress service: processed count, message bus, metrics" .
+
+<https://jgen.dev/ontology/java/example#IngressConfig> a app:ServiceConfig ;
+    app:set "batch.size" 100 ;
+    app:set "validate.samples" true .
+
+<https://jgen.dev/ontology/java/example#IngressHealthCheck> a app:HealthCheck ;
+    app:hasCheck "queue-depth" ;
+    app:hasCheck "processing-rate" ;
+    app:hasInterval "PT5S" .
+
+# =============================================================================
+# SERVICE: PROCESSOR (Sample Processing)
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#ProcessorService> a app:Service ;
+    rdfs:label "Sample Processor" ;
+    app:hasName "processor" ;
+    app:hasInitialState <https://jgen.dev/ontology/java/example#ProcessorState> ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#ProcessorHandler> ;
+    app:usesPattern eip:IdempotentReceiver ;
+    app:usesPattern eip:Resequencer ;
+    app:hasHealthCheck <https://jgen.dev/ontology/java/example#ProcessorHealthCheck> .
+
+<https://jgen.dev/ontology/java/example#ProcessorState> a app:StateType ;
+    rdfs:comment "State for processor: parameter data buffer, event store" .
+
+<https://jgen.dev/ontology/java/example#ProcessorHealthCheck> a app:HealthCheck ;
+    app:hasCheck "buffer-size" ;
+    app:hasCheck "event-store-connection" ;
+    app:hasInterval "PT10S" .
+
+# =============================================================================
+# SERVICE: STORAGE (Data Persistence)
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#StorageService> a app:Service ;
+    rdfs:label "Telemetry Storage" ;
+    app:hasName "storage" ;
+    app:hasInitialState <https://jgen.dev/ontology/java/example#StorageState> ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#StorageHandler> ;
+    app:usesPattern eip:DeadLetterChannel ;
+    app:usesPattern eip:DurableSubscriber ;
+    app:hasHealthCheck <https://jgen.dev/ontology/java/example#StorageHealthCheck> .
+
+<https://jgen.dev/ontology/java/example#StorageState> a app:StateType ;
+    rdfs:comment "State for storage: sample buffer
+ persistence count" .
+
+<https://jgen.dev/ontology/java/example#StorageHealthCheck> a app:HealthCheck ;
+    app:hasCheck "disk-space" ;
+    app:hasCheck "write-rate" ;
+    app:hasInterval "PT30S" .
+
+# =============================================================================
+# SERVICE: OBSERVATION (Wire Tap)
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#ObservationService> a app:Service ;
+    rdfs:label "Observation / Wire Tap" ;
+    app:hasName "observation" ;
+    app:hasInitialState <https://jgen.dev/ontology/java/example#ObservationState> ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#ObservationHandler> ;
+    app:usesPattern eip:WireTap ;
+    app:hasHealthCheck <https://jgen.dev/ontology/java/example#ObservationHealthCheck> .
+
+<https://jgen.dev/ontology/java/example#ObservationState> a app:StateType ;
+    rdfs:comment "State for observation: received count
+ event bus" .
+
+<https://jgen.dev/ontology/java/example#ObservationHealthCheck> a app:HealthCheck ;
+    app:hasCheck "event-bus-connection" ;
+    app:hasInterval "PT10S" .
+
+# =============================================================================
+# INFRASTRUCTURE: MESSAGE BUS
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryMessageBus> a app:Infrastructure ;
+    rdfs:label "Telemetry Message Bus" ;
+    app:hasType app:MessageBus ;
+    app:providesPattern eip:MessageBus ;
+    app:providesPattern eip:PublishSubscribeChannel ;
+    app:hasConfig <https://jgen.dev/ontology/java/example#MessageBusConfig> .
+
+<https://jgen.dev/ontology/java/example#MessageBusConfig> a app:InfrastructureConfig ;
+    app:set "topics" "telemetry.samples telemetry.events telemetry.laps" ;
+    app:set "retention" "24h" ;
+    app:set "max.subscribers" 100 .
+
+# =============================================================================
+# INFRASTRUCTURE: EVENT STORE
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryEventStore> a app:Infrastructure ;
+    rdfs:label "Telemetry Event Store" ;
+    app:hasType app:EventStore ;
+    app:providesPattern app:EventStore ;
+    app:hasProjection <https://jgen.dev/ontology/java/example#SessionSummaryProjection> ;
+    app:hasProjection <https://jgen.dev/ontology/java/example#LapSummaryProjection> ;
+    app:hasConfig <https://jgen.dev/ontology/java/example#EventStoreConfig> .
+
+<https://jgen.dev/ontology/java/example#EventStoreConfig> a app:InfrastructureConfig ;
+    app:set "snapshot.interval" "PT1M" ;
+    app:set "retention" "30D" .
+
+<https://jgen.dev/ontology/java/example#SessionSummaryProjection> a app:Projection ;
+    rdfs:label "Session Summary Projection" ;
+    app:projectsFrom "telemetry.events" ;
+    app:hasReadModel <https://jgen.dev/ontology/java/example#SessionSummaryReadModel> .
+
+<https://jgen.dev/ontology/java/example#LapSummaryProjection> a app:Projection ;
+    rdfs:label "Lap Summary Projection" ;
+    app:projectsFrom "telemetry.laps" ;
+    app:hasReadModel <https://jgen.dev/ontology/java/example#LapSummaryReadModel> .
+
+# =============================================================================
+# INFRASTRUCTURE: METETRICS
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryMetrics> a app:Infrastructure ;
+    rdfs:label "Telemetry Metrics Collector" ;
+    app:hasType app:MetricsCollector ;
+    app:providesPattern app:MetricsCollector ;
+    app:hasCounter <https://jgen.dev/ontology/java/example#IngressReceivedCounter> ;
+    app:hasCounter <https://jgen.dev/ontology/java/example#SamplesProcessedCounter> ;
+    app:hasHistogram <https://jgen.dev/ontology/java/example#ProcessingLatencyHistogram> ;
+    app:hasTimer <https://jgen.dev/ontology/java/example#RequestDurationTimer> .
+
+<https://jgen.dev/ontology/java/example#IngressReceivedCounter> a app:Metric ;
+    app:hasName "ingress.received" ;
+    app:hasDescription "Messages received at ingress" .
+
+<https://jgen.dev/ontology/java/example#SamplesProcessedCounter> a app:Metric ;
+    app:hasName "samples.processed" ;
+    app:hasDescription "Samples successfully processed" .
+
+<https://jgen.dev/ontology/java/example#ProcessingLatencyHistogram> a app:Metric ;
+    app:hasName "processing.latency" ;
+    app:hasDescription "Processing latency in milliseconds" .
+
+<https://jgen.dev/ontology/java/example#RequestDurationTimer> a app:Metric ;
+    app:hasName "request.duration" ;
+    app:hasDescription "End-to-end request duration" .
+
+# =============================================================================
+# INFRASTRUCTURE: TRACING
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryTracer> a app:Infrastructure ;
+    rdfs:label "Telemetry Distributed Tracer" ;
+    app:hasType app:DistributedTracer ;
+    app:providesPattern app:DistributedTracer ;
+    app:hasConfig <https://jgen.dev/ontology/java/example#TracerConfig> .
+
+<https://jgen.dev/ontology/java/example#TracerConfig> a app:InfrastructureConfig ;
+    app:set "service.name" "telemetry-service" ;
+    app:set "sampling.rate" 0.1 .
+
+# =============================================================================
+# INFRASTRUCTURE: HEALTH CHECKER
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryHealthChecker> a app:Infrastructure ;
+    rdfs:label "Telemetry Health Checker" ;
+    app:hasType app:HealthChecker ;
+    app:providesPattern app:HealthChecker ;
+    app:hasCheck "self-health" ;
+    app:hasCheck "message-bus-health" ;
+    app:hasCheck "event-store-health" ;
+    app:hasInterval "PT30S" .
+
+# =============================================================================
+# API GATEWAY
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryApiGateway> a app:Infrastructure ;
+    rdfs:label "Telemetry API Gateway" ;
+    app:hasType app:ApiGateway ;
+    app:providesPattern app:ApiGateway ;
+    app:hasRoute <https://jgen.dev/ontology/java/example#IngestionRoute> ;
+    app:hasRoute <https://jgen.dev/ontology/java/example#QueryRoute> ;
+    app:hasRateLimiter <https://jgen.dev/ontology/java/example#ApiRateLimiter> ;
+    app:hasCircuitBreaker <https://jgen.dev/ontology/java/example#BackendCircuitBreaker> .
+
+<https://jgen.dev/ontology/java/example#IngestionRoute> a app:Route ;
+    app:hasPattern "/api/telemetry" ;
+    app:hasMethod "POST" ;
+    app:hasTarget "ingress" .
+
+<https://jgen.dev/ontology/java/example#QueryRoute> a app:Route ;
+    app:hasPattern "/api/sessions/:id" ;
+    app:hasMethod "GET" ;
+    app:hasTarget "storage" .
+
+<https://jgen.dev/ontology/java/example#ApiRateLimiter> a app:RateLimiter ;
+    app:hasType "token-bucket" ;
+    app:hasCapacity 1000 ;
+    app:hasRefillRate 100 .
+
+<https://jgen.dev/ontology/java/example#BackendCircuitBreaker> a app:CircuitBreaker ;
+    app:hasFailureThreshold 5 ;
+    app:hasTimeout "PT10S" ;
+    app:hasResetTimeout "PT30S" .
+
+# =============================================================================
+# SAGA: SESSION LIFECYCLE
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#SessionLifecycleSaga> a saga:Saga ;
+    rdfs:label "Session Lifecycle Saga" ;
+    saga:hasStep <https://jgen.dev/ontology/java/example#InitializeStep> ;
+    saga:hasStep <https://jgen.dev/ontology/java/example#ConfigureStep> ;
+    saga:hasStep <https://jgen.dev/ontology/java/example#GoLiveStep> ;
+    saga:hasStep <https://jgen.dev/ontology/java/example#RecordStep> ;
+    saga:hasStep <https://jgen.dev/ontology/java/example#SaveStep> ;
+    saga:hasStep <https://jgen.dev/ontology/java/example#CloseStep> .
+
+<https://jgen.dev/ontology/java/example#InitializeStep> a saga:Step ;
+    saga:hasName "initialize" ;
+    saga:hasAction <https://jgen.dev/ontology/java/example#InitializeAction> ;
+    saga:hasCompensation <https://jgen.dev/ontology/java/example#CleanupAction> .
+
+<https://jgen.dev/ontology/java/example#ConfigureStep> a saga:Step ;
+    saga:hasName "configure" ;
+    saga:hasAction <https://jgen.dev/ontology/java/example#ConfigureAction> ;
+    saga:hasCompensation <https://jgen.dev/ontology/java/example#DeconfigureAction> .
+
+<https://jgen.dev/ontology/java/example#GoLiveStep> a saga:Step ;
+    saga:hasName "golive" ;
+    saga:hasAction <https://jgen.dev/ontology/java/example#GoLiveAction> ;
+    saga:hasCompensation <https://jgen.dev/ontology/java/example#StandbyAction> ;
+    saga:hasTimeout "PT30S" .
+
+<https://jgen.dev/ontology/java/example#RecordStep> a saga:Step ;
+    saga:hasName "record" ;
+    saga:hasAction <https://jgen.dev/ontology/java/example#RecordAction> ;
+    saga:hasTimeout "PT1H" .
+
+<https://jgen.dev/ontology/java/example#SaveStep> a saga:Step ;
+    saga:hasName "save" ;
+    saga:hasAction <https://jgen.dev/ontology/java/example#SaveAction> ;
+    saga:hasCompensation <https://jgen.dev/ontology/java/example#AbortSaveAction> ;
+    saga:hasTimeout "PT5M" .
+
+<https://jgen.dev/ontology/java/example#CloseStep> a saga:Step ;
+    saga:hasName "close" ;
+    saga:hasAction <https://jgen.dev/ontology/java/example#CloseAction> .
+
+# =============================================================================
+# CQRS: COMMAND SIDE
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryCommandDispatcher> a app:Infrastructure ;
+    rdfs:label "Telemetry Command Dispatcher" ;
+    app:hasType app:CommandDispatcher ;
+    app:handlesCommand <https://jgen.dev/ontology/java/example#CreateSessionCommand> ;
+    app:handlesCommand <https://jgen.dev/ontology/java/example#RecordSampleCommand> ;
+    app:handlesCommand <https://jgen.dev/ontology/java/example#CompleteLapCommand> ;
+    app:hasMiddleware <https://jgen.dev/ontology/java/example#LoggingMiddleware> ;
+    app:hasMiddleware <https://jgen.dev/ontology/java/example#ValidationMiddleware> .
+
+<https://jgen.dev/ontology/java/example#CreateSessionCommand> a app:Command ;
+    app:hasName "CreateSession" ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#CreateSessionHandler> .
+
+<https://jgen.dev/ontology/java/example#RecordSampleCommand> a app:Command ;
+    app:hasName "RecordSample" ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#RecordSampleHandler> .
+
+<https://jgen.dev/ontology/java/example#CompleteLapCommand> a app:Command ;
+    app:hasName "CompleteLap" ;
+    app:hasHandler <https://jgen.dev/ontology/java/example#CompleteLapHandler> .
+
+<https://jgen.dev/ontology/java/example#LoggingMiddleware> a app:Middleware ;
+    app:hasName "Logging" ;
+    app:hasOrder 1 .
+
+<https://jgen.dev/ontology/java/example#ValidationMiddleware> a app:Middleware ;
+    app:hasName "Validation" ;
+    app:hasOrder 2 .
+
+# =============================================================================
+# CQRS: QUERY SIDE
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryQueryDispatcher> a app:Infrastructure ;
+    rdfs:label "Telemetry Query Dispatcher" ;
+    app:hasType app:QueryDispatcher ;
+    app:handlesQuery <https://jgen.dev/ontology/java/example#GetSessionQuery> ;
+    app:handlesQuery <https://jgen.dev/ontology/java/example#GetLapSummaryQuery> ;
+    app:handlesQuery <https://jgen.dev/ontology/java/example#GetParameterHistoryQuery> ;
+    app:hasCaching "true" ;
+    app:hasCacheTtl "PT5M" .
+
+<https://jgen.dev/ontology/java/example#GetSessionQuery> a app:Query ;
+    app:hasName "GetSession" ;
+    app:returnsType <https://jgen.dev/ontology/java/example#SessionSummary> .
+
+<https://jgen.dev/ontology/java/example#GetLapSummaryQuery> a app:Query ;
+    app:hasName "GetLapSummary" ;
+    app:returnsType <https://jgen.dev/ontology/java/example#LapSummary> .
+
+<https://jgen.dev/ontology/java/example#GetParameterHistoryQuery> a app:Query ;
+    app:hasName "GetParameterHistory" ;
+    app:returnsType <https://jgen.dev/ontology/java/example#ParameterHistory> .
+
+# =============================================================================
+# SERVICE MESH
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryServiceRegistry> a app:Infrastructure ;
+    rdfs:label "Telemetry Service Registry" ;
+    app:hasType app:ServiceRegistry ;
+    app:hasService <https://jgen.dev/ontology/java/example#IngressService> ;
+    app:hasService <https://jgen.dev/ontology/java/example#ProcessorService> ;
+    app:hasService <https://jgen.dev/ontology/java/example#StorageService> ;
+    app:hasService <https://jgen.dev/ontology/java/example#ObservationService> .
+
+<https://jgen.dev/ontology/java/example#TelemetryServiceRouter> a app:Infrastructure ;
+    rdfs:label "Telemetry Service Router" ;
+    app:hasType app:ServiceRouter ;
+    app:hasRoute <https://jgen.dev/ontology/java/example#SampleRouting> .
+
+<https://jgen.dev/ontology/java/example#SampleRouting> a app:RoutingRule ;
+    app:hasPredicate "msg.param.startsWith('BRAKE')" ;
+    app:hasTarget <https://jgen.dev/ontology/java/example#ProcessorService> ;
+    app:hasPriority 10 .
+
+<https://jgen.dev/ontology/java/example#TelemetryLoadBalancer> a app:Infrastructure ;
+    rdfs:label "Telemetry Load Balancer" ;
+    app:hasType app:LoadBalancer ;
+    app:hasStrategy "round-robin" .
+
+# =============================================================================
+# APPLICATION CONFIGURATION
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryAppConfig> a app:ApplicationConfig ;
+    app:environment "production" ;
+    app:set "kafka.bootstrap.servers" "kafka:9092" ;
+    app:set "kafka.consumer.group" "telemetry-consumer" ;
+    app:set "batch.size" "100" ;
+    app:set "timeout.ms" "5000" ;
+    app:set "max.retries" "3" ;
+    app:set "health.check.interval" "PT30S" ;
+    app:set "metrics.export.interval" "PT1M" ;
+    app:set "snapshot.interval" "PT1M" .
+
+# =============================================================================
+# MESSAGE FLOW
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryMessageFlow> a app:MessageFlow ;
+    rdfs:label "Telemetry Processing Pipeline" ;
+    app:hasSource <https://jgen.dev/ontology/java/example#IngressService> ;
+    app:hasTarget <https://jgen.dev/ontology/java/example#ProcessorService> ;
+    app:hasTopic "telemetry.samples" ;
+    app:hasPattern eip:ContentBasedRouter .
+
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasService <https://jgen.dev/ontology/java/example#IngressService> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasService <https://jgen.dev/ontology/java/example#ProcessorService> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasService <https://jgen.dev/ontology/java/example#StorageService> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasService <https://jgen.dev/ontology/java/example#ObservationService> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryMessageBus> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryEventStore> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryMetrics> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryTracer> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryHealthChecker> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryApiGateway> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryServiceRegistry> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryCommandDispatcher> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasInfrastructure <https://jgen.dev/ontology/java/example#TelemetryQueryDispatcher> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasHealthCheck <https://jgen.dev/ontology/java/example#TelemetryHealthChecker> ;
+<https://jgen.dev/ontology/java/example#TelemetryApplication> app:hasConfig <https://jgen.dev/ontology/java/example#TelemetryAppConfig> .

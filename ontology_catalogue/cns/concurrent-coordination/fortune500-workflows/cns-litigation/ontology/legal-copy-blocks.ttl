@@ -1,0 +1,389 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ls: <http://legal-swarm.ai/ontology/> .
+@prefix lscopy: <http://legal-swarm.ai/ontology/copy/> .
+@prefix lstemplate: <http://legal-swarm.ai/ontology/template/> .
+@prefix lsjuris: <http://legal-swarm.ai/ontology/jurisdiction/> .
+
+# IRI Structure for Legal Copy Blocks Ontology
+lscopy: rdf:type owl:Ontology ;
+    dct:title "Legal Copy Blocks IRI Structure Ontology" ;
+    dct:description "Structured IRI system for legal document templates, copy blocks, and reusable text components" ;
+    dct:version "1.0.0" ;
+    dct:created "2025-07-29"^^xsd:date ;
+    owl:imports ls: .
+
+# ============================================================================
+# COPY BLOCK BASE CLASSES
+# ============================================================================
+
+lscopy:CopyBlock rdf:type owl:Class ;
+    rdfs:label "Legal Copy Block" ;
+    rdfs:comment "Reusable block of legal text with standardized structure" ;
+    rdfs:subClassOf ls:Document .
+
+lscopy:Template rdf:type owl:Class ;
+    rdfs:label "Legal Template" ;
+    rdfs:comment "Complete legal document template composed of copy blocks" ;
+    rdfs:subClassOf ls:Document .
+
+lscopy:Clause rdf:type owl:Class ;
+    rdfs:label "Legal Clause" ;
+    rdfs:comment "Individual clause within a legal document" ;
+    rdfs:subClassOf lscopy:CopyBlock .
+
+lscopy:Paragraph rdf:type owl:Class ;
+    rdfs:label "Legal Paragraph" ;
+    rdfs:comment "Paragraph-level copy block" ;
+    rdfs:subClassOf lscopy:CopyBlock .
+
+lscopy:Section rdf:type owl:Class ;
+    rdfs:label "Legal Section" ;
+    rdfs:comment "Section-level copy block containing multiple paragraphs" ;
+    rdfs:subClassOf lscopy:CopyBlock .
+
+# ============================================================================
+# DOCUMENT TYPE TEMPLATES
+# ============================================================================
+
+# Complaint Templates
+lstemplate:Complaint rdf:type owl:Class ;
+    rdfs:label "Complaint Template" ;
+    rdfs:comment "Template for civil complaint documents" ;
+    rdfs:subClassOf lscopy:Template .
+
+lstemplate:ComplaintHeader rdf:type owl:Class ;
+    rdfs:label "Complaint Header" ;
+    rdfs:comment "Standard header section for complaints" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:ComplaintCaption rdf:type owl:Class ;
+    rdfs:label "Complaint Caption" ;
+    rdfs:comment "Case caption and court information" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:ComplaintJurisdiction rdf:type owl:Class ;
+    rdfs:label "Complaint Jurisdiction" ;
+    rdfs:comment "Jurisdictional allegations section" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:ComplaintVenue rdf:type owl:Class ;
+    rdfs:label "Complaint Venue" ;
+    rdfs:comment "Venue allegations section" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:ComplaintParties rdf:type owl:Class ;
+    rdfs:label "Complaint Parties" ;
+    rdfs:comment "Party identification and description section" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:ComplaintCounts rdf:type owl:Class ;
+    rdfs:label "Complaint Counts" ;
+    rdfs:comment "Claims for relief section" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:ComplaintPrayerForRelief rdf:type owl:Class ;
+    rdfs:label "Prayer for Relief" ;
+    rdfs:comment "Requested remedies and relief" ;
+    rdfs:subClassOf lscopy:Section .
+
+# Motion Templates
+lstemplate:Motion rdf:type owl:Class ;
+    rdfs:label "Motion Template" ;
+    rdfs:comment "Template for court motions" ;
+    rdfs:subClassOf lscopy:Template .
+
+lstemplate:MotionHeader rdf:type owl:Class ;
+    rdfs:label "Motion Header" ;
+    rdfs:comment "Standard header for motions" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:MotionIntroduction rdf:type owl:Class ;
+    rdfs:label "Motion Introduction" ;
+    rdfs:comment "Introductory paragraph stating the motion" ;
+    rdfs:subClassOf lscopy:Paragraph .
+
+lstemplate:MotionFactualBackground rdf:type owl:Class ;
+    rdfs:label "Factual Background" ;
+    rdfs:comment "Statement of relevant facts" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:MotionLegalStandard rdf:type owl:Class ;
+    rdfs:label "Legal Standard" ;
+    rdfs:comment "Applicable legal standard section" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:MotionArgument rdf:type owl:Class ;
+    rdfs:label "Motion Argument" ;
+    rdfs:comment "Legal argument section" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:MotionConclusion rdf:type owl:Class ;
+    rdfs:label "Motion Conclusion" ;
+    rdfs:comment "Conclusion and requested relief" ;
+    rdfs:subClassOf lscopy:Section .
+
+# Brief Templates
+lstemplate:Brief rdf:type owl:Class ;
+    rdfs:label "Legal Brief Template" ;
+    rdfs:comment "Template for legal briefs" ;
+    rdfs:subClassOf lscopy:Template .
+
+lstemplate:BriefTableOfContents rdf:type owl:Class ;
+    rdfs:label "Table of Contents" ;
+    rdfs:comment "Brief table of contents" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:BriefTableOfAuthorities rdf:type owl:Class ;
+    rdfs:label "Table of Authorities" ;
+    rdfs:comment "Table of legal authorities cited" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:BriefStatementOfIssues rdf:type owl:Class ;
+    rdfs:label "Statement of Issues" ;
+    rdfs:comment "Issues presented for review" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:BriefStatementOfCase rdf:type owl:Class ;
+    rdfs:label "Statement of Case" ;
+    rdfs:comment "Procedural history and statement of case" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:BriefStatementOfFacts rdf:type owl:Class ;
+    rdfs:label "Statement of Facts" ;
+    rdfs:comment "Statement of relevant facts" ;
+    rdfs:subClassOf lscopy:Section .
+
+lstemplate:BriefArgument rdf:type owl:Class ;
+    rdfs:label "Brief Argument" ;
+    rdfs:comment "Legal argument section" ;
+    rdfs:subClassOf lscopy:Section .
+
+# ============================================================================
+# JURISDICTION-SPECIFIC COPY BLOCKS
+# ============================================================================
+
+# Federal Jurisdiction Copy Blocks
+lsjuris:FederalCopyBlock rdf:type owl:Class ;
+    rdfs:label "Federal Copy Block" ;
+    rdfs:comment "Copy block specific to federal jurisdiction" ;
+    rdfs:subClassOf lscopy:CopyBlock .
+
+lsjuris:FederalJurisdictionClause rdf:type owl:Class ;
+    rdfs:label "Federal Jurisdiction Clause" ;
+    rdfs:comment "Standard federal jurisdiction allegation" ;
+    rdfs:subClassOf lsjuris:FederalCopyBlock .
+
+lsjuris:FederalQuestionClause rdf:type owl:Class ;
+    rdfs:label "Federal Question Clause" ;
+    rdfs:comment "Federal question jurisdiction allegation" ;
+    rdfs:subClassOf lsjuris:FederalJurisdictionClause .
+
+lsjuris:DiversityClause rdf:type owl:Class ;
+    rdfs:label "Diversity Jurisdiction Clause" ;
+    rdfs:comment "Diversity jurisdiction allegation" ;
+    rdfs:subClassOf lsjuris:FederalJurisdictionClause .
+
+# California State Copy Blocks
+lsjuris:CaliforniaCopyBlock rdf:type owl:Class ;
+    rdfs:label "California Copy Block" ;
+    rdfs:comment "Copy block specific to California state jurisdiction" ;
+    rdfs:subClassOf lscopy:CopyBlock .
+
+lsjuris:CaliforniaJurisdictionClause rdf:type owl:Class ;
+    rdfs:label "California Jurisdiction Clause" ;
+    rdfs:comment "California state jurisdiction allegation" ;
+    rdfs:subClassOf lsjuris:CaliforniaCopyBlock .
+
+lsjuris:CaliforniaVenueClause rdf:type owl:Class ;
+    rdfs:label "California Venue Clause" ;
+    rdfs:comment "California venue allegation" ;
+    rdfs:subClassOf lsjuris:CaliforniaCopyBlock .
+
+# Nevada State Copy Blocks  
+lsjuris:NevadaCopyBlock rdf:type owl:Class ;
+    rdfs:label "Nevada Copy Block" ;
+    rdfs:comment "Copy block specific to Nevada state jurisdiction" ;
+    rdfs:subClassOf lscopy:CopyBlock .
+
+lsjuris:NevadaJurisdictionClause rdf:type owl:Class ;
+    rdfs:label "Nevada Jurisdiction Clause" ;
+    rdfs:comment "Nevada state jurisdiction allegation" ;
+    rdfs:subClassOf lsjuris:NevadaCopyBlock .
+
+# ============================================================================
+# STANDARDIZED IRI PATTERNS
+# ============================================================================
+
+# Document Type IRIs
+# Pattern: http://legal-swarm.ai/ontology/template/{document-type}/{section}
+# Examples:
+# - http://legal-swarm.ai/ontology/template/complaint/header
+# - http://legal-swarm.ai/ontology/template/motion/introduction
+# - http://legal-swarm.ai/ontology/template/brief/argument
+
+# Jurisdiction IRIs  
+# Pattern: http://legal-swarm.ai/ontology/jurisdiction/{jurisdiction}/{clause-type}
+# Examples:
+# - http://legal-swarm.ai/ontology/jurisdiction/federal/question
+# - http://legal-swarm.ai/ontology/jurisdiction/california/venue
+# - http://legal-swarm.ai/ontology/jurisdiction/nevada/jurisdiction
+
+# Copy Block IRIs
+# Pattern: http://legal-swarm.ai/ontology/copy/{type}/{category}/{specific}
+# Examples:
+# - http://legal-swarm.ai/ontology/copy/clause/jurisdiction/federal-question
+# - http://legal-swarm.ai/ontology/copy/paragraph/parties/plaintiff-corporation
+# - http://legal-swarm.ai/ontology/copy/section/relief/monetary-damages
+
+# ============================================================================
+# COPY BLOCK PROPERTIES
+# ============================================================================
+
+lscopy:hasText rdf:type owl:DatatypeProperty ;
+    rdfs:label "has text" ;
+    rdfs:comment "The actual text content of the copy block" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range xsd:string .
+
+lscopy:hasTemplate rdf:type owl:DatatypeProperty ;
+    rdfs:label "has template" ;
+    rdfs:comment "Template string with placeholders" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range xsd:string .
+
+lscopy:hasPlaceholder rdf:type owl:DatatypeProperty ;
+    rdfs:label "has placeholder" ;
+    rdfs:comment "Placeholder variable in template" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range xsd:string .
+
+lscopy:requiresJurisdiction rdf:type owl:ObjectProperty ;
+    rdfs:label "requires jurisdiction" ;
+    rdfs:comment "Jurisdiction required for this copy block" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range lsentity:Jurisdiction .
+
+lscopy:applicableIn rdf:type owl:ObjectProperty ;
+    rdfs:label "applicable in" ;
+    rdfs:comment "Jurisdiction where copy block is applicable" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range lsentity:Jurisdiction .
+
+lscopy:contains rdf:type owl:ObjectProperty ;
+    rdfs:label "contains" ;
+    rdfs:comment "Copy block contained within this template or section" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range lscopy:CopyBlock .
+
+lscopy:followedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "followed by" ;
+    rdfs:comment "Copy block that follows this one in sequence" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range lscopy:CopyBlock .
+
+lscopy:hasVersion rdf:type owl:DatatypeProperty ;
+    rdfs:label "has version" ;
+    rdfs:comment "Version number of copy block" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range xsd:string .
+
+lscopy:isEffectiveFrom rdf:type owl:DatatypeProperty ;
+    rdfs:label "is effective from" ;
+    rdfs:comment "Date from which copy block is effective" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range xsd:date .
+
+lscopy:isEffectiveUntil rdf:type owl:DatatypeProperty ;
+    rdfs:label "is effective until" ;
+    rdfs:comment "Date until which copy block is effective" ;
+    rdfs:domain lscopy:CopyBlock ;
+    rdfs:range xsd:date .
+
+# ============================================================================
+# SPECIFIC COPY BLOCK INSTANCES
+# ============================================================================
+
+# Federal Question Jurisdiction Copy Block
+lscopy:federal-question-jurisdiction rdf:type lsjuris:FederalQuestionClause ;
+    rdfs:label "Federal Question Jurisdiction" ;
+    lscopy:hasTemplate """This Court has subject matter jurisdiction over this action pursuant to 28 U.S.C. § 1331 because this action arises under the laws of the United States, specifically {{FEDERAL_STATUTE}}.""" ;
+    lscopy:hasPlaceholder "{{FEDERAL_STATUTE}}" ;
+    lscopy:requiresJurisdiction lsentity:FederalJurisdiction ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+# Diversity Jurisdiction Copy Block
+lscopy:diversity-jurisdiction rdf:type lsjuris:DiversityClause ;
+    rdfs:label "Diversity Jurisdiction" ;
+    lscopy:hasTemplate """This Court has subject matter jurisdiction over this action pursuant to 28 U.S.C. § 1332 because there is complete diversity of citizenship between the parties and the amount in controversy exceeds $75,000, exclusive of interest and costs.""" ;
+    lscopy:requiresJurisdiction lsentity:FederalJurisdiction ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+# California State Jurisdiction Copy Block
+lscopy:california-jurisdiction rdf:type lsjuris:CaliforniaJurisdictionClause ;
+    rdfs:label "California State Jurisdiction" ;
+    lscopy:hasTemplate """This Court has jurisdiction over this action pursuant to California Code of Civil Procedure Section 410.10 because {{JURISDICTION_BASIS}}.""" ;
+    lscopy:hasPlaceholder "{{JURISDICTION_BASIS}}" ;
+    lscopy:requiresJurisdiction lsjuris:California ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+# California Venue Copy Block
+lscopy:california-venue rdf:type lsjuris:CaliforniaVenueClause ;
+    rdfs:label "California Venue" ;
+    lscopy:hasTemplate """Venue is proper in this Court pursuant to California Code of Civil Procedure Section {{VENUE_SECTION}} because {{VENUE_BASIS}}.""" ;
+    lscopy:hasPlaceholder "{{VENUE_SECTION}}" ;
+    lscopy:hasPlaceholder "{{VENUE_BASIS}}" ;
+    lscopy:requiresJurisdiction lsjuris:California ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+# Nevada State Jurisdiction Copy Block
+lscopy:nevada-jurisdiction rdf:type lsjuris:NevadaJurisdictionClause ;
+    rdfs:label "Nevada State Jurisdiction" ;
+    lscopy:hasTemplate """This Court has jurisdiction over this action pursuant to Nevada Revised Statutes Chapter 14 because {{JURISDICTION_BASIS}}.""" ;
+    lscopy:hasPlaceholder "{{JURISDICTION_BASIS}}" ;
+    lscopy:requiresJurisdiction lsjuris:Nevada ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+# Standard Prayer for Relief Copy Blocks
+lscopy:monetary-damages-prayer rdf:type lstemplate:ComplaintPrayerForRelief ;
+    rdfs:label "Monetary Damages Prayer" ;
+    lscopy:hasTemplate """WHEREFORE, Plaintiff respectfully requests that this Court enter judgment in favor of Plaintiff and against Defendant as follows:
+1. For monetary damages in an amount to be proven at trial;
+2. For pre-judgment and post-judgment interest at the maximum rate allowed by law;
+3. For costs of suit incurred herein;
+4. For such other and further relief as this Court deems just and proper.""" ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+lscopy:injunctive-relief-prayer rdf:type lstemplate:ComplaintPrayerForRelief ;
+    rdfs:label "Injunctive Relief Prayer" ;
+    lscopy:hasTemplate """WHEREFORE, Plaintiff respectfully requests that this Court enter judgment in favor of Plaintiff and against Defendant as follows:
+1. For preliminary and permanent injunctive relief {{INJUNCTION_DESCRIPTION}};
+2. For monetary damages in an amount to be proven at trial;
+3. For attorney's fees and costs pursuant to {{ATTORNEY_FEE_BASIS}};
+4. For such other and further relief as this Court deems just and proper.""" ;
+    lscopy:hasPlaceholder "{{INJUNCTION_DESCRIPTION}}" ;
+    lscopy:hasPlaceholder "{{ATTORNEY_FEE_BASIS}}" ;
+    lscopy:hasVersion "1.0" ;
+    lscopy:isEffectiveFrom "2025-01-01"^^xsd:date .
+
+# ============================================================================
+# JURISDICTION INSTANCES
+# ============================================================================
+
+lsjuris:Federal rdf:type lsentity:FederalJurisdiction ;
+    rdfs:label "Federal Jurisdiction" .
+
+lsjuris:California rdf:type lsentity:StateJurisdiction ;
+    rdfs:label "California State Jurisdiction" .
+
+lsjuris:Nevada rdf:type lsentity:StateJurisdiction ;
+    rdfs:label "Nevada State Jurisdiction" .

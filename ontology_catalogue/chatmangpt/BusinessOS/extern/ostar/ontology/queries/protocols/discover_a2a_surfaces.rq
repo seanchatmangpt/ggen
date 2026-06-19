@@ -1,0 +1,17 @@
+
+PREFIX proto: <https://chatmangpt.com/ontologies/o-star/protocol:>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?messageName ?description ?transport ?capability ?inputSchema ?outputSchema
+WHERE {
+  ?msg a proto:A2AMessage ;
+       rdfs:label ?messageName .
+
+  OPTIONAL { ?msg proto:messageTransport ?transport }
+  OPTIONAL { ?msg proto:agentCapability ?capability }
+  OPTIONAL { ?msg proto:inputMessage ?inputSchema }
+  OPTIONAL { ?msg proto:outputMessage ?outputSchema }
+  OPTIONAL { ?msg rdfs:comment ?description }
+}
+ORDER BY ?messageName

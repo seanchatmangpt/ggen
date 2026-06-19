@@ -1,0 +1,1159 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix mp: <https://bytestar.org/ontology/marketplace/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ================================================================
+# ByteStar N-Dimensional Marketplace Orders Ontology (.order)
+# Defines comprehensive order management with execution tracking
+# Version: 5.0.0 - Marketplace Crystals
+# Domain: Order lifecycle management with atomic execution guarantees
+# ================================================================
+
+<https://bytestar.org/ontology/marketplace/order> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/v5/marketplace/order> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar N-Dimensional Marketplace Orders Ontology" ;
+    dcterms:description "Comprehensive order management system with N-dimensional execution tracking, atomic transaction guarantees, and cross-organizational settlement" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <https://bytestar.org/ontology/marketplace/asset> ,
+                <https://bytestar.org/ontology/marketplace/offer> ,
+                <https://bytestar.org/ontology/resource-allocation> ,
+                <https://bytestar.org/ontology/performance-measurement> ,
+                <https://bytestar.org/ontology/optimization-engine> .
+
+# ================================================================
+# CORE ORDER CLASSES (80% REUSE + 20% NEW)
+# ================================================================
+
+## Primary Order Framework
+mp:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Matched offer/ask pair ready for execution with atomic guarantees" ;
+    rdfs:subClassOf ba:ResourceAllocation ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOrderId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOrderState ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:derivedFromMatch ;
+        owl:cardinality 1
+    ] .
+
+mp:ExecutableOrder a mp:Order ;
+    rdfs:label "Executable Order" ;
+    rdfs:comment "Order that has passed all validation and is ready for execution" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasExecutionPlan ;
+        owl:cardinality 1
+    ] .
+
+mp:AtomicOrder a mp:ExecutableOrder ;
+    rdfs:label "Atomic Order" ;
+    rdfs:comment "Order that executes atomically with all-or-nothing guarantee" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAtomicGuarantee ;
+        owl:cardinality 1
+    ] .
+
+mp:CompositeOrder a mp:Order ;
+    rdfs:label "Composite Order" ;
+    rdfs:comment "Order composed of multiple sub-orders with coordination requirements" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSubOrder ;
+        owl:minCardinality 2
+    ] .
+
+# ================================================================
+# ORDER STATE HIERARCHY
+# ================================================================
+
+mp:OrderState a owl:Class ;
+    rdfs:label "Order State" ;
+    rdfs:comment "Current state of order in execution lifecycle" ;
+    rdfs:subClassOf skos:Concept .
+
+## Pre-Execution States
+mp:Created a mp:OrderState ;
+    rdfs:label "Created" ;
+    rdfs:comment "Order created from matched offers" ;
+    skos:prefLabel "created" .
+
+mp:Validated a mp:OrderState ;
+    rdfs:label "Validated" ;
+    rdfs:comment "Order validated and approved for execution" ;
+    skos:prefLabel "validated" .
+
+mp:Scheduled a mp:OrderState ;
+    rdfs:label "Scheduled" ;
+    rdfs:comment "Order scheduled for execution" ;
+    skos:prefLabel "scheduled" .
+
+## Execution States
+mp:Executing a mp:OrderState ;
+    rdfs:label "Executing" ;
+    rdfs:comment "Order currently being executed" ;
+    skos:prefLabel "executing" .
+
+mp:PartiallyExecuted a mp:OrderState ;
+    rdfs:label "Partially Executed" ;
+    rdfs:comment "Order partially executed, remaining portion pending" ;
+    skos:prefLabel "partial" .
+
+mp:Suspended a mp:OrderState ;
+    rdfs:label "Suspended" ;
+    rdfs:comment "Order execution temporarily suspended" ;
+    skos:prefLabel "suspended" .
+
+## Terminal States
+mp:Completed a mp:OrderState ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Order successfully completed" ;
+    skos:prefLabel "completed" .
+
+mp:Failed a mp:OrderState ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Order execution failed" ;
+    skos:prefLabel "failed" .
+
+mp:Cancelled a mp:OrderState ;
+    rdfs:label "Cancelled" ;
+    rdfs:comment "Order cancelled before completion" ;
+    skos:prefLabel "cancelled" .
+
+mp:Reverted a mp:OrderState ;
+    rdfs:label "Reverted" ;
+    rdfs:comment "Order execution reverted due to failure" ;
+    skos:prefLabel "reverted" .
+
+# ================================================================
+# EXECUTION PLANNING & SCHEDULING
+# ================================================================
+
+mp:ExecutionPlan a owl:Class ;
+    rdfs:label "Execution Plan" ;
+    rdfs:comment "Detailed plan for order execution with timing and resource allocation" ;
+    rdfs:subClassOf ba:AllocationStrategy ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasExecutionStep ;
+        owl:minCardinality 1
+    ] .
+
+mp:ExecutionStep a owl:Class ;
+    rdfs:label "Execution Step" ;
+    rdfs:comment "Individual step in order execution plan" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasStepOrder ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasStepAction ;
+        owl:cardinality 1
+    ] .
+
+mp:ExecutionScheduler a owl:Class ;
+    rdfs:label "Execution Scheduler" ;
+    rdfs:comment "Scheduler for order execution with resource coordination" ;
+    rdfs:subClassOf ba:Scheduler ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:schedulesOrder ;
+        owl:minCardinality 1
+    ] .
+
+mp:ExecutionEngine a owl:Class ;
+    rdfs:label "Execution Engine" ;
+    rdfs:comment "Engine responsible for executing orders with performance guarantees" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:executesOrder ;
+        owl:minCardinality 1
+    ] .
+
+# ================================================================
+# ATOMIC EXECUTION & TRANSACTION GUARANTEES
+# ================================================================
+
+mp:AtomicGuarantee a owl:Class ;
+    rdfs:label "Atomic Guarantee" ;
+    rdfs:comment "Guarantee for atomic execution properties (ACID compliance)" ;
+    rdfs:subClassOf ba:QualityOfService ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAtomicity ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasConsistency ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasIsolation ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDurability ;
+        owl:cardinality 1
+    ] .
+
+mp:TransactionManager a owl:Class ;
+    rdfs:label "Transaction Manager" ;
+    rdfs:comment "Manages atomic transactions and rollback capabilities" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:managesTransaction ;
+        owl:minCardinality 1
+    ] .
+
+mp:Transaction a owl:Class ;
+    rdfs:label "Transaction" ;
+    rdfs:comment "Atomic transaction wrapping order execution" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTransactionId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTransactionState ;
+        owl:cardinality 1
+    ] .
+
+mp:Checkpoint a owl:Class ;
+    rdfs:label "Checkpoint" ;
+    rdfs:comment "Execution checkpoint for rollback and recovery" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCheckpointId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCheckpointTimestamp ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# ORDER EXECUTION MONITORING
+# ================================================================
+
+mp:ExecutionMonitor a owl:Class ;
+    rdfs:label "Execution Monitor" ;
+    rdfs:comment "Real-time monitoring of order execution with performance tracking" ;
+    rdfs:subClassOf ba:PerformanceMonitor ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:monitorsOrder ;
+        owl:minCardinality 1
+    ] .
+
+mp:ExecutionMetrics a owl:Class ;
+    rdfs:label "Execution Metrics" ;
+    rdfs:comment "Performance metrics for order execution" ;
+    rdfs:subClassOf ba:PerformanceMetric ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasExecutionLatency ;
+        owl:cardinality 1
+    ] .
+
+mp:ExecutionTrace a owl:Class ;
+    rdfs:label "Execution Trace" ;
+    rdfs:comment "Detailed trace of order execution steps and timing" ;
+    rdfs:subClassOf ba:PerformanceDataPoint ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTraceTimestamp ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# RESOURCE COORDINATION & ALLOCATION
+# ================================================================
+
+mp:ResourceCoordinator a owl:Class ;
+    rdfs:label "Resource Coordinator" ;
+    rdfs:comment "Coordinates resource allocation across order execution" ;
+    rdfs:subClassOf ba:ResourceAllocator ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:coordinatesResources ;
+        owl:minCardinality 1
+    ] .
+
+mp:ResourceReservation a owl:Class ;
+    rdfs:label "Resource Reservation" ;
+    rdfs:comment "Reserved resources for order execution" ;
+    rdfs:subClassOf ba:ResourceReservation ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:reservesResource ;
+        owl:minCardinality 1
+    ] .
+
+mp:ResourceLock a owl:Class ;
+    rdfs:label "Resource Lock" ;
+    rdfs:comment "Exclusive lock on resources during execution" ;
+    rdfs:subClassOf mp:ResourceReservation ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasLockTimeout ;
+        owl:cardinality 1
+    ] .
+
+mp:ResourceAllocation a owl:Class ;
+    rdfs:label "Resource Allocation" ;
+    rdfs:comment "Actual allocation of resources to order execution" ;
+    rdfs:subClassOf ba:ResourceAllocation ;  # Direct reuse
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:allocatedToOrder ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# FAILURE HANDLING & RECOVERY
+# ================================================================
+
+mp:FailureHandler a owl:Class ;
+    rdfs:label "Failure Handler" ;
+    rdfs:comment "Handles order execution failures with recovery strategies" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRecoveryStrategy ;
+        owl:cardinality 1
+    ] .
+
+mp:RecoveryStrategy a owl:Class ;
+    rdfs:label "Recovery Strategy" ;
+    rdfs:comment "Strategy for handling execution failures" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRecoveryAction ;
+        owl:minCardinality 1
+    ] .
+
+mp:RetryStrategy a mp:RecoveryStrategy ;
+    rdfs:label "Retry Strategy" ;
+    rdfs:comment "Strategy for retrying failed executions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMaxRetries ;
+        owl:cardinality 1
+    ] .
+
+mp:RollbackStrategy a mp:RecoveryStrategy ;
+    rdfs:label "Rollback Strategy" ;
+    rdfs:comment "Strategy for rolling back failed executions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRollbackPoint ;
+        owl:minCardinality 1
+    ] .
+
+mp:CompensationStrategy a mp:RecoveryStrategy ;
+    rdfs:label "Compensation Strategy" ;
+    rdfs:comment "Strategy for compensating failed partial executions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCompensationAction ;
+        owl:minCardinality 1
+    ] .
+
+# ================================================================
+# ORDER VALIDATION & COMPLIANCE
+# ================================================================
+
+mp:OrderValidator a owl:Class ;
+    rdfs:label "Order Validator" ;
+    rdfs:comment "Validates orders against business rules and compliance requirements" ;
+    rdfs:subClassOf ba:PerformanceValidator ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:validatesOrder ;
+        owl:minCardinality 1
+    ] .
+
+mp:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Business rule for order validation" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRuleDescription ;
+        owl:cardinality 1
+    ] .
+
+mp:ComplianceCheck a owl:Class ;
+    rdfs:label "Compliance Check" ;
+    rdfs:comment "Compliance verification for regulatory requirements" ;
+    rdfs:subClassOf mp:ValidationRule ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasComplianceFramework ;
+        owl:cardinality 1
+    ] .
+
+mp:ValidationResult a owl:Class ;
+    rdfs:label "Validation Result" ;
+    rdfs:comment "Result of order validation process" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasValidationStatus ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# CROSS-ORGANIZATIONAL COORDINATION
+# ================================================================
+
+mp:OrderCoordinator a owl:Class ;
+    rdfs:label "Order Coordinator" ;
+    rdfs:comment "Coordinates order execution across multiple organizations" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:coordinatesOrganizations ;
+        owl:minCardinality 2
+    ] .
+
+mp:ExecutionAgreement a owl:Class ;
+    rdfs:label "Execution Agreement" ;
+    rdfs:comment "Agreement between organizations for order execution" ;
+    rdfs:subClassOf mp:TradingAgreement ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasExecutionTerms ;
+        owl:cardinality 1
+    ] .
+
+mp:CoordinationProtocol a owl:Class ;
+    rdfs:label "Coordination Protocol" ;
+    rdfs:comment "Protocol for inter-organizational coordination" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasProtocolVersion ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# PERFORMANCE & SLA TRACKING
+# ================================================================
+
+mp:OrderPerformance a owl:Class ;
+    rdfs:label "Order Performance" ;
+    rdfs:comment "Performance characteristics of order execution" ;
+    rdfs:subClassOf ba:PerformanceMeasurement ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPerformanceSLA ;
+        owl:cardinality 1
+    ] .
+
+mp:ExecutionSLA a owl:Class ;
+    rdfs:label "Execution SLA" ;
+    rdfs:comment "Service Level Agreement for order execution" ;
+    rdfs:subClassOf ba:ServiceLevelAgreement ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasExecutionTimeLimit ;
+        owl:cardinality 1
+    ] .
+
+mp:PerformanceBreach a owl:Class ;
+    rdfs:label "Performance Breach" ;
+    rdfs:comment "Breach of performance SLA during execution" ;
+    rdfs:subClassOf ba:PerformanceAlert ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasBreachSeverity ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OBJECT PROPERTIES
+# ================================================================
+
+## Core Order Properties
+mp:derivedFromMatch a owl:ObjectProperty ;
+    rdfs:label "derived from match" ;
+    rdfs:comment "Match result that created this order" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:MatchResult .
+
+mp:hasOrderState a owl:ObjectProperty ;
+    rdfs:label "has order state" ;
+    rdfs:comment "Current state of the order" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:OrderState .
+
+mp:hasExecutionPlan a owl:ObjectProperty ;
+    rdfs:label "has execution plan" ;
+    rdfs:comment "Execution plan for the order" ;
+    rdfs:domain mp:ExecutableOrder ;
+    rdfs:range mp:ExecutionPlan .
+
+mp:hasAtomicGuarantee a owl:ObjectProperty ;
+    rdfs:label "has atomic guarantee" ;
+    rdfs:comment "Atomic execution guarantee" ;
+    rdfs:domain mp:AtomicOrder ;
+    rdfs:range mp:AtomicGuarantee .
+
+mp:hasSubOrder a owl:ObjectProperty ;
+    rdfs:label "has sub-order" ;
+    rdfs:comment "Sub-order of composite order" ;
+    rdfs:domain mp:CompositeOrder ;
+    rdfs:range mp:Order .
+
+## Execution Properties
+mp:hasExecutionStep a owl:ObjectProperty ;
+    rdfs:label "has execution step" ;
+    rdfs:comment "Step in the execution plan" ;
+    rdfs:domain mp:ExecutionPlan ;
+    rdfs:range mp:ExecutionStep .
+
+mp:schedulesOrder a owl:ObjectProperty ;
+    rdfs:label "schedules order" ;
+    rdfs:comment "Order scheduled by scheduler" ;
+    rdfs:domain mp:ExecutionScheduler ;
+    rdfs:range mp:Order .
+
+mp:executesOrder a owl:ObjectProperty ;
+    rdfs:label "executes order" ;
+    rdfs:comment "Order executed by engine" ;
+    rdfs:domain mp:ExecutionEngine ;
+    rdfs:range mp:Order .
+
+## Transaction Properties
+mp:managesTransaction a owl:ObjectProperty ;
+    rdfs:label "manages transaction" ;
+    rdfs:comment "Transaction managed by manager" ;
+    rdfs:domain mp:TransactionManager ;
+    rdfs:range mp:Transaction .
+
+mp:hasTransaction a owl:ObjectProperty ;
+    rdfs:label "has transaction" ;
+    rdfs:comment "Transaction wrapping order execution" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:Transaction .
+
+mp:hasCheckpoint a owl:ObjectProperty ;
+    rdfs:label "has checkpoint" ;
+    rdfs:comment "Execution checkpoint for rollback" ;
+    rdfs:domain mp:Transaction ;
+    rdfs:range mp:Checkpoint .
+
+## Monitoring Properties
+mp:monitorsOrder a owl:ObjectProperty ;
+    rdfs:label "monitors order" ;
+    rdfs:comment "Order monitored by monitor" ;
+    rdfs:domain mp:ExecutionMonitor ;
+    rdfs:range mp:Order .
+
+mp:hasExecutionMetrics a owl:ObjectProperty ;
+    rdfs:label "has execution metrics" ;
+    rdfs:comment "Performance metrics for order execution" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:ExecutionMetrics .
+
+mp:hasExecutionTrace a owl:ObjectProperty ;
+    rdfs:label "has execution trace" ;
+    rdfs:comment "Detailed execution trace" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:ExecutionTrace .
+
+## Resource Properties
+mp:coordinatesResources a owl:ObjectProperty ;
+    rdfs:label "coordinates resources" ;
+    rdfs:comment "Resources coordinated for execution" ;
+    rdfs:domain mp:ResourceCoordinator ;
+    rdfs:range mp:Resource .
+
+mp:hasResourceReservation a owl:ObjectProperty ;
+    rdfs:label "has resource reservation" ;
+    rdfs:comment "Resources reserved for order" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:ResourceReservation .
+
+mp:reservesResource a owl:ObjectProperty ;
+    rdfs:label "reserves resource" ;
+    rdfs:comment "Resource reserved by reservation" ;
+    rdfs:domain mp:ResourceReservation ;
+    rdfs:range mp:Resource .
+
+mp:allocatedToOrder a owl:ObjectProperty ;
+    rdfs:label "allocated to order" ;
+    rdfs:comment "Order receiving resource allocation" ;
+    rdfs:domain mp:ResourceAllocation ;
+    rdfs:range mp:Order .
+
+## Failure Handling Properties
+mp:hasRecoveryStrategy a owl:ObjectProperty ;
+    rdfs:label "has recovery strategy" ;
+    rdfs:comment "Strategy for handling failures" ;
+    rdfs:domain mp:FailureHandler ;
+    rdfs:range mp:RecoveryStrategy .
+
+mp:hasRecoveryAction a owl:ObjectProperty ;
+    rdfs:label "has recovery action" ;
+    rdfs:comment "Action taken for recovery" ;
+    rdfs:domain mp:RecoveryStrategy ;
+    rdfs:range mp:RecoveryAction .
+
+mp:hasRollbackPoint a owl:ObjectProperty ;
+    rdfs:label "has rollback point" ;
+    rdfs:comment "Checkpoint for rollback" ;
+    rdfs:domain mp:RollbackStrategy ;
+    rdfs:range mp:Checkpoint .
+
+mp:hasCompensationAction a owl:ObjectProperty ;
+    rdfs:label "has compensation action" ;
+    rdfs:comment "Action taken for compensation" ;
+    rdfs:domain mp:CompensationStrategy ;
+    rdfs:range mp:CompensationAction .
+
+## Validation Properties
+mp:validatesOrder a owl:ObjectProperty ;
+    rdfs:label "validates order" ;
+    rdfs:comment "Order validated by validator" ;
+    rdfs:domain mp:OrderValidator ;
+    rdfs:range mp:Order .
+
+mp:hasValidationRule a owl:ObjectProperty ;
+    rdfs:label "has validation rule" ;
+    rdfs:comment "Rule used for validation" ;
+    rdfs:domain mp:OrderValidator ;
+    rdfs:range mp:ValidationRule .
+
+mp:hasValidationResult a owl:ObjectProperty ;
+    rdfs:label "has validation result" ;
+    rdfs:comment "Result of validation process" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:ValidationResult .
+
+## Coordination Properties
+mp:coordinatesOrganizations a owl:ObjectProperty ;
+    rdfs:label "coordinates organizations" ;
+    rdfs:comment "Organizations coordinated for execution" ;
+    rdfs:domain mp:OrderCoordinator ;
+    rdfs:range mp:Organization .
+
+mp:hasExecutionAgreement a owl:ObjectProperty ;
+    rdfs:label "has execution agreement" ;
+    rdfs:comment "Agreement for order execution" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:ExecutionAgreement .
+
+mp:hasCoordinationProtocol a owl:ObjectProperty ;
+    rdfs:label "has coordination protocol" ;
+    rdfs:comment "Protocol for coordination" ;
+    rdfs:domain mp:OrderCoordinator ;
+    rdfs:range mp:CoordinationProtocol .
+
+## Performance Properties
+mp:hasOrderPerformance a owl:ObjectProperty ;
+    rdfs:label "has order performance" ;
+    rdfs:comment "Performance characteristics of order" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:OrderPerformance .
+
+mp:hasPerformanceSLA a owl:ObjectProperty ;
+    rdfs:label "has performance SLA" ;
+    rdfs:comment "SLA for order performance" ;
+    rdfs:domain mp:OrderPerformance ;
+    rdfs:range mp:ExecutionSLA .
+
+mp:hasPerformanceBreach a owl:ObjectProperty ;
+    rdfs:label "has performance breach" ;
+    rdfs:comment "Breach of performance SLA" ;
+    rdfs:domain mp:Order ;
+    rdfs:range mp:PerformanceBreach .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+## Core Order Data Properties
+mp:hasOrderId a owl:DatatypeProperty ;
+    rdfs:label "has order ID" ;
+    rdfs:comment "Unique identifier for the order" ;
+    rdfs:domain mp:Order ;
+    rdfs:range xsd:string .
+
+mp:hasOrderTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has order timestamp" ;
+    rdfs:comment "Timestamp when order was created" ;
+    rdfs:domain mp:Order ;
+    rdfs:range xsd:dateTime .
+
+mp:hasOrderPriority a owl:DatatypeProperty ;
+    rdfs:label "has order priority" ;
+    rdfs:comment "Execution priority of the order (1-10)" ;
+    rdfs:domain mp:Order ;
+    rdfs:range xsd:integer .
+
+## Execution Step Properties
+mp:hasStepOrder a owl:DatatypeProperty ;
+    rdfs:label "has step order" ;
+    rdfs:comment "Sequential order of execution step" ;
+    rdfs:domain mp:ExecutionStep ;
+    rdfs:range xsd:integer .
+
+mp:hasStepAction a owl:DatatypeProperty ;
+    rdfs:label "has step action" ;
+    rdfs:comment "Action to be performed in step" ;
+    rdfs:domain mp:ExecutionStep ;
+    rdfs:range xsd:string .
+
+mp:hasStepDuration a owl:DatatypeProperty ;
+    rdfs:label "has step duration" ;
+    rdfs:comment "Expected duration for step execution in ticks" ;
+    rdfs:domain mp:ExecutionStep ;
+    rdfs:range xsd:decimal .
+
+## Atomic Guarantee Properties
+mp:hasAtomicity a owl:DatatypeProperty ;
+    rdfs:label "has atomicity" ;
+    rdfs:comment "Atomicity guarantee (all-or-nothing)" ;
+    rdfs:domain mp:AtomicGuarantee ;
+    rdfs:range xsd:boolean .
+
+mp:hasConsistency a owl:DatatypeProperty ;
+    rdfs:label "has consistency" ;
+    rdfs:comment "Consistency guarantee (valid state transitions)" ;
+    rdfs:domain mp:AtomicGuarantee ;
+    rdfs:range xsd:boolean .
+
+mp:hasIsolation a owl:DatatypeProperty ;
+    rdfs:label "has isolation" ;
+    rdfs:comment "Isolation guarantee (concurrent execution safety)" ;
+    rdfs:domain mp:AtomicGuarantee ;
+    rdfs:range xsd:boolean .
+
+mp:hasDurability a owl:DatatypeProperty ;
+    rdfs:label "has durability" ;
+    rdfs:comment "Durability guarantee (persistent state)" ;
+    rdfs:domain mp:AtomicGuarantee ;
+    rdfs:range xsd:boolean .
+
+## Transaction Properties
+mp:hasTransactionId a owl:DatatypeProperty ;
+    rdfs:label "has transaction ID" ;
+    rdfs:comment "Unique identifier for the transaction" ;
+    rdfs:domain mp:Transaction ;
+    rdfs:range xsd:string .
+
+mp:hasTransactionState a owl:DatatypeProperty ;
+    rdfs:label "has transaction state" ;
+    rdfs:comment "Current state of the transaction" ;
+    rdfs:domain mp:Transaction ;
+    rdfs:range xsd:string .
+
+mp:hasTransactionTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has transaction timestamp" ;
+    rdfs:comment "Timestamp of transaction creation" ;
+    rdfs:domain mp:Transaction ;
+    rdfs:range xsd:dateTime .
+
+## Checkpoint Properties
+mp:hasCheckpointId a owl:DatatypeProperty ;
+    rdfs:label "has checkpoint ID" ;
+    rdfs:comment "Unique identifier for checkpoint" ;
+    rdfs:domain mp:Checkpoint ;
+    rdfs:range xsd:string .
+
+mp:hasCheckpointTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has checkpoint timestamp" ;
+    rdfs:comment "Timestamp when checkpoint was created" ;
+    rdfs:domain mp:Checkpoint ;
+    rdfs:range xsd:dateTime .
+
+## Execution Metrics Properties
+mp:hasExecutionLatency a owl:DatatypeProperty ;
+    rdfs:label "has execution latency" ;
+    rdfs:comment "Total execution latency in ticks (per Doctrine of 8)" ;
+    rdfs:domain mp:ExecutionMetrics ;
+    rdfs:range xsd:decimal .
+
+mp:hasExecutionThroughput a owl:DatatypeProperty ;
+    rdfs:label "has execution throughput" ;
+    rdfs:comment "Orders executed per second" ;
+    rdfs:domain mp:ExecutionMetrics ;
+    rdfs:range xsd:decimal .
+
+mp:hasExecutionSuccessRate a owl:DatatypeProperty ;
+    rdfs:label "has execution success rate" ;
+    rdfs:comment "Percentage of successful executions" ;
+    rdfs:domain mp:ExecutionMetrics ;
+    rdfs:range xsd:decimal .
+
+## Trace Properties
+mp:hasTraceTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has trace timestamp" ;
+    rdfs:comment "Timestamp of trace entry" ;
+    rdfs:domain mp:ExecutionTrace ;
+    rdfs:range xsd:dateTime .
+
+mp:hasTraceAction a owl:DatatypeProperty ;
+    rdfs:label "has trace action" ;
+    rdfs:comment "Action recorded in trace" ;
+    rdfs:domain mp:ExecutionTrace ;
+    rdfs:range xsd:string .
+
+mp:hasTraceResult a owl:DatatypeProperty ;
+    rdfs:label "has trace result" ;
+    rdfs:comment "Result of traced action" ;
+    rdfs:domain mp:ExecutionTrace ;
+    rdfs:range xsd:string .
+
+## Resource Properties
+mp:hasLockTimeout a owl:DatatypeProperty ;
+    rdfs:label "has lock timeout" ;
+    rdfs:comment "Timeout for resource lock in ticks" ;
+    rdfs:domain mp:ResourceLock ;
+    rdfs:range xsd:decimal .
+
+mp:hasReservationDuration a owl:DatatypeProperty ;
+    rdfs:label "has reservation duration" ;
+    rdfs:comment "Duration of resource reservation in ticks" ;
+    rdfs:domain mp:ResourceReservation ;
+    rdfs:range xsd:decimal .
+
+## Recovery Properties
+mp:hasMaxRetries a owl:DatatypeProperty ;
+    rdfs:label "has max retries" ;
+    rdfs:comment "Maximum number of retry attempts" ;
+    rdfs:domain mp:RetryStrategy ;
+    rdfs:range xsd:integer .
+
+mp:hasRetryDelay a owl:DatatypeProperty ;
+    rdfs:label "has retry delay" ;
+    rdfs:comment "Delay between retry attempts in ticks" ;
+    rdfs:domain mp:RetryStrategy ;
+    rdfs:range xsd:decimal .
+
+mp:hasBackoffMultiplier a owl:DatatypeProperty ;
+    rdfs:label "has backoff multiplier" ;
+    rdfs:comment "Exponential backoff multiplier for retries" ;
+    rdfs:domain mp:RetryStrategy ;
+    rdfs:range xsd:decimal .
+
+## Validation Properties
+mp:hasRuleDescription a owl:DatatypeProperty ;
+    rdfs:label "has rule description" ;
+    rdfs:comment "Description of validation rule" ;
+    rdfs:domain mp:ValidationRule ;
+    rdfs:range xsd:string .
+
+mp:hasComplianceFramework a owl:DatatypeProperty ;
+    rdfs:label "has compliance framework" ;
+    rdfs:comment "Regulatory compliance framework" ;
+    rdfs:domain mp:ComplianceCheck ;
+    rdfs:range xsd:string .
+
+mp:hasValidationStatus a owl:DatatypeProperty ;
+    rdfs:label "has validation status" ;
+    rdfs:comment "Result of validation (PASS, FAIL, WARNING)" ;
+    rdfs:domain mp:ValidationResult ;
+    rdfs:range xsd:string .
+
+mp:hasValidationMessage a owl:DatatypeProperty ;
+    rdfs:label "has validation message" ;
+    rdfs:comment "Detailed validation result message" ;
+    rdfs:domain mp:ValidationResult ;
+    rdfs:range xsd:string .
+
+## Coordination Properties
+mp:hasProtocolVersion a owl:DatatypeProperty ;
+    rdfs:label "has protocol version" ;
+    rdfs:comment "Version of coordination protocol" ;
+    rdfs:domain mp:CoordinationProtocol ;
+    rdfs:range xsd:string .
+
+mp:hasExecutionTerms a owl:DatatypeProperty ;
+    rdfs:label "has execution terms" ;
+    rdfs:comment "Terms for order execution agreement" ;
+    rdfs:domain mp:ExecutionAgreement ;
+    rdfs:range xsd:string .
+
+## SLA Properties
+mp:hasExecutionTimeLimit a owl:DatatypeProperty ;
+    rdfs:label "has execution time limit" ;
+    rdfs:comment "Maximum allowed execution time in ticks" ;
+    rdfs:domain mp:ExecutionSLA ;
+    rdfs:range xsd:decimal .
+
+mp:hasAvailabilityTarget a owl:DatatypeProperty ;
+    rdfs:label "has availability target" ;
+    rdfs:comment "Target availability percentage" ;
+    rdfs:domain mp:ExecutionSLA ;
+    rdfs:range xsd:decimal .
+
+mp:hasBreachSeverity a owl:DatatypeProperty ;
+    rdfs:label "has breach severity" ;
+    rdfs:comment "Severity of performance breach (LOW, MEDIUM, HIGH, CRITICAL)" ;
+    rdfs:domain mp:PerformanceBreach ;
+    rdfs:range xsd:string .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+mp:OrderValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Order ;
+    rdfs:label "Order Validation" ;
+    rdfs:comment "Validates order completeness and correctness" ;
+    sh:property [
+        sh:path mp:hasOrderId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^ORD-[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$" ;
+        sh:message "Order must have a valid order ID with ORD- prefix"
+    ] ;
+    sh:property [
+        sh:path mp:hasOrderState ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:OrderState ;
+        sh:message "Order must have exactly one state"
+    ] ;
+    sh:property [
+        sh:path mp:derivedFromMatch ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:MatchResult ;
+        sh:message "Order must be derived from exactly one match result"
+    ] .
+
+mp:ExecutableOrderValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ExecutableOrder ;
+    rdfs:label "Executable Order Validation" ;
+    rdfs:comment "Validates executable order requirements" ;
+    sh:property [
+        sh:path mp:hasExecutionPlan ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:ExecutionPlan ;
+        sh:message "Executable order must have exactly one execution plan"
+    ] .
+
+mp:AtomicOrderValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AtomicOrder ;
+    rdfs:label "Atomic Order Validation" ;
+    rdfs:comment "Validates atomic order ACID guarantees" ;
+    sh:property [
+        sh:path mp:hasAtomicGuarantee ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:AtomicGuarantee ;
+        sh:message "Atomic order must have exactly one atomic guarantee"
+    ] .
+
+mp:ExecutionPlanValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ExecutionPlan ;
+    rdfs:label "Execution Plan Validation" ;
+    rdfs:comment "Validates execution plan structure" ;
+    sh:property [
+        sh:path mp:hasExecutionStep ;
+        sh:minCount 1 ;
+        sh:class mp:ExecutionStep ;
+        sh:message "Execution plan must have at least one step"
+    ] .
+
+mp:ExecutionStepValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ExecutionStep ;
+    rdfs:label "Execution Step Validation" ;
+    rdfs:comment "Validates execution step properties" ;
+    sh:property [
+        sh:path mp:hasStepOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Step order must be positive integer"
+    ] ;
+    sh:property [
+        sh:path mp:hasStepDuration ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Step duration must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+mp:AtomicGuaranteeValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AtomicGuarantee ;
+    rdfs:label "Atomic Guarantee Validation" ;
+    rdfs:comment "Validates ACID properties" ;
+    sh:property [
+        sh:path mp:hasAtomicity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Atomicity must be guaranteed"
+    ] ;
+    sh:property [
+        sh:path mp:hasConsistency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Consistency must be guaranteed"
+    ] ;
+    sh:property [
+        sh:path mp:hasIsolation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Isolation must be guaranteed"
+    ] ;
+    sh:property [
+        sh:path mp:hasDurability ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Durability must be guaranteed"
+    ] .
+
+mp:ExecutionMetricsValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ExecutionMetrics ;
+    rdfs:label "Execution Metrics Validation" ;
+    rdfs:comment "Validates execution performance metrics per Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasExecutionLatency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Execution latency must not exceed 8 ticks per Doctrine of 8"
+    ] ;
+    sh:property [
+        sh:path mp:hasExecutionSuccessRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Execution success rate must be between 0% and 100%"
+    ] .
+
+mp:ResourceLockValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ResourceLock ;
+    rdfs:label "Resource Lock Validation" ;
+    rdfs:comment "Validates resource lock timeout constraints" ;
+    sh:property [
+        sh:path mp:hasLockTimeout ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Lock timeout must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+mp:ValidationResultValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ValidationResult ;
+    rdfs:label "Validation Result Validation" ;
+    rdfs:comment "Validates validation result status values" ;
+    sh:property [
+        sh:path mp:hasValidationStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "PASS" "FAIL" "WARNING" ) ;
+        sh:message "Validation status must be PASS, FAIL, or WARNING"
+    ] .
+
+mp:OrderPriorityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Order ;
+    rdfs:label "Order Priority Validation" ;
+    rdfs:comment "Validates order priority ranges" ;
+    sh:property [
+        sh:path mp:hasOrderPriority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Order priority must be between 1 and 10"
+    ] .
+
+mp:ExecutionSLAValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ExecutionSLA ;
+    rdfs:label "Execution SLA Validation" ;
+    rdfs:comment "Validates execution SLA constraints per Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasExecutionTimeLimit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Execution time limit must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+# ================================================================
+# SUPPORTING CLASSES FOR FUTURE EXTENSION
+# ================================================================
+
+mp:RecoveryAction a owl:Class ;
+    rdfs:label "Recovery Action" ;
+    rdfs:comment "Action taken for recovery from failures" .
+
+mp:CompensationAction a owl:Class ;
+    rdfs:label "Compensation Action" ;
+    rdfs:comment "Action taken for compensating partial failures" .
+
+# ================================================================
+# INTEGRATION WITH BYTESTAR ECOSYSTEM
+# ================================================================
+
+## Order integrates with Resource Allocation
+mp:Order rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:allocatesResource ;
+    owl:someValuesFrom ba:Resource
+] .
+
+## Order integrates with Performance Measurement
+mp:ExecutionMetrics rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMeasuredValue ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Order integrates with Optimization Engine
+mp:ExecutionPlan rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasObjective ;
+    owl:someValuesFrom ba:OptimizationObjective
+] .
+
+# ================================================================
+# END OF ORDERS ONTOLOGY
+# ================================================================

@@ -1,0 +1,7 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix res: <https://cns.dev/resilience#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+res:Retry a rdfs:Class ; rdfs:subClassOf core:Primitive .
+res:CircuitBreaker a rdfs:Class ; rdfs:subClassOf core:Primitive .
+res:RateLimiter a rdfs:Class ; rdfs:subClassOf core:Primitive .

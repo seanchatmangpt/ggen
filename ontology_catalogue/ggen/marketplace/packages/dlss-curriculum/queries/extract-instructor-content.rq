@@ -1,0 +1,21 @@
+# Extract Instructor Content Query
+# Query to extract instructor-specific content (timing, notes, resources).
+# Output: moduleCode, moduleTitle, duration, instructorNotes, studentPrep, estimatedMinutes.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?moduleCode ?moduleTitle ?duration ?instructorNotes ?studentPrep ?estimatedMinutes
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:duration ?duration .
+  OPTIONAL { ?module dlss:instructorNotes ?instructorNotes }
+  OPTIONAL { ?module dlss:studentPrep ?studentPrep }
+  OPTIONAL {
+    ?module dlss:exercise ?exercise .
+    ?exercise dlss:estimatedMinutes ?estimatedMinutes .
+  }
+}
+ORDER BY ?moduleCode

@@ -1,0 +1,5 @@
+@prefix pcp: <http://example.org/pcp/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+pcp:Extraction prov:startedAtTime "2024-06-01T13:45:00Z" ;
+               prov:wasAssociatedWith pcp:Agent5 .

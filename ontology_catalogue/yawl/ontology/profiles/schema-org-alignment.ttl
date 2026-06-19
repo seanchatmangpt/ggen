@@ -1,0 +1,247 @@
+# YAWL to Schema.org Alignment Profile
+# Formal extension declarations for Schema.org ontology
+#
+# This profile proves YAWL's extension-only architecture by declaring
+# YAWL constructs as semantic extensions of public Schema.org classes.
+# All mappings include explicit rdfs:comment justifications.
+#
+# Namespace Mappings:
+#   yawls:  http://www.yawlfoundation.org/yawlschema#
+#   schema: https://schema.org/
+#   owl:    http://www.w3.org/2002/07/owl#
+#   rdfs:   http://www.w3.org/2000/01/rdf-schema#
+#   dct:    http://purl.org/dc/terms/
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix schema: <https://schema.org/> .
+@prefix yawls: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix : <http://www.yawlfoundation.org/yawlschema/schema-org-alignment#> .
+
+<http://www.yawlfoundation.org/yawlschema/schema-org-alignment> a owl:Ontology ;
+    rdfs:label "YAWL Schema.org Alignment Profile" ;
+    rdfs:comment "Formal semantic alignment of YAWL constructs to Schema.org ontology" ;
+    owl:imports <http://www.yawlfoundation.org/yawlschema> ;
+    owl:imports <https://schema.org/> ;
+    dct:created "2026-02-23"^^xsd:date ;
+    dct:creator "YAWL Foundation Architecture Team" ;
+    dct:description """
+        This alignment profile formally declares YAWL's core concepts as semantic extensions
+        of Schema.org classes. Schema.org provides foundational definitions of common concepts
+        (Action, CreativeWork, Person, Role, Event, etc.), and YAWL extends these with
+        workflow-specific attributes and constraints.
+
+        This proves YAWL's extension-only architecture: no proprietary roots, only
+        specializations of public ontologies.
+    """@en ;
+    rdfs:seeAlso <https://schema.org/documentation> ;
+    rdfs:seeAlso <http://www.yawlfoundation.org/yawlschema> .
+
+#################################################################
+# CLASS ALIGNMENTS
+#################################################################
+
+# YAWL Task extends Schema.org Action
+yawls:Task rdfs:subClassOf schema:Action ;
+    rdfs:comment """
+        A YAWL Task is a specialized schema:Action representing a unit of work within
+        a workflow. Like schema:Action, a Task has an agent (resource), preconditions,
+        postconditions (outputs), and effects (state changes). YAWL extends Action with
+        workflow-specific attributes: join/split control flow, decomposition hierarchy,
+        resourcing constraints, and timer-based triggering.
+    """@en ;
+    rdfs:seeAlso schema:Action ;
+    rdfs:seeAlso <https://schema.org/Action> .
+
+# YAWL Specification extends Schema.org CreativeWork
+yawls:Specification rdfs:subClassOf schema:CreativeWork ;
+    rdfs:comment """
+        A YAWL Specification is a specialized schema:CreativeWork that describes a
+        workflow definition. Like CreativeWork, it has metadata (title, creator, creation date),
+        version, license, and identifiers. YAWL extends CreativeWork with structural metadata
+        (decompositions, nets) and execution semantics (Petri net based).
+    """@en ;
+    rdfs:seeAlso schema:CreativeWork ;
+    rdfs:seeAlso <https://schema.org/CreativeWork> .
+
+# YAWL WorkflowNet extends Schema.org DataFeed
+yawls:WorkflowNet rdfs:subClassOf schema:DataFeed ;
+    rdfs:comment """
+        A YAWL WorkflowNet is a specialized schema:DataFeed that organizes and sequences
+        workflow elements (conditions, tasks) and data flow. Like a DataFeed, it provides
+        a structured collection of items with relationships. YAWL extends DataFeed with
+        control flow definitions (split/join) and Petri net semantics.
+    """@en ;
+    rdfs:seeAlso schema:DataFeed ;
+    rdfs:seeAlso <https://schema.org/DataFeed> .
+
+# YAWL Participant extends Schema.org Person
+yawls:Participant rdfs:subClassOf schema:Person ;
+    rdfs:comment """
+        A YAWL Participant is a specialized schema:Person who executes tasks in a workflow.
+        Like Person, it has identity attributes (name, ID). YAWL extends Person with
+        resource management attributes (privileges, capabilities, availability) and
+        participation in specific task assignments.
+    """@en ;
+    rdfs:seeAlso schema:Person ;
+    rdfs:seeAlso <https://schema.org/Person> .
+
+# YAWL Role extends Schema.org Role
+yawls:Role rdfs:subClassOf schema:Role ;
+    rdfs:comment """
+        A YAWL Role is a specialized schema:Role that groups participants by capability.
+        Like schema:Role, it represents a function or position. YAWL extends Role with
+        workflow-specific attributes: task assignment rules, privilege sets, and
+        resource selection strategies.
+    """@en ;
+    rdfs:seeAlso schema:Role ;
+    rdfs:seeAlso <https://schema.org/Role> .
+
+# YAWL Condition extends Schema.org Event
+yawls:Condition rdfs:subClassOf schema:Event ;
+    rdfs:comment """
+        A YAWL Condition is a specialized schema:Event representing a state or control point
+        in workflow execution. Like Event, it marks a point in time/sequence. YAWL extends
+        Event with Petri net semantics: conditions are places that hold tokens, can be
+        input/output conditions, and have data attached (case data).
+    """@en ;
+    rdfs:seeAlso schema:Event ;
+    rdfs:seeAlso <https://schema.org/Event> .
+
+# YAWL FlowInto extends Schema.org Relationship
+yawls:FlowInto rdfs:subClassOf schema:Relationship ;
+    rdfs:comment """
+        A YAWL FlowInto is a specialized schema:Relationship that connects workflow elements.
+        Like schema:Relationship, it defines a connection between two entities. YAWL extends
+        Relationship with control flow semantics: flow direction, conditional predicates
+        (XPath expressions), and default flow markers.
+    """@en ;
+    rdfs:seeAlso schema:Relationship ;
+    rdfs:seeAlso <https://schema.org/Relationship> .
+
+# YAWL Resourcing extends Schema.org Intangible (abstract base for organizing concepts)
+yawls:Resourcing rdfs:subClassOf schema:Intangible ;
+    rdfs:comment """
+        A YAWL Resourcing specification is a specialized schema:Intangible that represents
+        resource allocation rules for a task. Like Intangible, it's a non-physical entity
+        that defines constraints. YAWL extends Intangible with distribution sets, allocation
+        rules, privilege sets, and initiator settings.
+    """@en ;
+    rdfs:seeAlso schema:Intangible ;
+    rdfs:seeAlso <https://schema.org/Intangible> .
+
+# YAWL Variable extends Schema.org PropertyValue
+yawls:Variable rdfs:subClassOf schema:PropertyValue ;
+    rdfs:comment """
+        A YAWL Variable is a specialized schema:PropertyValue that holds data in a workflow.
+        Like PropertyValue (name-value pair), a Variable has a name and type. YAWL extends
+        PropertyValue with workflow-specific features: scope (local/input/output parameters),
+        indexing, default values, and XPath-based transformations.
+    """@en ;
+    rdfs:seeAlso schema:PropertyValue ;
+    rdfs:seeAlso <https://schema.org/PropertyValue> .
+
+# YAWL Timer extends Schema.org ScheduleAction
+yawls:Timer rdfs:subClassOf schema:ScheduleAction ;
+    rdfs:comment """
+        A YAWL Timer is a specialized schema:ScheduleAction that triggers at specified times.
+        Like ScheduleAction, it defines when an action should occur. YAWL extends ScheduleAction
+        with timer-specific attributes: trigger type (OnEnabled, OnExecuting), duration,
+        expiry time, and workday calculation.
+    """@en ;
+    rdfs:seeAlso schema:ScheduleAction ;
+    rdfs:seeAlso <https://schema.org/ScheduleAction> .
+
+#################################################################
+# PROPERTY ALIGNMENTS
+#################################################################
+
+# YAWL decomposesTo aligns with schema:potentialAction
+yawls:decomposesTo rdfs:subPropertyOf schema:potentialAction ;
+    rdfs:comment """
+        A YAWL Task's decomposesTo property indicates its associated sub-workflow
+        (a Decomposition). This is semantically similar to schema:potentialAction,
+        which describes actions that can be performed in a context. YAWL's decomposition
+        represents the detailed workflow expansion of a task.
+    """@en ;
+    rdfs:seeAlso <https://schema.org/potentialAction> .
+
+# YAWL hasResourcing aligns with schema:performer
+yawls:hasResourcing rdfs:subPropertyOf schema:performer ;
+    rdfs:comment """
+        A YAWL Task's hasResourcing property specifies who/what can perform it.
+        This is semantically aligned with schema:performer, which indicates agents
+        that perform an action. YAWL extends this with formal resource allocation rules.
+    """@en ;
+    rdfs:seeAlso <https://schema.org/performer> .
+
+# YAWL hasTimer aligns with schema:startTime
+yawls:hasTimer rdfs:comment """
+        A YAWL Timer defines when a Task starts executing, paralleling schema:startTime
+        in actions. However, YAWL Timers are more general: they can trigger on task
+        enablement or execution start, and can enforce deadlines (expiry).
+    """@en ;
+    rdfs:seeAlso <https://schema.org/startTime> .
+
+#################################################################
+# INSTANCE EXAMPLES
+#################################################################
+
+:OrderProcessingTask a yawls:Task ;
+    rdf:type schema:Action ;
+    rdfs:comment "Example: An order processing task is both a YAWL Task and a Schema.org Action" ;
+    rdfs:label "Process Order" ;
+    schema:actionStatus schema:ActiveActionStatus ;
+    schema:agent schema:Person ;
+    yawls:decomposesTo :OrderProcessingSubworkflow .
+
+:InventoryManagementRole a yawls:Role ;
+    rdf:type schema:Role ;
+    rdfs:comment "Example: An inventory management role specializes Schema.org Role" ;
+    rdfs:label "Inventory Manager" ;
+    schema:roleName "Inventory Manager" ;
+    yawls:Participant :alice_person .
+
+:PaymentStatusCondition a yawls:Condition ;
+    rdf:type schema:Event ;
+    rdfs:comment "Example: A condition marking payment completion as an event" ;
+    rdfs:label "Payment Status Updated" ;
+    schema:location schema:OnlineStore ;
+    yawls:dataValue "COMPLETED"^^xsd:string .
+
+#################################################################
+# CROSS-DOMAIN ALIGNMENTS
+#################################################################
+
+# Alignment notes for broader semantic interoperability
+
+:taskActionAlignment a owl:ObjectProperty ;
+    rdfs:label "Task-Action Semantic Bridge" ;
+    rdfs:comment """
+        YAWL Tasks align with Schema.org Actions across these dimensions:
+        1. Agency: Both have agents (schema:agent / yawls:performer)
+        2. Preconditions: Both can have prerequisites
+        3. Results: Both produce outcomes (schema:result / yawls:output variables)
+        4. Timing: Both can be scheduled (yawls:Timer / schema:ScheduleAction)
+
+        Key difference: YAWL adds control flow (join/split) and hierarchical
+        decomposition not present in generic Schema.org Actions.
+    """@en .
+
+:specificationCreativeWorkAlignment a owl:ObjectProperty ;
+    rdfs:label "Specification-CreativeWork Semantic Bridge" ;
+    rdfs:comment """
+        YAWL Specifications align with Schema.org CreativeWork across:
+        1. Authorship: Both have creators (dct:creator / schema:creator)
+        2. Versioning: Both have versions and valid dates
+        3. Identifiers: Both have URIs and internal IDs
+        4. Licensing: Both can declare licenses
+
+        Key difference: YAWL adds formal executable semantics (Petri nets)
+        not present in generic creative works.
+    """@en .
+
+# End of YAWL Schema.org Alignment Profile

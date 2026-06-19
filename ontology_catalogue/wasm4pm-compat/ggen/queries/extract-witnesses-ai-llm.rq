@@ -1,0 +1,22 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?rustType ?witnessKey ?witnessTitle ?witnessYear ?witnessFamily ?description
+       ?categoryId ?categoryLabel ?sourceTtl
+WHERE {
+  ?marker a compat:WitnessMarker ;
+          compat:paperCategory "ai-llm" ;
+          compat:rustType     ?rustType ;
+          compat:witnessKey   ?witnessKey ;
+          compat:witnessTitle ?witnessTitle .
+
+  OPTIONAL { ?marker compat:witnessYear   ?witnessYear }
+  OPTIONAL { ?marker compat:witnessFamily ?witnessFamily }
+  OPTIONAL { ?marker compat:description  ?description }
+
+  BIND("ai-llm" AS ?categoryId)
+  BIND("AI/LLM/Agents" AS ?categoryLabel)
+  BIND("ontology/witnesses-ai-llm.ttl" AS ?sourceTtl)
+}
+ORDER BY ?rustType

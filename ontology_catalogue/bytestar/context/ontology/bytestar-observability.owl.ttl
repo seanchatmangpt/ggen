@@ -1,0 +1,19 @@
+@prefix : <https://bytestar.org/ontology/bytestar-observability#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-observability>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Observability Ontology" ;
+  rdfs:comment "Off-path pulse fanout; no backpressure." .
+
+:Telemetry, :Metrics, :Audit a owl:Class ; rdfs:subClassOf bytestar:Observer .
+
+:feeds a owl:ObjectProperty ; rdfs:domain bytestar:Pulse ; rdfs:range bytestar:Observer .
+:observes a owl:ObjectProperty ; rdfs:domain bytestar:Observer ; rdfs:range bytestar:Pulse .
+
+:offPath a owl:DatatypeProperty ; rdfs:domain bytestar:Observer ; rdfs:range xsd:boolean .
+:noBackpressure a owl:DatatypeProperty ; rdfs:domain bytestar:Observer ; rdfs:range xsd:boolean .

@@ -1,0 +1,441 @@
+@prefix orgbind: <http://bytestar.org/ontology/identity/orgbind#> .
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# ================================================================================
+# .orgbind Crystal - Organizational Binding Ontology
+# Version: 5.0.0 - Crystal Identity Suite
+# CTID: orgbind-2025-01-23-v5.0.0-production
+# ================================================================================
+
+<http://bytestar.org/ontology/identity/orgbind> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/identity/orgbind/5.0.0> ;
+    dct:title "Organization Binding Crystal (.orgbind)"@en ;
+    dct:description """Crystal ontology for organizational identity binding with threshold signatures,
+    multi-party attestation, and cross-organizational trust chains. Provides cryptographic proof 
+    structures for organizational membership, role delegation, and inter-organization relationships
+    with quantum-resistant security under Doctrine of 8 constraints."""@en ;
+    dct:creator "ByteStar Identity Foundation" ;
+    dct:created "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-01-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0" ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    # Leverage existing ontologies (80% reuse)
+    owl:imports <http://bytestar.org/ontology/access-control> ,
+                <http://bytestar.org/ontology/audit-system> ,
+                <http://bytestar.org/ontology/security-policy> ;
+    # Crystal metadata
+    orgbind:crystalType "identity-binding" ;
+    orgbind:ctid "orgbind-2025-01-23-v5.0.0-production" ;
+    orgbind:wireFormat "protobuf-v3" ;
+    orgbind:storageFormat "merkle-patricia-trie" ;
+    orgbind:capabilityFormat "macaroon-v2" ;
+    orgbind:quantumResistant true ;
+    orgbind:doctrineCompliant true .
+
+# ================================================================================
+# CRYSTAL CORE - ORGANIZATIONAL BINDING ARCHITECTURE
+# ================================================================================
+
+## Core Organizational Binding Classes (leveraging existing access-control patterns)
+orgbind:OrganizationalBinding a owl:Class ;
+    rdfs:label "Organizational Binding"@en ;
+    rdfs:comment "Cryptographic binding between an identity and organizational entity with threshold attestation."@en ;
+    rdfs:subClassOf baac:Identity ;  # Reuse from access-control ontology
+    orgbind:requiresThresholdProof true ;
+    orgbind:minAttestations "3"^^xsd:int ;
+    orgbind:maxValidityPeriod "P1Y"^^xsd:duration ;
+    orgbind:performanceConstraint "< 8ms verification" .
+
+orgbind:OrganizationEntity a owl:Class ;
+    rdfs:label "Organization Entity"@en ;
+    rdfs:comment "Cryptographically identified organizational entity capable of binding members."@en ;
+    rdfs:subClassOf baac:Principal ;  # Reuse from access-control
+    orgbind:hasOrgPublicKey xsd:string ;
+    orgbind:hasOrgCertificate xsd:string ;
+    orgbind:organizationType xsd:string ;
+    orgbind:registrationAuthority xsd:string .
+
+orgbind:ThresholdAttestationProof a owl:Class ;
+    rdfs:label "Threshold Attestation Proof"@en ;
+    rdfs:comment "Cryptographic proof requiring threshold number of organizational attestations."@en ;
+    rdfs:subClassOf baac:CryptographicProof ;  # Leverage existing structure
+    orgbind:thresholdValue xsd:int ;
+    orgbind:totalSigners xsd:int ;
+    orgbind:proofAlgorithm "BLS-Threshold-Signatures" ;
+    orgbind:quantumResistant true .
+
+## Multi-Party Attestation System (new 20%)
+orgbind:MultiPartyAttestation a owl:Class ;
+    rdfs:label "Multi-Party Attestation"@en ;
+    rdfs:comment "Attestation system requiring multiple organizational parties for binding validation."@en ;
+    rdfs:subClassOf ba:SecurityMechanism ;
+    orgbind:minimumAttestors "3"^^xsd:int ;
+    orgbind:attestationTimeout "PT10M"^^xsd:duration ;
+    orgbind:consensusAlgorithm "Byzantine-Fault-Tolerant" ;
+    orgbind:faultTolerance "f < n/3" .
+
+orgbind:AttestationAuthority a owl:Class ;
+    rdfs:label "Attestation Authority"@en ;
+    rdfs:comment "Authorized entity capable of providing organizational attestations."@en ;
+    rdfs:subClassOf baac:Principal ;
+    orgbind:authorityLevel xsd:string ;
+    orgbind:attestationCapacity xsd:int ;
+    orgbind:authorityExpiration xsd:dateTime ;
+    orgbind:revocationEndpoint xsd:anyURI .
+
+orgbind:AttestationToken a owl:Class ;
+    rdfs:label "Attestation Token"@en ;
+    rdfs:comment "Cryptographic token representing an organizational attestation."@en ;
+    rdfs:subClassOf baac:CryptographicProof ;
+    orgbind:tokenVersion "v2.1" ;
+    orgbind:signatureScheme "Dilithium-3" ;  # Post-quantum
+    orgbind:hashAlgorithm "SHAKE-256" ;
+    orgbind:timeboxed true .
+
+## Cross-Organizational Trust Chains (new 20%)
+orgbind:TrustChain a owl:Class ;
+    rdfs:label "Trust Chain"@en ;
+    rdfs:comment "Cryptographic chain establishing trust relationships between organizations."@en ;
+    rdfs:subClassOf ba:SecurityConstruct ;
+    orgbind:chainDepth xsd:int ;
+    orgbind:maxChainLength "6"^^xsd:int ;  # Prevent excessive delegation
+    orgbind:chainIntegrity "SHA3-512" ;
+    orgbind:bidirectionalTrust true .
+
+orgbind:TrustAnchor a owl:Class ;
+    rdfs:label "Trust Anchor"@en ;
+    rdfs:comment "Root certificate authority or trust anchor for organizational trust chains."@en ;
+    rdfs:subClassOf baac:CertificateAuthority ;
+    orgbind:anchorType xsd:string ;
+    orgbind:trustLevel xsd:int ;
+    orgbind:geographicScope xsd:string ;
+    orgbind:policyOID xsd:string .
+
+orgbind:CrossOrgBinding a owl:Class ;
+    rdfs:label "Cross-Organizational Binding"@en ;
+    rdfs:comment "Binding that spans multiple organizations with distributed trust."@en ;
+    rdfs:subClassOf orgbind:OrganizationalBinding ;
+    orgbind:participatingOrgs xsd:int ;
+    orgbind:consensusRequired true ;
+    orgbind:distributedValidation true ;
+    orgbind:trustChainRequired true .
+
+# ================================================================================
+# ORGANIZATIONAL HIERARCHY AND DELEGATION
+# ================================================================================
+
+orgbind:OrganizationalHierarchy a owl:Class ;
+    rdfs:label "Organizational Hierarchy"@en ;
+    rdfs:comment "Hierarchical structure within organizations supporting role delegation."@en ;
+    rdfs:subClassOf baac:RoleHierarchy ;  # Leverage existing RBAC patterns
+    orgbind:maxDepth "8"^^xsd:int ;
+    orgbind:inheritanceRules xsd:string ;
+    orgbind:delegationAllowed true .
+
+orgbind:RoleDelegation a owl:Class ;
+    rdfs:label "Role Delegation"@en ;
+    rdfs:comment "Delegation of organizational roles with cryptographic attestation."@en ;
+    rdfs:subClassOf baac:Role ;
+    orgbind:delegationDepth xsd:int ;
+    orgbind:delegationConstraints xsd:string ;
+    orgbind:revocable true ;
+    orgbind:auditTrail true .
+
+orgbind:OrganizationalRole a owl:Class ;
+    rdfs:label "Organizational Role"@en ;
+    rdfs:comment "Role within an organizational context with binding requirements."@en ;
+    rdfs:subClassOf baac:Role ;
+    orgbind:organizationContext xsd:string ;
+    orgbind:roleAuthority xsd:string ;
+    orgbind:bindingRequired true ;
+    orgbind:attestationLevel xsd:int .
+
+# ================================================================================
+# HAM (HOP-AWARE MEMBERSHIP) RULES - Hops 2,4,6
+# ================================================================================
+
+orgbind:HAMRule a owl:Class ;
+    rdfs:label "HAM Rule"@en ;
+    rdfs:comment "Hop-Aware Membership rule governing trust propagation across organizational boundaries."@en ;
+    rdfs:subClassOf ba:SecurityRule ;
+    orgbind:hopCount xsd:int ;
+    orgbind:trustDecay xsd:double ;
+    orgbind:membershipLevel xsd:string .
+
+orgbind:Hop2Rule a owl:Class ;
+    rdfs:label "Hop 2 Rule"@en ;
+    rdfs:comment "Direct organizational relationship (2-hop) with full trust propagation."@en ;
+    rdfs:subClassOf orgbind:HAMRule ;
+    orgbind:hopCount "2"^^xsd:int ;
+    orgbind:trustDecay "1.0"^^xsd:double ;
+    orgbind:membershipLevel "DIRECT" ;
+    orgbind:attestationRequired "2"^^xsd:int ;
+    orgbind:verificationLatency "< 2ms" .
+
+orgbind:Hop4Rule a owl:Class ;
+    rdfs:label "Hop 4 Rule"@en ;
+    rdfs:comment "Indirect organizational relationship (4-hop) with moderate trust decay."@en ;
+    rdfs:subClassOf orgbind:HAMRule ;
+    orgbind:hopCount "4"^^xsd:int ;
+    orgbind:trustDecay "0.75"^^xsd:double ;
+    orgbind:membershipLevel "INDIRECT" ;
+    orgbind:attestationRequired "3"^^xsd:int ;
+    orgbind:verificationLatency "< 4ms" .
+
+orgbind:Hop6Rule a owl:Class ;
+    rdfs:label "Hop 6 Rule"@en ;
+    rdfs:comment "Extended organizational relationship (6-hop) with significant trust decay."@en ;
+    rdfs:subClassOf orgbind:HAMRule ;
+    orgbind:hopCount "6"^^xsd:int ;
+    orgbind:trustDecay "0.5"^^xsd:double ;
+    orgbind:membershipLevel "EXTENDED" ;
+    orgbind:attestationRequired "5"^^xsd:int ;
+    orgbind:verificationLatency "< 6ms" .
+
+orgbind:TrustDecayFunction a owl:Class ;
+    rdfs:label "Trust Decay Function"@en ;
+    rdfs:comment "Mathematical function computing trust decay over organizational hops."@en ;
+    rdfs:subClassOf ba:MathematicalFunction ;
+    orgbind:decayAlgorithm "exponential" ;
+    orgbind:decayParameter xsd:double ;
+    orgbind:minTrustThreshold "0.3"^^xsd:double .
+
+# ================================================================================
+# TIME-BOXED ORGANIZATIONAL MEMBERSHIP
+# ================================================================================
+
+orgbind:TimeboxedMembership a owl:Class ;
+    rdfs:label "Timeboxed Membership"@en ;
+    rdfs:comment "Organizational membership with explicit time constraints and auto-expiration."@en ;
+    rdfs:subClassOf orgbind:OrganizationalBinding ;
+    orgbind:validFrom xsd:dateTime ;
+    orgbind:validUntil xsd:dateTime ;
+    orgbind:maxDuration "P1Y"^^xsd:duration ;
+    orgbind:renewalRequired true ;
+    orgbind:autoExpiration true .
+
+orgbind:MembershipRenewal a owl:Class ;
+    rdfs:label "Membership Renewal"@en ;
+    rdfs:comment "Process for renewing organizational membership before expiration."@en ;
+    rdfs:subClassOf ba:BusinessProcess ;
+    orgbind:renewalPeriod "P30D"^^xsd:duration ;
+    orgbind:attestationRequired true ;
+    orgbind:renewalThreshold "0.9"^^xsd:double ;
+    orgbind:gracePeriod "P7D"^^xsd:duration .
+
+orgbind:ExpirationHandler a owl:Class ;
+    rdfs:label "Expiration Handler"@en ;
+    rdfs:comment "Automated handler for membership expiration and cleanup."@en ;
+    rdfs:subClassOf ba:AutomatedProcess ;
+    orgbind:cleanupDelay "PT1H"^^xsd:duration ;
+    orgbind:notificationAdvance "P7D"^^xsd:duration ;
+    orgbind:archivalRequired true .
+
+# ================================================================================
+# CRYSTAL ABI INTERFACES
+# ================================================================================
+
+## Wire Interface (Protobuf v3)
+orgbind:OrgBindWireInterface a ba:WireInterface ;
+    rdfs:label "OrgBind Wire Interface"@en ;
+    rdfs:comment "Network protocol interface for organizational binding operations."@en ;
+    ba:protocolVersion "3.0" ;
+    ba:messageFormat "protobuf" ;
+    ba:compressionScheme "zstd" ;
+    ba:encryptionRequired true ;
+    orgbind:operationTypes "bind,unbind,verify,attest,revoke" ;
+    orgbind:maxMessageSize "1MB"^^xsd:int ;
+    orgbind:timeoutDefault "PT30S"^^xsd:duration .
+
+## Storage Interface (Merkle Patricia Trie)
+orgbind:OrgBindStorageInterface a ba:StorageInterface ;
+    rdfs:label "OrgBind Storage Interface"@en ;
+    rdfs:comment "Persistent storage interface using Merkle Patricia Trie for integrity."@en ;
+    ba:storageType "merkle-patricia-trie" ;
+    ba:compressionEnabled true ;
+    ba:encryptionAtRest true ;
+    orgbind:indexingStrategy "composite" ;
+    orgbind:shardingFactor "256"^^xsd:int ;
+    orgbind:replicationFactor "3"^^xsd:int .
+
+## Capability Interface (Macaroon v2)
+orgbind:OrgBindCapabilityInterface a ba:CapabilityInterface ;
+    rdfs:label "OrgBind Capability Interface"@en ;
+    rdfs:comment "Capability-based access control using Macaroon tokens."@en ;
+    ba:capabilityFormat "macaroon-v2" ;
+    ba:bearerTokenRequired false ;
+    ba:delegationSupported true ;
+    orgbind:caveatSupported true ;
+    orgbind:attenuationAllowed true ;
+    orgbind:thirdPartyCaveats true .
+
+# ================================================================================
+# OBJECT PROPERTIES (Leveraging existing patterns)
+# ================================================================================
+
+orgbind:bindsMember a owl:ObjectProperty ;
+    rdfs:label "binds member"@en ;
+    rdfs:comment "Links organizational entity to bound member identity."@en ;
+    rdfs:domain orgbind:OrganizationEntity ;
+    rdfs:range orgbind:OrganizationalBinding ;
+    rdfs:subPropertyOf baac:hasIdentity .
+
+orgbind:attestedBy a owl:ObjectProperty ;
+    rdfs:label "attested by"@en ;
+    rdfs:comment "Links binding to attestation authorities."@en ;
+    rdfs:domain orgbind:OrganizationalBinding ;
+    rdfs:range orgbind:AttestationAuthority ;
+    rdfs:subPropertyOf baac:verifiedBy .
+
+orgbind:trustsOrganization a owl:ObjectProperty ;
+    rdfs:label "trusts organization"@en ;
+    rdfs:comment "Establishes trust relationship between organizations."@en ;
+    rdfs:domain orgbind:OrganizationEntity ;
+    rdfs:range orgbind:OrganizationEntity ;
+    a owl:SymmetricProperty ;
+    orgbind:requiresNegotiation true .
+
+orgbind:delegatesRole a owl:ObjectProperty ;
+    rdfs:label "delegates role"@en ;
+    rdfs:comment "Delegates organizational role with binding requirements."@en ;
+    rdfs:domain orgbind:OrganizationalRole ;
+    rdfs:range orgbind:RoleDelegation ;
+    rdfs:subPropertyOf baac:inheritsFrom .
+
+orgbind:hasHopRule a owl:ObjectProperty ;
+    rdfs:label "has hop rule"@en ;
+    rdfs:comment "Associates trust chain with hop-aware membership rule."@en ;
+    rdfs:domain orgbind:TrustChain ;
+    rdfs:range orgbind:HAMRule .
+
+orgbind:requiresAttestation a owl:ObjectProperty ;
+    rdfs:label "requires attestation"@en ;
+    rdfs:comment "Links binding to required attestation tokens."@en ;
+    rdfs:domain orgbind:OrganizationalBinding ;
+    rdfs:range orgbind:AttestationToken .
+
+# ================================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================================
+
+orgbind:OrganizationalBindingShape a sh:NodeShape ;
+    sh:targetClass orgbind:OrganizationalBinding ;
+    sh:property [
+        sh:path orgbind:minAttestations ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 2 ;
+        sh:maxInclusive 10 ;
+        sh:message "Minimum attestations must be between 2 and 10" ;
+    ] ;
+    sh:property [
+        sh:path orgbind:maxValidityPeriod ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "P1Y"^^xsd:duration ;
+        sh:message "Validity period cannot exceed 1 year" ;
+    ] ;
+    sh:property [
+        sh:path orgbind:attestedBy ;
+        sh:minCount 2 ;
+        sh:message "Organizational binding requires at least 2 attestations" ;
+    ] .
+
+orgbind:HAMRuleShape a sh:NodeShape ;
+    sh:targetClass orgbind:HAMRule ;
+    sh:property [
+        sh:path orgbind:hopCount ;
+        sh:datatype xsd:int ;
+        sh:in (2 4 6) ;
+        sh:message "HAM rules only support hops 2, 4, and 6" ;
+    ] ;
+    sh:property [
+        sh:path orgbind:trustDecay ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Trust decay must be between 0.0 and 1.0" ;
+    ] .
+
+orgbind:PerformanceConstraintShape a sh:NodeShape ;
+    sh:targetClass orgbind:OrganizationalBinding ;
+    sh:sparql [
+        sh:message "Verification must complete within Doctrine of 8 constraints" ;
+        sh:select """
+            PREFIX orgbind: <http://bytestar.org/ontology/identity/orgbind#>
+            SELECT $this
+            WHERE {
+                $this orgbind:performanceConstraint ?constraint .
+                FILTER(!CONTAINS(?constraint, "< 8ms"))
+            }
+        """ ;
+    ] .
+
+orgbind:ThresholdProofShape a sh:NodeShape ;
+    sh:targetClass orgbind:ThresholdAttestationProof ;
+    sh:property [
+        sh:path orgbind:thresholdValue ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 2 ;
+    ] ;
+    sh:property [
+        sh:path orgbind:totalSigners ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 3 ;
+    ] ;
+    sh:sparql [
+        sh:message "Threshold value must be less than or equal to total signers" ;
+        sh:select """
+            PREFIX orgbind: <http://bytestar.org/ontology/identity/orgbind#>
+            SELECT $this
+            WHERE {
+                $this orgbind:thresholdValue ?t .
+                $this orgbind:totalSigners ?n .
+                FILTER(?t > ?n)
+            }
+        """ ;
+    ] .
+
+# ================================================================================
+# CRYSTAL IMPLEMENTATION INSTANCES
+# ================================================================================
+
+# Reference Implementation
+orgbind:DefaultOrgBindingSystem a orgbind:OrganizationalBinding ;
+    rdfs:label "Default OrgBinding System"@en ;
+    orgbind:minAttestations "3"^^xsd:int ;
+    orgbind:maxValidityPeriod "P1Y"^^xsd:duration ;
+    orgbind:performanceConstraint "< 8ms verification" ;
+    orgbind:quantumResistant true .
+
+# HAM Rule Instances
+orgbind:StandardHop2 a orgbind:Hop2Rule ;
+    rdfs:label "Standard 2-Hop Rule"@en ;
+    orgbind:hopCount "2"^^xsd:int ;
+    orgbind:trustDecay "1.0"^^xsd:double ;
+    orgbind:attestationRequired "2"^^xsd:int .
+
+orgbind:StandardHop4 a orgbind:Hop4Rule ;
+    rdfs:label "Standard 4-Hop Rule"@en ;
+    orgbind:hopCount "4"^^xsd:int ;
+    orgbind:trustDecay "0.75"^^xsd:double ;
+    orgbind:attestationRequired "3"^^xsd:int .
+
+orgbind:StandardHop6 a orgbind:Hop6Rule ;
+    rdfs:label "Standard 6-Hop Rule"@en ;
+    orgbind:hopCount "6"^^xsd:int ;
+    orgbind:trustDecay "0.5"^^xsd:double ;
+    orgbind:attestationRequired "5"^^xsd:int .
+
+# ================================================================================
+# END OF .orgbind CRYSTAL ONTOLOGY
+# ================================================================================

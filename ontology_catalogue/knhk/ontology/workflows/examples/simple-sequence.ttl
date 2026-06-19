@@ -1,0 +1,186 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix mapek: <http://knhk.ai/ontology/mape-k#> .
+@prefix pattern: <http://knhk.ai/ontology/workflow-patterns#> .
+@prefix knhk: <urn:knhk:ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# Simple Sequence Workflow with MAPE-K Autonomic Features
+# ============================================================================
+#
+# Pattern: Sequence (Pattern 1)
+# Use Case: Basic sequential task execution with self-monitoring
+# MAPE-K: Monitor latency, analyze against Chatman Constant, adapt if violated
+#
+# Tasks: Task A → Task B → Task C
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/simple-sequence> a mapek:SelfExecutingWorkflow ;
+    rdfs:label "Simple Sequence Workflow" ;
+    rdfs:comment "Sequential workflow with autonomic monitoring and adaptation" ;
+    yawl:specName "Simple Sequence" ;
+    yawl:version "1.0" ;
+    yawl:hasInputCondition <http://knhk.ai/workflows/examples/simple-sequence/start> ;
+    yawl:hasOutputCondition <http://knhk.ai/workflows/examples/simple-sequence/end> ;
+
+    # Tasks
+    yawl:hasTask <http://knhk.ai/workflows/examples/simple-sequence/task_a> ;
+    yawl:hasTask <http://knhk.ai/workflows/examples/simple-sequence/task_b> ;
+    yawl:hasTask <http://knhk.ai/workflows/examples/simple-sequence/task_c> ;
+
+    # Flows
+    yawl:hasFlow <http://knhk.ai/workflows/examples/simple-sequence/flow_start_a> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/simple-sequence/flow_a_b> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/simple-sequence/flow_b_c> ;
+    yawl:hasFlow <http://knhk.ai/workflows/examples/simple-sequence/flow_c_end> ;
+
+    # MAPE-K Components
+    mapek:hasMonitor <http://knhk.ai/workflows/examples/simple-sequence/monitor> ;
+    mapek:hasAnalyzer <http://knhk.ai/workflows/examples/simple-sequence/analyzer> ;
+    mapek:hasPlanner <http://knhk.ai/workflows/examples/simple-sequence/planner> ;
+    mapek:hasExecutor <http://knhk.ai/workflows/examples/simple-sequence/executor> ;
+    mapek:hasKnowledge <http://knhk.ai/workflows/examples/simple-sequence/knowledge> ;
+
+    # Constraints
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    mapek:hasInvariant <http://knhk.ai/workflows/examples/simple-sequence/invariant-sequence> .
+
+# ============================================================================
+# Input/Output Conditions
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/simple-sequence/start> a yawl:InputCondition ;
+    yawl:conditionName "Start" ;
+    rdfs:comment "Workflow starts here" .
+
+<http://knhk.ai/workflows/examples/simple-sequence/end> a yawl:OutputCondition ;
+    yawl:conditionName "End" ;
+    rdfs:comment "Workflow completes here" .
+
+# ============================================================================
+# Tasks (Pattern 1: Sequence)
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/simple-sequence/task_a> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Task A" ;
+    rdfs:comment "First task in sequence" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    pattern:implementsPattern pattern:Pattern1_Sequence ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "input_data" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "result_a" ;
+        yawl:paramType "string"
+    ] .
+
+<http://knhk.ai/workflows/examples/simple-sequence/task_b> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Task B" ;
+    rdfs:comment "Second task in sequence" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    pattern:implementsPattern pattern:Pattern1_Sequence ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "result_a" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "result_b" ;
+        yawl:paramType "string"
+    ] .
+
+<http://knhk.ai/workflows/examples/simple-sequence/task_c> a mapek:AutonomicTask , yawl:AtomicTask ;
+    yawl:taskName "Task C" ;
+    rdfs:comment "Third task in sequence" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    pattern:implementsPattern pattern:Pattern1_Sequence ;
+    mapek:hasConstraint mapek:ChatmanConstant ;
+    yawl:hasInputParameter [
+        yawl:paramName "result_b" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasOutputParameter [
+        yawl:paramName "final_result" ;
+        yawl:paramType "string"
+    ] .
+
+# ============================================================================
+# Flows (Sequence)
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/simple-sequence/flow_start_a> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/simple-sequence/start> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/simple-sequence/task_a> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/flow_a_b> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/simple-sequence/task_a> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/simple-sequence/task_b> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/flow_b_c> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/simple-sequence/task_b> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/simple-sequence/task_c> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/flow_c_end> a yawl:Flow ;
+    yawl:flowsFrom <http://knhk.ai/workflows/examples/simple-sequence/task_c> ;
+    yawl:flowsInto <http://knhk.ai/workflows/examples/simple-sequence/end> .
+
+# ============================================================================
+# MAPE-K Components
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/simple-sequence/monitor> a mapek:Monitor ;
+    rdfs:comment "Monitors workflow execution metrics" ;
+    mapek:monitors <http://knhk.ai/workflows/examples/simple-sequence> ;
+    mapek:hasSensor <http://knhk.ai/workflows/examples/simple-sequence/latency-sensor> ;
+    mapek:hasSensor <http://knhk.ai/workflows/examples/simple-sequence/throughput-sensor> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/latency-sensor> a mapek:Sensor ;
+    rdfs:comment "Measures execution latency in ticks" ;
+    mapek:collects mapek:LatencyMetric ;
+    mapek:metricValue 3 .  # 3 ticks (within Chatman Constant)
+
+<http://knhk.ai/workflows/examples/simple-sequence/throughput-sensor> a mapek:Sensor ;
+    rdfs:comment "Measures workflow throughput" ;
+    mapek:collects mapek:ThroughputMetric ;
+    mapek:metricValue 100 .  # 100 workflows/sec
+
+<http://knhk.ai/workflows/examples/simple-sequence/analyzer> a mapek:Analyzer ;
+    rdfs:comment "Analyzes metrics against thresholds" ;
+    mapek:hasRule <http://knhk.ai/workflows/examples/simple-sequence/chatman-rule> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/chatman-rule> a mapek:AnalysisRule ;
+    rdfs:comment "Detect Chatman Constant violations" ;
+    mapek:hasThreshold <http://knhk.ai/workflows/examples/simple-sequence/chatman-threshold> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/chatman-threshold> a mapek:Threshold ;
+    rdfs:comment "Chatman Constant = 8 ticks" ;
+    mapek:thresholdValue 8 .
+
+<http://knhk.ai/workflows/examples/simple-sequence/planner> a mapek:Planner ;
+    rdfs:comment "Plans adaptations when violations detected" .
+
+<http://knhk.ai/workflows/examples/simple-sequence/executor> a mapek:Executor ;
+    rdfs:comment "Executes adaptation plans" ;
+    mapek:usesStrategy mapek:GradualRollout .
+
+<http://knhk.ai/workflows/examples/simple-sequence/knowledge> a mapek:Knowledge ;
+    rdfs:comment "Stores historical behavior and learned patterns" ;
+    mapek:storesKnowledge <http://knhk.ai/workflows/examples/simple-sequence/baseline> .
+
+<http://knhk.ai/workflows/examples/simple-sequence/baseline> a mapek:PerformanceBaseline ;
+    rdfs:comment "Normal execution baseline" ;
+    mapek:baselineLatency 3 .
+
+# ============================================================================
+# Runtime Invariant
+# ============================================================================
+
+<http://knhk.ai/workflows/examples/simple-sequence/invariant-sequence> a mapek:RuntimeInvariant ;
+    rdfs:comment "Sequence invariant: tasks execute in order A → B → C" ;
+    rdfs:label "Sequence Ordering Invariant" .

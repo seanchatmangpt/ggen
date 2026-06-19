@@ -1,0 +1,64 @@
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcppd:   <https://w3id.org/mcpp/skos/distributed-v1#> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MCP+ Distributed (Mode C) Refusal Scheme v1 — closed SKOS vocabulary
+#
+# Reserved extension scheme for v26.5.17 Slice 2. Mode C is the distributed
+# multi-node BEAM topology described in
+# `docs/MODE_C_DISTRIBUTED_ARCHITECTURE.md`. Mode C is **NOT IMPLEMENTED**
+# in v26.5.17 — these three concepts live here so:
+#
+#   1. The closed v1 `mcpp:` Andon scheme stays at exactly 19 concepts.
+#      Mode C does not bump the core scheme.
+#   2. Mode-C-aware fixtures, trace tooling, and SHACL probes can refer
+#      to these refusal classes today by stable IRI, even before any
+#      production code path can emit them.
+#   3. The matching wire-format namespace is `extension/mcpp-distributed`
+#      (the analogue of `extension/cross-enterprise` for the Slice E
+#      Cross-Enterprise scheme). A future `mcpp_distributed::refusal::
+#      DistributedRefusalCode` Rust type will mirror the three notations
+#      one-to-one when Mode C lands in v26.5.18+.
+#
+# Wire-format namespace: "extension/mcpp-distributed".
+# Rust type (future):    mcpp_distributed::refusal::DistributedRefusalCode.
+#
+# Adding a concept here requires:
+#   1. New `skos:Concept` in this file.
+#   2. Matching variant in the (future) `DistributedRefusalCode` enum.
+#   3. RFC update in `docs/MODE_C_DISTRIBUTED_ARCHITECTURE.md` §4 / §10.
+#
+# A refusal class not in this scheme is *unmappable* under Mode C, which
+# is the correct K-P09 behaviour: closed vocabulary, no silent fallback.
+# ──────────────────────────────────────────────────────────────────────────────
+
+<https://w3id.org/mcpp/skos/distributed-v1> a skos:ConceptScheme ;
+    skos:prefLabel  "MCP+ Distributed (Mode C) Refusal Scheme v1"@en ;
+    skos:notation   "mcpp-distributed-v1" ;
+    skos:definition "Closed set of refusal classes used by Mode C distributed multi-node BEAM topologies. Mode C is reserved in v26.5.17 (not yet implemented); these concepts are declared so trace tooling and future fixtures may use them by stable IRI."@en ;
+    skos:note       "Wire-format namespace: extension/mcpp-distributed. See docs/MODE_C_DISTRIBUTED_ARCHITECTURE.md."@en .
+
+mcppd:NetworkPartition a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/distributed-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/distributed-v1> ;
+    skos:prefLabel    "Network Partition"@en ;
+    skos:notation     "NetworkPartition" ;
+    skos:definition   "A distributed-topology run detected a partition between the aggregator node and one or more branch nodes via Erlang net_kernel's monitor_nodes signal (nodedown). The aggregator refuses to admit because the absent branch's evidence is unverifiable. Partition-induced refusal is recoverable: rerunning under restored connectivity may admit."@en ;
+    skos:note         "Wire format: extension/mcpp-distributed/NetworkPartition. Emitted by the future Mode C net_kernel watcher; never reachable in v26.5.17."@en .
+
+mcppd:RemoteAuthenticationFailed a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/distributed-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/distributed-v1> ;
+    skos:prefLabel    "Remote Authentication Failed"@en ;
+    skos:notation     "RemoteAuthenticationFailed" ;
+    skos:definition   "A branch node attempted to join the distributed topology with an Erlang cookie or TLS client certificate that did not match the aggregator's trust list. The aggregator refuses to wire the branch into the route; no evidence is accepted from the unverified node."@en ;
+    skos:note         "Wire format: extension/mcpp-distributed/RemoteAuthenticationFailed. The Erlang RPC authorization guard (see RFC §5) is the production code path that emits this refusal; v26.5.17 has no implementation."@en .
+
+mcppd:DistributedAdmissionUnauthorized a skos:Concept ;
+    skos:topConceptOf <https://w3id.org/mcpp/skos/distributed-v1> ;
+    skos:inScheme     <https://w3id.org/mcpp/skos/distributed-v1> ;
+    skos:prefLabel    "Distributed Admission Unauthorized"@en ;
+    skos:notation     "DistributedAdmissionUnauthorized" ;
+    skos:definition   "An `mcpp.verdict.emit` Accepted span was observed under `mcpp.runtime.mode == \"ModeC_Distributed\"` whose preceding aggregator origin (`erlang.actor.spawn` with `mcpp.actor.role == \"proof_aggregator\"`) did NOT carry `mcpp.actor.node` matching the lawful aggregator node declared on the route. The Accept was smuggled across a node boundary; LIVE-14 refuses it."@en ;
+    skos:note         "LIVE-14 DistributedAggregatorOrigin (stability: experimental, vacuous in v26.5.17) fires on this code. Wire format: extension/mcpp-distributed/DistributedAdmissionUnauthorized."@en .

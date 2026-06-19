@@ -1,0 +1,900 @@
+@prefix mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# =============================================================================
+# MAPE-K AUTONOMIC KNOWLEDGE ONTOLOGY
+# Complete feedback loop for self-managing workflows
+# =============================================================================
+#
+# MAPE-K provides autonomous behavior through feedback:
+# Monitor → Analyze → Plan → Execute → (feed back to Monitor)
+# Knowledge persists and improves across cycles
+#
+# This enables:
+# - Self-healing (detect failures, recover automatically)
+# - Self-optimizing (monitor performance, improve continuously)
+# - Self-configuring (adapt to changing conditions)
+# - Self-protecting (detect anomalies, prevent problems)
+# =============================================================================
+
+# =============================================================================
+# SECTION 1: MONITOR - Metric Collection & Event Observation
+# =============================================================================
+
+mape:MonitoringComponent a rdfs:Class ;
+    rdfs:label "Monitoring Component" ;
+    rdfs:comment "Collects metrics, events, and observations from workflows" .
+
+mape:Metric a rdfs:Class ;
+    rdfs:label "Workflow Metric" ;
+    rdfs:comment "Measurable aspect of workflow execution" .
+
+mape:MetricType a rdfs:Class ;
+    rdfs:label "Metric Type" ;
+    rdfs:comment "Category of metric (performance, reliability, resource, quality)" .
+
+# Metric types
+mape:PerformanceMetric a mape:MetricType ;
+    rdfs:label "Performance" ;
+    rdfs:comment "Execution speed, throughput, latency" .
+
+mape:ReliabilityMetric a mape:MetricType ;
+    rdfs:label "Reliability" ;
+    rdfs:comment "Success rate, error rate, failure patterns" .
+
+mape:ResourceMetric a mape:MetricType ;
+    rdfs:label "Resource" ;
+    rdfs:comment "CPU, memory, network, disk usage" .
+
+mape:QualityMetric a mape:MetricType ;
+    rdfs:label "Quality" ;
+    rdfs:comment "Data quality, result accuracy, SLA compliance" .
+
+mape:SecurityMetric a mape:MetricType ;
+    rdfs:label "Security" ;
+    rdfs:comment "Unauthorized access, anomalies, policy violations" .
+
+# Metric properties
+mape:metricName a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the metric" .
+
+mape:metricType a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range mape:MetricType ;
+    rdfs:comment "Category of metric" .
+
+mape:currentValue a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current measured value" .
+
+mape:expectedValue a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Expected or target value" .
+
+mape:unit a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unit of measurement (ms, percent, GB, etc)" .
+
+mape:isAnomalous a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether current value is anomalous" .
+
+mape:anomalyThreshold a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Threshold for detecting anomalies" .
+
+mape:trendDirection a rdf:Property ;
+    rdfs:domain mape:Metric ;
+    rdfs:range mape:TrendDirection ;
+    rdfs:comment "Is metric improving, degrading, or stable?" .
+
+mape:TrendDirection a rdfs:Class .
+
+mape:Improving a mape:TrendDirection ;
+    rdfs:label "Improving" .
+
+mape:Degrading a mape:TrendDirection ;
+    rdfs:label "Degrading" .
+
+mape:Stable a mape:TrendDirection ;
+    rdfs:label "Stable" .
+
+# Observation/Event recording
+mape:Observation a rdfs:Class ;
+    rdfs:label "Observation" ;
+    rdfs:comment "Observed event or state change" .
+
+mape:observedAt a rdf:Property ;
+    rdfs:domain mape:Observation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When observation was made" .
+
+mape:observedElement a rdf:Property ;
+    rdfs:domain mape:Observation ;
+    rdfs:range yawl:Task ;
+    rdfs:comment "What was observed (task, flow, condition)" .
+
+mape:eventType a rdf:Property ;
+    rdfs:domain mape:Observation ;
+    rdfs:range mape:EventType ;
+    rdfs:comment "Type of event" .
+
+mape:EventType a rdfs:Class .
+
+mape:TaskStarted a mape:EventType .
+mape:TaskCompleted a mape:EventType .
+mape:TaskFailed a mape:EventType .
+mape:TaskTimeout a mape:EventType .
+mape:TaskSlowdown a mape:EventType .
+mape:DataCorruption a mape:EventType .
+mape:ResourceExhaustion a mape:EventType .
+mape:PolicyViolation a mape:EventType .
+mape:UnexpectedBehavior a mape:EventType .
+mape:AnomalyDetected a mape:EventType .
+
+mape:observationSeverity a rdf:Property ;
+    rdfs:domain mape:Observation ;
+    rdfs:range mape:Severity ;
+    rdfs:comment "How serious is the observation?" .
+
+mape:Severity a rdfs:Class .
+
+mape:Critical a mape:Severity ;
+    rdfs:label "Critical" ;
+    rdfs:comment "Workflow may fail" .
+
+mape:High a mape:Severity ;
+    rdfs:label "High" ;
+    rdfs:comment "Significant degradation" .
+
+mape:Medium a mape:Severity ;
+    rdfs:label "Medium" ;
+    rdfs:comment "Notable deviation" .
+
+mape:Low a mape:Severity ;
+    rdfs:label "Low" ;
+    rdfs:comment "Minor issue" .
+
+mape:monitoring a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpecification ;
+    rdfs:range mape:MonitoringComponent ;
+    rdfs:comment "Monitoring configuration for workflow" .
+
+mape:metricsCollected a rdf:Property ;
+    rdfs:domain mape:MonitoringComponent ;
+    rdfs:range mape:Metric ;
+    rdfs:comment "Metrics being monitored" .
+
+# =============================================================================
+# SECTION 2: ANALYZE - Pattern Recognition & Decision Making
+# =============================================================================
+
+mape:AnalysisComponent a rdfs:Class ;
+    rdfs:label "Analysis Component" ;
+    rdfs:comment "Analyzes metrics and observations to understand state" .
+
+mape:AnalysisRule a rdfs:Class ;
+    rdfs:label "Analysis Rule" ;
+    rdfs:comment "Pattern for recognizing problems or opportunities" .
+
+mape:ruleCondition a rdf:Property ;
+    rdfs:domain mape:AnalysisRule ;
+    rdfs:range xsd:string ;
+    rdfs:comment "SPARQL WHERE clause for detecting pattern" .
+
+mape:ruleName a rdf:Property ;
+    rdfs:domain mape:AnalysisRule ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Descriptive name for this analysis rule" .
+
+mape:ruleType a rdf:Property ;
+    rdfs:domain mape:AnalysisRule ;
+    rdfs:range mape:RuleType ;
+    rdfs:comment "What kind of problem does this detect?" .
+
+mape:RuleType a rdfs:Class .
+
+mape:PerformanceDegradation a mape:RuleType ;
+    rdfs:label "Performance Degradation" .
+
+mape:HighErrorRate a mape:RuleType ;
+    rdfs:label "High Error Rate" .
+
+mape:ResourceStarvation a mape:RuleType ;
+    rdfs:label "Resource Starvation" .
+
+mape:DeadlockRisk a mape:RuleType ;
+    rdfs:label "Deadlock Risk" .
+
+mape:SLAViolation a mape:RuleType ;
+    rdfs:label "SLA Violation" .
+
+mape:SecurityThreat a mape:RuleType ;
+    rdfs:label "Security Threat" .
+
+mape:DataQualityIssue a mape:RuleType ;
+    rdfs:label "Data Quality Issue" .
+
+mape:OptimizationOpportunity a mape:RuleType ;
+    rdfs:label "Optimization Opportunity" .
+
+# Analysis result
+mape:Analysis a rdfs:Class ;
+    rdfs:label "Analysis Result" ;
+    rdfs:comment "Outcome of analyzing metrics and observations" .
+
+mape:analysisTimestamp a rdf:Property ;
+    rdfs:domain mape:Analysis ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When analysis was performed" .
+
+mape:problemIdentified a rdf:Property ;
+    rdfs:domain mape:Analysis ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of identified problem or opportunity" .
+
+mape:rootCause a rdf:Property ;
+    rdfs:domain mape:Analysis ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Root cause analysis (SPARQL query results)" .
+
+mape:affectedElements a rdf:Property ;
+    rdfs:domain mape:Analysis ;
+    rdfs:range [ rdf:type owl:Class ; owl:unionOf (yawl:Task yawl:Condition) ] ;
+    rdfs:comment "Workflow elements affected by problem" .
+
+mape:recommendedActions a rdf:Property ;
+    rdfs:domain mape:Analysis ;
+    rdfs:range mape:Action ;
+    rdfs:comment "Actions recommended by analysis" .
+
+mape:confidenceScore a rdf:Property ;
+    rdfs:domain mape:Analysis ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Confidence in analysis (0.0-1.0)" .
+
+# =============================================================================
+# SECTION 3: PLAN - Decision Making & Action Planning
+# =============================================================================
+
+mape:PlanningComponent a rdfs:Class ;
+    rdfs:label "Planning Component" ;
+    rdfs:comment "Decides what actions to take based on analysis" .
+
+mape:Action a rdfs:Class ;
+    rdfs:label "Autonomic Action" ;
+    rdfs:comment "Action to be taken by system" .
+
+mape:ActionType a rdfs:Class ;
+    rdfs:label "Action Type" .
+
+mape:HealAction a mape:ActionType ;
+    rdfs:label "Heal" ;
+    rdfs:comment "Fix or recover from failure" .
+
+mape:OptimizeAction a mape:ActionType ;
+    rdfs:label "Optimize" ;
+    rdfs:comment "Improve performance or resource usage" .
+
+mape:ConfigureAction a mape:ActionType ;
+    rdfs:label "Configure" ;
+    rdfs:comment "Adapt to changing conditions" .
+
+mape:ProtectAction a mape:ActionType ;
+    rdfs:label "Protect" ;
+    rdfs:comment "Prevent security threats or violations" .
+
+mape:PreventAction a mape:ActionType ;
+    rdfs:label "Prevent" ;
+    rdfs:comment "Prevent predicted problems" .
+
+mape:actionType a rdf:Property ;
+    rdfs:domain mape:Action ;
+    rdfs:range mape:ActionType ;
+    rdfs:comment "Category of action" .
+
+mape:actionDescription a rdf:Property ;
+    rdfs:domain mape:Action ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What this action does" .
+
+mape:actionTarget a rdf:Property ;
+    rdfs:domain mape:Action ;
+    rdfs:range yawl:Task ;
+    rdfs:comment "Which workflow element to act on" .
+
+mape:actionImplementation a rdf:Property ;
+    rdfs:domain mape:Action ;
+    rdfs:range xsd:anyURI ;
+    rdfs:comment "Reference to implementation (code, service)" .
+
+mape:estimatedImpact a rdf:Property ;
+    rdfs:domain mape:Action ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Expected impact of action" .
+
+mape:riskLevel a rdf:Property ;
+    rdfs:domain mape:Action ;
+    rdfs:range mape:RiskLevel ;
+    rdfs:comment "Risk of taking this action" .
+
+mape:RiskLevel a rdfs:Class .
+
+mape:NoRisk a mape:RiskLevel .
+mape:LowRisk a mape:RiskLevel .
+mape:MediumRisk a mape:RiskLevel .
+mape:HighRisk a mape:RiskLevel .
+
+# Plan/Policy
+mape:Policy a rdfs:Class ;
+    rdfs:label "Autonomic Policy" ;
+    rdfs:comment "Rule defining when to take actions" .
+
+mape:policyName a rdf:Property ;
+    rdfs:domain mape:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of policy" .
+
+mape:policyTrigger a rdf:Property ;
+    rdfs:domain mape:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Condition that triggers policy (SPARQL)" .
+
+mape:policyAction a rdf:Property ;
+    rdfs:domain mape:Policy ;
+    rdfs:range mape:Action ;
+    rdfs:comment "Action(s) to take when triggered" .
+
+mape:policyPriority a rdf:Property ;
+    rdfs:domain mape:Policy ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Priority (higher = execute first)" .
+
+mape:policyCondition a rdf:Property ;
+    rdfs:domain mape:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Additional constraint before execution" .
+
+mape:policies a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpecification ;
+    rdfs:range mape:Policy ;
+    rdfs:comment "Autonomic policies for this workflow" .
+
+mape:Plan a rdfs:Class ;
+    rdfs:label "Execution Plan" ;
+    rdfs:comment "Ordered sequence of actions to execute" .
+
+mape:planActions a rdf:Property ;
+    rdfs:domain mape:Plan ;
+    rdfs:range mape:Action ;
+    rdfs:comment "Ordered list of actions" .
+
+mape:planRationale a rdf:Property ;
+    rdfs:domain mape:Plan ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Why these actions were chosen" .
+
+mape:expectedOutcome a rdf:Property ;
+    rdfs:domain mape:Plan ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Expected state after plan execution" .
+
+mape:executionStartTime a rdf:Property ;
+    rdfs:domain mape:Plan ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When plan starts executing" .
+
+# =============================================================================
+# SECTION 4: EXECUTE - Action Execution & Feedback
+# =============================================================================
+
+mape:ExecutionComponent a rdfs:Class ;
+    rdfs:label "Execution Component" ;
+    rdfs:comment "Executes planned actions and captures feedback" .
+
+mape:ActionExecution a rdfs:Class ;
+    rdfs:label "Action Execution" ;
+    rdfs:comment "Record of an action being executed" .
+
+mape:executionStartTime a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When execution started" .
+
+mape:executionEndTime a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When execution completed" .
+
+mape:executionStatus a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range mape:ExecutionStatus ;
+    rdfs:comment "Whether action succeeded" .
+
+mape:ExecutionStatus a rdfs:Class .
+
+mape:Successful a mape:ExecutionStatus ;
+    rdfs:label "Successful" .
+
+mape:Failed a mape:ExecutionStatus ;
+    rdfs:label "Failed" .
+
+mape:PartialSuccess a mape:ExecutionStatus ;
+    rdfs:label "Partial Success" .
+
+mape:Cancelled a mape:ExecutionStatus ;
+    rdfs:label "Cancelled" .
+
+mape:executionOutput a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Output from action execution" .
+
+mape:executionError a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Error message if execution failed" .
+
+mape:metricsAfter a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range mape:Metric ;
+    rdfs:comment "Metrics after action execution" .
+
+mape:impactAnalysis a rdf:Property ;
+    rdfs:domain mape:ActionExecution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Analysis of what changed after action" .
+
+# =============================================================================
+# SECTION 5: KNOWLEDGE - Learning & Adaptation
+# =============================================================================
+
+mape:KnowledgeBase a rdfs:Class ;
+    rdfs:label "Knowledge Base" ;
+    rdfs:comment "Persistent learning and experience from past cycles" .
+
+mape:knowledgeBase a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpecification ;
+    rdfs:range mape:KnowledgeBase ;
+    rdfs:comment "Knowledge base for this workflow" .
+
+# Pattern learning
+mape:LearnedPattern a rdfs:Class ;
+    rdfs:label "Learned Pattern" ;
+    rdfs:comment "Pattern recognized from experience" .
+
+mape:patternDescription a rdf:Property ;
+    rdfs:domain mape:LearnedPattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What pattern was learned" .
+
+mape:patternFrequency a rdf:Property ;
+    rdfs:domain mape:LearnedPattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "How many times pattern observed" .
+
+mape:patternReliability a rdf:Property ;
+    rdfs:domain mape:LearnedPattern ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Success rate of pattern (0.0-1.0)" .
+
+mape:associatedActions a rdf:Property ;
+    rdfs:domain mape:LearnedPattern ;
+    rdfs:range mape:Action ;
+    rdfs:comment "Actions that work for this pattern" .
+
+mape:learnedPatterns a rdf:Property ;
+    rdfs:domain mape:KnowledgeBase ;
+    rdfs:range mape:LearnedPattern ;
+    rdfs:comment "Patterns learned from experience" .
+
+# Historical performance
+mape:PerformanceHistory a rdfs:Class ;
+    rdfs:label "Performance History" ;
+    rdfs:comment "Historical metrics for trend analysis" .
+
+mape:historicalMetrics a rdf:Property ;
+    rdfs:domain mape:KnowledgeBase ;
+    rdfs:range mape:PerformanceHistory ;
+    rdfs:comment "Historical performance data" .
+
+mape:metricTimeseries a rdf:Property ;
+    rdfs:domain mape:PerformanceHistory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Time series data for analysis" .
+
+mape:trend a rdf:Property ;
+    rdfs:domain mape:PerformanceHistory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Trend (linear, seasonal, random)" .
+
+mape:forecast a rdf:Property ;
+    rdfs:domain mape:PerformanceHistory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Predicted future values" .
+
+# Success/Failure mapping
+mape:SuccessMemory a rdfs:Class ;
+    rdfs:label "Success Memory" ;
+    rdfs:comment "What actions worked for what situations" .
+
+mape:situationDescription a rdf:Property ;
+    rdfs:domain mape:SuccessMemory ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of situation" .
+
+mape:successfulActions a rdf:Property ;
+    rdfs:domain mape:SuccessMemory ;
+    rdfs:range mape:Action ;
+    rdfs:comment "Actions that worked" .
+
+mape:successRate a rdf:Property ;
+    rdfs:domain mape:SuccessMemory ;
+    rdfs:range xsd:double ;
+    rdfs:comment "How often this worked (0.0-1.0)" .
+
+mape:successMemories a rdf:Property ;
+    rdfs:domain mape:KnowledgeBase ;
+    rdfs:range mape:SuccessMemory ;
+    rdfs:comment "Recorded successes" .
+
+# Predictive models
+mape:PredictiveModel a rdfs:Class ;
+    rdfs:label "Predictive Model" ;
+    rdfs:comment "ML model trained from historical data" .
+
+mape:modelType a rdf:Property ;
+    rdfs:domain mape:PredictiveModel ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of model (regression, classification, etc)" .
+
+mape:modelAccuracy a rdf:Property ;
+    rdfs:domain mape:PredictiveModel ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Model accuracy on validation set" .
+
+mape:modelTrainedAt a rdf:Property ;
+    rdfs:domain mape:PredictiveModel ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When model was last trained" .
+
+mape:modelParameters a rdf:Property ;
+    rdfs:domain mape:PredictiveModel ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Model parameters (weights, thresholds)" .
+
+mape:predictiveModels a rdf:Property ;
+    rdfs:domain mape:KnowledgeBase ;
+    rdfs:range mape:PredictiveModel ;
+    rdfs:comment "Trained models" .
+
+# =============================================================================
+# SECTION 6: MAPE-K FEEDBACK LOOP ORCHESTRATION
+# =============================================================================
+
+mape:AutonomiccWorkflow a rdfs:Class ;
+    rdfs:label "Autonomic Workflow" ;
+    rdfs:subClassOf yawl:WorkflowSpecification ;
+    rdfs:comment "Workflow with complete MAPE-K autonomic control loop" .
+
+mape:mapeMonitor a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:MonitoringComponent ;
+    rdfs:comment "Monitor component" .
+
+mape:mapeAnalyze a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:AnalysisComponent ;
+    rdfs:comment "Analyze component" .
+
+mape:mapePlan a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:PlanningComponent ;
+    rdfs:comment "Plan component" .
+
+mape:mapeExecute a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:ExecutionComponent ;
+    rdfs:comment "Execute component" .
+
+mape:mapeKnowledge a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:KnowledgeBase ;
+    rdfs:comment "Knowledge base" .
+
+mape:loopFrequency a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "How often MAPE-K loop executes" .
+
+mape:loopEnabled a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether autonomic loop is active" .
+
+# Feedback metrics
+mape:FeedbackCycle a rdfs:Class ;
+    rdfs:label "Feedback Cycle" ;
+    rdfs:comment "One complete MAPE-K cycle" .
+
+mape:cycleNumber a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Sequence number of cycle" .
+
+mape:cycleStartTime a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When cycle started" .
+
+mape:cycleEndTime a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When cycle completed" .
+
+mape:cycleMonitorPhase a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range mape:Observation ;
+    rdfs:comment "Observations from monitor phase" .
+
+mape:cycleAnalysisPhase a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range mape:Analysis ;
+    rdfs:comment "Analysis from analyze phase" .
+
+mape:cyclePlanPhase a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range mape:Plan ;
+    rdfs:comment "Plan from plan phase" .
+
+mape:cycleExecutePhase a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range mape:ActionExecution ;
+    rdfs:comment "Actions executed in execute phase" .
+
+mape:cycleOutcome a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Summary of cycle outcome" .
+
+mape:cycleEffectiveness a rdf:Property ;
+    rdfs:domain mape:FeedbackCycle ;
+    rdfs:range xsd:double ;
+    rdfs:comment "How effective was this cycle (0.0-1.0)" .
+
+mape:feedbackCycles a rdf:Property ;
+    rdfs:domain mape:KnowledgeBase ;
+    rdfs:range mape:FeedbackCycle ;
+    rdfs:comment "History of all feedback cycles" .
+
+# =============================================================================
+# SECTION 7: SELF-MANAGEMENT PROPERTIES
+# =============================================================================
+
+mape:SelfManagementProperty a rdfs:Class ;
+    rdfs:label "Self-Management Property" ;
+    rdfs:comment "Characteristic of self-managing system" .
+
+mape:SelfHealing a mape:SelfManagementProperty ;
+    rdfs:label "Self-Healing" ;
+    rdfs:comment "Detects and recovers from failures automatically" .
+
+mape:SelfOptimizing a mape:SelfManagementProperty ;
+    rdfs:label "Self-Optimizing" ;
+    rdfs:comment "Continuously improves performance" .
+
+mape:SelfConfiguring a mape:SelfManagementProperty ;
+    rdfs:label "Self-Configuring" ;
+    rdfs:comment "Adapts to changing conditions automatically" .
+
+mape:SelfProtecting a mape:SelfManagementProperty ;
+    rdfs:label "Self-Protecting" ;
+    rdfs:comment "Detects and prevents security threats" .
+
+mape:SelfLearning a mape:SelfManagementProperty ;
+    rdfs:label "Self-Learning" ;
+    rdfs:comment "Improves from experience" .
+
+mape:enabledProperties a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:SelfManagementProperty ;
+    rdfs:comment "Which self-management properties enabled" .
+
+# =============================================================================
+# SECTION 8: AUTONOMIC HOOKS FOR INTEGRATION
+# =============================================================================
+
+mape:Hook a rdfs:Class ;
+    rdfs:label "Autonomic Hook" ;
+    rdfs:comment "Integration point for autonomic behavior" .
+
+mape:HookType a rdfs:Class ;
+    rdfs:label "Hook Type" .
+
+mape:PreMonitor a mape:HookType ;
+    rdfs:label "Pre-Monitor" ;
+    rdfs:comment "Hook before monitoring phase" .
+
+mape:PostMonitor a mape:HookType ;
+    rdfs:label "Post-Monitor" ;
+    rdfs:comment "Hook after monitoring phase" .
+
+mape:PreAnalyze a mape:HookType ;
+    rdfs:label "Pre-Analyze" ;
+    rdfs:comment "Hook before analysis phase" .
+
+mape:PostAnalyze a mape:HookType ;
+    rdfs:label "Post-Analyze" ;
+    rdfs:comment "Hook after analysis phase" .
+
+mape:PrePlan a mape:HookType ;
+    rdfs:label "Pre-Plan" ;
+    rdfs:comment "Hook before planning phase" .
+
+mape:PostPlan a mape:HookType ;
+    rdfs:label "Post-Plan" ;
+    rdfs:comment "Hook after planning phase" .
+
+mape:PreExecute a mape:HookType ;
+    rdfs:label "Pre-Execute" ;
+    rdfs:comment "Hook before action execution" .
+
+mape:PostExecute a mape:HookType ;
+    rdfs:label "Post-Execute" ;
+    rdfs:comment "Hook after action execution" .
+
+mape:PreFeedback a mape:HookType ;
+    rdfs:label "Pre-Feedback" ;
+    rdfs:comment "Hook before feedback to knowledge" .
+
+mape:PostFeedback a mape:HookType ;
+    rdfs:label "Post-Feedback" ;
+    rdfs:comment "Hook after feedback to knowledge" .
+
+mape:hookType a rdf:Property ;
+    rdfs:domain mape:Hook ;
+    rdfs:range mape:HookType ;
+    rdfs:comment "When this hook is called" .
+
+mape:hookImplementation a rdf:Property ;
+    rdfs:domain mape:Hook ;
+    rdfs:range xsd:anyURI ;
+    rdfs:comment "Implementation (code, service, script)" .
+
+mape:hookName a rdf:Property ;
+    rdfs:domain mape:Hook ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of hook" .
+
+mape:autonomicHooks a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:Hook ;
+    rdfs:comment "Hooks for autonomic behavior" .
+
+# =============================================================================
+# SECTION 9: AUTONOMIC GOALS & OBJECTIVES
+# =============================================================================
+
+mape:AutonomicGoal a rdfs:Class ;
+    rdfs:label "Autonomic Goal" ;
+    rdfs:comment "High-level objective for autonomous system" .
+
+mape:goalName a rdf:Property ;
+    rdfs:domain mape:AutonomicGoal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of goal" .
+
+mape:goalDescription a rdf:Property ;
+    rdfs:domain mape:AutonomicGoal ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of goal" .
+
+mape:goalMetric a rdf:Property ;
+    rdfs:domain mape:AutonomicGoal ;
+    rdfs:range mape:Metric ;
+    rdfs:comment "Metric to measure goal attainment" .
+
+mape:goalTarget a rdf:Property ;
+    rdfs:domain mape:AutonomicGoal ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Target value for metric" .
+
+mape:goalPriority a rdf:Property ;
+    rdfs:domain mape:AutonomicGoal ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Priority level (higher = more important)" .
+
+mape:goalTolerance a rdf:Property ;
+    rdfs:domain mape:AutonomicGoal ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Acceptable deviation from target" .
+
+mape:autonomicGoals a rdf:Property ;
+    rdfs:domain mape:AutonomiccWorkflow ;
+    rdfs:range mape:AutonomicGoal ;
+    rdfs:comment "Goals for autonomic system" .
+
+# =============================================================================
+# SECTION 10: ORCHESTRATION & INTEGRATION
+# =============================================================================
+
+# Integration with YAWL
+yawl:enableAutonomic a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpecification ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Enable MAPE-K autonomic loop for this workflow" .
+
+yawl:autonomicConfig a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpecification ;
+    rdfs:range mape:AutonomiccWorkflow ;
+    rdfs:comment "Autonomic configuration" .
+
+# Knowledge integration with task execution
+yawl:learnFrom a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range mape:KnowledgeBase ;
+    rdfs:comment "Reference to knowledge base for decisions" .
+
+yawl:updateKnowledge a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this task updates knowledge base" .
+
+# =============================================================================
+# DOCUMENTATION & USAGE
+# =============================================================================
+
+# Complete MAPE-K autonomic workflow:
+#
+# 1. MONITOR (Continuous):
+#    - Collect metrics (performance, reliability, resource, quality, security)
+#    - Detect events and observations
+#    - Flag anomalies
+#
+# 2. ANALYZE (On schedule or event trigger):
+#    - Execute analysis rules
+#    - Match patterns to learned behaviors
+#    - Identify root causes
+#    - Assess severity
+#    - Generate recommendations
+#
+# 3. PLAN (When problems/opportunities detected):
+#    - Apply policies
+#    - Select actions based on knowledge
+#    - Sequence actions
+#    - Assess risk
+#
+# 4. EXECUTE (With safety gates):
+#    - Execute planned actions
+#    - Monitor action effects
+#    - Capture output and metrics
+#    - Adjust if needed
+#
+# 5. KNOWLEDGE (Continuous learning):
+#    - Record results
+#    - Update success memory
+#    - Train predictive models
+#    - Learn new patterns
+#    - Improve policies
+#
+# This creates a closed loop where:
+# - System monitors its own behavior
+# - System detects problems/opportunities
+# - System decides what to do
+# - System takes action
+# - System learns from results
+# - System improves future decisions
+#
+# Result: Truly autonomous, self-managing workflows

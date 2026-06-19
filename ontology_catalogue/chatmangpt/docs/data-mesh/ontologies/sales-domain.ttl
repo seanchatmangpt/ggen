@@ -1,0 +1,443 @@
+# Sales Domain Ontology — BusinessOS
+# Built on schema.org (Thing, Person, Organization, Intangible)
+# URI: https://businessos.local/ontology/sales/
+# Version: 1.0.0
+# Date: 2026-03-25
+
+@prefix : <https://businessos.local/ontology/sales/> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ============================================================================
+# DOMAIN DEFINITION
+# ============================================================================
+
+:SalesDomain
+  a owl:Class ;
+  dcterms:title "Sales Domain"@en ;
+  dcterms:description "Sales pipeline, opportunities, deals, accounts, and contacts"@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf <https://businessos.local> ;
+  skos:broadMatch schema:Thing .
+
+# ============================================================================
+# CORE ENTITIES
+# ============================================================================
+
+# Opportunity - Sales opportunity or prospect
+:Opportunity
+  a owl:Class ;
+  dcterms:title "Sales Opportunity"@en ;
+  dcterms:description "Potential sale or business opportunity with an account"@en ;
+  skos:definition "Qualified prospect or customer showing potential to make purchase" ;
+  rdfs:subClassOf schema:Intangible .
+
+:Opportunity
+  skos:hasProperty :opportunityId, :opportunityName, :account, :amount, :probability, :stage, :closedDate .
+
+:opportunityId
+  a owl:DatatypeProperty ;
+  dcterms:title "Opportunity ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique identifier for opportunity" .
+
+:opportunityName
+  a owl:DatatypeProperty ;
+  dcterms:title "Opportunity Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Human-readable opportunity name" .
+
+:account
+  a owl:ObjectProperty ;
+  dcterms:title "Account"@en ;
+  rdfs:range :Account ;
+  dcterms:description "Customer account for this opportunity" .
+
+:amount
+  a owl:DatatypeProperty ;
+  dcterms:title "Deal Amount"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Estimated revenue amount in USD" .
+
+:probability
+  a owl:DatatypeProperty ;
+  dcterms:title "Win Probability"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0.0"^^xsd:decimal ; xsd:maxInclusive "1.0"^^xsd:decimal ]
+    )
+  ] ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Probability of winning deal (0-1)" .
+
+:stage
+  a owl:DatatypeProperty ;
+  dcterms:title "Pipeline Stage"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "LEAD" "QUALIFIED" "PROPOSAL" "NEGOTIATION" "CLOSED_WON" "CLOSED_LOST" )
+  ] ;
+  dqv:dimension dqv:Completeness ;
+  dcterms:description "Current stage in sales pipeline" .
+
+:closedDate
+  a owl:DatatypeProperty ;
+  dcterms:title "Expected Close Date"@en ;
+  rdfs:range xsd:date ;
+  dcterms:description "Expected or actual deal close date" .
+
+# Deal - Completed or advanced opportunity
+:Deal
+  a owl:Class ;
+  dcterms:title "Sales Deal"@en ;
+  dcterms:description "Closed or significantly advanced sales transaction"@en ;
+  rdfs:subClassOf :Opportunity ;
+  owl:sameAs schema:Product .
+
+:Deal
+  skos:hasProperty :dealId, :dealName, :account, :amount, :closedDate, :owner, :terms .
+
+:dealId
+  a owl:DatatypeProperty ;
+  dcterms:title "Deal ID"@en ;
+  rdfs:range xsd:string .
+
+:dealName
+  a owl:DatatypeProperty ;
+  dcterms:title "Deal Name"@en ;
+  rdfs:range xsd:string .
+
+:owner
+  a owl:ObjectProperty ;
+  dcterms:title "Deal Owner"@en ;
+  rdfs:range foaf:Person ;
+  dcterms:description "Sales person responsible for deal" .
+
+:terms
+  a owl:ObjectProperty ;
+  dcterms:title "Deal Terms"@en ;
+  rdfs:range :DealTerms ;
+  dcterms:description "Pricing, payment, and contract terms" .
+
+# Account - Customer or prospect company
+:Account
+  a owl:Class ;
+  dcterms:title "Sales Account"@en ;
+  dcterms:description "Company or individual account (customer or prospect)"@en ;
+  rdfs:subClassOf schema:Organization ;
+  owl:sameAs schema:Organization .
+
+:Account
+  skos:hasProperty :accountId, :accountName, :industry, :size, :annualRevenue, :primaryContact .
+
+:accountId
+  a owl:DatatypeProperty ;
+  dcterms:title "Account ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique identifier for account" .
+
+:accountName
+  a owl:DatatypeProperty ;
+  dcterms:title "Account Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Company or individual name" .
+
+:industry
+  a owl:DatatypeProperty ;
+  dcterms:title "Industry"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Industry classification (e.g., Technology, Finance)" .
+
+:size
+  a owl:DatatypeProperty ;
+  dcterms:title "Company Size"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "SMB" "MID_MARKET" "ENTERPRISE" )
+  ] ;
+  dcterms:description "Company size category" .
+
+:annualRevenue
+  a owl:DatatypeProperty ;
+  dcterms:title "Annual Revenue"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Annual revenue of account in USD" .
+
+:primaryContact
+  a owl:ObjectProperty ;
+  dcterms:title "Primary Contact"@en ;
+  rdfs:range :Contact ;
+  dcterms:description "Primary decision maker contact" .
+
+# Contact - Individual contact person
+:Contact
+  a owl:Class ;
+  dcterms:title "Sales Contact"@en ;
+  dcterms:description "Individual person in a sales account"@en ;
+  rdfs:subClassOf schema:Person ;
+  owl:sameAs foaf:Person .
+
+:Contact
+  skos:hasProperty :contactId, :firstName, :lastName, :title, :email, :phone, :account .
+
+:contactId
+  a owl:DatatypeProperty ;
+  dcterms:title "Contact ID"@en ;
+  rdfs:range xsd:string .
+
+:firstName
+  a owl:DatatypeProperty ;
+  dcterms:title "First Name"@en ;
+  rdfs:range xsd:string .
+
+:lastName
+  a owl:DatatypeProperty ;
+  dcterms:title "Last Name"@en ;
+  rdfs:range xsd:string .
+
+:title
+  a owl:DatatypeProperty ;
+  dcterms:title "Job Title"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Contact's job title in company" .
+
+:email
+  a owl:DatatypeProperty ;
+  dcterms:title "Email Address"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Contact email" .
+
+:phone
+  a owl:DatatypeProperty ;
+  dcterms:title "Phone Number"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Contact phone number" .
+
+# Pipeline - Sales pipeline or forecast
+:Pipeline
+  a owl:Class ;
+  dcterms:title "Sales Pipeline"@en ;
+  dcterms:description "Sales forecast or pipeline view"@en ;
+  skos:definition "Aggregate view of opportunities by stage and owner" .
+
+:Pipeline
+  skos:hasProperty :pipelineId, :owner, :period, :totalValue, :weightedValue .
+
+:pipelineId
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:period
+  a owl:DatatypeProperty ;
+  dcterms:title "Period"@en ;
+  rdfs:range xsd:gYearMonth ;
+  dcterms:description "Fiscal month or quarter" .
+
+:totalValue
+  a owl:DatatypeProperty ;
+  dcterms:title "Total Pipeline Value"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Sum of all opportunity amounts" .
+
+:weightedValue
+  a owl:DatatypeProperty ;
+  dcterms:title "Weighted Value"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Sum of (amount × probability) for all opportunities" .
+
+# DealTerms - Terms and conditions of a deal
+:DealTerms
+  a owl:Class ;
+  dcterms:title "Deal Terms"@en ;
+  dcterms:description "Pricing, payment, and contract terms"@en ;
+  skos:definition "Specific commercial and contractual terms agreed in a deal" .
+
+:DealTerms
+  skos:hasProperty :termId, :price, :quantity, :paymentTerms, :contractLength .
+
+:termId
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string .
+
+:price
+  a owl:DatatypeProperty ;
+  dcterms:title "Unit Price"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Price per unit or service" .
+
+:quantity
+  a owl:DatatypeProperty ;
+  dcterms:title "Quantity"@en ;
+  rdfs:range xsd:integer ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Number of units or services" .
+
+:paymentTerms
+  a owl:DatatypeProperty ;
+  dcterms:title "Payment Terms"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "NET_30" "NET_60" "NET_90" "UPFRONT" "DEPOSIT" )
+  ] ;
+  dcterms:description "Payment schedule (e.g., Net 30)" .
+
+:contractLength
+  a owl:DatatypeProperty ;
+  dcterms:title "Contract Length"@en ;
+  rdfs:range xsd:duration ;
+  dcterms:description "Duration of contract (e.g., P1Y = 1 year)" .
+
+# ============================================================================
+# DATA CONTRACTS (DCAT)
+# ============================================================================
+
+:OpportunityDataset
+  a dcat:Dataset ;
+  dcterms:title "Sales Opportunities"@en ;
+  dcterms:description "Active sales opportunities with account, amount, and probability"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcterms:creator <https://businessos.local/agents/sales> ;
+  dcat:keyword "opportunity", "pipeline", "forecast" ;
+  dcat:accessURL <https://businessos.local/api/sales/opportunities> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :OpportunityCompletenessMetric .
+
+:OpportunityCompletenessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :OpportunityDataset ;
+  dqv:value 0.97 ;  # 97% of opportunities have probability assigned
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:DealDataset
+  a dcat:Dataset ;
+  dcterms:title "Closed Deals"@en ;
+  dcterms:description "Closed and closed-lost deals with full transaction history"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/sales/deals> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :DealAccuracyMetric .
+
+:DealAccuracyMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :DealDataset ;
+  dqv:value 0.99 ;  # 99% accuracy of deal amounts
+  dqv:dimension dqv:Accuracy ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:AccountContactDataset
+  a dcat:Dataset ;
+  dcterms:title "Accounts & Contacts"@en ;
+  dcterms:description "Customer and prospect accounts with contact information"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/sales/accounts> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :ContactCompletenesMetric .
+
+:ContactCompletenesMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :AccountContactDataset ;
+  dqv:value 0.89 ;  # 89% of contacts have complete information
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# QUALITY METRICS (DQV)
+# ============================================================================
+
+:SalesQualityDimensions
+  a dqv:Dimension ;
+  dcterms:title "Sales Quality Dimensions"@en ;
+  dqv:inCategory dqv:Accuracy, dqv:Completeness, dqv:Timeliness, dqv:Consistency .
+
+:PipelineAccuracyMetric
+  a dqv:QualityMetric ;
+  dcterms:title "Pipeline Forecast Accuracy"@en ;
+  skos:definition "Actual closed deals vs. forecasted amount" ;
+  dqv:expectedValue "85"^^xsd:integer ;
+  dqv:unit "percent" .
+
+# ============================================================================
+# GOVERNANCE (ODRL)
+# ============================================================================
+
+:OpportunityAccessPolicy
+  a odrl:Policy ;
+  dcterms:title "Opportunity & Deal Access Policy"@en ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Read ;
+      odrl:target :OpportunityDataset, :DealDataset, :AccountContactDataset ;
+      odrl:assignee <https://businessos.local/teams/sales>,
+                    <https://businessos.local/teams/finance>,
+                    <https://businessos.local/teams/marketing> ;
+      odrl:constraint
+        [ a odrl:Constraint ;
+          odrl:operator odrl:eq ;
+          odrl:leftOperand odrl:purpose ;
+          odrl:rightOperand odrl:businessPurpose:RevenueForecasting
+        ] ;
+      dcterms:description "Sales, Finance, Marketing can READ opportunities for forecasting"
+    ] ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Write ;
+      odrl:target :OpportunityDataset, :DealDataset ;
+      odrl:assignee <https://businessos.local/agents/sales> ;
+      dcterms:description "Sales agent can WRITE opportunities and deals"
+    ] .
+
+# ============================================================================
+# PROVENANCE & AUDIT (PROV-O)
+# ============================================================================
+
+:DealClosureActivity
+  a prov:Activity ;
+  dcterms:title "Deal Closure"@en ;
+  prov:wasAssociatedWith <https://businessos.local/agents/sales> ;
+  prov:used :OpportunityDataset ;
+  prov:generated :DealDataset ;
+  prov:startedAtTime "2026-03-01T00:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-25T23:59:59Z"^^xsd:dateTime .
+
+:DealDataset
+  prov:wasDerivedFrom :OpportunityDataset ;
+  dcterms:issued "2026-03-25T23:59:59Z"^^xsd:dateTime .
+
+# ============================================================================
+# FEDERATION LINKS (Cross-domain Integration)
+# ============================================================================
+
+# Link to Finance domain (Deal -> Revenue)
+:DealRevenue
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/finance/Transaction> ;
+  dcterms:description "Sales deal maps to finance revenue transaction" .
+
+# Link to Marketing domain (Opportunity -> Campaign)
+:OpportunityCampaign
+  a owl:Class ;
+  dcterms:references <https://businessos.local/ontology/marketing/Campaign> ;
+  dcterms:description "Sales opportunity influenced by marketing campaign" .
+
+# Link to Operations domain (Deal fulfillment -> Process)
+:DealFulfillment
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/operations/ProcessExecution> ;
+  dcterms:description "Sales deal fulfilled by operations process" .
+

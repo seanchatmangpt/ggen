@@ -1,0 +1,65 @@
+# SPARQL CONSTRUCT: Transform DFG Discovery JSON output to RDF
+# Maps pictl discover_dfg MCP tool result into pm:DirectlyFollowsGraph triples
+# Input: JSON with nodes[], edges[], metrics{}
+# Output: RDF graph with activities, transitions, and quality metrics
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+CONSTRUCT {
+  # Main DFG model
+  ?dfg a pm:DirectlyFollowsGraph ;
+    rdfs:label ?dfg_label ;
+    pm:discoversWith pm:DFGDiscovery ;
+    pm:executionTime ?execution_time ;
+    pm:hasFitness ?fitness ;
+    pm:hasPrecision ?precision ;
+    pm:hasGeneralization ?generalization ;
+    pm:hasSimplicity ?simplicity ;
+    pm:activityCount ?activity_count ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    prov:wasGeneratedBy [
+      a prov:Activity ;
+      rdfs:label "DFG Discovery Operation" ;
+      prov:used ?event_log
+    ] .
+
+  # Activity nodes
+  ?activity a pm:Activity ;
+    rdfs:label ?activity_label ;
+    pm:frequency ?node_frequency ;
+    rdf:value ?node_value .
+
+  # Edges (directly-follows relationships)
+  ?edge a rdf:Statement ;
+    rdf:subject ?source_activity ;
+    rdf:predicate pm:directlyFollows ;
+    rdf:object ?target_activity ;
+    pm:frequency ?edge_frequency ;
+    rdfs:label ?edge_label .
+
+  # Aggregate statistics
+  ?stats a prov:Report ;
+    pm:nodeCount ?node_count ;
+    pm:edgeCount ?edge_count ;
+    pm:graphDensity ?graph_density ;
+    pm:averageFrequency ?avg_frequency .
+}
+WHERE {
+  # JSON binding (would come from application layer):
+  # $discovery_result = { nodes: [...], edges: [...], metrics: {...}, executionTime: ... }
+
+  # Note: SPARQL cannot directly parse JSON.
+  # This query represents the logical transformation.
+  # In practice, the application layer (JavaScript) performs JSON→RDF mapping,
+  # or use RDF JSON-LD format as input.
+
+  # Example triple patterns that would be present in the input:
+  BIND(IRI(CONCAT("http://pictl.org/discover/dfg/", NOW())) AS ?dfg)
+  BIND("Directly-Follows Graph Discovery Result" AS ?dfg_label)
+  BIND(pm:DFGDiscovery AS ?discovery_algo)
+  BIND(NOW() AS ?timestamp)
+}

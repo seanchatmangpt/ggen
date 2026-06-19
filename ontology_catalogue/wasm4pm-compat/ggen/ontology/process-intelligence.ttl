@@ -1,0 +1,188 @@
+@prefix pi:      <https://wasm4pm.org/process-intelligence#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# PROCESS INTELLIGENCE ONTOLOGY
+# Unified composition of all domain TTLs for wasm4pm-compat.
+# This is the single source ontology consumed by every projection manifest
+# (ts.projection.yaml, wasm.projection.yaml, component.projection.yaml).
+# ============================================================================
+
+<https://wasm4pm.org/process-intelligence>
+    a owl:Ontology ;
+    dcterms:title "Process Intelligence Ontology" ;
+    dcterms:description "Unified process-intelligence ontology for wasm4pm-compat. Composes all domain TTLs into a single queryable graph: process forms, evidence structure, type constraints, graduation boundaries, paper registry, audit machinery, and the ggen substrate. Serves as the source ontology for all three projection manifests (TypeScript, WASM, Component Model)." ;
+    dcterms:created "2026-06-02" ;
+    dcterms:creator "wasm4pm-compat nightly-foundry" ;
+    owl:versionInfo "1.0.0" ;
+
+    owl:imports <domain-process-forms.ttl> ;
+    owl:imports <domain-evidence-structure.ttl> ;
+    owl:imports <domain-type-constraints.ttl> ;
+    owl:imports <domain-graduation-boundaries.ttl> ;
+    owl:imports <ggen-substrate.ttl> ;
+    owl:imports <papers.ttl> ;
+    owl:imports <audit-machinery.ttl> ;
+    owl:imports <wasm4pm-compat.ttl> ;
+    owl:imports <wasm4pm-compat-integrated.ttl> .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+pi:ProcessModel
+    a owl:Class ;
+    rdfs:label "Process Model" ;
+    rdfs:comment "A formal representation of a process as understood by process mining. Covers Petri nets, process trees, DFGs, BPMN, Declare, and POWL variants. Structure-only: no execution, discovery, or replay logic resides here — those graduate to wasm4pm." .
+
+pi:EventLog
+    a owl:Class ;
+    rdfs:label "Event Log" ;
+    rdfs:comment "A collection of traces, each trace being an ordered sequence of events attributed to one case. Conforms to the XES 1849 / classic event-log model. The canonical carrier in wasm4pm-compat is eventlog::EventLog." .
+
+pi:Trace
+    a owl:Class ;
+    rdfs:label "Trace" ;
+    rdfs:comment "An ordered sequence of events belonging to a single case (process instance). A trace is the atomic unit of conformance checking. In wasm4pm-compat: eventlog::Trace." .
+
+pi:Activity
+    a owl:Class ;
+    rdfs:label "Activity" ;
+    rdfs:comment "A named action or step recorded in an event. Activity names appear in event logs and are the nodes of process models (DFG, Petri net transitions, process tree tasks). In wasm4pm-compat: the 'activity' field on eventlog::Event." .
+
+pi:Conformance
+    a owl:Class ;
+    rdfs:label "Conformance" ;
+    rdfs:comment "The degree to which an observed event log aligns with a declared process model. Conformance is computed by wasm4pm (engine layer); wasm4pm-compat holds only the result shapes (ConformanceVerdict, QualityMetric)." .
+
+pi:Fitness
+    a owl:Class ;
+    rdfs:subClassOf pi:Conformance ;
+    rdfs:label "Fitness" ;
+    rdfs:comment "The fraction of observed behaviour that can be replayed on the process model without deviation. A Metric<Fitness, NUM, DEN> in wasm4pm-compat enforces the Between01 compile-time bound: NUM <= DEN." .
+
+pi:Precision
+    a owl:Class ;
+    rdfs:subClassOf pi:Conformance ;
+    rdfs:label "Precision" ;
+    rdfs:comment "The fraction of model-allowed behaviour that actually appears in the log. Complements fitness: a model allowing everything has perfect fitness but zero precision. Represented as Metric<Precision, NUM, DEN> with Between01 bound." .
+
+pi:TypeLawSurface
+    a owl:Class ;
+    rdfs:label "Type Law Surface" ;
+    rdfs:comment "A compile-time enforcement point expressed as a Rust type in wasm4pm-compat. Examples: Assert<{EXPR}>, IsTrue, Require<{EXPR}>, Between01<NUM, DEN>, ConstParamTy enums. Type law surfaces prevent illegal states at compile time — no runtime check needed." .
+
+pi:EvidenceAdmission
+    a owl:Class ;
+    rdfs:label "Evidence Admission" ;
+    rdfs:comment "The act and result of admitting raw evidence through the Admit::admit() gate. Produces Admission<T, W> on success or Refusal<R, W> on failure. The reason type R must name a specific structural law; bare InvalidInput is forbidden." .
+
+pi:GraduationBridge
+    a owl:Class ;
+    rdfs:label "Graduation Bridge" ;
+    rdfs:comment "A boundary marker indicating that a compat evidence shape is ready to graduate to the wasm4pm execution engine. Represented as GraduateToWasm4pm trait and GraduationCandidate in the wasm4pm Cargo feature. Graduation is a one-way signal — there is no downgrade path." .
+
+pi:OcelLog
+    a owl:Class ;
+    rdfs:subClassOf pi:EventLog ;
+    rdfs:label "OCEL Log" ;
+    rdfs:comment "An object-centric event log conforming to OCEL 2.0. Events are linked to multiple objects (E2O links); objects are linked to each other (O2O links); objects carry attribute changes over time. In wasm4pm-compat: ocel::OcelLog." .
+
+pi:WitnessMarker
+    a owl:Class ;
+    rdfs:label "Witness Marker" ;
+    rdfs:comment "A zero-sized Rust type (empty enum) implementing the Witness trait. Each witness names a specific paper, standard, or law (e.g. Ocel20, Xes1849, WfNetSoundnessPaper). Prevents mixing evidence admitted under different authorities at the type level." .
+
+pi:LossReport
+    a owl:Class ;
+    rdfs:label "Loss Report" ;
+    rdfs:comment "An audit record of structure lost during a lossy projection. Required on every non-refusing projection path when LossPolicy is AllowNamedProjection or AllowLossWithReport. Silent structure loss is a defect." .
+
+pi:ProjectionManifest
+    a owl:Class ;
+    rdfs:label "Projection Manifest" ;
+    rdfs:comment "A YAML descriptor that declares a named projection from wasm4pm-compat to a target (TypeScript, WASM, Component Model). Each manifest entry must provide: source ontology, query, template, output path, receipt entry, and checkpoint effect." .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+pi:hasTrace
+    a owl:ObjectProperty ;
+    rdfs:label "has trace" ;
+    rdfs:comment "Relates an EventLog to the Trace instances it contains. Ordered; multiplicity 0..*." ;
+    rdfs:domain pi:EventLog ;
+    rdfs:range pi:Trace .
+
+pi:hasActivity
+    a owl:ObjectProperty ;
+    rdfs:label "has activity" ;
+    rdfs:comment "Relates a Trace or EventLog to Activity instances observed within it. Derived from the activity field on each event." ;
+    rdfs:domain pi:Trace ;
+    rdfs:range pi:Activity .
+
+pi:hasFitnessScore
+    a owl:ObjectProperty ;
+    rdfs:label "has fitness score" ;
+    rdfs:comment "Relates a Conformance result to its Fitness measurement. The Fitness instance carries a numerator/denominator pair constrained Between01." ;
+    rdfs:domain pi:Conformance ;
+    rdfs:range pi:Fitness .
+
+pi:hasPrecisionScore
+    a owl:ObjectProperty ;
+    rdfs:label "has precision score" ;
+    rdfs:comment "Relates a Conformance result to its Precision measurement. The Precision instance carries a numerator/denominator pair constrained Between01." ;
+    rdfs:domain pi:Conformance ;
+    rdfs:range pi:Precision .
+
+pi:hasWitness
+    a owl:ObjectProperty ;
+    rdfs:label "has witness" ;
+    rdfs:comment "Relates an EvidenceAdmission or admitted evidence carrier to the WitnessMarker under whose authority it was admitted. The witness is encoded as a phantom type parameter W in Rust; as metadata string at runtime boundaries." ;
+    rdfs:domain pi:EvidenceAdmission ;
+    rdfs:range pi:WitnessMarker .
+
+pi:admitsEvidence
+    a owl:ObjectProperty ;
+    rdfs:label "admits evidence" ;
+    rdfs:comment "Relates a TypeLawSurface or admission gate to the EvidenceAdmission it produces. Represents the Admit::admit() call relationship: given raw evidence, the gate produces an admission result." ;
+    rdfs:domain pi:TypeLawSurface ;
+    rdfs:range pi:EvidenceAdmission .
+
+pi:graduatesTo
+    a owl:ObjectProperty ;
+    rdfs:label "graduates to" ;
+    rdfs:comment "Relates a GraduationBridge to the wasm4pm execution engine target it points toward. Graduation is a one-way signal: compat evidence that has passed all type-law gates is marked ready for engine consumption." ;
+    rdfs:domain pi:GraduationBridge ;
+    rdfs:range owl:Thing .
+
+pi:hasTypeState
+    a owl:DatatypeProperty ;
+    rdfs:label "has type state" ;
+    rdfs:comment "The lifecycle state tag of an evidence carrier: one of Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted. Encoded as a phantom type parameter State in Rust; as a string tag at serialization boundaries." ;
+    rdfs:domain pi:EvidenceAdmission ;
+    rdfs:range xsd:string .
+
+pi:lossPolicyKind
+    a owl:DatatypeProperty ;
+    rdfs:label "loss policy kind" ;
+    rdfs:comment "The kind of LossPolicy applied to a projection: 'RefuseLoss', 'AllowNamedProjection', or 'AllowLossWithReport'. Determines whether a LossReport is required and whether the projection gate may refuse." ;
+    rdfs:domain pi:LossReport ;
+    rdfs:range xsd:string .
+
+pi:hasLossReport
+    a owl:ObjectProperty ;
+    rdfs:label "has loss report" ;
+    rdfs:comment "Relates a lossy projection result to its LossReport. Present on every non-refusing path where structure is dropped. Absence of this property on a lossy path is a manufacturing defect." ;
+    rdfs:domain pi:EvidenceAdmission ;
+    rdfs:range pi:LossReport .
+
+pi:coveredByManifest
+    a owl:ObjectProperty ;
+    rdfs:label "covered by manifest" ;
+    rdfs:comment "Relates a projected artifact to the ProjectionManifest that declared it. Every emitted artifact must trace back to exactly one manifest entry; untracked artifacts are unreceipted manufacturing waste." ;
+    rdfs:range pi:ProjectionManifest .

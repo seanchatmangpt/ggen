@@ -49,3 +49,6 @@ languages = ["rust", "typescript", "python", "go", "java"]
 edit_types = ["refactor", "optimize", "document", "test", "fix"]
 semantic_features = ["ontology-based", "sparql-queries", "pattern-matching"]
 quality_gates = ["syntax-validation", "type-checking", "test-generation", "security-scan"]
+
+[marketplace]
+production_ready = false

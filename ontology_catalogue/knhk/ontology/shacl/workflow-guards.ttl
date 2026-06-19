@@ -1,0 +1,318 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix mapek: <http://knhk.ai/ontology/mape-k#> .
+@prefix pattern: <http://knhk.ai/ontology/workflow-patterns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://knhk.ai/shacl/guards#> .
+
+# ============================================================================
+# Workflow Guards and Invariants (SHACL Constraints)
+# ============================================================================
+#
+# Purpose: Runtime guards for self-executing workflows with MAPE-K
+# Validates: Performance constraints, invariants, autonomic properties
+#
+# Categories:
+# 1. Performance Guards (Chatman Constant, SLO compliance)
+# 2. Autonomic Requirements (MAPE-K components present)
+# 3. Pattern Compliance (correct join/split semantics)
+# 4. Runtime Invariants (state consistency)
+# ============================================================================
+
+# ============================================================================
+# GUARD 1: Chatman Constant Enforcement (≤8 Ticks)
+# ============================================================================
+
+:ChatmanConstantGuard a sh:NodeShape ;
+    sh:targetClass mapek:AutonomicTask ;
+    sh:property [
+        sh:path mapek:hasConstraint ;
+        sh:hasValue mapek:ChatmanConstant ;
+        sh:message "G-001: Autonomic tasks must enforce Chatman Constant (≤8 ticks)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:sparql [
+        sh:message "G-002: Task execution exceeds Chatman Constant (>8 ticks)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX mapek: <http://knhk.ai/ontology/mape-k#>
+            PREFIX yawl: <http://www.yawlfoundation.org/yawlschema#>
+
+            SELECT $this ?ticks WHERE {
+                $this a mapek:AutonomicTask ;
+                      mapek:hasConstraint ?constraint .
+
+                ?constraint mapek:maxTicks ?maxTicks .
+
+                # Get actual execution ticks from sensor
+                ?workflow yawl:hasTask $this ;
+                         mapek:hasMonitor ?monitor .
+                ?monitor mapek:hasSensor ?sensor .
+                ?sensor mapek:collects mapek:LatencyMetric ;
+                        mapek:metricValue ?ticks .
+
+                FILTER (?ticks > ?maxTicks)
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# GUARD 2: MAPE-K Component Completeness
+# ============================================================================
+
+:MapekCompletenessGuard a sh:NodeShape ;
+    sh:targetClass mapek:SelfExecutingWorkflow ;
+    sh:property [
+        sh:path mapek:hasMonitor ;
+        sh:minCount 1 ;
+        sh:message "G-003: Self-executing workflow must have Monitor component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:hasAnalyzer ;
+        sh:minCount 1 ;
+        sh:message "G-004: Self-executing workflow must have Analyzer component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:hasPlanner ;
+        sh:minCount 1 ;
+        sh:message "G-005: Self-executing workflow must have Planner component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:hasExecutor ;
+        sh:minCount 1 ;
+        sh:message "G-006: Self-executing workflow must have Executor component" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:hasKnowledge ;
+        sh:minCount 1 ;
+        sh:message "G-007: Self-executing workflow must have Knowledge component" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# GUARD 3: Monitor Has Sensors
+# ============================================================================
+
+:MonitorSensorGuard a sh:NodeShape ;
+    sh:targetClass mapek:Monitor ;
+    sh:property [
+        sh:path mapek:hasSensor ;
+        sh:minCount 1 ;
+        sh:message "G-008: Monitor must have at least one Sensor" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# GUARD 4: Analyzer Has Rules and Thresholds
+# ============================================================================
+
+:AnalyzerRuleGuard a sh:NodeShape ;
+    sh:targetClass mapek:Analyzer ;
+    sh:property [
+        sh:path mapek:hasRule ;
+        sh:minCount 1 ;
+        sh:message "G-009: Analyzer must have at least one AnalysisRule" ;
+        sh:severity sh:Violation ;
+    ] .
+
+:AnalysisRuleThresholdGuard a sh:NodeShape ;
+    sh:targetClass mapek:AnalysisRule ;
+    sh:property [
+        sh:path mapek:hasThreshold ;
+        sh:minCount 1 ;
+        sh:message "G-010: AnalysisRule must have Threshold" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# GUARD 5: Adaptation Plan Has Goal and Actions
+# ============================================================================
+
+:AdaptationPlanGuard a sh:NodeShape ;
+    sh:targetClass mapek:AdaptationPlan ;
+    sh:property [
+        sh:path mapek:hasAdaptationGoal ;
+        sh:minCount 1 ;
+        sh:message "G-011: AdaptationPlan must have AdaptationGoal" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:containsAction ;
+        sh:minCount 1 ;
+        sh:message "G-012: AdaptationPlan must contain at least one AdaptationAction" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# GUARD 6: Parallel Split Must Have Multiple Outgoing Flows
+# ============================================================================
+
+:ParallelSplitGuard a sh:NodeShape ;
+    sh:targetClass yawl:AtomicTask ;
+    sh:sparql [
+        sh:message "G-013: Parallel Split (AND-split) must have at least 2 outgoing flows" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://www.yawlfoundation.org/yawlschema#>
+            PREFIX pattern: <http://knhk.ai/ontology/workflow-patterns#>
+
+            SELECT $this WHERE {
+                $this a yawl:AtomicTask ;
+                      yawl:split yawl:ControlTypeAnd .
+
+                {
+                    SELECT $this (COUNT(?flow) AS ?flowCount) WHERE {
+                        ?workflow yawl:hasFlow ?flow .
+                        ?flow yawl:flowsFrom $this .
+                    }
+                    GROUP BY $this
+                }
+
+                FILTER (?flowCount < 2)
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# GUARD 7: Synchronization Must Have Multiple Incoming Flows
+# ============================================================================
+
+:SynchronizationGuard a sh:NodeShape ;
+    sh:targetClass yawl:AtomicTask ;
+    sh:sparql [
+        sh:message "G-014: Synchronization (AND-join) must have at least 2 incoming flows" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://www.yawlfoundation.org/yawlschema#>
+            PREFIX pattern: <http://knhk.ai/ontology/workflow-patterns#>
+
+            SELECT $this WHERE {
+                $this a yawl:AtomicTask ;
+                      yawl:join yawl:ControlTypeAnd .
+
+                {
+                    SELECT $this (COUNT(?flow) AS ?flowCount) WHERE {
+                        ?workflow yawl:hasFlow ?flow .
+                        ?flow yawl:flowsInto $this .
+                    }
+                    GROUP BY $this
+                }
+
+                FILTER (?flowCount < 2)
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# GUARD 8: Runtime Invariant Preservation
+# ============================================================================
+
+:RuntimeInvariantGuard a sh:NodeShape ;
+    sh:targetClass mapek:SelfExecutingWorkflow ;
+    sh:property [
+        sh:path mapek:hasInvariant ;
+        sh:minCount 1 ;
+        sh:message "G-015: Self-executing workflow must declare at least one RuntimeInvariant" ;
+        sh:severity sh:Warning ;
+    ] .
+
+# ============================================================================
+# GUARD 9: Performance Baseline Defined
+# ============================================================================
+
+:PerformanceBaselineGuard a sh:NodeShape ;
+    sh:targetClass mapek:SelfExecutingWorkflow ;
+    sh:sparql [
+        sh:message "G-016: Self-executing workflow should have PerformanceBaseline in Knowledge" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX mapek: <http://knhk.ai/ontology/mape-k#>
+
+            SELECT $this WHERE {
+                $this a mapek:SelfExecutingWorkflow ;
+                      mapek:hasKnowledge ?knowledge .
+
+                FILTER NOT EXISTS {
+                    $this mapek:hasBaseline ?baseline .
+                }
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# GUARD 10: Sensor Metric Value Validity
+# ============================================================================
+
+:SensorMetricValueGuard a sh:NodeShape ;
+    sh:targetClass mapek:Sensor ;
+    sh:property [
+        sh:path mapek:metricValue ;
+        sh:minInclusive 0 ;
+        sh:message "G-017: Sensor metric value must be non-negative" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# GUARD 11: Threshold Value Validity
+# ============================================================================
+
+:ThresholdValueGuard a sh:NodeShape ;
+    sh:targetClass mapek:Threshold ;
+    sh:property [
+        sh:path mapek:thresholdValue ;
+        sh:minInclusive 0 ;
+        sh:message "G-018: Threshold value must be non-negative" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# GUARD 12: Shadow Deployment Must Have Production and Shadow Versions
+# ============================================================================
+
+:ShadowDeploymentGuard a sh:NodeShape ;
+    sh:targetClass mapek:ShadowDeployment ;
+    sh:property [
+        sh:path mapek:hasProductionVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "G-019: ShadowDeployment must have exactly one ProductionVersion" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:hasShadowVersion ;
+        sh:minCount 1 ;
+        sh:message "G-020: ShadowDeployment must have at least one ShadowVersion" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path mapek:comparesUsing ;
+        sh:minCount 1 ;
+        sh:message "G-021: ShadowDeployment must define ComparisonMetrics" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# ============================================================================
+# Metadata
+# ============================================================================
+
+: a owl:Ontology ;
+    rdfs:label "Workflow Guards and Invariants" ;
+    rdfs:comment "SHACL constraints for self-executing workflows with MAPE-K autonomic features" ;
+    sh:declare [
+        sh:prefix "mapek" ;
+        sh:namespace "http://knhk.ai/ontology/mape-k#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "yawl" ;
+        sh:namespace "http://www.yawlfoundation.org/yawlschema#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "pattern" ;
+        sh:namespace "http://knhk.ai/ontology/workflow-patterns#"^^xsd:anyURI ;
+    ] .

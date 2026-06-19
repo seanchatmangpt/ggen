@@ -1,0 +1,20 @@
+@prefix : <http://example.com/basic#> .
+@prefix ex: <http://example.com/basic#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Basic Test Ontology
+: a owl:Ontology ;
+    rdfs:label "Basic Test"@en .
+
+ex:Thing a owl:Class ;
+    rdfs:label "Thing"@en .
+
+ex:hasProperty a owl:DatatypeProperty ;
+    rdfs:domain ex:Thing ;
+    rdfs:range xsd:string .
+
+ex:thing1 a ex:Thing ;
+    ex:hasProperty "test value" .

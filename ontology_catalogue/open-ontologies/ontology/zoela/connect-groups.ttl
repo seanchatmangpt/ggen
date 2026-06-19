@@ -1,0 +1,212 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# ZOE LA Mobile — Connect Groups Ontology
+# ============================================================================
+# Models Connect Groups as the primary community formation structure in
+# the ZOE LA Mobile app.  A Connect Group is both a recurring schema:Event
+# and an org:OrganizationalUnit (it has membership, leadership, and
+# administrative state).
+#
+# Design alignment:
+#   zoe:ConnectGroup      → schema:Event (recurring) ∩ org:OrganizationalUnit
+#   zoe:GroupMembership   → org:Membership (person ↔ group link)
+#   zoe:YthConnectGroup   → zoe:ConnectGroup (minor-specific subclass)
+#   zoe:GenerationSegment → skos:ConceptScheme (age-band vocabulary)
+# ============================================================================
+
+zoe:ConnectGroupsOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Connect Groups Ontology"@en ;
+    rdfs:comment "Models Connect Groups as the primary community formation structure for the ZOE LA Mobile manufacturing pipeline."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:imports      <https://zoela.org/ontology/CampusOntology> ;
+    owl:versionInfo  "1.0.0" .
+
+# ── Classes ──────────────────────────────────────────────────────────────────
+
+zoe:ConnectGroup a owl:Class ;
+    rdfs:label      "Connect Group"@en ;
+    rdfs:comment    "A small-group community formation unit within ZOE LA. Functions as both a recurring gathering event and a formal organisational unit with defined membership and leadership."@en ;
+    rdfs:subClassOf schema:Event ;
+    rdfs:subClassOf org:OrganizationalUnit ;
+    skos:notation   "connect_groups" .
+
+zoe:GroupMembership a owl:Class ;
+    rdfs:label      "Group Membership"@en ;
+    rdfs:comment    "The membership relationship linking a person to a Connect Group, recording their role, join date, and active status."@en ;
+    rdfs:subClassOf org:Membership .
+
+zoe:YthConnectGroup a owl:Class ;
+    rdfs:label      "Youth Connect Group"@en ;
+    rdfs:comment    "A Connect Group specifically designed for teenagers aged 12-17. Requires guardian consent for participation and applies additional safeguarding policies."@en ;
+    rdfs:subClassOf zoe:ConnectGroup .
+
+# ── Datatype properties on ConnectGroup ──────────────────────────────────────
+
+zoe:groupCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Group Code"@en ;
+    rdfs:comment "Short alphanumeric code uniquely identifying the Connect Group within its campus (e.g. HLP-CG-01). Used as a routing key in the manufacturing pipeline."@en ;
+    skos:notation "group_code" .
+
+zoe:groupFrequency a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Group Frequency"@en ;
+    rdfs:comment "Recurrence cadence for group meetings. Allowed values: weekly, biweekly, monthly."@en ;
+    skos:notation "group_frequency" .
+
+zoe:maxCapacity a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Max Capacity"@en ;
+    rdfs:comment "Maximum number of members the group can accommodate. Used to determine open/closed status."@en ;
+    skos:notation "max_capacity" .
+
+zoe:currentSize a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Current Size"@en ;
+    rdfs:comment "Current number of active members in the group. Compared against maxCapacity to compute availability."@en ;
+    skos:notation "current_size" .
+
+zoe:groupLeaderId a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Group Leader ID"@en ;
+    rdfs:comment "Identifier of the person holding the primary leadership role for this Connect Group."@en ;
+    skos:notation "group_leader_id" .
+
+zoe:isOpen a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Is Open"@en ;
+    rdfs:comment "True when the group is accepting new members (currentSize < maxCapacity and group is active)."@en ;
+    skos:notation "is_open" .
+
+# ── Object properties on ConnectGroup ────────────────────────────────────────
+
+zoe:groupHasCampus a owl:ObjectProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   zoe:Campus ;
+    rdfs:label   "Group Has Campus"@en ;
+    rdfs:comment "Associates the Connect Group with the ZOE LA campus at which it primarily meets."@en ;
+    skos:notation "group_has_campus" .
+
+zoe:groupTargetGeneration a owl:ObjectProperty ;
+    rdfs:domain  zoe:ConnectGroup ;
+    rdfs:range   zoe:GenerationSegmentTerm ;
+    rdfs:label   "Group Target Generation"@en ;
+    rdfs:comment "The generation segment this Connect Group is designed to serve. Drawn from the GenerationSegmentScheme vocabulary."@en ;
+    skos:notation "group_target_generation" .
+
+# ── Datatype properties on GroupMembership ───────────────────────────────────
+
+zoe:joinedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Joined At"@en ;
+    rdfs:comment "ISO-8601 datetime recording when the person joined the Connect Group."@en ;
+    skos:notation "joined_at" .
+
+zoe:memberRole a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Member Role"@en ;
+    rdfs:comment "The role held by the member within this Connect Group (e.g. leader, co-leader, member, apprentice)."@en ;
+    skos:notation "member_role" .
+
+zoe:memberIsActive a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Member Is Active"@en ;
+    rdfs:comment "True when the membership is current and the person actively participates in the group."@en ;
+    skos:notation "member_is_active" .
+
+# ── Datatype properties on YthConnectGroup ───────────────────────────────────
+
+zoe:requiresGuardianConsent a owl:DatatypeProperty ;
+    rdfs:domain  zoe:YthConnectGroup ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Requires Guardian Consent"@en ;
+    rdfs:comment "True (default) when participation by a minor in this youth group requires explicit guardian consent on file."@en ;
+    skos:notation "requires_guardian_consent" .
+
+# ── GenerationSegmentTerm class ───────────────────────────────────────────────
+
+zoe:GenerationSegmentTerm a owl:Class ;
+    rdfs:label      "Generation Segment Term"@en ;
+    rdfs:comment    "A SKOS concept representing a generational age-band used to target ministry and Connect Group activities."@en ;
+    rdfs:subClassOf skos:Concept .
+
+# ── SKOS ConceptScheme ────────────────────────────────────────────────────────
+
+zoe:GenerationSegmentScheme a skos:ConceptScheme ;
+    rdfs:label      "ZOE LA Generation Segment Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of generational demographic segments used to classify Connect Groups and ministry activities."@en ;
+    skos:prefLabel  "ZOE LA Generation Segment Scheme"@en .
+
+# ── Named individuals ─────────────────────────────────────────────────────────
+
+zoe:KidsSegment a zoe:GenerationSegmentTerm , skos:Concept ;
+    rdfs:label       "Kids Segment"@en ;
+    skos:prefLabel   "Kids Segment"@en ;
+    skos:notation    "KIDS-0-11" ;
+    skos:definition  "Children aged 0 to 11 years. Activities require guardian consent and age-appropriate safeguarding."@en ;
+    skos:inScheme    zoe:GenerationSegmentScheme .
+
+zoe:YouthSegment a zoe:GenerationSegmentTerm , skos:Concept ;
+    rdfs:label       "Youth Segment"@en ;
+    skos:prefLabel   "Youth Segment"@en ;
+    skos:notation    "YTH-12-17" ;
+    skos:definition  "Teenagers aged 12 to 17 years. Activities require guardian consent and youth safeguarding protocols."@en ;
+    skos:inScheme    zoe:GenerationSegmentScheme .
+
+zoe:YoungAdultSegment a zoe:GenerationSegmentTerm , skos:Concept ;
+    rdfs:label       "Young Adult Segment"@en ;
+    skos:prefLabel   "Young Adult Segment"@en ;
+    skos:notation    "YA-18-25" ;
+    skos:definition  "Young adults aged 18 to 25 years. Focused on life-stage transitions, identity, and early vocation formation."@en ;
+    skos:inScheme    zoe:GenerationSegmentScheme .
+
+zoe:AdultSegment a zoe:GenerationSegmentTerm , skos:Concept ;
+    rdfs:label       "Adult Segment"@en ;
+    skos:prefLabel   "Adult Segment"@en ;
+    skos:notation    "ADULT-26PLUS" ;
+    skos:definition  "Adults aged 26 and above. General congregational community formation and discipleship."@en ;
+    skos:inScheme    zoe:GenerationSegmentScheme .
+
+zoe:SeniorSegment a zoe:GenerationSegmentTerm , skos:Concept ;
+    rdfs:label       "Senior Segment"@en ;
+    skos:prefLabel   "Senior Segment"@en ;
+    skos:notation    "SENIOR-65PLUS" ;
+    skos:definition  "Seniors aged 65 and above. Community, care, and discipleship tailored for later-life stages."@en ;
+    skos:inScheme    zoe:GenerationSegmentScheme .
+
+zoe:FamilySegment a zoe:GenerationSegmentTerm , skos:Concept ;
+    rdfs:label       "Family Segment"@en ;
+    skos:prefLabel   "Family Segment"@en ;
+    skos:notation    "FAMILY-MIXED" ;
+    skos:definition  "Mixed-generation groups that include members from multiple age cohorts, oriented around family units."@en ;
+    skos:inScheme    zoe:GenerationSegmentScheme .
+
+# ── ConceptScheme back-links ──────────────────────────────────────────────────
+
+zoe:GenerationSegmentScheme skos:hasTopConcept
+    zoe:KidsSegment ,
+    zoe:YouthSegment ,
+    zoe:YoungAdultSegment ,
+    zoe:AdultSegment ,
+    zoe:SeniorSegment ,
+    zoe:FamilySegment .

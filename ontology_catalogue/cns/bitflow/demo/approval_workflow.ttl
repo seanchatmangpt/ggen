@@ -1,0 +1,230 @@
+@prefix bf: <http://bitflow.io/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+
+# BitFlow Demo: Document Approval Workflow
+# Showcases all 5 core patterns with visual execution tracking
+
+bf:ApprovalWorkflow a bf:Workflow ;
+    rdfs:label "Document Approval Demo" ;
+    bf:description "Comprehensive demo showcasing all BitFlow patterns" ;
+    bf:version "1.0.0" ;
+    bf:executionMode bf:RealTime ;
+    bf:tickGuarantee 8 ;
+    bf:visualMetrics true .
+
+# PATTERN 1: SEQUENTIAL EXECUTION
+bf:InitialReview a bf:Task ;
+    rdfs:label "Initial Document Review" ;
+    bf:executionType bf:Sequential ;
+    bf:duration 2 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:Document bf:ReviewCriteria ) ;
+    bf:outputs ( bf:ReviewResult bf:Comments ) ;
+    bf:nextTask bf:TechnicalValidation ;
+    bf:visualColor "#FF6B6B" ;
+    bf:description "First stage: Basic document validation and initial review" .
+
+bf:TechnicalValidation a bf:Task ;
+    rdfs:label "Technical Validation" ;
+    bf:executionType bf:Sequential ;
+    bf:duration 3 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:ReviewResult bf:TechnicalSpecs ) ;
+    bf:outputs ( bf:ValidationResult bf:TechnicalComments ) ;
+    bf:nextTask bf:ParallelApprovals ;
+    bf:visualColor "#4ECDC4" ;
+    bf:description "Second stage: Deep technical analysis and validation" .
+
+# PATTERN 2: PARALLEL EXECUTION
+bf:ParallelApprovals a bf:ParallelContainer ;
+    rdfs:label "Parallel Approval Process" ;
+    bf:executionType bf:Parallel ;
+    bf:maxConcurrency 3 ;
+    bf:syncPoint bf:FinalDecision ;
+    bf:visualColor "#45B7D1" ;
+    bf:description "Third stage: Multiple stakeholders review in parallel" .
+
+bf:ManagerApproval a bf:Task ;
+    rdfs:label "Manager Approval" ;
+    bf:parent bf:ParallelApprovals ;
+    bf:executionType bf:Parallel ;
+    bf:duration 2 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:ValidationResult ) ;
+    bf:outputs ( bf:ManagerDecision ) ;
+    bf:visualColor "#96CEB4" ;
+    bf:approvalLevel "manager" .
+
+bf:LegalReview a bf:Task ;
+    rdfs:label "Legal Review" ;
+    bf:parent bf:ParallelApprovals ;
+    bf:executionType bf:Parallel ;
+    bf:duration 4 ;
+    bf:priority bf:Medium ;
+    bf:inputs ( bf:ValidationResult bf:LegalGuidelines ) ;
+    bf:outputs ( bf:LegalDecision ) ;
+    bf:visualColor "#FFEAA7" ;
+    bf:approvalLevel "legal" .
+
+bf:SecurityAudit a bf:Task ;
+    rdfs:label "Security Audit" ;
+    bf:parent bf:ParallelApprovals ;
+    bf:executionType bf:Parallel ;
+    bf:duration 3 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:ValidationResult bf:SecurityPolicies ) ;
+    bf:outputs ( bf:SecurityDecision ) ;
+    bf:visualColor "#FD79A8" ;
+    bf:approvalLevel "security" .
+
+# PATTERN 3: CONDITIONAL BRANCHING
+bf:FinalDecision a bf:ConditionalTask ;
+    rdfs:label "Final Approval Decision" ;
+    bf:executionType bf:Conditional ;
+    bf:duration 1 ;
+    bf:priority bf:Critical ;
+    bf:inputs ( bf:ManagerDecision bf:LegalDecision bf:SecurityDecision ) ;
+    bf:condition bf:AllApprovalsPositive ;
+    bf:visualColor "#A29BFE" ;
+    bf:description "Fourth stage: Conditional logic based on all approvals" .
+
+bf:AllApprovalsPositive a bf:Condition ;
+    bf:expression "manager_approved AND legal_approved AND security_approved" ;
+    bf:trueAction bf:ApprovalGranted ;
+    bf:falseAction bf:ApprovalDenied .
+
+bf:ApprovalGranted a bf:Task ;
+    rdfs:label "Document Approved" ;
+    bf:executionType bf:Action ;
+    bf:duration 1 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:AllDecisions ) ;
+    bf:outputs ( bf:ApprovalCertificate ) ;
+    bf:nextTask bf:ArchiveDocument ;
+    bf:visualColor "#00B894" ;
+    bf:successAction true .
+
+bf:ApprovalDenied a bf:Task ;
+    rdfs:label "Document Rejected" ;
+    bf:executionType bf:Action ;
+    bf:duration 1 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:AllDecisions ) ;
+    bf:outputs ( bf:RejectionNotice ) ;
+    bf:nextTask bf:RevisionLoop ;
+    bf:visualColor "#E17055" ;
+    bf:failureAction true .
+
+# PATTERN 4: LOOP ITERATION
+bf:RevisionLoop a bf:LoopTask ;
+    rdfs:label "Document Revision Cycle" ;
+    bf:executionType bf:Loop ;
+    bf:maxIterations 3 ;
+    bf:loopCondition bf:RevisionNeeded ;
+    bf:loopBody bf:ReviseDocument ;
+    bf:exitCondition bf:RevisionComplete ;
+    bf:visualColor "#FDCB6E" ;
+    bf:description "Fifth stage: Iterative revision process" .
+
+bf:RevisionNeeded a bf:Condition ;
+    bf:expression "revision_count < max_revisions AND feedback_exists" .
+
+bf:ReviseDocument a bf:Task ;
+    rdfs:label "Revise Document" ;
+    bf:parent bf:RevisionLoop ;
+    bf:executionType bf:Action ;
+    bf:duration 5 ;
+    bf:priority bf:Medium ;
+    bf:inputs ( bf:RejectionNotice bf:Feedback ) ;
+    bf:outputs ( bf:RevisedDocument ) ;
+    bf:nextTask bf:InitialReview ;
+    bf:visualColor "#E84393" .
+
+bf:RevisionComplete a bf:Task ;
+    rdfs:label "Revision Cycle Complete" ;
+    bf:executionType bf:Action ;
+    bf:duration 1 ;
+    bf:priority bf:Low ;
+    bf:outputs ( bf:FinalDocument ) ;
+    bf:nextTask bf:ArchiveDocument ;
+    bf:visualColor "#6C5CE7" .
+
+# PATTERN 5: EVENT-DRIVEN ACTIONS
+bf:EventMonitor a bf:EventListener ;
+    rdfs:label "Workflow Event Monitor" ;
+    bf:executionType bf:EventDriven ;
+    bf:eventTypes ( bf:UrgentRequest bf:DeadlineWarning bf:SystemAlert ) ;
+    bf:visualColor "#FF7675" ;
+    bf:description "Continuous monitoring for workflow events" .
+
+bf:UrgentRequest a bf:Event ;
+    bf:eventType "urgent_escalation" ;
+    bf:trigger bf:EscalateToDirector ;
+    bf:priority bf:Critical .
+
+bf:DeadlineWarning a bf:Event ;
+    bf:eventType "deadline_approach" ;
+    bf:trigger bf:NotifyStakeholders ;
+    bf:priority bf:High .
+
+bf:SystemAlert a bf:Event ;
+    bf:eventType "system_issue" ;
+    bf:trigger bf:PauseWorkflow ;
+    bf:priority bf:Critical .
+
+bf:EscalateToDirector a bf:Task ;
+    rdfs:label "Escalate to Director" ;
+    bf:executionType bf:Action ;
+    bf:duration 1 ;
+    bf:priority bf:Critical ;
+    bf:inputs ( bf:UrgentReason ) ;
+    bf:outputs ( bf:DirectorNotification ) ;
+    bf:visualColor "#FF3838" .
+
+bf:NotifyStakeholders a bf:Task ;
+    rdfs:label "Notify All Stakeholders" ;
+    bf:executionType bf:Action ;
+    bf:duration 1 ;
+    bf:priority bf:High ;
+    bf:inputs ( bf:DeadlineInfo ) ;
+    bf:outputs ( bf:StakeholderNotifications ) ;
+    bf:visualColor "#FF6B35" .
+
+bf:PauseWorkflow a bf:Task ;
+    rdfs:label "Pause Workflow Execution" ;
+    bf:executionType bf:Action ;
+    bf:duration 0 ;
+    bf:priority bf:Critical ;
+    bf:inputs ( bf:SystemStatus ) ;
+    bf:outputs ( bf:PauseConfirmation ) ;
+    bf:visualColor "#2F3542" .
+
+# FINAL ARCHIVAL
+bf:ArchiveDocument a bf:Task ;
+    rdfs:label "Archive Final Document" ;
+    bf:executionType bf:Action ;
+    bf:duration 1 ;
+    bf:priority bf:Low ;
+    bf:inputs ( bf:FinalDocument bf:ApprovalCertificate ) ;
+    bf:outputs ( bf:ArchivedRecord ) ;
+    bf:visualColor "#2ECC71" ;
+    bf:description "Final stage: Document archival and workflow completion" .
+
+# EXECUTION METRICS CONFIGURATION
+bf:MetricsConfig a bf:Configuration ;
+    bf:enableRealTimeMetrics true ;
+    bf:enableTickTracking true ;
+    bf:enableVisualDisplay true ;
+    bf:metricsInterval 100 ;
+    bf:displayRefreshRate 50 ;
+    bf:logLevel bf:Verbose .
+
+# PERFORMANCE THRESHOLDS
+bf:PerformanceThresholds a bf:Configuration ;
+    bf:maxExecutionTime 30 ;
+    bf:tickGuaranteeThreshold 8 ;
+    bf:memoryUsageLimit 1024 ;
+    bf:cpuUsageLimit 80 ;
+    bf:warningThreshold 70 ;
+    bf:errorThreshold 90 .

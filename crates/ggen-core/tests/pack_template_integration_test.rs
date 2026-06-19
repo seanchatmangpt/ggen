@@ -33,10 +33,35 @@
 use ggen_core::graph::Graph;
 use ggen_core::pipeline_engine::pass::{Pass, PassContext};
 use ggen_core::pipeline_engine::passes::{EmissionPass, EmissionRule};
+use serial_test::serial;
 use std::path::PathBuf;
 use tempfile::TempDir;
 
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &std::path::Path) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value.as_os_str());
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
+
 #[test]
+#[serial(GGEN_PACK_CACHE_DIR)]
 fn test_pack_template_resolution() {
     // Create test pack cache directory
     let cache_dir = tempfile::TempDir::new().unwrap();
@@ -49,15 +74,10 @@ fn test_pack_template_resolution() {
     let template_content = "// Generated for {{ project_name }}\npub struct {{ tool.tool_name }}Handler {\n    _private: (),\n}\n";
     std::fs::write(templates_dir.join("handler.rs.tera"), template_content).unwrap();
 
-    // Note: We DON'T set GGEN_PACK_CACHE_DIR here because it would interfere with
-    // parallel tests. Instead, the EmissionPass will use TemplateResolver::new()
-    // which falls back to the default cache location. Since we can't inject a custom
-    // cache_dir into the EmissionPass, we need to set the environment variable.
-    // But this causes test flakiness when tests run in parallel.
-    //
-    // For now, we'll set it anyway and accept that tests might be flaky.
-    // A better solution would be to allow EmissionPass to accept a custom TemplateResolver.
-    std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
+    // GGEN_PACK_CACHE_DIR points the EmissionPass's TemplateResolver at this cache.
+    // The #[serial(GGEN_PACK_CACHE_DIR)] group plus the guard isolate the mutation
+    // so other tests sharing the var do not observe it.
+    let _guard = EnvVarGuard::set("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create emission pass with pack template reference
     let mut pass =
@@ -122,6 +142,7 @@ fn test_pack_template_resolution() {
 }
 
 #[test]
+#[serial(GGEN_PACK_CACHE_DIR)]
 fn test_pack_template_with_iteration() {
     // Create test pack cache
     let cache_dir = tempfile::TempDir::new().unwrap();
@@ -139,7 +160,7 @@ pub fn {{ name | lower }}() -> &'static str {
 "#;
     std::fs::write(templates_dir.join("tool.rs.tera"), template_content).unwrap();
 
-    std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
+    let _guard = EnvVarGuard::set("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create emission pass
     let mut pass =
@@ -193,10 +214,11 @@ pub fn {{ name | lower }}() -> &'static str {
 }
 
 #[test]
+#[serial(GGEN_PACK_CACHE_DIR)]
 fn test_pack_template_not_cached_error() {
     // Set cache directory to empty location
     let cache_dir = tempfile::TempDir::new().unwrap();
-    std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
+    let _guard = EnvVarGuard::set("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create emission pass with non-existent pack
     let mut pass =
@@ -233,6 +255,7 @@ fn test_pack_template_not_cached_error() {
 }
 
 #[test]
+#[serial(GGEN_PACK_CACHE_DIR)]
 fn test_template_resolver_search() {
     // Create test packs with templates
     let cache_dir = tempfile::TempDir::new().unwrap();
@@ -248,7 +271,7 @@ fn test_template_resolver_search() {
     std::fs::create_dir_all(&pack2_dir).unwrap();
     std::fs::write(pack2_dir.join("entity.rs.tera"), "// entity").unwrap();
 
-    std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
+    let _guard = EnvVarGuard::set("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create resolver and search
     let resolver = ggen_core::resolver::TemplateResolver::new().unwrap();

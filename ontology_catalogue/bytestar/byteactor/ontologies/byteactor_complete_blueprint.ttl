@@ -1,0 +1,736 @@
+@prefix :      <http://bitbizeco.dev/ontology/v1/byteactor#> .
+@prefix c4:    <http://bitbizeco.dev/ontology/v1/c4#> .
+@prefix dflss: <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix impl:  <http://bitbizeco.dev/ontology/v1/implementation#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/byteactor_complete>
+  a owl:Ontology ;
+  rdfs:label "ByteActor Complete Implementation Blueprint" ;
+  rdfs:comment "The complete, machine-readable specification for implementing ByteActor. Contains C4 architecture, DfLSS project plan, implementation details, and all requirements for autonomous construction." ;
+  owl:versionInfo "v2.0.0" .
+
+#################################################################
+#
+# C4 MODEL CLASSES AND PROPERTIES
+#
+#################################################################
+
+c4:System       a owl:Class ; rdfs:label "C4 System Level" .
+c4:Container    a owl:Class ; rdfs:label "C4 Container Level" .
+c4:Component    a owl:Class ; rdfs:label "C4 Component Level" .
+c4:Code         a owl:Class ; rdfs:label "C4 Code Level" .
+c4:Person       a owl:Class ; rdfs:label "External Person/System" .
+
+c4:contains        a owl:ObjectProperty ; rdfs:label "architecturally contains" .
+c4:interactsWith   a owl:ObjectProperty ; rdfs:label "interacts with" .
+c4:dependsOn       a owl:ObjectProperty ; rdfs:label "depends on" .
+c4:implements      a owl:ObjectProperty ; rdfs:label "implements" .
+
+c4:technology      a owl:DatatypeProperty ; rdfs:range xsd:string .
+c4:description     a owl:DatatypeProperty ; rdfs:range xsd:string .
+c4:responsibility  a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+#################################################################
+#
+# DFMSS PROJECT CLASSES
+#
+#################################################################
+
+dflss:Project       a owl:Class ; rdfs:label "DfLSS Project" .
+dflss:Phase         a owl:Class ; rdfs:label "DfLSS Phase" .
+dflss:Tool          a owl:Class ; rdfs:label "DfLSS Tool" .
+dflss:Deliverable   a owl:Class ; rdfs:label "DfLSS Deliverable" .
+dflss:CTQ           a owl:Class ; rdfs:label "Critical to Quality Requirement" .
+dflss:Risk          a owl:Class ; rdfs:label "Project Risk" .
+
+dflss:hasPhase      a owl:ObjectProperty .
+dflss:usesTool      a owl:ObjectProperty .
+dflss:produces      a owl:ObjectProperty .
+dflss:mitigates     a owl:ObjectProperty .
+
+dflss:targetValue   a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+dflss:toleranceNs   a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+dflss:priority      a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+#################################################################
+#
+# IMPLEMENTATION SPECIFICATION CLASSES
+#
+#################################################################
+
+impl:CodeModule     a owl:Class ; rdfs:label "Source Code Module" .
+impl:DataStructure  a owl:Class ; rdfs:label "C Data Structure" .
+impl:Function       a owl:Class ; rdfs:label "C Function" .
+impl:BuildTarget    a owl:Class ; rdfs:label "Build Target" .
+impl:TestSuite      a owl:Class ; rdfs:label "Test Suite" .
+
+impl:sourceFile     a owl:DatatypeProperty ; rdfs:range xsd:string .
+impl:headerFile     a owl:DatatypeProperty ; rdfs:range xsd:string .
+impl:cCode          a owl:DatatypeProperty ; rdfs:range xsd:string .
+impl:buildCommand   a owl:DatatypeProperty ; rdfs:range xsd:string .
+impl:testCommand    a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+#################################################################
+#
+# C1: SYSTEM CONTEXT
+#
+#################################################################
+
+:ByteActorSystem a c4:System ;
+  rdfs:label "ByteActor Multi-Core Engine" ;
+  c4:description "Deterministic, 8-tick guarantee actor execution engine with NUMA-aware work stealing" ;
+  c4:contains :ErlangOrchestrator, :CKernelFarm, :MemorySubsystem, :TelemetrySubsystem .
+
+:Commander a c4:Person ;
+  rdfs:label "System Commander" ;
+  c4:description "Human or automated system that submits execution requests" .
+
+:ExternalSystems a c4:Person ;
+  rdfs:label "External Systems" ;
+  c4:description "Legacy systems, databases, APIs" .
+
+:Commander c4:interactsWith :ByteActorSystem ;
+  c4:description "Submits signals and receives Result Crystals" .
+
+:ExternalSystems c4:interactsWith :ByteActorSystem ;
+  c4:description "Provides data inputs and consumes outputs" .
+
+#################################################################
+#
+# C2: CONTAINERS
+#
+#################################################################
+
+:ErlangOrchestrator a c4:Container ;
+  rdfs:label "Erlang Orchestration Layer" ;
+  c4:technology "Erlang/OTP 26+, rebar3" ;
+  c4:description "Distributed signal placement and result collection" ;
+  c4:responsibility "Route signals to optimal cores, collect sealed results" ;
+  c4:contains :SignalRouter, :ResultCollector, :NifBridge, :ClusterManager .
+
+:CKernelFarm a c4:Container ;
+  rdfs:label "C Kernel Execution Farm" ;
+  c4:technology "C11, GCC/Clang, ARM64/x86_64" ;
+  c4:description "Per-core execution engines with work stealing" ;
+  c4:responsibility "Execute signals in 8-tick windows, seal results" ;
+  c4:contains :DispatchEngine, :ExecutionCore, :MemoryPool, :ResultSealer .
+
+:MemorySubsystem a c4:Container ;
+  rdfs:label "NUMA Memory Management" ;
+  c4:technology "NUMA API, huge pages, memory pools" ;
+  c4:description "Zero-allocation memory management with NUMA awareness" ;
+  c4:responsibility "Provide 2-tick memory access, prevent fragmentation" ;
+  c4:contains :NumaPools, :CacheManager, :PoolAllocator .
+
+:TelemetrySubsystem a c4:Container ;
+  rdfs:label "Performance Telemetry & Validation" ;
+  c4:technology "OpenTelemetry, BLAKE3, cycle counters" ;
+  c4:description "Real-time performance monitoring and proof generation" ;
+  c4:responsibility "Validate 8-tick guarantee, emit proofs" ;
+  c4:contains :CycleCounter, :ProofGenerator, :MetricsExporter .
+
+#################################################################
+#
+# C3: COMPONENTS (ERLANG ORCHESTRATOR)
+#
+#################################################################
+
+:SignalRouter a c4:Component ;
+  rdfs:label "Signal Router" ;
+  c4:technology "Erlang gen_server" ;
+  c4:responsibility "Select optimal core for signal placement" ;
+  impl:sourceFile "src/signal_router.erl" .
+
+:ResultCollector a c4:Component ;
+  rdfs:label "Result Collector" ;
+  c4:technology "Erlang gen_server" ;
+  c4:responsibility "Collect sealed crystals from egress buffers" ;
+  impl:sourceFile "src/result_collector.erl" .
+
+:NifBridge a c4:Component ;
+  rdfs:label "NIF Bridge Interface" ;
+  c4:technology "Erlang NIF, dirty schedulers" ;
+  c4:responsibility "Bridge Erlang and C execution realms" ;
+  impl:sourceFile "c_src/byteactor_nif.c" ;
+  impl:headerFile "c_src/byteactor_nif.h" .
+
+:ClusterManager a c4:Component ;
+  rdfs:label "Cluster Manager" ;
+  c4:technology "Erlang distributed" ;
+  c4:responsibility "Manage multi-node ByteActor clusters" ;
+  impl:sourceFile "src/cluster_manager.erl" .
+
+#################################################################
+#
+# C3: COMPONENTS (C KERNEL FARM)
+#
+#################################################################
+
+:DispatchEngine a c4:Component ;
+  rdfs:label "Perfect Hash Dispatch Engine" ;
+  c4:technology "C11, minimal perfect hashing" ;
+  c4:responsibility "1-tick O(1) signal-to-kernel routing" ;
+  impl:sourceFile "src/dispatch_engine.c" ;
+  impl:headerFile "include/byteactor/dispatch.h" .
+
+:ExecutionCore a c4:Component ;
+  rdfs:label "Execution Core" ;
+  c4:technology "C11, inline assembly, ARM64/x86_64" ;
+  c4:responsibility "Execute kernels in 3-tick budget" ;
+  impl:sourceFile "src/execution_core.c" ;
+  impl:headerFile "include/byteactor/execution.h" .
+
+:MemoryPool a c4:Component ;
+  rdfs:label "NUMA Memory Pool" ;
+  c4:technology "C11, NUMA API, cache alignment" ;
+  c4:responsibility "Provide 2-tick memory allocation" ;
+  impl:sourceFile "src/memory_pool.c" ;
+  impl:headerFile "include/byteactor/memory.h" .
+
+:ResultSealer a c4:Component ;
+  rdfs:label "Result Crystal Sealer" ;
+  c4:technology "C11, BLAKE3, atomic operations" ;
+  c4:responsibility "Seal results with cryptographic proof in 1 tick" ;
+  impl:sourceFile "src/result_sealer.c" ;
+  impl:headerFile "include/byteactor/sealer.h" .
+
+#################################################################
+#
+# DFMSS PROJECT PLAN FOR BYTEACTOR
+#
+#################################################################
+
+:ByteActorProject a dflss:Project ;
+  rdfs:label "ByteActor Multi-Core Engine Project" ;
+  dflss:projectName "ByteActor: Deterministic Multi-Core Actor Engine" ;
+  dflss:problemStatement "Traditional actor systems have unpredictable latency and cannot guarantee deterministic execution" ;
+  dflss:goalStatement "Create a multi-core actor engine with guaranteed 8-tick execution and linear scalability" ;
+  dflss:hasPhase :DefinePhase, :MeasurePhase, :ExplorePhase, :DevelopPhase, :ImplementPhase .
+
+#################################################################
+#
+# PHASE 1: DEFINE
+#
+#################################################################
+
+:DefinePhase a dflss:Phase ;
+  rdfs:label "Define Phase" ;
+  dflss:usesTool :ProjectCharter, :StakeholderAnalysis, :ProcessMapping ;
+  dflss:produces :CharterDocument, :VOCAnalysis, :ProcessMap .
+
+:ProjectCharter a dflss:Tool ;
+  rdfs:label "Project Charter" ;
+  dflss:description "Formal project definition and scope" .
+
+:CharterDocument a dflss:Deliverable ;
+  rdfs:label "ByteActor Project Charter" ;
+  dflss:description "Scope: Multi-core actor engine with 8-tick guarantee" ;
+  dflss:successCriteria "System executes 1M+ signals/sec with <8 tick latency P99.9" .
+
+#################################################################
+#
+# PHASE 2: MEASURE  
+#
+#################################################################
+
+:MeasurePhase a dflss:Phase ;
+  rdfs:label "Measure Phase" ;
+  dflss:usesTool :VOCAnalysis, :QFDMatrix, :ProcessCapabilityStudy ;
+  dflss:produces :CTQDefinitions, :BaselineMetrics, :CapabilityAnalysis .
+
+:VOCAnalysis a dflss:Tool ;
+  rdfs:label "Voice of Customer Analysis" ;
+  dflss:description "Capture performance requirements from stakeholders" .
+
+:CTQDefinitions a dflss:Deliverable ;
+  rdfs:label "Critical to Quality Requirements" ;
+  dflss:description "The 8-tick guarantee and linear scalability requirements" .
+
+# CRITICAL TO QUALITY REQUIREMENTS
+:EightTickGuarantee a dflss:CTQ ;
+  rdfs:label "8-Tick Execution Guarantee" ;
+  dflss:description "All signal processing must complete in ≤8 CPU ticks" ;
+  dflss:targetValue 8.0 ;
+  dflss:toleranceNs 2.0 ;
+  dflss:priority "Critical" ;
+  dflss:measurementMethod "ARM64 cycle counter (cntvct_el0)" .
+
+:LinearScalability a dflss:CTQ ;
+  rdfs:label "Linear Core Scalability" ;
+  dflss:description "Throughput must scale linearly with core count (R² ≥ 0.98)" ;
+  dflss:targetValue 0.98 ;
+  dflss:toleranceNs 0.02 ;
+  dflss:priority "Critical" .
+
+:ZeroAllocation a dflss:CTQ ;
+  rdfs:label "Zero Heap Allocation" ;
+  dflss:description "No malloc/free calls in execution path" ;
+  dflss:targetValue 0.0 ;
+  dflss:toleranceNs 0.0 ;
+  dflss:priority "Critical" .
+
+:NumaEfficiency a dflss:CTQ ;
+  rdfs:label "NUMA Efficiency" ;
+  dflss:description "Memory access efficiency across NUMA nodes" ;
+  dflss:targetValue 95.0 ;
+  dflss:toleranceNs 5.0 ;
+  dflss:priority "Important" .
+
+#################################################################
+#
+# PHASE 3: EXPLORE
+#
+#################################################################
+
+:ExplorePhase a dflss:Phase ;
+  rdfs:label "Explore Phase" ;
+  dflss:usesTool :ConceptGeneration, :PughMatrix, :DesignFMEA ;
+  dflss:produces :ArchitecturalConcepts, :ConceptSelection, :RiskAssessment .
+
+:ConceptGeneration a dflss:Tool ;
+  rdfs:label "Concept Generation" ;
+  dflss:description "Generate architectural alternatives" .
+
+:ArchitecturalConcepts a dflss:Deliverable ;
+  rdfs:label "ByteActor Architectural Concepts" ;
+  dflss:description "Multi-core shared-nothing with work stealing selected" .
+
+# RISK ANALYSIS
+:LivelockRisk a dflss:Risk ;
+  rdfs:label "Work-Stealing Livelock Risk" ;
+  dflss:description "Risk of livelock under high contention work stealing" ;
+  dflss:probability 0.3 ;
+  dflss:impact "High" ;
+  dflss:mitigation "Exponential backoff in work stealing algorithm" .
+
+:NumaLatencyRisk a dflss:Risk ;
+  rdfs:label "Cross-NUMA Memory Access Risk" ;
+  dflss:description "Risk of increased latency from cross-NUMA memory access" ;
+  dflss:probability 0.7 ;
+  dflss:impact "Medium" ;
+  dflss:mitigation "NUMA-aware placement and memory pools" .
+
+:DispatchContentionRisk a dflss:Risk ;
+  rdfs:label "Dispatch Table Contention Risk" ;
+  dflss:description "Risk of cache contention on shared dispatch table" ;
+  dflss:probability 0.5 ;
+  dflss:impact "Medium" ;
+  dflss:mitigation "Per-core dispatch table replication" .
+
+#################################################################
+#
+# PHASE 4: DEVELOP
+#
+#################################################################
+
+:DevelopPhase a dflss:Phase ;
+  rdfs:label "Develop Phase" ;
+  dflss:usesTool :DetailedDesign, :DOE, :RSM ;
+  dflss:produces :DetailedSpecs, :OptimizedParameters, :PrototypeDesign .
+
+:DetailedDesign a dflss:Tool ;
+  rdfs:label "Detailed Design" ;
+  dflss:description "Complete component specifications" .
+
+:DetailedSpecs a dflss:Deliverable ;
+  rdfs:label "ByteActor Detailed Specifications" ;
+  dflss:description "Complete C data structures and function signatures" .
+
+#################################################################
+#
+# PHASE 5: IMPLEMENT
+#
+#################################################################
+
+:ImplementPhase a dflss:Phase ;
+  rdfs:label "Implement Phase" ;
+  dflss:usesTool :ProcessControlPlan, :ContinuousValidation ;
+  dflss:produces :ProductionSystem, :ValidationSuite, :ProcessControls .
+
+#################################################################
+#
+# COMPLETE IMPLEMENTATION SPECIFICATIONS
+#
+#################################################################
+
+# CORE DATA STRUCTURES
+:SignalStructure a impl:DataStructure ;
+  rdfs:label "signal_t" ;
+  impl:headerFile "include/byteactor/signal.h" ;
+  impl:cCode """
+typedef struct __attribute__((packed, aligned(64))) {
+    uint32_t id;              // Unique signal identifier
+    uint32_t type;            // Signal type for dispatch
+    uint64_t data;            // Primary payload
+    uint64_t aux_data;        // Secondary payload
+    uint32_t source_core;     // Originating core
+    uint32_t target_core;     // Target core (0 = auto-select)
+    uint64_t timestamp_ns;    // Creation timestamp
+    uint8_t priority;         // Execution priority (0-255)
+    uint8_t hop_count;        // Current hop count
+    uint8_t reserved[6];      // Padding to 64 bytes
+} signal_t;
+""" .
+
+:ResultCrystalStructure a impl:DataStructure ;
+  rdfs:label "result_crystal_t" ;
+  impl:headerFile "include/byteactor/result.h" ;
+  impl:cCode """
+typedef struct __attribute__((packed, aligned(64))) {
+    uint64_t crystal_id;      // Unique crystal ID
+    uint32_t crystal_type;    // RESULT_CRYSTAL = 0x52455355
+    uint32_t status;          // SUCCESS/ERROR/TIMEOUT
+    uint64_t result_data;     // Primary result
+    uint64_t aux_data;        // Secondary result
+    uint64_t execution_ticks; // Actual tick count
+    uint8_t blake3_hash[16];  // Cryptographic proof
+    uint32_t numa_node;       // Execution location
+    uint16_t core_id;         // Executing core
+    uint8_t hop_count;        // Workflow hops
+    uint8_t quality_score;    // Execution quality (0-255)
+} result_crystal_t;
+""" .
+
+:EngineStructure a impl:DataStructure ;
+  rdfs:label "byteactor_engine_t" ;
+  impl:headerFile "include/byteactor/engine.h" ;
+  impl:cCode """
+typedef struct __attribute__((aligned(4096))) {
+    // Dispatch system
+    dispatch_table_t dispatch_table;
+    
+    // Ring buffers (lock-free)
+    ingress_ring_t ingress_ring;
+    egress_ring_t egress_ring;
+    
+    // Memory management
+    numa_memory_pool_t memory_pool;
+    
+    // Core assignment
+    uint32_t core_id;
+    uint32_t numa_node;
+    
+    // Statistics
+    atomic_uint64_t signals_processed;
+    atomic_uint64_t ticks_consumed;
+    atomic_uint64_t deadline_misses;
+    
+    // State
+    volatile bool running;
+    volatile bool shutdown_requested;
+} byteactor_engine_t;
+""" .
+
+#################################################################
+#
+# CORE FUNCTIONS
+#
+#################################################################
+
+:MainExecutionLoop a impl:Function ;
+  rdfs:label "byteactor_engine_run" ;
+  impl:sourceFile "src/engine.c" ;
+  impl:cCode """
+void byteactor_engine_run(byteactor_engine_t* engine) {
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(engine->core_id, &cpuset);
+    pthread_setaffinity_np(pthread_self(), sizeof(cpuset), &cpuset);
+    
+    while (!engine->shutdown_requested) {
+        signal_t* signal = dequeue_signal(&engine->ingress_ring);
+        if (signal) {
+            result_crystal_t result = process_signal_8tick(engine, signal);
+            enqueue_result(&engine->egress_ring, &result);
+        } else {
+            // Attempt work stealing
+            signal = steal_work_from_neighbors(engine);
+            if (signal) {
+                result_crystal_t result = process_signal_8tick(engine, signal);
+                enqueue_result(&engine->egress_ring, &result);
+            } else {
+                cpu_pause();
+            }
+        }
+    }
+}
+""" .
+
+:EightTickExecution a impl:Function ;
+  rdfs:label "process_signal_8tick" ;
+  impl:sourceFile "src/engine.c" ;
+  impl:cCode """
+result_crystal_t process_signal_8tick(byteactor_engine_t* engine, signal_t* signal) {
+    result_crystal_t result = {0};
+    uint64_t start_tick;
+    
+    __asm__ volatile("mrs %0, cntvct_el0" : "=r"(start_tick));
+    
+    // TICK 1: Dispatch
+    dispatch_entry_t* entry = dispatch_lookup(&engine->dispatch_table, signal->id);
+    if (!entry) {
+        result.status = DISPATCH_ERROR;
+        goto seal_and_return;
+    }
+    
+    // TICK 2-3: Memory allocation
+    void* memory = allocate_numa_memory(&engine->memory_pool, signal->type);
+    if (!memory) {
+        result.status = MEMORY_ERROR;
+        goto seal_and_return;
+    }
+    
+    // TICK 4-6: Kernel execution
+    kernel_fn_t kernel = entry->function_ptr;
+    result.result_data = kernel(signal, memory);
+    result.status = EXECUTION_SUCCESS;
+    
+    // TICK 7: Crystal sealing
+    seal_result_crystal:
+    result.crystal_id = generate_crystal_id(start_tick, engine->core_id);
+    result.crystal_type = RESULT_CRYSTAL_TYPE;
+    result.numa_node = engine->numa_node;
+    result.core_id = engine->core_id;
+    result.hop_count = signal->hop_count + 1;
+    
+    // Generate BLAKE3 proof
+    blake3_hasher hasher;
+    blake3_hasher_init(&hasher);
+    blake3_hasher_update(&hasher, &result, 48);  // Hash first 48 bytes
+    blake3_hasher_finalize(&hasher, result.blake3_hash, 16);
+    
+    // TICK 8: Validation
+    uint64_t end_tick;
+    __asm__ volatile("mrs %0, cntvct_el0" : "=r"(end_tick));
+    result.execution_ticks = end_tick - start_tick;
+    
+    if (result.execution_ticks <= 8) {
+        result.quality_score = 255;
+    } else {
+        result.quality_score = 0;
+        atomic_fetch_add(&engine->deadline_misses, 1);
+    }
+    
+    atomic_fetch_add(&engine->signals_processed, 1);
+    atomic_fetch_add(&engine->ticks_consumed, result.execution_ticks);
+    
+    return result;
+}
+""" .
+
+#################################################################
+#
+# BUILD SPECIFICATIONS
+#
+#################################################################
+
+:CoreBuildTarget a impl:BuildTarget ;
+  rdfs:label "ByteActor Core Library" ;
+  impl:buildCommand "make -j$(nproc) CFLAGS='-O3 -march=native -DNDEBUG'" ;
+  impl:sourceFile "Makefile" ;
+  impl:outputFile "libbyteactor.a" .
+
+:TestSuite a impl:TestSuite ;
+  rdfs:label "ByteActor Test Suite" ;
+  impl:testCommand "make test && ./test_8tick_guarantee" ;
+  impl:sourceFile "tests/test_byteactor.c" .
+
+:BenchmarkSuite a impl:TestSuite ;
+  rdfs:label "Performance Benchmark Suite" ;
+  impl:testCommand "make benchmark && ./benchmark_suite --iterations=1000000" ;
+  impl:sourceFile "benchmarks/benchmark_suite.c" .
+
+#################################################################
+#
+# MAKEFILE SPECIFICATION
+#
+#################################################################
+
+:MakefileSpec a impl:CodeModule ;
+  rdfs:label "ByteActor Makefile" ;
+  impl:sourceFile "Makefile" ;
+  impl:cCode """
+CC = gcc
+CFLAGS = -std=c11 -O3 -march=native -DNDEBUG -Wall -Wextra
+LDFLAGS = -lnuma -lblake3 -lpthread
+
+SRCDIR = src
+INCDIR = include
+OBJDIR = obj
+TESTDIR = tests
+
+SOURCES = $(wildcard $(SRCDIR)/*.c)
+OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+HEADERS = $(wildcard $(INCDIR)/byteactor/*.h)
+
+TARGET = libbyteactor.a
+TEST_TARGET = test_byteactor
+BENCHMARK_TARGET = benchmark_suite
+
+.PHONY: all clean test benchmark
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	ar rcs $@ $^
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(HEADERS) | $(OBJDIR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -c $< -o $@
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+$(TEST_TARGET): $(TESTDIR)/test_byteactor.c $(TARGET)
+	$(CC) $(CFLAGS) -I$(INCDIR) $< -L. -lbyteactor $(LDFLAGS) -o $@
+
+benchmark: $(BENCHMARK_TARGET)
+	./$(BENCHMARK_TARGET) --iterations=1000000
+
+$(BENCHMARK_TARGET): $(TESTDIR)/benchmark_suite.c $(TARGET)
+	$(CC) $(CFLAGS) -I$(INCDIR) $< -L. -lbyteactor $(LDFLAGS) -o $@
+
+clean:
+	rm -rf $(OBJDIR) $(TARGET) $(TEST_TARGET) $(BENCHMARK_TARGET)
+""" .
+
+#################################################################
+#
+# DIRECTORY STRUCTURE SPECIFICATION
+#
+#################################################################
+
+:ProjectStructure a impl:CodeModule ;
+  rdfs:label "ByteActor Project Structure" ;
+  impl:description """
+byteactor/
+├── Makefile                          # Build system
+├── README.md                         # Project documentation
+├── include/byteactor/
+│   ├── byteactor.h                   # Main API header
+│   ├── signal.h                      # Signal definitions
+│   ├── result.h                      # Result crystal definitions
+│   ├── engine.h                      # Engine definitions
+│   ├── dispatch.h                    # Dispatch system
+│   ├── memory.h                      # Memory management
+│   └── sealer.h                      # Result sealing
+├── src/
+│   ├── engine.c                      # Main engine implementation
+│   ├── dispatch_engine.c             # Perfect hash dispatch
+│   ├── execution_core.c              # 8-tick execution
+│   ├── memory_pool.c                 # NUMA memory pools
+│   ├── result_sealer.c               # Crystal sealing
+│   ├── signal_router.c               # Signal routing
+│   └── work_stealing.c               # Work stealing scheduler
+├── erlang/
+│   ├── rebar.config                  # Erlang build config
+│   ├── src/
+│   │   ├── byteactor_app.erl         # OTP application
+│   │   ├── signal_router.erl         # Signal routing
+│   │   ├── result_collector.erl      # Result collection
+│   │   └── cluster_manager.erl       # Cluster management
+│   └── c_src/
+│       ├── byteactor_nif.c           # NIF implementation
+│       └── byteactor_nif.h           # NIF headers
+├── tests/
+│   ├── test_byteactor.c              # Unit tests
+│   ├── test_8tick_guarantee.c        # Performance tests
+│   └── test_numa_efficiency.c        # NUMA tests
+└── benchmarks/
+    ├── benchmark_suite.c             # Performance benchmarks
+    └── stress_test.c                 # Stress testing
+""" .
+
+#################################################################
+#
+# VALIDATION RULES (SHACL)
+#
+#################################################################
+
+# Architectural Validation
+:SystemArchitectureShape a sh:NodeShape ;
+  sh:targetClass :ByteActorSystem ;
+  sh:property [
+    sh:path c4:contains ;
+    sh:class :ErlangOrchestrator ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "System must contain exactly one Erlang Orchestrator"
+  ] ;
+  sh:property [
+    sh:path c4:contains ;
+    sh:class :CKernelFarm ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "System must contain exactly one C Kernel Farm"
+  ] .
+
+# Performance Validation
+:PerformanceConstraintShape a sh:NodeShape ;
+  sh:targetClass dflss:CTQ ;
+  sh:property [
+    sh:path dflss:targetValue ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:message "All CTQs must have measurable target values"
+  ] .
+
+# Implementation Validation
+:ImplementationCompleteShape a sh:NodeShape ;
+  sh:targetClass impl:CodeModule ;
+  sh:property [
+    sh:path impl:sourceFile ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:message "All code modules must specify source file location"
+  ] .
+
+#################################################################
+#
+# CODING AGENT INSTRUCTIONS
+#
+#################################################################
+
+:CodingAgentInstructions a owl:Class ;
+  rdfs:label "Complete Instructions for Autonomous Implementation" ;
+  rdfs:comment """
+IMPLEMENTATION ORDER:
+1. Create directory structure as specified in :ProjectStructure
+2. Implement core data structures: signal_t, result_crystal_t, byteactor_engine_t
+3. Implement dispatch engine with perfect hash table
+4. Implement NUMA memory pools with 2-tick allocation
+5. Implement 8-tick execution loop with cycle counter validation
+6. Implement result crystal sealing with BLAKE3
+7. Implement Erlang NIF bridge
+8. Implement Erlang orchestration layer
+9. Create test suites validating all CTQs
+10. Create benchmark suite measuring performance targets
+
+VALIDATION REQUIREMENTS:
+- All code must pass SHACL validation rules
+- All CTQs must be measured and validated
+- 8-tick guarantee must be proven with cycle counters
+- NUMA efficiency must be measured and optimized
+- Zero heap allocation must be verified with valgrind
+
+BUILD PROCESS:
+1. make clean && make all
+2. make test (must pass 100%)
+3. make benchmark (must meet all CTQ targets)
+4. Run NUMA efficiency test (must achieve >95%)
+5. Run stress test (must maintain performance under load)
+
+SUCCESS CRITERIA:
+- System processes 1M+ signals/sec
+- 8-tick guarantee maintained P99.9
+- Linear scalability R² ≥ 0.98
+- Zero malloc calls in hot path
+- NUMA efficiency ≥ 95%
+""" .

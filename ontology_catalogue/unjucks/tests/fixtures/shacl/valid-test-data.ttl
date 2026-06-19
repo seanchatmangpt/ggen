@@ -1,0 +1,177 @@
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Valid Test RDF Data for SHACL Validation Testing
+# This data should pass all SHACL constraint validations
+# =============================================================================
+
+# Valid Person 1
+ex:validPerson1
+    a schema:Person ;
+    schema:name "Alice Johnson" ;
+    schema:email "alice.johnson@example.com" ;
+    schema:age 30 ;
+    foaf:homepage <https://alice.example.com> ;
+    schema:description "A software engineer with expertise in semantic web technologies." ;
+    schema:worksFor ex:validOrganization1 ;
+    dct:created "2024-01-01T10:00:00Z"^^xsd:dateTime ;
+    dct:modified "2024-06-01T15:30:00Z"^^xsd:dateTime .
+
+# Valid Person 2
+ex:validPerson2
+    a schema:Person ;
+    schema:name "Bob Smith" ;
+    schema:email "bob.smith@company.org" ;
+    schema:age 45 ;
+    schema:description "An experienced project manager." ;
+    schema:worksFor ex:validOrganization1 ;
+    dct:created "2024-01-15T09:30:00Z"^^xsd:dateTime .
+
+# Valid Person 3 (minimal required properties)
+ex:validPerson3
+    a schema:Person ;
+    schema:name "Carol Davis" ;
+    dct:created "2024-02-01T14:20:00Z"^^xsd:dateTime .
+
+# Valid Organization 1
+ex:validOrganization1
+    a schema:Organization ;
+    schema:name "Tech Solutions Inc." ;
+    schema:url <https://techsolutions.example.com> ;
+    schema:description "A leading technology consulting company." ;
+    schema:employee ex:validPerson1 ;
+    schema:employee ex:validPerson2 ;
+    dct:created "2020-03-15T08:00:00Z"^^xsd:dateTime ;
+    dct:modified "2024-05-10T12:00:00Z"^^xsd:dateTime .
+
+# Valid Organization 2 (minimal required properties)
+ex:validOrganization2
+    a schema:Organization ;
+    schema:name "Startup Co" ;
+    schema:employee ex:validPerson3 ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Event 1
+ex:validEvent1
+    a schema:Event ;
+    schema:name "Annual Conference 2024" ;
+    schema:description "Our yearly technology conference featuring the latest innovations." ;
+    schema:startDate "2024-09-15T09:00:00Z"^^xsd:dateTime ;
+    schema:endDate "2024-09-17T18:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Event 2 (with date only, not dateTime)
+ex:validEvent2
+    a schema:Event ;
+    schema:name "Workshop Day" ;
+    schema:startDate "2024-10-05"^^xsd:date ;
+    schema:endDate "2024-10-05"^^xsd:date ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Event 3 (single day event)
+ex:validEvent3
+    a schema:Event ;
+    schema:name "Team Meeting" ;
+    schema:startDate "2024-08-20T14:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid QuantitativeValue 1
+ex:validQuantitativeValue1
+    a schema:QuantitativeValue ;
+    schema:name "Weight Measurement" ;
+    schema:value 75.5 ;
+    schema:unitCode "KG" ;
+    schema:description "Body weight measurement in kilograms." ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid QuantitativeValue 2
+ex:validQuantitativeValue2
+    a schema:QuantitativeValue ;
+    schema:name "Height Measurement" ;
+    schema:value 180.0 ;
+    schema:unitCode "CM" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Thing 1 (basic entity)
+ex:validThing1
+    a schema:Thing ;
+    schema:name "Generic Entity" ;
+    schema:identifier "ENTITY-001" ;
+    schema:description "A basic entity with all required properties." ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Thing 2 (minimal required properties)
+ex:validThing2
+    a schema:Thing ;
+    schema:name "Minimal Entity" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Place 1
+ex:validPlace1
+    a schema:Place ;
+    schema:name "Central Park" ;
+    schema:description "A large public park in Manhattan." ;
+    schema:latitude 40.785091 ;
+    schema:longitude -73.968285 ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid Place 2 (minimal coordinates)
+ex:validPlace2
+    a schema:Place ;
+    schema:name "Office Building" ;
+    schema:latitude 0.0 ;
+    schema:longitude 0.0 ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid closed shape person (only allowed properties)
+ex:validClosedPerson
+    a schema:Person ;
+    schema:name "Closed Shape Person" ;
+    schema:email "closed@example.com" ;
+    schema:age 25 ;
+    schema:worksFor ex:validOrganization1 ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2024-06-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid entities with proper temporal relationships
+ex:parentEvent
+    a schema:Event ;
+    schema:name "Multi-day Conference" ;
+    schema:startDate "2024-12-01T09:00:00Z"^^xsd:dateTime ;
+    schema:endDate "2024-12-03T17:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+ex:childEvent1
+    a schema:Event ;
+    schema:name "Opening Keynote" ;
+    schema:startDate "2024-12-01T09:00:00Z"^^xsd:dateTime ;
+    schema:endDate "2024-12-01T10:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+ex:childEvent2
+    a schema:Event ;
+    schema:name "Closing Ceremony" ;
+    schema:startDate "2024-12-03T16:00:00Z"^^xsd:dateTime ;
+    schema:endDate "2024-12-03T17:00:00Z"^^xsd:dateTime ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Valid entities with complex relationships
+ex:researchProject
+    a schema:Thing ;
+    schema:name "AI Research Project" ;
+    schema:description "Advanced research in artificial intelligence and machine learning." ;
+    dct:created "2023-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2024-06-15T10:30:00Z"^^xsd:dateTime .
+
+# Valid entity with all optional properties properly formatted
+ex:completeEntity
+    a schema:Thing ;
+    schema:name "Complete Test Entity" ;
+    schema:identifier "COMPLETE-001" ;
+    schema:description "An entity with all properties filled correctly for testing purposes. This description is under 1000 characters." ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2024-06-01T15:45:30Z"^^xsd:dateTime .

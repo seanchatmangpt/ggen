@@ -1,0 +1,860 @@
+@prefix : <http://bytestar.org/ontology/security/pqc-validation#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix sp: <http://bytestar.org/ontology/security-policy#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix crypto: <https://w3id.org/security#> .
+@prefix nist: <https://csrc.nist.gov/schema#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+
+<http://bytestar.org/ontology/security/pqc-validation> rdf:type owl:Ontology ;
+    dct:title "ByteStar Post-Quantum Cryptographic Validation Framework"@en ;
+    dct:description """Comprehensive PQC validation framework that provides signature validation for all crystal types
+    with quantum resistance verification, side-channel protection, and HSM/TEE integration capabilities.
+    
+    This ontology establishes:
+    1. PQC signature validation for all ByteStar crystal implementations
+    2. Quantum resistance verification across NIST security levels
+    3. Side-channel resistance testing and validation
+    4. Constant-time execution verification framework
+    5. HSM and TEE integration validation protocols
+    6. Comprehensive security testing and benchmarking suite
+    7. Security oracle generation and validation
+    8. Real-time threat detection and response capabilities
+    9. Cross-crystal interoperability security validation
+    10. Performance-constrained security operations (≤8 tick constraint)
+    11. Zero-tick security rejection mechanisms
+    12. Formal verification integration with hardware security modules
+    
+    Leverages existing security frameworks (80% reuse):
+    - ba-security-policy.ttl (threat modeling, security controls)
+    - ba-zero-tick-rejection.ttl (instant validation mechanisms)
+    - pqc_security_parameters.ttl (NIST security levels, lattice parameters)
+    - v5-security-properties.owl.ttl (architectural security properties)
+    
+    Creates new security validation capabilities (20%):
+    - Crystal-specific PQC validation protocols
+    - Multi-algorithm quantum resistance verification
+    - Hardware security module integration framework
+    - Real-time security oracle and threat detection system"""@en ;
+    dct:creator "ByteStar Quantum Security Foundation"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-security"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/pqc-validation> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytepqc.org/ontology/security> .
+
+#################################################################
+#    Core PQC Validation Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-validation#PQCValidationFramework
+:PQCValidationFramework rdf:type owl:Class ;
+                        rdfs:subClassOf sp:SecurityControl ;
+                        rdfs:label "PQC Validation Framework"@en ;
+                        rdfs:comment """Comprehensive framework for validating post-quantum cryptographic
+                        implementations across all ByteStar crystal types with quantum resistance guarantees."""@en ;
+                        :supportsAlgorithms :KyberKEM ,
+                                          :DilithiumSignature ,
+                                          :FalconSignature ,
+                                          :SphincsSignature ,
+                                          :ClassicMcElieceKEM ,
+                                          :BikeKEM ,
+                                          :HQCKEM ,
+                                          :SikeKEM ,
+                                          :FrodoKEM ,
+                                          :NTRUHPS ,
+                                          :NTRUPrime ,
+                                          :SABERSaber ;
+                        :hasValidationLevel :FIPS140_3_Level4 ,
+                                          :CommonCriteria_EAL6 ,
+                                          :NIST_Level_5 .
+
+###  http://bytestar.org/ontology/security/pqc-validation#CrystalPQCValidator
+:CrystalPQCValidator rdf:type owl:Class ;
+                     rdfs:subClassOf :PQCValidationFramework ,
+                                   ba:CrystalComponent ;
+                     rdfs:label "Crystal PQC Validator"@en ;
+                     rdfs:comment """Specialized validator for specific crystal types that ensures
+                     PQC compliance and quantum resistance for crystal-specific operations."""@en ;
+                     :validatesKernels ba:Kernel ;
+                     :ensuresQuantumResistance "true"^^xsd:boolean ;
+                     :operatesWithinConstraint doe:EightTickConstraint .
+
+###  http://bytestar.org/ontology/security/pqc-validation#QuantumResistanceVerifier
+:QuantumResistanceVerifier rdf:type owl:Class ;
+                           rdfs:subClassOf sp:PreventiveControl ;
+                           rdfs:label "Quantum Resistance Verifier"@en ;
+                           rdfs:comment """Verification system that validates quantum resistance properties
+                           of cryptographic implementations against known quantum attacks."""@en ;
+                           :resistsAttacks :ShorsAlgorithm ,
+                                         :GroversAlgorithm ,
+                                         :QuantumFourierTransform ,
+                                         :QuantumWalk ,
+                                         :VariationalQuantumEigensolver ;
+                           :hasSecurityLevel pqcs:NIST_Level_5 ;
+                           :providesFormalProof "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-validation#SideChannelProtectionValidator
+:SideChannelProtectionValidator rdf:type owl:Class ;
+                                rdfs:subClassOf sp:PreventiveControl ;
+                                rdfs:label "Side-Channel Protection Validator"@en ;
+                                rdfs:comment """Validator that ensures cryptographic implementations
+                                are resistant to various side-channel attacks."""@en ;
+                                :protectsAgainst :TimingAttack ,
+                                               :PowerAnalysisAttack ,
+                                               :ElectromagneticAttack ,
+                                               :CacheAttack ,
+                                               :FaultInjectionAttack ,
+                                               :TemplateAttack ,
+                                               :CorrelationPowerAnalysis ;
+                                :requiresConstantTime "true"^^xsd:boolean ;
+                                :hasMaxExecutionTicks "8"^^xsd:integer .
+
+###  http://bytestar.org/ontology/security/pqc-validation#ConstantTimeValidator
+:ConstantTimeValidator rdf:type owl:Class ;
+                       rdfs:subClassOf :SideChannelProtectionValidator ;
+                       rdfs:label "Constant-Time Validator"@en ;
+                       rdfs:comment """Specialized validator that ensures cryptographic operations
+                       execute in constant time to prevent timing attacks."""@en ;
+                       :validatesTiming "true"^^xsd:boolean ;
+                       :hasPrecision "nanosecond"^^xsd:string ;
+                       :allowsTimingVariation "0"^^xsd:nonNegativeInteger ;
+                       :enforcesZeroTickRejection ztr:InstantRejection .
+
+###  http://bytestar.org/ontology/security/pqc-validation#HSMIntegrationValidator
+:HSMIntegrationValidator rdf:type owl:Class ;
+                         rdfs:subClassOf :PQCValidationFramework ;
+                         rdfs:label "HSM Integration Validator"@en ;
+                         rdfs:comment """Validator for hardware security module integration
+                         that ensures secure key management and cryptographic operations."""@en ;
+                         :supportsStandards :PKCS11 ,
+                                          :FIPS140_3 ,
+                                          :CommonCriteria ,
+                                          :TPM20 ,
+                                          :GlobalPlatform ;
+                         :hasSecurityLevel :Level4Plus ;
+                         :supportsTamperResistance "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-validation#TEEIntegrationValidator
+:TEEIntegrationValidator rdf:type owl:Class ;
+                         rdfs:subClassOf :PQCValidationFramework ;
+                         rdfs:label "TEE Integration Validator"@en ;
+                         rdfs:comment """Validator for trusted execution environment integration
+                         that ensures secure enclave operations and attestation."""@en ;
+                         :supportsEnclaves :IntelSGX ,
+                                         :ARMTrustZone ,
+                                         :AMDMemoryGuard ,
+                                         :RISC_V_Keystone ,
+                                         :OpenTitan ;
+                         :hasAttestationProtocol :RemoteAttestation ,
+                                               :LocalAttestation ;
+                         :ensuresMemoryEncryption "true"^^xsd:boolean .
+
+#################################################################
+#    PQC Algorithm Validation Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-validation#KyberKEMValidator
+:KyberKEMValidator rdf:type owl:Class ;
+                   rdfs:subClassOf :CrystalPQCValidator ;
+                   rdfs:label "Kyber KEM Validator"@en ;
+                   rdfs:comment """Specialized validator for Kyber Key Encapsulation Mechanism
+                   implementations across all security levels."""@en ;
+                   :validatesAlgorithm bp:KyberKEM ;
+                   :supportsParameterSets :Kyber512 ,
+                                        :Kyber768 ,
+                                        :Kyber1024 ;
+                   :hasLatticeFoundation pqcs:MLWE_Complexity ;
+                   :ensuresIND_CCA2_Security "true"^^xsd:boolean ;
+                   :hasQuantumSecurityLevel pqcs:NIST_Level_1 , pqcs:NIST_Level_3 , pqcs:NIST_Level_5 .
+
+###  http://bytestar.org/ontology/security/pqc-validation#DilithiumSignatureValidator
+:DilithiumSignatureValidator rdf:type owl:Class ;
+                             rdfs:subClassOf :CrystalPQCValidator ;
+                             rdfs:label "Dilithium Signature Validator"@en ;
+                             rdfs:comment """Specialized validator for Dilithium digital signature
+                             implementations with module lattice security."""@en ;
+                             :validatesAlgorithm bp:DilithiumSignature ;
+                             :supportsParameterSets :Dilithium2 ,
+                                                  :Dilithium3 ,
+                                                  :Dilithium5 ;
+                             :hasLatticeFoundation pqcs:MSIS_Complexity ;
+                             :ensuresEUF_CMA_Security "true"^^xsd:boolean ;
+                             :hasQuantumSecurityLevel pqcs:NIST_Level_2 , pqcs:NIST_Level_3 , pqcs:NIST_Level_5 .
+
+###  http://bytestar.org/ontology/security/pqc-validation#FalconSignatureValidator
+:FalconSignatureValidator rdf:type owl:Class ;
+                          rdfs:subClassOf :CrystalPQCValidator ;
+                          rdfs:label "Falcon Signature Validator"@en ;
+                          rdfs:comment """Specialized validator for Falcon signature scheme
+                          based on NTRU lattices with compact signatures."""@en ;
+                          :validatesAlgorithm :FalconSignature ;
+                          :supportsParameterSets :Falcon512 ,
+                                               :Falcon1024 ;
+                          :hasLatticeFoundation :NTRULattice ;
+                          :ensuresCompactSignatures "true"^^xsd:boolean ;
+                          :hasQuantumSecurityLevel pqcs:NIST_Level_1 , pqcs:NIST_Level_5 .
+
+###  http://bytestar.org/ontology/security/pqc-validation#MultiAlgorithmValidator
+:MultiAlgorithmValidator rdf:type owl:Class ;
+                         rdfs:subClassOf :PQCValidationFramework ;
+                         rdfs:label "Multi-Algorithm Validator"@en ;
+                         rdfs:comment """Validator that supports multiple PQC algorithms
+                         and can validate hybrid cryptographic systems."""@en ;
+                         :supportsHybridMode "true"^^xsd:boolean ;
+                         :enablesCryptoAgility "true"^^xsd:boolean ;
+                         :validatesInteroperability "true"^^xsd:boolean ;
+                         :hasFailoverSupport "true"^^xsd:boolean .
+
+#################################################################
+#    Security Testing Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-validation#PQCTestSuite
+:PQCTestSuite rdf:type owl:Class ;
+              rdfs:subClassOf sp:DetectiveControl ;
+              rdfs:label "PQC Test Suite"@en ;
+              rdfs:comment """Comprehensive test suite for validating PQC implementations
+              against known attack vectors and security requirements."""@en ;
+              :includesTests :KnownAnswerTests ,
+                           :MonteCarloCryptoTests ,
+                           :StatisticalTests ,
+                           :SideChannelTests ,
+                           :FaultInjectionTests ,
+                           :PerformanceTests ,
+                           :MemoryLeakTests ,
+                           :ComplianceTests ;
+              :hasCoverageRequirement "100"^^xsd:decimal ;
+              :executesInConstantTime "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-validation#SideChannelTestFramework
+:SideChannelTestFramework rdf:type owl:Class ;
+                          rdfs:subClassOf :PQCTestSuite ;
+                          rdfs:label "Side-Channel Test Framework"@en ;
+                          rdfs:comment """Specialized testing framework for detecting and measuring
+                          side-channel vulnerabilities in PQC implementations."""@en ;
+                          :includesTestTypes :TimingVarianceAnalysis ,
+                                           :PowerConsumptionAnalysis ,
+                                           :ElectromagneticEmissionAnalysis ,
+                                           :CacheAccessPatternAnalysis ,
+                                           :BranchPredictionAnalysis ,
+                                           :MemoryAccessAnalysis ;
+                          :hasStatisticalPower "99.99"^^xsd:decimal ;
+                          :detectsLeakage :InformationLeakage .
+
+###  http://bytestar.org/ontology/security/pqc-validation#FormalVerificationFramework
+:FormalVerificationFramework rdf:type owl:Class ;
+                             rdfs:subClassOf sp:PreventiveControl ;
+                             rdfs:label "Formal Verification Framework"@en ;
+                             rdfs:comment """Framework for formal mathematical verification
+                             of PQC implementations and security properties."""@en ;
+                             :supportsMethods :ModelChecking ,
+                                            :TheoremProving ,
+                                            :StaticAnalysis ,
+                                            :SymbolicExecution ,
+                                            :AbstractInterpretation ;
+                             :ensuresCorrectness "true"^^xsd:boolean ;
+                             :providesProofCertificates "true"^^xsd:boolean ;
+                             :hasVerificationLevel :MathematicallyProven .
+
+###  http://bytestar.org/ontology/security/pqc-validation#SecurityBenchmarkSuite
+:SecurityBenchmarkSuite rdf:type owl:Class ;
+                        rdfs:subClassOf :PQCTestSuite ;
+                        rdfs:label "Security Benchmark Suite"@en ;
+                        rdfs:comment """Benchmarking suite that measures and compares
+                        security performance across different PQC implementations."""@en ;
+                        :measuresSecurity :SecurityLatency ,
+                                        :SecurityThroughput ,
+                                        :SecurityMemoryUsage ,
+                                        :SecurityEnergyConsumption ;
+                        :providesMetrics :AttackResistanceRating ,
+                                       :SecurityMargin ,
+                                       :CryptographicStrength ;
+                        :generatesReports "true"^^xsd:boolean .
+
+#################################################################
+#    Security Oracle and Threat Detection Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-validation#SecurityOracle
+:SecurityOracle rdf:type owl:Class ;
+                rdfs:subClassOf sp:DetectiveControl ;
+                rdfs:label "Security Oracle"@en ;
+                rdfs:comment """Intelligent security oracle that provides real-time
+                threat detection and security validation decisions."""@en ;
+                :hasIntelligenceLevel :ArtificialIntelligence ;
+                :operatesRealTime "true"^^xsd:boolean ;
+                :providesSecurityDecisions "true"^^xsd:boolean ;
+                :hasResponseTime "nanoseconds"^^xsd:string ;
+                :integratesWithThreatIntel sp:ThreatIntelligence ;
+                :executesWithinConstraint doe:EightTickConstraint .
+
+###  http://bytestar.org/ontology/security/pqc-validation#QuantumThreatDetector
+:QuantumThreatDetector rdf:type owl:Class ;
+                       rdfs:subClassOf :SecurityOracle ;
+                       rdfs:label "Quantum Threat Detector"@en ;
+                       rdfs:comment """Specialized detector for quantum computing threats
+                       and post-quantum cryptographic vulnerabilities."""@en ;
+                       :detectsThreats :QuantumComputingAttack ,
+                                     :ShorsAlgorithmAttack ,
+                                     :GroversSearchAttack ,
+                                     :QuantumAnnealing ,
+                                     :VariationalQuantumAttack ;
+                       :monitorsThreatLevel :QuantumSupremacyIndicators ;
+                       :hasEarlyWarningSystem "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-validation#CryptoAgilityManager
+:CryptoAgilityManager rdf:type owl:Class ;
+                      rdfs:subClassOf sp:CorrectiveControl ;
+                      rdfs:label "Crypto-Agility Manager"@en ;
+                      rdfs:comment """Manager that handles cryptographic algorithm transitions
+                      and maintains crypto-agility for post-quantum migrations."""@en ;
+                      :managesTransitions :AlgorithmMigration ;
+                      :supportsVersioning "true"^^xsd:boolean ;
+                      :enablesGradualRollout "true"^^xsd:boolean ;
+                      :maintainsBackwardCompatibility "true"^^xsd:boolean ;
+                      :hasRollbackCapability "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/pqc-validation#ThreatResponseSystem
+:ThreatResponseSystem rdf:type owl:Class ;
+                      rdfs:subClassOf sp:CorrectiveControl ;
+                      rdfs:label "Threat Response System"@en ;
+                      rdfs:comment """Automated system that responds to detected threats
+                      with appropriate countermeasures and mitigations."""@en ;
+                      :hasResponseCapabilities :AutomaticIsolation ,
+                                             :AlgorithmSwitching ,
+                                             :KeyRotation ,
+                                             :TrafficRerouting ,
+                                             :SystemShutdown ;
+                      :hasResponseTime "microseconds"^^xsd:string ;
+                      :operatesAutomatically "true"^^xsd:boolean ;
+                      :triggersZeroTickRejection ztr:InstantRejection .
+
+#################################################################
+#    Object Properties for PQC Validation
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-validation#validates
+:validates rdf:type owl:ObjectProperty ;
+           rdfs:domain :PQCValidationFramework ;
+           rdfs:range bp:PostQuantumAlgorithm ;
+           rdfs:label "validates"@en ;
+           rdfs:comment "Indicates that a validation framework validates a specific PQC algorithm."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#ensuresQuantumResistance
+:ensuresQuantumResistance rdf:type owl:ObjectProperty ;
+                          rdfs:domain :QuantumResistanceVerifier ;
+                          rdfs:range pqcs:QuantumResistance ;
+                          rdfs:label "ensures quantum resistance"@en ;
+                          rdfs:comment "Indicates quantum resistance properties ensured by verification."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#detectsVulnerability
+:detectsVulnerability rdf:type owl:ObjectProperty ;
+                      rdfs:domain :PQCTestSuite ;
+                      rdfs:range sp:Vulnerability ;
+                      rdfs:label "detects vulnerability"@en ;
+                      rdfs:comment "Indicates vulnerabilities that can be detected by testing."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#resistsAttack
+:resistsAttack rdf:type owl:ObjectProperty ;
+               rdfs:domain :SideChannelProtectionValidator ;
+               rdfs:range sp:AttackVector ;
+               rdfs:label "resists attack"@en ;
+               rdfs:comment "Indicates attack vectors that are resisted by protection."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#integratesWithHSM
+:integratesWithHSM rdf:type owl:ObjectProperty ;
+                   rdfs:domain :HSMIntegrationValidator ;
+                   rdfs:range :HardwareSecurityModule ;
+                   rdfs:label "integrates with HSM"@en ;
+                   rdfs:comment "Indicates HSM integration capabilities."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#integratesWithTEE
+:integratesWithTEE rdf:type owl:ObjectProperty ;
+                   rdfs:domain :TEEIntegrationValidator ;
+                   rdfs:range :TrustedExecutionEnvironment ;
+                   rdfs:label "integrates with TEE"@en ;
+                   rdfs:comment "Indicates TEE integration capabilities."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#providesAttestation
+:providesAttestation rdf:type owl:ObjectProperty ;
+                     rdfs:domain :TEEIntegrationValidator ;
+                     rdfs:range :AttestationProtocol ;
+                     rdfs:label "provides attestation"@en ;
+                     rdfs:comment "Indicates attestation protocols supported."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#generatesSecurityOracle
+:generatesSecurityOracle rdf:type owl:ObjectProperty ;
+                         rdfs:domain :PQCValidationFramework ;
+                         rdfs:range :SecurityOracle ;
+                         rdfs:label "generates security oracle"@en ;
+                         rdfs:comment "Indicates security oracle generation capability."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#respondsThreat
+:respondsThreat rdf:type owl:ObjectProperty ;
+                rdfs:domain :ThreatResponseSystem ;
+                rdfs:range sp:ThreatActor ;
+                rdfs:label "responds threat"@en ;
+                rdfs:comment "Indicates threat response capabilities."@en .
+
+#################################################################
+#    Data Properties for PQC Validation
+#################################################################
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasSecurityLevel
+:hasSecurityLevel rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :PQCValidationFramework ;
+                  rdfs:range xsd:integer ;
+                  rdfs:label "has security level"@en ;
+                  rdfs:comment "NIST security level (1-5) provided by validation."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasQuantumSecurityBits
+:hasQuantumSecurityBits rdf:type owl:DatatypeProperty ;
+                        rdfs:domain :QuantumResistanceVerifier ;
+                        rdfs:range xsd:nonNegativeInteger ;
+                        rdfs:label "has quantum security bits"@en ;
+                        rdfs:comment "Quantum security strength in bits."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasTimingVariance
+:hasTimingVariance rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :ConstantTimeValidator ;
+                   rdfs:range xsd:decimal ;
+                   rdfs:label "has timing variance"@en ;
+                   rdfs:comment "Measured timing variance in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasPowerVariance
+:hasPowerVariance rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :SideChannelProtectionValidator ;
+                  rdfs:range xsd:decimal ;
+                  rdfs:label "has power variance"@en ;
+                  rdfs:comment "Measured power consumption variance."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasTestCoverage
+:hasTestCoverage rdf:type owl:DatatypeProperty ;
+                 rdfs:domain :PQCTestSuite ;
+                 rdfs:range xsd:decimal ;
+                 rdfs:label "has test coverage"@en ;
+                 rdfs:comment "Test coverage percentage (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasResponseTimeNanoseconds
+:hasResponseTimeNanoseconds rdf:type owl:DatatypeProperty ;
+                            rdfs:domain :SecurityOracle ;
+                            rdfs:range xsd:nonNegativeInteger ;
+                            rdfs:label "has response time nanoseconds"@en ;
+                            rdfs:comment "Security oracle response time in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasAttackResistanceRating
+:hasAttackResistanceRating rdf:type owl:DatatypeProperty ;
+                           rdfs:domain :SecurityBenchmarkSuite ;
+                           rdfs:range xsd:decimal ;
+                           rdfs:label "has attack resistance rating"@en ;
+                           rdfs:comment "Quantified resistance to known attacks (0.0-10.0)."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasValidationTimestamp
+:hasValidationTimestamp rdf:type owl:DatatypeProperty ;
+                        rdfs:domain :PQCValidationFramework ;
+                        rdfs:range xsd:dateTime ;
+                        rdfs:label "has validation timestamp"@en ;
+                        rdfs:comment "Timestamp when validation was performed."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#isQuantumResistant
+:isQuantumResistant rdf:type owl:DatatypeProperty ;
+                    rdfs:domain bp:PostQuantumAlgorithm ;
+                    rdfs:range xsd:boolean ;
+                    rdfs:label "is quantum resistant"@en ;
+                    rdfs:comment "Boolean indicating quantum resistance validation."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#isSideChannelResistant
+:isSideChannelResistant rdf:type owl:DatatypeProperty ;
+                        rdfs:domain ba:CrystalComponent ;
+                        rdfs:range xsd:boolean ;
+                        rdfs:label "is side-channel resistant"@en ;
+                        rdfs:comment "Boolean indicating side-channel attack resistance."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#isConstantTime
+:isConstantTime rdf:type owl:DatatypeProperty ;
+                rdfs:domain ba:Kernel ;
+                rdfs:range xsd:boolean ;
+                rdfs:label "is constant time"@en ;
+                rdfs:comment "Boolean indicating constant-time execution."@en .
+
+###  http://bytestar.org/ontology/security/pqc-validation#hasExecutionTicks
+:hasExecutionTicks rdf:type owl:DatatypeProperty ;
+                   rdfs:domain ba:Operation ;
+                   rdfs:range xsd:nonNegativeInteger ;
+                   rdfs:label "has execution ticks"@en ;
+                   rdfs:comment "Number of execution ticks (must be ≤8 for compliance)."@en .
+
+#################################################################
+#    Crystal-Specific PQC Validation Instances
+#################################################################
+
+###  Validation frameworks for specific crystal types
+:ByteActorPQCValidator rdf:type :CrystalPQCValidator ;
+                       rdfs:label "ByteActor PQC Validator"@en ;
+                       rdfs:comment "PQC validation for ByteActor crystal operations."@en ;
+                       :validatesKernels ba:Kernel ;
+                       :supportsAlgorithms :KyberKEM , :DilithiumSignature ;
+                       :hasSecurityLevel 5 ;
+                       :ensuresQuantumResistance pqcs:NIST_Level_5 ;
+                       :isConstantTime "true"^^xsd:boolean ;
+                       :hasExecutionTicks 8 .
+
+:ByteCorePQCValidator rdf:type :CrystalPQCValidator ;
+                      rdfs:label "ByteCore PQC Validator"@en ;
+                      rdfs:comment "PQC validation for ByteCore operations."@en ;
+                      :validatesKernels bc:PerformanceMeasurement ;
+                      :supportsAlgorithms :KyberKEM , :DilithiumSignature , :FalconSignature ;
+                      :hasSecurityLevel 5 ;
+                      :ensuresQuantumResistance pqcs:NIST_Level_5 ;
+                      :isConstantTime "true"^^xsd:boolean ;
+                      :hasExecutionTicks 6 .
+
+:ByteFlowPQCValidator rdf:type :CrystalPQCValidator ;
+                      rdfs:label "ByteFlow PQC Validator"@en ;
+                      rdfs:comment "PQC validation for ByteFlow workflow operations."@en ;
+                      :validatesKernels bf:WorkflowStep ;
+                      :supportsAlgorithms :KyberKEM , :DilithiumSignature ;
+                      :hasSecurityLevel 3 ;
+                      :ensuresQuantumResistance pqcs:NIST_Level_3 ;
+                      :isConstantTime "true"^^xsd:boolean ;
+                      :hasExecutionTicks 8 .
+
+:BytePQCValidator rdf:type :CrystalPQCValidator ;
+                  rdfs:label "BytePQC Self-Validator"@en ;
+                  rdfs:comment "Self-validation framework for BytePQC implementations."@en ;
+                  :validatesKernels bp:PostQuantumAlgorithm ;
+                  :supportsAlgorithms bp:KyberKEM , bp:DilithiumSignature ;
+                  :hasSecurityLevel 5 ;
+                  :ensuresQuantumResistance pqcs:NIST_Level_5 ;
+                  :isConstantTime "true"^^xsd:boolean ;
+                  :hasExecutionTicks 4 .
+
+#################################################################
+#    Comprehensive Security Test Suite Instances
+#################################################################
+
+###  Kyber KEM Test Suite
+:KyberTestSuite rdf:type :PQCTestSuite ;
+                rdfs:label "Kyber KEM Test Suite"@en ;
+                rdfs:comment "Comprehensive test suite for Kyber KEM implementations."@en ;
+                :includesTests :KnownAnswerTests , :MonteCarloCryptoTests , :SideChannelTests ;
+                :hasTestCoverage "100.0"^^xsd:decimal ;
+                :hasAttackResistanceRating "9.8"^^xsd:decimal ;
+                :executesInConstantTime "true"^^xsd:boolean ;
+                :detectsVulnerability sp:TimingAttackVulnerability ,
+                                     sp:PowerAnalysisVulnerability ,
+                                     sp:CacheAttackVulnerability .
+
+###  Dilithium Signature Test Suite
+:DilithiumTestSuite rdf:type :PQCTestSuite ;
+                    rdfs:label "Dilithium Signature Test Suite"@en ;
+                    rdfs:comment "Comprehensive test suite for Dilithium signature implementations."@en ;
+                    :includesTests :KnownAnswerTests , :StatisticalTests , :SideChannelTests ;
+                    :hasTestCoverage "100.0"^^xsd:decimal ;
+                    :hasAttackResistanceRating "9.9"^^xsd:decimal ;
+                    :executesInConstantTime "true"^^xsd:boolean ;
+                    :detectsVulnerability sp:TimingAttackVulnerability ,
+                                         sp:FaultInjectionVulnerability .
+
+###  Side-Channel Test Framework Instance
+:ComprehensiveSideChannelTester rdf:type :SideChannelTestFramework ;
+                               rdfs:label "Comprehensive Side-Channel Tester"@en ;
+                               rdfs:comment "Advanced side-channel testing for all PQC algorithms."@en ;
+                               :includesTestTypes :TimingVarianceAnalysis ,
+                                                 :PowerConsumptionAnalysis ,
+                                                 :ElectromagneticEmissionAnalysis ,
+                                                 :CacheAccessPatternAnalysis ;
+                               :hasStatisticalPower "99.99"^^xsd:decimal ;
+                               :detectsLeakage :InformationLeakage ;
+                               :hasTimingVariance "0.0"^^xsd:decimal ;
+                               :hasPowerVariance "0.001"^^xsd:decimal .
+
+#################################################################
+#    Hardware Security Module Integration Instances
+#################################################################
+
+###  HSM Integration Validators
+:PKCS11HSMValidator rdf:type :HSMIntegrationValidator ;
+                    rdfs:label "PKCS#11 HSM Validator"@en ;
+                    rdfs:comment "Validator for PKCS#11 compliant hardware security modules."@en ;
+                    :supportsStandards :PKCS11 , :FIPS140_3 ;
+                    :hasSecurityLevel :Level4Plus ;
+                    :supportsTamperResistance "true"^^xsd:boolean ;
+                    :integratesWithHSM :FIPS140_3_Level4_HSM .
+
+:TPMPQCValidator rdf:type :HSMIntegrationValidator ;
+                 rdfs:label "TPM PQC Validator"@en ;
+                 rdfs:comment "Validator for TPM 2.0 post-quantum cryptographic operations."@en ;
+                 :supportsStandards :TPM20 , :FIPS140_3 ;
+                 :hasSecurityLevel :Level3Plus ;
+                 :supportsTamperResistance "true"^^xsd:boolean ;
+                 :integratesWithHSM :TPM20_Module .
+
+###  TEE Integration Validators
+:SGXTEEValidator rdf:type :TEEIntegrationValidator ;
+                 rdfs:label "Intel SGX TEE Validator"@en ;
+                 rdfs:comment "Validator for Intel SGX trusted execution environment."@en ;
+                 :supportsEnclaves :IntelSGX ;
+                 :hasAttestationProtocol :RemoteAttestation , :LocalAttestation ;
+                 :ensuresMemoryEncryption "true"^^xsd:boolean ;
+                 :integratesWithTEE :IntelSGXEnclave .
+
+:TrustZoneTEEValidator rdf:type :TEEIntegrationValidator ;
+                       rdfs:label "ARM TrustZone TEE Validator"@en ;
+                       rdfs:comment "Validator for ARM TrustZone trusted execution environment."@en ;
+                       :supportsEnclaves :ARMTrustZone ;
+                       :hasAttestationProtocol :RemoteAttestation ;
+                       :ensuresMemoryEncryption "true"^^xsd:boolean ;
+                       :integratesWithTEE :ARMTrustZoneSecureWorld .
+
+#################################################################
+#    Security Oracle and Threat Detection Instances
+#################################################################
+
+###  Master Security Oracle
+:MasterSecurityOracle rdf:type :SecurityOracle ;
+                      rdfs:label "Master Security Oracle"@en ;
+                      rdfs:comment "Primary security oracle for ByteStar ecosystem protection."@en ;
+                      :hasIntelligenceLevel :ArtificialIntelligence ;
+                      :operatesRealTime "true"^^xsd:boolean ;
+                      :providesSecurityDecisions "true"^^xsd:boolean ;
+                      :hasResponseTime "nanoseconds"^^xsd:string ;
+                      :hasResponseTimeNanoseconds 50 ;
+                      :integratesWithThreatIntel sp:ThreatIntelligence ;
+                      :executesWithinConstraint doe:EightTickConstraint .
+
+###  Quantum Threat Detector Instance
+:PrimaryQuantumThreatDetector rdf:type :QuantumThreatDetector ;
+                              rdfs:label "Primary Quantum Threat Detector"@en ;
+                              rdfs:comment "Main quantum threat detection system."@en ;
+                              :detectsThreats :QuantumComputingAttack ,
+                                            :ShorsAlgorithmAttack ,
+                                            :GroversSearchAttack ;
+                              :monitorsThreatLevel :QuantumSupremacyIndicators ;
+                              :hasEarlyWarningSystem "true"^^xsd:boolean ;
+                              :hasResponseTimeNanoseconds 25 .
+
+###  Crypto-Agility Manager Instance
+:MasterCryptoAgilityManager rdf:type :CryptoAgilityManager ;
+                            rdfs:label "Master Crypto-Agility Manager"@en ;
+                            rdfs:comment "Primary cryptographic agility management system."@en ;
+                            :managesTransitions :AlgorithmMigration ;
+                            :supportsVersioning "true"^^xsd:boolean ;
+                            :enablesGradualRollout "true"^^xsd:boolean ;
+                            :maintainsBackwardCompatibility "true"^^xsd:boolean ;
+                            :hasRollbackCapability "true"^^xsd:boolean .
+
+###  Threat Response System Instance
+:AutomatedThreatResponse rdf:type :ThreatResponseSystem ;
+                         rdfs:label "Automated Threat Response System"@en ;
+                         rdfs:comment "Automated threat response and mitigation system."@en ;
+                         :hasResponseCapabilities :AutomaticIsolation ,
+                                                :AlgorithmSwitching ,
+                                                :KeyRotation ,
+                                                :TrafficRerouting ;
+                         :hasResponseTime "microseconds"^^xsd:string ;
+                         :operatesAutomatically "true"^^xsd:boolean ;
+                         :triggersZeroTickRejection ztr:InstantRejection .
+
+#################################################################
+#    SHACL Validation Shapes for PQC Validation
+#################################################################
+
+###  PQC Validation Framework Shape
+:PQCValidationFrameworkShape rdf:type sh:NodeShape ;
+                             sh:targetClass :PQCValidationFramework ;
+                             rdfs:label "PQC Validation Framework Shape"@en ;
+                             rdfs:comment "Validation shape for PQC validation frameworks."@en ;
+                             sh:property [
+                                 sh:path :hasSecurityLevel ;
+                                 sh:datatype xsd:integer ;
+                                 sh:minInclusive 1 ;
+                                 sh:maxInclusive 5 ;
+                                 sh:minCount 1 ;
+                                 sh:maxCount 1 ;
+                                 sh:message "PQC validation framework must have NIST security level 1-5"@en
+                             ] ;
+                             sh:property [
+                                 sh:path :isQuantumResistant ;
+                                 sh:datatype xsd:boolean ;
+                                 sh:hasValue "true"^^xsd:boolean ;
+                                 sh:minCount 1 ;
+                                 sh:message "PQC validation framework must ensure quantum resistance"@en
+                             ] ;
+                             sh:property [
+                                 sh:path :hasExecutionTicks ;
+                                 sh:datatype xsd:nonNegativeInteger ;
+                                 sh:maxInclusive 8 ;
+                                 sh:minCount 1 ;
+                                 sh:message "PQC validation must complete within 8 ticks (Doctrine of 8)"@en
+                             ] .
+
+###  Constant-Time Validation Shape
+:ConstantTimeValidationShape rdf:type sh:NodeShape ;
+                            sh:targetClass :ConstantTimeValidator ;
+                            rdfs:label "Constant-Time Validation Shape"@en ;
+                            rdfs:comment "Validation shape for constant-time execution requirements."@en ;
+                            sh:property [
+                                sh:path :isConstantTime ;
+                                sh:datatype xsd:boolean ;
+                                sh:hasValue "true"^^xsd:boolean ;
+                                sh:minCount 1 ;
+                                sh:message "Constant-time validator must ensure constant-time execution"@en
+                            ] ;
+                            sh:property [
+                                sh:path :hasTimingVariance ;
+                                sh:datatype xsd:decimal ;
+                                sh:maxInclusive 0.0 ;
+                                sh:minCount 1 ;
+                                sh:message "Constant-time execution must have zero timing variance"@en
+                            ] .
+
+###  Side-Channel Protection Shape
+:SideChannelProtectionShape rdf:type sh:NodeShape ;
+                           sh:targetClass :SideChannelProtectionValidator ;
+                           rdfs:label "Side-Channel Protection Shape"@en ;
+                           rdfs:comment "Validation shape for side-channel protection requirements."@en ;
+                           sh:property [
+                               sh:path :isSideChannelResistant ;
+                               sh:datatype xsd:boolean ;
+                               sh:hasValue "true"^^xsd:boolean ;
+                               sh:minCount 1 ;
+                               sh:message "Side-channel protection must ensure resistance"@en
+                           ] ;
+                           sh:property [
+                               sh:path :hasPowerVariance ;
+                               sh:datatype xsd:decimal ;
+                               sh:maxInclusive 0.005 ;
+                               sh:message "Power variance must be minimal for side-channel protection"@en
+                           ] .
+
+###  Security Oracle Performance Shape
+:SecurityOraclePerformanceShape rdf:type sh:NodeShape ;
+                               sh:targetClass :SecurityOracle ;
+                               rdfs:label "Security Oracle Performance Shape"@en ;
+                               rdfs:comment "Performance validation for security oracles."@en ;
+                               sh:property [
+                                   sh:path :hasResponseTimeNanoseconds ;
+                                   sh:datatype xsd:nonNegativeInteger ;
+                                   sh:maxInclusive 100 ;
+                                   sh:minCount 1 ;
+                                   sh:message "Security oracle response time must be ≤100 nanoseconds"@en
+                               ] ;
+                               sh:property [
+                                   sh:path :operatesRealTime ;
+                                   sh:datatype xsd:boolean ;
+                                   sh:hasValue "true"^^xsd:boolean ;
+                                   sh:message "Security oracle must operate in real-time"@en
+                               ] .
+
+###  Test Coverage Shape
+:TestCoverageShape rdf:type sh:NodeShape ;
+                   sh:targetClass :PQCTestSuite ;
+                   rdfs:label "Test Coverage Shape"@en ;
+                   rdfs:comment "Validation shape for test coverage requirements."@en ;
+                   sh:property [
+                       sh:path :hasTestCoverage ;
+                       sh:datatype xsd:decimal ;
+                       sh:minInclusive 95.0 ;
+                       sh:maxInclusive 100.0 ;
+                       sh:minCount 1 ;
+                       sh:message "Test coverage must be at least 95%"@en
+                   ] .
+
+#################################################################
+#    Integration Axioms and Rules
+#################################################################
+
+# Axiom: All crystals must have PQC validation
+ba:CrystalComponent rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :validates ;
+    owl:someValuesFrom :PQCValidationFramework
+] .
+
+# Axiom: All kernels must be constant-time
+ba:Kernel rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isConstantTime ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: All operations must complete within 8 ticks
+ba:Operation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasExecutionTicks ;
+    owl:allValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:withRestrictions ( [ xsd:maxInclusive 8 ] )
+    ]
+] .
+
+# Axiom: Quantum resistance validation is mandatory
+:PQCValidationFramework rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :ensuresQuantumResistance ;
+    owl:someValuesFrom pqcs:QuantumResistance
+] .
+
+# Axiom: Side-channel protection is mandatory for all validators
+:PQCValidationFramework rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :resistsAttack ;
+    owl:someValuesFrom sp:SideChannelAttack
+] .
+
+#################################################################
+#    Documentation and Metadata
+#################################################################
+
+:PQCValidationDocumentation rdf:type owl:Class ;
+    rdfs:label "PQC Validation Documentation"@en ;
+    rdfs:comment """Comprehensive documentation for the PQC validation framework
+    covering implementation guidelines, security requirements, and validation procedures."""@en ;
+    dct:creator "ByteStar Quantum Security Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasGeneratedBy :PQCValidationDevelopmentActivity .
+
+:PQCValidationDevelopmentActivity rdf:type prov:Activity ;
+    rdfs:label "PQC Validation Development Activity"@en ;
+    rdfs:comment "Development activity for creating the PQC validation framework."@en ;
+    prov:startedAtTime "2025-06-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarQuantumSecurityTeam .
+
+:ByteStarQuantumSecurityTeam rdf:type prov:Agent ,
+                                     foaf:Organization ;
+    rdfs:label "ByteStar Quantum Security Team"@en ;
+    foaf:name "ByteStar Quantum Security Team"@en .
+
+#################################################################
+#    End of PQC Validation Framework Ontology
+#################################################################

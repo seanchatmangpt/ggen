@@ -1,0 +1,19 @@
+@prefix mex-core: <http://mex.aksw.org/mex-core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov-o#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://mex.aksw.org/mex-core> rdf:type owl:Ontology ;
+    rdfs:label "The MEX Vocabulary (mex-core)"@en ;
+    dct:title "MEX Core (mex-core) describes the core process for machine learning problems"@en .
+
+mex-core:Experiment rdf:type owl:Class ;
+    rdfs:label "Experiment"@en ;
+    rdfs:subClassOf prov:Entity .
+
+mex-core:Execution rdf:type owl:Class ;
+    rdfs:label "Execution"@en ;
+    rdfs:subClassOf prov:Activity .

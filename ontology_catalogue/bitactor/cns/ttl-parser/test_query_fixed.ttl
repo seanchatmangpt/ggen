@@ -1,0 +1,7 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:alice foaf:name "Alice" .
+ex:bob foaf:name "Bob" .
+ex:alice foaf:knows ex:bob .
+ex:charlie foaf:name "Charlie" .

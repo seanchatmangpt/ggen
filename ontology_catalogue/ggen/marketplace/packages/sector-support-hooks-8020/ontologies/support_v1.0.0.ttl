@@ -1,0 +1,229 @@
+@prefix : <http://ggen.io/ontology/support/v1.0.0#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://ggen.io/ontology/support/v1.0.0>
+    a owl:Ontology ;
+    dcterms:title "Customer Support Case Management Ontology" ;
+    dcterms:description "Ontology for describing customer support cases, routing, and SLA management" ;
+    dcterms:version "1.0.0" ;
+    dcterms:created "2025-11-16"^^xsd:date .
+
+# Core Classes
+
+:Case a owl:Class ;
+    rdfs:label "Case" ;
+    rdfs:comment "Customer support case or ticket requiring resolution" .
+
+:Customer a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "Customer who submitted the support case" .
+
+:Agent a owl:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "Support agent who handles customer cases" .
+
+:Team a owl:Class ;
+    rdfs:label "Team" ;
+    rdfs:comment "Support team responsible for specific case types" .
+
+:Route a owl:Class ;
+    rdfs:label "Route" ;
+    rdfs:comment "Routing rule for assigning cases to teams" .
+
+:Priority a owl:Class ;
+    rdfs:label "Priority" ;
+    rdfs:comment "Priority level of a support case" .
+
+:SLA a owl:Class ;
+    rdfs:label "SLA" ;
+    rdfs:comment "Service Level Agreement defining response and resolution times" .
+
+:Escalation a owl:Class ;
+    rdfs:label "Escalation" ;
+    rdfs:comment "Escalation of a case due to SLA breach or severity" .
+
+:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Classification category for support cases" .
+
+:Resolution a owl:Class ;
+    rdfs:label "Resolution" ;
+    rdfs:comment "Solution or closure of a support case" .
+
+:KnowledgeArticle a owl:Class ;
+    rdfs:label "KnowledgeArticle" ;
+    rdfs:comment "Knowledge base article for common issues" .
+
+:Hook a owl:Class ;
+    rdfs:label "Hook" ;
+    rdfs:comment "Automated hook triggered by case events" .
+
+# Properties
+
+:submittedBy a owl:ObjectProperty ;
+    rdfs:label "submittedBy" ;
+    rdfs:domain :Case ;
+    rdfs:range :Customer ;
+    rdfs:comment "Case was submitted by this customer" .
+
+:assignedTo a owl:ObjectProperty ;
+    rdfs:label "assignedTo" ;
+    rdfs:domain :Case ;
+    rdfs:range :Agent ;
+    rdfs:comment "Case is assigned to this agent" .
+
+:belongsToTeam a owl:ObjectProperty ;
+    rdfs:label "belongsToTeam" ;
+    rdfs:domain :Agent ;
+    rdfs:range :Team ;
+    rdfs:comment "Agent is member of this team" .
+
+:routedBy a owl:ObjectProperty ;
+    rdfs:label "routedBy" ;
+    rdfs:domain :Case ;
+    rdfs:range :Route ;
+    rdfs:comment "Case was routed using this routing rule" .
+
+:routesTo a owl:ObjectProperty ;
+    rdfs:label "routesTo" ;
+    rdfs:domain :Route ;
+    rdfs:range :Team ;
+    rdfs:comment "Route assigns cases to this team" .
+
+:hasPriority a owl:ObjectProperty ;
+    rdfs:label "hasPriority" ;
+    rdfs:domain :Case ;
+    rdfs:range :Priority ;
+    rdfs:comment "Case has this priority level" .
+
+:governedBy a owl:ObjectProperty ;
+    rdfs:label "governedBy" ;
+    rdfs:domain :Case ;
+    rdfs:range :SLA ;
+    rdfs:comment "Case is governed by this SLA" .
+
+:hasEscalation a owl:ObjectProperty ;
+    rdfs:label "hasEscalation" ;
+    rdfs:domain :Case ;
+    rdfs:range :Escalation ;
+    rdfs:comment "Case has been escalated" .
+
+:hasCategory a owl:ObjectProperty ;
+    rdfs:label "hasCategory" ;
+    rdfs:domain :Case ;
+    rdfs:range :Category ;
+    rdfs:comment "Case belongs to this category" .
+
+:hasResolution a owl:ObjectProperty ;
+    rdfs:label "hasResolution" ;
+    rdfs:domain :Case ;
+    rdfs:range :Resolution ;
+    rdfs:comment "Case was resolved with this resolution" .
+
+:suggestsArticle a owl:ObjectProperty ;
+    rdfs:label "suggestsArticle" ;
+    rdfs:domain :Case ;
+    rdfs:range :KnowledgeArticle ;
+    rdfs:comment "System suggests this knowledge article for the case" .
+
+:triggersHook a owl:ObjectProperty ;
+    rdfs:label "triggersHook" ;
+    rdfs:domain :Case ;
+    rdfs:range :Hook ;
+    rdfs:comment "Case event triggers this automated hook" .
+
+# Data Properties
+
+:caseId a owl:DatatypeProperty ;
+    rdfs:label "caseId" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the case" .
+
+:caseTitle a owl:DatatypeProperty ;
+    rdfs:label "caseTitle" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Brief title or subject of the case" .
+
+:caseDescription a owl:DatatypeProperty ;
+    rdfs:label "caseDescription" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed description of the customer issue" .
+
+:createdAt a owl:DatatypeProperty ;
+    rdfs:label "createdAt" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when case was created" .
+
+:closedAt a owl:DatatypeProperty ;
+    rdfs:label "closedAt" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when case was closed" .
+
+:customerTier a owl:DatatypeProperty ;
+    rdfs:label "customerTier" ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Customer tier (free, premium, enterprise, etc.)" .
+
+:sentimentScore a owl:DatatypeProperty ;
+    rdfs:label "sentimentScore" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Sentiment score (-1.0 to 1.0) from message analysis" .
+
+:priorityLevel a owl:DatatypeProperty ;
+    rdfs:label "priorityLevel" ;
+    rdfs:domain :Priority ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Numeric priority level (1=highest, 5=lowest)" .
+
+:responseTimeTarget a owl:DatatypeProperty ;
+    rdfs:label "responseTimeTarget" ;
+    rdfs:domain :SLA ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Target time for first response" .
+
+:resolutionTimeTarget a owl:DatatypeProperty ;
+    rdfs:label "resolutionTimeTarget" ;
+    rdfs:domain :SLA ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Target time for case resolution" .
+
+:isSLABreached a owl:DatatypeProperty ;
+    rdfs:label "isSLABreached" ;
+    rdfs:domain :Case ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether SLA has been breached" .
+
+:escalationReason a owl:DatatypeProperty ;
+    rdfs:label "escalationReason" ;
+    rdfs:domain :Escalation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Reason for case escalation" .
+
+:routingConfidence a owl:DatatypeProperty ;
+    rdfs:label "routingConfidence" ;
+    rdfs:domain :Route ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Confidence score (0.0-1.0) for routing decision" .
+
+:resolutionNotes a owl:DatatypeProperty ;
+    rdfs:label "resolutionNotes" ;
+    rdfs:domain :Resolution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Notes describing how case was resolved" .
+
+:categoryName a owl:DatatypeProperty ;
+    rdfs:label "categoryName" ;
+    rdfs:domain :Category ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the case category" .

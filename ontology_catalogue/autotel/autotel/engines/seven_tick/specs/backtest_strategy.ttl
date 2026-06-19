@@ -1,0 +1,8 @@
+@prefix actor: <http://example.org/actor#> .
+@prefix bit: <http://example.org/bitactor#> .
+
+actor:market_data a bit:GenActor ; bit:behavior "on_tick" .
+actor:strategy a bit:GenActor ; bit:behavior "on_tick,on_orderbook" .
+actor:orderbook a bit:GenActor ; bit:behavior "match_order" .
+actor:risk a bit:GenActor ; bit:behavior "check_order" .
+actor:metrics a bit:GenActor ; bit:behavior "on_event" . 

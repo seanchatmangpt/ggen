@@ -1,0 +1,119 @@
+# Test API Ontology
+# Minimal test ontology for ontology generation harness testing
+
+@prefix api: <http://ggen-mcp.dev/test/api#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# ENTITY DEFINITIONS
+# =============================================================================
+
+api:User a ddd:Entity ;
+    rdfs:label "User"@en ;
+    ddd:entityName "User" ;
+    ddd:description "User entity for testing" ;
+    ddd:hasProperty api:userId, api:userName, api:userEmail ;
+    ddd:hasInvariant api:userEmailValid .
+
+api:Product a ddd:Entity ;
+    rdfs:label "Product"@en ;
+    ddd:entityName "Product" ;
+    ddd:description "Product entity for testing" ;
+    ddd:hasProperty api:productId, api:productName, api:productPrice ;
+    ddd:hasInvariant api:productPricePositive .
+
+# =============================================================================
+# PROPERTY DEFINITIONS
+# =============================================================================
+
+api:userId a ddd:Property ;
+    rdfs:label "userId"@en ;
+    ddd:propertyName "user_id" ;
+    ddd:propertyType "String" ;
+    ddd:required true .
+
+api:userName a ddd:Property ;
+    rdfs:label "userName"@en ;
+    ddd:propertyName "name" ;
+    ddd:propertyType "String" ;
+    ddd:required true .
+
+api:userEmail a ddd:Property ;
+    rdfs:label "userEmail"@en ;
+    ddd:propertyName "email" ;
+    ddd:propertyType "String" ;
+    ddd:required true .
+
+api:productId a ddd:Property ;
+    rdfs:label "productId"@en ;
+    ddd:propertyName "product_id" ;
+    ddd:propertyType "String" ;
+    ddd:required true .
+
+api:productName a ddd:Property ;
+    rdfs:label "productName"@en ;
+    ddd:propertyName "name" ;
+    ddd:propertyType "String" ;
+    ddd:required true .
+
+api:productPrice a ddd:Property ;
+    rdfs:label "productPrice"@en ;
+    ddd:propertyName "price" ;
+    ddd:propertyType "Decimal" ;
+    ddd:required true .
+
+# =============================================================================
+# INVARIANTS
+# =============================================================================
+
+api:userEmailValid a ddd:Invariant ;
+    rdfs:label "Email must be valid"@en ;
+    ddd:invariantExpression "email.contains('@')" ;
+    ddd:errorMessage "Email must contain @" .
+
+api:productPricePositive a ddd:Invariant ;
+    rdfs:label "Price must be positive"@en ;
+    ddd:invariantExpression "price > 0" ;
+    ddd:errorMessage "Price must be greater than 0" .
+
+# =============================================================================
+# VALUE OBJECTS
+# =============================================================================
+
+api:Email a ddd:ValueObject ;
+    rdfs:label "Email"@en ;
+    ddd:valueObjectName "Email" ;
+    ddd:description "Email address value object" ;
+    ddd:hasProperty api:emailAddress .
+
+api:emailAddress a ddd:Property ;
+    rdfs:label "emailAddress"@en ;
+    ddd:propertyName "address" ;
+    ddd:propertyType "String" ;
+    ddd:required true .
+
+# =============================================================================
+# COMMANDS
+# =============================================================================
+
+api:CreateUser a ddd:Command ;
+    rdfs:label "CreateUser"@en ;
+    ddd:commandName "CreateUser" ;
+    ddd:description "Create a new user" ;
+    ddd:hasParameter api:createUserName, api:createUserEmail .
+
+api:createUserName a ddd:Parameter ;
+    rdfs:label "name"@en ;
+    ddd:parameterName "name" ;
+    ddd:parameterType "String" ;
+    ddd:required true .
+
+api:createUserEmail a ddd:Parameter ;
+    rdfs:label "email"@en ;
+    ddd:parameterName "email" ;
+    ddd:parameterType "String" ;
+    ddd:required true .

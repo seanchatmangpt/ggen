@@ -1,0 +1,42 @@
+@prefix : <http://example.org/onto#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+:Animal rdfs:subClassOf :Entity.
+:Plant rdfs:subClassOf :Entity.
+:Mammal rdfs:subClassOf :Entity, :LivingBeing.
+:Carnivore rdfs:subClassOf :Entity, :LivingBeing.
+:Dog rdfs:subClassOf :Animal, :Entity, :LivingBeing.
+:Cat rdfs:subClassOf :Animal, :Entity, :LivingBeing.
+:Person rdfs:subClassOf :Animal, :Entity, :LivingBeing.
+:Tree rdfs:subClassOf :Entity, :LivingBeing.
+:buddy a :Animal, :Entity, :Mammal, :LivingBeing, :Canine.
+:fluffy a :Animal, :Entity, :Mammal, :LivingBeing, :Carnivore.
+:alice a :Animal, :Entity, :Mammal, :LivingBeing, :Human;
+    :ancestorOf :charlie;
+    :owns :buddy.
+:bob a :Animal, :Entity, :Mammal, :LivingBeing, :Human;
+    :marriedTo :alice;
+    :owns :fluffy.
+:charlie a :Animal, :Entity, :Mammal, :LivingBeing, :Human.
+:oak1 a :Entity, :Plant, :LivingBeing.
+:david a :Animal, :Entity, :Mammal, :LivingBeing, :Person, :Human.
+:dave a :Animal, :Entity, :Mammal, :LivingBeing, :Person, :Human.
+:john a :Animal, :Entity, :Mammal, :LivingBeing, :Person, :Human.
+:mary a :Animal, :Entity, :Mammal, :LivingBeing, :Person, :Human;
+    :siblingOf :david;
+    :hasParent :john;
+    :childOf :john.
+:eve a :Animal, :Entity, :Mammal, :LivingBeing, :Person, :Human;
+    :hasParent :dave;
+    :childOf :dave.
+:tom a :Animal, :Entity, :Mammal, :LivingBeing, :Person, :Human;
+    :hasParent :mary;
+    :childOf :mary.
+:finger :partOf :body, :person.
+:hand :partOf :person.
+:room :locatedIn :city, :country.
+:house :locatedIn :country.
+:house2 :neighborOf :house1.

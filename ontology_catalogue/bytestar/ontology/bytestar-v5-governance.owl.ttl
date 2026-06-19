@@ -1,0 +1,89 @@
+@prefix : <https://bytestar.org/ontology/v5/governance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix arch: <https://bytestar.org/ontology/v5/architecture#> .
+
+<https://bytestar.org/ontology/v5/governance>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/architecture> ;
+  rdfs:label "ByteStar v5 Governance & Security Ontology" ;
+  rdfs:comment "This ontology defines the governance, security, identity, and consensus mechanisms of the ByteEthos realm." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Governance Canons
+# #################################################################
+
+:GovernanceCanon a owl:Class ;
+    rdfs:label "Governance Canon" ;
+    rdfs:comment "An abstract class for a formal, machine-readable governance framework that is compiled and enforced by ByteEthos." .
+
+:FullerCanon a :GovernanceCanon ;
+    rdfs:label "The Fuller Canon" ;
+    rdfs:comment "The top-level governance model for the ByteStar ecosystem, based on the principles of Synergy, Ephemeralization, Tensegrity, and Anticipation." .
+
+:DfLSS a :GovernanceCanon ;
+    rdfs:label "Design for Lean Six Sigma (DfLSS)" ;
+    rdfs:comment "A governance canon focused on achieving Six Sigma quality levels through rigorous, data-driven design processes." .
+
+:ScrumAtScale a :GovernanceCanon ;
+    rdfs:label "Scrum at Scale" ;
+    rdfs:comment "A governance canon for coordinating multiple agile teams in a deterministic fabric." .
+
+# Axiom: ByteEthos enforces the Fuller Canon as its primary governance model.
+core:ByteEthos rdfs:subClassOf [ a owl:Restriction ; owl:onProperty arch:enforces ; owl:hasValue :FullerCanon ] .
+
+# #################################################################
+# II. Security Fabric
+# #################################################################
+
+:SecurityFabric a owl:Class ;
+    rdfs:label "Security Fabric" ;
+    rdfs:comment "A fundamental security model applied across the ecosystem." .
+
+:AmbientPostQuantumEncryption a :SecurityFabric ;
+    rdfs:label "Ambient Post-Quantum Encryption (APE)" ;
+    rdfs:comment "The default security fabric where all artifacts are double-sealed with an integrity layer and a privacy shroud." .
+
+:hasIntegritySeal a owl:ObjectProperty ;
+    rdfs:comment "A PQC signature providing an integrity and authenticity guarantee (e.g., Dilithium)." .
+
+:hasPrivacyShroud a owl:ObjectProperty ;
+    rdfs:comment "A PQC key encapsulation providing a privacy guarantee (e.g., Kyber)." .
+
+# Axiom: APE is a composition of an integrity seal and a privacy shroud.
+:AmbientPostQuantumEncryption rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasIntegritySeal ; owl:someValuesFrom owl:Thing ] .
+:AmbientPostQuantumEncryption rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasPrivacyShroud ; owl:someValuesFrom owl:Thing ] .
+
+# #################################################################
+# III. Identity and Consensus
+# #################################################################
+
+:IdentityCrystal a owl:Class ;
+    rdfs:label "Identity Crystal (Soulbound Token)" ;
+    rdfs:comment "A non-transferable digital identity for all actors (human or AI) within the ecosystem." .
+
+:hasPublicKey a owl:DatatypeProperty ;
+    rdfs:domain :IdentityCrystal ;
+    rdfs:range xsd:hexBinary .
+
+:isNonTransferable a owl:DatatypeProperty ;
+    rdfs:domain :IdentityCrystal ;
+    rdfs:range xsd:boolean .
+
+# Axiom: All IdentityCrystals MUST be non-transferable.
+:IdentityCrystal rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isNonTransferable ; owl:hasValue true ] .
+
+:ConsensusMechanism a owl:Class ;
+    rdfs:label "Consensus Mechanism" ;
+    rdfs:comment "A mechanism by which agreement on the state of the ledger is reached." .
+
+:ProofOfAgreement a :ConsensusMechanism ;
+    rdfs:label "Proof of Agreement (PoA)" ;
+    rdfs:comment "A count-based consensus requiring a quorum of validators (e.g., 2/3+1)." .
+
+:ProofOfReputation a :ConsensusMechanism ;
+    rdfs:label "Proof of Reputation (PoR)" ;
+    rdfs:comment "A weight-based consensus where votes are weighted by the reputation score of the validator." .

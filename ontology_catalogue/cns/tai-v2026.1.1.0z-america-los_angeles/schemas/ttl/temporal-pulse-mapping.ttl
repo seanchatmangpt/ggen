@@ -1,0 +1,346 @@
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# TAI Temporal Pulse Mapping Schema
+# Defines temporal structures for pulse sequences and temporal relationships
+
+# ===== TEMPORAL CLASSES =====
+
+# Temporal Context
+tai:TemporalContext a owl:Class ;
+    rdfs:label "Temporal Context" ;
+    rdfs:comment "Temporal framework or reference system for cognitive events" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+# Pulse Sequence
+tai:PulseSequence a owl:Class ;
+    rdfs:label "Pulse Sequence" ;
+    rdfs:comment "Ordered sequence of pulses with temporal relationships" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+# Temporal Pattern
+tai:TemporalPattern a owl:Class ;
+    rdfs:label "Temporal Pattern" ;
+    rdfs:comment "Recurring temporal pattern in pulse sequences" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+# Pulse Map
+tai:PulseMap a owl:Class ;
+    rdfs:label "Pulse Map" ;
+    rdfs:comment "Spatial-temporal mapping of pulse relationships" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+# Temporal Window
+tai:TemporalWindow a owl:Class ;
+    rdfs:label "Temporal Window" ;
+    rdfs:comment "Time interval for observing or analyzing pulse activity" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+# Rhythm
+tai:Rhythm a owl:Class ;
+    rdfs:label "Rhythm" ;
+    rdfs:comment "Regular temporal pattern or beat in pulse sequences" ;
+    rdfs:subClassOf tai:TemporalPattern .
+
+# Tempo
+tai:Tempo a owl:Class ;
+    rdfs:label "Tempo" ;
+    rdfs:comment "Rate or speed of temporal progression" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+# ===== TEMPORAL RELATIONSHIPS =====
+
+# Sequence relationships
+tai:followsInSequence a owl:ObjectProperty ;
+    rdfs:label "follows in sequence" ;
+    rdfs:comment "Temporal sequence relationship between pulses" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:Pulse .
+
+tai:precedesInSequence a owl:ObjectProperty ;
+    rdfs:label "precedes in sequence" ;
+    rdfs:comment "Temporal precedence relationship" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:Pulse ;
+    owl:inverseOf tai:followsInSequence .
+
+tai:isPartOfSequence a owl:ObjectProperty ;
+    rdfs:label "is part of sequence" ;
+    rdfs:comment "Pulse belongs to pulse sequence" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:PulseSequence .
+
+tai:hasSequenceOrder a owl:DatatypeProperty ;
+    rdfs:label "has sequence order" ;
+    rdfs:comment "Position in sequence (1, 2, 3, ...)" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:integer .
+
+# Temporal distance and intervals
+tai:hasTemporalDistance a owl:DatatypeProperty ;
+    rdfs:label "has temporal distance" ;
+    rdfs:comment "Time interval between two temporal entities" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range xsd:duration .
+
+tai:hasInterPulseInterval a owl:DatatypeProperty ;
+    rdfs:label "has inter-pulse interval" ;
+    rdfs:comment "Time interval between consecutive pulses" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:duration .
+
+tai:hasOnsetTime a owl:DatatypeProperty ;
+    rdfs:label "has onset time" ;
+    rdfs:comment "Time of pulse activation or onset" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:dateTime .
+
+tai:hasOffset a owl:DatatypeProperty ;
+    rdfs:label "has offset" ;
+    rdfs:comment "Time offset from reference point" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range xsd:duration .
+
+# Synchronization relationships
+tai:synchronizesWith a owl:ObjectProperty ;
+    rdfs:label "synchronizes with" ;
+    rdfs:comment "Temporal synchronization relationship" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range tai:TemporalConstruct ;
+    a owl:SymmetricProperty .
+
+tai:isInPhaseWith a owl:ObjectProperty ;
+    rdfs:label "is in phase with" ;
+    rdfs:comment "Phase alignment relationship" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range tai:TemporalConstruct ;
+    a owl:SymmetricProperty .
+
+tai:isOutOfPhaseWith a owl:ObjectProperty ;
+    rdfs:label "is out of phase with" ;
+    rdfs:comment "Phase opposition relationship" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range tai:TemporalConstruct ;
+    a owl:SymmetricProperty .
+
+tai:hasPhaseDifference a owl:DatatypeProperty ;
+    rdfs:label "has phase difference" ;
+    rdfs:comment "Phase difference in radians" ;
+    rdfs:domain tai:TemporalConstruct ;
+    rdfs:range xsd:double .
+
+# ===== PULSE SEQUENCE PROPERTIES =====
+
+tai:hasSequenceLength a owl:DatatypeProperty ;
+    rdfs:label "has sequence length" ;
+    rdfs:comment "Number of pulses in sequence" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range xsd:integer .
+
+tai:hasSequenceDuration a owl:DatatypeProperty ;
+    rdfs:label "has sequence duration" ;
+    rdfs:comment "Total duration of pulse sequence" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range xsd:duration .
+
+tai:isRepeating a owl:DatatypeProperty ;
+    rdfs:label "is repeating" ;
+    rdfs:comment "Whether sequence repeats cyclically" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range xsd:boolean .
+
+tai:hasRepetitionPeriod a owl:DatatypeProperty ;
+    rdfs:label "has repetition period" ;
+    rdfs:comment "Period of sequence repetition" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range xsd:duration .
+
+tai:containsPulse a owl:ObjectProperty ;
+    rdfs:label "contains pulse" ;
+    rdfs:comment "Sequence contains this pulse" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range tai:Pulse .
+
+# ===== TEMPORAL PATTERN PROPERTIES =====
+
+tai:hasPatternType a owl:DatatypeProperty ;
+    rdfs:label "has pattern type" ;
+    rdfs:comment "Type of temporal pattern (regular, irregular, chaotic, etc.)" ;
+    rdfs:domain tai:TemporalPattern ;
+    rdfs:range xsd:string .
+
+tai:hasPatternComplexity a owl:DatatypeProperty ;
+    rdfs:label "has pattern complexity" ;
+    rdfs:comment "Complexity measure of temporal pattern" ;
+    rdfs:domain tai:TemporalPattern ;
+    rdfs:range xsd:double .
+
+tai:hasEntropy a owl:DatatypeProperty ;
+    rdfs:label "has entropy" ;
+    rdfs:comment "Information entropy of temporal pattern" ;
+    rdfs:domain tai:TemporalPattern ;
+    rdfs:range xsd:double .
+
+tai:hasPredictability a owl:DatatypeProperty ;
+    rdfs:label "has predictability" ;
+    rdfs:comment "Predictability measure (0.0-1.0)" ;
+    rdfs:domain tai:TemporalPattern ;
+    rdfs:range xsd:double .
+
+tai:manifestsInSequence a owl:ObjectProperty ;
+    rdfs:label "manifests in sequence" ;
+    rdfs:comment "Pattern manifests in this pulse sequence" ;
+    rdfs:domain tai:TemporalPattern ;
+    rdfs:range tai:PulseSequence .
+
+# ===== PULSE MAP PROPERTIES =====
+
+tai:mapsTemporalRegion a owl:ObjectProperty ;
+    rdfs:label "maps temporal region" ;
+    rdfs:comment "Temporal region covered by pulse map" ;
+    rdfs:domain tai:PulseMap ;
+    rdfs:range tai:TemporalWindow .
+
+tai:hasResolution a owl:DatatypeProperty ;
+    rdfs:label "has resolution" ;
+    rdfs:comment "Temporal resolution of pulse map" ;
+    rdfs:domain tai:PulseMap ;
+    rdfs:range xsd:duration .
+
+tai:hasDimensionality a owl:DatatypeProperty ;
+    rdfs:label "has dimensionality" ;
+    rdfs:comment "Number of dimensions in pulse map" ;
+    rdfs:domain tai:PulseMap ;
+    rdfs:range xsd:integer .
+
+tai:hasCoordinate a owl:DatatypeProperty ;
+    rdfs:label "has coordinate" ;
+    rdfs:comment "Coordinate position in pulse map" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:string .
+
+# ===== RHYTHM AND TEMPO =====
+
+tai:hasBeatsPerMinute a owl:DatatypeProperty ;
+    rdfs:label "has beats per minute" ;
+    rdfs:comment "Rhythm rate in beats per minute" ;
+    rdfs:domain tai:Rhythm ;
+    rdfs:range xsd:double .
+
+tai:hasMeter a owl:DatatypeProperty ;
+    rdfs:label "has meter" ;
+    rdfs:comment "Rhythmic meter (e.g., 4/4, 3/4)" ;
+    rdfs:domain tai:Rhythm ;
+    rdfs:range xsd:string .
+
+tai:hasTimeSignature a owl:DatatypeProperty ;
+    rdfs:label "has time signature" ;
+    rdfs:comment "Musical time signature of rhythm" ;
+    rdfs:domain tai:Rhythm ;
+    rdfs:range xsd:string .
+
+tai:hasTemporalAcceleration a owl:DatatypeProperty ;
+    rdfs:label "has temporal acceleration" ;
+    rdfs:comment "Rate of tempo change over time" ;
+    rdfs:domain tai:Tempo ;
+    rdfs:range xsd:double .
+
+tai:followsRhythm a owl:ObjectProperty ;
+    rdfs:label "follows rhythm" ;
+    rdfs:comment "Pulse sequence follows rhythmic pattern" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range tai:Rhythm .
+
+tai:hasTempoChange a owl:ObjectProperty ;
+    rdfs:label "has tempo change" ;
+    rdfs:comment "Tempo change within sequence" ;
+    rdfs:domain tai:PulseSequence ;
+    rdfs:range tai:Tempo .
+
+# ===== TEMPORAL WINDOWS =====
+
+tai:hasWindowStart a owl:DatatypeProperty ;
+    rdfs:label "has window start" ;
+    rdfs:comment "Start time of temporal window" ;
+    rdfs:domain tai:TemporalWindow ;
+    rdfs:range xsd:dateTime .
+
+tai:hasWindowEnd a owl:DatatypeProperty ;
+    rdfs:label "has window end" ;
+    rdfs:comment "End time of temporal window" ;
+    rdfs:domain tai:TemporalWindow ;
+    rdfs:range xsd:dateTime .
+
+tai:hasWindowDuration a owl:DatatypeProperty ;
+    rdfs:label "has window duration" ;
+    rdfs:comment "Duration of temporal window" ;
+    rdfs:domain tai:TemporalWindow ;
+    rdfs:range xsd:duration .
+
+tai:overlapsWindow a owl:ObjectProperty ;
+    rdfs:label "overlaps window" ;
+    rdfs:comment "Temporal windows overlap" ;
+    rdfs:domain tai:TemporalWindow ;
+    rdfs:range tai:TemporalWindow ;
+    a owl:SymmetricProperty .
+
+tai:containsInWindow a owl:ObjectProperty ;
+    rdfs:label "contains in window" ;
+    rdfs:comment "Temporal window contains pulse or event" ;
+    rdfs:domain tai:TemporalWindow ;
+    rdfs:range tai:TemporalConstruct .
+
+# ===== CAUSAL RELATIONSHIPS =====
+
+tai:causallyChainsTo a owl:ObjectProperty ;
+    rdfs:label "causally chains to" ;
+    rdfs:comment "Causal chain relationship between pulses" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range tai:Pulse .
+
+tai:hasCausalDelay a owl:DatatypeProperty ;
+    rdfs:label "has causal delay" ;
+    rdfs:comment "Time delay in causal relationship" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:duration .
+
+tai:hasCausalStrength a owl:DatatypeProperty ;
+    rdfs:label "has causal strength" ;
+    rdfs:comment "Strength of causal relationship (0.0-1.0)" ;
+    rdfs:domain tai:Pulse ;
+    rdfs:range xsd:double .
+
+# ===== TEMPORAL AGGREGATION =====
+
+tai:TemporalAggregate a owl:Class ;
+    ردfs:label "Temporal Aggregate" ;
+    rdfs:comment "Aggregated view of temporal pulse activity" ;
+    rdfs:subClassOf tai:TemporalConstruct .
+
+tai:aggregatesSequences a owl:ObjectProperty ;
+    rdfs:label "aggregates sequences" ;
+    rdfs:comment "Temporal aggregate contains these sequences" ;
+    rdfs:domain tai:TemporalAggregate ;
+    rdfs:range tai:PulseSequence .
+
+tai:hasAggregationWindow a owl:ObjectProperty ;
+    rdfs:label "has aggregation window" ;
+    rdfs:comment "Temporal window for aggregation" ;
+    rdfs:domain tai:TemporalAggregate ;
+    rdfs:range tai:TemporalWindow .
+
+tai:hasAggregatedFrequency a owl:DatatypeProperty ;
+    rdfs:label "has aggregated frequency" ;
+    rdfs:comment "Average frequency in aggregated view" ;
+    rdfs:domain tai:TemporalAggregate ;
+    rdfs:range xsd:double .
+
+tai:hasAggregatedAmplitude a owl:DatatypeProperty ;
+    rdfs:label "has aggregated amplitude" ;
+    rdfs:comment "Average amplitude in aggregated view" ;
+    rdfs:domain tai:TemporalAggregate ;
+    rdfs:range xsd:double .

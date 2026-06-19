@@ -1,0 +1,366 @@
+# TAI Cognitive Mesh - Forbidden Cuts Layer
+# Cognitive firewalls and dynamic constraint enforcement
+# Supports bit* ecosystem and cognitive primitives
+
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix bit: <http://bit-ecosystem.org/ontology#> .
+@prefix cut: <http://tai.cognitive-mesh.org/cut#> .
+@prefix firewall: <http://tai.cognitive-mesh.org/firewall#> .
+@prefix boundary: <http://tai.cognitive-mesh.org/boundary#> .
+@prefix constraint: <http://tai.cognitive-mesh.org/constraint#> .
+@prefix actor: <http://tai.cognitive-mesh.org/actor#> .
+@prefix security: <http://tai.cognitive-mesh.org/security#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Forbidden Cut Ontology
+cut:ForbiddenCut a owl:Class ;
+    rdfs:label "Forbidden Cut" ;
+    rdfs:comment "A connection or pathway that is blocked or restricted" .
+
+cut:CutType a owl:Class ;
+    rdfs:label "Cut Type" ;
+    rdfs:comment "Classification of forbidden cuts" .
+
+cut:ConnectionRefusal a owl:Class ;
+    rdfs:subClassOf cut:ForbiddenCut ;
+    rdfs:label "Connection Refusal" ;
+    rdfs:comment "Active refusal to establish connection" .
+
+cut:PathwayBlock a owl:Class ;
+    rdfs:subClassOf cut:ForbiddenCut ;
+    rdfs:label "Pathway Block" ;
+    rdfs:comment "Blocked communication pathway" .
+
+cut:SemanticBarrier a owl:Class ;
+    rdfs:subClassOf cut:ForbiddenCut ;
+    rdfs:label "Semantic Barrier" ;
+    rdfs:comment "Barrier based on semantic incompatibility" .
+
+# Firewall System
+firewall:CognitiveFirewall a owl:Class ;
+    rdfs:label "Cognitive Firewall" ;
+    rdfs:comment "System for filtering and blocking cognitive connections" .
+
+firewall:FirewallRule a owl:Class ;
+    rdfs:label "Firewall Rule" ;
+    rdfs:comment "Rule governing firewall behavior" .
+
+firewall:FirewallPolicy a owl:Class ;
+    rdfs:label "Firewall Policy" ;
+    rdfs:comment "High-level policy for firewall operation" .
+
+# Boundary System
+boundary:SemanticBoundary a owl:Class ;
+    rdfs:label "Semantic Boundary" ;
+    rdfs:comment "Boundary based on semantic domains" .
+
+boundary:SecurityBoundary a owl:Class ;
+    rdfs:label "Security Boundary" ;
+    rdfs:comment "Boundary for security isolation" .
+
+boundary:PrivacyBoundary a owl:Class ;
+    rdfs:label "Privacy Boundary" ;
+    rdfs:comment "Boundary for privacy protection" .
+
+boundary:IntegrityBoundary a owl:Class ;
+    rdfs:label "Integrity Boundary" ;
+    rdfs:comment "Boundary for maintaining data integrity" .
+
+# Cut Properties
+cut:severity a owl:DatatypeProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range xsd:double ;
+    rdfs:label "Cut Severity" .
+
+cut:persistence a owl:DatatypeProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range xsd:double ;
+    rdfs:label "Cut Persistence" .
+
+cut:scope a owl:DatatypeProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range xsd:string ;
+    rdfs:label "Cut Scope" .
+
+cut:reason a owl:DatatypeProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range xsd:string ;
+    rdfs:label "Cut Reason" .
+
+cut:priority a owl:DatatypeProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Cut Priority" .
+
+# Cut Relationships
+cut:blocksConnection a owl:ObjectProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Blocks Connection" .
+
+cut:protects a owl:ObjectProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range actor:CognitiveActor ;
+    rdfs:label "Protects" .
+
+cut:enforcedBy a owl:ObjectProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:range firewall:CognitiveFirewall ;
+    rdfs:label "Enforced By" .
+
+cut:triggeredBy a owl:ObjectProperty ;
+    rdfs:domain cut:ForbiddenCut ;
+    rdfs:label "Triggered By" .
+
+# Active Forbidden Cuts
+cut:SecurityCut_001 a cut:ConnectionRefusal ;
+    rdfs:label "Security Cut 001 - Unauthorized Access Block" ;
+    cut:severity 0.95 ;
+    cut:persistence 0.90 ;
+    cut:scope "HIGH_SECURITY_ZONE" ;
+    cut:reason "Unauthorized access attempt from untrusted actor" ;
+    cut:priority 9 ;
+    cut:blocksConnection actor:External_Untrusted ;
+    cut:protects actor:BitCore_Prime ;
+    cut:enforcedBy firewall:Primary_Security_Firewall ;
+    cut:triggeredBy security:Intrusion_Attempt_001 ;
+    time:hasBeginning "2025-07-30T10:30:00Z"^^xsd:dateTime .
+
+cut:SemanticCut_002 a cut:SemanticBarrier ;
+    rdfs:label "Semantic Cut 002 - Domain Incompatibility" ;
+    cut:severity 0.70 ;
+    cut:persistence 0.85 ;
+    cut:scope "CROSS_DOMAIN_COMMUNICATION" ;
+    cut:reason "Semantic incompatibility between financial and creative domains" ;
+    cut:priority 6 ;
+    cut:blocksConnection actor:Financial_Domain, actor:Creative_Domain ;
+    cut:enforcedBy firewall:Semantic_Firewall ;
+    boundary:semanticDomain "financial-vs-creative" ;
+    time:hasBeginning "2025-07-30T10:35:00Z"^^xsd:dateTime .
+
+cut:PrivacyCut_003 a cut:PathwayBlock ;
+    rdfs:label "Privacy Cut 003 - Personal Data Protection" ;
+    cut:severity 0.88 ;
+    cut:persistence 0.95 ;
+    cut:scope "PERSONAL_DATA_CHANNELS" ;
+    cut:reason "Personal data protection policy enforcement" ;
+    cut:priority 8 ;
+    cut:blocksConnection actor:Data_Harvester ;
+    cut:protects actor:Personal_Data_Store ;
+    cut:enforcedBy firewall:Privacy_Firewall ;
+    boundary:privacyLevel "STRICT" ;
+    time:hasBeginning "2025-07-30T10:40:00Z"^^xsd:dateTime .
+
+# Firewall Instances
+firewall:Primary_Security_Firewall a firewall:CognitiveFirewall ;
+    rdfs:label "Primary Security Firewall" ;
+    firewall:securityLevel "MAXIMUM" ;
+    firewall:threatDetection 0.95 ;
+    firewall:falsePositiveRate 0.02 ;
+    firewall:responseTime 0.15 ;  # seconds
+    firewall:protects actor:BitCore_Prime, actor:BitThink_Core ;
+    firewall:blocksThreats security:Malicious_Actor, security:Data_Exfiltration ;
+    firewall:lastUpdate "2025-07-30T10:45:00Z"^^xsd:dateTime ;
+    firewall:status "ACTIVE" .
+
+firewall:Semantic_Firewall a firewall:CognitiveFirewall ;
+    rdfs:label "Semantic Firewall" ;
+    firewall:securityLevel "MEDIUM" ;
+    firewall:semanticAccuracy 0.89 ;
+    firewall:contextualUnderstanding 0.82 ;
+    firewall:responseTime 0.25 ;
+    boundary:enforcesBoundary boundary:CrossDomain_Boundary ;
+    firewall:filters "semantic-incompatibility", "context-mismatch" ;
+    firewall:lastUpdate "2025-07-30T10:44:30Z"^^xsd:dateTime ;
+    firewall:status "ACTIVE" .
+
+firewall:Privacy_Firewall a firewall:CognitiveFirewall ;
+    rdfs:label "Privacy Firewall" ;
+    firewall:securityLevel "HIGH" ;
+    firewall:privacyCompliance 0.98 ;
+    firewall:dataLeakPrevention 0.96 ;
+    firewall:responseTime 0.08 ;
+    boundary:enforcesBoundary boundary:Personal_Data_Boundary ;
+    firewall:protects actor:Personal_Data_Store, actor:User_Profile_Manager ;
+    firewall:lastUpdate "2025-07-30T10:45:15Z"^^xsd:dateTime ;
+    firewall:status "ACTIVE" .
+
+# Firewall Rules
+firewall:Rule_001 a firewall:FirewallRule ;
+    rdfs:label "Security Rule 001 - Block Untrusted Actors" ;
+    firewall:ruleType "BLOCK" ;
+    firewall:condition "actor.trustLevel < 0.5" ;
+    firewall:action "DENY_CONNECTION" ;
+    firewall:priority 9 ;
+    firewall:appliedBy firewall:Primary_Security_Firewall ;
+    firewall:ruleStatus "ACTIVE" .
+
+firewall:Rule_002 a firewall:FirewallRule ;
+    rdfs:label "Semantic Rule 002 - Domain Compatibility Check" ;
+    firewall:ruleType "FILTER" ;
+    firewall:condition "semantic_compatibility(source.domain, target.domain) < 0.7" ;
+    firewall:action "REQUIRE_TRANSLATION" ;
+    firewall:priority 6 ;
+    firewall:appliedBy firewall:Semantic_Firewall ;
+    firewall:ruleStatus "ACTIVE" .
+
+firewall:Rule_003 a firewall:FirewallRule ;
+    rdfs:label "Privacy Rule 003 - Personal Data Access Control" ;
+    firewall:ruleType "ACCESS_CONTROL" ;
+    firewall:condition "accessing_personal_data AND not authorized" ;
+    firewall:action "BLOCK_AND_LOG" ;
+    firewall:priority 8 ;
+    firewall:appliedBy firewall:Privacy_Firewall ;
+    firewall:ruleStatus "ACTIVE" .
+
+# Dynamic Constraint Enforcement
+constraint:DynamicConstraint a owl:Class ;
+    rdfs:label "Dynamic Constraint" ;
+    rdfs:comment "Constraint that adapts based on context" .
+
+constraint:AdaptiveRule a owl:Class ;
+    rdfs:label "Adaptive Rule" ;
+    rdfs:comment "Rule that changes based on learning and context" .
+
+constraint:ContextualConstraint a owl:Class ;
+    rdfs:subClassOf constraint:DynamicConstraint ;
+    rdfs:label "Contextual Constraint" ;
+    rdfs:comment "Constraint that depends on current context" .
+
+constraint:Adaptive_001 a constraint:AdaptiveRule ;
+    rdfs:label "Adaptive Rule 001 - Threat Level Adjustment" ;
+    constraint:baseRule firewall:Rule_001 ;
+    constraint:adaptationFactor 0.15 ;
+    constraint:learningRate 0.05 ;
+    constraint:currentThreshold 0.5 ;
+    constraint:adaptedThreshold 0.45 ;
+    constraint:adaptationReason "Increased threat activity detected" ;
+    constraint:lastAdaptation "2025-07-30T10:40:00Z"^^xsd:dateTime .
+
+constraint:Contextual_002 a constraint:ContextualConstraint ;
+    rdfs:label "Contextual Constraint 002 - Time-Based Access" ;
+    constraint:baseConstraint "access_control_standard" ;
+    constraint:contextVariable "time_of_day" ;
+    constraint:contextValue "after_hours" ;
+    constraint:modifiedBehavior "REQUIRE_ADDITIONAL_AUTHENTICATION" ;
+    constraint:contextWeight 0.3 ;
+    time:hasBeginning "2025-07-30T18:00:00Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-31T06:00:00Z"^^xsd:dateTime .
+
+# Boundary Enforcement
+boundary:BoundaryEnforcer a owl:Class ;
+    rdfs:label "Boundary Enforcer" ;
+    rdfs:comment "System that enforces semantic and security boundaries" .
+
+boundary:CrossDomain_Boundary a boundary:SemanticBoundary ;
+    rdfs:label "Cross-Domain Boundary" ;
+    boundary:domainA "technical" ;
+    boundary:domainB "creative" ;
+    boundary:permeability 0.3 ;  # Low permeability
+    boundary:translationRequired true ;
+    boundary:enforcedBy firewall:Semantic_Firewall ;
+    boundary:crossingProtocol "semantic-translation-required" .
+
+boundary:Personal_Data_Boundary a boundary:PrivacyBoundary ;
+    rdfs:label "Personal Data Boundary" ;
+    boundary:dataClassification "PERSONAL" ;
+    boundary:accessLevel "RESTRICTED" ;
+    boundary:permeability 0.1 ;  # Very low permeability
+    boundary:enforcedBy firewall:Privacy_Firewall ;
+    boundary:crossingProtocol "authentication-and-authorization-required" .
+
+boundary:Security_Perimeter a boundary:SecurityBoundary ;
+    rdfs:label "Security Perimeter" ;
+    boundary:securityLevel "HIGH" ;
+    boundary:trustLevel 0.8 ;
+    boundary:permeability 0.2 ;
+    boundary:enforcedBy firewall:Primary_Security_Firewall ;
+    boundary:crossingProtocol "multi-factor-verification-required" .
+
+# Connection Refusal Patterns
+cut:RefusalPattern a owl:Class ;
+    rdfs:label "Refusal Pattern" ;
+    rdfs:comment "Pattern of connection refusals" .
+
+cut:Pattern_Untrusted a cut:RefusalPattern ;
+    rdfs:label "Untrusted Actor Refusal Pattern" ;
+    cut:patternType "SYSTEMATIC_BLOCK" ;
+    cut:targetCriteria "trustLevel < 0.5" ;
+    cut:refusalRate 0.98 ;
+    cut:blockingFirewall firewall:Primary_Security_Firewall ;
+    cut:affectedActors actor:External_Untrusted, actor:Suspicious_Entity ;
+    cut:patternDuration 86400 ;  # 24 hours in seconds
+    time:hasBeginning "2025-07-30T00:00:00Z"^^xsd:dateTime .
+
+cut:Pattern_Semantic a cut:RefusalPattern ;
+    rdfs:label "Semantic Incompatibility Refusal Pattern" ;
+    cut:patternType "CONDITIONAL_BLOCK" ;
+    cut:targetCriteria "semantic_compatibility < 0.7" ;
+    cut:refusalRate 0.75 ;
+    cut:blockingFirewall firewall:Semantic_Firewall ;
+    cut:requiresTranslation true ;
+    cut:translationSuccess 0.85 ;
+    time:hasBeginning "2025-07-30T09:00:00Z"^^xsd:dateTime .
+
+# Emergency Cut Protocols
+cut:EmergencyProtocol a owl:Class ;
+    rdfs:label "Emergency Protocol" ;
+    rdfs:comment "Emergency procedures for immediate cuts" .
+
+cut:Emergency_Isolation a cut:EmergencyProtocol ;
+    rdfs:label "Emergency Isolation Protocol" ;
+    cut:triggerCondition "security_breach_detected" ;
+    cut:isolationLevel "COMPLETE" ;
+    cut:affectedSystems actor:BitCore_Prime, actor:BitThink_Core ;
+    cut:activationTime 0.05 ;  # seconds
+    cut:duration 300 ;  # 5 minutes in seconds
+    cut:overrideRequired true ;
+    cut:overrideAuthorization "ADMIN_LEVEL" .
+
+# Cut Monitoring and Analytics
+cut:CutMonitor a owl:Class ;
+    rdfs:label "Cut Monitor" ;
+    rdfs:comment "Monitoring system for forbidden cuts" .
+
+cut:Monitor_Active a cut:CutMonitor ;
+    rdfs:label "Active Cuts Monitor" ;
+    cut:monitoredCuts cut:SecurityCut_001, cut:SemanticCut_002, cut:PrivacyCut_003 ;
+    cut:totalActiveCuts 3 ;
+    cut:averageSeverity 0.84 ;
+    cut:highPriorityCuts 2 ;
+    cut:lastUpdate "2025-07-30T10:45:30Z"^^xsd:dateTime ;
+    cut:status "MONITORING" .
+
+# Cut Effectiveness Metrics
+cut:EffectivenessMetrics a owl:Class ;
+    rdfs:label "Cut Effectiveness Metrics" ;
+    rdfs:comment "Metrics for evaluating cut effectiveness" .
+
+cut:Metrics_Security a cut:EffectivenessMetrics ;
+    rdfs:label "Security Cut Effectiveness" ;
+    cut:evaluatedCut cut:SecurityCut_001 ;
+    cut:blockingSuccess 0.98 ;
+    cut:falsePositives 0.02 ;
+    cut:falseNegatives 0.01 ;
+    cut:responseAccuracy 0.97 ;
+    cut:measurementPeriod 3600 ;  # 1 hour in seconds
+    time:hasBeginning "2025-07-30T09:45:00Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-30T10:45:00Z"^^xsd:dateTime .
+
+# Cut Learning and Adaptation
+cut:CutLearning a owl:Class ;
+    rdfs:label "Cut Learning System" ;
+    rdfs:comment "System that learns and adapts cut behaviors" .
+
+cut:Learning_Security a cut:CutLearning ;
+    rdfs:label "Security Cut Learning" ;
+    cut:learningTarget cut:SecurityCut_001 ;
+    cut:learningRate 0.1 ;
+    cut:adaptationHistory "threat_level_increased_3x" ;
+    cut:performanceImprovement 0.15 ;
+    cut:lastLearningEvent "2025-07-30T10:30:00Z"^^xsd:dateTime ;
+    cut:nextAdaptation "2025-07-30T12:00:00Z"^^xsd:dateTime .

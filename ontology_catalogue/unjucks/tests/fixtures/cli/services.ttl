@@ -1,0 +1,19 @@
+
+@prefix : <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:Service rdf:type rdfs:Class ;
+        rdfs:label "Service" .
+
+:name rdf:type rdf:Property ;
+      rdfs:domain :Service ;
+      rdfs:range rdfs:Literal .
+
+:port rdf:type rdf:Property ;
+      rdfs:domain :Service ;
+      rdfs:range rdfs:Literal .
+
+:apiService rdf:type :Service ;
+           :name "API Service" ;
+           :port "3000" .

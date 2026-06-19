@@ -1,0 +1,45 @@
+@prefix ex: <http://example.com/canine/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Invalid canine training data that violates SHACL constraints
+
+# Dog without required name
+ex:dog1 a ex:Dog ;
+  ex:breed "Unknown Breed" ;
+  ex:age 3 ;
+  ex:status "invalid_status" .  # Invalid status value
+
+# Dog with invalid age
+ex:dog2 a ex:Dog ;
+  ex:name "Old Dog" ;
+  ex:age 30 ;  # Exceeds maximum age of 25
+  ex:status "active" .
+
+# Training session without required fields
+ex:session1 a ex:TrainingSession ;
+  # Missing sessionId, dog reference, and date
+  ex:duration 200 ;  # Exceeds maximum duration of 180
+  ex:outcome "invalid_outcome" .  # Invalid outcome value
+
+# Training session with invalid date format
+ex:session2 a ex:TrainingSession ;
+  ex:sessionId "session-invalid" ;
+  ex:dog ex:dog1 ;
+  ex:date "not-a-date" ;  # Invalid date format
+  ex:duration 2 ;  # Below minimum duration of 5 minutes
+  ex:outcome "good" .
+
+# Instructor with invalid email format
+ex:instructor1 a ex:Instructor ;
+  ex:instructorId "inst-invalid" ;
+  ex:name "Invalid Instructor" ;
+  ex:email "not-an-email" ;  # Invalid email format
+  ex:certificationLevel "invalid_level" .  # Invalid certification level
+
+# Instructor missing required name
+ex:instructor2 a ex:Instructor ;
+  ex:instructorId "inst-002" ;
+  # Missing required name field
+  ex:email "valid@email.com" ;
+  ex:certificationLevel "novice" .

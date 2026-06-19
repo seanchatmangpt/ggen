@@ -1,0 +1,61 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Valley Gate = descent/testing gate.
+# The Valley Gate is the adversarial test boundary.
+# Descent into the valley precedes all genuine verification.
+# Nehemiah himself went out by the Valley Gate at night to survey the broken wall.
+# Hanun and the inhabitants of Zanoah repaired this gate: the testing gate must be held by those
+# willing to go down before they build up.
+# Nehemiah 3:13 says one thousand cubits (Hebrew: aleph ammah = 1000), not 500.
+# Test verdict: the section that handles descent is the one that proves structural integrity.
+
+bos:HanunBuilderValley a bos:Builder ;
+    rdfs:label "Hanun" ;
+    rdfs:comment "Ruler of Zanoah. Led the inhabitants of Zanoah to repair the Valley Gate section. Hanun is named — not the city alone. Named leadership of the descent gate." ;
+    bos:hasCanonicalReference "Neh.3.13"^^xsd:string ;
+    bos:assignedToGate bos:ValleyGate ;
+    bos:hasSource "Neh.3.13" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:InhabitantsOfZanoah a bos:Builder ;
+    rdfs:label "Inhabitants of Zanoah" ;
+    rdfs:comment "The community cohort that repaired the Valley Gate section under Hanun's leadership. One thousand cubits of wall repaired in addition to the gate itself (Neh. 3:13)." ;
+    bos:hasCanonicalReference "Neh.3.13"^^xsd:string ;
+    bos:assignedToGate bos:ValleyGate ;
+    bos:hasSource "Neh.3.13" .
+
+bos:ValleyGateSection a bos:WallSection ;
+    rdfs:label "Valley Gate Section" ;
+    rdfs:comment "The wall section including the Valley Gate. Repaired by Hanun and the inhabitants of Zanoah: doors, bolts, and bars set. Extended wall repair of one thousand cubits to the Dung Gate (Neh. 3:13, Hebrew: aleph ammah = 1000 cubits)." ;
+    bos:assignedToGate bos:ValleyGate ;
+    bos:hasCanonicalReference "Neh.3.13"^^xsd:string ;
+    bos:hasBuilder bos:HanunBuilderValley ;
+    bos:hasBuilder bos:InhabitantsOfZanoah ;
+    bos:hasSource "Neh.3.13" ;
+    bos:hasReceipt bos:ValleyGateSectionReceipt .
+
+bos:ValleyGateAdversarialTestRecord a bos:InspectionReceipt ;
+    rdfs:label "Valley Gate Adversarial Test Record" ;
+    rdfs:comment "Adversarial test record: Valley Gate section repaired. Hanun and inhabitants of Zanoah descended to the valley section. Doors set, bolts and bars installed. Extended scope: one thousand cubits to Dung Gate (Neh. 3:13). Structural integrity of the descent boundary confirmed." ;
+    bos:hasCanonicalReference "Neh.3.13"^^xsd:string ;
+    bos:hasBuilder bos:HanunBuilderValley ;
+    bos:hasSource "Neh.3.13" ;
+    bos:assignedToGate bos:ValleyGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:ValleyGateSectionReceipt .
+
+bos:ValleyGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Valley Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.13"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.13" ;
+    rdfs:comment "Section complete: descent gate repaired, doors hung, bolts and bars set. One thousand cubits of wall repaired toward Dung Gate (Neh. 3:13). Named builder: Hanun and inhabitants of Zanoah." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

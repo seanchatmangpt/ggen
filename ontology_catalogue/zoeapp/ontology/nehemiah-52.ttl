@@ -1,0 +1,74 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix togaf: <http://opengroup.org/togaf/ontology#> .
+
+bos:Gate a owl:Class ;
+    rdfs:label "Gate" ;
+    rdfs:comment "Admissibility boundary." ;
+    togaf:mappedTo togaf:ArchitectureBuildingBlock .
+
+bos:Wall a owl:Class ;
+    rdfs:label "Wall" ;
+    rdfs:comment "Structural integrity and containment boundary." ;
+    togaf:mappedTo togaf:ArchitectureBuildingBlock .
+
+bos:WallSection a owl:Class ;
+    rdfs:label "WallSection" ;
+    rdfs:comment "Segmented unit of work within a Wall." ;
+    togaf:mappedTo togaf:Contract .
+
+bos:Builder a owl:Class ;
+    rdfs:label "Builder" ;
+    rdfs:comment "Accountable named worker." ;
+    togaf:mappedTo togaf:SolutionBuildingBlock, togaf:Stakeholder .
+
+bos:Mocker a owl:Class ;
+    rdfs:label "Mocker" ;
+    rdfs:comment "Adversarial feedback channel." ;
+    togaf:mappedTo togaf:Stakeholder .
+
+bos:Courier a owl:Class ;
+    rdfs:label "Courier" ;
+    rdfs:comment "Carrier channel for messages and payloads." ;
+    togaf:mappedTo togaf:SolutionBuildingBlock, togaf:Communication .
+
+bos:FalseReport a owl:Class ;
+    rdfs:label "FalseReport" ;
+    rdfs:comment "Poisoned payload or malicious data." .
+
+bos:Prayer a owl:Class ;
+    rdfs:label "Prayer" ;
+    rdfs:comment "Upward appeal or telemetry to a higher-order supervisor." ;
+    togaf:mappedTo togaf:Communication .
+
+bos:UsuryLedger a owl:Class ;
+    rdfs:label "UsuryLedger" ;
+    rdfs:comment "Extraction audit for identifying exploitative resource consumption." ;
+    togaf:mappedTo togaf:Governance .
+
+bos:MusterLedger a owl:Class ;
+    rdfs:label "MusterLedger" ;
+    rdfs:comment "Census or muster record of active entities." ;
+    togaf:mappedTo togaf:Governance, togaf:ArchitectureBoard .
+
+bos:ProphetOffice a owl:Class ;
+    rdfs:label "ProphetOffice" ;
+    rdfs:comment "Proclamation office for broadcasting system-wide state changes." ;
+    togaf:mappedTo togaf:ArchitectureBoard, togaf:Communication, togaf:ArchitectureBuildingBlock .
+
+bos:NationsLedger a owl:Class ;
+    rdfs:label "NationsLedger" ;
+    rdfs:comment "External witness or integration point with outside systems." ;
+    togaf:mappedTo togaf:Stakeholder .
+
+bos:InspectionVerdict a owl:Class ;
+    rdfs:label "InspectionVerdict" ;
+    rdfs:comment "Formal check outcome for structural or semantic integrity." ;
+    togaf:mappedTo togaf:Contract, togaf:Governance .
+
+bos:Receipt a owl:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Cryptographic or audit proof of a completed transaction or transition." ;
+    togaf:mappedTo togaf:SolutionBuildingBlock .

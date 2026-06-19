@@ -1,0 +1,32 @@
+@prefix cns: <http://cns.io/forge#> .
+@prefix bitactor: <http://cns.io/bitactor#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# BitActor Telemetry - Real-time system state
+bitactor:engine_01 a bitactor:Engine ;
+    cns:componentType "computation_engine" ;
+    cns:status "healthy" ;
+    cns:hasMetric bitactor:latency_metric_01 ;
+    cns:hasMetric bitactor:throughput_metric_01 ;
+    cns:lastUpdated "2025-07-25T03:55:00Z"^^xsd:dateTime .
+
+bitactor:latency_metric_01 a cns:PerformanceMetric ;
+    bitactor:latency_ns "42"^^xsd:long ;
+    bitactor:percentile "99.9"^^xsd:decimal ;
+    cns:timestamp "2025-07-25T03:55:00Z"^^xsd:dateTime ;
+    cns:alert "none" .
+
+bitactor:throughput_metric_01 a cns:PerformanceMetric ;
+    bitactor:throughput_ops "10000000"^^xsd:long ;
+    bitactor:cpu_percent "45.2"^^xsd:decimal ;
+    bitactor:memory_mb "512"^^xsd:long ;
+    cns:timestamp "2025-07-25T03:55:00Z"^^xsd:dateTime ;
+    cns:alert "none" .
+
+# System Health Status
+bitactor:system_health a cns:HealthStatus ;
+    cns:overall_score "95.8"^^xsd:decimal ;
+    cns:availability "99.999"^^xsd:decimal ;
+    cns:performance_rating "excellent" ;
+    cns:last_failure "2025-07-24T12:00:00Z"^^xsd:dateTime ;
+    cns:uptime_seconds "86400"^^xsd:long .

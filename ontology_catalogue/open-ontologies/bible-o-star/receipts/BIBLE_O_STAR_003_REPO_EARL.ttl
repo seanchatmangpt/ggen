@@ -1,0 +1,129 @@
+@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix cell8: <urn:cell8:gate:> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:cell8:report:BIBLE_O_STAR_003_REPO_EARL>
+    a owl:Ontology ;
+    rdfs:label "BIBLE_O_STAR_003 Repo EARL Report" ;
+    dct:created "2026-06-02"^^xsd:date .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA1 ;
+   earl:test cell8:GateA1Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA2 ;
+   earl:test cell8:GateA2Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA3 ;
+   earl:test cell8:GateA3Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA4 ;
+   earl:test cell8:GateA4Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA5 ;
+   earl:test cell8:GateA5Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA6 ;
+   earl:test cell8:GateA6Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA7 ;
+   earl:test cell8:GateA7Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA8 ;
+   earl:test cell8:GateA8Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA9 ;
+   earl:test cell8:GateA9Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA10 ;
+   earl:test cell8:GateA10Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA11 ;
+   earl:test cell8:GateA11Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA12 ;
+   earl:test cell8:GateA12Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject cell8:GateA13 ;
+   earl:test cell8:GateA13Shape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T20:47:09.725217Z"^^xsd:dateTime
+   ] .
+

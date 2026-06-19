@@ -1,0 +1,399 @@
+@prefix hq: <https://hive-queen.ai/ontology/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# ==========================================
+# HIVE QUEEN Core Ontology
+# Defines core capabilities, agents, and system structure
+# ==========================================
+
+<https://hive-queen.ai/ontology/core#>
+  a owl:Ontology ;
+  dct:title "HIVE QUEEN Core Ontology" ;
+  dct:description "Core capability definitions for the HIVE QUEEN system" ;
+  dct:version "1.0.0" ;
+  dct:created "2025-09-03"^^xsd:date ;
+  owl:versionIRI <https://hive-queen.ai/ontology/core/1.0.0#> .
+
+# ==========================================
+# Core Classes
+# ==========================================
+
+hq:Agent
+  a owl:Class ;
+  rdfs:label "Agent" ;
+  rdfs:comment "An autonomous AI agent within the HIVE QUEEN system" ;
+  rdfs:subClassOf prov:Agent .
+
+hq:Capability
+  a owl:Class ;
+  rdfs:label "Capability" ;
+  rdfs:comment "A specific capability or skill that an agent can possess" .
+
+hq:Task
+  a owl:Class ;
+  rdfs:label "Task" ;
+  rdfs:comment "A unit of work that can be assigned to agents" ;
+  rdfs:subClassOf prov:Activity .
+
+hq:Resource
+  a owl:Class ;
+  rdfs:label "Resource" ;
+  rdfs:comment "A resource required or produced by agents" ;
+  rdfs:subClassOf prov:Entity .
+
+hq:Context
+  a owl:Class ;
+  rdfs:label "Context" ;
+  rdfs:comment "Environmental or situational context for agent operations" .
+
+hq:Goal
+  a owl:Class ;
+  rdfs:label "Goal" ;
+  rdfs:comment "An objective or desired outcome" .
+
+hq:Constraint
+  a owl:Class ;
+  rdfs:label "Constraint" ;
+  rdfs:comment "A limitation or requirement that must be respected" .
+
+hq:Plan
+  a owl:Class ;
+  rdfs:label "Plan" ;
+  rdfs:comment "A structured approach to achieving goals" ;
+  rdfs:subClassOf prov:Plan .
+
+# ==========================================
+# Agent Types
+# ==========================================
+
+hq:ResearchAgent
+  a owl:Class ;
+  rdfs:label "Research Agent" ;
+  rdfs:comment "Agent specialized in research and analysis tasks" ;
+  rdfs:subClassOf hq:Agent .
+
+hq:CoderAgent
+  a owl:Class ;
+  rdfs:label "Coder Agent" ;
+  rdfs:comment "Agent specialized in code generation and programming" ;
+  rdfs:subClassOf hq:Agent .
+
+hq:ReviewerAgent
+  a owl:Class ;
+  rdfs:label "Reviewer Agent" ;
+  rdfs:comment "Agent specialized in code and content review" ;
+  rdfs:subClassOf hq:Agent .
+
+hq:TesterAgent
+  a owl:Class ;
+  rdfs:label "Tester Agent" ;
+  rdfs:comment "Agent specialized in testing and quality assurance" ;
+  rdfs:subClassOf hq:Agent .
+
+hq:ArchitectAgent
+  a owl:Class ;
+  rdfs:label "Architect Agent" ;
+  rdfs:comment "Agent specialized in system architecture design" ;
+  rdfs:subClassOf hq:Agent .
+
+hq:CoordinatorAgent
+  a owl:Class ;
+  rdfs:label "Coordinator Agent" ;
+  rdfs:comment "Agent specialized in coordinating other agents" ;
+  rdfs:subClassOf hq:Agent .
+
+hq:SecurityAgent
+  a owl:Class ;
+  rdfs:label "Security Agent" ;
+  rdfs:comment "Agent specialized in security analysis and enforcement" ;
+  rdfs:subClassOf hq:Agent .
+
+# ==========================================
+# Capability Types
+# ==========================================
+
+hq:CodingCapability
+  a owl:Class ;
+  rdfs:label "Coding Capability" ;
+  rdfs:comment "Ability to write and modify code" ;
+  rdfs:subClassOf hq:Capability .
+
+hq:AnalysisCapability
+  a owl:Class ;
+  rdfs:label "Analysis Capability" ;
+  rdfs:comment "Ability to analyze data and systems" ;
+  rdfs:subClassOf hq:Capability .
+
+hq:DesignCapability
+  a owl:Class ;
+  rdfs:label "Design Capability" ;
+  rdfs:comment "Ability to design systems and architectures" ;
+  rdfs:subClassOf hq:Capability .
+
+hq:TestingCapability
+  a owl:Class ;
+  rdfs:label "Testing Capability" ;
+  rdfs:comment "Ability to test and validate systems" ;
+  rdfs:subClassOf hq:Capability .
+
+hq:SecurityCapability
+  a owl:Class ;
+  rdfs:label "Security Capability" ;
+  rdfs:comment "Ability to assess and enforce security measures" ;
+  rdfs:subClassOf hq:Capability .
+
+hq:CoordinationCapability
+  a owl:Class ;
+  rdfs:label "Coordination Capability" ;
+  rdfs:comment "Ability to coordinate with other agents" ;
+  rdfs:subClassOf hq:Capability .
+
+# ==========================================
+# Core Properties
+# ==========================================
+
+hq:hasCapability
+  a owl:ObjectProperty ;
+  rdfs:label "has capability" ;
+  rdfs:comment "Associates an agent with a capability" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range hq:Capability .
+
+hq:requiresCapability
+  a owl:ObjectProperty ;
+  rdfs:label "requires capability" ;
+  rdfs:comment "Associates a task with required capabilities" ;
+  rdfs:domain hq:Task ;
+  rdfs:range hq:Capability .
+
+hq:assignedTo
+  a owl:ObjectProperty ;
+  rdfs:label "assigned to" ;
+  rdfs:comment "Associates a task with an assigned agent" ;
+  rdfs:domain hq:Task ;
+  rdfs:range hq:Agent .
+
+hq:dependsOn
+  a owl:ObjectProperty ;
+  rdfs:label "depends on" ;
+  rdfs:comment "Defines dependencies between tasks" ;
+  rdfs:domain hq:Task ;
+  rdfs:range hq:Task .
+
+hq:hasGoal
+  a owl:ObjectProperty ;
+  rdfs:label "has goal" ;
+  rdfs:comment "Associates an agent or task with a goal" ;
+  rdfs:range hq:Goal .
+
+hq:hasConstraint
+  a owl:ObjectProperty ;
+  rdfs:label "has constraint" ;
+  rdfs:comment "Associates an entity with constraints" ;
+  rdfs:range hq:Constraint .
+
+hq:requiresResource
+  a owl:ObjectProperty ;
+  rdfs:label "requires resource" ;
+  rdfs:comment "Associates a task with required resources" ;
+  rdfs:domain hq:Task ;
+  rdfs:range hq:Resource .
+
+hq:producesResource
+  a owl:ObjectProperty ;
+  rdfs:label "produces resource" ;
+  rdfs:comment "Associates a task with produced resources" ;
+  rdfs:domain hq:Task ;
+  rdfs:range hq:Resource .
+
+hq:hasContext
+  a owl:ObjectProperty ;
+  rdfs:label "has context" ;
+  rdfs:comment "Associates an entity with its operational context" ;
+  rdfs:range hq:Context .
+
+hq:executesPlan
+  a owl:ObjectProperty ;
+  rdfs:label "executes plan" ;
+  rdfs:comment "Associates an agent with a plan being executed" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range hq:Plan .
+
+# ==========================================
+# Data Properties
+# ==========================================
+
+hq:agentId
+  a owl:DatatypeProperty ;
+  rdfs:label "agent ID" ;
+  rdfs:comment "Unique identifier for an agent" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range xsd:string .
+
+hq:taskId
+  a owl:DatatypeProperty ;
+  rdfs:label "task ID" ;
+  rdfs:comment "Unique identifier for a task" ;
+  rdfs:domain hq:Task ;
+  rdfs:range xsd:string .
+
+hq:priority
+  a owl:DatatypeProperty ;
+  rdfs:label "priority" ;
+  rdfs:comment "Priority level (1-10)" ;
+  rdfs:range xsd:int .
+
+hq:status
+  a owl:DatatypeProperty ;
+  rdfs:label "status" ;
+  rdfs:comment "Current status of an entity" ;
+  rdfs:range xsd:string .
+
+hq:confidenceLevel
+  a owl:DatatypeProperty ;
+  rdfs:label "confidence level" ;
+  rdfs:comment "Confidence level (0.0-1.0)" ;
+  rdfs:range xsd:double .
+
+hq:estimatedDuration
+  a owl:DatatypeProperty ;
+  rdfs:label "estimated duration" ;
+  rdfs:comment "Estimated duration in seconds" ;
+  rdfs:domain hq:Task ;
+  rdfs:range xsd:duration .
+
+hq:actualDuration
+  a owl:DatatypeProperty ;
+  rdfs:label "actual duration" ;
+  rdfs:comment "Actual duration in seconds" ;
+  rdfs:domain hq:Task ;
+  rdfs:range xsd:duration .
+
+hq:createdAt
+  a owl:DatatypeProperty ;
+  rdfs:label "created at" ;
+  rdfs:comment "Creation timestamp" ;
+  rdfs:range xsd:dateTime .
+
+hq:updatedAt
+  a owl:DatatypeProperty ;
+  rdfs:label "updated at" ;
+  rdfs:comment "Last update timestamp" ;
+  rdfs:range xsd:dateTime .
+
+hq:version
+  a owl:DatatypeProperty ;
+  rdfs:label "version" ;
+  rdfs:comment "Version identifier" ;
+  rdfs:range xsd:string .
+
+# ==========================================
+# Task Status Enumeration
+# ==========================================
+
+hq:TaskStatus
+  a owl:Class ;
+  rdfs:label "Task Status" ;
+  rdfs:comment "Enumeration of possible task statuses" .
+
+hq:pending
+  a hq:TaskStatus ;
+  rdfs:label "pending" .
+
+hq:in_progress
+  a hq:TaskStatus ;
+  rdfs:label "in progress" .
+
+hq:completed
+  a hq:TaskStatus ;
+  rdfs:label "completed" .
+
+hq:failed
+  a hq:TaskStatus ;
+  rdfs:label "failed" .
+
+hq:cancelled
+  a hq:TaskStatus ;
+  rdfs:label "cancelled" .
+
+hq:blocked
+  a hq:TaskStatus ;
+  rdfs:label "blocked" .
+
+# ==========================================
+# Agent Status Enumeration
+# ==========================================
+
+hq:AgentStatus
+  a owl:Class ;
+  rdfs:label "Agent Status" ;
+  rdfs:comment "Enumeration of possible agent statuses" .
+
+hq:idle
+  a hq:AgentStatus ;
+  rdfs:label "idle" .
+
+hq:busy
+  a hq:AgentStatus ;
+  rdfs:label "busy" .
+
+hq:offline
+  a hq:AgentStatus ;
+  rdfs:label "offline" .
+
+hq:error
+  a hq:AgentStatus ;
+  rdfs:label "error" .
+
+# ==========================================
+# Constraints and Rules
+# ==========================================
+
+# Agent must have at least one capability
+[]
+  a owl:Restriction ;
+  owl:onProperty hq:hasCapability ;
+  owl:minCardinality 1 ;
+  rdfs:subClassOf hq:Agent .
+
+# Task must have unique ID
+[]
+  a owl:Restriction ;
+  owl:onProperty hq:taskId ;
+  owl:cardinality 1 ;
+  rdfs:subClassOf hq:Task .
+
+# Agent must have unique ID
+[]
+  a owl:Restriction ;
+  owl:onProperty hq:agentId ;
+  owl:cardinality 1 ;
+  rdfs:subClassOf hq:Agent .
+
+# Priority must be between 1 and 10
+hq:priority
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:int ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 1 ]
+      [ xsd:maxInclusive 10 ]
+    )
+  ] .
+
+# Confidence level must be between 0.0 and 1.0
+hq:confidenceLevel
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:double ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0.0 ]
+      [ xsd:maxInclusive 1.0 ]
+    )
+  ] .

@@ -1,0 +1,317 @@
+# API Governance Schema
+# Defines semantic rules for enterprise API management and compliance
+
+@prefix api: <http://unjucks.dev/api/> .
+@prefix governance: <http://unjucks.dev/governance/> .
+@prefix template: <http://unjucks.dev/template/> .
+@prefix security: <http://unjucks.dev/security/> .
+@prefix versioning: <http://unjucks.dev/versioning/> .
+@prefix monitoring: <http://unjucks.dev/monitoring/> .
+@prefix documentation: <http://unjucks.dev/documentation/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# API Governance Ontology
+governance:ApiGovernance a owl:Class ;
+    rdfs:label "API Governance Framework"@en ;
+    rdfs:comment "Enterprise API governance and management standards"@en .
+
+# API Types and Categories
+api:ApiEndpoint a owl:Class ;
+    rdfs:label "API Endpoint"@en ;
+    rdfs:comment "A specific API endpoint exposed by the system"@en .
+
+api:RestApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "REST API"@en .
+
+api:GraphQlApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "GraphQL API"@en .
+
+api:GrpcApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "gRPC API"@en .
+
+api:WebhookApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "Webhook API"@en .
+
+# API Visibility and Access Levels
+api:PublicApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "Public API"@en ;
+    rdfs:comment "API accessible to external consumers"@en .
+
+api:PrivateApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "Private API"@en ;
+    rdfs:comment "API for internal use only"@en .
+
+api:PartnerApi a owl:Class ;
+    rdfs:subClassOf api:ApiEndpoint ;
+    rdfs:label "Partner API"@en ;
+    rdfs:comment "API accessible to trusted partners"@en .
+
+# API Lifecycle States
+api:LifecycleState a owl:Class ;
+    rdfs:label "API Lifecycle State"@en .
+
+api:Development a owl:Class ;
+    rdfs:subClassOf api:LifecycleState ;
+    rdfs:label "Development"@en .
+
+api:Testing a owl:Class ;
+    rdfs:subClassOf api:LifecycleState ;
+    rdfs:label "Testing"@en .
+
+api:Published a owl:Class ;
+    rdfs:subClassOf api:LifecycleState ;
+    rdfs:label "Published"@en .
+
+api:Deprecated a owl:Class ;
+    rdfs:subClassOf api:LifecycleState ;
+    rdfs:label "Deprecated"@en .
+
+api:Retired a owl:Class ;
+    rdfs:subClassOf api:LifecycleState ;
+    rdfs:label "Retired"@en .
+
+# Security Mechanisms
+security:SecurityMechanism a owl:Class ;
+    rdfs:label "Security Mechanism"@en .
+
+security:OAuth2 a owl:Class ;
+    rdfs:subClassOf security:SecurityMechanism ;
+    rdfs:label "OAuth 2.0"@en .
+
+security:ApiKey a owl:Class ;
+    rdfs:subClassOf security:SecurityMechanism ;
+    rdfs:label "API Key Authentication"@en .
+
+security:JwtToken a owl:Class ;
+    rdfs:subClassOf security:SecurityMechanism ;
+    rdfs:label "JWT Token"@en .
+
+security:MutualTls a owl:Class ;
+    rdfs:subClassOf security:SecurityMechanism ;
+    rdfs:label "Mutual TLS"@en .
+
+# Rate Limiting and Throttling
+api:RateLimiting a owl:Class ;
+    rdfs:label "Rate Limiting"@en ;
+    rdfs:comment "Request rate limiting mechanism"@en .
+
+api:Throttling a owl:Class ;
+    rdfs:label "Throttling"@en ;
+    rdfs:comment "Request throttling mechanism"@en .
+
+# API Properties
+api:generatesEndpoint a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Generates API Endpoint"@en .
+
+api:isPublic a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Public API"@en .
+
+api:requiresVersioning a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Versioning"@en .
+
+api:hasVersioning a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Versioning Implementation"@en .
+
+api:versioningStrategy a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Versioning Strategy"@en .
+
+api:requiresAuthentication a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Authentication"@en .
+
+api:hasAuthentication a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Authentication Implementation"@en .
+
+api:authenticationMethod a owl:ObjectProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range security:SecurityMechanism ;
+    rdfs:label "Authentication Method"@en .
+
+api:requiresAuthorization a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Authorization"@en .
+
+api:hasAuthorization a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Authorization Implementation"@en .
+
+api:requiresRateLimiting a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Rate Limiting"@en .
+
+api:hasRateLimiting a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Rate Limiting Implementation"@en .
+
+api:rateLimitPerMinute a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Rate Limit Per Minute"@en .
+
+api:requiresDocumentation a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Documentation"@en .
+
+api:hasDocumentation a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Documentation"@en .
+
+api:documentationFormat a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Documentation Format"@en .
+
+# Input Validation Properties
+api:requiresInputValidation a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Input Validation"@en .
+
+api:hasInputValidation a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Input Validation"@en .
+
+api:validationSchema a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Validation Schema"@en .
+
+# Output Security Properties
+api:requiresOutputSanitization a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Output Sanitization"@en .
+
+api:hasOutputSanitization a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Output Sanitization"@en .
+
+# Monitoring and Observability
+api:requiresMonitoring a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Monitoring"@en .
+
+api:hasMonitoring a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Monitoring Implementation"@en .
+
+api:requiresLogging a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Logging"@en .
+
+api:hasLogging a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Logging Implementation"@en .
+
+api:requiresMetrics a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Metrics"@en .
+
+api:hasMetrics a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Metrics Implementation"@en .
+
+# Error Handling Properties
+api:requiresErrorHandling a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Error Handling"@en .
+
+api:hasErrorHandling a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Error Handling Implementation"@en .
+
+api:errorResponseFormat a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Error Response Format"@en .
+
+# Testing Requirements
+api:requiresTesting a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Testing"@en .
+
+api:hasTesting a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Has Testing Implementation"@en .
+
+api:testCoverage a owl:DatatypeProperty ;
+    rdfs:domain template:Template ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Test Coverage Percentage"@en .
+
+# Sample API governance instances
+governance:PublicRestApiTemplate a template:Template ;
+    template:name "Public REST API" ;
+    api:generatesEndpoint true ;
+    api:isPublic true ;
+    rdf:type api:RestApi ;
+    api:requiresVersioning true ;
+    api:versioningStrategy "header" ;
+    api:requiresAuthentication true ;
+    api:authenticationMethod security:OAuth2 ;
+    api:requiresAuthorization true ;
+    api:requiresRateLimiting true ;
+    api:rateLimitPerMinute 1000 ;
+    api:requiresDocumentation true ;
+    api:documentationFormat "OpenAPI" ;
+    api:requiresInputValidation true ;
+    api:requiresOutputSanitization true ;
+    api:requiresMonitoring true ;
+    api:requiresLogging true ;
+    api:requiresErrorHandling true ;
+    api:errorResponseFormat "RFC7807" .
+
+governance:InternalApiTemplate a template:Template ;
+    template:name "Internal Service API" ;
+    api:generatesEndpoint true ;
+    api:isPublic false ;
+    rdf:type api:PrivateApi ;
+    api:requiresVersioning true ;
+    api:versioningStrategy "path" ;
+    api:requiresAuthentication true ;
+    api:authenticationMethod security:JwtToken ;
+    api:requiresRateLimiting true ;
+    api:rateLimitPerMinute 5000 ;
+    api:requiresDocumentation true ;
+    api:requiresMonitoring true .

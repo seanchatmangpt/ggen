@@ -1,0 +1,301 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+@prefix fcl:     <https://process.intelligence/forbidden-collapse/> .
+@prefix proj:    <https://process.intelligence/project/> .
+
+# ============================================================
+# forbidden-collapse-law.ttl — DTO/JSON Boundary Laws
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# Doctrine: JSON flattening of Evidence<T, State, Witness>
+#   is a defect, not a discrepancy. Model-vs-log mismatch
+#   is a defect. Raw evidence export is a defect.
+# ============================================================
+
+<https://process.intelligence/ontology/forbidden-collapse-law>
+    a owl:Ontology ;
+    owl:imports <https://process.intelligence/ontology/pi-program> ;
+    dcterms:title "PI Program Forbidden Collapse Law" ;
+    dcterms:description "Defines the laws governing DTO/JSON boundary violations. The typestate of Evidence<T, State, Witness> must not be flattened to untyped JSON. Every collapse loses: (1) lifecycle state enforcement, (2) witness lattice authority, (3) refusal law binding, (4) graduation gate integrity." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" ;
+    skos:editorialNote "Van der Aalst Constitution: If the code says it worked but the event log cannot prove a lawful process happened, then it did not work." .
+
+# ============================================================
+# SECTION 1: Collapse Category Taxonomy
+# ============================================================
+
+pi:CollapseCategory
+    a owl:Class ;
+    rdfs:label "Collapse Category" ;
+    skos:definition "A named category of DTO/JSON boundary violation." .
+
+pi:StateTagCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "State Tag Collapse" ;
+    skos:definition "EvidenceState serialized as unbounded String rather than sealed enum. Browser can forge 'Raw_Admitted', 'MalformedState', or '' as legitimate state tags." ;
+    skos:example "WasmStateTag::name: String — allows any string; should be sealed to 7 canonical values: Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted." .
+
+pi:RefusalLawCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Refusal Law Collapse" ;
+    skos:definition "Refusal law name serialized as unbounded Option<String>. Caller can forge 'AllowAnything', 'SkipValidation', or '' as a legitimate named law." ;
+    skos:example "WasmAdmissionResult::refusal_law: Option<String> — should be sealed to named refusal variant enum." .
+
+pi:EvidenceRefCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Evidence Reference Collapse" ;
+    skos:definition "Evidence reference serialized as unbounded String. Caller can inject arbitrary URIs, fake digests, or control characters as evidence references." ;
+    skos:example "WasmGraduationCandidate::evidence_ref: String — should be validated as a Blake3 digest pattern before acceptance." .
+
+pi:LossItemCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Loss Item Collapse" ;
+    skos:definition "Loss report items serialized as Vec<String> with no size limit or schema validation. Caller can construct unbounded vectors or inject negative counts." ;
+    skos:example "WasmLossReport::items_dropped: Vec<String> — no size check; create_loss_report() accepts caller-provided Vec." .
+
+pi:WitnessKeyCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Witness Key Collapse" ;
+    skos:definition "Witness key serialized as unbounded String. Caller can forge 'unknown-witness', 'no-witness', or '' as a legitimate witness key, bypassing the witness lattice authority." ;
+    skos:example "WasmWitness::key: String — should be constrained to canonical witness key values: ocel-2.0, xes-1849-2016, wfnet-soundness, etc." .
+
+pi:JSONSerializationCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "JSON Serialization in compat Public API" ;
+    skos:definition "A public API function in wasm4pm-compat that returns Evidence<T> serialized to a JSON string, destroying the typestate and losing lifecycle state, witness authority, and refusal binding." ;
+    skos:example "pub fn to_json_string(&self) -> String; fn receipt_json(&self) -> String — AUDIT 1 FAIL in GGEN_ECOSYSTEM_INTEL_ALIVE_001." .
+
+pi:SilentFlatteningCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Silent OCEL-to-XES Flattening" ;
+    skos:definition "Projecting OCEL 2.0 (object-centric) to XES (case-centric) without: (1) named projection, (2) LossPolicy declaration, and (3) LossReport generation. Silent flattening destroys the object-centric event model." ;
+    skos:example "OCEL→XES without ProjectionName 'ocel_to_xes_flattening_on_primary_object' and LossReport {object_object_links: dropped, event_attributes: truncated}." .
+
+pi:RawEvidenceExportCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Raw Evidence Export" ;
+    skos:definition "Exporting Evidence<T, Raw, W> directly without passing through the Admit trait. Raw evidence has not been validated and carries no admission authority." ;
+    skos:example "Evidence<T, Raw, W>::into_inner() — forbidden. Only Evidence<T, Admitted, W> has export methods." .
+
+pi:WitnessMixingCollapse
+    a owl:Class ;
+    rdfs:subClassOf pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "Witness Mixing" ;
+    skos:definition "Implicit conversion between Admission<T, Ocel20> and Admission<T, Xes1849> without an explicit projection naming the law and carrying a LossReport." ;
+    skos:example "let xes_admission: Admission<T, Xes1849> = ocel_admission; — COMPILE FAIL: different witness types are different types." .
+
+# ============================================================
+# SECTION 2: Collapse Law Properties
+# ============================================================
+
+pi:collapseLocation
+    a owl:DatatypeProperty ;
+    rdfs:label "collapse location" ;
+    rdfs:domain pi:FORBIDDEN_COLLAPSE ;
+    rdfs:range xsd:string ;
+    skos:definition "File path and line number where the collapse was identified." .
+
+pi:collapseStatus
+    a owl:DatatypeProperty ;
+    rdfs:label "collapse status" ;
+    rdfs:domain pi:FORBIDDEN_COLLAPSE ;
+    rdfs:range xsd:string ;
+    skos:definition "Current status of the collapse: ACTIVE (present in code), MITIGATED (deferred to engine validation), REMEDIATED (fixed)." .
+
+pi:collapseRemediationPath
+    a owl:DatatypeProperty ;
+    rdfs:label "collapse remediation path" ;
+    rdfs:domain pi:FORBIDDEN_COLLAPSE ;
+    rdfs:range xsd:string ;
+    skos:definition "The prescribed remediation: remove, replace with sealed enum, add engine-side validation, or graduate to wasm4pm." .
+
+pi:collapseAuditResult
+    a owl:DatatypeProperty ;
+    rdfs:label "collapse audit result" ;
+    rdfs:range xsd:string ;
+    skos:definition "The audit gate result for this collapse: PASS (no collapse found), FAIL (collapse found and blocking), MITIGATED (collapse found but deferred)." .
+
+# ============================================================
+# SECTION 3: Active Collapse Instances
+# ============================================================
+
+fcl:compat-to-json-string
+    a prov:Entity, pi:JSONSerializationCollapse ;
+    rdfs:label "ACTIVE COLLAPSE: to_json_string in compat manufacturing" ;
+    pi:collapseLocation "wasm4pm-compat/src/manufacturing/mod.rs:735" ;
+    pi:collapseStatus "ACTIVE" ;
+    pi:collapseAuditResult "FAIL" ;
+    pi:collapseRemediationPath "Remove to_json_string() from public API. Evidence<T> must not expose JSON serialization. Only permitted: typed export via ExportFormat::export(LossPolicy) returning FormatEnvelope<W>." ;
+    dcterms:description "pub fn to_json_string(&self) -> String in wasm4pm-compat manufacturing module. Destroys Evidence<T, State, Witness> typestate. Audit 1 FAIL in GGEN_ECOSYSTEM_INTEL_ALIVE_001. Blocking remediation required for compat v0.2.0." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:compat-receipt-json
+    a prov:Entity, pi:JSONSerializationCollapse ;
+    rdfs:label "ACTIVE COLLAPSE: receipt_json in compat manufacturing" ;
+    pi:collapseLocation "wasm4pm-compat/src/manufacturing/traits.rs:34" ;
+    pi:collapseStatus "ACTIVE" ;
+    pi:collapseAuditResult "FAIL" ;
+    pi:collapseRemediationPath "Remove receipt_json() from traits. Receipts must be carried as typed Receipt structures, not serialized to JSON strings at the compat boundary." ;
+    dcterms:description "fn receipt_json(&self) -> String in manufacturing traits. Serializes receipt structure to JSON, losing WellShaped type-law enforcement. Audit 1 FAIL in GGEN_ECOSYSTEM_INTEL_ALIVE_001." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:wasm-state-tag-string
+    a prov:Entity, pi:StateTagCollapse ;
+    rdfs:label "MITIGATED COLLAPSE: WasmStateTag::name as String" ;
+    pi:collapseLocation "wasm4pm-compat/src/wasm/boundary.rs (WasmStateTag)" ;
+    pi:collapseStatus "MITIGATED" ;
+    pi:collapseAuditResult "MITIGATED" ;
+    pi:collapseRemediationPath "By design — structure-only crate. Real validation happens at wasm4pm engine or trusted server-side code. TypeScript projections should strongly type state names via specta." ;
+    dcterms:description "WasmStateTag::name: String allows arbitrary state tag strings in WASM boundary. Legitimate values: Raw, Parsed, Admitted, Refused, Projected, Exportable, Receipted. Mitigation: validation deferred to wasm4pm engine." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:wasm-refusal-law-string
+    a prov:Entity, pi:RefusalLawCollapse ;
+    rdfs:label "MITIGATED COLLAPSE: WasmAdmissionResult::refusal_law as Option<String>" ;
+    pi:collapseLocation "wasm4pm-compat/src/wasm/boundary.rs (WasmAdmissionResult)" ;
+    pi:collapseStatus "MITIGATED" ;
+    pi:collapseAuditResult "MITIGATED" ;
+    pi:collapseRemediationPath "Server-side validation before trusting any WASM-returned DTO. TypeScript projections should constrain refusal_law to canonical enum values." ;
+    dcterms:description "WasmAdmissionResult::refusal_law: Option<String> allows forged law names. Mitigation: function validates preconditions before returning; deferred to wasm4pm for execution-level enforcement." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:wasm-evidence-ref-string
+    a prov:Entity, pi:EvidenceRefCollapse ;
+    rdfs:label "MITIGATED COLLAPSE: WasmGraduationCandidate::evidence_ref as String" ;
+    pi:collapseLocation "wasm4pm-compat/src/wasm/boundary.rs (WasmGraduationCandidate)" ;
+    pi:collapseStatus "MITIGATED" ;
+    pi:collapseAuditResult "MITIGATED" ;
+    pi:collapseRemediationPath "Graduation engine must verify provenance before execution. Add URI validation: evidence_ref must match blake3:[hex] or ocel:log#[id] pattern." ;
+    dcterms:description "WasmGraduationCandidate::evidence_ref: String allows arbitrary URI injection. Legitimate: Blake3 digests (blake3:abc123), OCEL pointers (ocel:log#42). Mitigation: type carries the claim; validation at graduation handoff." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:wasm-loss-items-vec
+    a prov:Entity, pi:LossItemCollapse ;
+    rdfs:label "MITIGATED COLLAPSE: WasmLossReport::items_dropped as Vec<String>" ;
+    pi:collapseLocation "wasm4pm-compat/src/wasm/boundary.rs (WasmLossReport)" ;
+    pi:collapseStatus "MITIGATED" ;
+    pi:collapseAuditResult "MITIGATED" ;
+    pi:collapseRemediationPath "Add size limit to create_loss_report(). wasm4pm must validate loss report schema before accepting. Legitimate items: field names (object_object_links, event_attributes), not arbitrary strings." ;
+    dcterms:description "WasmLossReport::items_dropped: Vec<String> with no size limit. create_loss_report() accepts caller-provided Vec without bounds check." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:ts-hardcoded-path
+    a prov:Entity, pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "DEFECT: Hardcoded Absolute Path in TypeScript Generation Test" ;
+    pi:collapseLocation "wasm4pm-compat/tests/graduation.rs" ;
+    pi:collapseStatus "ACTIVE" ;
+    pi:collapseAuditResult "FAIL" ;
+    pi:collapseRemediationPath "Replace absolute path /Users/sac/process-intelligence/experiments/visualizer/bindings.d.ts with relative path or TYPESCRIPT_BINDINGS_DIR environment variable." ;
+    dcterms:description "TypeScript binding generation test hardcodes absolute path. Test will fail if path does not exist or is not writable. Breaks reproducibility in CI/CD environments." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+# ============================================================
+# SECTION 4: Forbidden Tool Boundary Laws
+# ============================================================
+
+fcl:forbidden-discovery-in-compat
+    a prov:Entity ;
+    rdfs:label "Forbidden Tool: Discovery Algorithm in compat" ;
+    dcterms:description "NO discovery algorithm anywhere in wasm4pm-compat/src/. Forbidden functions: discover_model, run_conformance, simulate_replay, mint_receipt, benchmark_gate_run, execute_ocpq, rebuild_process_mining. Audit: audit-no-engine-in-wasm-feature.sh.ggen grep check. PASS verified (7/7 forbidden tools correctly blocked)." ;
+    pi:collapseAuditResult "PASS" ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:forbidden-tool-smuggling
+    a prov:Entity ;
+    rdfs:label "Forbidden Tool: Smuggled Algorithm Function Imports" ;
+    dcterms:description "Forbidden in compat: A* solver import, OCPQ query executor import, conformance checker import, alignment algorithm import. Audit: audit-no-tool-smuggling.sh.ggen. PASS verified (7/7 forbidden tools blocked)." ;
+    pi:collapseAuditResult "PASS" ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+fcl:feature-count-violation
+    a prov:Entity, pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "ACTIVE DEFECT: Undocumented Feature Count Violation" ;
+    dcterms:description "wasm4pm-compat documentation claims exactly 3 public Cargo features (formats, strict, wasm4pm). Actual: 5 features (also: ts, wasm). ts pulls in specta/serde/tsify/wasm-bindgen. wasm pulls in wasm-bindgen/serde-wasm-bindgen/tsify/serde/specta. Recommendation: document ts and wasm as public features or mark as internal." ;
+    pi:collapseLocation "wasm4pm-compat/Cargo.toml" ;
+    pi:collapseStatus "ACTIVE" ;
+    pi:collapseAuditResult "FAIL" ;
+    pi:collapseRemediationPath "Either: (a) add ts and wasm to documented feature covenant with purpose descriptions, or (b) mark as #[doc(hidden)] internal features not exposed in public API surface." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+# ============================================================
+# SECTION 5: Collapse Detection Audit Templates
+# ============================================================
+
+fcl:audit-no-dto-flattening
+    a prov:Entity ;
+    rdfs:label "Audit: No DTO Flattening" ;
+    dcterms:description "ggen audit template: audit-no-dto-flattening.sh.ggen. Pattern match: .*Dto, _json suffix method names, payload_json, state_tag as String. Status: FAIL (1 violation: to_json_string + receipt_json). Pass condition: zero JSON serialization methods in wasm4pm-compat public API." ;
+    schema:url <file:///Users/sac/process-intelligence/ggen/audits/audit-no-dto-flattening.sh.ggen> .
+
+fcl:audit-ts-enum-tagging
+    a prov:Entity ;
+    rdfs:label "Audit: TypeScript Enum Tagging" ;
+    dcterms:description "Verify all TypeScript enums tagged with brand tokens from component-projection-manifest.yaml. Prevents TypeScript consumers from using unbranded string literals where enum values are required." ;
+    schema:url <file:///Users/sac/process-intelligence/ggen/audits/audit-ts-enum-tagging.sh.ggen> .
+
+fcl:audit-component-boundary
+    a prov:Entity ;
+    rdfs:label "Audit: WASM Component Boundary Isolation" ;
+    dcterms:description "Verify WASM component boundary isolation: no raw data laundering between compat-world and engine-world WIT components. All engine functions consume evidence certified by compat-world validators." ;
+    schema:url <file:///Users/sac/process-intelligence/ggen/audits/audit-component-boundary.sh.ggen> .
+
+# ============================================================
+# SECTION 6: SHACL Constraints
+# ============================================================
+
+pi:ForbiddenCollapseInstanceShape
+    a sh:NodeShape ;
+    sh:targetClass pi:FORBIDDEN_COLLAPSE ;
+    sh:property [
+        sh:path pi:collapseLocation ;
+        sh:minCount 1 ;
+        sh:message "Every forbidden collapse instance must identify its location in source code." ;
+    ] ;
+    sh:property [
+        sh:path pi:collapseStatus ;
+        sh:minCount 1 ;
+        sh:in ("ACTIVE" "MITIGATED" "REMEDIATED") ;
+        sh:message "Collapse status must be ACTIVE, MITIGATED, or REMEDIATED." ;
+    ] ;
+    sh:property [
+        sh:path pi:collapseAuditResult ;
+        sh:minCount 1 ;
+        sh:in ("PASS" "FAIL" "MITIGATED") ;
+        sh:message "Collapse audit result must be PASS, FAIL, or MITIGATED." ;
+    ] .
+
+pi:ActiveCollapseBlocksAlive
+    a sh:NodeShape ;
+    sh:targetClass pi:ALIVE_CLAIM ;
+    sh:sparql [
+        sh:message "An ALIVE_CLAIM must not have active FAIL-status forbidden collapses in its scope." ;
+        sh:select """
+            PREFIX pi: <https://process.intelligence/ontology/>
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            SELECT $this WHERE {
+                $this a pi:ALIVE_CLAIM .
+                ?collapse a pi:FORBIDDEN_COLLAPSE ;
+                    pi:collapseAuditResult "FAIL" ;
+                    prov:wasPartOf ?project .
+                $this pi:authorizedDownstream ?project .
+            }
+        """ ;
+    ] .

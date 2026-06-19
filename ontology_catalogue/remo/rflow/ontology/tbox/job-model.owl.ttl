@@ -1,0 +1,486 @@
+@prefix job: <http://rflow.dev/ontology/job-model#> .
+@prefix yawl: <http://rflow.dev/ontology/yawl-core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+@base <http://rflow.dev/ontology/job-model> .
+
+# Import YAWL core ontology
+owl:imports yawl: .
+
+# Ontology metadata
+<> rdf:type owl:Ontology ;
+   dc:title "Job Model Ontology" ;
+   dc:description "Ontology for rflow job definitions, execution model, and runtime behavior" ;
+   dc:creator "rflow Team" ;
+   dc:created "2025-08-28T00:00:00Z"^^xsd:dateTime ;
+   dc:modified "2025-08-28T00:00:00Z"^^xsd:dateTime ;
+   owl:versionInfo "1.0.0" ;
+   dc:license "MIT" ;
+   owl:imports <http://rflow.dev/ontology/yawl-core> .
+
+#################################################################
+# Job Definition Classes
+#################################################################
+
+job:Job rdf:type owl:Class ;
+   rdfs:label "Job" ;
+   rdfs:comment "A job is a complete workflow definition that can be instantiated and executed" .
+
+job:JobDefinition rdf:type owl:Class ;
+   rdfs:subClassOf job:Job ;
+   rdfs:label "Job Definition" ;
+   rdfs:comment "The formal specification of a job including activities, flows, and constraints" .
+
+job:JobInstance rdf:type owl:Class ;
+   rdfs:label "Job Instance" ;
+   rdfs:comment "A running instance of a job definition" .
+
+job:WorkflowRun rdf:type owl:Class ;
+   rdfs:subClassOf job:JobInstance ;
+   rdfs:label "Workflow Run" ;
+   rdfs:comment "An executing workflow instance with state and history" .
+
+#################################################################
+# Plan Pack Components
+#################################################################
+
+job:PlanPack rdf:type owl:Class ;
+   rdfs:label "Plan Pack" ;
+   rdfs:comment "Immutable compiled workflow package containing plan.bin, slots.schema, assertions.json, and metadata.json" .
+
+job:CompiledPlan rdf:type owl:Class ;
+   rdfs:label "Compiled Plan" ;
+   rdfs:comment "Binary compiled workflow plan (plan.bin)" .
+
+job:SlotSchema rdf:type owl:Class ;
+   rdfs:label "Slot Schema" ;
+   rdfs:comment "Schema definition for workflow data slots" .
+
+job:PatternAssertions rdf:type owl:Class ;
+   rdfs:label "Pattern Assertions" ;
+   rdfs:comment "OWL reasoning results and RequiresRule flags" .
+
+job:PlanMetadata rdf:type owl:Class ;
+   rdfs:label "Plan Metadata" ;
+   rdfs:comment "Metadata about the plan including hashes and requirements" .
+
+#################################################################
+# Execution Model Classes
+#################################################################
+
+job:Shard rdf:type owl:Class ;
+   rdfs:label "Shard" ;
+   rdfs:comment "A logical partition for workflow execution" .
+
+job:ShardRunner rdf:type owl:Class ;
+   rdfs:label "Shard Runner" ;
+   rdfs:comment "Goroutine responsible for executing workflows in a shard" .
+
+job:Interpreter rdf:type owl:Class ;
+   rdfs:label "Interpreter" ;
+   rdfs:comment "Deterministic workflow execution engine" .
+
+job:ExecutionContext rdf:type owl:Class ;
+   rdfs:label "Execution Context" ;
+   rdfs:comment "Runtime context for workflow execution including state and variables" .
+
+#################################################################
+# State Management
+#################################################################
+
+job:WorkflowState rdf:type owl:Class ;
+   rdfs:label "Workflow State" ;
+   rdfs:comment "Current state of a workflow execution" .
+
+job:Snapshot rdf:type owl:Class ;
+   rdfs:label "Snapshot" ;
+   rdfs:comment "Point-in-time state snapshot for replay capability" .
+
+job:Event rdf:type owl:Class ;
+   rdfs:label "Event" ;
+   rdfs:comment "State change event in workflow execution" .
+
+# Event types
+job:Started rdf:type owl:Class ;
+   rdfs:subClassOf job:Event ;
+   rdfs:label "Started Event" ;
+   rdfs:comment "Workflow execution started" .
+
+job:CommandScheduled rdf:type owl:Class ;
+   rdfs:subClassOf job:Event ;
+   rdfs:label "Command Scheduled Event" ;
+   rdfs:comment "A command was scheduled for execution" .
+
+job:ActivityCompleted rdf:type owl:Class ;
+   rdfs:subClassOf job:Event ;
+   rdfs:label "Activity Completed Event" ;
+   rdfs:comment "An activity completed execution" .
+
+job:TimerFired rdf:type owl:Class ;
+   rdfs:subClassOf job:Event ;
+   rdfs:label "Timer Fired Event" ;
+   rdfs:comment "A timer event was triggered" .
+
+job:Signaled rdf:type owl:Class ;
+   rdfs:subClassOf job:Event ;
+   rdfs:label "Signaled Event" ;
+   rdfs:comment "A signal was received" .
+
+job:Completed rdf:type owl:Class ;
+   rdfs:subClassOf job:Event ;
+   rdfs:label "Completed Event" ;
+   rdfs:comment "Workflow execution completed" .
+
+#################################################################
+# Task Execution
+#################################################################
+
+job:TaskQueue rdf:type owl:Class ;
+   rdfs:label "Task Queue" ;
+   rdfs:comment "Queue for tasks awaiting execution" .
+
+job:TaskLease rdf:type owl:Class ;
+   rdfs:label "Task Lease" ;
+   rdfs:comment "Temporary exclusive assignment of a task to a worker" .
+
+job:WorkerSDK rdf:type owl:Class ;
+   rdfs:label "Worker SDK" ;
+   rdfs:comment "SDK for implementing activity workers" .
+
+job:ActivityWorker rdf:type owl:Class ;
+   rdfs:label "Activity Worker" ;
+   rdfs:comment "Worker process that executes activities" .
+
+#################################################################
+# Timer System
+#################################################################
+
+job:TimerService rdf:type owl:Class ;
+   rdfs:label "Timer Service" ;
+   rdfs:comment "Hierarchical timing wheel service" .
+
+job:TimerWheel rdf:type owl:Class ;
+   rdfs:label "Timer Wheel" ;
+   rdfs:comment "Hierarchical wheel data structure for efficient timer management" .
+
+job:TimerEvent rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Timer ;
+   rdfs:label "Timer Event" ;
+   rdfs:comment "Scheduled timer event" .
+
+#################################################################
+# Storage and Persistence
+#################################################################
+
+job:WAL rdf:type owl:Class ;
+   rdfs:label "Write Ahead Log" ;
+   rdfs:comment "Write-ahead log for durable event storage" .
+
+job:EventLog rdf:type owl:Class ;
+   rdfs:subClassOf job:WAL ;
+   rdfs:label "Event Log" ;
+   rdfs:comment "Log of workflow events for replay" .
+
+job:SnapshotStore rdf:type owl:Class ;
+   rdfs:label "Snapshot Store" ;
+   rdfs:comment "Storage for workflow state snapshots" .
+
+#################################################################
+# Idempotency and Consistency
+#################################################################
+
+job:IdempotencyKey rdf:type owl:Class ;
+   rdfs:label "Idempotency Key" ;
+   rdfs:comment "Unique key for ensuring exactly-once start and signal delivery" .
+
+job:CompletionToken rdf:type owl:Class ;
+   rdfs:label "Completion Token" ;
+   rdfs:comment "Single-use token for activity completion" .
+
+#################################################################
+# Build-time Components
+#################################################################
+
+job:ReasonerDriver rdf:type owl:Class ;
+   rdfs:label "Reasoner Driver" ;
+   rdfs:comment "Build-time component that runs OWL reasoning" .
+
+job:PlanPackCompiler rdf:type owl:Class ;
+   rdfs:label "PlanPack Compiler" ;
+   rdfs:comment "Build-time compiler that transforms ABox to PlanPack" .
+
+job:OntologyValidator rdf:type owl:Class ;
+   rdfs:label "Ontology Validator" ;
+   rdfs:comment "Validates workflow definitions against ontology" .
+
+#################################################################
+# Properties
+#################################################################
+
+# Job properties
+job:hasJobId rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:Job ;
+   rdfs:range xsd:string ;
+   rdfs:label "has job identifier" .
+
+job:hasRunId rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range xsd:string ;
+   rdfs:label "has run identifier" .
+
+job:hasPlanHash rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range xsd:string ;
+   rdfs:label "has plan hash" .
+
+job:hasTBoxHash rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range xsd:string ;
+   rdfs:label "has TBox hash" .
+
+# Execution properties
+job:hasShardId rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:Shard ;
+   rdfs:range xsd:integer ;
+   rdfs:label "has shard identifier" .
+
+job:hasProgramCounter rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:ExecutionContext ;
+   rdfs:range xsd:integer ;
+   rdfs:label "has program counter" .
+
+job:hasVersion rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:ExecutionContext ;
+   rdfs:range xsd:string ;
+   rdfs:label "has version" .
+
+# State properties
+job:hasCurrentState rdf:type owl:ObjectProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range job:WorkflowState ;
+   rdfs:label "has current state" .
+
+job:hasSnapshot rdf:type owl:ObjectProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range job:Snapshot ;
+   rdfs:label "has snapshot" .
+
+job:hasEvent rdf:type owl:ObjectProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range job:Event ;
+   rdfs:label "has event" .
+
+# Task properties
+job:hasQueue rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TaskLease ;
+   rdfs:range xsd:string ;
+   rdfs:label "has queue" .
+
+job:hasCommandId rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TaskLease ;
+   rdfs:range xsd:string ;
+   rdfs:label "has command identifier" .
+
+job:hasStickyKey rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TaskLease ;
+   rdfs:range xsd:string ;
+   rdfs:label "has sticky key" .
+
+job:hasLeaseExpiry rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TaskLease ;
+   rdfs:range xsd:dateTime ;
+   rdfs:label "has lease expiry" .
+
+# Timer properties
+job:hasTickInterval rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TimerWheel ;
+   rdfs:range xsd:duration ;
+   rdfs:label "has tick interval" .
+
+job:hasScheduledTime rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TimerEvent ;
+   rdfs:range xsd:dateTime ;
+   rdfs:label "has scheduled time" .
+
+# PlanPack composition
+job:hasPlan rdf:type owl:ObjectProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range job:CompiledPlan ;
+   rdfs:label "has plan" .
+
+job:hasSchema rdf:type owl:ObjectProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range job:SlotSchema ;
+   rdfs:label "has schema" .
+
+job:hasAssertions rdf:type owl:ObjectProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range job:PatternAssertions ;
+   rdfs:label "has assertions" .
+
+job:hasMetadata rdf:type owl:ObjectProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range job:PlanMetadata ;
+   rdfs:label "has metadata" .
+
+# Build-time relationships
+job:compiledFrom rdf:type owl:ObjectProperty ;
+   rdfs:domain job:PlanPack ;
+   rdfs:range job:JobDefinition ;
+   rdfs:label "compiled from" .
+
+job:validates rdf:type owl:ObjectProperty ;
+   rdfs:domain job:OntologyValidator ;
+   rdfs:range job:JobDefinition ;
+   rdfs:label "validates" .
+
+job:produces rdf:type owl:ObjectProperty ;
+   rdfs:domain job:PlanPackCompiler ;
+   rdfs:range job:PlanPack ;
+   rdfs:label "produces" .
+
+# Runtime relationships
+job:runsOn rdf:type owl:ObjectProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range job:Shard ;
+   rdfs:label "runs on" .
+
+job:executedBy rdf:type owl:ObjectProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range job:ShardRunner ;
+   rdfs:label "executed by" .
+
+job:assignedTo rdf:type owl:ObjectProperty ;
+   rdfs:domain job:TaskLease ;
+   rdfs:range job:ActivityWorker ;
+   rdfs:label "assigned to" .
+
+#################################################################
+# Performance and Metrics Properties
+#################################################################
+
+job:hasStepLatency rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:Event ;
+   rdfs:range xsd:duration ;
+   rdfs:label "has step latency" .
+
+job:hasE2ELatency rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range xsd:duration ;
+   rdfs:label "has end-to-end latency" .
+
+job:hasReplayLatency rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range xsd:duration ;
+   rdfs:label "has replay latency" .
+
+job:hasTimerJitter rdf:type owl:DatatypeProperty ;
+   rdfs:domain job:TimerEvent ;
+   rdfs:range xsd:duration ;
+   rdfs:label "has timer jitter" .
+
+#################################################################
+# Security and Access Control
+#################################################################
+
+job:AccessToken rdf:type owl:Class ;
+   rdfs:label "Access Token" ;
+   rdfs:comment "Security token for API access" .
+
+job:Namespace rdf:type owl:Class ;
+   rdfs:label "Namespace" ;
+   rdfs:comment "Logical grouping for isolation and quotas" .
+
+job:Quota rdf:type owl:Class ;
+   rdfs:label "Quota" ;
+   rdfs:comment "Resource usage limits per namespace" .
+
+job:hasAccessToken rdf:type owl:ObjectProperty ;
+   rdfs:domain job:JobInstance ;
+   rdfs:range job:AccessToken ;
+   rdfs:label "has access token" .
+
+job:belongsToNamespace rdf:type owl:ObjectProperty ;
+   rdfs:domain job:Job ;
+   rdfs:range job:Namespace ;
+   rdfs:label "belongs to namespace" .
+
+job:hasQuota rdf:type owl:ObjectProperty ;
+   rdfs:domain job:Namespace ;
+   rdfs:range job:Quota ;
+   rdfs:label "has quota" .
+
+#################################################################
+# Constraints and Axioms
+#################################################################
+
+# Every job instance must have a unique run ID
+job:JobInstance rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasRunId ;
+   owl:cardinality 1
+] .
+
+# Every PlanPack must have a unique plan hash
+job:PlanPack rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasPlanHash ;
+   owl:cardinality 1
+] .
+
+# Every PlanPack must contain all required components
+job:PlanPack rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasPlan ;
+   owl:cardinality 1
+] .
+
+job:PlanPack rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasSchema ;
+   owl:cardinality 1
+] .
+
+job:PlanPack rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasAssertions ;
+   owl:cardinality 1
+] .
+
+job:PlanPack rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasMetadata ;
+   owl:cardinality 1
+] .
+
+# Shards must have valid IDs (0-63 for 64 default shards)
+job:Shard rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasShardId ;
+   owl:allValuesFrom [
+      rdf:type rdfs:Datatype ;
+      owl:onDatatype xsd:integer ;
+      owl:withRestrictions (
+         [ xsd:minInclusive 0 ]
+         [ xsd:maxInclusive 63 ]
+      )
+   ]
+] .
+
+# Task leases must have expiry times
+job:TaskLease rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:hasLeaseExpiry ;
+   owl:cardinality 1
+] .
+
+# Job instances must run on exactly one shard
+job:JobInstance rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty job:runsOn ;
+   owl:cardinality 1
+] .

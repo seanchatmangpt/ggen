@@ -1,0 +1,1071 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix mp: <https://bytestar.org/ontology/marketplace/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ================================================================
+# ByteStar N-Dimensional Marketplace Offers Ontology (.offer/.ask)
+# Defines comprehensive offer and bid modeling with vector matching
+# Version: 5.0.0 - Marketplace Crystals
+# Domain: N-dimensional offer/ask matching with optimization algorithms
+# ================================================================
+
+<https://bytestar.org/ontology/marketplace/offer> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/v5/marketplace/offer> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar N-Dimensional Marketplace Offers Ontology" ;
+    dcterms:description "Comprehensive offer/ask system with N-dimensional vector matching, optimization algorithms, and cross-organizational trading capabilities" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <https://bytestar.org/ontology/marketplace/asset> ,
+                <https://bytestar.org/ontology/resource-allocation> ,
+                <https://bytestar.org/ontology/performance-measurement> ,
+                <https://bytestar.org/ontology/optimization-engine> .
+
+# ================================================================
+# CORE OFFER CLASSES (80% REUSE + 20% NEW)
+# ================================================================
+
+## Primary Offer/Ask Framework
+mp:MarketOffer a owl:Class ;
+    rdfs:label "Market Offer" ;
+    rdfs:comment "N-dimensional market offer with vector constraints and optimization targets" ;
+    rdfs:subClassOf ba:ResourceAllocation ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOfferVector ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOfferType ;
+        owl:cardinality 1
+    ] .
+
+mp:Offer a owl:Class ;
+    rdfs:label "Offer" ;
+    rdfs:comment "Supply-side offer to provide assets" ;
+    rdfs:subClassOf mp:MarketOffer ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:offersAsset ;
+        owl:cardinality 1
+    ] .
+
+mp:Ask a owl:Class ;
+    rdfs:label "Ask" ;
+    rdfs:comment "Demand-side request to acquire assets" ;
+    rdfs:subClassOf mp:MarketOffer ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:requestsAsset ;
+        owl:cardinality 1
+    ] .
+
+mp:Bid a owl:Class ;
+    rdfs:label "Bid" ;
+    rdfs:comment "Competitive bid with price and terms" ;
+    rdfs:subClassOf mp:Ask ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasBidPrice ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OFFER TYPE HIERARCHY
+# ================================================================
+
+mp:OfferType a owl:Class ;
+    rdfs:label "Offer Type" ;
+    rdfs:comment "Classification of offer/ask types" ;
+    rdfs:subClassOf skos:Concept .
+
+## Market Structure Types
+mp:MarketOrder a mp:OfferType ;
+    rdfs:label "Market Order" ;
+    rdfs:comment "Execute immediately at current market price" ;
+    skos:prefLabel "market" .
+
+mp:LimitOrder a mp:OfferType ;
+    rdfs:label "Limit Order" ;
+    rdfs:comment "Execute only at specified price or better" ;
+    skos:prefLabel "limit" .
+
+mp:StopOrder a mp:OfferType ;
+    rdfs:label "Stop Order" ;
+    rdfs:comment "Execute when price reaches trigger level" ;
+    skos:prefLabel "stop" .
+
+mp:StopLimitOrder a mp:OfferType ;
+    rdfs:label "Stop Limit Order" ;
+    rdfs:comment "Stop order that becomes limit order when triggered" ;
+    skos:prefLabel "stop-limit" .
+
+## Time-Based Types
+mp:ImmediateOrCancel a mp:OfferType ;
+    rdfs:label "Immediate or Cancel" ;
+    rdfs:comment "Execute immediately, cancel any unfilled portion" ;
+    skos:prefLabel "ioc" .
+
+mp:FillOrKill a mp:OfferType ;
+    rdfs:label "Fill or Kill" ;
+    rdfs:comment "Execute completely or cancel entirely" ;
+    skos:prefLabel "fok" .
+
+mp:GoodTilCanceled a mp:OfferType ;
+    rdfs:label "Good Til Canceled" ;
+    rdfs:comment "Remain active until explicitly canceled" ;
+    skos:prefLabel "gtc" .
+
+mp:GoodTilDate a mp:OfferType ;
+    rdfs:label "Good Til Date" ;
+    rdfs:comment "Remain active until specified date" ;
+    skos:prefLabel "gtd" .
+
+## Advanced Types
+mp:IcebergOrder a mp:OfferType ;
+    rdfs:label "Iceberg Order" ;
+    rdfs:comment "Large order with only small portion visible" ;
+    skos:prefLabel "iceberg" .
+
+mp:AlgorithmicOrder a mp:OfferType ;
+    rdfs:label "Algorithmic Order" ;
+    rdfs:comment "Automated order execution using algorithms" ;
+    skos:prefLabel "algo" .
+
+mp:BasketOrder a mp:OfferType ;
+    rdfs:label "Basket Order" ;
+    rdfs:comment "Order for multiple assets simultaneously" ;
+    skos:prefLabel "basket" .
+
+# ================================================================
+# N-DIMENSIONAL OFFER VECTOR
+# ================================================================
+
+mp:OfferVector a owl:Class ;
+    rdfs:label "Offer Vector" ;
+    rdfs:comment "N-dimensional vector representing offer constraints and preferences in trading space" ;
+    rdfs:subClassOf mp:AssetVector ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasConstraint ;
+        owl:minCardinality 1
+    ] .
+
+mp:OfferConstraint a owl:Class ;
+    rdfs:label "Offer Constraint" ;
+    rdfs:comment "Constraint on offer matching in specific dimension" ;
+    rdfs:subClassOf ba:OptimizationConstraint ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:constraintDimension ;
+        owl:cardinality 1
+    ] .
+
+mp:HardConstraint a mp:OfferConstraint ;
+    rdfs:label "Hard Constraint" ;
+    rdfs:comment "Constraint that must be satisfied exactly (no tolerance)" .
+
+mp:SoftConstraint a mp:OfferConstraint ;
+    rdfs:label "Soft Constraint" ;
+    rdfs:comment "Constraint with acceptable tolerance range" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTolerance ;
+        owl:cardinality 1
+    ] .
+
+mp:PreferenceConstraint a mp:OfferConstraint ;
+    rdfs:label "Preference Constraint" ;
+    rdfs:comment "Preference that influences matching optimization but not requirement" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPreferenceWeight ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# PRICING & VALUATION
+# ================================================================
+
+mp:Pricing a owl:Class ;
+    rdfs:label "Pricing" ;
+    rdfs:comment "Pricing model and valuation for offers" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPriceValue ;
+        owl:cardinality 1
+    ] .
+
+mp:FixedPricing a mp:Pricing ;
+    rdfs:label "Fixed Pricing" ;
+    rdfs:comment "Fixed price regardless of market conditions" .
+
+mp:DynamicPricing a mp:Pricing ;
+    rdfs:label "Dynamic Pricing" ;
+    rdfs:comment "Price that adjusts based on market conditions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPricingAlgorithm ;
+        owl:cardinality 1
+    ] .
+
+mp:AuctionPricing a mp:Pricing ;
+    rdfs:label "Auction Pricing" ;
+    rdfs:comment "Price determined through auction mechanism" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAuctionType ;
+        owl:cardinality 1
+    ] .
+
+mp:TieredPricing a mp:Pricing ;
+    rdfs:label "Tiered Pricing" ;
+    rdfs:comment "Price varies based on quantity tiers" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPricingTier ;
+        owl:minCardinality 1
+    ] .
+
+## Pricing Tiers
+mp:PricingTier a owl:Class ;
+    rdfs:label "Pricing Tier" ;
+    rdfs:comment "Quantity-based pricing tier" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMinQuantity ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMaxQuantity ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTierPrice ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# MATCHING & OPTIMIZATION ENGINE
+# ================================================================
+
+mp:OfferMatcher a owl:Class ;
+    rdfs:label "Offer Matcher" ;
+    rdfs:comment "Engine for matching offers with asks using N-dimensional optimization" ;
+    rdfs:subClassOf ba:OptimizationEngine ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:usesMatchingAlgorithm ;
+        owl:cardinality 1
+    ] .
+
+mp:MatchingAlgorithm a owl:Class ;
+    rdfs:label "Matching Algorithm" ;
+    rdfs:comment "Algorithm for optimal offer/ask matching" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMatchingCriteria ;
+        owl:minCardinality 1
+    ] .
+
+## Matching Algorithm Types
+mp:VectorDistanceMatching a mp:MatchingAlgorithm ;
+    rdfs:label "Vector Distance Matching" ;
+    rdfs:comment "Matching based on N-dimensional vector distance" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDistanceMetric ;
+        owl:cardinality 1
+    ] .
+
+mp:WeightedScoreMatching a mp:MatchingAlgorithm ;
+    rdfs:label "Weighted Score Matching" ;
+    rdfs:comment "Matching based on weighted scoring of dimensions" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDimensionWeight ;
+        owl:minCardinality 8  # 8 core dimensions
+    ] .
+
+mp:GeneticMatching a mp:MatchingAlgorithm ;
+    rdfs:label "Genetic Matching" ;
+    rdfs:comment "Evolutionary algorithm for optimal matching" ;
+    rdfs:subClassOf ba:GeneticAlgorithm .  # Reuse from optimization-engine
+
+mp:SimulatedAnnealingMatching a mp:MatchingAlgorithm ;
+    rdfs:label "Simulated Annealing Matching" ;
+    rdfs:comment "Simulated annealing for global optimal matching" ;
+    rdfs:subClassOf ba:SimulatedAnnealing .  # Reuse from optimization-engine
+
+mp:MachineLearningMatching a mp:MatchingAlgorithm ;
+    rdfs:label "Machine Learning Matching" ;
+    rdfs:comment "ML-based matching with continuous learning" ;
+    rdfs:subClassOf ba:MachineLearningOptimization .  # Reuse from optimization-engine
+
+# ================================================================
+# MATCHING RESULTS & COMPATIBILITY
+# ================================================================
+
+mp:MatchResult a owl:Class ;
+    rdfs:label "Match Result" ;
+    rdfs:comment "Result of offer/ask matching with compatibility score" ;
+    rdfs:subClassOf ba:OptimizationResult ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCompatibilityScore ;
+        owl:cardinality 1
+    ] .
+
+mp:CompatibilityScore a owl:Class ;
+    rdfs:label "Compatibility Score" ;
+    rdfs:comment "Multi-dimensional compatibility assessment" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOverallScore ;
+        owl:cardinality 1
+    ] .
+
+mp:DimensionCompatibility a owl:Class ;
+    rdfs:label "Dimension Compatibility" ;
+    rdfs:comment "Compatibility assessment for specific dimension" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:forDimension ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCompatibilityValue ;
+        owl:cardinality 1
+    ] .
+
+mp:MatchQuality a owl:Class ;
+    rdfs:label "Match Quality" ;
+    rdfs:comment "Quality metrics for match results" ;
+    rdfs:subClassOf ba:AssetQuality ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMatchConfidence ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OFFER LIFECYCLE & STATE MANAGEMENT
+# ================================================================
+
+mp:OfferState a owl:Class ;
+    rdfs:label "Offer State" ;
+    rdfs:comment "Current state of offer in its lifecycle" ;
+    rdfs:subClassOf skos:Concept .
+
+mp:Draft a mp:OfferState ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Offer being prepared, not yet submitted" ;
+    skos:prefLabel "draft" .
+
+mp:Submitted a mp:OfferState ;
+    rdfs:label "Submitted" ;
+    rdfs:comment "Offer submitted to marketplace for matching" ;
+    skos:prefLabel "submitted" .
+
+mp:Active a mp:OfferState ;
+    rdfs:label "Active" ;
+    rdfs:comment "Offer actively seeking matches" ;
+    skos:prefLabel "active" .
+
+mp:PartiallyFilled a mp:OfferState ;
+    rdfs:label "Partially Filled" ;
+    rdfs:comment "Offer partially matched, remaining quantity active" ;
+    skos:prefLabel "partial" .
+
+mp:Filled a mp:OfferState ;
+    rdfs:label "Filled" ;
+    rdfs:comment "Offer completely matched and fulfilled" ;
+    skos:prefLabel "filled" .
+
+mp:Canceled a mp:OfferState ;
+    rdfs:label "Canceled" ;
+    rdfs:comment "Offer canceled by submitter" ;
+    skos:prefLabel "canceled" .
+
+mp:Expired a mp:OfferState ;
+    rdfs:label "Expired" ;
+    rdfs:comment "Offer expired due to time limits" ;
+    skos:prefLabel "expired" .
+
+mp:Rejected a mp:OfferState ;
+    rdfs:label "Rejected" ;
+    rdfs:comment "Offer rejected due to validation or compliance issues" ;
+    skos:prefLabel "rejected" .
+
+# ================================================================
+# OFFER BOOK & MARKET STRUCTURE
+# ================================================================
+
+mp:OfferBook a owl:Class ;
+    rdfs:label "Offer Book" ;
+    rdfs:comment "Organized collection of active offers and asks" ;
+    rdfs:subClassOf ba:ResourceAllocator ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:containsOffer ;
+        owl:minCardinality 0
+    ] .
+
+mp:OrderBook a mp:OfferBook ;
+    rdfs:label "Order Book" ;
+    rdfs:comment "Traditional order book with bid/ask spread" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasBidAskSpread ;
+        owl:cardinality 1
+    ] .
+
+mp:MarketDepth a owl:Class ;
+    rdfs:label "Market Depth" ;
+    rdfs:comment "Analysis of offer book depth and liquidity" ;
+    rdfs:subClassOf ba:PerformanceMeasurement ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasLiquidityScore ;
+        owl:cardinality 1
+    ] .
+
+mp:BidAskSpread a owl:Class ;
+    rdfs:label "Bid-Ask Spread" ;
+    rdfs:comment "Difference between highest bid and lowest ask" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSpreadValue ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# AUCTION MECHANISMS
+# ================================================================
+
+mp:AuctionMechanism a owl:Class ;
+    rdfs:label "Auction Mechanism" ;
+    rdfs:comment "Mechanism for price discovery through auctions" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAuctionRules ;
+        owl:cardinality 1
+    ] .
+
+mp:EnglishAuction a mp:AuctionMechanism ;
+    rdfs:label "English Auction" ;
+    rdfs:comment "Ascending price auction with open bidding" .
+
+mp:DutchAuction a mp:AuctionMechanism ;
+    rdfs:label "Dutch Auction" ;
+    rdfs:comment "Descending price auction until first acceptance" .
+
+mp:SealedBidAuction a mp:AuctionMechanism ;
+    rdfs:label "Sealed Bid Auction" ;
+    rdfs:comment "Sealed bid auction with simultaneous revelation" .
+
+mp:VickreyAuction a mp:AuctionMechanism ;
+    rdfs:label "Vickrey Auction" ;
+    rdfs:comment "Second-price sealed bid auction" .
+
+mp:CombinatorialAuction a mp:AuctionMechanism ;
+    rdfs:label "Combinatorial Auction" ;
+    rdfs:comment "Auction for combinations of multiple assets" .
+
+mp:DoubleAuction a mp:AuctionMechanism ;
+    rdfs:label "Double Auction" ;
+    rdfs:comment "Continuous auction with both buyers and sellers" .
+
+# ================================================================
+# OBJECT PROPERTIES
+# ================================================================
+
+## Core Offer Properties
+mp:hasOfferVector a owl:ObjectProperty ;
+    rdfs:label "has offer vector" ;
+    rdfs:comment "N-dimensional vector representing offer constraints" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range mp:OfferVector .
+
+mp:hasOfferType a owl:ObjectProperty ;
+    rdfs:label "has offer type" ;
+    rdfs:comment "Type classification of the offer" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range mp:OfferType .
+
+mp:offersAsset a owl:ObjectProperty ;
+    rdfs:label "offers asset" ;
+    rdfs:comment "Asset being offered for trade" ;
+    rdfs:domain mp:Offer ;
+    rdfs:range mp:Asset .
+
+mp:requestsAsset a owl:ObjectProperty ;
+    rdfs:label "requests asset" ;
+    rdfs:comment "Asset being requested in ask" ;
+    rdfs:domain mp:Ask ;
+    rdfs:range mp:Asset .
+
+## Constraint Properties
+mp:hasConstraint a owl:ObjectProperty ;
+    rdfs:label "has constraint" ;
+    rdfs:comment "Constraint applied to offer matching" ;
+    rdfs:domain mp:OfferVector ;
+    rdfs:range mp:OfferConstraint .
+
+mp:constraintDimension a owl:ObjectProperty ;
+    rdfs:label "constraint dimension" ;
+    rdfs:comment "Vector dimension to which constraint applies" ;
+    rdfs:domain mp:OfferConstraint ;
+    rdfs:range mp:VectorDimension .
+
+## Pricing Properties
+mp:hasPricing a owl:ObjectProperty ;
+    rdfs:label "has pricing" ;
+    rdfs:comment "Pricing model for the offer" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range mp:Pricing .
+
+mp:hasPricingTier a owl:ObjectProperty ;
+    rdfs:label "has pricing tier" ;
+    rdfs:comment "Quantity-based pricing tier" ;
+    rdfs:domain mp:TieredPricing ;
+    rdfs:range mp:PricingTier .
+
+## Matching Properties
+mp:usesMatchingAlgorithm a owl:ObjectProperty ;
+    rdfs:label "uses matching algorithm" ;
+    rdfs:comment "Algorithm used for offer/ask matching" ;
+    rdfs:domain mp:OfferMatcher ;
+    rdfs:range mp:MatchingAlgorithm .
+
+mp:hasMatchingCriteria a owl:ObjectProperty ;
+    rdfs:label "has matching criteria" ;
+    rdfs:comment "Criteria for evaluating matches" ;
+    rdfs:domain mp:MatchingAlgorithm ;
+    rdfs:range mp:MatchingCriteria .
+
+mp:producesMatch a owl:ObjectProperty ;
+    rdfs:label "produces match" ;
+    rdfs:comment "Match result produced by matching algorithm" ;
+    rdfs:domain mp:OfferMatcher ;
+    rdfs:range mp:MatchResult .
+
+mp:hasCompatibilityScore a owl:ObjectProperty ;
+    rdfs:label "has compatibility score" ;
+    rdfs:comment "Multi-dimensional compatibility assessment" ;
+    rdfs:domain mp:MatchResult ;
+    rdfs:range mp:CompatibilityScore .
+
+mp:hasDimensionCompatibility a owl:ObjectProperty ;
+    rdfs:label "has dimension compatibility" ;
+    rdfs:comment "Compatibility score for specific dimension" ;
+    rdfs:domain mp:CompatibilityScore ;
+    rdfs:range mp:DimensionCompatibility .
+
+## State Management Properties
+mp:hasState a owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:comment "Current state of the offer" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range mp:OfferState .
+
+mp:stateTransition a owl:ObjectProperty ;
+    rdfs:label "state transition" ;
+    rdfs:comment "Transition from one state to another" ;
+    rdfs:domain mp:OfferState ;
+    rdfs:range mp:OfferState .
+
+## Market Structure Properties
+mp:containsOffer a owl:ObjectProperty ;
+    rdfs:label "contains offer" ;
+    rdfs:comment "Offer contained in the offer book" ;
+    rdfs:domain mp:OfferBook ;
+    rdfs:range mp:MarketOffer .
+
+mp:hasBidAskSpread a owl:ObjectProperty ;
+    rdfs:label "has bid-ask spread" ;
+    rdfs:comment "Current bid-ask spread in the market" ;
+    rdfs:domain mp:OrderBook ;
+    rdfs:range mp:BidAskSpread .
+
+mp:hasMarketDepth a owl:ObjectProperty ;
+    rdfs:label "has market depth" ;
+    rdfs:comment "Market depth analysis" ;
+    rdfs:domain mp:OfferBook ;
+    rdfs:range mp:MarketDepth .
+
+## Auction Properties
+mp:hasAuctionType a owl:ObjectProperty ;
+    rdfs:label "has auction type" ;
+    rdfs:comment "Type of auction mechanism" ;
+    rdfs:domain mp:AuctionPricing ;
+    rdfs:range mp:AuctionMechanism .
+
+mp:hasAuctionRules a owl:ObjectProperty ;
+    rdfs:label "has auction rules" ;
+    rdfs:comment "Rules governing the auction" ;
+    rdfs:domain mp:AuctionMechanism ;
+    rdfs:range mp:AuctionRules .
+
+## Dimension Compatibility Properties
+mp:forDimension a owl:ObjectProperty ;
+    rdfs:label "for dimension" ;
+    rdfs:comment "Vector dimension being assessed for compatibility" ;
+    rdfs:domain mp:DimensionCompatibility ;
+    rdfs:range mp:VectorDimension .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+## Core Offer Data Properties
+mp:hasOfferId a owl:DatatypeProperty ;
+    rdfs:label "has offer ID" ;
+    rdfs:comment "Unique identifier for the offer" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:string .
+
+mp:hasOfferTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has offer timestamp" ;
+    rdfs:comment "Timestamp when offer was created" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:dateTime .
+
+mp:hasExpirationTime a owl:DatatypeProperty ;
+    rdfs:label "has expiration time" ;
+    rdfs:comment "Time when offer expires" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:dateTime .
+
+## Quantity Properties
+mp:hasOfferQuantity a owl:DatatypeProperty ;
+    rdfs:label "has offer quantity" ;
+    rdfs:comment "Quantity of asset being offered" ;
+    rdfs:domain mp:Offer ;
+    rdfs:range xsd:decimal .
+
+mp:hasRequestedQuantity a owl:DatatypeProperty ;
+    rdfs:label "has requested quantity" ;
+    rdfs:comment "Quantity of asset being requested" ;
+    rdfs:domain mp:Ask ;
+    rdfs:range xsd:decimal .
+
+mp:hasFilledQuantity a owl:DatatypeProperty ;
+    rdfs:label "has filled quantity" ;
+    rdfs:comment "Quantity that has been matched and filled" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:decimal .
+
+mp:hasRemainingQuantity a owl:DatatypeProperty ;
+    rdfs:label "has remaining quantity" ;
+    rdfs:comment "Quantity remaining to be filled" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:decimal .
+
+## Pricing Data Properties
+mp:hasPriceValue a owl:DatatypeProperty ;
+    rdfs:label "has price value" ;
+    rdfs:comment "Price value for the offer" ;
+    rdfs:domain mp:Pricing ;
+    rdfs:range xsd:decimal .
+
+mp:hasBidPrice a owl:DatatypeProperty ;
+    rdfs:label "has bid price" ;
+    rdfs:comment "Maximum price willing to pay" ;
+    rdfs:domain mp:Bid ;
+    rdfs:range xsd:decimal .
+
+mp:hasAskPrice a owl:DatatypeProperty ;
+    rdfs:label "has ask price" ;
+    rdfs:comment "Minimum price willing to accept" ;
+    rdfs:domain mp:Offer ;
+    rdfs:range xsd:decimal .
+
+mp:hasPriceUnit a owl:DatatypeProperty ;
+    rdfs:label "has price unit" ;
+    rdfs:comment "Unit for price measurement" ;
+    rdfs:domain mp:Pricing ;
+    rdfs:range xsd:string .
+
+mp:hasPricingAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "has pricing algorithm" ;
+    rdfs:comment "Algorithm used for dynamic pricing" ;
+    rdfs:domain mp:DynamicPricing ;
+    rdfs:range xsd:string .
+
+## Pricing Tier Properties
+mp:hasMinQuantity a owl:DatatypeProperty ;
+    rdfs:label "has minimum quantity" ;
+    rdfs:comment "Minimum quantity for pricing tier" ;
+    rdfs:domain mp:PricingTier ;
+    rdfs:range xsd:decimal .
+
+mp:hasMaxQuantity a owl:DatatypeProperty ;
+    rdfs:label "has maximum quantity" ;
+    rdfs:comment "Maximum quantity for pricing tier" ;
+    rdfs:domain mp:PricingTier ;
+    rdfs:range xsd:decimal .
+
+mp:hasTierPrice a owl:DatatypeProperty ;
+    rdfs:label "has tier price" ;
+    rdfs:comment "Price for this quantity tier" ;
+    rdfs:domain mp:PricingTier ;
+    rdfs:range xsd:decimal .
+
+## Constraint Properties
+mp:hasTolerance a owl:DatatypeProperty ;
+    rdfs:label "has tolerance" ;
+    rdfs:comment "Acceptable tolerance for soft constraint" ;
+    rdfs:domain mp:SoftConstraint ;
+    rdfs:range xsd:decimal .
+
+mp:hasPreferenceWeight a owl:DatatypeProperty ;
+    rdfs:label "has preference weight" ;
+    rdfs:comment "Weight for preference in optimization (0.0-1.0)" ;
+    rdfs:domain mp:PreferenceConstraint ;
+    rdfs:range xsd:decimal .
+
+mp:hasConstraintValue a owl:DatatypeProperty ;
+    rdfs:label "has constraint value" ;
+    rdfs:comment "Target value for the constraint" ;
+    rdfs:domain mp:OfferConstraint ;
+    rdfs:range xsd:decimal .
+
+## Matching Algorithm Properties
+mp:hasDistanceMetric a owl:DatatypeProperty ;
+    rdfs:label "has distance metric" ;
+    rdfs:comment "Distance metric used (euclidean, manhattan, cosine, etc.)" ;
+    rdfs:domain mp:VectorDistanceMatching ;
+    rdfs:range xsd:string .
+
+mp:hasDimensionWeight a owl:DatatypeProperty ;
+    rdfs:label "has dimension weight" ;
+    rdfs:comment "Weight for specific dimension in matching" ;
+    rdfs:domain mp:WeightedScoreMatching ;
+    rdfs:range xsd:decimal .
+
+## Compatibility Scoring Properties
+mp:hasOverallScore a owl:DatatypeProperty ;
+    rdfs:label "has overall score" ;
+    rdfs:comment "Overall compatibility score (0.0-1.0)" ;
+    rdfs:domain mp:CompatibilityScore ;
+    rdfs:range xsd:decimal .
+
+mp:hasCompatibilityValue a owl:DatatypeProperty ;
+    rdfs:label "has compatibility value" ;
+    rdfs:comment "Compatibility value for specific dimension (0.0-1.0)" ;
+    rdfs:domain mp:DimensionCompatibility ;
+    rdfs:range xsd:decimal .
+
+mp:hasMatchConfidence a owl:DatatypeProperty ;
+    rdfs:label "has match confidence" ;
+    rdfs:comment "Confidence level in match quality (0.0-1.0)" ;
+    rdfs:domain mp:MatchQuality ;
+    rdfs:range xsd:decimal .
+
+## Market Depth Properties
+mp:hasLiquidityScore a owl:DatatypeProperty ;
+    rdfs:label "has liquidity score" ;
+    rdfs:comment "Market liquidity score (0.0-1.0)" ;
+    rdfs:domain mp:MarketDepth ;
+    rdfs:range xsd:decimal .
+
+mp:hasSpreadValue a owl:DatatypeProperty ;
+    rdfs:label "has spread value" ;
+    rdfs:comment "Bid-ask spread value" ;
+    rdfs:domain mp:BidAskSpread ;
+    rdfs:range xsd:decimal .
+
+mp:hasSpreadPercentage a owl:DatatypeProperty ;
+    rdfs:label "has spread percentage" ;
+    rdfs:comment "Bid-ask spread as percentage of mid-price" ;
+    rdfs:domain mp:BidAskSpread ;
+    rdfs:range xsd:decimal .
+
+## Performance Properties
+mp:hasMatchingLatency a owl:DatatypeProperty ;
+    rdfs:label "has matching latency" ;
+    rdfs:comment "Time required for matching in ticks (per Doctrine of 8)" ;
+    rdfs:domain mp:OfferMatcher ;
+    rdfs:range xsd:decimal .
+
+mp:hasMatchingThroughput a owl:DatatypeProperty ;
+    rdfs:label "has matching throughput" ;
+    rdfs:comment "Number of matches processed per second" ;
+    rdfs:domain mp:OfferMatcher ;
+    rdfs:range xsd:decimal .
+
+## Submitter Properties
+mp:hasSubmitterId a owl:DatatypeProperty ;
+    rdfs:label "has submitter ID" ;
+    rdfs:comment "ID of organization that submitted the offer" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:string .
+
+mp:hasSubmitterName a owl:DatatypeProperty ;
+    rdfs:label "has submitter name" ;
+    rdfs:comment "Name of organization that submitted the offer" ;
+    rdfs:domain mp:MarketOffer ;
+    rdfs:range xsd:string .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+mp:MarketOfferValidationShape a sh:NodeShape ;
+    sh:targetClass mp:MarketOffer ;
+    rdfs:label "Market Offer Validation" ;
+    rdfs:comment "Validates market offer completeness and correctness" ;
+    sh:property [
+        sh:path mp:hasOfferVector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:OfferVector ;
+        sh:message "Market offer must have exactly one offer vector"
+    ] ;
+    sh:property [
+        sh:path mp:hasOfferId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$" ;
+        sh:message "Offer must have a valid UUID identifier"
+    ] ;
+    sh:property [
+        sh:path mp:hasState ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:OfferState ;
+        sh:message "Offer must have exactly one state"
+    ] .
+
+mp:OfferVectorValidationShape a sh:NodeShape ;
+    sh:targetClass mp:OfferVector ;
+    rdfs:label "Offer Vector Validation" ;
+    rdfs:comment "Validates N-dimensional offer vector constraints" ;
+    sh:property [
+        sh:path mp:hasDimension ;
+        sh:minCount 8 ;
+        sh:class mp:VectorDimension ;
+        sh:message "Offer vector must have at least 8 dimensions"
+    ] ;
+    sh:property [
+        sh:path mp:hasConstraint ;
+        sh:minCount 1 ;
+        sh:class mp:OfferConstraint ;
+        sh:message "Offer vector must have at least one constraint"
+    ] .
+
+mp:OfferConstraintValidationShape a sh:NodeShape ;
+    sh:targetClass mp:OfferConstraint ;
+    rdfs:label "Offer Constraint Validation" ;
+    rdfs:comment "Validates offer constraint specifications" ;
+    sh:property [
+        sh:path mp:constraintDimension ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:VectorDimension ;
+        sh:message "Constraint must specify exactly one dimension"
+    ] ;
+    sh:property [
+        sh:path mp:hasConstraintValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Constraint must have a target value"
+    ] .
+
+mp:SoftConstraintValidationShape a sh:NodeShape ;
+    sh:targetClass mp:SoftConstraint ;
+    rdfs:label "Soft Constraint Validation" ;
+    rdfs:comment "Validates soft constraint tolerance values" ;
+    sh:property [
+        sh:path mp:hasTolerance ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Tolerance must be between 0.0 and 1.0"
+    ] .
+
+mp:PreferenceConstraintValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PreferenceConstraint ;
+    rdfs:label "Preference Constraint Validation" ;
+    rdfs:comment "Validates preference weight values" ;
+    sh:property [
+        sh:path mp:hasPreferenceWeight ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Preference weight must be between 0.0 and 1.0"
+    ] .
+
+mp:PricingValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Pricing ;
+    rdfs:label "Pricing Validation" ;
+    rdfs:comment "Validates pricing configurations" ;
+    sh:property [
+        sh:path mp:hasPriceValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Price value must be positive"
+    ] .
+
+mp:PricingTierValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PricingTier ;
+    rdfs:label "Pricing Tier Validation" ;
+    rdfs:comment "Validates pricing tier ranges and prices" ;
+    sh:property [
+        sh:path mp:hasMinQuantity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Minimum quantity must be non-negative"
+    ] ;
+    sh:property [
+        sh:path mp:hasMaxQuantity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Maximum quantity must be positive"
+    ] ;
+    sh:sparql [
+        sh:message "Maximum quantity must be greater than minimum quantity" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasMinQuantity ?min .
+                $this mp:hasMaxQuantity ?max .
+                FILTER (?max <= ?min)
+            }
+        """
+    ] .
+
+mp:CompatibilityScoreValidationShape a sh:NodeShape ;
+    sh:targetClass mp:CompatibilityScore ;
+    rdfs:label "Compatibility Score Validation" ;
+    rdfs:comment "Validates compatibility score ranges" ;
+    sh:property [
+        sh:path mp:hasOverallScore ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Overall compatibility score must be between 0.0 and 1.0"
+    ] .
+
+mp:DimensionCompatibilityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:DimensionCompatibility ;
+    rdfs:label "Dimension Compatibility Validation" ;
+    rdfs:comment "Validates dimension-specific compatibility values" ;
+    sh:property [
+        sh:path mp:hasCompatibilityValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Dimension compatibility value must be between 0.0 and 1.0"
+    ] .
+
+mp:OfferMatcherValidationShape a sh:NodeShape ;
+    sh:targetClass mp:OfferMatcher ;
+    rdfs:label "Offer Matcher Validation" ;
+    rdfs:comment "Validates offer matcher performance per Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasMatchingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Matching latency must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+mp:QuantityConsistencyValidationShape a sh:NodeShape ;
+    sh:targetClass mp:MarketOffer ;
+    rdfs:label "Quantity Consistency Validation" ;
+    rdfs:comment "Validates quantity consistency across offer lifecycle" ;
+    sh:sparql [
+        sh:message "Filled quantity cannot exceed offered/requested quantity" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a mp:Offer .
+                $this mp:hasOfferQuantity ?offered .
+                $this mp:hasFilledQuantity ?filled .
+                FILTER (?filled > ?offered)
+            }
+            UNION
+            {
+                $this a mp:Ask .
+                $this mp:hasRequestedQuantity ?requested .
+                $this mp:hasFilledQuantity ?filled .
+                FILTER (?filled > ?requested)
+            }
+        """
+    ] .
+
+# ================================================================
+# SUPPORTING CLASSES FOR FUTURE EXTENSION
+# ================================================================
+
+mp:MatchingCriteria a owl:Class ;
+    rdfs:label "Matching Criteria" ;
+    rdfs:comment "Criteria for evaluating offer/ask matches" .
+
+mp:AuctionRules a owl:Class ;
+    rdfs:label "Auction Rules" ;
+    rdfs:comment "Rules governing auction behavior" .
+
+# ================================================================
+# INTEGRATION WITH BYTESTAR ECOSYSTEM
+# ================================================================
+
+## Offer integrates with Resource Allocation
+mp:MarketOffer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasCapacity ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Offer integrates with Performance Measurement
+mp:OfferMatcher rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMeasuredValue ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Offer integrates with Optimization Engine
+mp:MatchingAlgorithm rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasObjective ;
+    owl:someValuesFrom ba:OptimizationObjective
+] .
+
+# ================================================================
+# END OF OFFERS ONTOLOGY
+# ================================================================

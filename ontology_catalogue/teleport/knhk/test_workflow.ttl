@@ -1,0 +1,34 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<http://example.org/test_workflow> a yawl:Specification ;
+    yawl:specName "Test Workflow" ;
+    yawl:hasInputCondition <http://example.org/input> ;
+    yawl:hasOutputCondition <http://example.org/output> ;
+    yawl:hasTask <http://example.org/task1> ;
+    yawl:hasTask <http://example.org/task2> .
+
+<http://example.org/input> a yawl:Condition ;
+    yawl:conditionName "Input" .
+
+<http://example.org/output> a yawl:Condition ;
+    yawl:conditionName "Output" .
+
+<http://example.org/task1> a yawl:Task ;
+    yawl:taskName "Task 1" .
+
+<http://example.org/task2> a yawl:Task ;
+    yawl:taskName "Task 2" .
+
+<http://example.org/flow1> a yawl:Flow ;
+    yawl:from <http://example.org/input> ;
+    yawl:to <http://example.org/task1> .
+
+<http://example.org/flow2> a yawl:Flow ;
+    yawl:from <http://example.org/task1> ;
+    yawl:to <http://example.org/task2> .
+
+<http://example.org/flow3> a yawl:Flow ;
+    yawl:from <http://example.org/task2> ;
+    yawl:to <http://example.org/output> .
+

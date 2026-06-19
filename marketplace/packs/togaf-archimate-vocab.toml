@@ -1,0 +1,123 @@
+[pack]
+id = "togaf-archimate-vocab"
+name = "TOGAF / ArchiMate Vocabulary"
+version = "26.6.11"
+description = "Enterprise architecture vocabulary (TOGAF ADM + ArchiMate 3.1) as an RDF ontology seed with SHACL compliance gates and four architecture view generators (Business, Data, Application, Technology)."
+category = "enterprise-architecture"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT OR Apache-2.0"
+production_ready = true
+
+packages = []
+
+[[pack.templates]]
+name = "business-arch"
+path = "templates/togaf-archimate-vocab/business-arch.md.tera"
+description = "TOGAF Phase B: Business Architecture — capability register with owners, status, ADM phase"
+variables = ["capability_label", "owner", "status", "phase_label"]
+
+[[pack.templates]]
+name = "data-arch"
+path = "templates/togaf-archimate-vocab/data-arch.md.tera"
+description = "TOGAF Phase C (Data): Data Architecture — data object register with classification, owner, compliance"
+variables = ["data_object_label", "classification", "owner", "standards"]
+
+[[pack.templates]]
+name = "app-arch"
+path = "templates/togaf-archimate-vocab/app-arch.md.tera"
+description = "TOGAF Phase C (App): Application Architecture — component inventory with capabilities, data, nodes, compliance"
+variables = ["component_label", "owner", "status", "version", "capability_label", "data_object_label", "node_label", "standards"]
+
+[[pack.templates]]
+name = "tech-arch"
+path = "templates/togaf-archimate-vocab/tech-arch.md.tera"
+description = "TOGAF Phase D: Technology Architecture — infrastructure node register with hosted components"
+variables = ["node_label", "owner", "status", "hosted_components"]
+
+[pack.conformance]
+unknown_preservation = true
+admission_gate = "togaf/compliance"
+
+[pack.metadata]
+tags = ["togaf", "archimate", "enterprise-architecture", "adm", "architecture-governance"]
+keywords = ["togaf", "archimate", "phase-b", "phase-c", "phase-d", "shacl", "compliance"]
+
+[pack.sparql_queries]
+extract_business = """
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?capability ?capability_label ?owner ?status ?phase_label
+WHERE {
+    ?capability a togaf:BusinessCapability ;
+                rdfs:label ?capability_label ;
+                togaf:owner ?owner ;
+                togaf:status ?status .
+    OPTIONAL {
+        ?capability togaf:associatedPhase ?phase .
+        ?phase rdfs:label ?phase_label .
+    }
+    BIND(COALESCE(?phase_label, "Unassigned") AS ?phase_label)
+}
+ORDER BY ?capability_label
+"""
+
+extract_data = """
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?data_object ?data_object_label ?classification ?owner
+       (GROUP_CONCAT(?std_label; separator=", ") AS ?standards)
+WHERE {
+    ?data_object a togaf:DataObject ;
+                 rdfs:label ?data_object_label ;
+                 togaf:dataClassification ?classification ;
+                 togaf:owner ?owner .
+    OPTIONAL {
+        ?data_object togaf:conformsTo ?std .
+        ?std rdfs:label ?std_label .
+    }
+}
+GROUP BY ?data_object ?data_object_label ?classification ?owner
+ORDER BY DESC(?classification) ?data_object_label
+"""
+
+extract_app = """
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?component ?component_label ?owner ?status ?version
+       (GROUP_CONCAT(DISTINCT ?cap_label;  separator=", ") AS ?capability_label)
+       (GROUP_CONCAT(DISTINCT ?data_label; separator=", ") AS ?data_object_label)
+       (GROUP_CONCAT(DISTINCT ?node_label; separator=", ") AS ?node_label)
+       (GROUP_CONCAT(DISTINCT ?std_label;  separator=", ") AS ?standards)
+WHERE {
+    ?component a togaf:ApplicationComponent ;
+               rdfs:label ?component_label ;
+               togaf:owner ?owner ;
+               togaf:status ?status .
+    OPTIONAL { ?component togaf:version ?version . }
+    OPTIONAL { ?component togaf:implementsCapability ?cap . ?cap rdfs:label ?cap_label . }
+    OPTIONAL { ?component togaf:handlesDataObject ?data . ?data rdfs:label ?data_label . }
+    OPTIONAL { ?component togaf:realizedBy ?node . ?node rdfs:label ?node_label . }
+    OPTIONAL { ?component togaf:conformsTo ?std . ?std rdfs:label ?std_label . }
+    BIND(COALESCE(?version, "unversioned") AS ?version)
+}
+GROUP BY ?component ?component_label ?owner ?status ?version
+ORDER BY ?component_label
+"""
+
+extract_tech = """
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?node ?node_label ?owner ?status
+       (GROUP_CONCAT(DISTINCT ?comp_label; separator=", ") AS ?hosted_components)
+WHERE {
+    ?node a togaf:Node ;
+          rdfs:label ?node_label ;
+          togaf:owner ?owner .
+    OPTIONAL { ?node togaf:status ?status . }
+    OPTIONAL { ?component togaf:realizedBy ?node ; rdfs:label ?comp_label . }
+    BIND(COALESCE(?status, "unknown") AS ?status)
+}
+GROUP BY ?node ?node_label ?owner ?status
+ORDER BY ?node_label
+"""

@@ -1,0 +1,265 @@
+@prefix cli: <http://cns.io/unified-cli#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+@prefix uvmgr: <http://cns.io/uvmgr#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# =============================================================================
+# UNIFIED CLI ONTOLOGY (Turtle Format)
+# Comprehensive semantic model for unified CLI system with OTEL Weaver integration
+# =============================================================================
+
+cli: a owl:Ontology ;
+    rdfs:label "Unified CLI Ontology" ;
+    rdfs:comment "Comprehensive ontology for unified CLI system with OTEL Weaver integration and uvmgr three-tier architecture" ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports otel:, weaver:, uvmgr: .
+
+# =============================================================================
+# CORE CLI ARCHITECTURE CLASSES
+# =============================================================================
+
+# Base Command Infrastructure
+cli:Command a owl:Class ;
+    rdfs:label "CLI Command" ;
+    rdfs:comment "Base class for all CLI commands in the unified system" ;
+    rdfs:subClassOf otel:Instrumentable .
+
+cli:CommandGroup a owl:Class ;
+    rdfs:label "Command Group" ;
+    rdfs:comment "Grouping of related commands (e.g., turtle, semantic, bitactor)" .
+
+cli:SubApplication a owl:Class ;
+    rdfs:label "Sub Application" ;
+    rdfs:comment "Typer sub-application containing command groups" ;
+    rdfs:subClassOf cli:CommandGroup .
+
+# Command Priority Classes (80/20 Analysis)
+cli:CoreCommand a owl:Class ;
+    rdfs:label "Core Command" ;
+    rdfs:comment "High-priority commands providing 80% of value with 20% of commands" ;
+    rdfs:subClassOf cli:Command .
+
+cli:ExtendedCommand a owl:Class ;
+    rdfs:label "Extended Command" ;
+    rdfs:comment "Specialized commands for edge cases and advanced features" ;
+    rdfs:subClassOf cli:Command .
+
+cli:HeuristicCommand a owl:Class ;
+    rdfs:label "Heuristic Command" ;
+    rdfs:comment "Commands implementing heuristic algorithms and optimizations" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+# Specific Command Groups
+cli:TurtleCommand a owl:Class ;
+    rdfs:label "Turtle Command" ;
+    rdfs:comment "Turtle file analysis and generation commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:SemanticCommand a owl:Class ;
+    rdfs:label "Semantic Command" ;
+    rdfs:comment "RDF/TTL/SPARQL processing commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:BitActorCommand a owl:Class ;
+    rdfs:label "BitActor Command" ;
+    rdfs:comment "BitActor code generation and management commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:PipelineCommand a owl:Class ;
+    rdfs:label "Pipeline Command" ;
+    rdfs:comment "Pipeline orchestration and workflow commands" ;
+    rdfs:subClassOf cli:CoreCommand .
+
+cli:DeploymentCommand a owl:Class ;
+    rdfs:label "Deployment Command" ;
+    rdfs:comment "Deployment and infrastructure management commands" ;
+    rdfs:subClassOf cli:ExtendedCommand .
+
+# uvmgr Three-Tier Architecture
+cli:L1Command a owl:Class ;
+    rdfs:label "L1 Command" ;
+    rdfs:comment "Level 1: Direct system commands with immediate execution" ;
+    rdfs:subClassOf cli:Command, uvmgr:L1Operation .
+
+cli:L2Command a owl:Class ;
+    rdfs:label "L2 Command" ;
+    rdfs:comment "Level 2: Coordinated commands with state management" ;
+    rdfs:subClassOf cli:Command, uvmgr:L2Operation .
+
+cli:L3Command a owl:Class ;
+    rdfs:label "L3 Command" ;
+    rdfs:comment "Level 3: Strategic commands with cross-system orchestration" ;
+    rdfs:subClassOf cli:Command, uvmgr:L3Operation .
+
+# Parameter Types
+cli:Parameter a owl:Class ;
+    rdfs:label "Command Parameter" ;
+    rdfs:comment "Base class for command parameters" .
+
+cli:Argument a owl:Class ;
+    rdfs:label "Command Argument" ;
+    rdfs:comment "Positional argument for CLI commands" ;
+    rdfs:subClassOf cli:Parameter .
+
+cli:Option a owl:Class ;
+    rdfs:label "Command Option" ;
+    rdfs:comment "Named option/flag for CLI commands" ;
+    rdfs:subClassOf cli:Parameter .
+
+# OTEL Integration Classes
+cli:InstrumentedCommand a owl:Class ;
+    rdfs:label "Instrumented Command" ;
+    rdfs:comment "Command with OpenTelemetry instrumentation" ;
+    rdfs:subClassOf cli:Command, otel:Span .
+
+cli:MetricCommand a owl:Class ;
+    rdfs:label "Metric Command" ;
+    rdfs:comment "Command that generates OTEL metrics" ;
+    rdfs:subClassOf cli:InstrumentedCommand .
+
+# =============================================================================
+# PROPERTIES FOR OTEL WEAVER INTEGRATION
+# =============================================================================
+
+# Command Identification Properties
+cli:commandName a owl:DatatypeProperty ;
+    rdfs:label "Command Name" ;
+    rdfs:comment "The CLI command name (e.g., 'turtle analyze')" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:commandGroup a owl:DatatypeProperty ;
+    rdfs:label "Command Group" ;
+    rdfs:comment "The command group/sub-app (e.g., 'turtle', 'semantic')" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:helpText a owl:DatatypeProperty ;
+    rdfs:label "Help Text" ;
+    rdfs:comment "Command description for CLI help" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+# OTEL Instrumentation Properties
+cli:spanName a owl:DatatypeProperty ;
+    rdfs:label "Span Name" ;
+    rdfs:comment "OpenTelemetry span name for command execution" ;
+    rdfs:domain cli:InstrumentedCommand ;
+    rdfs:range xsd:string .
+
+cli:metricName a owl:DatatypeProperty ;
+    rdfs:label "Metric Name" ;
+    rdfs:comment "OpenTelemetry metric name for command performance" ;
+    rdfs:domain cli:MetricCommand ;
+    rdfs:range xsd:string .
+
+cli:traceName a owl:DatatypeProperty ;
+    rdfs:label "Trace Name" ;
+    rdfs:comment "OpenTelemetry trace name for distributed command execution" ;
+    rdfs:domain cli:InstrumentedCommand ;
+    rdfs:range xsd:string .
+
+# Implementation Properties
+cli:moduleFile a owl:DatatypeProperty ;
+    rdfs:label "Module File" ;
+    rdfs:comment "Python module file containing command implementation" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:functionName a owl:DatatypeProperty ;
+    rdfs:label "Function Name" ;
+    rdfs:comment "Python function implementing the command" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+# 80/20 Analysis Properties
+cli:priority a owl:DatatypeProperty ;
+    rdfs:label "Priority" ;
+    rdfs:comment "Command priority level (high/medium/low)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:coverage a owl:DatatypeProperty ;
+    rdfs:label "Coverage" ;
+    rdfs:comment "Percentage of use cases covered by this command (80/20 analysis)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:decimal .
+
+cli:usageFrequency a owl:DatatypeProperty ;
+    rdfs:label "Usage Frequency" ;
+    rdfs:comment "Expected usage frequency (daily/weekly/monthly/rare)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+# Parameter Properties
+cli:parameterName a owl:DatatypeProperty ;
+    rdfs:label "Parameter Name" ;
+    rdfs:comment "Name of the command parameter" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+cli:parameterType a owl:DatatypeProperty ;
+    rdfs:label "Parameter Type" ;
+    rdfs:comment "Type of the parameter (str, int, bool, Path, etc.)" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+cli:required a owl:DatatypeProperty ;
+    rdfs:label "Required" ;
+    rdfs:comment "Whether the parameter is required" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:boolean .
+
+cli:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "Default Value" ;
+    rdfs:comment "Default value for optional parameters" ;
+    rdfs:domain cli:Parameter ;
+    rdfs:range xsd:string .
+
+# uvmgr Integration Properties
+cli:architectureLevel a owl:DatatypeProperty ;
+    rdfs:label "Architecture Level" ;
+    rdfs:comment "uvmgr three-tier architecture level (L1/L2/L3)" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:string .
+
+cli:coordinationRequired a owl:DatatypeProperty ;
+    rdfs:label "Coordination Required" ;
+    rdfs:comment "Whether command requires cross-system coordination" ;
+    rdfs:domain cli:Command ;
+    rdfs:range xsd:boolean .
+
+# Object Properties
+cli:hasParameter a owl:ObjectProperty ;
+    rdfs:label "Has Parameter" ;
+    rdfs:comment "Command has a parameter" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Parameter .
+
+cli:belongsToGroup a owl:ObjectProperty ;
+    rdfs:label "Belongs To Group" ;
+    rdfs:comment "Command belongs to a command group" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:CommandGroup .
+
+cli:dependsOn a owl:ObjectProperty ;
+    rdfs:label "Depends On" ;
+    rdfs:comment "Command depends on another command" ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command .
+
+cli:generatesSpan a owl:ObjectProperty ;
+    rdfs:label "Generates Span" ;
+    rdfs:comment "Command generates an OTEL span" ;
+    rdfs:domain cli:InstrumentedCommand ;
+    rdfs:range otel:Span .
+
+cli:generatesMetric a owl:ObjectProperty ;
+    rdfs:label "Generates Metric" ;
+    rdfs:comment "Command generates an OTEL metric" ;
+    rdfs:domain cli:MetricCommand ;
+    rdfs:range otel:Metric .

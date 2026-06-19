@@ -1,0 +1,11 @@
+# Derive module documentation from ontology
+PREFIX ex: <http://example.org/>
+PREFIX wasm4pm: <http://wasm4pm-compat.org/>
+
+CONSTRUCT {
+  ?m wasm4pm:hasDocumentation ?doc .
+}
+WHERE {
+  ?m a wasm4pm:SourceModule .
+  OPTIONAL { ?m wasm4pm:documentation ?doc . }
+}

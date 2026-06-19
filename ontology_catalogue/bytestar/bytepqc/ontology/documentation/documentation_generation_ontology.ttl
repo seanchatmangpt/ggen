@@ -1,0 +1,591 @@
+# Documentation Generation Ontology for Automatic Code Generation
+# Namespace: http://bytepqc.org/ontology/documentation#
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix doc: <http://bytepqc.org/ontology/documentation#> .
+@prefix api: <http://bytepqc.org/ontology/api#> .
+@prefix tpl: <http://bytepqc.org/ontology/templates#> .
+
+# ===== ONTOLOGY DECLARATION =====
+<http://bytepqc.org/ontology/documentation> a owl:Ontology ;
+    rdfs:label "Documentation Generation Ontology" ;
+    rdfs:comment "Ontology for automatic generation of API documentation and specifications" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://bytepqc.org/ontology/api> ,
+                <http://bytepqc.org/ontology/templates> .
+
+# ===== CORE DOCUMENTATION CLASSES =====
+
+doc:Documentation a owl:Class ;
+    rdfs:label "Documentation" ;
+    rdfs:comment "Base class for all documentation" .
+
+doc:APIDocumentation a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "API Documentation" ;
+    rdfs:comment "Documentation for API interfaces" .
+
+doc:Specification a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Specification" ;
+    rdfs:comment "Technical specification document" .
+
+doc:UserGuide a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "User Guide" ;
+    rdfs:comment "User-oriented documentation" .
+
+doc:DeveloperGuide a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Developer Guide" ;
+    rdfs:comment "Developer-oriented documentation" .
+
+doc:ReferenceManual a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Reference Manual" ;
+    rdfs:comment "Complete reference documentation" .
+
+# ===== DOCUMENTATION FORMATS =====
+
+doc:MarkdownDocument a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Markdown Document" ;
+    rdfs:comment "Documentation in Markdown format" .
+
+doc:HTMLDocument a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "HTML Document" ;
+    rdfs:comment "Documentation in HTML format" .
+
+doc:LaTeXDocument a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "LaTeX Document" ;
+    rdfs:comment "Documentation in LaTeX format" .
+
+doc:DoxygenDocument a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Doxygen Document" ;
+    rdfs:comment "Doxygen-generated documentation" .
+
+doc:OpenAPIDocument a owl:Class ;
+    rdfs:subClassOf doc:APIDocumentation ;
+    rdfs:label "OpenAPI Document" ;
+    rdfs:comment "OpenAPI/Swagger specification" .
+
+# ===== DOCUMENT SECTIONS =====
+
+doc:Section a owl:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "Document section" .
+
+doc:Introduction a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Introduction" ;
+    rdfs:comment "Introduction section" .
+
+doc:Overview a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Overview" ;
+    rdfs:comment "Overview section" .
+
+doc:FunctionReference a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Function Reference" ;
+    rdfs:comment "Function reference section" .
+
+doc:Example a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Example" ;
+    rdfs:comment "Code example section" .
+
+doc:ErrorHandling a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Error Handling" ;
+    rdfs:comment "Error handling documentation" .
+
+doc:SecurityConsiderations a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Security Considerations" ;
+    rdfs:comment "Security considerations section" .
+
+doc:PerformanceNotes a owl:Class ;
+    rdfs:subClassOf doc:Section ;
+    rdfs:label "Performance Notes" ;
+    rdfs:comment "Performance notes section" .
+
+# ===== SPECIALIZED DOCUMENTATION =====
+
+doc:CryptographicSpecification a owl:Class ;
+    rdfs:subClassOf doc:Specification ;
+    rdfs:label "Cryptographic Specification" ;
+    rdfs:comment "Specification for cryptographic algorithms" .
+
+doc:SecurityAnalysis a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Security Analysis" ;
+    rdfs:comment "Security analysis document" .
+
+doc:ComplianceDocument a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Compliance Document" ;
+    rdfs:comment "Standards compliance documentation" .
+
+doc:TestReport a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Test Report" ;
+    rdfs:comment "Test execution and results report" .
+
+doc:BenchmarkReport a owl:Class ;
+    rdfs:subClassOf doc:Documentation ;
+    rdfs:label "Benchmark Report" ;
+    rdfs:comment "Performance benchmark report" .
+
+# ===== PROPERTIES =====
+
+doc:hasSection a owl:ObjectProperty ;
+    rdfs:label "has section" ;
+    rdfs:comment "Document has section" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range doc:Section .
+
+doc:documentsAPI a owl:ObjectProperty ;
+    rdfs:label "documents API" ;
+    rdfs:comment "Documentation describes API" ;
+    rdfs:domain doc:APIDocumentation ;
+    rdfs:range api:APIInterface .
+
+doc:documentsFunction a owl:ObjectProperty ;
+    rdfs:label "documents function" ;
+    rdfs:comment "Documentation describes function" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range api:Function .
+
+doc:hasExample a owl:ObjectProperty ;
+    rdfs:label "has example" ;
+    rdfs:comment "Documentation has code example" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range doc:Example .
+
+# ===== DATA TYPE PROPERTIES =====
+
+doc:title a owl:DatatypeProperty ;
+    rdfs:label "title" ;
+    rdfs:comment "Document title" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range xsd:string .
+
+doc:author a owl:DatatypeProperty ;
+    rdfs:label "author" ;
+    rdfs:comment "Document author" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range xsd:string .
+
+doc:version a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:comment "Document version" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range xsd:string .
+
+doc:content a owl:DatatypeProperty ;
+    rdfs:label "content" ;
+    rdfs:comment "Section content" ;
+    rdfs:domain doc:Section ;
+    rdfs:range xsd:string .
+
+doc:codeExample a owl:DatatypeProperty ;
+    rdfs:label "code example" ;
+    rdfs:comment "Code example content" ;
+    rdfs:domain doc:Example ;
+    rdfs:range xsd:string .
+
+doc:language a owl:DatatypeProperty ;
+    rdfs:label "language" ;
+    rdfs:comment "Programming language for example" ;
+    rdfs:domain doc:Example ;
+    rdfs:range xsd:string .
+
+doc:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Description text" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string .
+
+doc:format a owl:DatatypeProperty ;
+    rdfs:label "format" ;
+    rdfs:comment "Document format (markdown, html, latex, etc.)" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range xsd:string .
+
+doc:targetAudience a owl:DatatypeProperty ;
+    rdfs:label "target audience" ;
+    rdfs:comment "Intended audience (developer, user, admin)" ;
+    rdfs:domain doc:Documentation ;
+    rdfs:range xsd:string .
+
+# ===== TEMPLATE CLASSES =====
+
+doc:DocumentationTemplate a owl:Class ;
+    rdfs:subClassOf tpl:CodeTemplate ;
+    rdfs:label "Documentation Template" ;
+    rdfs:comment "Template for generating documentation" .
+
+doc:FunctionDocTemplate a owl:Class ;
+    rdfs:subClassOf doc:DocumentationTemplate ;
+    rdfs:label "Function Documentation Template" ;
+    rdfs:comment "Template for function documentation" .
+
+doc:APIReferenceTemplate a owl:Class ;
+    rdfs:subClassOf doc:DocumentationTemplate ;
+    rdfs:label "API Reference Template" ;
+    rdfs:comment "Template for API reference documentation" .
+
+doc:ExampleTemplate a owl:Class ;
+    rdfs:subClassOf doc:DocumentationTemplate ;
+    rdfs:label "Example Template" ;
+    rdfs:comment "Template for code examples" .
+
+# ===== DOCUMENTATION TEMPLATES =====
+
+doc:FunctionReferenceTemplate a doc:DocumentationTemplate ;
+    rdfs:label "Function Reference Template" ;
+    tpl:templateContent """
+## {{FUNCTION_NAME}}
+
+### Synopsis
+```c
+{{FUNCTION_SIGNATURE}}
+```
+
+### Description
+{{FUNCTION_DESCRIPTION}}
+
+### Parameters
+{{#PARAMETERS}}
+- `{{NAME}}` - {{DESCRIPTION}}
+  - Type: `{{TYPE}}`
+  - Direction: {{DIRECTION}}
+  {{#CONSTRAINTS}}
+  - Constraints: {{CONSTRAINTS}}
+  {{/CONSTRAINTS}}
+{{/PARAMETERS}}
+
+### Return Value
+{{RETURN_DESCRIPTION}}
+
+{{#ERROR_CODES}}
+### Error Codes
+{{#ERRORS}}
+- `{{CODE}}` - {{MESSAGE}}
+{{/ERRORS}}
+{{/ERROR_CODES}}
+
+{{#EXAMPLES}}
+### Example
+```c
+{{EXAMPLE_CODE}}
+```
+{{/EXAMPLES}}
+
+{{#SECURITY_NOTES}}
+### Security Considerations
+{{SECURITY_NOTES}}
+{{/SECURITY_NOTES}}
+
+{{#PERFORMANCE_NOTES}}
+### Performance Notes
+{{PERFORMANCE_NOTES}}
+{{/PERFORMANCE_NOTES}}
+
+### See Also
+{{#RELATED_FUNCTIONS}}
+- [{{NAME}}](#{{ANCHOR}})
+{{/RELATED_FUNCTIONS}}
+""" .
+
+doc:APIOverviewTemplate a doc:DocumentationTemplate ;
+    rdfs:label "API Overview Template" ;
+    tpl:templateContent """
+# {{API_NAME}} API Reference
+
+## Overview
+{{API_DESCRIPTION}}
+
+## Version
+{{API_VERSION}}
+
+## Key Features
+{{#FEATURES}}
+- {{FEATURE}}
+{{/FEATURES}}
+
+## Security Model
+{{SECURITY_MODEL}}
+
+## Error Handling
+{{ERROR_HANDLING_DESCRIPTION}}
+
+## Memory Management
+{{MEMORY_MANAGEMENT_DESCRIPTION}}
+
+## Thread Safety
+{{THREAD_SAFETY_DESCRIPTION}}
+
+## Functions
+
+{{#FUNCTION_GROUPS}}
+### {{GROUP_NAME}}
+{{#FUNCTIONS}}
+- [{{NAME}}](#{{ANCHOR}}) - {{BRIEF_DESCRIPTION}}
+{{/FUNCTIONS}}
+{{/FUNCTION_GROUPS}}
+
+## Constants and Types
+
+{{#TYPES}}
+### {{TYPE_NAME}}
+{{TYPE_DESCRIPTION}}
+
+```c
+{{TYPE_DEFINITION}}
+```
+{{/TYPES}}
+
+{{#CONSTANTS}}
+### {{CONSTANT_GROUP}}
+{{#CONSTANTS_LIST}}
+- `{{NAME}}` = {{VALUE}} - {{DESCRIPTION}}
+{{/CONSTANTS_LIST}}
+{{/CONSTANTS}}
+""" .
+
+doc:QuickStartTemplate a doc:DocumentationTemplate ;
+    rdfs:label "Quick Start Guide Template" ;
+    tpl:templateContent """
+# {{API_NAME}} Quick Start Guide
+
+## Installation
+
+### Prerequisites
+{{#PREREQUISITES}}
+- {{PREREQUISITE}}
+{{/PREREQUISITES}}
+
+### Build Instructions
+```bash
+{{BUILD_COMMANDS}}
+```
+
+## Basic Usage
+
+### 1. Initialize
+```c
+{{INITIALIZATION_EXAMPLE}}
+```
+
+### 2. Basic Operations
+```c
+{{BASIC_EXAMPLE}}
+```
+
+### 3. Cleanup
+```c
+{{CLEANUP_EXAMPLE}}
+```
+
+## Complete Example
+
+```c
+{{COMPLETE_EXAMPLE}}
+```
+
+## Next Steps
+{{#NEXT_STEPS}}
+- {{STEP}}
+{{/NEXT_STEPS}}
+
+## Troubleshooting
+
+{{#COMMON_ISSUES}}
+### {{ISSUE_TITLE}}
+**Problem:** {{PROBLEM_DESCRIPTION}}
+
+**Solution:** {{SOLUTION}}
+{{/COMMON_ISSUES}}
+""" .
+
+doc:SecurityGuideTemplate a doc:DocumentationTemplate ;
+    rdfs:label "Security Guide Template" ;
+    tpl:templateContent """
+# {{API_NAME}} Security Guide
+
+## Security Overview
+{{SECURITY_OVERVIEW}}
+
+## Threat Model
+{{THREAT_MODEL}}
+
+## Key Security Features
+
+{{#SECURITY_FEATURES}}
+### {{FEATURE_NAME}}
+{{FEATURE_DESCRIPTION}}
+
+**Implementation:** {{IMPLEMENTATION_DETAILS}}
+
+**Verification:** {{VERIFICATION_METHOD}}
+{{/SECURITY_FEATURES}}
+
+## Best Practices
+
+{{#BEST_PRACTICES}}
+### {{PRACTICE_TITLE}}
+{{PRACTICE_DESCRIPTION}}
+
+**Do:**
+{{#DO_LIST}}
+- {{ITEM}}
+{{/DO_LIST}}
+
+**Don't:**
+{{#DONT_LIST}}
+- {{ITEM}}
+{{/DONT_LIST}}
+
+**Example:**
+```c
+{{EXAMPLE_CODE}}
+```
+{{/BEST_PRACTICES}}
+
+## Common Vulnerabilities
+
+{{#VULNERABILITIES}}
+### {{VULNERABILITY_NAME}}
+**Description:** {{DESCRIPTION}}
+
+**Risk Level:** {{RISK_LEVEL}}
+
+**Mitigation:** {{MITIGATION}}
+
+**Detection:** {{DETECTION_METHOD}}
+{{/VULNERABILITIES}}
+
+## Compliance
+
+{{#COMPLIANCE_STANDARDS}}
+### {{STANDARD_NAME}}
+{{COMPLIANCE_DESCRIPTION}}
+
+**Requirements:**
+{{#REQUIREMENTS}}
+- {{REQUIREMENT}}
+{{/REQUIREMENTS}}
+
+**Implementation Status:** {{STATUS}}
+{{/COMPLIANCE_STANDARDS}}
+
+## Security Testing
+
+{{#SECURITY_TESTS}}
+### {{TEST_TYPE}}
+{{TEST_DESCRIPTION}}
+
+**Methodology:** {{METHODOLOGY}}
+
+**Tools:** {{TOOLS}}
+
+**Results:** {{RESULTS}}
+{{/SECURITY_TESTS}}
+""" .
+
+# ===== EXAMPLE DOCUMENTATION INSTANCES =====
+
+doc:kyber_api_reference a doc:APIDocumentation ;
+    rdfs:label "Kyber API Reference" ;
+    doc:title "Kyber Post-Quantum Cryptography API Reference" ;
+    doc:format "markdown" ;
+    doc:targetAudience "developer" ;
+    doc:documentsAPI api:kyber_api ;
+    doc:hasSection [
+        a doc:Overview ;
+        doc:content "Kyber is a post-quantum key encapsulation mechanism..."
+    ] ;
+    doc:hasSection [
+        a doc:FunctionReference ;
+        doc:documentsFunction api:kyber_keypair ;
+        doc:hasExample [
+            a doc:Example ;
+            doc:language "c" ;
+            doc:codeExample """
+#include "kyber.h"
+
+int main() {
+    uint8_t pk[KYBER_PUBLICKEYBYTES];
+    uint8_t sk[KYBER_SECRETKEYBYTES];
+    
+    int result = pqc_kyber_keypair(pk, sk);
+    if (result != 0) {
+        // Handle error
+        return result;
+    }
+    
+    // Use keys...
+    return 0;
+}"""
+        ]
+    ] .
+
+doc:kyber_security_guide a doc:SecurityAnalysis ;
+    rdfs:label "Kyber Security Analysis" ;
+    doc:title "Security Analysis of Kyber Implementation" ;
+    doc:format "markdown" ;
+    doc:targetAudience "security-analyst" ;
+    doc:hasSection [
+        a doc:SecurityConsiderations ;
+        doc:content "This implementation includes protections against..."
+    ] .
+
+# ===== GENERATION RULES =====
+
+doc:DocumentationRule a owl:Class ;
+    rdfs:label "Documentation Rule" ;
+    rdfs:comment "Rule for documentation generation" .
+
+doc:CompletenessRule a owl:Class ;
+    rdfs:subClassOf doc:DocumentationRule ;
+    rdfs:label "Completeness Rule" ;
+    rdfs:comment "Ensure all API elements are documented" .
+
+doc:ConsistencyRule a owl:Class ;
+    rdfs:subClassOf doc:DocumentationRule ;
+    rdfs:label "Consistency Rule" ;
+    rdfs:comment "Ensure consistent documentation style" .
+
+doc:AccuracyRule a owl:Class ;
+    rdfs:subClassOf doc:DocumentationRule ;
+    rdfs:label "Accuracy Rule" ;
+    rdfs:comment "Ensure documentation matches implementation" .
+
+# ===== QUALITY METRICS =====
+
+doc:QualityMetric a owl:Class ;
+    rdfs:label "Quality Metric" ;
+    rdfs:comment "Documentation quality metric" .
+
+doc:CoverageMetric a owl:Class ;
+    rdfs:subClassOf doc:QualityMetric ;
+    rdfs:label "Coverage Metric" ;
+    rdfs:comment "Documentation coverage metric" .
+
+doc:ReadabilityScore a owl:Class ;
+    rdfs:subClassOf doc:QualityMetric ;
+    rdfs:label "Readability Score" ;
+    rdfs:comment "Documentation readability score" .
+
+doc:CompletenessScore a owl:Class ;
+    rdfs:subClassOf doc:QualityMetric ;
+    rdfs:label "Completeness Score" ;
+    rdfs:comment "Documentation completeness score" .

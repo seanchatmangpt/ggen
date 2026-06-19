@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "ggen-lsp",
+  "version": "26.6.11",
+  "description": "ggen language server: live GGEN-* diagnostics, completion, hover, definitions, references, document/workspace symbols, and repair-route code actions for ggen law surfaces (.ttl, .rq, .tera, ggen.toml).",
+  "author": {
+    "name": "Sean Chatman",
+    "email": "xpointsh@gmail.com"
+  },
+  "category": "development",
+  "strict": false,
+  "lspServers": {
+    "ggen": {
+      "command": "ggen-lsp",
+      "extensionToLanguage": {
+        ".ttl": "turtle",
+        ".nt": "ntriples",
+        ".nq": "nquads",
+        ".rq": "sparql",
+        ".sparql": "sparql",
+        ".tera": "tera",
+        ".toml": "toml"
+      }
+    }
+  }
+}

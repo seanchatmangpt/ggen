@@ -1,0 +1,518 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shp: <http://stpnt.example.org/shapes/> .
+@prefix port: <http://stpnt.example.org/vocab/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# SHACL Shape 1: ObligationShape
+# Purpose: Validate obligation records have required fields and valid values
+# ============================================================================
+
+shp:ObligationShape
+  a sh:NodeShape ;
+  sh:targetClass port:Obligation ;
+  sh:name "Obligation Validation Shape" ;
+  sh:description "Validates that obligation records conform to required structure" ;
+  sh:property [
+    sh:path port:obligationId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Obligation must have exactly one obligation ID (string)" ;
+  ] ;
+  sh:property [
+    sh:path port:personId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Obligation must have exactly one person ID" ;
+  ] ;
+  sh:property [
+    sh:path port:stewardId ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Obligation may have at most one steward ID" ;
+  ] ;
+  sh:property [
+    sh:path port:status ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "pending"
+      "in_progress"
+      "completed"
+      "renewed"
+      "refused"
+      "declined"
+      "respectfully_closed"
+      "expired"
+      "suspended"
+    ) ;
+    sh:message "Obligation status must be one of: pending, in_progress, completed, renewed, refused, declined, respectfully_closed, expired, suspended" ;
+  ] ;
+  sh:property [
+    sh:path port:obligationType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "welcome"
+      "consent"
+      "assign_steward"
+      "follow_up"
+      "pentecost_invitation"
+      "continuity_watch"
+    ) ;
+    sh:message "Obligation type must be one of: welcome, consent, assign_steward, follow_up, pentecost_invitation, continuity_watch" ;
+  ] ;
+  sh:property [
+    sh:path port:createdAt ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Obligation must have exactly one created_at timestamp" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 2: StewardShape
+# Purpose: Validate steward records and their assignments
+# ============================================================================
+
+shp:StewardShape
+  a sh:NodeShape ;
+  sh:targetClass port:Steward ;
+  sh:name "Steward Validation Shape" ;
+  sh:description "Validates steward qualifications and avatar assignments" ;
+  sh:property [
+    sh:path port:stewardId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Steward must have exactly one steward ID" ;
+  ] ;
+  sh:property [
+    sh:path port:avatar ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "john"
+      "peter"
+      "paul"
+      "joseph"
+      "drsilkworth"
+      "drbob"
+      "billw"
+    ) ;
+    sh:message "Steward avatar must be one of: john, peter, paul, joseph, drsilkworth, drbob, billw" ;
+  ] ;
+  sh:property [
+    sh:path port:qualifications ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Steward must have at least one qualification documented" ;
+  ] ;
+  sh:property [
+    sh:path port:activeObligationCount ;
+    sh:datatype xsd:integer ;
+    sh:maxInclusive 5 ;
+    sh:message "Steward cannot have more than 5 active obligations (bottleneck prevention)" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 3: EventShape
+# Purpose: Validate event records from the ledger
+# ============================================================================
+
+shp:EventShape
+  a sh:NodeShape ;
+  sh:targetClass port:Event ;
+  sh:name "Event Validation Shape" ;
+  sh:description "Validates ledger event structure and cryptographic integrity" ;
+  sh:property [
+    sh:path port:personId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Event must have exactly one person ID" ;
+  ] ;
+  sh:property [
+    sh:path port:eventType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "prepare"
+      "invite"
+      "welcome"
+      "remember"
+      "consent"
+      "assign_steward"
+      "follow_up"
+      "connect"
+      "incorporate"
+      "serve"
+      "steward_another"
+      "timeout"
+    ) ;
+    sh:message "Event type must be a valid Pentecost stage or system event" ;
+  ] ;
+  sh:property [
+    sh:path port:timestamp ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Event must have exactly one timestamp (RFC3339 format)" ;
+  ] ;
+  sh:property [
+    sh:path port:hash ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 64 ;
+    sh:message "Event must have a hash (SHA-256, hex encoded)" ;
+  ] ;
+  sh:property [
+    sh:path port:signature ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Event must have a cryptographic signature" ;
+  ] ;
+  sh:property [
+    sh:path port:sequence ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:message "Event must have a sequence number (append-only constraint)" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 4: PartShape
+# Purpose: Validate movable parts (stewardship obligations)
+# ============================================================================
+
+shp:PartShape
+  a sh:NodeShape ;
+  sh:targetClass port:Part ;
+  sh:name "Stewardship Part Validation Shape" ;
+  sh:description "Validates movable parts meet covenant requirements" ;
+  sh:property [
+    sh:path port:partName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Part must have exactly one name" ;
+  ] ;
+  sh:property [
+    sh:path port:scriptureBasis ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Part must have exactly one scripture basis reference" ;
+  ] ;
+  sh:property [
+    sh:path port:aaMapping ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Part must have exactly one AA tradition mapping" ;
+  ] ;
+  sh:property [
+    sh:path port:owner ;
+    sh:minCount 1 ;
+    sh:in (
+      "john"
+      "peter"
+      "paul"
+      "joseph"
+      "drsilkworth"
+      "drbob"
+      "billw"
+    ) ;
+    sh:message "Part owner must be a recognized avatar" ;
+  ] ;
+  sh:property [
+    sh:path port:terminalState ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Part must define its terminal state" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 5: CanonBasisShape
+# Purpose: Validate canon references have proper documentation
+# ============================================================================
+
+shp:CanonBasisShape
+  a sh:NodeShape ;
+  sh:targetClass port:CanonBasis ;
+  sh:name "Canon Basis Validation Shape" ;
+  sh:description "Validates scripture and tradition references are canonical" ;
+  sh:property [
+    sh:path port:scriptureCitation ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Canon basis must have exactly one scripture citation" ;
+  ] ;
+  sh:property [
+    sh:path port:book ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Scripture must have a book name" ;
+  ] ;
+  sh:property [
+    sh:path port:chapter ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:message "Scripture must have a chapter number" ;
+  ] ;
+  sh:property [
+    sh:path port:verse ;
+    sh:minCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:message "Scripture must have at least one verse number" ;
+  ] ;
+  sh:property [
+    sh:path port:aaTradition ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Canon basis may have AA tradition mapping" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 6: VerdictShape
+# Purpose: Validate verdict records maintain immutability
+# ============================================================================
+
+shp:VerdictShape
+  a sh:NodeShape ;
+  sh:targetClass port:Verdict ;
+  sh:name "Verdict Validation Shape" ;
+  sh:description "Validates verdict records and their cryptographic chain" ;
+  sh:property [
+    sh:path port:obligationId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Verdict must reference exactly one obligation" ;
+  ] ;
+  sh:property [
+    sh:path port:verdictType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "accepted"
+      "declined"
+      "completed"
+      "renewed"
+      "refused"
+      "escalated"
+      "closed"
+    ) ;
+    sh:message "Verdict type must be: accepted, declined, completed, renewed, refused, escalated, or closed" ;
+  ] ;
+  sh:property [
+    sh:path port:stewardId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Verdict must be issued by exactly one steward" ;
+  ] ;
+  sh:property [
+    sh:path port:timestamp ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Verdict must have exactly one timestamp" ;
+  ] ;
+  sh:property [
+    sh:path port:hash ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 64 ;
+    sh:message "Verdict must have a hash (SHA-256)" ;
+  ] ;
+  sh:property [
+    sh:path port:previousHash ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Verdict must link to previous verdict (chain integrity)" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 7: ReceiptShape
+# Purpose: Validate receipt records from operations
+# ============================================================================
+
+shp:ReceiptShape
+  a sh:NodeShape ;
+  sh:targetClass port:Receipt ;
+  sh:name "Receipt Validation Shape" ;
+  sh:description "Validates receipt structure and cryptographic correctness" ;
+  sh:property [
+    sh:path port:receiptType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Receipt must have exactly one type" ;
+  ] ;
+  sh:property [
+    sh:path port:timestamp ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "Receipt must have exactly one timestamp" ;
+  ] ;
+  sh:property [
+    sh:path port:hash ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 64 ;
+    sh:message "Receipt must have a hash (SHA-256)" ;
+  ] ;
+  sh:property [
+    sh:path port:signature ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Receipt must be signed" ;
+  ] ;
+  .
+
+# ============================================================================
+# SHACL Shape 8: PentecostPathShape
+# Purpose: Validate person progression through Pentecost stages
+# ============================================================================
+
+shp:PentecostPathShape
+  a sh:NodeShape ;
+  sh:targetClass port:Person ;
+  sh:name "Pentecost Path Validation Shape" ;
+  sh:description "Validates person progression through all Pentecost stages in order" ;
+  sh:property [
+    sh:path port:personId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Person must have exactly one ID" ;
+  ] ;
+  sh:property [
+    sh:path port:currentStage ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+      "prepare"
+      "invite"
+      "welcome"
+      "remember"
+      "consent"
+      "assign_steward"
+      "follow_up"
+      "connect"
+      "incorporate"
+      "serve"
+      "steward_another"
+    ) ;
+    sh:message "Person must be in a valid Pentecost stage" ;
+  ] ;
+  sh:property [
+    sh:path port:stageTransitionHistory ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Person must have documented stage transition history" ;
+  ] ;
+  sh:property [
+    sh:path port:currentSteward ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Person may have at most one current steward" ;
+  ] ;
+  sh:property [
+    sh:path port:welcomeStatus ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Person's welcome status (if tracked)" ;
+  ] ;
+  sh:property [
+    sh:path port:consentGiven ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "Person's consent status (must be true to proceed past Consent stage)" ;
+  ] ;
+  .
+
+# ============================================================================
+# SPARQL-based Validation Queries (shape targets)
+# ============================================================================
+
+# Validation: All obligations must have valid stewards (not self-referential)
+shp:NoSelfStewardshipConstraint
+  a sh:SPARQLConstraintShape ;
+  sh:sparql [
+    sh:message "Self-stewardship violation: person and steward cannot be the same" ;
+    sh:prefixes port: ;
+    sh:select """
+    SELECT $this
+    WHERE {
+      $this port:personId ?person ;
+             port:stewardId ?steward .
+      FILTER (?person = ?steward)
+    }
+    """ ;
+  ] ;
+  .
+
+# Validation: Consent must precede follow-up
+shp:ConsentBeforeFollowupConstraint
+  a sh:SPARQLConstraintShape ;
+  sh:sparql [
+    sh:message "Governance violation: follow-up event without prior consent" ;
+    sh:prefixes port: ;
+    sh:select """
+    SELECT $this
+    WHERE {
+      $this port:eventType "follow_up" ;
+             port:personId ?person .
+      FILTER NOT EXISTS {
+        ?consentEvent port:personId ?person ;
+                      port:eventType "consent" .
+      }
+    }
+    """ ;
+  ] ;
+  .
+
+# Validation: Steward load balancing (max 5 active per steward)
+shp:StewardLoadBalanceConstraint
+  a sh:SPARQLConstraintShape ;
+  sh:sparql [
+    sh:message "Bottleneck violation: steward has more than 5 active obligations" ;
+    sh:prefixes port: ;
+    sh:select """
+    SELECT $this (COUNT(?obligation) as ?count)
+    WHERE {
+      ?obligation port:stewardId $this ;
+                  port:status (?status WHERE ?status IN ("pending" "in_progress")) .
+    }
+    GROUP BY $this
+    HAVING (COUNT(?obligation) > 5)
+    """ ;
+  ] ;
+  .

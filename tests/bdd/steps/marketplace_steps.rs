@@ -3,12 +3,37 @@ use assert_cmd::Command;
 use cucumber::{given, then, when};
 use std::fs;
 
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally; do not share across crates. In BDD steps the guard scope is
+/// the step fn, so it records and restores the prior environment value.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
+
 // Marketplace step definitions
 
 #[given(regex = r"^the marketplace is available$")]
 fn marketplace_is_available(_world: &mut GgenWorld) {
-    // Set environment variable for registry URL
-    std::env::set_var(
+    // Set environment variable for registry URL; guard restores prior value on Drop.
+    let _guard = EnvVarGuard::set(
         "GGEN_REGISTRY_URL",
         "https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/",
     );
@@ -16,7 +41,7 @@ fn marketplace_is_available(_world: &mut GgenWorld) {
 
 #[given(regex = r"^the marketplace registry is available at (.+)$")]
 fn marketplace_registry_available_at(world: &mut GgenWorld, registry_url: String) {
-    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+    let _guard = EnvVarGuard::set("GGEN_REGISTRY_URL", &registry_url);
     world.set_registry_url(registry_url);
 }
 

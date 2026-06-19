@@ -1,0 +1,340 @@
+@prefix ddg: <http://cns-litigation.com/document-dependencies#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dag: <http://cns-litigation.com/dag#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+
+# Document Dependency Graph in TTL Format
+# Represents complex interdependencies between legal documents and workflows
+
+ddg:DocumentDependencyGraph a dag:DirectedAcyclicGraph ;
+    rdfs:label "Legal Document Dependency Graph" ;
+    dag:version "2.0" ;
+    dag:description "DAG representing dependencies between legal documents and filing processes" ;
+    dag:rootNodes ddg:InitialComplaint, ddg:MotionToCompel, ddg:BarComplaintInitiation ;
+    dag:leafNodes ddg:FinalJudgment, ddg:DisciplinaryOrder, ddg:AppealDecision ;
+    ba:messagingMode ba:ZeroTick .
+
+# Primary Document Nodes
+ddg:InitialComplaint a ddg:LegalDocument ;
+    rdfs:label "Initial Complaint Filing" ;
+    ddg:documentType ddg:Pleading ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies [] ;
+    ddg:dependents ddg:AnswerToComplaint, ddg:MotionToDismiss, ddg:DiscoveryRequests ;
+    ddg:requiredBefore ddg:ServiceOfProcess ;
+    ddg:jurisdictionType ddg:Trial ;
+    ddg:filingDeadline ddg:StatuteOfLimitations ;
+    ba:tickDelay 0 .
+
+ddg:AnswerToComplaint a ddg:LegalDocument ;
+    rdfs:label "Answer to Complaint" ;
+    ddg:documentType ddg:ResponsivePleading ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:InitialComplaint, ddg:ServiceOfProcess ;
+    ddg:dependents ddg:Counterclaim, ddg:DiscoveryPhase ;
+    ddg:requiredAfter ddg:ServiceOfProcess ;
+    ddg:filingDeadline "PT21D"^^xsd:duration ;
+    ddg:jurisdictionType ddg:Trial ;
+    ba:tickDelay 0 .
+
+ddg:MotionToDismiss a ddg:LegalDocument ;
+    rdfs:label "Motion to Dismiss" ;
+    ddg:documentType ddg:PreAnswerMotion ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:InitialComplaint, ddg:ServiceOfProcess ;
+    ddg:dependents ddg:MotionHearing, ddg:AmendedComplaint ;
+    ddg:mutuallyExclusive ddg:AnswerToComplaint ;
+    ddg:filingDeadline "PT21D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+ddg:Counterclaim a ddg:LegalDocument ;
+    rdfs:label "Counterclaim" ;
+    ddg:documentType ddg:Claim ;
+    ddg:priority ddg:Medium ;
+    ddg:dependencies ddg:AnswerToComplaint ;
+    ddg:dependents ddg:ReplyToCounterclaim, ddg:ExpandedDiscovery ;
+    ddg:optionalDependency true ;
+    ba:tickDelay 0 .
+
+# Discovery Phase Dependencies
+ddg:DiscoveryPhase a ddg:ProcessPhase ;
+    rdfs:label "Discovery Process Phase" ;
+    ddg:phaseType ddg:FactGathering ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:AnswerToComplaint, ddg:ReplyToCounterclaim ;
+    ddg:dependents ddg:DiscoveryMotions, ddg:ExpertDisclosure, ddg:DispositiveMotions ;
+    ddg:parallelProcessing true ;
+    ddg:subProcesses ddg:Interrogatories, ddg:RequestsForProduction, ddg:Depositions ;
+    ba:tickDelay 0 .
+
+ddg:Interrogatories a ddg:LegalDocument ;
+    rdfs:label "Interrogatories" ;
+    ddg:documentType ddg:DiscoveryRequest ;
+    ddg:priority ddg:Medium ;
+    ddg:dependencies ddg:DiscoveryPhase ;
+    ddg:dependents ddg:InterrogatoryResponses ;
+    ddg:parentProcess ddg:DiscoveryPhase ;
+    ddg:serviceRequired true ;
+    ddg:responseDeadline "PT30D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+ddg:RequestsForProduction a ddg:LegalDocument ;
+    rdfs:label "Requests for Production of Documents" ;
+    ddg:documentType ddg:DiscoveryRequest ;
+    ddg:priority ddg:Medium ;
+    ddg:dependencies ddg:DiscoveryPhase ;
+    ddg:dependents ddg:DocumentProduction ;
+    ddg:parentProcess ddg:DiscoveryPhase ;
+    ddg:responseDeadline "PT30D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+ddg:Depositions a ddg:LegalDocument ;
+    rdfs:label "Deposition Notices and Transcripts" ;
+    ddg:documentType ddg:OralDiscovery ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:Interrogatories, ddg:DocumentProduction ;
+    ddg:dependents ddg:DepositionTranscripts ;
+    ddg:coordinationRequired true ;
+    ddg:scheduleDependent true ;
+    ba:tickDelay 0 .
+
+ddg:MotionToCompel a ddg:LegalDocument ;
+    rdfs:label "Motion to Compel Discovery" ;
+    ddg:documentType ddg:DiscoveryMotion ;
+    ddg:priority ddg:Medium ;
+    ddg:dependencies ddg:DeficientDiscoveryResponse, ddg:MeetAndConferFailure ;
+    ddg:dependents ddg:CompelHearing, ddg:CompelOrder ;
+    ddg:prerequisites ddg:MeetAndConferRequirement ;
+    ddg:conditionalFiling true ;
+    ba:tickDelay 0 .
+
+ddg:MeetAndConferRequirement a ddg:ProceduralRequirement ;
+    rdfs:label "Meet and Confer Requirement" ;
+    ddg:requirementType ddg:PreMotionRequirement ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:DeficientDiscoveryResponse ;
+    ddg:dependents ddg:MotionToCompel ;
+    ddg:mandatoryCompliance true ;
+    ddg:timeframe "PT10D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+# Expert and Summary Judgment Phase
+ddg:ExpertDisclosure a ddg:LegalDocument ;
+    rdfs:label "Expert Witness Disclosure" ;
+    ddg:documentType ddg:ExpertDisclosure ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:FactDiscoveryComplete ;
+    ddg:dependents ddg:ExpertDepositions, ddg:SummaryJudgmentMotions ;
+    ddg:deadlineType ddg:CourtOrdered ;
+    ddg:disclosureDeadline ddg:ExpertDeadline ;
+    ba:tickDelay 0 .
+
+ddg:SummaryJudgmentMotions a ddg:LegalDocument ;
+    rdfs:label "Motion for Summary Judgment" ;
+    ddg:documentType ddg:DispositiveMention ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:DiscoveryComplete, ddg:ExpertDisclosure ;
+    ddg:dependents ddg:SummaryJudgmentBriefing, ddg:SummaryJudgmentHearing ;
+    ddg:caseDispositive true ;
+    ddg:briefingSchedule ddg:CourtOrdered ;
+    ba:tickDelay 0 .
+
+ddg:SummaryJudgmentBriefing a ddg:ProcessPhase ;
+    rdfs:label "Summary Judgment Briefing Phase" ;
+    ddg:phaseType ddg:Briefing ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:SummaryJudgmentMotions ;
+    ddg:dependents ddg:SummaryJudgmentDecision ;
+    ddg:subProcesses ddg:MotionBrief, ddg:ResponseBrief, ddg:ReplyBrief ;
+    ddg:serialProcessing true ;
+    ba:tickDelay 0 .
+
+# Trial Preparation Dependencies
+ddg:PretrialOrder a ddg:LegalDocument ;
+    rdfs:label "Pretrial Order" ;
+    ddg:documentType ddg:CourtOrder ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:PretrialConference ;
+    ddg:dependents ddg:TrialPreparation, ddg:WitnessLists, ddg:ExhibitLists ;
+    ddg:issuedByDate ddg:PretrialDeadline ;
+    ba:tickDelay 0 .
+
+ddg:TrialPreparation a ddg:ProcessPhase ;
+    rdfs:label "Trial Preparation Phase" ;
+    ddg:phaseType ddg:TrialPrep ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:PretrialOrder ;
+    ddg:dependents ddg:Trial ;
+    ddg:subProcesses ddg:WitnessPrep, ddg:ExhibitPrep, ddg:TrialBriefs ;
+    ddg:parallelProcessing true ;
+    ba:tickDelay 0 .
+
+ddg:Trial a ddg:ProcessPhase ;
+    rdfs:label "Trial Proceedings" ;
+    ddg:phaseType ddg:Adjudication ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:TrialPreparation ;
+    ddg:dependents ddg:Verdict, ddg:PostTrialMotions ;
+    ddg:durationVariable true ;
+    ddg:judgeDependant true ;
+    ba:tickDelay 0 .
+
+# Post-Trial and Appeal Dependencies
+ddg:PostTrialMotions a ddg:LegalDocument ;
+    rdfs:label "Post-Trial Motions" ;
+    ddg:documentType ddg:PostTrialMotion ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:Trial, ddg:Verdict ;
+    ddg:dependents ddg:PostTrialOrder, ddg:AppealNotice ;
+    ddg:optionalFiling true ;
+    ddg:filingDeadline "PT28D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+ddg:AppealNotice a ddg:LegalDocument ;
+    rdfs:label "Notice of Appeal" ;
+    ddg:documentType ddg:AppealInitiation ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:FinalJudgment ;
+    ddg:dependents ddg:AppealRecord, ddg:AppellateBriefs ;
+    ddg:jurisdictionChange ddg:AppellateCourt ;
+    ddg:filingDeadline "PT30D"^^xsd:duration ;
+    ddg:jurisdictionalDeadline true ;
+    ba:tickDelay 0 .
+
+ddg:AppellateBriefs a ddg:ProcessPhase ;
+    rdfs:label "Appellate Briefing Phase" ;
+    ddg:phaseType ddg:AppellateBriefing ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:AppealRecord ;
+    ddg:dependents ddg:OralArgument, ddg:AppellateDecision ;
+    ddg:subProcesses ddg:AppellantBrief, ddg:AppelleeBrief, ddg:ReplyBrief ;
+    ddg:serialProcessing true ;
+    ddg:jurisdictionType ddg:Appellate ;
+    ba:tickDelay 0 .
+
+# Bar Complaint Dependencies
+ddg:BarComplaintInitiation a ddg:LegalDocument ;
+    rdfs:label "Bar Complaint Initiation" ;
+    ddg:documentType ddg:DisciplinaryComplaint ;
+    ddg:priority ddg:High ;
+    ddg:dependencies [] ;
+    ddg:dependents ddg:BarInvestigation, ddg:EthicsReview ;
+    ddg:confidentialityRequired true ;
+    ddg:jurisdictionType ddg:Disciplinary ;
+    ba:tickDelay 0 .
+
+ddg:BarInvestigation a ddg:ProcessPhase ;
+    rdfs:label "Bar Investigation Phase" ;
+    ddg:phaseType ddg:Investigation ;
+    ddg:priority ddg:High ;
+    ddg:dependencies ddg:BarComplaintInitiation ;
+    ddg:dependents ddg:FormalCharges, ddg:DismissalRecommendation ;
+    ddg:subProcesses ddg:EvidenceCollection, ddg:WitnessInterviews, ddg:RecordReview ;
+    ddg:confidentialProcess true ;
+    ba:tickDelay 0 .
+
+ddg:FormalCharges a ddg:LegalDocument ;
+    rdfs:label "Formal Disciplinary Charges" ;
+    ddg:documentType ddg:DisciplinaryCharges ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:BarInvestigation ;
+    ddg:dependents ddg:DisciplinaryResponse, ddg:DisciplinaryHearing ;
+    ddg:dueProcessRequired true ;
+    ddg:responseDeadline "PT30D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+ddg:DisciplinaryHearing a ddg:ProcessPhase ;
+    rdfs:label "Disciplinary Hearing" ;
+    ddg:phaseType ddg:DisciplinaryProceeding ;
+    ddg:priority ddg:Critical ;
+    ddg:dependencies ddg:DisciplinaryResponse ;
+    ddg:dependents ddg:DisciplinaryOrder ;
+    ddg:hearingPanel ddg:PeerReviewPanel ;
+    ddg:evidentiaryHearing true ;
+    ba:tickDelay 0 .
+
+# Dependency Relationships and Constraints
+ddg:SequentialDependency a ddg:DependencyType ;
+    rdfs:label "Sequential Dependency" ;
+    ddg:description "Dependent document cannot be filed until prerequisite is complete" ;
+    ddg:enforcement ddg:Strict ;
+    ba:tickDelay 0 .
+
+ddg:ConditionalDependency a ddg:DependencyType ;
+    rdfs:label "Conditional Dependency" ;
+    ddg:description "Dependency applies only under certain conditions" ;
+    ddg:enforcement ddg:Conditional ;
+    ba:tickDelay 0 .
+
+ddg:ParallelDependency a ddg:DependencyType ;
+    rdfs:label "Parallel Dependency" ;
+    ddg:description "Documents can be processed simultaneously" ;
+    ddg:enforcement ddg:Flexible ;
+    ba:tickDelay 0 .
+
+ddg:MutualExclusion a ddg:DependencyType ;
+    rdfs:label "Mutual Exclusion" ;
+    ddg:description "Documents cannot coexist in the same case" ;
+    ddg:enforcement ddg:Absolute ;
+    ba:tickDelay 0 .
+
+# Critical Path Analysis
+ddg:CriticalPath a ddg:PathAnalysis ;
+    rdfs:label "Critical Path Through Legal Process" ;
+    ddg:pathNodes ddg:InitialComplaint, ddg:ServiceOfProcess, ddg:AnswerToComplaint, 
+                 ddg:DiscoveryPhase, ddg:SummaryJudgmentMotions, ddg:Trial, ddg:FinalJudgment ;
+    ddg:estimatedDuration "PT12M"^^xsd:duration ;
+    ddg:bottlenecks ddg:DiscoveryPhase, ddg:ExpertDisclosure, ddg:Trial ;
+    ddg:riskFactors ddg:CourtScheduling, ddg:OpposingCounselCooperation, ddg:JudgeAvailability ;
+    ba:tickDelay 0 .
+
+# Workflow Optimization
+ddg:ParallelProcessingOpportunities a ddg:Optimization ;
+    rdfs:label "Parallel Processing Opportunities" ;
+    ddg:parallelSets [
+        ddg:set1 ddg:Interrogatories, ddg:RequestsForProduction ;
+        ddg:set2 ddg:WitnessPrep, ddg:ExhibitPrep, ddg:TrialBriefs ;
+        ddg:set3 ddg:AppellantBrief, ddg:RecordPreparation
+    ] ;
+    ddg:timeSavings "PT45D"^^xsd:duration ;
+    ba:tickDelay 0 .
+
+# Deadline Management
+ddg:DeadlineHierarchy a ddg:DeadlineManagement ;
+    rdfs:label "Deadline Hierarchy and Dependencies" ;
+    ddg:jurisdictionalDeadlines ddg:AppealNotice, ddg:ServiceOfProcess ;
+    ddg:courtOrderedDeadlines ddg:ExpertDisclosure, ddg:SummaryJudgmentBriefing ;
+    ddg:ruleBasedDeadlines ddg:AnswerToComplaint, ddg:DiscoveryResponses ;
+    ddg:negotoableDeadlines ddg:VoluntaryDismissal, ddg:Settlement ;
+    ddg:deadlineTracking ddg:AutomatedReminders ;
+    ba:tickDelay 0 .
+
+# Resource Dependencies
+ddg:ResourceRequirements a ddg:ResourceManagement ;
+    rdfs:label "Resource Requirements for Document Processing" ;
+    ddg:attorneyTime ddg:HighComplexity, ddg:MediumComplexity, ddg:LowComplexity ;
+    ddg:expertWitnesses ddg:TechnicalExperts, ddg:EconomicExperts, ddg:MedicalExperts ;
+    ddg:externalServices ddg:CourtReporters, ddg:ProcessServers, ddg:DocumentReview ;
+    ddg:technologyRequirements ddg:LitigationSoftware, ddg:ECFAccess, ddg:DatabaseAccess ;
+    ba:tickDelay 0 .
+
+# Quality Control and Validation
+ddg:QualityControlPoints a ddg:QualityAssurance ;
+    rdfs:label "Document Quality Control Checkpoints" ;
+    ddg:reviewPoints ddg:PreFiling, ddg:PostDrafting, ddg:PreService, ddg:PreSubmission ;
+    ddg:validationCriteria ddg:LegalAccuracy, ddg:FactualAccuracy, ddg:ProceduralCompliance ;
+    ddg:reviewers ddg:SeniorAttorney, ddg:ParalegalReview, ddg:ClientReview ;
+    ddg:escalationProcedures ddg:ComplexityBased, ddg:RiskBased, ddg:ClientSpecific ;
+    ba:tickDelay 0 .
+
+# Performance Metrics for Dependency Graph
+ddg:DependencyGraphMetrics a ddg:PerformanceMetrics ;
+    ddg:averagePathLength 8.5 ;
+    ddg:criticalPathDuration "PT12M"^^xsd:duration ;
+    ddg:parallelizationRatio "0.35"^^xsd:decimal ;
+    ddg:dependencyViolationRate "0.03"^^xsd:decimal ;
+    ddg:deadlineComplianceRate "0.92"^^xsd:decimal ;
+    ddg:resourceUtilizationRate "0.78"^^xsd:decimal .

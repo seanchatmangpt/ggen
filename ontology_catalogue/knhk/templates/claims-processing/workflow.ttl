@@ -1,0 +1,153 @@
+# Claims Processing Workflow Template
+# Insurance claim triage, investigation, and settlement workflow
+
+@prefix : <http://knhk.io/claims/> .
+@prefix yawl: <http://knhk.io/yawl/> .
+
+:ClaimsProcessingWorkflow a yawl:Workflow ;
+    rdfs:label "Claims Processing Workflow" ;
+    rdfs:comment "Insurance claim intake, investigation, determination, and settlement" ;
+    yawl:version "1.0.0" ;
+    yawl:patterns 35 ;
+    rdfs:comment "Optimized for property & casualty insurance" .
+
+# Workflow Stages
+
+:IntakeStage a yawl:WorkflowStage ;
+    rdfs:label "Claim Intake & Triage" ;
+    yawl:tasks (
+        :ReceiveClaim
+        :ValidateClaimInfo
+        :AssignClaimNumber
+        :InitialTriage
+        :NotifyCustomer
+        :SetClaimAmount
+    ) .
+
+:InvestigationStage a yawl:WorkflowStage ;
+    rdfs:label "Investigation & Damage Assessment" ;
+    yawl:tasks (
+        :AssignAdjuster
+        :ScheduleInspection
+        :ConductInspection
+        :DocumentPhotography
+        :EstimateRepairs
+        :MedicalReviewIfApplicable
+        :FraudScreening
+    ) .
+
+:DeterminationStage a yawl:WorkflowStage ;
+    rdfs:label "Claim Determination" ;
+    yawl:tasks (
+        :ReviewPolicyTerms
+        :VerifyCoverage
+        :CalculateBenefit
+        :ApplyDeductible
+        :DetermineApprovalStatus
+        :HandleDenial
+        :HandleApproval
+        :GenerateDeterminationLetter
+    ) .
+
+:SettlementStage a yawl:WorkflowStage ;
+    rdfs:label "Settlement & Payment" ;
+    yawl:tasks (
+        :ProcessPayment
+        :IssueCheck
+        :ProcessDirectDeposit
+        :ReleaseOfLiability
+        :CloseFile
+        :FollowUpSurvey
+    ) .
+
+# Special Handling Paths
+
+:AppealPath a yawl:ConditionalPath ;
+    rdfs:label "Appeals Process" ;
+    yawl:trigger "Claim denied or underpaid" ;
+    yawl:tasks (
+        :ReceiveAppeal
+        :AssignAppealReviewer
+        :ConductAppealReview
+        :MakeAppealDetermination
+    ) .
+
+:LitigationPath a yawl:ConditionalPath ;
+    rdfs:label "Litigation/Legal Hold" ;
+    yawl:trigger "Potential lawsuit indicated" ;
+    yawl:tasks (
+        :NotifyLegalDepartment
+        :PlaceLegalHold
+        :CoordinateWithAttorney
+        :ManageLitigation
+    ) .
+
+# Performance Metrics
+:ExpectedCycleTime "PT30D" ;
+:P50Latency "22 days" ;
+:P95Latency "28 days" ;
+:P99Latency "40 days" ;
+:FirstNoticeToLoss "PT2H" ;
+:ApprovalRate "78%" ;
+:AppealRate "8%" ;
+:DenialRate "14%" .
+
+# Parallel Processing (Multiple Assessors)
+:ParallelAssessments a yawl:ParallelPattern ;
+    rdfs:label "Parallel Medical & Property Assessment" ;
+    yawl:parallelTasks (
+        :MedicalReviewIfApplicable
+        :EstimateRepairs
+        :FraudScreening
+    ) ;
+    yawl:syncRule "ALL_MUST_COMPLETE" .
+
+# Conditional Escalations
+:EscalationRules a yawl:RuleSet ;
+    :HighValueClaim "Claim amount > $100K → Escalate to Senior Adjuster" ;
+    :ComplexClaim "Multi-party OR injury claim → Escalate for review" ;
+    :FraudIndicator "Fraud score > 75 → Refer to Special Investigations Unit" ;
+    :MissedDeadline "Days pending > 30 → Manager notification" .
+
+# Integration Points
+:PolicyManagementService rdf:type :ExternalService ;
+    rdfs:label "Policy Management System" ;
+    :lookup_time "PT100ms" ;
+    :uptime "99.99%" .
+
+:MedicalReviewService rdf:type :ExternalService ;
+    rdfs:label "Medical Review Organization (MRO)" ;
+    :turnaround "PT5D" ;
+    :specialties ("Orthopedics" "Internal Medicine" "Neurology") .
+
+:FraudDetectionService rdf:type :ExternalService ;
+    rdfs:label "Fraud Detection AI Model" ;
+    :latency "PT500ms" ;
+    :accuracy "94.5%" ;
+    :false_positive_rate "2.3%" .
+
+:PaymentProcessingService rdf:type :ExternalService ;
+    rdfs:label "ACH/Check Processing" ;
+    :processing_time "PT1-3D" ;
+    :max_amount "$5M" .
+
+# Compliance & Regulations
+:NAIC "National Association of Insurance Commissioners guidelines" ;
+:StateLaws "Comply with individual state prompt payment laws" ;
+:ADA "Americans with Disabilities Act for accessibility" ;
+:SOX "Sarbanes-Oxley for financial accuracy" .
+
+# ROI Estimates
+:CycleTimeReduction "25-40% (from 40 days to 24-30 days)" ;
+:OperationalCostSavings "30-45% per claim" ;
+:ClaimAccuracyImprovement "Reduce overpayments by 15-20%" ;
+:FraudDetectionImprovement "Catch 40-60% more fraudulent claims" ;
+:CustomerSatisfaction "NPS improvement: 20-35 points" ;
+:AnnualSavingsEstimate "$500K-$5M (based on volume)" .
+
+# SLA Targets
+:InitialContactSLA "PT2H" ;
+:AssignmentSLA "PT24H" ;
+:InspectionScheduleSLA "PT3D" ;
+:DeterminationSLA "PT30D" ;
+:PaymentSLA "PT45D" .

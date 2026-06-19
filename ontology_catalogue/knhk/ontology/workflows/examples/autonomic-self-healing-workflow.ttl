@@ -1,0 +1,548 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# AUTONOMIC SELF-HEALING WORKFLOW
+#
+# Demonstrates MAPE-K feedback loop:
+# - Monitor: Detects task failures and performance issues
+# - Analyze: Identifies root causes and patterns
+# - Plan: Selects recovery actions from learned knowledge
+# - Execute: Runs corrective actions automatically
+# - Knowledge: Records success and improves future decisions
+#
+# Result: Workflow automatically recovers from failures without human intervention
+# =============================================================================
+
+<http://example.org/workflow/autonomic-self-healing> a mape:AutonomiccWorkflow ;
+    rdfs:label "Autonomic Self-Healing Workflow" ;
+    rdfs:comment "Workflow that detects and fixes failures automatically" ;
+    dcterms:created "2025-01-16T00:00:00Z"^^xsd:dateTime ;
+
+    # Enable MAPE-K autonomic control
+    yawl:enableAutonomic true ;
+    yawl:autonomicConfig <#autonomic-config> ;
+
+    # Self-management capabilities
+    mape:enabledProperties mape:SelfHealing,
+                          mape:SelfOptimizing,
+                          mape:SelfLearning ;
+
+    # Entry/exit
+    yawl:hasStartCondition <#start> ;
+    yawl:hasEndCondition <#end> ;
+
+    # Workflow tasks
+    yawl:hasTask <#process-payment>,
+                 <#process-retry>,
+                 <#escalate>,
+                 <#recover> ;
+
+    yawl:hasCondition <#start>,
+                      <#after-payment>,
+                      <#failure-detected>,
+                      <#recovered>,
+                      <#end> .
+
+# =============================================================================
+# AUTONOMIC CONFIGURATION
+# =============================================================================
+
+<#autonomic-config> a mape:AutonomiccWorkflow ;
+    # MONITOR: What to watch
+    mape:mapeMonitor <#monitor-component> ;
+
+    # ANALYZE: How to understand problems
+    mape:mapeAnalyze <#analyze-component> ;
+
+    # PLAN: How to decide actions
+    mape:mapePlan <#plan-component> ;
+
+    # EXECUTE: How to take action
+    mape:mapeExecute <#execute-component> ;
+
+    # KNOWLEDGE: Learning base
+    mape:mapeKnowledge <#knowledge-base> ;
+
+    # Loop frequency: Every 5 seconds
+    mape:loopFrequency "PT5S"^^xsd:duration ;
+    mape:loopEnabled true ;
+
+    # Autonomic goals
+    mape:autonomicGoals <#goal-reliability>,
+                        <#goal-performance>,
+                        <#goal-availability> ;
+
+    # Autonomic hooks
+    mape:autonomicHooks <#hook-monitor>,
+                        <#hook-analyze>,
+                        <#hook-plan>,
+                        <#hook-execute> .
+
+# =============================================================================
+# MONITORING COMPONENT
+# =============================================================================
+
+<#monitor-component> a mape:MonitoringComponent ;
+    rdfs:label "Monitor" ;
+    rdfs:comment "Collects metrics and detects anomalies" ;
+
+    mape:metricsCollected <#metric-payment-success-rate>,
+                          <#metric-payment-latency>,
+                          <#metric-error-count>,
+                          <#metric-resource-usage> .
+
+<#metric-payment-success-rate> a mape:Metric ;
+    mape:metricName "Payment Success Rate" ;
+    mape:metricType mape:ReliabilityMetric ;
+    mape:currentValue 0.92 ;
+    mape:expectedValue 0.99 ;
+    mape:unit "percent" ;
+    mape:anomalyThreshold 0.95 ;
+    mape:trendDirection mape:Degrading .
+
+<#metric-payment-latency> a mape:Metric ;
+    mape:metricName "Payment Processing Latency" ;
+    mape:metricType mape:PerformanceMetric ;
+    mape:currentValue 3500 ;
+    mape:expectedValue 2000 ;
+    mape:unit "milliseconds" ;
+    mape:anomalyThreshold 3000 ;
+    mape:trendDirection mape:Degrading .
+
+<#metric-error-count> a mape:Metric ;
+    mape:metricName "Error Count" ;
+    mape:metricType mape:ReliabilityMetric ;
+    mape:currentValue 47 ;
+    mape:expectedValue 0 ;
+    mape:unit "count" ;
+    mape:anomalyThreshold 5 ;
+    mape:trendDirection mape:Degrading .
+
+<#metric-resource-usage> a mape:Metric ;
+    mape:metricName "Memory Usage" ;
+    mape:metricType mape:ResourceMetric ;
+    mape:currentValue 85.5 ;
+    mape:expectedValue 60.0 ;
+    mape:unit "percent" ;
+    mape:anomalyThreshold 80.0 ;
+    mape:trendDirection mape:Improving .
+
+# =============================================================================
+# ANALYSIS COMPONENT
+# =============================================================================
+
+<#analyze-component> a mape:AnalysisComponent ;
+    rdfs:label "Analyze" ;
+    rdfs:comment "Analyzes metrics to identify problems" ;
+
+    # Analysis rules
+    mape:ruleCondition <#rule-high-error-rate>,
+                       <#rule-performance-degradation>,
+                       <#rule-resource-issue> .
+
+<#rule-high-error-rate> a mape:AnalysisRule ;
+    mape:ruleName "High Error Rate Detection" ;
+    mape:ruleType mape:HighErrorRate ;
+    mape:ruleCondition "SELECT WHERE { ?metric mape:metricName 'Error Count' ; mape:currentValue ?val . FILTER(?val > 5) }" ;
+    rdfs:comment "Detects when error count exceeds threshold" .
+
+<#rule-performance-degradation> a mape:AnalysisRule ;
+    mape:ruleName "Performance Degradation Detection" ;
+    mape:ruleType mape:PerformanceDegradation ;
+    mape:ruleCondition "SELECT WHERE { ?metric mape:currentValue ?curr ; mape:expectedValue ?exp . FILTER(?curr > ?exp * 1.5) }" ;
+    rdfs:comment "Detects when performance is 50%+ worse than expected" .
+
+<#rule-resource-issue> a mape:AnalysisRule ;
+    mape:ruleName "Resource Starvation Detection" ;
+    mape:ruleType mape:ResourceStarvation ;
+    mape:ruleCondition "SELECT WHERE { ?metric mape:metricType mape:ResourceMetric ; mape:currentValue ?val . FILTER(?val > 85) }" ;
+    rdfs:comment "Detects high resource usage" .
+
+# =============================================================================
+# PLANNING COMPONENT
+# =============================================================================
+
+<#plan-component> a mape:PlanningComponent ;
+    rdfs:label "Plan" ;
+    rdfs:comment "Decides what actions to take" ;
+
+    # Autonomic policies
+    mape:policyTrigger <#policy-retry-on-failure>,
+                       <#policy-scale-on-load>,
+                       <#policy-optimize-on-slowdown>,
+                       <#policy-circuit-breaker> .
+
+<#policy-retry-on-failure> a mape:Policy ;
+    mape:policyName "Retry on Failure" ;
+    rdfs:comment "Automatically retry failed operations" ;
+    mape:policyTrigger mape:HighErrorRate ;
+    mape:policyAction <#action-retry>,
+                      <#action-fallback> ;
+    mape:policyPriority 100 ;
+    mape:policyCondition "error_count > 5 AND success_rate < 0.95" .
+
+<#policy-scale-on-load> a mape:Policy ;
+    mape:policyName "Scale on High Load" ;
+    rdfs:comment "Automatically scale resources when load increases" ;
+    mape:policyTrigger mape:ResourceStarvation ;
+    mape:policyAction <#action-scale-up> ;
+    mape:policyPriority 90 ;
+    mape:policyCondition "resource_usage > 80" .
+
+<#policy-optimize-on-slowdown> a mape:Policy ;
+    mape:policyName "Optimize on Slowdown" ;
+    rdfs:comment "Optimize execution when performance degrades" ;
+    mape:policyTrigger mape:PerformanceDegradation ;
+    mape:policyAction <#action-optimize>,
+                      <#action-route-to-fast-path> ;
+    mape:policyPriority 80 ;
+    mape:policyCondition "latency > expected * 1.5" .
+
+<#policy-circuit-breaker> a mape:Policy ;
+    mape:policyName "Circuit Breaker on Cascading Failures" ;
+    rdfs:comment "Stop retrying when failure rate is critical" ;
+    mape:policyTrigger mape:HighErrorRate ;
+    mape:policyAction <#action-circuit-break>,
+                      <#action-escalate> ;
+    mape:policyPriority 110 ;
+    mape:policyCondition "error_count > 20 AND error_rate > 0.5" .
+
+# =============================================================================
+# ACTIONS: Self-Management Operations
+# =============================================================================
+
+<#action-retry> a mape:Action ;
+    mape:actionType mape:HealAction ;
+    mape:actionDescription "Retry failed operation with exponential backoff" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-retry> ;
+    mape:estimatedImpact "Recovery 70% of failures" ;
+    mape:riskLevel mape:LowRisk .
+
+<#action-fallback> a mape:Action ;
+    mape:actionType mape:HealAction ;
+    mape:actionDescription "Use fallback payment processor" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-fallback> ;
+    mape:estimatedImpact "Recovery 90% of failures" ;
+    mape:riskLevel mape:MediumRisk .
+
+<#action-scale-up> a mape:Action ;
+    mape:actionType mape:OptimizeAction ;
+    mape:actionDescription "Increase resource allocation" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-scale-up> ;
+    mape:estimatedImpact "Reduce latency by 30-50%" ;
+    mape:riskLevel mape:LowRisk .
+
+<#action-optimize> a mape:Action ;
+    mape:actionType mape:OptimizeAction ;
+    mape:actionDescription "Apply performance optimizations" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-optimize> ;
+    mape:estimatedImpact "Reduce latency by 20-40%" ;
+    mape:riskLevel mape:LowRisk .
+
+<#action-route-to-fast-path> a mape:Action ;
+    mape:actionType mape:OptimizeAction ;
+    mape:actionDescription "Route to faster payment processor" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-fast-route> ;
+    mape:estimatedImpact "Reduce latency by 40-60%" ;
+    mape:riskLevel mape:MediumRisk .
+
+<#action-circuit-break> a mape:Action ;
+    mape:actionType mape:ProtectAction ;
+    mape:actionDescription "Stop further attempts (circuit breaker)" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-circuit-break> ;
+    mape:estimatedImpact "Prevent cascading failures" ;
+    mape:riskLevel mape:MediumRisk .
+
+<#action-escalate> a mape:Action ;
+    mape:actionType mape:ProtectAction ;
+    mape:actionDescription "Escalate to human operator" ;
+    mape:actionTarget <#process-payment> ;
+    mape:actionImplementation <urn:knhk:action-escalate> ;
+    mape:estimatedImpact "Get human intervention" ;
+    mape:riskLevel mape:HighRisk .
+
+# =============================================================================
+# EXECUTION COMPONENT
+# =============================================================================
+
+<#execute-component> a mape:ExecutionComponent ;
+    rdfs:label "Execute" ;
+    rdfs:comment "Executes planned actions and captures feedback" ;
+
+    # Historical executions tracked here
+    mape:feedbackCycles <#cycle-1>,
+                        <#cycle-2>,
+                        <#cycle-3> .
+
+# Example feedback cycles showing learning
+<#cycle-1> a mape:FeedbackCycle ;
+    mape:cycleNumber 1 ;
+    mape:cycleStartTime "2025-01-16T10:00:00Z"^^xsd:dateTime ;
+    mape:cycleEndTime "2025-01-16T10:00:05Z"^^xsd:dateTime ;
+    mape:cycleOutcome "Detected high error rate, applied retry policy" ;
+    mape:cycleEffectiveness 0.85 .
+
+<#cycle-2> a mape:FeedbackCycle ;
+    mape:cycleNumber 2 ;
+    mape:cycleStartTime "2025-01-16T10:00:05Z"^^xsd:dateTime ;
+    mape:cycleEndTime "2025-01-16T10:00:10Z"^^xsd:dateTime ;
+    mape:cycleOutcome "Retry succeeded, error rate improved to 0.95" ;
+    mape:cycleEffectiveness 0.90 .
+
+<#cycle-3> a mape:FeedbackCycle ;
+    mape:cycleNumber 3 ;
+    mape:cycleStartTime "2025-01-16T10:00:10Z"^^xsd:dateTime ;
+    mape:cycleEndTime "2025-01-16T10:00:15Z"^^xsd:dateTime ;
+    mape:cycleOutcome "Performance still degraded, scaled resources" ;
+    mape:cycleEffectiveness 0.92 .
+
+# =============================================================================
+# KNOWLEDGE BASE: Learning from Experience
+# =============================================================================
+
+<#knowledge-base> a mape:KnowledgeBase ;
+    rdfs:label "Knowledge Base" ;
+    rdfs:comment "Learns patterns and successful actions from experience" ;
+
+    # Learned patterns
+    mape:learnedPatterns <#pattern-payment-failures>,
+                         <#pattern-resource-exhaustion> ;
+
+    # Success memories
+    mape:successMemories <#success-retry-low-rate>,
+                         <#success-fallback-medium>,
+                         <#success-scale-up> ;
+
+    # Predictive models
+    mape:predictiveModels <#model-error-prediction>,
+                          <#model-latency-forecast> ;
+
+    # Performance history
+    mape:historicalMetrics <#history-payment-reliability> .
+
+<#pattern-payment-failures> a mape:LearnedPattern ;
+    mape:patternDescription "Payment processor timeouts during high load" ;
+    mape:patternFrequency 42 ;
+    mape:patternReliability 0.88 ;
+    mape:associatedActions <#action-retry>,
+                           <#action-fallback>,
+                           <#action-scale-up> .
+
+<#pattern-resource-exhaustion> a mape:LearnedPattern ;
+    mape:patternDescription "Memory exhaustion under sustained load" ;
+    mape:patternFrequency 28 ;
+    mape:patternReliability 0.91 ;
+    mape:associatedActions <#action-scale-up>,
+                           <#action-optimize> .
+
+<#success-retry-low-rate> a mape:SuccessMemory ;
+    mape:situationDescription "Low error rates (< 10%)" ;
+    mape:successfulActions <#action-retry> ;
+    mape:successRate 0.92 .
+
+<#success-fallback-medium> a mape:SuccessMemory ;
+    mape:situationDescription "Medium error rates (10-30%)" ;
+    mape:successfulActions <#action-fallback> ;
+    mape:successRate 0.85 .
+
+<#success-scale-up> a mape:SuccessMemory ;
+    mape:situationDescription "High load detected" ;
+    mape:successfulActions <#action-scale-up> ;
+    mape:successRate 0.89 .
+
+<#model-error-prediction> a mape:PredictiveModel ;
+    mape:modelType "Linear Regression" ;
+    mape:modelAccuracy 0.87 ;
+    mape:modelTrainedAt "2025-01-16T09:00:00Z"^^xsd:dateTime ;
+    mape:modelParameters "intercept=0.02, slope=0.00012" ;
+    rdfs:comment "Predicts error rate based on load" .
+
+<#model-latency-forecast> a mape:PredictiveModel ;
+    mape:modelType "ARIMA(2,1,2)" ;
+    mape:modelAccuracy 0.82 ;
+    mape:modelTrainedAt "2025-01-16T09:00:00Z"^^xsd:dateTime ;
+    mape:modelParameters "AR(2), I(1), MA(2)" ;
+    rdfs:comment "Forecasts latency trends" .
+
+<#history-payment-reliability> a mape:PerformanceHistory ;
+    mape:metricTimeseries "2025-01-16T10:00: 0.99, 2025-01-16T10:01: 0.98, 2025-01-16T10:02: 0.92, ..." ;
+    mape:trend "Degrading - linear decline of 0.007 per minute" ;
+    mape:forecast "Predicted to hit 0.85 in 10 minutes without intervention" .
+
+# =============================================================================
+# AUTONOMIC GOALS: What Success Looks Like
+# =============================================================================
+
+<#goal-reliability> a mape:AutonomicGoal ;
+    mape:goalName "System Reliability" ;
+    mape:goalDescription "Keep error rate below 1%" ;
+    mape:goalMetric <#metric-error-count> ;
+    mape:goalTarget 0.01 ;
+    mape:goalPriority 100 ;
+    mape:goalTolerance 0.02 .
+
+<#goal-performance> a mape:AutonomicGoal ;
+    mape:goalName "System Performance" ;
+    mape:goalDescription "Keep payment latency under 2 seconds" ;
+    mape:goalMetric <#metric-payment-latency> ;
+    mape:goalTarget 2000 ;
+    mape:goalPriority 90 ;
+    mape:goalTolerance 500 .
+
+<#goal-availability> a mape:AutonomicGoal ;
+    mape:goalName "System Availability" ;
+    mape:goalDescription "Maintain 99.9% uptime" ;
+    mape:goalMetric <#metric-payment-success-rate> ;
+    mape:goalTarget 0.999 ;
+    mape:goalPriority 95 ;
+    mape:goalTolerance 0.001 .
+
+# =============================================================================
+# AUTONOMIC HOOKS: Integration Points
+# =============================================================================
+
+<#hook-monitor> a mape:Hook ;
+    mape:hookType mape:PostMonitor ;
+    mape:hookName "Log Metrics" ;
+    mape:hookImplementation <urn:knhk:hook-log-metrics> ;
+    rdfs:comment "Log collected metrics for analysis" .
+
+<#hook-analyze> a mape:Hook ;
+    mape:hookType mape:PostAnalyze ;
+    mape:hookName "Alert on Problem" ;
+    mape:hookImplementation <urn:knhk:hook-alert> ;
+    rdfs:comment "Send alert when problem detected" .
+
+<#hook-plan> a mape:Hook ;
+    mape:hookType mape:PostPlan ;
+    mape:hookName "Approve Plan" ;
+    mape:hookImplementation <urn:knhk:hook-approve> ;
+    rdfs:comment "Get approval for high-risk actions" .
+
+<#hook-execute> a mape:Hook ;
+    mape:hookType mape:PostExecute ;
+    mape:hookName "Record Outcome" ;
+    mape:hookImplementation <urn:knhk:hook-record> ;
+    rdfs:comment "Record execution result for learning" .
+
+# =============================================================================
+# WORKFLOW TASKS
+# =============================================================================
+
+<#process-payment> a yawl:Task ;
+    rdfs:label "Process Payment" ;
+    rdfs:comment "Primary payment processing (monitored for autonomic healing)" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasOutgoingFlow <#after-payment> ;
+    yawl-exec:executionMode yawl-exec:Asynchronous ;
+    yawl-exec:TaskDuration "PT2S"^^xsd:duration ;
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutRetry ;
+    yawl:learnFrom <#knowledge-base> ;
+    yawl:updateKnowledge true .
+
+<#process-retry> a yawl:Task ;
+    rdfs:label "Retry Payment" ;
+    rdfs:comment "Autonomous retry of failed payment" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasIncomingFlow <#failure-detected> ;
+    yawl:hasOutgoingFlow <#recovered> .
+
+<#escalate> a yawl:Task ;
+    rdfs:label "Escalate to Human" ;
+    rdfs:comment "When autonomous recovery fails" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasIncomingFlow <#failure-detected> .
+
+<#recover> a yawl:Task ;
+    rdfs:label "Recovery Logic" ;
+    rdfs:comment "Execute recovery actions from knowledge base" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:hasOutgoingFlow <#end> .
+
+# =============================================================================
+# CONDITIONS/PLACES
+# =============================================================================
+
+<#start> a yawl:StartCondition ;
+    yawl:hasOutgoingFlow <#process-payment> ;
+    yawl:initialMarking 1 .
+
+<#after-payment> a yawl:Condition ;
+    rdfs:label "Payment Processed" ;
+    yawl:hasIncomingFlow <#process-payment> ;
+    yawl:hasOutgoingFlow <#recover> ;
+    yawl:initialMarking 0 .
+
+<#failure-detected> a yawl:Condition ;
+    rdfs:label "Failure Detected" ;
+    yawl:hasOutgoingFlow <#process-retry>,
+                         <#escalate> ;
+    yawl:initialMarking 0 ;
+    rdfs:comment "Autonomic monitor detects failure" .
+
+<#recovered> a yawl:Condition ;
+    rdfs:label "Recovered" ;
+    yawl:hasIncomingFlow <#process-retry> ;
+    yawl:hasOutgoingFlow <#recover> ;
+    yawl:initialMarking 0 .
+
+<#end> a yawl:EndCondition ;
+    yawl:hasIncomingFlow <#recover> ;
+    yawl:initialMarking 0 .
+
+# =============================================================================
+# HOW THIS WORKS
+# =============================================================================
+#
+# 1. NORMAL EXECUTION:
+#    - Payment processing runs
+#    - Monitor continuously tracks metrics
+#    - If successful, workflow completes
+#
+# 2. PROBLEM DETECTED:
+#    - Monitor detects high error rate or timeout
+#    - Observation created: TaskFailed event
+#    - Metric marked as anomalous
+#
+# 3. AUTONOMOUS ANALYSIS:
+#    - Analysis rules evaluate conditions
+#    - Root cause identified: "Payment processor timeout"
+#    - Pattern matched: "Payment failures during high load"
+#    - Confidence: 0.88 (from learned pattern)
+#
+# 4. PLANNING & ACTION:
+#    - Plan component evaluates policies
+#    - Policy "Retry on Failure" triggered
+#    - Actions selected from knowledge base
+#    - Risk assessed: Low (retry is safe)
+#
+# 5. EXECUTION:
+#    - Action "Retry with exponential backoff" executed
+#    - Retry succeeds (learned action works)
+#    - Metrics improve
+#    - Execution recorded
+#
+# 6. LEARNING:
+#    - Cycle recorded as successful
+#    - Success memory updated
+#    - Pattern reliability increased
+#    - Predictive model refined
+#
+# RESULT: Payment processing recovers automatically
+# No human intervention needed
+# System gets smarter with each failure

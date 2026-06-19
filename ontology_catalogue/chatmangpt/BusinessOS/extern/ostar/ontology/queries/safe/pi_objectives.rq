@@ -1,0 +1,26 @@
+# PI Objectives Query
+# Returns all PI objectives for a Program Increment, grouped by team
+
+PREFIX safe: <https://chatmangpt.com/ontologies/safe/pm#>
+PREFIX pm: <https://chatmangpt.com/ontologies/powl/pm#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?pi ?piLabel ?team ?teamLabel ?objective ?objectiveLabel ?status ?businessValue
+WHERE {
+  # Find PI
+  ?pi a safe:ProgramIncrement .
+  OPTIONAL { ?pi rdfs:label ?piLabel }
+
+  # Find objectives in PI
+  ?pi safe:hasPIObjective ?objective .
+  ?objective a safe:PIObjective .
+  OPTIONAL { ?objective rdfs:label ?objectiveLabel }
+  ?objective safe:objectiveStatus ?status .
+  ?objective safe:businessValue ?businessValue .
+
+  # Find team that owns this objective
+  ?objective pm:inSprint ?teamSprint .
+  ?teamSprint pm:hasTeam ?team .
+  OPTIONAL { ?team rdfs:label ?teamLabel }
+}
+ORDER BY ?team DESC(?businessValue)

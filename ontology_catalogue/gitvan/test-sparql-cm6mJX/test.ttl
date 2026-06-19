@@ -1,0 +1,18 @@
+
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:project1 rdf:type ex:Project ;
+    ex:name "Project Alpha" ;
+    ex:status "active" ;
+    ex:priority "high" .
+
+ex:project2 rdf:type ex:Project ;
+    ex:name "Project Beta" ;
+    ex:status "inactive" ;
+    ex:priority "medium" .
+
+ex:project3 rdf:type ex:Project ;
+    ex:name "Project Gamma" ;
+    ex:status "active" ;
+    ex:priority "low" .

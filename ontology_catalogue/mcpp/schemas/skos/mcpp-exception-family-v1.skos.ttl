@@ -1,0 +1,118 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix mcpp: <https://w3id.org/mcpp#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MCP+ Exception-Family Scheme v1 — 13 closed exception families.
+#
+# These families originate in the HBR-style operations corpus and anchor
+# the push-card layer (Slice C). Each Andon refusal class belongs to one
+# of these families via `skos:related` cross-links.
+#
+# Doctrine: families are observable categories of operational breakdown.
+# Pushing a card of family `EvidenceMissing` is doctrinally equivalent to
+# refusing with `MissingRequiredStages` or `InsufficientReceiptCoverage`,
+# but the family is the human-facing dimension (push-card layer) while
+# the Andon code is the machine-facing one (proof_gate refusal).
+# ──────────────────────────────────────────────────────────────────────────────
+
+mcpp:ExceptionFamilySchemeV1 a skos:ConceptScheme ;
+    skos:prefLabel  "MCP+ Exception Family Scheme v1"@en ;
+    skos:notation   "mcpp-exception-family-v1" ;
+    skos:definition "Closed set of 13 operational exception families used by the push-card projection layer."@en .
+
+<https://w3id.org/mcpp/exception-family/EvidenceMissing> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Evidence Missing"@en ;
+    skos:notation     "EvidenceMissing" ;
+    skos:definition   "Required evidence artifact has not been received."@en ;
+    skos:related      mcpp:MissingRequiredStages, mcpp:InsufficientReceiptCoverage .
+
+<https://w3id.org/mcpp/exception-family/EvidenceConflict> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Evidence Conflict"@en ;
+    skos:notation     "EvidenceConflict" ;
+    skos:definition   "Two or more pieces of evidence contradict each other (e.g. seal vs. carrier_handoff)."@en ;
+    skos:related      mcpp:EvidenceContinuityGap .
+
+<https://w3id.org/mcpp/exception-family/EvidenceStale> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Evidence Stale"@en ;
+    skos:notation     "EvidenceStale" ;
+    skos:definition   "Evidence is beyond its lawful freshness window."@en .
+
+<https://w3id.org/mcpp/exception-family/ApprovalRequired> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Approval Required"@en ;
+    skos:notation     "ApprovalRequired" ;
+    skos:definition   "Route stage requires explicit human or counterparty approval that has not been granted."@en .
+
+<https://w3id.org/mcpp/exception-family/ApprovalDenied> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Approval Denied"@en ;
+    skos:notation     "ApprovalDenied" ;
+    skos:definition   "An approval request was explicitly denied."@en .
+
+<https://w3id.org/mcpp/exception-family/PolicyDowngrade> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Policy Downgrade"@en ;
+    skos:notation     "PolicyDowngrade" ;
+    skos:definition   "Request attempted to lower a policy bar below its minimum (e.g. conformance < 1.0)."@en ;
+    skos:related      mcpp:PolicyDowngradeRejected .
+
+<https://w3id.org/mcpp/exception-family/PolicyBreach> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Policy Breach"@en ;
+    skos:notation     "PolicyBreach" ;
+    skos:definition   "ODRL permission/prohibition was violated by the observed run."@en .
+
+<https://w3id.org/mcpp/exception-family/LifecycleViolation> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Lifecycle Violation"@en ;
+    skos:notation     "LifecycleViolation" ;
+    skos:definition   "Object lifecycle transition was unlawful per the SKOS lifecycle scheme."@en ;
+    skos:related      mcpp:ObjectLifecycleViolation, mcpp:LifecycleNotTerminated .
+
+<https://w3id.org/mcpp/exception-family/TimeoutExpired> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Timeout Expired"@en ;
+    skos:notation     "TimeoutExpired" ;
+    skos:definition   "An obligation deadline has passed without resolution."@en .
+
+<https://w3id.org/mcpp/exception-family/CounterpartyUnreachable> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Counterparty Unreachable"@en ;
+    skos:notation     "CounterpartyUnreachable" ;
+    skos:definition   "A required counterparty enterprise cannot be reached or relays are not flowing."@en .
+
+<https://w3id.org/mcpp/exception-family/CrossEnterpriseRelayFailure> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Cross-Enterprise Relay Failure"@en ;
+    skos:notation     "CrossEnterpriseRelayFailure" ;
+    skos:definition   "A cross-enterprise relay message failed verification (signature, freshness, or trust list)."@en .
+
+<https://w3id.org/mcpp/exception-family/DataIntegrityFailure> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Data Integrity Failure"@en ;
+    skos:notation     "DataIntegrityFailure" ;
+    skos:definition   "A content hash or signature did not match its declared value."@en ;
+    skos:related      mcpp:InputHashMismatch, mcpp:ManifestUnsigned, mcpp:ReceiptSchemaViolation .
+
+<https://w3id.org/mcpp/exception-family/AmbiguousRoutingDecision> a skos:Concept ;
+    skos:topConceptOf mcpp:ExceptionFamilySchemeV1 ;
+    skos:inScheme     mcpp:ExceptionFamilySchemeV1 ;
+    skos:prefLabel    "Ambiguous Routing Decision"@en ;
+    skos:notation     "AmbiguousRoutingDecision" ;
+    skos:definition   "More than one POWL branch is enabled in a context that requires a unique successor."@en .

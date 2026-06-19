@@ -1,0 +1,457 @@
+@prefix : <https://thesis.ggen.io/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# =============================================================================
+# PhD Thesis Ontology: Ontology-Driven Code Generation
+# Case Studies: ASTRO Design System & Figex CLI
+# =============================================================================
+
+# Classes
+
+:Thesis a rdfs:Class ;
+    rdfs:label "PhD Thesis" ;
+    rdfs:comment "Complete doctoral thesis" .
+
+:Chapter a rdfs:Class ;
+    rdfs:label "Chapter" ;
+    rdfs:comment "A chapter in the thesis" .
+
+:Section a rdfs:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "A section within a chapter" .
+
+:CaseStudy a rdfs:Class ;
+    rdfs:label "Case Study" ;
+    rdfs:comment "A case study demonstrating the methodology" .
+
+:Concept a rdfs:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "A key theoretical concept" .
+
+:Theorem a rdfs:Class ;
+    rdfs:label "Theorem" ;
+    rdfs:comment "A formal theorem" .
+
+:Equation a rdfs:Class ;
+    rdfs:label "Equation" ;
+    rdfs:comment "A mathematical equation" .
+
+# Properties
+
+:title a rdf:Property ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:subtitle a rdf:Property ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:author a rdf:Property ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:institution a rdf:Property ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:year a rdf:Property ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:abstract a rdf:Property ;
+    rdfs:range xsd:string .
+
+:chapterNumber a rdf:Property ;
+    rdfs:domain :Chapter ;
+    rdfs:range xsd:integer .
+
+:chapterTitle a rdf:Property ;
+    rdfs:domain :Chapter ;
+    rdfs:range xsd:string .
+
+:hasSection a rdf:Property ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Section .
+
+:sectionNumber a rdf:Property ;
+    rdfs:domain :Section ;
+    rdfs:range xsd:string .
+
+:content a rdf:Property ;
+    rdfs:domain :Section ;
+    rdfs:range xsd:string .
+
+:projectName a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:technology a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:keyInnovation a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:packages a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:ontologies a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:generatedArtifacts a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:architecture a rdf:Property ;
+    rdfs:domain :CaseStudy ;
+    rdfs:range xsd:string .
+
+:definition a rdf:Property ;
+    rdfs:domain :Concept ;
+    rdfs:range xsd:string .
+
+:explanation a rdf:Property ;
+    rdfs:domain :Concept ;
+    rdfs:range xsd:string .
+
+:statement a rdf:Property ;
+    rdfs:domain :Theorem ;
+    rdfs:range xsd:string .
+
+:proof a rdf:Property ;
+    rdfs:domain :Theorem ;
+    rdfs:range xsd:string .
+
+:latex a rdf:Property ;
+    rdfs:domain :Equation ;
+    rdfs:range xsd:string .
+
+:description a rdf:Property ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# THESIS INSTANCE
+# =============================================================================
+
+:MainThesis a :Thesis ;
+    rdfs:label "Ontology-Driven Code Generation" ;
+    :title "Ontology-Driven Code Generation" ;
+    :subtitle "A Unified Framework for Design System Implementation via RDF Knowledge Graphs" ;
+    :author "Sean Chatman" ;
+    :institution "ggen.io Research" ;
+    :year "2025" ;
+    :abstract "This thesis presents ggen sync as a novel paradigm for deterministic code generation from RDF ontologies. Through two comprehensive case studies - ASTRO (a design system with XState v5 state machines) and Figex (a Figma CLI with ontology-driven commands) - we demonstrate that semantic knowledge graphs can eliminate the impedance mismatch between design specifications and implementation code. The central contribution is a mathematical framework proving that well-formed ontologies yield deterministic, reproducible code with zero drift." .
+
+# =============================================================================
+# CHAPTERS
+# =============================================================================
+
+:Chapter1 a :Chapter ;
+    rdfs:label "Introduction" ;
+    :chapterNumber 1 ;
+    :chapterTitle "Introduction: The Code Generation Problem" ;
+    :abstract "Software development suffers from specification-implementation drift. This chapter introduces ontology-driven code generation as a solution, presenting ggen sync as the unified command that transforms RDF knowledge graphs into deterministic code." ;
+    :hasSection :Section1_1, :Section1_2, :Section1_3, :Section1_4 .
+
+:Section1_1 a :Section ;
+    rdfs:label "The Problem of Drift" ;
+    :sectionNumber "1.1" ;
+    :content "Traditional software development creates an impedance mismatch between specifications (documentation, designs, requirements) and implementation (code). This drift manifests as: (1) documentation becoming stale, (2) design-code divergence, (3) manual synchronization overhead, and (4) inconsistent codebases." .
+
+:Section1_2 a :Section ;
+    rdfs:label "Ontology as Single Source of Truth" ;
+    :sectionNumber "1.2" ;
+    :content "RDF ontologies provide a formal, machine-readable specification language. By encoding domain knowledge in Turtle (.ttl) files, we create a single source of truth that can be queried (SPARQL), validated (SHACL), and transformed (templates)." .
+
+:Section1_3 a :Section ;
+    rdfs:label "The ggen sync Paradigm" ;
+    :sectionNumber "1.3" ;
+    :content "ggen sync implements a deterministic pipeline: ggen.toml to ontology to CONSTRUCT inference to SELECT queries to Template rendering to Code. This single command replaces all traditional code generation workflows with a unified, reproducible process." .
+
+:Section1_4 a :Section ;
+    rdfs:label "Thesis Contributions" ;
+    :sectionNumber "1.4" ;
+    :content "This thesis contributes: (1) A mathematical framework for ontology-driven code generation, (2) The ggen sync implementation in Rust, (3) Two comprehensive case studies (ASTRO and Figex), and (4) Empirical validation showing zero-drift code generation." .
+
+# Chapter 2
+
+:Chapter2 a :Chapter ;
+    rdfs:label "Theoretical Foundations" ;
+    :chapterNumber 2 ;
+    :chapterTitle "Theoretical Foundations: Information Theory Meets Knowledge Graphs" ;
+    :abstract "We establish the mathematical foundations for ontology-driven code generation, drawing on information theory, category theory, and formal semantics to prove that well-formed ontologies guarantee deterministic code synthesis." ;
+    :hasSection :Section2_1, :Section2_2, :Section2_3, :Section2_4 .
+
+:Section2_1 a :Section ;
+    rdfs:label "RDF and Knowledge Graphs" ;
+    :sectionNumber "2.1" ;
+    :content "RDF (Resource Description Framework) encodes knowledge as subject-predicate-object triples. A knowledge graph G = (V, E) where vertices V are resources and edges E are predicates forms a directed labeled graph. We prove that SPARQL queries over G are decidable and that CONSTRUCT queries preserve graph structure." .
+
+:Section2_2 a :Section ;
+    rdfs:label "Deterministic Code Generation" ;
+    :sectionNumber "2.2" ;
+    :content "Let O be an ontology and T a template. We define the code generation function gen: O x T to C where C is the generated code. We prove that gen is deterministic: for all o1, o2 in O, if o1 = o2 then gen(o1,T) = gen(o2,T). This guarantees reproducibility." .
+
+:Section2_3 a :Section ;
+    rdfs:label "The 80/20 Principle in Code Generation" ;
+    :sectionNumber "2.3" ;
+    :content "Paretos principle applies to code generation: 20 percent of the ontology defines 80 percent of the generated code. We formalize this as information-theoretic sparsity: H(Code|Ontology) is less than or equal to 0.2 times H(Ontology), where H denotes entropy." .
+
+:Section2_4 a :Section ;
+    rdfs:label "Zero-Drift Guarantee" ;
+    :sectionNumber "2.4" ;
+    :content "We define drift as d(t) = ||Code(t) - gen(O(t),T)||. The zero-drift theorem states: if Code is always regenerated from O via gen, then d(t) = 0 for all t. This eliminates specification-implementation divergence." .
+
+# Chapter 3
+
+:Chapter3 a :Chapter ;
+    rdfs:label "The ggen Architecture" ;
+    :chapterNumber 3 ;
+    :chapterTitle "The ggen Architecture: A Rust Implementation" ;
+    :abstract "We present ggens architecture: a Rust CLI implementing the ggen sync command. The system comprises manifest parsing (ggen.toml), RDF processing (oxigraph), SPARQL execution, and Tera template rendering." ;
+    :hasSection :Section3_1, :Section3_2, :Section3_3, :Section3_4, :Section3_5 .
+
+:Section3_1 a :Section ;
+    rdfs:label "Manifest Structure" ;
+    :sectionNumber "3.1" ;
+    :content "The ggen.toml manifest defines: [project] metadata, [ontology] source and prefixes, [inference] CONSTRUCT rules, and [[generation.rules]] for each output file. This declarative configuration enables reproducible code generation." .
+
+:Section3_2 a :Section ;
+    rdfs:label "RDF Processing Pipeline" ;
+    :sectionNumber "3.2" ;
+    :content "ggen uses oxigraph for RDF storage and SPARQL execution. The pipeline: (1) Load TTL ontology into graph, (2) Execute CONSTRUCT rules for inference, (3) Execute SELECT queries per generation rule, (4) Pass results to templates." .
+
+:Section3_3 a :Section ;
+    rdfs:label "Template Engine" ;
+    :sectionNumber "3.3" ;
+    :content "Tera templates receive sparql_results as arrays of bindings. Variables use ?-prefixed SPARQL names. Filters transform values. The deterministic rendering ensures identical inputs produce identical outputs." .
+
+:Section3_4 a :Section ;
+    rdfs:label "Audit Trail" ;
+    :sectionNumber "3.4" ;
+    :content "ggen sync generates audit.json tracking: files created, checksums, timestamps, and generation metadata. This audit trail enables compliance, debugging, and reproducibility verification." .
+
+:Section3_5 a :Section ;
+    rdfs:label "Performance Characteristics" ;
+    :sectionNumber "3.5" ;
+    :content "Benchmarks show: less than 5s for 1000 triples, less than 100MB memory, less than 3s CLI response time. The SLO targets ensure ggen sync remains interactive for developer workflows." .
+
+# Chapter 4 - ASTRO Case Study
+
+:Chapter4 a :Chapter ;
+    rdfs:label "Case Study: ASTRO" ;
+    :chapterNumber 4 ;
+    :chapterTitle "Case Study: ASTRO Design System" ;
+    :abstract "ASTRO is a Next.js design system using XState v5 state machines, WatermelonDB, and OpenTelemetry. We demonstrate how ontology-driven generation creates UI components, state machines, and telemetry instrumentation from a unified knowledge graph." ;
+    :hasSection :Section4_1, :Section4_2, :Section4_3, :Section4_4, :Section4_5 .
+
+:Section4_1 a :Section ;
+    rdfs:label "ASTRO Architecture" ;
+    :sectionNumber "4.1" ;
+    :content "ASTRO follows a 6-layer DAG architecture: Foundation to Logic to Orchestration to Presentation to Composition to Application. Each layer has strict import boundaries enforced by the ontology. The packages directory contains 13 modules: cli, db, hooks, providers, services, state-machines, stores, tanstack-db, telemetry, test-utils, tokens, ui-components, ui-primitives." .
+
+:Section4_2 a :Section ;
+    rdfs:label "XState v5 State Machine Generation" ;
+    :sectionNumber "4.2" ;
+    :content "State machines are defined in the ontology and generated via ggen sync. The setup() API creates type-safe machines. Poka-yoke principles ensure impossible states are structurally prevented, not just UI-disabled." .
+
+:Section4_3 a :Section ;
+    rdfs:label "OpenTelemetry Instrumentation" ;
+    :sectionNumber "4.3" ;
+    :content "ASTRO replaces console.log with OTel spans. The telemetry package provides tracing decorators generated from ontology. Trust hierarchy: OTel spans (95 percent) greater than test output (90 percent) greater than agent claims (0 percent)." .
+
+:Section4_4 a :Section ;
+    rdfs:label "Component Generation" ;
+    :sectionNumber "4.4" ;
+    :content "UI components in ui-primitives are TypeScript. Application code uses JSDoc. Components are presenters only with zero business logic. The ontology defines component interfaces, props, and variants." .
+
+:Section4_5 a :Section ;
+    rdfs:label "Results and Metrics" ;
+    :sectionNumber "4.5" ;
+    :content "Big Bang 80/20 methodology achieved: 700 LoC in 2-3 hours (50x speedup), 0 defects, 64.3 percent pattern reuse, P(Correctness) >= 99.997 percent. All code regenerated from ontology with zero drift." .
+
+# Chapter 5 - Figex Case Study
+
+:Chapter5 a :Chapter ;
+    rdfs:label "Case Study: Figex" ;
+    :chapterNumber 5 ;
+    :chapterTitle "Case Study: Figex CLI" ;
+    :abstract "Figex is a CLI for extracting Figma .fig files. We demonstrate how figex-domain.ttl and figma-ontology.ttl drive command generation, type synthesis, and documentation via ggen sync." ;
+    :hasSection :Section5_1, :Section5_2, :Section5_3, :Section5_4, :Section5_5 .
+
+:Section5_1 a :Section ;
+    rdfs:label "Figex Domain Ontology" ;
+    :sectionNumber "5.1" ;
+    :content "figex-domain.ttl defines: FigmaFile, Canvas, Image, Metadata (core classes) and Command, ExtractCommand, InfoCommand, ValidateCommand, ListCommand, ImagesCommand, VisionCommand (CLI commands). Properties include hasPath, hasSize, hasFormat, requiresInput, hasOutputOption." .
+
+:Section5_2 a :Section ;
+    rdfs:label "Figma Type System Ontology" ;
+    :sectionNumber "5.2" ;
+    :content "figma-ontology.ttl (471 lines) models the complete Figma design system: 36 node classes (Document, Page, Canvas, Frame, Group, Section, Rectangle, Ellipse, Polygon, Star, Line, Vector, Text, Component, Instance...), 30 properties, paints, effects, layouts. This generates TypeScript types via ggen sync." .
+
+:Section5_3 a :Section ;
+    rdfs:label "Command Generation" ;
+    :sectionNumber "5.3" ;
+    :content "The .ggen/generate-commands.mjs script transforms ontology to JSON schema to citty commands. Generated commands live in src/commands/*-generated.mjs. Regeneration on domain changes ensures zero drift." .
+
+:Section5_4 a :Section ;
+    rdfs:label "Type Generation" ;
+    :sectionNumber "5.4" ;
+    :content "The .ggen/generate-figma-types.mjs (566 lines) generates src/types/figma.ts (470 lines) from figma-ontology.ttl. This creates exhaustive TypeScript interfaces for type-safe Figma file parsing." .
+
+:Section5_5 a :Section ;
+    rdfs:label "Integration Results" ;
+    :sectionNumber "5.5" ;
+    :content "Figex v4.0.0 achieves: 6 generated commands, 36 TypeScript types, complete Figma .fig parsing. The ontology serves as living documentation and single source of truth." .
+
+# Chapter 6 - Methodology
+
+:Chapter6 a :Chapter ;
+    rdfs:label "Methodology Synthesis" ;
+    :chapterNumber 6 ;
+    :chapterTitle "Methodology Synthesis: Patterns for Ontology-Driven Development" ;
+    :abstract "We synthesize learnings from ASTRO and Figex into a methodology for ontology-driven development. Key patterns include: spec-first protocol, 80/20 testing, poka-yoke innovation, and the ggen sync workflow." ;
+    :hasSection :Section6_1, :Section6_2, :Section6_3, :Section6_4 .
+
+:Section6_1 a :Section ;
+    rdfs:label "Spec-First Protocol" ;
+    :sectionNumber "6.1" ;
+    :content "NO implementation without spec. The workflow: /speckit.specify to /speckit.plan to /speckit.tasks to /speckit.implement. Branch naming: NNN-feature-name. Evidence directory: .specify/specs/NNN-feature/evidence/." .
+
+:Section6_2 a :Section ;
+    rdfs:label "80/20 Testing" ;
+    :sectionNumber "6.2" ;
+    :content "20 percent of tests provide 80 percent of value. Prioritize: integration greater than unit, happy path greater than edge cases. Add tests ONLY for: production bugs, critical journeys, breaking changes." .
+
+:Section6_3 a :Section ;
+    rdfs:label "Poka-Yoke Design" ;
+    :sectionNumber "6.3" ;
+    :content "Guards prevent, not just detect. Impossible transitions greater than disabled buttons. Type systems encode invariants. The ontology itself is a poka-yoke: malformed definitions fail at parse time, not runtime." .
+
+:Section6_4 a :Section ;
+    rdfs:label "The ggen sync Workflow" ;
+    :sectionNumber "6.4" ;
+    :content "The canonical workflow: (1) Edit ontology (.ttl), (2) Run ggen sync, (3) Verify generated code, (4) Commit both ontology and generated files. This ensures the repository always reflects the ontology state." .
+
+# Chapter 7 - Conclusion
+
+:Chapter7 a :Chapter ;
+    rdfs:label "Conclusion" ;
+    :chapterNumber 7 ;
+    :chapterTitle "Conclusion: The Future of Ontology-Driven Development" ;
+    :abstract "We conclude with the thesis that ggen sync represents a paradigm shift in software development: from imperative code-first to declarative ontology-first. Future work includes: AI-assisted ontology evolution, distributed knowledge graphs, and cross-project ontology federation." ;
+    :hasSection :Section7_1, :Section7_2, :Section7_3 .
+
+:Section7_1 a :Section ;
+    rdfs:label "Summary of Contributions" ;
+    :sectionNumber "7.1" ;
+    :content "This thesis contributed: (1) Mathematical foundations for deterministic code generation, (2) The ggen Rust implementation, (3) ASTRO case study demonstrating design system generation, (4) Figex case study demonstrating CLI generation, (5) Synthesis of ontology-driven development patterns." .
+
+:Section7_2 a :Section ;
+    rdfs:label "Future Work" ;
+    :sectionNumber "7.2" ;
+    :content "Future directions include: (1) AI-assisted ontology evolution via LLMs, (2) Distributed knowledge graphs for multi-repo synchronization, (3) SHACL validation integration, (4) Interactive ontology editors, (5) Real-time collaborative ontology development." .
+
+:Section7_3 a :Section ;
+    rdfs:label "Final Remarks" ;
+    :sectionNumber "7.3" ;
+    :content "ggen sync is THE ONLY command. This simplicity embodies the thesis: ontology-driven development reduces complexity by making the knowledge graph the single source of truth. Code becomes a projection of knowledge, not an artifact to maintain separately." .
+
+# =============================================================================
+# CASE STUDIES
+# =============================================================================
+
+:AstroCaseStudy a :CaseStudy ;
+    rdfs:label "ASTRO Design System" ;
+    :projectName "astro" ;
+    :technology "Next.js, XState v5, WatermelonDB, OpenTelemetry" ;
+    :packages "cli, db, hooks, providers, services, state-machines, stores, tanstack-db, telemetry, test-utils, tokens, ui-components, ui-primitives" ;
+    :architecture "6-layer DAG: Foundation to Logic to Orchestration to Presentation to Composition to Application" ;
+    :keyInnovation "Poka-yoke state machines, OTel-first observability, Big Bang 80/20 methodology" .
+
+:FigexCaseStudy a :CaseStudy ;
+    rdfs:label "Figex CLI" ;
+    :projectName "figex" ;
+    :technology "Node.js, citty CLI, RDF/OWL, TypeScript" ;
+    :ontologies "figex-domain.ttl (CLI commands), figma-ontology.ttl (Figma types)" ;
+    :generatedArtifacts "6 CLI commands, 36 TypeScript types, 470 lines of type definitions" ;
+    :keyInnovation "Complete Figma type system from RDF, ontology-driven CLI scaffolding" .
+
+# =============================================================================
+# KEY CONCEPTS
+# =============================================================================
+
+:ZeroDrift a :Concept ;
+    rdfs:label "Zero Drift" ;
+    :definition "d(t) = ||Code(t) - gen(O(t),T)|| = 0 for all t" ;
+    :explanation "Code is always regenerated from ontology, eliminating specification-implementation divergence" .
+
+:SingleSourceOfTruth a :Concept ;
+    rdfs:label "Single Source of Truth" ;
+    :definition "The ontology O is the canonical representation; all artifacts derive from O" ;
+    :explanation "Eliminates redundant specifications, ensures consistency" .
+
+:DeterministicGeneration a :Concept ;
+    rdfs:label "Deterministic Generation" ;
+    :definition "gen: O x T to C is a pure function" ;
+    :explanation "Same ontology plus template always produces same code" .
+
+:BigBang8020 a :Concept ;
+    rdfs:label "Big Bang 80/20" ;
+    :definition "20 percent of features equals 80 percent of value, implemented in ONE pass" ;
+    :explanation "Single-pass feature implementation using Pareto optimization" .
+
+:PokayYoke a :Concept ;
+    rdfs:label "Poka-Yoke" ;
+    :definition "Error-proofing through structural prevention" ;
+    :explanation "Impossible states are structurally prevented, not just UI-disabled" .
+
+# =============================================================================
+# THEOREMS
+# =============================================================================
+
+:DeterminismTheorem a :Theorem ;
+    rdfs:label "Determinism Theorem" ;
+    :statement "For all o1, o2 in O, o1 = o2 implies gen(o1,T) = gen(o2,T)" ;
+    :proof "gen is composed of pure functions: parse, query, render. Each is deterministic." .
+
+:ZeroDriftTheorem a :Theorem ;
+    rdfs:label "Zero Drift Theorem" ;
+    :statement "If Code = gen(O,T) always, then d(t) = 0 for all t" ;
+    :proof "By definition, Code(t) = gen(O(t),T), so ||Code(t) - gen(O(t),T)|| = 0." .
+
+:CompletenessTheorem a :Theorem ;
+    rdfs:label "Completeness Theorem" ;
+    :statement "If O is a complete domain model, then gen(O,T) is a complete implementation" ;
+    :proof "Templates T are total functions over query results. Completeness of O ensures all cases covered." .
+
+# =============================================================================
+# EQUATIONS
+# =============================================================================
+
+:InformationEntropy a :Equation ;
+    rdfs:label "Information Entropy" ;
+    :latex "H(X) = -\\sum_{x} p(x) \\log_2 p(x)" ;
+    :description "Shannon entropy measuring information content" .
+
+:ConditionedCodeEntropy a :Equation ;
+    rdfs:label "Conditioned Code Entropy" ;
+    :latex "H(Code|Ontology) \\leq 0.2 \\times H(Ontology)" ;
+    :description "80/20 principle: code entropy is bounded by 20 percent of ontology entropy" .
+
+:DriftMetric a :Equation ;
+    rdfs:label "Drift Metric" ;
+    :latex "d(t) = ||Code(t) - gen(O(t), T)||" ;
+    :description "Measures divergence between actual code and generated code" .
+
+:GenerationFunction a :Equation ;
+    rdfs:label "Generation Function" ;
+    :latex "gen: O \\times T \\rightarrow C" ;
+    :description "Pure function from ontology and template to code" .

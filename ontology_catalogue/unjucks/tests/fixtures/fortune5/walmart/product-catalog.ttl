@@ -1,0 +1,229 @@
+@prefix gs1: <http://gs1.org/voc/> .
+@prefix epcis: <http://gs1.org/epcis/> .
+@prefix cbv: <http://gs1.org/cbv/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Walmart GS1 Product Catalog with Supply Chain Traceability
+# Fortune 5 Scenario - 100K+ triples for supply chain processing
+
+# Product 1 - Fresh Produce
+<Product/WMT-PROD-001> a gs1:Product ;
+    gs1:gtin "00012345678905"^^xsd:string ;
+    gs1:productName "Great Value Organic Bananas"^^xsd:string ;
+    gs1:brandName "Great Value"^^xsd:string ;
+    gs1:gpcCategoryCode "10000048"^^xsd:string ;
+    gs1:netContent [
+        gs1:value "3"^^xsd:decimal ;
+        gs1:unitOfMeasure "LBR"^^xsd:string
+    ] ;
+    gs1:hasAllergenInfo <AllergenInfo/WMT-001> ;
+    gs1:hasNutritionalInfo <NutritionalInfo/WMT-001> ;
+    gs1:hasSupplier <Supplier/DOLE-FOODS> ;
+    gs1:hasTraceabilityInfo <TraceabilityInfo/WMT-001> .
+
+# Product 2 - Packaged Goods
+<Product/WMT-PROD-002> a gs1:Product ;
+    gs1:gtin "00012345678912"^^xsd:string ;
+    gs1:productName "Great Value 2% Reduced Fat Milk"^^xsd:string ;
+    gs1:brandName "Great Value"^^xsd:string ;
+    gs1:gpcCategoryCode "10000096"^^xsd:string ;
+    gs1:netContent [
+        gs1:value "1"^^xsd:decimal ;
+        gs1:unitOfMeasure "GAL"^^xsd:string
+    ] ;
+    gs1:hasAllergenInfo <AllergenInfo/WMT-002> ;
+    gs1:hasNutritionalInfo <NutritionalInfo/WMT-002> ;
+    gs1:hasSupplier <Supplier/GREAT-LAKES-DAIRY> ;
+    gs1:hasTraceabilityInfo <TraceabilityInfo/WMT-002> .
+
+# Product 3 - Electronics
+<Product/WMT-PROD-003> a gs1:Product ;
+    gs1:gtin "00012345678929"^^xsd:string ;
+    gs1:productName "onn. 32-Inch HD Smart TV"^^xsd:string ;
+    gs1:brandName "onn."^^xsd:string ;
+    gs1:gpcCategoryCode "10000832"^^xsd:string ;
+    gs1:hasSupplier <Supplier/SHENZHEN-ELECTRONICS> ;
+    gs1:hasTraceabilityInfo <TraceabilityInfo/WMT-003> ;
+    gs1:hasWarrantyInfo [
+        gs1:warrantyPeriod "12"^^xsd:integer ;
+        gs1:warrantyUnit "MON"^^xsd:string
+    ] .
+
+# Suppliers
+<Supplier/DOLE-FOODS> a gs1:Organization ;
+    gs1:organizationName "Dole Food Company"^^xsd:string ;
+    gs1:gln "0123456789012"^^xsd:string ;
+    gs1:address [
+        gs1:streetAddress "1 Dole Drive"^^xsd:string ;
+        gs1:city "Westlake Village"^^xsd:string ;
+        gs1:state "CA"^^xsd:string ;
+        gs1:postalCode "91362"^^xsd:string ;
+        gs1:country "US"^^xsd:string
+    ] ;
+    gs1:hasCertification <Certification/ORGANIC-001> .
+
+<Supplier/GREAT-LAKES-DAIRY> a gs1:Organization ;
+    gs1:organizationName "Great Lakes Dairy Cooperative"^^xsd:string ;
+    gs1:gln "0123456789029"^^xsd:string ;
+    gs1:address [
+        gs1:streetAddress "500 Dairy Lane"^^xsd:string ;
+        gs1:city "Madison"^^xsd:string ;
+        gs1:state "WI"^^xsd:string ;
+        gs1:postalCode "53703"^^xsd:string ;
+        gs1:country "US"^^xsd:string
+    ] ;
+    gs1:hasCertification <Certification/FDA-DAIRY-001> .
+
+<Supplier/SHENZHEN-ELECTRONICS> a gs1:Organization ;
+    gs1:organizationName "Shenzhen Electronics Manufacturing Co."^^xsd:string ;
+    gs1:gln "0123456789036"^^xsd:string ;
+    gs1:address [
+        gs1:streetAddress "Industrial Park District 12"^^xsd:string ;
+        gs1:city "Shenzhen"^^xsd:string ;
+        gs1:state "Guangdong"^^xsd:string ;
+        gs1:postalCode "518000"^^xsd:string ;
+        gs1:country "CN"^^xsd:string
+    ] ;
+    gs1:hasCertification <Certification/ISO-9001-001> .
+
+# Traceability Information
+<TraceabilityInfo/WMT-001> a gs1:TraceabilityInfo ;
+    gs1:lotNumber "LOT-BANANA-2024-001"^^xsd:string ;
+    gs1:bestBeforeDate "2024-09-20"^^xsd:date ;
+    gs1:harvestDate "2024-09-10"^^xsd:date ;
+    gs1:originFarm <Farm/GUATEMALA-001> ;
+    gs1:processingFacility <Facility/DOLE-PACK-001> ;
+    gs1:hasTraceabilityEvent <Event/HARVEST-001> ;
+    gs1:hasTraceabilityEvent <Event/PACK-001> ;
+    gs1:hasTraceabilityEvent <Event/SHIP-001> .
+
+<TraceabilityInfo/WMT-002> a gs1:TraceabilityInfo ;
+    gs1:lotNumber "LOT-MILK-2024-002"^^xsd:string ;
+    gs1:bestBeforeDate "2024-09-25"^^xsd:date ;
+    gs1:processingDate "2024-09-08"^^xsd:date ;
+    gs1:sourceFarm <Farm/WISCONSIN-DAIRY-001> ;
+    gs1:processingFacility <Facility/GREAT-LAKES-001> ;
+    gs1:hasTraceabilityEvent <Event/COLLECT-001> ;
+    gs1:hasTraceabilityEvent <Event/PROCESS-001> ;
+    gs1:hasTraceabilityEvent <Event/PACKAGE-001> .
+
+# Supply Chain Events (EPCIS)
+<Event/HARVEST-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-10T06:00:00Z"^^xsd:dateTime ;
+    epcis:action cbv:add ;
+    epcis:bizStep cbv:commissioning ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/GUATEMALA-FARM-001> ;
+    epcis:bizLocation <Location/GUATEMALA-FARM-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.LOT-BANANA-2024-001"^^xsd:anyURI
+    ] .
+
+<Event/PACK-001> a epcis:ObjectEvent ;
+    epcis:eventTime "2024-09-11T14:00:00Z"^^xsd:dateTime ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:packing ;
+    epcis:disposition cbv:active ;
+    epcis:readPoint <Location/DOLE-PACK-FACILITY-001> ;
+    epcis:bizLocation <Location/DOLE-PACK-FACILITY-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.LOT-BANANA-2024-001"^^xsd:anyURI
+    ] .
+
+<Event/SHIP-001> a epcis:TransactionEvent ;
+    epcis:eventTime "2024-09-12T08:00:00Z"^^xsd:dateTime ;
+    epcis:action cbv:observe ;
+    epcis:bizStep cbv:shipping ;
+    epcis:disposition cbv:in_transit ;
+    epcis:readPoint <Location/DOLE-PACK-FACILITY-001> ;
+    epcis:bizLocation <Location/WALMART-DC-001> ;
+    epcis:epcList [
+        epcis:epc "urn:epc:id:sgtin:012345.678905.LOT-BANANA-2024-001"^^xsd:anyURI
+    ] ;
+    epcis:bizTransactionList [
+        epcis:bizTransaction <Transaction/PO-WMT-2024-001>
+    ] .
+
+# Walmart Distribution Centers and Stores
+<Location/WALMART-DC-001> a gs1:Location ;
+    gs1:locationName "Walmart Distribution Center - Arkansas"^^xsd:string ;
+    gs1:gln "0614141000001"^^xsd:string ;
+    gs1:address [
+        gs1:streetAddress "2608 SE J Street"^^xsd:string ;
+        gs1:city "Bentonville"^^xsd:string ;
+        gs1:state "AR"^^xsd:string ;
+        gs1:postalCode "72712"^^xsd:string ;
+        gs1:country "US"^^xsd:string
+    ] ;
+    gs1:locationType "Distribution Center"^^xsd:string .
+
+<Location/WALMART-STORE-001> a gs1:Location ;
+    gs1:locationName "Walmart Supercenter #1"^^xsd:string ;
+    gs1:gln "0614141000018"^^xsd:string ;
+    gs1:address [
+        gs1:streetAddress "406 S Walton Blvd"^^xsd:string ;
+        gs1:city "Bentonville"^^xsd:string ;
+        gs1:state "AR"^^xsd:string ;
+        gs1:postalCode "72712"^^xsd:string ;
+        gs1:country "US"^^xsd:string
+    ] ;
+    gs1:locationType "Retail Store"^^xsd:string .
+
+# Inventory Management
+<Inventory/WMT-INV-001> a gs1:Inventory ;
+    gs1:product <Product/WMT-PROD-001> ;
+    gs1:location <Location/WALMART-STORE-001> ;
+    gs1:quantity "2500"^^xsd:integer ;
+    gs1:unitOfMeasure "EA"^^xsd:string ;
+    gs1:lastUpdated "2024-09-06T15:30:00Z"^^xsd:dateTime ;
+    gs1:reorderLevel "500"^^xsd:integer ;
+    gs1:maxStockLevel "5000"^^xsd:integer .
+
+# Certifications
+<Certification/ORGANIC-001> a gs1:Certification ;
+    gs1:certificationName "USDA Organic"^^xsd:string ;
+    gs1:certificationBody "Organic Certifiers Inc."^^xsd:string ;
+    gs1:certificationNumber "USDA-ORG-2024-001"^^xsd:string ;
+    gs1:validFrom "2024-01-01"^^xsd:date ;
+    gs1:validTo "2024-12-31"^^xsd:date .
+
+<Certification/FDA-DAIRY-001> a gs1:Certification ;
+    gs1:certificationName "FDA Grade A Dairy"^^xsd:string ;
+    gs1:certificationBody "FDA"^^xsd:string ;
+    gs1:certificationNumber "FDA-DAIRY-2024-001"^^xsd:string ;
+    gs1:validFrom "2024-01-01"^^xsd:date ;
+    gs1:validTo "2024-12-31"^^xsd:date .
+
+# Sustainability Tracking
+<Sustainability/WMT-SUST-001> a gs1:SustainabilityInfo ;
+    gs1:product <Product/WMT-PROD-001> ;
+    gs1:carbonFootprint "0.42"^^xsd:decimal ;
+    gs1:carbonFootprintUnit "kg CO2e"^^xsd:string ;
+    gs1:waterUsage "85"^^xsd:decimal ;
+    gs1:waterUsageUnit "liters"^^xsd:string ;
+    gs1:sustainabilityScore "8.5"^^xsd:decimal ;
+    gs1:renewableEnergyPercentage "78"^^xsd:decimal .
+
+# Nutritional Information
+<NutritionalInfo/WMT-001> a gs1:NutritionalInfo ;
+    gs1:servingSize "1 medium banana (126g)"^^xsd:string ;
+    gs1:calories "110"^^xsd:integer ;
+    gs1:totalFat "0"^^xsd:decimal ;
+    gs1:sodium "1"^^xsd:decimal ;
+    gs1:totalCarbohydrates "28"^^xsd:decimal ;
+    gs1:dietaryFiber "3"^^xsd:decimal ;
+    gs1:sugars "19"^^xsd:decimal ;
+    gs1:protein "1"^^xsd:decimal .
+
+# Allergen Information
+<AllergenInfo/WMT-001> a gs1:AllergenInfo ;
+    gs1:allergenFree "true"^^xsd:boolean ;
+    gs1:allergenStatement "No known allergens"^^xsd:string .
+
+<AllergenInfo/WMT-002> a gs1:AllergenInfo ;
+    gs1:containsMilk "true"^^xsd:boolean ;
+    gs1:allergenStatement "Contains: Milk"^^xsd:string .
+
+# This represents a subset of the 100K+ triples that would be generated
+# for comprehensive enterprise-scale supply chain traceability testing

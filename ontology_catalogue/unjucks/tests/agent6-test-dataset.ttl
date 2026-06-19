@@ -1,0 +1,118 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Person data for SPARQL testing
+ex:alice a foaf:Person ;
+    foaf:name "Alice Smith" ;
+    foaf:age "28"^^xsd:integer ;
+    foaf:email "alice@example.org" ;
+    foaf:knows ex:bob, ex:charlie ;
+    ex:department ex:engineering ;
+    ex:skill "Python", "JavaScript", "Machine Learning" ;
+    dc:created "2024-01-15T10:30:00"^^xsd:dateTime .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Johnson" ;
+    foaf:age "35"^^xsd:integer ;
+    foaf:email "bob@example.org" ;
+    foaf:knows ex:alice, ex:diana ;
+    ex:department ex:marketing ;
+    ex:skill "Marketing", "Analytics" ;
+    dc:created "2024-02-10T14:20:00"^^xsd:dateTime .
+
+ex:charlie a foaf:Person ;
+    foaf:name "Charlie Brown" ;
+    foaf:age "42"^^xsd:integer ;
+    foaf:email "charlie@example.org" ;
+    foaf:knows ex:alice ;
+    ex:department ex:engineering ;
+    ex:skill "Go", "Kubernetes", "DevOps" ;
+    dc:created "2024-03-05T09:15:00"^^xsd:dateTime .
+
+ex:diana a foaf:Person ;
+    foaf:name "Diana Prince" ;
+    foaf:age "30"^^xsd:integer ;
+    foaf:email "diana@example.org" ;
+    foaf:knows ex:bob ;
+    ex:department ex:design ;
+    ex:skill "UI/UX", "Figma", "Research" ;
+    dc:created "2024-01-20T16:45:00"^^xsd:dateTime .
+
+# Department data
+ex:engineering a ex:Department ;
+    ex:name "Engineering" ;
+    ex:manager ex:charlie ;
+    ex:budget "1000000"^^xsd:decimal ;
+    ex:location "Building A" .
+
+ex:marketing a ex:Department ;
+    ex:name "Marketing" ;
+    ex:manager ex:bob ;
+    ex:budget "500000"^^xsd:decimal ;
+    ex:location "Building B" .
+
+ex:design a ex:Department ;
+    ex:name "Design" ;
+    ex:manager ex:diana ;
+    ex:budget "300000"^^xsd:decimal ;
+    ex:location "Building C" .
+
+# Project data with complex relationships
+ex:project1 a ex:Project ;
+    ex:name "AI Platform" ;
+    ex:status "active" ;
+    ex:priority "high"^^xsd:integer ;
+    ex:startDate "2024-01-01"^^xsd:date ;
+    ex:endDate "2024-12-31"^^xsd:date ;
+    ex:assignedTo ex:alice, ex:charlie ;
+    ex:department ex:engineering ;
+    ex:tag "AI", "Platform", "Critical" .
+
+ex:project2 a ex:Project ;
+    ex:name "Marketing Campaign" ;
+    ex:status "completed" ;
+    ex:priority "medium"^^xsd:integer ;
+    ex:startDate "2024-02-01"^^xsd:date ;
+    ex:endDate "2024-04-30"^^xsd:date ;
+    ex:assignedTo ex:bob ;
+    ex:department ex:marketing ;
+    ex:tag "Campaign", "Q2" .
+
+ex:project3 a ex:Project ;
+    ex:name "Design System" ;
+    ex:status "planning" ;
+    ex:priority "low"^^xsd:integer ;
+    ex:startDate "2024-06-01"^^xsd:date ;
+    ex:assignedTo ex:diana ;
+    ex:department ex:design ;
+    ex:tag "Design", "System", "UI" .
+
+# Some additional complex relationships for advanced queries
+ex:alice ex:mentors ex:newbie1 .
+ex:bob ex:mentors ex:newbie2 .
+ex:charlie ex:reportsTo ex:ceo .
+ex:diana ex:collaboratesWith ex:alice, ex:charlie .
+
+# Skills and expertise levels
+ex:alice ex:expertiseLevel [
+    ex:skill "Python" ;
+    ex:level "expert"^^xsd:integer
+] .
+
+ex:alice ex:expertiseLevel [
+    ex:skill "JavaScript" ;
+    ex:level "intermediate"^^xsd:integer
+] .
+
+# Metadata for provenance testing
+ex:alice dc:modified "2024-09-10T12:00:00"^^xsd:dateTime ;
+    dc:creator "system" ;
+    ex:version "1.2" .
+
+ex:project1 dc:modified "2024-09-12T08:30:00"^^xsd:dateTime ;
+    dc:creator "alice" ;
+    ex:version "2.1" .

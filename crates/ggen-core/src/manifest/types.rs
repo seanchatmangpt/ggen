@@ -540,26 +540,36 @@ mod tests {
         let mut pack_outputs = std::collections::HashMap::new();
         pack_outputs.insert("queries".to_string(), "legacy/sparql".to_string());
         pack_outputs.insert("shared".to_string(), "shared/dir".to_string());
-        
+
         let mut top_outputs = std::collections::HashMap::new();
         top_outputs.insert("queries".to_string(), "src/sparql".to_string());
-        
+
         let pkg = PackageToml {
-            pack: Some(PackSection { outputs: pack_outputs }),
+            pack: Some(PackSection {
+                outputs: pack_outputs,
+            }),
             outputs: top_outputs,
         };
-        
+
         // Preferred top-level key
         assert_eq!(pkg.resolve_output_key("queries"), "src/sparql");
-        
+
         // Fallback to legacy pack key
         assert_eq!(pkg.resolve_output_key("shared"), "shared/dir");
-        
+
         // Fallback to literal key
         assert_eq!(pkg.resolve_output_key("missing"), "missing");
-        
+
         // Empty package.toml
         let empty_pkg = PackageToml::default();
         assert_eq!(empty_pkg.resolve_output_key("queries"), "queries");
+    }
+}
+
+
+impl OntologyConfig {
+    /// Resolves the primary ontology source into a list of paths
+    pub fn resolved_sources(&self, base_path: &std::path::Path) -> Vec<PathBuf> {
+        crate::ontology::resolver::OntologyResolver::resolve(&self.source, base_path)
     }
 }

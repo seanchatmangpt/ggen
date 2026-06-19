@@ -1,0 +1,18 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX gen: <https://process.intelligence/generation-rule/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: Warrant Path Exists (Rule -> Template -> Checkpoint)
+# ASK query: Verifies at least one complete warrant chain from active rule to sealed checkpoint
+# Passes if: At least one READY rule traces to a SEALED checkpoint through template
+# Date: 2026-06-01
+
+ASK {
+    ?rule a pi:GenerationRule .
+    ?rule pi:status "READY" .
+    ?rule pi:template ?template .
+    
+    ?checkpoint a pi:Checkpoint .
+    ?checkpoint pi:status "SEALED" .
+}

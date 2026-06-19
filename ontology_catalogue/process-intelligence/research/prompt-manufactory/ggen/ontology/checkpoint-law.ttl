@@ -1,0 +1,114 @@
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# CHECKPOINT LAW — ALIVE/PARTIAL Verdict Rules
+# ============================================================================
+# Defines when ALIVE can be emitted and when PARTIAL is required.
+# ALIVE requires all critical gates to pass.
+# PARTIAL is the honest verdict when any critical gate fails.
+# ============================================================================
+
+pm:CHECKPOINT_ALIVE a pm:Checkpoint ;
+  rdfs:label "ALIVE Verdict" ;
+  pm:mission "Emit when all critical gates pass and at least one end-to-end warrant path is proven" ;
+  dct:description "ALIVE certifies the research program is fully operational and can render research warrants from law" ;
+  rdfs:comment "ALIVE requires: all ontologies present, all queries/templates valid, end-to-end warrant proof successful, no new .ggen source files, all legacy .ggen classified, all audit gates pass" .
+
+pm:CHECKPOINT_PARTIAL a pm:Checkpoint ;
+  rdfs:label "PARTIAL Verdict" ;
+  pm:mission "Emit when any critical gate fails or prerequisites are incomplete" ;
+  dct:description "PARTIAL certifies the program structure is sound but not yet fully operational" ;
+  rdfs:comment "PARTIAL is correct when: end-to-end warrant path not yet proven, legacy .ggen files not yet classified, PI_RESEARCH_PROGRAM_INTEL_001 topology incomplete, or audit gates fail" .
+
+# --- ALIVE Gate Definitions ---
+
+pm:GATE_ontology_present a pm:AuditGate ;
+  rdfs:label "Ontology Files Present" ;
+  pm:mission "All 8 .ttl ontology files exist and parse without error" ;
+  pm:emitsRefusal pm:REFUSAL_MISSING_ONTOLOGY .
+
+pm:GATE_queries_present a pm:AuditGate ;
+  rdfs:label "Query Files Present" ;
+  pm:mission "All 14 .rq SPARQL query files exist and have valid syntax" ;
+  pm:emitsRefusal pm:REFUSAL_MISSING_QUERIES .
+
+pm:GATE_templates_present a pm:AuditGate ;
+  rdfs:label "Template Files Present" ;
+  pm:mission "All 8 .tera Tera template files exist and have valid syntax" ;
+  pm:emitsRefusal pm:REFUSAL_MISSING_TEMPLATES .
+
+pm:GATE_ggen_toml_valid a pm:AuditGate ;
+  rdfs:label "ggen.toml Valid" ;
+  pm:mission "ggen.toml wires all 8 generation rules correctly" ;
+  pm:emitsRefusal pm:REFUSAL_INVALID_GGEN_TOML .
+
+pm:GATE_seed_programs_encoded a pm:AuditGate ;
+  rdfs:label "Seed Programs Encoded" ;
+  pm:mission "All 7 known programs exist as graph instances with required properties" ;
+  pm:emitsRefusal pm:REFUSAL_INCOMPLETE_SEED_DATA .
+
+pm:GATE_end_to_end_warrant_path a pm:AuditGate ;
+  rdfs:label "End-to-End Warrant Path" ;
+  pm:mission "At least one complete workflow prompt successfully renders from graph data (CRITICAL)" ;
+  pm:emitsRefusal pm:REFUSAL_NO_WARRANT_PROOF .
+
+pm:GATE_warrant_is_receipted a pm:AuditGate ;
+  rdfs:label "Warrant is Receipted" ;
+  pm:mission "Rendered prompt has entry in prompt-receipt-ledger with derivedFrom source" ;
+  pm:emitsRefusal pm:REFUSAL_MISSING_RECEIPT .
+
+pm:GATE_no_new_ggen_source_files a pm:AuditGate ;
+  rdfs:label "No New .ggen Source Files" ;
+  pm:mission "Zero .ggen files in prompt-manufactory/ggen/ source directory" ;
+  pm:emitsRefusal pm:REFUSAL_INVALID_GGEN_SOURCE .
+
+pm:GATE_legacy_ggen_classified a pm:AuditGate ;
+  rdfs:label "Legacy .ggen Files Classified" ;
+  pm:mission "All 22 existing .ggen files have classification ledger entry with owner/blocker/remediation" ;
+  pm:emitsRefusal pm:REFUSAL_UNCLASSIFIED_LEGACY_GGEN .
+
+pm:GATE_audits_pass a pm:AuditGate ;
+  rdfs:label "All Audits Pass" ;
+  pm:mission "All audit gates execute and return PASS: no-hand-written, no-forced-ALIVE, checkpoint-has-partial, no-file-count-alive" ;
+  pm:emitsRefusal pm:REFUSAL_AUDIT_FAILED .
+
+# --- Refusal Conditions for Checkpoints ---
+
+pm:REFUSAL_MISSING_ONTOLOGY a pm:RefusalCondition ;
+  rdfs:label "Missing Ontology" ;
+  rdfs:comment "One or more required .ttl ontology files not found" .
+
+pm:REFUSAL_MISSING_QUERIES a pm:RefusalCondition ;
+  rdfs:label "Missing Queries" ;
+  rdfs:comment "One or more required .rq SPARQL query files not found" .
+
+pm:REFUSAL_MISSING_TEMPLATES a pm:RefusalCondition ;
+  rdfs:label "Missing Templates" ;
+  rdfs:comment "One or more required .tera Tera template files not found" .
+
+pm:REFUSAL_INVALID_GGEN_TOML a pm:RefusalCondition ;
+  rdfs:label "Invalid ggen.toml" ;
+  rdfs:comment "ggen.toml missing or does not wire all 8 generation rules" .
+
+pm:REFUSAL_INCOMPLETE_SEED_DATA a pm:RefusalCondition ;
+  rdfs:label "Incomplete Seed Data" ;
+  rdfs:comment "One or more of 7 seed programs missing from research-program-law.ttl" .
+
+pm:REFUSAL_NO_WARRANT_PROOF a pm:RefusalCondition ;
+  rdfs:label "No Warrant Proof" ;
+  rdfs:comment "End-to-end warrant path (read instance → SPARQL → Tera → emit → audit) not yet executed successfully" .
+
+pm:REFUSAL_MISSING_RECEIPT a pm:RefusalCondition ;
+  rdfs:label "Missing Receipt" ;
+  rdfs:comment "Rendered warrant has no entry in prompt-receipt-ledger or lacks derivedFrom triple" .
+
+pm:REFUSAL_UNCLASSIFIED_LEGACY_GGEN a pm:RefusalCondition ;
+  rdfs:label "Unclassified Legacy .ggen Files" ;
+  rdfs:comment "One or more existing .ggen files lacks classification, owner, blocker status, or remediation route" .
+
+pm:REFUSAL_AUDIT_FAILED a pm:RefusalCondition ;
+  rdfs:label "Audit Failed" ;
+  rdfs:comment "One or more required audit gates returned FAIL" .

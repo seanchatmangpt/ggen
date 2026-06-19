@@ -1,0 +1,70 @@
+@prefix : <https://bytestar.org/ontology/v5/dark-8020-principle#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/v5/dark-8020-principle>
+  a owl:Ontology ;
+  rdfs:label "The Dark 80/20 Principle Ontology" ;
+  rdfs:comment "This ontology formalizes the thesis that 80% of the system's value emerges from a critical 20% of its foundational, non-obvious constraints." ;
+  owl:versionInfo "5.0.0" .
+
+# --- Core Concepts ---
+
+:SystemPrinciple a owl:Class .
+
+:CoreConstraint a owl:Class ;
+    rdfs:subClassOf :SystemPrinciple ;
+    rdfs:label "Core Constraint (The Dark 20%)" ;
+    rdfs:comment "A foundational, non-negotiable, and physically-enforced law of the system." .
+
+:EmergentProperty a owl:Class ;
+    rdfs:subClassOf :SystemPrinciple ;
+    rdfs:label "Emergent Property (The Valuable 80%)" ;
+    rdfs:comment "A high-value system characteristic that is not explicitly designed, but emerges as a direct consequence of the core constraints." .
+
+# --- Properties ---
+
+:generates a owl:ObjectProperty ;
+    rdfs:domain :CoreConstraint ;
+    rdfs:range :EmergentProperty .
+
+# --- Individuals: The Specific Constraints and the Properties they Generate ---
+
+# The 5 Core Constraints (The "Dark 20%")
+:DoctrineOf8Constraint a :CoreConstraint .
+:L1ResidencyConstraint a :CoreConstraint .
+:ZeroAllocationConstraint a :CoreConstraint .
+:FabricationMonopolyConstraint a :CoreConstraint .
+:ZeroTickRejectConstraint a :CoreConstraint .
+
+# The Emergent Properties (The "Valuable 80%")
+:GuaranteedLatency a :EmergentProperty .
+:ImmunityToMemoryJitter a :EmergentProperty .
+:InherentSecurity a :EmergentProperty .
+:ProvableCorrectness a :EmergentProperty .
+:SimplifiedExecutionEngine a :EmergentProperty .
+
+# --- Axioms: Linking Constraints to Emergent Properties ---
+
+:DoctrineOf8Constraint rdfs:subClassOf [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :GuaranteedLatency ] .
+
+:L1ResidencyConstraint rdfs:subClassOf [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :GuaranteedLatency ] .
+
+:ZeroAllocationConstraint rdfs:subClassOf [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :ImmunityToMemoryJitter ] .
+
+:FabricationMonopolyConstraint rdfs:subClassOf [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :InherentSecurity ],
+                                                 [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :ProvableCorrectness ] .
+
+:ZeroTickRejectConstraint rdfs:subClassOf [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :InherentSecurity ] .
+
+# Axiom: A system governed by all five constraints generates a simplified execution engine.
+[ a owl:Class ;
+  owl:intersectionOf (
+    [ a owl:Restriction; owl:onProperty owl:topObjectProperty; owl:hasValue :DoctrineOf8Constraint ]
+    [ a owl:Restriction; owl:onProperty owl:topObjectProperty; owl:hasValue :L1ResidencyConstraint ]
+    [ a owl:Restriction; owl:onProperty owl:topObjectProperty; owl:hasValue :ZeroAllocationConstraint ]
+    [ a owl:Restriction; owl:onProperty owl:topObjectProperty; owl:hasValue :FabricationMonopolyConstraint ]
+    [ a owl:Restriction; owl:onProperty owl:topObjectProperty; owl:hasValue :ZeroTickRejectConstraint ]
+  ) ]
+  rdfs:subClassOf [ a owl:Restriction; owl:onProperty :generates; owl:hasValue :SimplifiedExecutionEngine ] .

@@ -1,0 +1,141 @@
+# SPARQL Query: Find Downstream Consumers (Descendants)
+#
+# Purpose: Identify all datasets that depend on a given dataset
+# Follows wasDerivedFrom chain downward, shows all consumers at each level
+#
+# Input Parameters:
+#   - datasetUri: Full URI of the source dataset (e.g., https://businessos.local/datasets/finance/general-ledger)
+#   - maxDepth: Maximum levels to traverse (1-5, default 5)
+#
+# Output Columns:
+#   - level: Depth where consumer was found (1 = direct consumer, 5 = 5th-generation consumer)
+#   - consumerUri: URI of downstream consumer dataset
+#   - consumerLabel: Human-readable label
+#   - consumerType: RDF type of consumer dataset
+#   - isLeafConsumer: TRUE if no other datasets consume this one
+#   - createdAtTime: When consumer dataset was created
+#   - domain: Data domain (e.g., "Finance", "HR")
+#
+# Behavior:
+#   - Follows inverse of wasDerivedFrom (i.e., finds wasDerivedFrom ?sourceUri)
+#   - Returns only consumer datasets (not the source itself)
+#   - Eliminates cycles
+#   - Counts number of consumers at each level
+#
+# Performance: ~12s timeout
+# Tested: Oxigraph 0.3+
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT
+  ?level
+  ?consumerUri
+  ?consumerLabel
+  ?consumerType
+  ?isLeafConsumer
+  ?createdAtTime
+  ?domain
+  (COUNT(DISTINCT ?child) as ?downstreamCount)
+
+WHERE {
+  # STEP 1: Bind the source dataset URI
+  BIND(<https://businessos.local/datasets/finance/general-ledger> AS ?sourceDataset)
+
+  # STEP 2: Find direct consumers (level 1) - datasets that derive from source
+  {
+    BIND(1 as ?level)
+    ?consumerUri prov:wasDerivedFrom ?sourceDataset .
+    FILTER (?consumerUri != ?sourceDataset)
+
+    ?consumerUri a ?consumerType .
+    OPTIONAL { ?consumerUri rdfs:label ?consumerLabel }
+    OPTIONAL { ?consumerUri prov:generatedAtTime ?createdAtTime }
+
+    # Determine if this is a leaf consumer (no one else consumes it)
+    BIND(NOT EXISTS { ?child prov:wasDerivedFrom ?consumerUri } AS ?isLeafConsumer)
+
+    # Extract domain from URI
+    BIND(REPLACE(STR(?consumerUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+
+    # Count immediate children for this consumer
+    OPTIONAL { ?child prov:wasDerivedFrom ?consumerUri }
+  }
+  UNION
+  # STEP 3: Find level-2 consumers (consumers of consumers)
+  {
+    BIND(2 as ?level)
+    ?temp1 prov:wasDerivedFrom ?sourceDataset .
+    ?consumerUri prov:wasDerivedFrom ?temp1 .
+    FILTER (?consumerUri != ?sourceDataset && ?consumerUri != ?temp1)
+
+    ?consumerUri a ?consumerType .
+    OPTIONAL { ?consumerUri rdfs:label ?consumerLabel }
+    OPTIONAL { ?consumerUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?child prov:wasDerivedFrom ?consumerUri } AS ?isLeafConsumer)
+    BIND(REPLACE(STR(?consumerUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+    OPTIONAL { ?child prov:wasDerivedFrom ?consumerUri }
+  }
+  UNION
+  # STEP 4: Find level-3 consumers
+  {
+    BIND(3 as ?level)
+    ?temp1 prov:wasDerivedFrom ?sourceDataset .
+    ?temp2 prov:wasDerivedFrom ?temp1 .
+    ?consumerUri prov:wasDerivedFrom ?temp2 .
+    FILTER (?consumerUri != ?sourceDataset && ?consumerUri != ?temp1 && ?consumerUri != ?temp2)
+
+    ?consumerUri a ?consumerType .
+    OPTIONAL { ?consumerUri rdfs:label ?consumerLabel }
+    OPTIONAL { ?consumerUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?child prov:wasDerivedFrom ?consumerUri } AS ?isLeafConsumer)
+    BIND(REPLACE(STR(?consumerUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+    OPTIONAL { ?child prov:wasDerivedFrom ?consumerUri }
+  }
+  UNION
+  # STEP 5: Find level-4 consumers
+  {
+    BIND(4 as ?level)
+    ?temp1 prov:wasDerivedFrom ?sourceDataset .
+    ?temp2 prov:wasDerivedFrom ?temp1 .
+    ?temp3 prov:wasDerivedFrom ?temp2 .
+    ?consumerUri prov:wasDerivedFrom ?temp3 .
+    FILTER (?consumerUri != ?sourceDataset && ?consumerUri != ?temp1 &&
+            ?consumerUri != ?temp2 && ?consumerUri != ?temp3)
+
+    ?consumerUri a ?consumerType .
+    OPTIONAL { ?consumerUri rdfs:label ?consumerLabel }
+    OPTIONAL { ?consumerUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?child prov:wasDerivedFrom ?consumerUri } AS ?isLeafConsumer)
+    BIND(REPLACE(STR(?consumerUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+    OPTIONAL { ?child prov:wasDerivedFrom ?consumerUri }
+  }
+  UNION
+  # STEP 6: Find level-5 consumers (maximum)
+  {
+    BIND(5 as ?level)
+    ?temp1 prov:wasDerivedFrom ?sourceDataset .
+    ?temp2 prov:wasDerivedFrom ?temp1 .
+    ?temp3 prov:wasDerivedFrom ?temp2 .
+    ?temp4 prov:wasDerivedFrom ?temp3 .
+    ?consumerUri prov:wasDerivedFrom ?temp4 .
+    FILTER (?consumerUri != ?sourceDataset && ?consumerUri != ?temp1 &&
+            ?consumerUri != ?temp2 && ?consumerUri != ?temp3 && ?consumerUri != ?temp4)
+
+    ?consumerUri a ?consumerType .
+    OPTIONAL { ?consumerUri rdfs:label ?consumerLabel }
+    OPTIONAL { ?consumerUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?child prov:wasDerivedFrom ?consumerUri } AS ?isLeafConsumer)
+    BIND(REPLACE(STR(?consumerUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+    OPTIONAL { ?child prov:wasDerivedFrom ?consumerUri }
+  }
+}
+
+GROUP BY ?level ?consumerUri ?consumerLabel ?consumerType ?isLeafConsumer ?createdAtTime ?domain
+
+ORDER BY ?level ?consumerUri
+
+LIMIT 500

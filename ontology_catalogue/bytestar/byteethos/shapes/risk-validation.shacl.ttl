@@ -1,0 +1,785 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ethos: <https://bytestar.org/ontology/ethos#> .
+@prefix risk: <https://bytestar.org/ontology/risk#> .
+@prefix ai: <https://bytestar.org/ontology/ai#> .
+
+# ============================================================================
+# ETHOS Risk Validation SHACL Shapes
+# 
+# This file defines SHACL shapes for validating risk assessments and 
+# classifications within the ByteStar ETHOS governance framework.
+# 
+# Implements EU AI Act compliance validation with four risk tiers:
+# - Unacceptable Risk (Prohibited)
+# - High Risk (Strict Oversight)
+# - Moderate Risk (Proportional Oversight) 
+# - Minimal Risk (Light Oversight)
+# 
+# @author ByteStar ETHOS Team
+# @version 1.0.0
+# ============================================================================
+
+# Risk Assessment Shape
+risk:RiskAssessmentShape
+    a sh:NodeShape ;
+    sh:targetClass risk:RiskAssessment ;
+    rdfs:label "Risk Assessment Validation Shape" ;
+    rdfs:comment "Validates the structure and constraints of risk assessments for AI agents" ;
+    
+    # Basic Properties
+    sh:property [
+        sh:path risk:agentId ;
+        sh:name "Agent Identifier" ;
+        sh:description "Unique identifier for the AI agent being assessed" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:message "Agent ID must be a non-empty string with alphanumeric characters, underscores, or hyphens only"
+    ] ;
+    
+    sh:property [
+        sh:path risk:assessmentTimestamp ;
+        sh:name "Assessment Timestamp" ;
+        sh:description "ISO 8601 timestamp when the risk assessment was performed" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Assessment timestamp is required and must be a valid ISO 8601 datetime"
+    ] ;
+    
+    sh:property [
+        sh:path risk:riskTier ;
+        sh:name "Risk Tier Classification" ;
+        sh:description "EU AI Act compliant risk tier classification" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "unacceptable" "high" "moderate" "minimal" ) ;
+        sh:message "Risk tier must be one of: unacceptable, high, moderate, minimal"
+    ] ;
+    
+    sh:property [
+        sh:path risk:riskScore ;
+        sh:name "Numerical Risk Score" ;
+        sh:description "Quantitative risk score on scale of 0-100" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Risk score must be a decimal value between 0.0 and 100.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:oversightLevel ;
+        sh:name "Required Oversight Level" ;
+        sh:description "Level of human oversight required for this risk tier" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "prohibited" "strict" "proportional" "light" ) ;
+        sh:message "Oversight level must be one of: prohibited, strict, proportional, light"
+    ] ;
+    
+    sh:property [
+        sh:path risk:complianceStatus ;
+        sh:name "Compliance Status" ;
+        sh:description "Current compliance status with regulatory requirements" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "compliant" "non_compliant" "pending_assessment" "prohibited" "under_review" ) ;
+        sh:message "Compliance status must be one of: compliant, non_compliant, pending_assessment, prohibited, under_review"
+    ] ;
+    
+    sh:property [
+        sh:path risk:mitigationRequired ;
+        sh:name "Mitigation Required Flag" ;
+        sh:description "Boolean indicating if risk mitigation measures are required" ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mitigation required flag must be a boolean value"
+    ] ;
+    
+    sh:property [
+        sh:path risk:nextReviewDate ;
+        sh:name "Next Review Date" ;
+        sh:description "Scheduled date for next risk assessment review" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Next review date is required and must be a valid ISO 8601 datetime"
+    ] ;
+    
+    # Risk Factors
+    sh:property [
+        sh:path risk:hasRiskFactors ;
+        sh:name "Risk Factors" ;
+        sh:description "Collection of individual risk factors that contribute to overall assessment" ;
+        sh:class risk:RiskFactors ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Risk assessment must include exactly one risk factors collection"
+    ] ;
+    
+    # Assessment Metadata
+    sh:property [
+        sh:path risk:assessorId ;
+        sh:name "Assessor Identifier" ;
+        sh:description "Identifier of the person or system that performed the assessment" ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Assessor ID must be a string if provided"
+    ] ;
+    
+    sh:property [
+        sh:path risk:assessmentMethod ;
+        sh:name "Assessment Methodology" ;
+        sh:description "Method or framework used for risk assessment" ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:in ( "automated" "manual" "hybrid" "third_party" ) ;
+        sh:message "Assessment method must be one of: automated, manual, hybrid, third_party"
+    ] ;
+    
+    # Validation Rules
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Risk score must align with risk tier thresholds" ;
+        sh:select """
+            SELECT $this ?riskScore ?riskTier
+            WHERE {
+                $this risk:riskScore ?riskScore ;
+                      risk:riskTier ?riskTier .
+                FILTER (
+                    (?riskTier = "unacceptable" && ?riskScore < 90.0) ||
+                    (?riskTier = "high" && (?riskScore < 70.0 || ?riskScore >= 90.0)) ||
+                    (?riskTier = "moderate" && (?riskScore < 40.0 || ?riskScore >= 70.0)) ||
+                    (?riskTier = "minimal" && ?riskScore >= 40.0)
+                )
+            }
+        """
+    ] ;
+    
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Oversight level must match risk tier requirements" ;
+        sh:select """
+            SELECT $this ?riskTier ?oversightLevel
+            WHERE {
+                $this risk:riskTier ?riskTier ;
+                      risk:oversightLevel ?oversightLevel .
+                FILTER (
+                    (?riskTier = "unacceptable" && ?oversightLevel != "prohibited") ||
+                    (?riskTier = "high" && ?oversightLevel != "strict") ||
+                    (?riskTier = "moderate" && ?oversightLevel != "proportional") ||
+                    (?riskTier = "minimal" && ?oversightLevel != "light")
+                )
+            }
+        """
+    ] ;
+    
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Next review date must be in the future" ;
+        sh:select """
+            SELECT $this ?nextReviewDate
+            WHERE {
+                $this risk:nextReviewDate ?nextReviewDate .
+                FILTER (?nextReviewDate <= NOW())
+            }
+        """
+    ] .
+
+# Risk Factors Shape
+risk:RiskFactorsShape
+    a sh:NodeShape ;
+    sh:targetClass risk:RiskFactors ;
+    rdfs:label "Risk Factors Validation Shape" ;
+    rdfs:comment "Validates individual risk factors that contribute to overall risk assessment" ;
+    
+    # Impact Severity (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:impactSeverity ;
+        sh:name "Impact Severity" ;
+        sh:description "Potential severity of harm from agent malfunction or misuse" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Impact severity must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Autonomy Level (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:autonomyLevel ;
+        sh:name "Agent Autonomy Level" ;
+        sh:description "Degree of autonomous decision-making capability" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Autonomy level must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Scope Breadth (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:scopeBreadth ;
+        sh:name "Operational Scope Breadth" ;
+        sh:description "Breadth of operational scope and user base affected" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Scope breadth must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Vulnerability Target (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:vulnerabilityTarget ;
+        sh:name "Vulnerable Population Impact" ;
+        sh:description "Potential impact on vulnerable populations (children, elderly, disabled)" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Vulnerability target must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Data Sensitivity (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:dataSensitivity ;
+        sh:name "Data Sensitivity Level" ;
+        sh:description "Sensitivity level of data processed by the agent" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Data sensitivity must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Transparency Level (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:transparencyLevel ;
+        sh:name "Transparency and Explainability Level" ;
+        sh:description "Level of transparency and explainability of agent decisions" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Transparency level must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Human Oversight (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:humanOversight ;
+        sh:name "Human Oversight Capability" ;
+        sh:description "Capability for meaningful human oversight and intervention" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Human oversight must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    # Technical Robustness (0.0-10.0 scale)
+    sh:property [
+        sh:path risk:technicalRobustness ;
+        sh:name "Technical Robustness Level" ;
+        sh:description "Technical robustness, accuracy, and reliability of the agent" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Technical robustness must be a decimal value between 0.0 and 10.0"
+    ] .
+
+# Risk Mitigation Shape
+risk:RiskMitigationShape
+    a sh:NodeShape ;
+    sh:targetClass risk:RiskMitigation ;
+    rdfs:label "Risk Mitigation Validation Shape" ;
+    rdfs:comment "Validates risk mitigation measures and strategies" ;
+    
+    sh:property [
+        sh:path risk:mitigationId ;
+        sh:name "Mitigation Identifier" ;
+        sh:description "Unique identifier for the mitigation measure" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Mitigation ID must be a non-empty string"
+    ] ;
+    
+    sh:property [
+        sh:path risk:mitigationType ;
+        sh:name "Mitigation Type" ;
+        sh:description "Type of risk mitigation measure" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( 
+            "technical_safeguard" 
+            "human_oversight" 
+            "process_control" 
+            "training_data_improvement" 
+            "algorithm_modification" 
+            "usage_restriction" 
+            "monitoring_enhancement"
+            "documentation_improvement"
+            "user_notification"
+            "access_control"
+        ) ;
+        sh:message "Mitigation type must be one of the predefined categories"
+    ] ;
+    
+    sh:property [
+        sh:path risk:mitigationStatus ;
+        sh:name "Implementation Status" ;
+        sh:description "Current implementation status of the mitigation measure" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "planned" "in_progress" "implemented" "verified" "ineffective" "suspended" ) ;
+        sh:message "Mitigation status must be one of: planned, in_progress, implemented, verified, ineffective, suspended"
+    ] ;
+    
+    sh:property [
+        sh:path risk:effectivenessRating ;
+        sh:name "Effectiveness Rating" ;
+        sh:description "Expected or measured effectiveness of the mitigation (0.0-10.0)" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Effectiveness rating must be a decimal value between 0.0 and 10.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:implementationDate ;
+        sh:name "Implementation Date" ;
+        sh:description "Date when the mitigation was implemented" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Implementation date must be a valid ISO 8601 datetime"
+    ] ;
+    
+    sh:property [
+        sh:path risk:verificationDate ;
+        sh:name "Verification Date" ;
+        sh:description "Date when the mitigation effectiveness was verified" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Verification date must be a valid ISO 8601 datetime"
+    ] .
+
+# Risk Incident Shape
+risk:RiskIncidentShape
+    a sh:NodeShape ;
+    sh:targetClass risk:RiskIncident ;
+    rdfs:label "Risk Incident Validation Shape" ;
+    rdfs:comment "Validates risk incidents and their reporting" ;
+    
+    sh:property [
+        sh:path risk:incidentId ;
+        sh:name "Incident Identifier" ;
+        sh:description "Unique identifier for the risk incident" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Incident ID must be a non-empty string"
+    ] ;
+    
+    sh:property [
+        sh:path risk:incidentTimestamp ;
+        sh:name "Incident Timestamp" ;
+        sh:description "Date and time when the incident occurred" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Incident timestamp is required and must be a valid ISO 8601 datetime"
+    ] ;
+    
+    sh:property [
+        sh:path risk:incidentType ;
+        sh:name "Incident Type" ;
+        sh:description "Classification of the type of risk incident" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( 
+            "performance_degradation" 
+            "security_breach" 
+            "compliance_violation" 
+            "safety_incident" 
+            "bias_discrimination" 
+            "privacy_violation"
+            "operational_failure"
+            "data_quality_issue"
+            "algorithmic_malfunction"
+            "human_oversight_failure"
+        ) ;
+        sh:message "Incident type must be one of the predefined categories"
+    ] ;
+    
+    sh:property [
+        sh:path risk:incidentSeverity ;
+        sh:name "Incident Severity" ;
+        sh:description "Severity level of the incident" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:message "Incident severity must be one of: low, medium, high, critical"
+    ] ;
+    
+    sh:property [
+        sh:path risk:affectedAgent ;
+        sh:name "Affected Agent" ;
+        sh:description "AI agent involved in the incident" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Affected agent identifier is required"
+    ] ;
+    
+    sh:property [
+        sh:path risk:incidentDescription ;
+        sh:name "Incident Description" ;
+        sh:description "Detailed description of the incident" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Incident description must be at least 10 characters long"
+    ] ;
+    
+    sh:property [
+        sh:path risk:resolutionStatus ;
+        sh:name "Resolution Status" ;
+        sh:description "Current status of incident resolution" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "reported" "investigating" "mitigating" "resolved" "closed" ) ;
+        sh:message "Resolution status must be one of: reported, investigating, mitigating, resolved, closed"
+    ] ;
+    
+    sh:property [
+        sh:path risk:reportedBy ;
+        sh:name "Reported By" ;
+        sh:description "Identifier of the person or system that reported the incident" ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Reporter identifier must be a string if provided"
+    ] .
+
+# Oversight Requirements Shape
+risk:OversightRequirementsShape
+    a sh:NodeShape ;
+    sh:targetClass risk:OversightRequirements ;
+    rdfs:label "Oversight Requirements Validation Shape" ;
+    rdfs:comment "Validates oversight requirements for different risk tiers" ;
+    
+    sh:property [
+        sh:path risk:humanOversightRequired ;
+        sh:name "Human Oversight Required" ;
+        sh:description "Level of human oversight required" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "none" "optional" "available" "meaningful" "continuous" "prohibited" ) ;
+        sh:message "Human oversight level must be one of: none, optional, available, meaningful, continuous, prohibited"
+    ] ;
+    
+    sh:property [
+        sh:path risk:documentationLevel ;
+        sh:name "Documentation Level" ;
+        sh:description "Required level of documentation" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "basic" "standard" "detailed" "comprehensive" ) ;
+        sh:message "Documentation level must be one of: basic, standard, detailed, comprehensive"
+    ] ;
+    
+    sh:property [
+        sh:path risk:monitoringFrequency ;
+        sh:name "Monitoring Frequency" ;
+        sh:description "Required frequency of risk monitoring" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "on_demand" "periodic" "continuous" "real_time" ) ;
+        sh:message "Monitoring frequency must be one of: on_demand, periodic, continuous, real_time"
+    ] ;
+    
+    sh:property [
+        sh:path risk:auditFrequency ;
+        sh:name "Audit Frequency" ;
+        sh:description "Required frequency of compliance audits" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "as_needed" "annual" "quarterly" "monthly" "continuous" ) ;
+        sh:message "Audit frequency must be one of: as_needed, annual, quarterly, monthly, continuous"
+    ] ;
+    
+    sh:property [
+        sh:path risk:approvalRequired ;
+        sh:name "Approval Requirements" ;
+        sh:description "Type of approval required before deployment" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "none" "self_assessment" "third_party" "conformity_assessment" "regulatory_authority" ) ;
+        sh:message "Approval type must be one of: none, self_assessment, third_party, conformity_assessment, regulatory_authority"
+    ] ;
+    
+    sh:property [
+        sh:path risk:transparencyLevel ;
+        sh:name "Transparency Requirements" ;
+        sh:description "Required level of transparency to users" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "basic" "moderate" "high" "maximum" ) ;
+        sh:message "Transparency level must be one of: basic, moderate, high, maximum"
+    ] ;
+    
+    sh:property [
+        sh:path risk:userNotification ;
+        sh:name "User Notification Requirements" ;
+        sh:description "Requirements for notifying users about AI usage" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "optional" "recommended" "mandatory" "prohibited" ) ;
+        sh:message "User notification must be one of: optional, recommended, mandatory, prohibited"
+    ] .
+
+# Risk Trend Shape
+risk:RiskTrendShape
+    a sh:NodeShape ;
+    sh:targetClass risk:RiskTrend ;
+    rdfs:label "Risk Trend Validation Shape" ;
+    rdfs:comment "Validates risk trend analysis data" ;
+    
+    sh:property [
+        sh:path risk:trendPeriodStart ;
+        sh:name "Trend Period Start" ;
+        sh:description "Start date of the trend analysis period" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Trend period start date is required"
+    ] ;
+    
+    sh:property [
+        sh:path risk:trendPeriodEnd ;
+        sh:name "Trend Period End" ;
+        sh:description "End date of the trend analysis period" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Trend period end date is required"
+    ] ;
+    
+    sh:property [
+        sh:path risk:trendDirection ;
+        sh:name "Trend Direction" ;
+        sh:description "Overall direction of risk trend" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "increasing" "decreasing" "stable" "volatile" "unknown" ) ;
+        sh:message "Trend direction must be one of: increasing, decreasing, stable, volatile, unknown"
+    ] ;
+    
+    sh:property [
+        sh:path risk:averageRiskScore ;
+        sh:name "Average Risk Score" ;
+        sh:description "Average risk score during the trend period" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Average risk score must be between 0.0 and 100.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:volatilityIndex ;
+        sh:name "Volatility Index" ;
+        sh:description "Measure of risk score volatility (standard deviation)" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Volatility index must be non-negative"
+    ] ;
+    
+    sh:property [
+        sh:path risk:tierChangesCount ;
+        sh:name "Tier Changes Count" ;
+        sh:description "Number of risk tier changes during the period" ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Tier changes count must be a non-negative integer"
+    ] ;
+    
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Trend period end must be after start" ;
+        sh:select """
+            SELECT $this ?start ?end
+            WHERE {
+                $this risk:trendPeriodStart ?start ;
+                      risk:trendPeriodEnd ?end .
+                FILTER (?end <= ?start)
+            }
+        """
+    ] .
+
+# System Risk Overview Shape
+risk:SystemRiskOverviewShape
+    a sh:NodeShape ;
+    sh:targetClass risk:SystemRiskOverview ;
+    rdfs:label "System Risk Overview Validation Shape" ;
+    rdfs:comment "Validates system-wide risk overview data" ;
+    
+    sh:property [
+        sh:path risk:overviewTimestamp ;
+        sh:name "Overview Timestamp" ;
+        sh:description "Timestamp when the overview was generated" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Overview timestamp is required"
+    ] ;
+    
+    sh:property [
+        sh:path risk:totalAgentsCount ;
+        sh:name "Total Agents Count" ;
+        sh:description "Total number of AI agents in the system" ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Total agents count must be a non-negative integer"
+    ] ;
+    
+    sh:property [
+        sh:path risk:systemRiskScore ;
+        sh:name "System Risk Score" ;
+        sh:description "Overall system risk score" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "System risk score must be between 0.0 and 100.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:complianceRate ;
+        sh:name "Compliance Rate" ;
+        sh:description "Percentage of agents in compliance" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Compliance rate must be a percentage between 0.0 and 100.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:activeAlertsCount ;
+        sh:name "Active Alerts Count" ;
+        sh:description "Number of currently active risk alerts" ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Active alerts count must be a non-negative integer"
+    ] .
+
+# Risk Configuration Shape
+risk:RiskConfigurationShape
+    a sh:NodeShape ;
+    sh:targetClass risk:RiskConfiguration ;
+    rdfs:label "Risk Configuration Validation Shape" ;
+    rdfs:comment "Validates risk assessment configuration parameters" ;
+    
+    sh:property [
+        sh:path risk:unacceptableThreshold ;
+        sh:name "Unacceptable Risk Threshold" ;
+        sh:description "Risk score threshold for unacceptable risk classification" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 80.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Unacceptable threshold must be between 80.0 and 100.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:highRiskThreshold ;
+        sh:name "High Risk Threshold" ;
+        sh:description "Risk score threshold for high risk classification" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 60.0 ;
+        sh:maxInclusive 90.0 ;
+        sh:message "High risk threshold must be between 60.0 and 90.0"
+    ] ;
+    
+    sh:property [
+        sh:path risk:moderateRiskThreshold ;
+        sh:name "Moderate Risk Threshold" ;
+        sh:description "Risk score threshold for moderate risk classification" ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 20.0 ;
+        sh:maxInclusive 70.0 ;
+        sh:message "Moderate risk threshold must be between 20.0 and 70.0"
+    ] ;
+    
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Risk thresholds must be in ascending order" ;
+        sh:select """
+            SELECT $this ?moderate ?high ?unacceptable
+            WHERE {
+                $this risk:moderateRiskThreshold ?moderate ;
+                      risk:highRiskThreshold ?high ;
+                      risk:unacceptableThreshold ?unacceptable .
+                FILTER (?moderate >= ?high || ?high >= ?unacceptable)
+            }
+        """
+    ] .

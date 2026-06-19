@@ -1,0 +1,229 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix failure: <http://chatmangpt.com/ontology/failure#> .
+
+failure:FailureModeScheme
+  a skos:ConceptScheme ;
+  dcterms:title "OSA Healing Failure Modes"@en ;
+  dcterms:description "SKOS ConceptScheme for the 11 OSA (Operations System Architecture) failure modes diagnosed by healing agents."@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:creator "ChatmanGPT"@en ;
+  dcterms:language "en" ;
+  dcterms:references "OSA Healing.ReflexArcs"@en ;
+  skos:hasTopConcept
+    failure:Deadlock,
+    failure:Timeout,
+    failure:RaceCondition,
+    failure:MemoryExhaustion,
+    failure:CascadeFailure,
+    failure:ResourceLeak,
+    failure:NetworkPartition,
+    failure:DataCorruption,
+    failure:AgentCrash,
+    failure:BudgetExceeded,
+    failure:Stagnation ;
+  .
+
+# DEADLOCK
+
+failure:Deadlock
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Deadlock"@en ;
+  skos:altLabel "Circular Wait"@en ;
+  skos:definition "Two or more processes waiting indefinitely for resources held by each other, preventing any progress."@en ;
+  skos:example "Process A holds lock X and waits for lock Y. Process B holds lock Y and waits for lock X. Both blocked forever."@en ;
+  rdfs:comment "Recovery: Timeout + fallback. Detect via wait graph. Reset locks, retry operation."@en ;
+  dcat:relation failure:HighConfidence ;
+  dcat:relation failure:CriticalSeverity ;
+  .
+
+# TIMEOUT
+
+failure:Timeout
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Timeout"@en ;
+  skos:altLabel "Operation Timeout"@en ;
+  skos:definition "Operation exceeds allocated time budget and is forcibly terminated."@en ;
+  skos:example "HTTP request configured with 5s timeout. Server takes 8s to respond. Request aborted."@en ;
+  rdfs:comment "Recovery: Increase timeout budget if legitimate slowness. Optimize operation. Use circuit breaker."@en ;
+  dcat:relation failure:HighConfidence ;
+  dcat:relation failure:HighSeverity ;
+  .
+
+# RACE CONDITION
+
+failure:RaceCondition
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Race Condition"@en ;
+  skos:altLabel "Data Race"@en ;
+  skos:definition "Concurrent access to shared state without synchronization, causing unpredictable behavior."@en ;
+  skos:example "Two goroutines increment shared counter without mutex. Counter value non-deterministic."@en ;
+  rdfs:comment "Recovery: Add synchronization (mutex, atomic, message passing). Replay with seed. Add locks around critical section."@en ;
+  dcat:relation failure:MediumConfidence ;
+  dcat:relation failure:HighSeverity ;
+  .
+
+# MEMORY EXHAUSTION
+
+failure:MemoryExhaustion
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Memory Exhaustion"@en ;
+  skos:altLabel "Out of Memory, Memory Leak"@en ;
+  skos:definition "Process or system runs out of available memory, causing allocation failures or crashes."@en ;
+  skos:example "Cache grows unbounded. After 1000 entries, memory limit exceeded. Allocation fails."@en ;
+  rdfs:comment "Recovery: Clear cache. Implement TTL + eviction. Profile heap. Set explicit limits. GC pressure monitor."@en ;
+  dcat:relation failure:HighConfidence ;
+  dcat:relation failure:CriticalSeverity ;
+  .
+
+# CASCADE FAILURE
+
+failure:CascadeFailure
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Cascade Failure"@en ;
+  skos:altLabel "Cascading Failure, Failure Propagation"@en ;
+  skos:definition "Failure in one component triggers failures in dependent components, spreading through the system."@en ;
+  skos:example "Database timeout causes request handler to timeout. Load balancer marks handler unhealthy. Requests reroute. Remaining handlers overloaded. Cascade begins."@en ;
+  rdfs:comment "Recovery: Circuit breaker + fallback. Bulkhead isolation. Rate limiting. Degrade gracefully."@en ;
+  dcat:relation failure:HighConfidence ;
+  dcat:relation failure:CriticalSeverity ;
+  .
+
+# RESOURCE LEAK
+
+failure:ResourceLeak
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Resource Leak"@en ;
+  skos:altLabel "Handle Leak, File Descriptor Leak"@en ;
+  skos:definition "Acquired resources (files, connections, memory) not released, causing gradual exhaustion."@en ;
+  skos:example "Open file in handler. Exception thrown. File not closed. After 1000 requests, all file descriptors exhausted."@en ;
+  rdfs:comment "Recovery: Ensure all resources have defer/finally cleanup. Use try-with-resources. Profile open handles."@en ;
+  dcat:relation failure:MediumConfidence ;
+  dcat:relation failure:HighSeverity ;
+  .
+
+# NETWORK PARTITION
+
+failure:NetworkPartition
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Network Partition"@en ;
+  skos:altLabel "Split Brain, Network Failure"@en ;
+  skos:definition "Network link failure prevents communication between system components, violating assumptions of consensus."@en ;
+  skos:example "Leader unreachable. Followers elect new leader. Network heals. Two leaders exist. Split brain."@en ;
+  rdfs:comment "Recovery: Quorum-based consensus. Fencing. Leader revocation. Manual intervention."@en ;
+  dcat:relation failure:MediumConfidence ;
+  dcat:relation failure:CriticalSeverity ;
+  .
+
+# DATA CORRUPTION
+
+failure:DataCorruption
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Data Corruption"@en ;
+  skos:altLabel "Integrity Violation, Bad Data"@en ;
+  skos:definition "Data stored or read is incorrect, violating application invariants."@en ;
+  skos:example "Bit flip in memory. Database write succeeds but data on disk corrupted. Query returns wrong value."@en ;
+  rdfs:comment "Recovery: Checksums/CRC on data. WAL (write-ahead log). Backup restore. Validate on read."@en ;
+  dcat:relation failure:LowConfidence ;
+  dcat:relation failure:CriticalSeverity ;
+  .
+
+# AGENT CRASH
+
+failure:AgentCrash
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Agent Crash"@en ;
+  skos:altLabel "Process Crash, Panic"@en ;
+  skos:definition "Agent process terminates unexpectedly due to unhandled exception or panic."@en ;
+  skos:example "ArithmeticError (divide by zero) in Elixir GenServer. Process crashes. Supervisor restarts."@en ;
+  rdfs:comment "Recovery: Let-it-crash. Supervisor restart. Avoid catching exceptions silently."@en ;
+  dcat:relation failure:HighConfidence ;
+  dcat:relation failure:HighSeverity ;
+  .
+
+# BUDGET EXCEEDED
+
+failure:BudgetExceeded
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Budget Exceeded"@en ;
+  skos:altLabel "Quota Exceeded, Rate Limit"@en ;
+  skos:definition "Operation consumes more resources (time, CPU, API calls) than allocated budget."@en ;
+  skos:example "Request allocated 100ms. Computation takes 150ms. Operation throttled or rejected."@en ;
+  rdfs:comment "Recovery: Increase budget if legitimate. Optimize operation. Queue for background processing."@en ;
+  dcat:relation failure:MediumConfidence ;
+  dcat:relation failure:MediumSeverity ;
+  .
+
+# STAGNATION
+
+failure:Stagnation
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Stagnation"@en ;
+  skos:altLabel "Liveliness Violation, Progress Failure"@en ;
+  skos:definition "Process or workflow makes no progress: not crashing, not timing out, just stuck."@en ;
+  skos:example "Coordination channel receives messages but never processes. Queue grows. System appears responsive but stuck."@en ;
+  rdfs:comment "Recovery: Watchdog timer. Process monitor. Heartbeat. Liveness check. Manual restart."@en ;
+  dcat:relation failure:LowConfidence ;
+  dcat:relation failure:HighSeverity ;
+  .
+
+# CONFIDENCE LEVELS
+
+failure:HighConfidence
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "High Confidence"@en ;
+  skos:definition "Diagnosis is highly certain based on evidence (probability >= 0.8)."@en ;
+  .
+
+failure:MediumConfidence
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Medium Confidence"@en ;
+  skos:definition "Diagnosis is moderately certain (probability 0.6-0.8)."@en ;
+  .
+
+failure:LowConfidence
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Low Confidence"@en ;
+  skos:definition "Diagnosis is uncertain (probability < 0.6), requires manual verification."@en ;
+  .
+
+# SEVERITY LEVELS
+
+failure:CriticalSeverity
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Critical Severity"@en ;
+  skos:definition "Failure blocks all operation. Immediate escalation required."@en ;
+  .
+
+failure:HighSeverity
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "High Severity"@en ;
+  skos:definition "Failure blocks significant functionality. Urgent escalation."@en ;
+  .
+
+failure:MediumSeverity
+  a skos:Concept ;
+  skos:inScheme failure:FailureModeScheme ;
+  skos:prefLabel "Medium Severity"@en ;
+  skos:definition "Failure impacts some operations. Normal escalation."@en ;
+  .

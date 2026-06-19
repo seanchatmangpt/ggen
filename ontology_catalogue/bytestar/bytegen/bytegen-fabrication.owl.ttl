@@ -1,0 +1,179 @@
+@prefix : <https://bytestar.org/ontology/bytegen/fabrication#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix tg: <https://bytestar.org/ontology/trojan-gift#> .
+
+<https://bytestar.org/ontology/bytegen/fabrication>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/bytegen/fabrication/v1.0> ;
+    rdfs:comment "Ontology detailing the fabrication pipeline within the ByteGen realm, including the role of the Otel Weaver and ttl2dspy." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: ,
+                tg: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:FabricationPipeline rdf:type owl:Class ;
+    rdfs:comment "The end-to-end process of fabricating ByteStar artifacts." .
+
+:FabricationPhase rdf:type owl:Class ;
+    rdfs:comment "A distinct phase within the fabrication pipeline." .
+
+:QuarantineAndIntrospection rdf:type :FabricationPhase ;
+    rdfs:comment "Phase A: Spinning up isolated environment and ingesting raw data." .
+
+:CanonicalizationAndOntology rdf:type :FabricationPhase ;
+    rdfs:comment "Phase B: Compiling external schemas into canonical ontologies and SHACL shapes." .
+
+:SubstrateAndAccessPlaneFabrication rdf:type :FabricationPhase ;
+    rdfs:comment "Phase C: Generating Supabase SQL, Nuxt Layers, and typed clients." .
+
+:MigrationAndActivation rdf:type :FabricationPhase ;
+    rdfs:comment "Phase D: Migrating data, activating the SAP, and generating 8-hop receipts." .
+
+:OtelWeaver rdf:type owl:Class ;
+    rdfs:comment "The AHI-driven engine that consumes OTel signals to fabricate canonical ontologies." .
+
+:ttl2dspy rdf:type owl:Class ;
+    rdfs:comment "A fabricator-orchestrator that compiles ontologies into various artifacts." .
+
+:InputArtifact rdf:type owl:Class ;
+    rdfs:comment "An artifact serving as input to a fabrication phase." .
+
+:OutputArtifact rdf:type owl:Class ;
+    rdfs:comment "An artifact produced as output by a fabrication phase." .
+
+:Connector rdf:type owl:Class ;
+    rdfs:comment "A bespoke, PQC-sealed connector fabricated to plug into live data streams." .
+
+:OWLReasoner rdf:type owl:Class ;
+    rdfs:comment "A software component capable of performing logical inference over OWL ontologies." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasPhase rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationPipeline ;
+    rdfs:range :FabricationPhase ;
+    rdfs:comment "A fabrication pipeline consists of distinct phases." .
+
+:precedes rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationPhase ;
+    rdfs:range :FabricationPhase ;
+    rdfs:comment "Indicates that one fabrication phase precedes another." .
+
+:consumesInput rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationPhase ;
+    rdfs:range :InputArtifact ;
+    rdfs:comment "A fabrication phase consumes specific input artifacts." .
+
+:producesOutput rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationPhase ;
+    rdfs:range :OutputArtifact ;
+    rdfs:comment "A fabrication phase produces specific output artifacts." .
+
+:usesTool rdf:type owl:ObjectProperty ;
+    rdfs:domain :FabricationPhase ;
+    rdfs:range arch:ByteGen ;
+    rdfs:comment "A fabrication phase uses a specific ByteGen tool." .
+
+:weavesTelemetry rdf:type owl:ObjectProperty ;
+    rdfs:domain :OtelWeaver ;
+    rdfs:range :InputArtifact ;
+    rdfs:comment "The Otel Weaver processes telemetry data." .
+
+:compilesOntology rdf:type owl:ObjectProperty ;
+    rdfs:domain :ttl2dspy ;
+    rdfs:range :InputArtifact ;
+    rdfs:comment "ttl2dspy compiles ontologies." .
+
+:fabricatesConnector rdf:type owl:ObjectProperty ;
+    rdfs:domain arch:ByteGen ;
+    rdfs:range :Connector ;
+    rdfs:comment "ByteGen fabricates connectors." .
+
+:usesOWLReasoner rdf:type owl:ObjectProperty ;
+    rdfs:domain :ttl2dspy ;
+    rdfs:range :OWLReasoner ;
+    rdfs:comment "ttl2dspy uses an OWL reasoner for ontology validation." .
+
+#################################################################
+#    Individuals
+#################################################################
+
+:TheFabricationPipeline rdf:type :FabricationPipeline ;
+    :hasPhase :QuarantineAndIntrospection ,
+              :CanonicalizationAndOntology ,
+              :SubstrateAndAccessPlaneFabrication ,
+              :MigrationAndActivation .
+
+:QuarantineAndIntrospection_Instance rdf:type :QuarantineAndIntrospection ;
+    :precedes :CanonicalizationAndOntology_Instance ;
+    :consumesInput :RawEndpointsData ;
+    :producesOutput :HighEntropyMap ;
+    :usesTool arch:ByteGen_Instance .
+
+:CanonicalizationAndOntology_Instance rdf:type :CanonicalizationAndOntology ;
+    :precedes :SubstrateAndAccessPlaneFabrication_Instance ;
+    :consumesInput :HighEntropyMap ;
+    :producesOutput :CanonProposal ;
+    :usesTool arch:ByteGen_Instance ;
+    :usesTool :OtelWeaver_Instance ;
+    :usesTool :ttl2dspy_Instance ;
+    :usesOWLReasoner :FaCTpp_Reasoner_Instance .
+
+:SubstrateAndAccessPlaneFabrication_Instance rdf:type :SubstrateAndAccessPlaneFabrication ;
+    :precedes :MigrationAndActivation_Instance ;
+    :consumesInput :CanonProposal ;
+    :producesOutput :SupabaseSQL ,
+                    :NuxtLayers ,
+                    :TypedClientSDK ;
+    :usesTool arch:ByteGen_Instance .
+
+:MigrationAndActivation_Instance rdf:type :MigrationAndActivation ;
+    :consumesInput :SupabaseSQL ,
+                   :NuxtLayers ,
+                   :TypedClientSDK ;
+    :producesOutput spr:Receipt ;
+    :usesTool arch:ByteGen_Instance ;
+    :fabricatesConnector :OtelConnector_Instance .
+
+:OtelWeaver_Instance rdf:type :OtelWeaver ;
+    rdfs:comment "The specific instance of the Otel Weaver." .
+
+:ttl2dspy_Instance rdf:type :ttl2dspy ;
+    rdfs:comment "The specific instance of the ttl2dspy fabricator-orchestrator." .
+
+:FaCTpp_Reasoner_Instance rdf:type :OWLReasoner ;
+    rdfs:label "FaCT++ OWL Reasoner" ;
+    rdfs:comment "The instance of the FaCT++ OWL Reasoner used for consistency checking." .
+
+:RawEndpointsData rdf:type :InputArtifact ;
+    rdfs:comment "Raw endpoints and data ingested from external systems." .
+
+:HighEntropyMap rdf:type :OutputArtifact ;
+    rdfs:comment "Untrusted, high-entropy schema map generated from introspection." .
+
+:CanonProposal rdf:type :OutputArtifact ;
+    rdfs:comment "PQC-sealed canonical ontology proposal." .
+
+:SupabaseSQL rdf:type :OutputArtifact ;
+    rdfs:comment "Generated Supabase SQL for schemas, RLS, policies, etc." .
+
+:NuxtLayers rdf:type :OutputArtifact ;
+    rdfs:comment "Generated Nuxt multi-layer frontend components." .
+
+:TypedClientSDK rdf:type :OutputArtifact ;
+    rdfs:comment "Generated type-safe client SDK from SHACL/ontology." .
+
+:OtelConnector_Instance rdf:type :Connector ;
+    rdfs:comment "A fabricated Otel Connector for telemetry streams." .

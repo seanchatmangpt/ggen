@@ -1,0 +1,936 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+
+# ── AI/LLM witnesses — sourced from ~/Documents/Papers/AI_LLM/ ──
+# paperCategory = "ai-llm" → rendered into src/witnesses_ai_llm.rs.
+# Covers all 93 files in AI_LLM/: classical AI paper PDFs (12) +
+# modern agent/LLM papers (80+) + classical-ai-foundations.md.
+# Classical AI paper PDFs (Fikes/Nilsson, Aamodt/Plaza, etc.) also appear
+# in witnesses-cognition.ttl as breed witnesses; here they appear under
+# "ai-llm" to ensure the AI_LLM/ directory is fully represented.
+
+# ── Classical AI papers (PDF copies in AI_LLM/) ──
+
+compat:AamodtPlazaCbrAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AamodtPlazaCbrAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/aamodt-plaza-1994-cbr" ;
+    compat:witnessTitle "Case-Based Reasoning: Foundational Issues, Methodological Variations, and System Approaches (Aamodt & Plaza 1994)" ;
+    compat:witnessYear  1994 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "CBR foundations (Aamodt & Plaza 1994) — PDF in AI_LLM/, breed witness in cognition." .
+
+compat:ErmanHearsayIiAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ErmanHearsayIiAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/erman-1980-hearsay-ii" ;
+    compat:witnessTitle "The HEARSAY-II Speech-Understanding System (Erman et al. 1980)" ;
+    compat:witnessYear  1980 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "HEARSAY-II blackboard architecture (Erman et al. 1980) — PDF in AI_LLM/." .
+
+compat:FeigenbaumDendralAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FeigenbaumDendralAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/feigenbaum-1971-dendral" ;
+    compat:witnessTitle "The DENDRAL Project (Feigenbaum, Buchanan & Lederberg 1971)" ;
+    compat:witnessYear  1971 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "DENDRAL expert system (Feigenbaum et al. 1971) — PDF in AI_LLM/." .
+
+compat:FikesNilssonStripsAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FikesNilssonStripsAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/fikes-nilsson-1971-strips" ;
+    compat:witnessTitle "STRIPS: A New Approach to the Application of Theorem Proving to Problem Solving (Fikes & Nilsson 1971)" ;
+    compat:witnessYear  1971 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "STRIPS planner (Fikes & Nilsson 1971) — PDF in AI_LLM/, breed witness in cognition." .
+
+compat:KowalskiPrologAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "KowalskiPrologAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/kowalski-1974-predicate-logic-programming" ;
+    compat:witnessTitle "Predicate Logic as Programming Language (Kowalski 1974)" ;
+    compat:witnessYear  1974 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Prolog / predicate logic as programming language (Kowalski 1974) — PDF in AI_LLM/." .
+
+compat:LairdSoarAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LairdSoarAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/laird-1987-soar" ;
+    compat:witnessTitle "SOAR: An Architecture for General Intelligence (Laird, Newell & Rosenbloom 1987)" ;
+    compat:witnessYear  1987 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "SOAR cognitive architecture (Laird et al. 1987) — PDF in AI_LLM/." .
+
+compat:MarrPoggioVisionAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MarrPoggioVisionAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/marr-poggio-1976-stereo-disparity" ;
+    compat:witnessTitle "Cooperative Computation of Stereo Disparity (Marr & Poggio 1976)" ;
+    compat:witnessYear  1976 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Marr–Poggio stereo disparity (1976) — PDF in AI_LLM/." .
+
+compat:NewellSimonGpsAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "NewellSimonGpsAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/newell-simon-1963-gps" ;
+    compat:witnessTitle "GPS: A Program that Simulates Human Thought (Newell & Simon 1963)" ;
+    compat:witnessYear  1963 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "General Problem Solver (Newell & Simon 1963) — PDF in AI_LLM/." .
+
+compat:RobinsonResolutionAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RobinsonResolutionAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/robinson-1965-resolution-principle" ;
+    compat:witnessTitle "A Machine-Oriented Logic Based on the Resolution Principle (Robinson 1965)" ;
+    compat:witnessYear  1965 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Robinson resolution principle (1965) — PDF in AI_LLM/." .
+
+compat:ShortliffeMycinAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ShortliffeMycinAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/shortliffe-1975-mycin-cf-model" ;
+    compat:witnessTitle "A Model of Inexact Reasoning in Medicine (Shortliffe & Buchanan 1975)" ;
+    compat:witnessYear  1975 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "MYCIN certainty factor model (Shortliffe & Buchanan 1975) — PDF in AI_LLM/." .
+
+compat:SussmanHackerAiLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SussmanHackerAiLlmPaper" ;
+    compat:witnessKey   "ai-llm/sussman-1973-hacker" ;
+    compat:witnessTitle "A Computational Model of Skill Acquisition (Sussman 1973 — HACKER)" ;
+    compat:witnessYear  1973 ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "HACKER learning by debugging (Sussman 1973) — PDF in AI_LLM/." .
+
+compat:ClassicalAiFoundationsMdPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ClassicalAiFoundationsMdPaper" ;
+    compat:witnessKey   "ai-llm/classical-ai-foundations-overview" ;
+    compat:witnessTitle "Classical AI Foundations (Survey Document)" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Curated survey of classical AI foundational papers in AI_LLM/ directory." .
+
+# ── Modern AI/LLM/Agent papers ──
+
+compat:MachineLearningAnalysisParadoxPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MachineLearningAnalysisParadoxPaper" ;
+    compat:witnessKey   "ai-llm/ml-analysis-paralysis-rashomon-paradox" ;
+    compat:witnessTitle "A Look into How Machine Learning is Reshaping Engineering Models: the Rise of Analysis Paralysis, Optimal yet Infeasible Solutions, and the Inevitable Rashomon Paradox" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "ML impact on engineering: analysis paralysis, infeasible optima, and Rashomon paradox." .
+
+compat:CrowdDensityClassificationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CrowdDensityClassificationPaper" ;
+    compat:witnessKey   "ai-llm/ml-crowd-density-hajj-classification" ;
+    compat:witnessTitle "A Machine Learning Model for Crowd Density Classification in Hajj Video Frames" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "ML crowd density classification for Hajj safety management from video frames." .
+
+compat:EventTreeEmergencyDecisionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "EventTreeEmergencyDecisionPaper" ;
+    compat:witnessKey   "ai-llm/evolvable-agents-event-trees-emergency-decision" ;
+    compat:witnessTitle "A Novel Task-Driven Method with Evolvable Interactive Agents Using Event Trees for Enhanced Emergency Decision Support" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Evolvable agent framework using event trees for emergency decision support." .
+
+compat:AgentCentricOsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgentCentricOsPaper" ;
+    compat:witnessKey   "ai-llm/agent-centric-os-review" ;
+    compat:witnessTitle "Agent Centric Operating System: A Comprehensive Review and Outlook for Operating System" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Comprehensive review of agent-centric operating system architectures." .
+
+compat:AgentTcpIpPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgentTcpIpPaper" ;
+    compat:witnessKey   "ai-llm/agent-tcp-ip-transaction-system" ;
+    compat:witnessTitle "Agent TCP/IP: An Agent-to-Agent Transaction System" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "TCP/IP-inspired agent-to-agent transaction protocol for multi-agent coordination." .
+
+compat:AgenticAiIndustrialPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgenticAiIndustrialPaper" ;
+    compat:witnessKey   "ai-llm/agentic-ai-intent-industrial-automation" ;
+    compat:witnessTitle "Agentic AI for Intent-Based Industrial Automation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Agentic AI framework for intent-based industrial automation control." .
+
+compat:AgenticLearnerGrowRefinePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgenticLearnerGrowRefinePaper" ;
+    compat:witnessKey   "ai-llm/agentic-learner-grow-refine-semantic-memory" ;
+    compat:witnessTitle "Agentic Learner with Grow-and-Refine Multimodal Semantic Memory" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Grow-and-refine multimodal semantic memory for agentic continual learning." .
+
+compat:AiMultiAgentInteropPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiMultiAgentInteropPaper" ;
+    compat:witnessKey   "ai-llm/ai-multi-agent-interoperability-conversations" ;
+    compat:witnessTitle "AI Multi-Agent Interoperability Extension for Managing Multiparty Conversations" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Protocol extension for AI multi-agent interoperability in multiparty conversation management." .
+
+compat:AiTailoringFashionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiTailoringFashionPaper" ;
+    compat:witnessKey   "ai-llm/ai-tailoring-fashion-image-popularity" ;
+    compat:witnessTitle "AI Tailoring: Evaluating Influence of Image Features on Fashion Product Popularity" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "AI-driven tailoring: feature influence on fashion product popularity prediction." .
+
+compat:AlphaEvolvePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AlphaEvolvePaper" ;
+    compat:witnessKey   "ai-llm/alphaevolve-evolutionary-coding-agent" ;
+    compat:witnessTitle "AlphaEvolve: A Gemini-based Evolutionary Coding Agent" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "AlphaEvolve: Gemini-powered evolutionary agent for autonomous algorithm discovery." .
+
+compat:AlphaStarUnpluggedPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AlphaStarUnpluggedPaper" ;
+    compat:witnessKey   "ai-llm/alphastar-unplugged-offline-rl" ;
+    compat:witnessTitle "AlphaStar Unplugged: Large-Scale Offline Reinforcement Learning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "AlphaStar Unplugged: large-scale offline RL for StarCraft II mastery." .
+
+compat:OptimalTaskPlanningPddlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OptimalTaskPlanningPddlPaper" ;
+    compat:witnessKey   "ai-llm/optimal-task-planning-pddl-popf" ;
+    compat:witnessTitle "An Optimal Task Planning and Agent-aware Allocation Algorithm in Collaborative Tasks Combining with PDDL and POPF" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Optimal PDDL/POPF-based task planning and agent-aware allocation for collaborative tasks." .
+
+compat:AprMctsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AprMctsPaper" ;
+    compat:witnessKey   "ai-llm/aprmcts-llm-program-repair-tree-search" ;
+    compat:witnessTitle "APRMCTS: Improving LLM-based Automated Program Repair with Iterative Tree Search" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "APRMCTS: MCTS-guided iterative tree search for LLM-based automated program repair." .
+
+compat:AiEnvironmentalProtectionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiEnvironmentalProtectionPaper" ;
+    compat:witnessKey   "ai-llm/ai-environmental-protection-wisconsin" ;
+    compat:witnessTitle "Artificial Intelligence in Environmental Protection: A Field Study in Wisconsin" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Field study of AI applications in environmental protection, Wisconsin context." .
+
+compat:AutoAgentFrameworkPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutoAgentFrameworkPaper" ;
+    compat:witnessKey   "ai-llm/autoagent-zero-code-llm-agents" ;
+    compat:witnessTitle "AutoAgent: A Fully-Automated and Zero-Code Framework for LLM Agents" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "AutoAgent: zero-code fully-automated framework for deploying LLM agent workflows." .
+
+compat:AutomatedRiskOfBiasPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AutomatedRiskOfBiasPaper" ;
+    compat:witnessKey   "ai-llm/automated-risk-of-bias-gepa-programmatic" ;
+    compat:witnessTitle "Automated Risk-of-Bias Assessment of Randomized Controlled Trials: A GEPA-trained Programmatic Prompting Framework" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "GEPA-trained LLM framework for automated risk-of-bias assessment of RCTs." .
+
+compat:BackToBitsShannonPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BackToBitsShannonPaper" ;
+    compat:witnessKey   "ai-llm/back-to-bits-shannon-computing-performance" ;
+    compat:witnessTitle "Back to Bits: Extending Shannon's Communication Performance Framework to Computing" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Shannon framework extension from communication theory to computing performance analysis." .
+
+compat:BenchCoEExpertCollaborationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BenchCoEExpertCollaborationPaper" ;
+    compat:witnessKey   "ai-llm/bench-coe-expert-collaboration-benchmark" ;
+    compat:witnessTitle "Bench-CoE: a Framework for Collaboration of Experts from Benchmark" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Bench-CoE: benchmark-driven expert collaboration framework for LLM ensembles." .
+
+compat:BootstrappingObjectPlanningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BootstrappingObjectPlanningPaper" ;
+    compat:witnessKey   "ai-llm/bootstrapping-object-planning-llm" ;
+    compat:witnessTitle "Bootstrapping Object-level Planning with Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Object-level planning bootstrapped from LLM world knowledge for robotics tasks." .
+
+compat:BridgingUiChatbotPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BridgingUiChatbotPaper" ;
+    compat:witnessKey   "ai-llm/bridging-ui-chatbot-form-conversational" ;
+    compat:witnessTitle "Bridging UI Design and Chatbot Interactions: Applying Form-Based Principles to Conversational Agents" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Form-based UI design principles applied to conversational agent interaction design." .
+
+compat:BridgingLastMileForecastingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "BridgingLastMileForecastingPaper" ;
+    compat:witnessKey   "ai-llm/bridging-last-mile-time-series-llm" ;
+    compat:witnessTitle "Bridging the Last Mile of Time Series Forecasting with LLM Agents" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM agents bridging the last-mile gap in time series forecasting pipelines." .
+
+compat:CarjanTrafficScenarioPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CarjanTrafficScenarioPaper" ;
+    compat:witnessKey   "ai-llm/carjan-agent-traffic-scenario-ajan" ;
+    compat:witnessTitle "CARJAN: Agent-Based Generation and Simulation of Traffic Scenarios with AJAN" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "CARJAN: AJAN-based agent framework for traffic scenario generation and simulation." .
+
+compat:ClaudeCodeBestPracticesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ClaudeCodeBestPracticesPaper" ;
+    compat:witnessKey   "ai-llm/claude-code-best-practices-agentic" ;
+    compat:witnessTitle "Claude Code: Best Practices for Agentic Coding" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Anthropic guide: best practices for using Claude Code in agentic software development." .
+
+compat:CodeHaluPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CodeHaluPaper" ;
+    compat:witnessKey   "ai-llm/codehalu-llm-hallucination-execution" ;
+    compat:witnessTitle "CodeHalu: Investigating Code Hallucinations in LLMs via Execution-based Verification" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "CodeHalu: taxonomy and benchmarking of LLM code hallucinations via execution verification." .
+
+compat:CodeMiragePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CodeMiragePaper" ;
+    compat:witnessKey   "ai-llm/codemirage-llm-code-hallucinations" ;
+    compat:witnessTitle "CodeMirage: Hallucinations in Code Generated by Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "CodeMirage: study of hallucination types in LLM-generated code." .
+
+compat:ComputationalBioModellingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ComputationalBioModellingPaper" ;
+    compat:witnessKey   "ai-llm/computational-bio-modelling-then-now" ;
+    compat:witnessTitle "Computational Modelling of Biological Systems Now and Then: Revisiting Tools and Visions" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Retrospective on computational biology modelling tools and visions from past to present." .
+
+compat:LlmTestRefactoringPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmTestRefactoringPaper" ;
+    compat:witnessKey   "ai-llm/llm-automatic-test-refactoring" ;
+    compat:witnessTitle "Context-Enhanced LLM-Based Framework for Automatic Test Refactoring" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM framework for context-aware automated test code refactoring." .
+
+compat:MaydayMultimodalPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MaydayMultimodalPaper" ;
+    compat:witnessKey   "ai-llm/context-aware-workflow-mobile-ui-annotation" ;
+    compat:witnessTitle "Context-Aware Workflow Decomposition for Automated Mobile UI Annotation Using Multimodal Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Multimodal LLM workflow decomposition for automated mobile UI annotation." .
+
+compat:CySecBenchPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CySecBenchPaper" ;
+    compat:witnessKey   "ai-llm/cysecbench-generative-ai-cybersecurity-prompts" ;
+    compat:witnessTitle "CySecBench: Generative AI-based CyberSecurity-focused Prompt Dataset for Benchmarking Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "CySecBench: cybersecurity-focused prompt dataset for LLM security benchmarking." .
+
+compat:DafnyVerificationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DafnyVerificationPaper" ;
+    compat:witnessKey   "ai-llm/dafny-verification-intermediate-code-gen" ;
+    compat:witnessTitle "Dafny as Verification-Aware Intermediate Language for Code Generation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Using Dafny as verification-aware IL between LLM code generation and execution." .
+
+compat:DataDrivenElectricalMachinePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DataDrivenElectricalMachinePaper" ;
+    compat:witnessKey   "ai-llm/data-driven-electrical-machine-design-ai" ;
+    compat:witnessTitle "Data Driven Automatic Electrical Machine Preliminary Design with Artificial Intelligence Expert Guidance" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "AI-guided data-driven preliminary design for electrical machines." .
+
+compat:DeliverAiAgentsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DeliverAiAgentsPaper" ;
+    compat:witnessKey   "ai-llm/deliver-ai-agents-with-confidence" ;
+    compat:witnessTitle "Deliver AI Agents with Confidence" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Practitioner guide for reliable production deployment of AI agent systems." .
+
+compat:LlmOpenSourceIssuesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmOpenSourceIssuesPaper" ;
+    compat:witnessKey   "ai-llm/llm-open-source-issues-causes-solutions" ;
+    compat:witnessTitle "Demystifying Issues, Causes and Solutions in LLM Open-Source Projects" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Empirical study of issues, root causes, and fixes in LLM open-source repositories." .
+
+compat:AgentBasedRadiationCellPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AgentBasedRadiationCellPaper" ;
+    compat:witnessKey   "ai-llm/agent-based-post-irradiation-cell-digital-twin" ;
+    compat:witnessTitle "Developing an Agent-Based Mathematical Model for Simulating Post-Irradiation Cellular Response" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Agent-based mathematical model for post-irradiation cellular response in digital twin." .
+
+compat:CodeLlmDesignPatternsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "CodeLlmDesignPatternsPaper" ;
+    compat:witnessKey   "ai-llm/code-llm-design-patterns-understanding" ;
+    compat:witnessTitle "Do Code LLMs Understand Design Patterns?" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Empirical evaluation of LLM comprehension and application of software design patterns." .
+
+compat:FederatedAgentWorkflowPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "FederatedAgentWorkflowPaper" ;
+    compat:witnessKey   "ai-llm/federated-agents-scientific-workflows" ;
+    compat:witnessTitle "Empowering Scientific Workflows with Federated Agents" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Federated agent architecture for distributed scientific workflow orchestration." .
+
+compat:ManufacturingKnowledgeLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ManufacturingKnowledgeLlmPaper" ;
+    compat:witnessKey   "ai-llm/manufacturing-knowledge-llm-context-prompting" ;
+    compat:witnessTitle "Enhancing Manufacturing Knowledge Access with LLMs and Context-aware Prompting" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM with context-aware prompting for manufacturing knowledge base access." .
+
+compat:LlmCodeHallucinationsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmCodeHallucinationsPaper" ;
+    compat:witnessKey   "ai-llm/llm-code-hallucinations-evaluation" ;
+    compat:witnessTitle "Exploring and Evaluating Hallucinations in LLM-Powered Code Generation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Evaluation framework for hallucinations in LLM-powered code generation systems." .
+
+compat:GenAiEcommercePaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GenAiEcommercePaper" ;
+    compat:witnessKey   "ai-llm/genai-cross-border-ecommerce-brand" ;
+    compat:witnessTitle "Exploring the Impact of Generative AI on Cross-Border E-Commerce Brand Building" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Generative AI impact on cross-border e-commerce brand building in manufacturing sector." .
+
+compat:NeuroSymbolicTaskPlanningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "NeuroSymbolicTaskPlanningPaper" ;
+    compat:witnessKey   "ai-llm/neuro-symbolic-task-planning-goal-decomposition" ;
+    compat:witnessTitle "Fast and Accurate Task Planning using Neuro-Symbolic Language Models and Multi-level Goal Decomposition" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Neuro-symbolic LM for fast accurate task planning via multi-level goal decomposition." .
+
+compat:GDesignerMultiAgentPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GDesignerMultiAgentPaper" ;
+    compat:witnessKey   "ai-llm/g-designer-multi-agent-gnn-topology" ;
+    compat:witnessTitle "G-Designer: Architecting Multi-agent Communication Topologies via Graph Neural Networks" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "G-Designer: GNN-based automatic design of multi-agent communication topologies." .
+
+compat:SemanticCommunicationRobotPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SemanticCommunicationRobotPaper" ;
+    compat:witnessKey   "ai-llm/semantic-communication-robot-arm-digital-twin" ;
+    compat:witnessTitle "Goal-oriented Semantic Communication for Robot Arm Reconstruction in Digital Twin" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Goal-oriented semantic communication for robot arm digital twin reconstruction." .
+
+compat:GraphOfThoughtsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GraphOfThoughtsPaper" ;
+    compat:witnessKey   "ai-llm/graph-of-thoughts-elaborate-problem-solving" ;
+    compat:witnessTitle "Graph of Thoughts: Solving Elaborate Problems with Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Graph of Thoughts: non-linear reasoning architecture for complex LLM problem solving." .
+
+compat:HardwareAccelerationNnPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HardwareAccelerationNnPaper" ;
+    compat:witnessKey   "ai-llm/hardware-acceleration-neural-networks-survey" ;
+    compat:witnessTitle "Hardware Acceleration for Neural Networks: A Comprehensive Survey" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Comprehensive survey of hardware acceleration architectures for neural network inference." .
+
+compat:HaVenVerilogPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HaVenVerilogPaper" ;
+    compat:witnessKey   "ai-llm/haven-llm-verilog-hallucination-mitigation" ;
+    compat:witnessTitle "HaVen: Hallucination-Mitigated LLM for Verilog Code Generation Aligned with HDL Engineers" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "HaVen: HDL-engineer-aligned LLM reducing hallucinations in Verilog code generation." .
+
+compat:HumanMachineNPersonGamesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HumanMachineNPersonGamesPaper" ;
+    compat:witnessKey   "ai-llm/human-machine-n-person-games-partial-knowledge" ;
+    compat:witnessTitle "Human and Machine Intelligence in n-Person Games with Partial Knowledge: Theory and Computation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Theory and computation for n-person games with partial knowledge: human vs. machine." .
+
+compat:InParsPlusPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "InParsPlusPaper" ;
+    compat:witnessKey   "ai-llm/inpars-plus-synthetic-data-ir" ;
+    compat:witnessTitle "InPars+: Supercharging Synthetic Data Generation for Information Retrieval Systems" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "InPars+: enhanced synthetic data generation for information retrieval benchmarking." .
+
+compat:LammaPPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LammaPPaper" ;
+    compat:witnessKey   "ai-llm/lamma-p-multi-agent-pddl-long-horizon" ;
+    compat:witnessTitle "LaMMA-P: Generalizable Multi-Agent Long-Horizon Task Allocation and Planning with LM-Driven PDDL Planner" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LaMMA-P: LLM-driven PDDL planner for multi-agent long-horizon task allocation." .
+
+compat:LlmSemioticMachinesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmSemioticMachinesPaper" ;
+    compat:witnessKey   "ai-llm/llm-semiotic-machines-structuralist" ;
+    compat:witnessTitle "Language Models as Semiotic Machines: Reconceptualizing AI Language Systems through Structuralist and Post-Structuralist Theories of Language" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Reconceptualizing LLMs through structuralist and post-structuralist linguistic theory." .
+
+compat:LearningNavigateWebPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LearningNavigateWebPaper" ;
+    compat:witnessKey   "ai-llm/learning-navigate-web-rl-agent" ;
+    compat:witnessTitle "Learning to Navigate the Web" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "RL agent learning to navigate web interfaces from raw DOM and visual observations." .
+
+compat:LearningRefineSparqlPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LearningRefineSparqlPaper" ;
+    compat:witnessKey   "ai-llm/learning-refine-agentic-rl-sparql" ;
+    compat:witnessTitle "Learning to Refine: An Agentic RL Approach for Iterative SPARQL Query Construction" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Agentic RL for iterative SPARQL query refinement in KG question answering." .
+
+compat:DigitalTwinAnomalyPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "DigitalTwinAnomalyPaper" ;
+    compat:witnessKey   "ai-llm/digital-twin-ml-anomaly-power-electronics" ;
+    compat:witnessTitle "Leveraging Digital Twin and Machine Learning Techniques for Anomaly Detection in Power Electronics Dominated Grid" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Digital twin + ML for anomaly detection in power electronics dominated grids." .
+
+compat:PddlEnvInteractionPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PddlEnvInteractionPaper" ;
+    compat:witnessKey   "ai-llm/pddl-env-interaction-llm-planning" ;
+    compat:witnessTitle "Leveraging Environment Interaction for Automated PDDL Generation and Planning with Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Environment interaction for automated PDDL domain/problem generation with LLMs." .
+
+compat:LlmSemanticWebAjanPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmSemanticWebAjanPaper" ;
+    compat:witnessKey   "ai-llm/llm-semantic-web-multi-agent-ajan" ;
+    compat:witnessTitle "LLM-Assisted Modeling of Semantic Web-Enabled Multi-Agent Systems with AJAN" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM-assisted design of semantic web multi-agent systems using AJAN framework." .
+
+compat:LlmFirstSearchPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmFirstSearchPaper" ;
+    compat:witnessKey   "ai-llm/llm-first-search-self-guided" ;
+    compat:witnessTitle "LLM-First Search: Self-Guided Exploration of the Solution Space" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM-First Search: self-guided solution space exploration using LLM heuristics." .
+
+compat:LlmGuiTestingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmGuiTestingPaper" ;
+    compat:witnessKey   "ai-llm/llm-scenario-gui-testing" ;
+    compat:witnessTitle "LLM-Guided Scenario-based GUI Testing" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM-guided scenario generation and execution for GUI application testing." .
+
+compat:LlmReasoningPlanningPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmReasoningPlanningPaper" ;
+    compat:witnessKey   "ai-llm/llm-reasoning-planning-incomplete-api-queries" ;
+    compat:witnessTitle "LLM+Reasoning+Planning for Supporting Incomplete User Queries in the Presence of APIs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM reasoning and planning for handling incomplete user queries over APIs." .
+
+compat:MlCybersecurityReviewPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MlCybersecurityReviewPaper" ;
+    compat:witnessKey   "ai-llm/ml-cybersecurity-digital-forensics-review" ;
+    compat:witnessTitle "Machine Learning and Deep Learning Techniques used in Cybersecurity and Digital Forensics: a Review" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Survey of ML/DL techniques applied to cybersecurity and digital forensics domains." .
+
+compat:MaciMultiAgentPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MaciMultiAgentPaper" ;
+    compat:witnessKey   "ai-llm/maci-multi-agent-collaborative-intelligence" ;
+    compat:witnessTitle "MACI: Multi-Agent Collaborative Intelligence for Robust Reasoning and Temporal Planning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "MACI: multi-agent collaborative intelligence for robust reasoning and temporal planning." .
+
+compat:UavMathRagPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UavMathRagPaper" ;
+    compat:witnessKey   "ai-llm/uav-math-reasoning-rag" ;
+    compat:witnessTitle "Mathematical Reasoning for Unmanned Aerial Vehicles: A RAG-Based Approach for Complex Arithmetic Reasoning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "RAG-based mathematical reasoning for UAV mission planning and arithmetic tasks." .
+
+compat:MleBenchPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MleBenchPaper" ;
+    compat:witnessKey   "ai-llm/mle-bench-ml-agents-engineering-evaluation" ;
+    compat:witnessTitle "MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "MLE-bench: benchmark evaluating AI agents on real machine learning engineering tasks." .
+
+compat:PddlWorkflowGenerationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PddlWorkflowGenerationPaper" ;
+    compat:witnessKey   "ai-llm/pddl-workflow-automated-generation" ;
+    compat:witnessTitle "Model-based Workflow for the Automated Generation of PDDL Descriptions" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Model-based workflow for automated PDDL domain and problem description generation." .
+
+compat:LayoutReadingOrderPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LayoutReadingOrderPaper" ;
+    compat:witnessKey   "ai-llm/layout-reading-order-ordering-relations-vrd" ;
+    compat:witnessTitle "Modeling Layout Reading Order as Ordering Relations for Visually-rich Document Understanding" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Reading order as ordering relations for structured visually-rich document understanding." .
+
+compat:NoAiWithoutPiPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "NoAiWithoutPiPaper" ;
+    compat:witnessKey   "ai-llm/no-ai-without-pi-ocel-generative-predictive" ;
+    compat:witnessTitle "No AI Without PI! Object-Centric Process Mining as the Enabler for Generative, Predictive, and Prescriptive AI" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "OCEL as process intelligence foundation for generative, predictive, and prescriptive AI." .
+
+compat:LlmSecurityPoliciesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmSecurityPoliciesPaper" ;
+    compat:witnessKey   "ai-llm/llm-automating-security-policies" ;
+    compat:witnessTitle "On Automating Security Policies with Contemporary LLMs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Evaluation of LLMs for automated security policy authoring and enforcement." .
+
+compat:LlmFinancialDocumentsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmFinancialDocumentsPaper" ;
+    compat:witnessKey   "ai-llm/llm-financial-documents-comprehensibility" ;
+    compat:witnessTitle "On the Comprehensibility of Multi-structured Financial Documents using LLMs and Pre-processing Tools" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM-based comprehensibility assessment of complex multi-structured financial documents." .
+
+compat:EthosAiAgentsPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "EthosAiAgentsPaper" ;
+    compat:witnessKey   "ai-llm/ethos-ai-agents-ethical-holistic-oversight" ;
+    compat:witnessTitle "On the ETHOS of AI Agents: An Ethical Technology and Holistic Oversight System" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "ETHOS framework: ethical technology and holistic oversight for AI agent systems." .
+
+compat:OrtacPlusMultiAgentPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "OrtacPlusMultiAgentPaper" ;
+    compat:witnessKey   "ai-llm/ortac-plus-dsl-multi-agent-mission" ;
+    compat:witnessTitle "ORTAC+: A User Friendly Domain Specific Language for Multi-Agent Mission Planning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "ORTAC+: domain-specific language for user-friendly multi-agent mission planning." .
+
+compat:Pix2StructPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Pix2StructPaper" ;
+    compat:witnessKey   "ai-llm/pix2struct-screenshot-parsing-pretraining" ;
+    compat:witnessTitle "Pix2Struct: Screenshot Parsing as Pretraining for Visual Language Understanding" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Pix2Struct: screenshot-parsing pretraining for visual language model understanding." .
+
+compat:PredictableEmergentAbilitiesPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PredictableEmergentAbilitiesPaper" ;
+    compat:witnessKey   "ai-llm/predictable-emergent-abilities-llm-proxy" ;
+    compat:witnessTitle "Predictable Emergent Abilities of LLMs: Proxy Tasks Are All You Need" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Proxy task framework for predicting LLM emergent ability phase transitions." .
+
+compat:PromptOptimizationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PromptOptimizationPaper" ;
+    compat:witnessKey   "ai-llm/prompt-optimization-state-space-search" ;
+    compat:witnessTitle "Prompt Optimization as a State-Space Search Problem" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Framing LLM prompt optimization as a state-space search problem with heuristic guidance." .
+
+compat:QiMengChipDesignPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "QiMengChipDesignPaper" ;
+    compat:witnessKey   "ai-llm/qimeng-automated-hw-sw-processor-chip" ;
+    compat:witnessTitle "QiMeng: Fully Automated Hardware and Software Design for Processor Chip" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "QiMeng: end-to-end automated hardware and software co-design for processor chips." .
+
+compat:ReasonToRecommendPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ReasonToRecommendPaper" ;
+    compat:witnessKey   "ai-llm/reason-to-recommend-iot-reasoning" ;
+    compat:witnessTitle "Reason-to-Recommend: Using Interaction-of-Thought Reasoning to Enhance LLM Recommendation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Interaction-of-Thought reasoning for explainable LLM-based recommendation systems." .
+
+compat:RePromptPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RePromptPaper" ;
+    compat:witnessKey   "ai-llm/reprompt-automatic-prompt-engineering-agents" ;
+    compat:witnessTitle "RePrompt: Planning by Automatic Prompt Engineering for Large Language Models Agents" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "RePrompt: automated prompt engineering for planning-capable LLM agents." .
+
+compat:RpgCodebaseGenerationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "RpgCodebaseGenerationPaper" ;
+    compat:witnessKey   "ai-llm/rpg-repository-planning-graph-codebase-gen" ;
+    compat:witnessTitle "RPG: A Repository Planning Graph for Unified and Scalable Codebase Generation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "RPG: repository planning graph enabling unified scalable codebase generation." .
+
+compat:SearchOnGraphPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SearchOnGraphPaper" ;
+    compat:witnessKey   "ai-llm/search-on-graph-llm-reasoning-kg" ;
+    compat:witnessTitle "Search-on-Graph: Iterative Informed Navigation for Large Language Model Reasoning on Knowledge Graphs" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Search-on-Graph: iterative informed KG navigation for LLM reasoning tasks." .
+
+compat:SemanticConstraintWebFormPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SemanticConstraintWebFormPaper" ;
+    compat:witnessKey   "ai-llm/semantic-constraint-web-form-test-gen" ;
+    compat:witnessTitle "Semantic Constraint Inference for Web Form Test Generation" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Semantic constraint inference from web forms for automated test generation." .
+
+compat:SmoGSchemaMatchingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SmoGSchemaMatchingPaper" ;
+    compat:witnessKey   "ai-llm/smog-schema-matching-graph" ;
+    compat:witnessTitle "SMoG: Schema Matching on Graph" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "SMoG: graph-based schema matching for heterogeneous data source integration." .
+
+compat:SolutionsArchitectsHandbookPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SolutionsArchitectsHandbookPaper" ;
+    compat:witnessKey   "ai-llm/solutions-architects-handbook" ;
+    compat:witnessTitle "Solutions Architect's Handbook" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Solutions Architect's Handbook: AI/cloud architecture patterns and practices." .
+
+compat:SoftConstraintLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "SoftConstraintLlmPaper" ;
+    compat:witnessKey   "ai-llm/soft-constraint-following-llm-step-by-step" ;
+    compat:witnessTitle "Step-by-Step Mastery: Enhancing Soft Constraint Following Ability of Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Step-by-step training curriculum for enhancing LLM soft constraint adherence." .
+
+compat:PublicFacilityLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "PublicFacilityLlmPaper" ;
+    compat:witnessKey   "ai-llm/public-facility-failure-management-llm" ;
+    compat:witnessTitle "Sustainable and Intelligent Public Facility Failure Management System Based on Large Language Models" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "LLM-based intelligent failure management system for public infrastructure." .
+
+compat:Ta9RegulationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "Ta9RegulationPaper" ;
+    compat:witnessKey   "ai-llm/ta-9-2024-0138-eu-regulation" ;
+    compat:witnessTitle "TA-9-2024-0138_EN: EU Regulatory Document" ;
+    compat:witnessFamily compat:Standard ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "European Parliament document TA-9-2024-0138 — regulatory text (likely AI Act related)." .
+
+compat:AiTeamingPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "AiTeamingPaper" ;
+    compat:witnessKey   "ai-llm/ai-era-teaming-frameworks-optimizing" ;
+    compat:witnessTitle "Teaming in the AI Era: AI-Augmented Frameworks for Forming, Simulating, and Optimizing Human Teams" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "AI-augmented frameworks for human team formation, simulation, and optimization." .
+
+compat:LlmOpenSourceInnovationPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "LlmOpenSourceInnovationPaper" ;
+    compat:witnessKey   "ai-llm/llm-open-source-innovation-github-copilot" ;
+    compat:witnessTitle "The Impact of Large Language Models on Open-source Innovation: Evidence from GitHub Copilot" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Empirical study of GitHub Copilot's causal impact on open-source innovation metrics." .
+
+compat:MetaPromptingProtocolPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "MetaPromptingProtocolPaper" ;
+    compat:witnessKey   "ai-llm/meta-prompting-protocol-adversarial-feedback" ;
+    compat:witnessTitle "The Meta-Prompting Protocol: Orchestrating LLMs via Adversarial Feedback Loops" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Meta-Prompting Protocol: adversarial feedback loops for orchestrating LLM ensembles." .
+
+compat:UniversalPddlDomainPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "UniversalPddlDomainPaper" ;
+    compat:witnessKey   "ai-llm/universal-pddl-domain" ;
+    compat:witnessTitle "The Universal PDDL Domain" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Universal PDDL domain specification for cross-domain task planning benchmarking." .
+
+compat:ThriftLlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "ThriftLlmPaper" ;
+    compat:witnessKey   "ai-llm/thriftllm-cost-effective-llm-selection" ;
+    compat:witnessTitle "ThriftLLM: On Cost-Effective Selection of Large Language Models for Classification Queries" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "ThriftLLM: cost-effective routing of classification queries to appropriately-sized LLMs." .
+
+compat:HybridCloudAiPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "HybridCloudAiPaper" ;
+    compat:witnessKey   "ai-llm/hybrid-cloud-emerging-ai-workloads" ;
+    compat:witnessTitle "Transforming the Hybrid Cloud for Emerging AI Workloads" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Hybrid cloud architecture transformation strategies for emerging AI workload demands." .
+
+compat:GeometryVlmPaper
+    a compat:WitnessMarker ;
+    compat:rustType     "GeometryVlmPaper" ;
+    compat:witnessKey   "ai-llm/vlm-geometry-grounded-3d-reasoning" ;
+    compat:witnessTitle "VLM: Geometry Grounded Vision Language Model with Unified 3D Reconstruction and Spatial Reasoning" ;
+    compat:witnessFamily compat:Paper ;
+    compat:paperCategory "ai-llm" ;
+    compat:description  "Geometry-grounded VLM with unified 3D reconstruction and spatial reasoning capabilities." .

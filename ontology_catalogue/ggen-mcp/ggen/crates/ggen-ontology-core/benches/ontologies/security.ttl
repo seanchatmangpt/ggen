@@ -1,0 +1,172 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sec: <http://example.com/ontology/security/> .
+@prefix : <http://example.com/ontology/security/> .
+
+# Security Controls Ontology
+:SecurityControl rdf:type owl:Class ;
+  rdfs:label "Security Control" ;
+  rdfs:comment "A mechanism to protect assets from threats" .
+
+:AuthenticationControl rdf:type owl:Class ;
+  rdfs:label "Authentication Control" ;
+  rdfs:comment "Controls for user authentication" ;
+  rdfs:subClassOf :SecurityControl .
+
+:EncryptionControl rdf:type owl:Class ;
+  rdfs:label "Encryption Control" ;
+  rdfs:comment "Controls for data encryption" ;
+  rdfs:subClassOf :SecurityControl .
+
+:AccessControl rdf:type owl:Class ;
+  rdfs:label "Access Control" ;
+  rdfs:comment "Controls for access management" ;
+  rdfs:subClassOf :SecurityControl .
+
+:AuditControl rdf:type owl:Class ;
+  rdfs:label "Audit Control" ;
+  rdfs:comment "Controls for audit and monitoring" ;
+  rdfs:subClassOf :SecurityControl .
+
+:NetworkControl rdf:type owl:Class ;
+  rdfs:label "Network Control" ;
+  rdfs:comment "Controls for network security" ;
+  rdfs:subClassOf :SecurityControl .
+
+:IncidentResponse rdf:type owl:Class ;
+  rdfs:label "Incident Response" ;
+  rdfs:comment "Procedures for incident response" .
+
+:VulnerabilityManagement rdf:type owl:Class ;
+  rdfs:label "Vulnerability Management" ;
+  rdfs:comment "Procedures for managing vulnerabilities" .
+
+# Properties
+:requiresMFA rdf:type owl:DatatypeProperty ;
+  rdfs:label "Requires MFA" ;
+  rdfs:range xsd:boolean .
+
+:encryptionAlgorithm rdf:type owl:DatatypeProperty ;
+  rdfs:label "Encryption Algorithm" ;
+  rdfs:range xsd:string .
+
+:keyLength rdf:type owl:DatatypeProperty ;
+  rdfs:label "Key Length" ;
+  rdfs:range xsd:integer .
+
+:controlsAccessTo rdf:type owl:ObjectProperty ;
+  rdfs:label "Controls Access To" ;
+  rdfs:domain :AccessControl .
+
+:implementedVia rdf:type owl:ObjectProperty ;
+  rdfs:label "Implemented Via" ;
+  rdfs:domain :SecurityControl .
+
+:requiresApproval rdf:type owl:DatatypeProperty ;
+  rdfs:label "Requires Approval" ;
+  rdfs:range xsd:boolean .
+
+# Authentication Controls - Instances
+:MultiFactorAuthentication rdf:type :AuthenticationControl ;
+  rdfs:label "Multi-Factor Authentication" ;
+  rdfs:comment "Requires multiple authentication factors" ;
+  :requiresMFA true ;
+  :implementedVia :MFASystem .
+
+:MFASystem rdf:type :AuthenticationControl ;
+  rdfs:label "MFA System" ;
+  rdfs:comment "System supporting multi-factor authentication" .
+
+:OAuth2Authentication rdf:type :AuthenticationControl ;
+  rdfs:label "OAuth 2.0 Authentication" ;
+  rdfs:comment "OAuth 2.0 based authentication" .
+
+:SAMLAuthentication rdf:type :AuthenticationControl ;
+  rdfs:label "SAML Authentication" ;
+  rdfs:comment "SAML 2.0 based authentication" .
+
+:BiometricAuthentication rdf:type :AuthenticationControl ;
+  rdfs:label "Biometric Authentication" ;
+  rdfs:comment "Biometric-based authentication" .
+
+# Encryption Controls - Instances
+:AES256Encryption rdf:type :EncryptionControl ;
+  rdfs:label "AES-256 Encryption" ;
+  rdfs:comment "Advanced Encryption Standard with 256-bit keys" ;
+  :encryptionAlgorithm "AES" ;
+  :keyLength 256 .
+
+:TLSEncryption rdf:type :EncryptionControl ;
+  rdfs:label "TLS Encryption" ;
+  rdfs:comment "Transport Layer Security encryption" ;
+  :encryptionAlgorithm "TLS" ;
+  :keyLength 256 .
+
+:RSA4096Encryption rdf:type :EncryptionControl ;
+  rdfs:label "RSA-4096 Encryption" ;
+  rdfs:comment "RSA encryption with 4096-bit keys" ;
+  :encryptionAlgorithm "RSA" ;
+  :keyLength 4096 .
+
+:EndToEndEncryption rdf:type :EncryptionControl ;
+  rdfs:label "End-to-End Encryption" ;
+  rdfs:comment "Encryption from client to server" .
+
+:AtRestEncryption rdf:type :EncryptionControl ;
+  rdfs:label "Encryption at Rest" ;
+  rdfs:comment "Data encrypted when stored" .
+
+# Access Control - Instances
+:RoleBasedAccessControl rdf:type :AccessControl ;
+  rdfs:label "Role-Based Access Control" ;
+  rdfs:comment "RBAC implementation" .
+
+:AttributeBasedAccessControl rdf:type :AccessControl ;
+  rdfs:label "Attribute-Based Access Control" ;
+  rdfs:comment "ABAC implementation" .
+
+:LeastPrivilege rdf:type :AccessControl ;
+  rdfs:label "Principle of Least Privilege" ;
+  rdfs:comment "Grant minimum necessary permissions" .
+
+# Audit Controls - Instances
+:AuditLogging rdf:type :AuditControl ;
+  rdfs:label "Audit Logging" ;
+  rdfs:comment "Comprehensive audit logging of all access" .
+
+:RealTimeMonitoring rdf:type :AuditControl ;
+  rdfs:label "Real-Time Monitoring" ;
+  rdfs:comment "Real-time security monitoring" .
+
+:SecurityEventLogging rdf:type :AuditControl ;
+  rdfs:label "Security Event Logging" ;
+  rdfs:comment "Logging of security-relevant events" .
+
+# Network Controls - Instances
+:Firewall rdf:type :NetworkControl ;
+  rdfs:label "Firewall" ;
+  rdfs:comment "Network firewall protection" .
+
+:VPN rdf:type :NetworkControl ;
+  rdfs:label "Virtual Private Network" ;
+  rdfs:comment "VPN for secure network access" .
+
+:IntrusionDetection rdf:type :NetworkControl ;
+  rdfs:label "Intrusion Detection System" ;
+  rdfs:comment "IDS for detecting network attacks" .
+
+# Additional Controls
+:PasswordPolicy rdf:type :SecurityControl ;
+  rdfs:label "Password Policy" ;
+  rdfs:comment "Strong password requirements" ;
+  :requiresApproval true .
+
+:SessionTimeout rdf:type :SecurityControl ;
+  rdfs:label "Session Timeout" ;
+  rdfs:comment "Automatic session termination" .
+
+:DataClassification rdf:type :SecurityControl ;
+  rdfs:label "Data Classification" ;
+  rdfs:comment "Classification of data by sensitivity" .

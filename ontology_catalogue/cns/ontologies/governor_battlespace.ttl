@@ -1,0 +1,442 @@
+# Governor Military Battlespace Ontology v1.0
+# Built on forex trading patterns adapted for military operations
+# Compatible with TTL Weaver framework and 8-space constraints
+
+@prefix gov: <https://governor.mil/ontology/battlespace#> .
+@prefix unit: <https://governor.mil/ontology/units#> .
+@prefix terrain: <https://governor.mil/ontology/terrain#> .
+@prefix mission: <https://governor.mil/ontology/mission#> .
+@prefix intent: <https://governor.mil/ontology/commander-intent#> .
+@prefix coalition: <https://governor.mil/ontology/coalition#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Base Ontology Definition
+<https://governor.mil/ontology/battlespace> a owl:Ontology ;
+    rdfs:label "Governor Military Battlespace Ontology" ;
+    rdfs:comment "Real-time battlespace semantic model derived from forex trading patterns" ;
+    owl:versionInfo "1.0" .
+
+# CORE CLASSES - Adapted from Forex Patterns
+
+## FOREX MAPPING: Currency Pairs → Unit Relationships
+gov:UnitRelationship a owl:Class ;
+    rdfs:label "Unit Relationship" ;
+    rdfs:comment "Relationship between military units, mapped from forex currency pairs" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+## FOREX MAPPING: TradingPattern → TacticalProcedure  
+gov:TacticalProcedure a owl:Class ;
+    rdfs:label "Tactical Procedure" ;
+    rdfs:comment "Standard military procedure, derived from forex trading patterns" ;
+    rdfs:subClassOf gov:BattlespaceEntity ;
+    gov:patternId rdfs:range xsd:integer ;
+    gov:minSignalStrength rdfs:range xsd:integer ;
+    gov:leverageRatio rdfs:range xsd:integer ;
+    gov:requiredSensors rdfs:range xsd:string ;
+    gov:eightSpaceCompliant rdfs:range xsd:boolean .
+
+## FOREX MAPPING: MarketLens → SensorLens
+gov:SensorLens a owl:Class ;
+    rdfs:label "Sensor Lens" ;
+    rdfs:comment "Intelligence gathering sensor configuration, adapted from market lens" ;
+    rdfs:subClassOf gov:BattlespaceEntity ;
+    gov:lensType rdfs:range xsd:string ;
+    gov:minStrength rdfs:range xsd:integer ;
+    gov:maxStrength rdfs:range xsd:integer ;
+    gov:minConfidence rdfs:range xsd:integer ;
+    gov:maxConfidence rdfs:range xsd:integer .
+
+## FOREX MAPPING: RiskScenario → ThreatScenario
+gov:ThreatScenario a owl:Class ;
+    rdfs:label "Threat Scenario" ;
+    rdfs:comment "Military threat scenario, derived from forex risk scenarios" ;
+    rdfs:subClassOf gov:BattlespaceEntity ;
+    gov:probability rdfs:range xsd:float ;
+    gov:severity rdfs:range xsd:integer ;
+    gov:hasCondition rdfs:range gov:BattleCondition .
+
+# MILITARY DOMAIN CLASSES
+
+## Units and Forces
+unit:MilitaryUnit a owl:Class ;
+    rdfs:label "Military Unit" ;
+    rdfs:comment "Military unit in the battlespace" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+unit:Infantry a owl:Class ;
+    rdfs:label "Infantry Unit" ;
+    rdfs:subClassOf unit:MilitaryUnit .
+
+unit:Armor a owl:Class ;
+    rdfs:label "Armor Unit" ;
+    rdfs:subClassOf unit:MilitaryUnit .
+
+unit:Artillery a owl:Class ;
+    rdfs:label "Artillery Unit" ;  
+    rdfs:subClassOf unit:MilitaryUnit .
+
+unit:Aviation a owl:Class ;
+    rdfs:label "Aviation Unit" ;
+    rdfs:subClassOf unit:MilitaryUnit .
+
+unit:SpecialForces a owl:Class ;
+    rdfs:label "Special Forces Unit" ;
+    rdfs:subClassOf unit:MilitaryUnit .
+
+## Terrain and Geography
+terrain:TerrainFeature a owl:Class ;
+    rdfs:label "Terrain Feature" ;
+    rdfs:comment "Geographic feature affecting military operations" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+terrain:Hill a owl:Class ;
+    rdfs:label "Hill" ;
+    rdfs:subClassOf terrain:TerrainFeature .
+
+terrain:River a owl:Class ;
+    rdfs:label "River" ;
+    rdfs:subClassOf terrain:TerrainFeature .
+
+terrain:Forest a owl:Class ;
+    rdfs:label "Forest" ;
+    rdfs:subClassOf terrain:TerrainFeature .
+
+terrain:Urban a owl:Class ;
+    rdfs:label "Urban Area" ;
+    rdfs:subClassOf terrain:TerrainFeature .
+
+terrain:Bridge a owl:Class ;
+    rdfs:label "Bridge" ;
+    rdfs:subClassOf terrain:TerrainFeature .
+
+## Mission Objectives
+mission:Objective a owl:Class ;
+    rdfs:label "Mission Objective" ;
+    rdfs:comment "Military objective to be achieved" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+mission:Secure a owl:Class ;
+    rdfs:label "Secure Objective" ;
+    rdfs:subClassOf mission:Objective .
+
+mission:Destroy a owl:Class ;
+    rdfs:label "Destroy Objective" ;
+    rdfs:subClassOf mission:Objective .
+
+mission:Reconnaissance a owl:Class ;
+    rdfs:label "Reconnaissance Objective" ;
+    rdfs:subClassOf mission:Objective .
+
+mission:Defend a owl:Class ;
+    rdfs:label "Defend Objective" ;
+    rdfs:subClassOf mission:Objective .
+
+mission:Evacuate a owl:Class ;
+    rdfs:label "Evacuate Objective" ;
+    rdfs:subClassOf mission:Objective .
+
+# COMMANDER'S INTENT STRUCTURES
+
+intent:CommanderIntent a owl:Class ;
+    rdfs:label "Commander's Intent" ;
+    rdfs:comment "High-level commander's intent and guidance" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+intent:MissionPurpose a owl:Class ;
+    rdfs:label "Mission Purpose" ;
+    rdfs:comment "The why behind the mission" ;
+    rdfs:subClassOf intent:CommanderIntent .
+
+intent:KeyTasks a owl:Class ;
+    rdfs:label "Key Tasks" ;
+    rdfs:comment "Essential tasks that must be accomplished" ;
+    rdfs:subClassOf intent:CommanderIntent .
+
+intent:EndState a owl:Class ;
+    rdfs:label "End State" ;
+    rdfs:comment "Desired end state of the operation" ;
+    rdfs:subClassOf intent:CommanderIntent .
+
+# COALITION BIDDING SYSTEM
+
+coalition:ResourceBid a owl:Class ;
+    rdfs:label "Resource Bid" ;
+    rdfs:comment "Bid for coalition resources based on mission requirements" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+coalition:Nation a owl:Class ;
+    rdfs:label "Coalition Nation" ;
+    rdfs:comment "Nation participating in coalition operations" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+coalition:Resource a owl:Class ;
+    rdfs:label "Coalition Resource" ;
+    rdfs:comment "Resource available for coalition operations" ;
+    rdfs:subClassOf gov:BattlespaceEntity .
+
+# FOREX-DERIVED PROPERTIES 
+
+## FOREX MAPPING: leverage → combat power multiplier
+gov:combatPowerMultiplier a owl:DatatypeProperty ;
+    rdfs:label "Combat Power Multiplier" ;
+    rdfs:comment "Multiplier effect on combat power (derived from forex leverage)" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range xsd:integer .
+
+## FOREX MAPPING: signal strength → intelligence confidence  
+gov:intelligenceConfidence a owl:DatatypeProperty ;
+    rdfs:label "Intelligence Confidence" ;
+    rdfs:comment "Confidence level in intelligence data (0-255)" ;
+    rdfs:domain gov:SensorLens ;
+    rdfs:range xsd:integer .
+
+## FOREX MAPPING: stop loss → rules of engagement
+gov:rulesOfEngagement a owl:DatatypeProperty ;
+    rdfs:label "Rules of Engagement" ;
+    rdfs:comment "ROE constraints on unit actions" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range xsd:string .
+
+## FOREX MAPPING: take profit → success criteria
+gov:successCriteria a owl:DatatypeProperty ;
+    rdfs:label "Success Criteria" ;
+    rdfs:comment "Criteria for mission success" ;
+    rdfs:domain mission:Objective ;
+    rdfs:range xsd:string .
+
+## FOREX MAPPING: max duration → time constraints
+gov:timeConstraint a owl:DatatypeProperty ;
+    rdfs:label "Time Constraint" ;
+    rdfs:comment "Maximum time for operation (seconds)" ;
+    rdfs:domain gov:TacticalProcedure ;
+    rdfs:range xsd:integer .
+
+# RELATIONSHIPS
+
+## Unit Relationships
+gov:supports a owl:ObjectProperty ;
+    rdfs:label "supports" ;
+    rdfs:comment "One unit supports another" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range unit:MilitaryUnit .
+
+gov:commandsUnit a owl:ObjectProperty ;
+    rdfs:label "commands unit" ;
+    rdfs:comment "Command relationship between units" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range unit:MilitaryUnit .
+
+gov:locatedAt a owl:ObjectProperty ;
+    rdfs:label "located at" ;
+    rdfs:comment "Unit position on terrain" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range terrain:TerrainFeature .
+
+## Mission Relationships
+gov:hasObjective a owl:ObjectProperty ;
+    rdfs:label "has objective" ;
+    rdfs:comment "Unit assigned to objective" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range mission:Objective .
+
+gov:threatenedBy a owl:ObjectProperty ;
+    rdfs:label "threatened by" ;
+    rdfs:comment "Unit threatened by scenario" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range gov:ThreatScenario .
+
+## Commander's Intent Relationships
+gov:guidedBy a owl:ObjectProperty ;
+    rdfs:label "guided by" ;
+    rdfs:comment "Mission guided by commander's intent" ;
+    rdfs:domain mission:Objective ;
+    rdfs:range intent:CommanderIntent .
+
+## Coalition Relationships
+gov:providedBy a owl:ObjectProperty ;
+    rdfs:label "provided by" ;
+    rdfs:comment "Resource provided by nation" ;
+    rdfs:domain coalition:Resource ;
+    rdfs:range coalition:Nation .
+
+gov:bidFor a owl:ObjectProperty ;
+    rdfs:label "bid for" ;
+    rdfs:comment "Nation bids for resource allocation" ;
+    rdfs:domain coalition:Nation ;
+    rdfs:range coalition:ResourceBid .
+
+# REAL-TIME UPDATE PROPERTIES
+
+gov:lastUpdated a owl:DatatypeProperty ;
+    rdfs:label "last updated" ;
+    rdfs:comment "Timestamp of last update (Unix timestamp)" ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range xsd:integer .
+
+gov:updateSource a owl:DatatypeProperty ;
+    rdfs:label "update source" ;
+    rdfs:comment "Source of the last update" ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range xsd:string .
+
+gov:reliability a owl:DatatypeProperty ;
+    rdfs:label "reliability" ;
+    rdfs:comment "Data reliability score (0-1.0)" ;
+    rdfs:domain gov:BattlespaceEntity ;
+    rdfs:range xsd:float .
+
+# EXAMPLE TACTICAL PROCEDURES (Adapted from Forex Patterns)
+
+## Adapted from micro-impulse pattern
+gov:RapidAssault a gov:TacticalProcedure ;
+    rdfs:label "Rapid Assault Procedure" ;
+    gov:patternId 1001 ;
+    gov:minSignalStrength 85 ;
+    gov:combatPowerMultiplier 3 ;
+    gov:requiredSensors "0x0F" ;
+    gov:timeConstraint 1800 ;  # 30 minutes
+    gov:rulesOfEngagement "Minimize civilian casualties" ;
+    gov:eightSpaceCompliant true .
+
+## Adapted from momentum breakout pattern  
+gov:BreakoutManeuver a gov:TacticalProcedure ;
+    rdfs:label "Breakout Maneuver" ;
+    gov:patternId 1002 ;
+    gov:minSignalStrength 75 ;
+    gov:combatPowerMultiplier 4 ;
+    gov:requiredSensors "0x1F" ;
+    gov:timeConstraint 3600 ;  # 1 hour
+    gov:rulesOfEngagement "Avoid collateral damage" ;
+    gov:eightSpaceCompliant true .
+
+## Adapted from reversal pattern
+gov:CounterAttack a gov:TacticalProcedure ;
+    rdfs:label "Counter Attack Procedure" ;
+    gov:patternId 1003 ;
+    gov:minSignalStrength 90 ;
+    gov:combatPowerMultiplier 5 ;
+    gov:requiredSensors "0x3F" ;
+    gov:timeConstraint 2700 ;  # 45 minutes
+    gov:rulesOfEngagement "Decisive action authorized" ;
+    gov:eightSpaceCompliant true .
+
+# EXAMPLE SENSOR LENSES (Adapted from Market Lenses)
+
+gov:HumanIntelligence a gov:SensorLens ;
+    rdfs:label "Human Intelligence Lens" ;
+    gov:lensType "HUMINT" ;
+    gov:minStrength 60 ;
+    gov:maxStrength 255 ;
+    gov:minConfidence 70 ;
+    gov:maxConfidence 200 .
+
+gov:SignalsIntelligence a gov:SensorLens ;
+    rdfs:label "Signals Intelligence Lens" ;
+    gov:lensType "SIGINT" ;
+    gov:minStrength 80 ;
+    gov:maxStrength 255 ;
+    gov:minConfidence 85 ;
+    gov:maxConfidence 240 .
+
+gov:ImageryIntelligence a gov:SensorLens ;
+    rdfs:label "Imagery Intelligence Lens" ;
+    gov:lensType "IMINT" ;
+    gov:minStrength 90 ;
+    gov:maxStrength 255 ;
+    gov:minConfidence 95 ;
+    gov:maxConfidence 250 .
+
+# EXAMPLE THREAT SCENARIOS (Adapted from Risk Scenarios)
+
+gov:AmbushThreat a gov:ThreatScenario ;
+    rdfs:label "Ambush Threat Scenario" ;
+    gov:probability 0.25 ;
+    gov:severity 8 ;
+    gov:hasCondition gov:NarrowTerrain ;
+    gov:hasCondition gov:LimitedVisibility .
+
+gov:AirThreat a gov:ThreatScenario ;
+    rdfs:label "Air Threat Scenario" ;
+    gov:probability 0.15 ;
+    gov:severity 9 ;
+    gov:hasCondition gov:OpenTerrain ;
+    gov:hasCondition gov:ClearWeather .
+
+# EXAMPLE BATTLE CONDITIONS
+
+gov:NarrowTerrain a gov:BattleCondition ;
+    rdfs:label "Narrow Terrain Condition" ;
+    gov:conditionType "terrain_constraint" ;
+    gov:conditionValue "narrow_passage" .
+
+gov:LimitedVisibility a gov:BattleCondition ;
+    rdfs:label "Limited Visibility Condition" ;
+    gov:conditionType "visibility" ;
+    gov:conditionValue "low" .
+
+gov:OpenTerrain a gov:BattleCondition ;
+    rdfs:label "Open Terrain Condition" ;
+    gov:conditionType "terrain_type" ;
+    gov:conditionValue "open_field" .
+
+gov:ClearWeather a gov:BattleCondition ;
+    rdfs:label "Clear Weather Condition" ;
+    gov:conditionType "weather" ;
+    gov:conditionValue "clear" .
+
+# EXAMPLE COMMANDER'S INTENT
+
+intent:SecureAirfield a intent:CommanderIntent ;
+    rdfs:label "Secure Airfield Intent" ;
+    intent:purpose "Enable follow-on aviation operations" ;
+    intent:keyTask "Neutralize air defenses" ;
+    intent:keyTask "Secure runway and facilities" ;
+    intent:keyTask "Establish perimeter defense" ;
+    intent:endState "Airfield operational for coalition aircraft" .
+
+# EXAMPLE COALITION BIDDING
+
+coalition:USA a coalition:Nation ;
+    rdfs:label "United States" ;
+    coalition:availableResources 1000 ;
+    coalition:priorityLevel 1 .
+
+coalition:AirSupportBid a coalition:ResourceBid ;
+    rdfs:label "Air Support Resource Bid" ;
+    coalition:requestedBy coalition:USA ;
+    coalition:resourceType "CAS" ;  # Close Air Support
+    coalition:quantity 4 ;
+    coalition:duration 7200 ;  # 2 hours
+    coalition:priority 8 ;
+    coalition:bidAmount 500 .
+
+# 8-SPACE COMPLIANCE CONSTRAINTS
+
+gov:BattlespaceEntity a owl:Class ;
+    rdfs:label "Battlespace Entity" ;
+    rdfs:comment "Base class for all battlespace entities with 8-space constraints" .
+
+# All tactical procedures must complete within 8 time units (adapted from 8-space)
+gov:maxTimeUnits a owl:DatatypeProperty ;
+    rdfs:label "max time units" ;
+    rdfs:comment "Maximum time units for operation (must be <= 8)" ;
+    rdfs:domain gov:TacticalProcedure ;
+    rdfs:range xsd:integer .
+
+# All unit relationships limited to 8 hops (8-space constraint)
+gov:maxCommandHops a owl:DatatypeProperty ;
+    rdfs:label "max command hops" ;
+    rdfs:comment "Maximum command relationship hops (must be <= 8)" ;
+    rdfs:domain unit:MilitaryUnit ;
+    rdfs:range xsd:integer .
+
+# All sensor data limited to 8 processing ticks (8-space constraint)
+gov:maxProcessingTicks a owl:DatatypeProperty ;
+    rdfs:label "max processing ticks" ;
+    rdfs:comment "Maximum sensor processing ticks (must be <= 8)" ;
+    rdfs:domain gov:SensorLens ;
+    rdfs:range xsd:integer .

@@ -1,0 +1,404 @@
+@prefix bf: <http://bitflow.ai/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix otel: <http://opentelemetry.io/schema/1.0.0#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+
+# ========================================
+# BitFlow Memory Management Ontology
+# OWL TTL YAWL-Compatible Memory Semantics
+# ========================================
+
+<http://bitflow.ai/memory-ontology> a owl:Ontology ;
+    rdfs:label "BitFlow Memory Management Ontology" ;
+    rdfs:comment "Semantic memory management for zero-leak workflow execution" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://yawl.org/ontology> .
+
+# ========================================
+# Core Memory Management Classes
+# ========================================
+
+bf:MemoryRegion a owl:Class ;
+    rdfs:label "Memory Region" ;
+    rdfs:comment "Contiguous memory region with semantic properties" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bf:hasSize ;
+        owl:someValuesFrom xsd:positiveInteger
+    ] .
+
+bf:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory pool for specific pattern types" ;
+    rdfs:subClassOf bf:MemoryRegion ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bf:supportsPattern ;
+        owl:someValuesFrom yawl:Pattern
+    ] .
+
+bf:MemoryAllocation a owl:Class ;
+    rdfs:label "Memory Allocation" ;
+    rdfs:comment "Individual memory allocation with lifecycle tracking" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bf:allocatedAt ;
+        owl:exactCardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bf:deallocatedAt ;
+        owl:maxCardinality 1
+    ] .
+
+bf:MemoryLeak a owl:Class ;
+    rdfs:label "Memory Leak" ;
+    rdfs:comment "Unfreed memory allocation after expected lifecycle" ;
+    rdfs:subClassOf bf:MemoryAllocation ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bf:leakDetectedAt ;
+        owl:exactCardinality 1
+    ] .
+
+bf:SemanticGarbageCollector a owl:Class ;
+    rdfs:label "Semantic Garbage Collector" ;
+    rdfs:comment "Ontology-driven garbage collection system" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bf:managesPool ;
+        owl:someValuesFrom bf:MemoryPool
+    ] .
+
+# ========================================
+# Memory Lifecycle States
+# ========================================
+
+bf:MemoryState a owl:Class ;
+    rdfs:label "Memory State" ;
+    rdfs:comment "Semantic state of memory allocation" .
+
+bf:Allocated a bf:MemoryState ;
+    rdfs:label "Allocated" ;
+    rdfs:comment "Memory has been allocated and is in use" .
+
+bf:Deallocated a bf:MemoryState ;
+    rdfs:label "Deallocated" ;
+    rdfs:comment "Memory has been properly freed" .
+
+bf:Leaked a bf:MemoryState ;
+    rdfs:label "Leaked" ;
+    rdfs:comment "Memory remains allocated beyond expected lifecycle" .
+
+bf:Pooled a bf:MemoryState ;
+    rdfs:label "Pooled" ;
+    rdfs:comment "Memory is managed by a pool system" .
+
+bf:Fragmented a bf:MemoryState ;
+    rdfs:label "Fragmented" ;
+    rdfs:comment "Memory region is fragmented and inefficiently used" .
+
+# ========================================
+# Memory Properties
+# ========================================
+
+bf:hasSize a owl:DatatypeProperty ;
+    rdfs:label "has size" ;
+    rdfs:comment "Size of memory region in bytes" ;
+    rdfs:domain bf:MemoryRegion ;
+    rdfs:range xsd:positiveInteger .
+
+bf:hasAlignment a owl:DatatypeProperty ;
+    rdfs:label "has alignment" ;
+    rdfs:comment "Memory alignment requirement in bytes" ;
+    rdfs:domain bf:MemoryRegion ;
+    rdfs:range xsd:positiveInteger .
+
+bf:allocatedAt a owl:DatatypeProperty ;
+    rdfs:label "allocated at" ;
+    rdfs:comment "Timestamp when memory was allocated" ;
+    rdfs:domain bf:MemoryAllocation ;
+    rdfs:range xsd:dateTime .
+
+bf:deallocatedAt a owl:DatatypeProperty ;
+    rdfs:label "deallocated at" ;
+    rdfs:comment "Timestamp when memory was deallocated" ;
+    rdfs:domain bf:MemoryAllocation ;
+    rdfs:range xsd:dateTime .
+
+bf:leakDetectedAt a owl:DatatypeProperty ;
+    rdfs:label "leak detected at" ;
+    rdfs:comment "Timestamp when memory leak was detected" ;
+    rdfs:domain bf:MemoryLeak ;
+    rdfs:range xsd:dateTime .
+
+bf:hasLifetimeExpectation a owl:DatatypeProperty ;
+    rdfs:label "has lifetime expectation" ;
+    rdfs:comment "Expected lifetime in milliseconds" ;
+    rdfs:domain bf:MemoryAllocation ;
+    rdfs:range xsd:positiveInteger .
+
+bf:hasUtilizationRate a owl:DatatypeProperty ;
+    rdfs:label "has utilization rate" ;
+    rdfs:comment "Memory utilization as percentage (0.0-1.0)" ;
+    rdfs:domain bf:MemoryPool ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ( [ xsd:minInclusive 0.0 ] [ xsd:maxInclusive 1.0 ] )
+    ] .
+
+bf:hasFragmentationRatio a owl:DatatypeProperty ;
+    rdfs:label "has fragmentation ratio" ;
+    rdfs:comment "Memory fragmentation ratio (0.0-1.0)" ;
+    rdfs:domain bf:MemoryPool ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ( [ xsd:minInclusive 0.0 ] [ xsd:maxInclusive 1.0 ] )
+    ] .
+
+# ========================================
+# Memory Relationships
+# ========================================
+
+bf:allocatedFrom a owl:ObjectProperty ;
+    rdfs:label "allocated from" ;
+    rdfs:comment "Memory allocation source pool or region" ;
+    rdfs:domain bf:MemoryAllocation ;
+    rdfs:range bf:MemoryPool .
+
+bf:managesPool a owl:ObjectProperty ;
+    rdfs:label "manages pool" ;
+    rdfs:comment "Garbage collector manages memory pool" ;
+    rdfs:domain bf:SemanticGarbageCollector ;
+    rdfs:range bf:MemoryPool .
+
+bf:supportsPattern a owl:ObjectProperty ;
+    rdfs:label "supports pattern" ;
+    rdfs:comment "Memory pool supports specific workflow pattern" ;
+    rdfs:domain bf:MemoryPool ;
+    rdfs:range yawl:Pattern .
+
+bf:hasMemoryState a owl:ObjectProperty ;
+    rdfs:label "has memory state" ;
+    rdfs:comment "Current semantic state of memory" ;
+    rdfs:domain bf:MemoryAllocation ;
+    rdfs:range bf:MemoryState .
+
+bf:causedByPattern a owl:ObjectProperty ;
+    rdfs:label "caused by pattern" ;
+    rdfs:comment "Memory leak caused by specific pattern execution" ;
+    rdfs:domain bf:MemoryLeak ;
+    rdfs:range yawl:Pattern .
+
+bf:partOfWorkflow a owl:ObjectProperty ;
+    rdfs:label "part of workflow" ;
+    rdfs:comment "Memory allocation is part of workflow instance" ;
+    rdfs:domain bf:MemoryAllocation ;
+    rdfs:range yawl:WorkflowInstance .
+
+# ========================================
+# Memory Performance Classes
+# ========================================
+
+bf:MemoryMetrics a owl:Class ;
+    rdfs:label "Memory Metrics" ;
+    rdfs:comment "Performance metrics for memory management" ;
+    rdfs:subClassOf otel:Metric .
+
+bf:AllocationRate a owl:Class ;
+    rdfs:label "Allocation Rate" ;
+    rdfs:comment "Memory allocation rate per second" ;
+    rdfs:subClassOf bf:MemoryMetrics .
+
+bf:DeallocationRate a owl:Class ;
+    rdfs:label "Deallocation Rate" ;
+    rdfs:comment "Memory deallocation rate per second" ;
+    rdfs:subClassOf bf:MemoryMetrics .
+
+bf:MemoryPressure a owl:Class ;
+    rdfs:label "Memory Pressure" ;
+    rdfs:comment "System memory pressure level" ;
+    rdfs:subClassOf bf:MemoryMetrics .
+
+bf:CacheEfficiency a owl:Class ;
+    rdfs:label "Cache Efficiency" ;
+    rdfs:comment "Memory cache hit/miss efficiency" ;
+    rdfs:subClassOf bf:MemoryMetrics .
+
+# ========================================
+# Zero-Allocation Pattern Support
+# ========================================
+
+bf:ZeroAllocationPattern a owl:Class ;
+    rdfs:label "Zero Allocation Pattern" ;
+    rdfs:comment "Workflow pattern that requires no heap allocations" ;
+    rdfs:subClassOf yawl:Pattern ;
+    owl:disjointWith bf:DynamicAllocationPattern .
+
+bf:DynamicAllocationPattern a owl:Class ;
+    rdfs:label "Dynamic Allocation Pattern" ;
+    rdfs:comment "Workflow pattern that may require dynamic memory allocation" ;
+    rdfs:subClassOf yawl:Pattern .
+
+bf:StackOnlyPattern a owl:Class ;
+    rdfs:label "Stack Only Pattern" ;
+    rdfs:comment "Pattern that uses only stack memory" ;
+    rdfs:subClassOf bf:ZeroAllocationPattern .
+
+bf:PreallocatedPattern a owl:Class ;
+    rdfs:label "Preallocated Pattern" ;
+    rdfs:comment "Pattern that uses only preallocated memory pools" ;
+    rdfs:subClassOf bf:ZeroAllocationPattern .
+
+# ========================================
+# Memory Optimization Rules
+# ========================================
+
+# Rule: Memory leak detection based on lifetime expectation
+[] a owl:Class ;
+   owl:equivalentClass [
+       owl:intersectionOf (
+           bf:MemoryAllocation
+           [
+               a owl:Restriction ;
+               owl:onProperty bf:hasLifetimeExpectation ;
+               owl:someValuesFrom xsd:positiveInteger
+           ]
+           [
+               a owl:Restriction ;
+               owl:onProperty bf:allocatedAt ;
+               owl:someValuesFrom xsd:dateTime
+           ]
+           [
+               a owl:Restriction ;
+               owl:onProperty bf:deallocatedAt ;
+               owl:maxCardinality 0
+           ]
+       )
+   ] ;
+   rdfs:subClassOf bf:MemoryLeak .
+
+# Rule: High fragmentation pools need optimization
+[] a owl:Class ;
+   owl:equivalentClass [
+       owl:intersectionOf (
+           bf:MemoryPool
+           [
+               a owl:Restriction ;
+               owl:onProperty bf:hasFragmentationRatio ;
+               owl:someValuesFrom [
+                   a rdfs:Datatype ;
+                   owl:onDatatype xsd:decimal ;
+                   owl:withRestrictions ( [ xsd:minInclusive 0.8 ] )
+               ]
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       a owl:Restriction ;
+       owl:onProperty bf:requiresOptimization ;
+       owl:hasValue true
+   ] .
+
+# ========================================
+# Pattern-Specific Memory Requirements
+# ========================================
+
+# Sequence Pattern: Minimal memory footprint
+yawl:SequencePattern rdfs:subClassOf bf:ZeroAllocationPattern ;
+    bf:requiresMemoryPool [
+        bf:hasSize 2048 ;
+        bf:hasAlignment 64
+    ] .
+
+# Parallel Split: Requires synchronization memory
+yawl:ParallelSplitPattern rdfs:subClassOf bf:PreallocatedPattern ;
+    bf:requiresMemoryPool [
+        bf:hasSize 4096 ;
+        bf:hasAlignment 64
+    ] .
+
+# Synchronization: Atomic operations, minimal allocation
+yawl:SynchronizationPattern rdfs:subClassOf bf:ZeroAllocationPattern ;
+    bf:requiresMemoryPool [
+        bf:hasSize 1024 ;
+        bf:hasAlignment 64
+    ] .
+
+# ========================================
+# OTEL Integration for Memory Monitoring
+# ========================================
+
+bf:memoryAllocationSpan a otel:Span ;
+    otel:operationName "memory.allocation" ;
+    otel:hasAttribute [
+        otel:key "memory.size" ;
+        otel:valueType "int64"
+    ] ;
+    otel:hasAttribute [
+        otel:key "memory.pool" ;
+        otel:valueType "string"
+    ] ;
+    otel:hasAttribute [
+        otel:key "workflow.pattern" ;
+        otel:valueType "string"
+    ] .
+
+bf:memoryLeakEvent a otel:Event ;
+    otel:name "memory.leak.detected" ;
+    otel:hasAttribute [
+        otel:key "leak.size" ;
+        otel:valueType "int64"
+    ] ;
+    otel:hasAttribute [
+        otel:key "leak.duration" ;
+        otel:valueType "int64"
+    ] ;
+    otel:hasAttribute [
+        otel:key "pattern.id" ;
+        otel:valueType "string"
+    ] .
+
+# ========================================
+# Memory Safety Constraints
+# ========================================
+
+# All allocations must have a deallocation or be marked as leaked
+bf:MemoryAllocation rdfs:subClassOf [
+    a owl:Class ;
+    owl:unionOf (
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:deallocatedAt ;
+            owl:someValuesFrom xsd:dateTime
+        ]
+        [
+            a owl:Restriction ;
+            owl:onProperty bf:hasMemoryState ;
+            owl:hasValue bf:Leaked
+        ]
+    )
+] .
+
+# Memory pools must not exceed 80% utilization
+bf:MemoryPool rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bf:hasUtilizationRate ;
+    owl:someValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ( [ xsd:maxInclusive 0.80 ] )
+    ]
+] .
+
+# Zero-allocation patterns cannot create dynamic allocations
+bf:ZeroAllocationPattern rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bf:createsDynamicAllocation ;
+    owl:hasValue false
+] .

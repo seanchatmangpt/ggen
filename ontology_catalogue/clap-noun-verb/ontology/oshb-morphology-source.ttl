@@ -1,0 +1,172 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix cnv: <http://example.org/clap-noun-verb/> .
+
+# OSHB Morphology Source Dataset Declaration
+<http://openscriptures.org/morphhb> a dcat:Dataset ;
+    dct:title "Open Scriptures Hebrew Bible (OSHB) Morphology Layer" ;
+    dct:description "Annotated Hebrew Bible with lemma, morphology codes (POS, gender, number, binyan), and OSIS XML markup" ;
+    dcat:contactPoint <http://openscriptures.org/contact> ;
+    dcat:landingPage <https://github.com/openscriptures/morphhb> ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dct:rights "Creative Commons Attribution 4.0 International (CC BY 4.0); Heritage Text layer in public domain" ;
+    dcat:distribution <http://openscriptures.org/morphhb/distribution/osis-xml> ;
+    dcat:distribution <http://openscriptures.org/morphhb/distribution/lemma-tsv> ;
+    dcat:distribution <http://openscriptures.org/morphhb/distribution/morphology-codes> ;
+    dct:issued "2010-01-01"^^xsd:gYear ;
+    dct:modified "2025-12-31"^^xsd:date ;
+    dcat:theme <http://www.w3.org/ns/dcat#Linguistics> ;
+    dcat:theme <http://www.w3.org/ns/dcat#Language> ;
+    dcat:keyword "Hebrew", "morphology", "lemma", "Bible", "linguistics", "OSIS" ;
+    dcat:accrualFrequency <http://purl.org/ckan/frequency/irregular> ;
+    .
+
+# Distribution: OSIS XML Format
+<http://openscriptures.org/morphhb/distribution/osis-xml> a dcat:Distribution ;
+    dct:format "XML" ;
+    dcat:mediaType "application/xml" ;
+    dcat:accessURL <https://github.com/openscriptures/morphhb/raw/master/wlc/> ;
+    dct:description "OSIS XML-formatted Hebrew Bible with inline morphology attributes" ;
+    dcat:byteSize "4500000"^^xsd:long ;
+    .
+
+# Distribution: Lemma Data (TSV)
+<http://openscriptures.org/morphhb/distribution/lemma-tsv> a dcat:Distribution ;
+    dct:format "TSV" ;
+    dcat:mediaType "text/tab-separated-values" ;
+    dcat:accessURL <https://github.com/openscriptures/morphhb/blob/master/morphhb/hebrew/lexicon.tsv> ;
+    dct:description "Tab-separated lemma inventory with Hebrew, transliteration, and English glosses" ;
+    .
+
+# Distribution: Morphology Code Registry
+<http://openscriptures.org/morphhb/distribution/morphology-codes> a dcat:Distribution ;
+    dct:format "TTL" ;
+    dcat:mediaType "text/turtle" ;
+    dcat:accessURL <https://github.com/openscriptures/hebrew-morphology> ;
+    dct:description "Westminster Hebrew Morphology code definitions (POS, gender, number, binyan)" ;
+    .
+
+# Attribution & Provenance
+<http://openscriptures.org/morphhb> prov:wasGeneratedBy <http://openscriptures.org/agent/team> ;
+    prov:wasDerivedFrom <http://openscriptures.org/heritage-text> ;
+    dct:contributor [
+        a foaf:Person ;
+        foaf:name "Open Scriptures Contributors" ;
+    ] ;
+    dct:creator [
+        a foaf:Organization ;
+        foaf:name "Open Scriptures" ;
+        foaf:homepage <https://github.com/openscriptures> ;
+    ] ;
+    .
+
+# clap-noun-verb Integration Reference
+cnv:HebrewMorphologyModule prov:wasInformedBy <http://openscriptures.org/morphhb> ;
+    dct:isPartOf cnv:SemanticCompositionFramework ;
+    dct:requires [
+        a dcat:Dataset ;
+        dct:identifier "oshb" ;
+        dct:source <https://github.com/openscriptures/morphhb> ;
+        dcat:landingPage <https://github.com/openscriptures/morphhb/blob/master/README.md> ;
+    ] ;
+    dct:issued "2026-06-02"^^xsd:date ;
+    dct:description "Integrates OSHB lemma and morphology as reference layer for Hebrew language semantic composition" ;
+    .
+
+# License Agreement Binding
+<http://openscriptures.org/morphhb#license-compliance> a prov:Entity ;
+    dct:isPartOf <http://openscriptures.org/morphhb> ;
+    rdfs:comment "Integration of OSHB morphology data in clap-noun-verb requires:
+1. Attribution to Open Scriptures and original contributors
+2. Linking to CC BY 4.0 license text
+3. Clear documentation that morphology layer is externally sourced
+4. No redistribution of full Hebrew Bible text without explicit provenance" ;
+    dct:requires [
+        rdfs:label "CC BY 4.0 Attribution Notice" ;
+        dct:description "Must include in documentation, code comments, and distribution metadata" ;
+    ] ;
+    dct:requires [
+        rdfs:label "License Link" ;
+        dct:description "Must link to https://creativecommons.org/licenses/by/4.0/" ;
+    ] ;
+    dct:requires [
+        rdfs:label "Repository Reference" ;
+        dct:description "Must cite https://github.com/openscriptures/morphhb" ;
+    ] ;
+    .
+
+# Morphology Code Vocabulary Integration
+cnv:HebrewMorphologyVocabulary a skos:ConceptScheme ;
+    dct:isPartOf cnv:SemanticLinguisticOntology ;
+    dct:source <http://openscriptures.org/morphhb> ;
+    skos:definition "Westminster Hebrew morphology codes for part-of-speech, gender, number, stem, binyan" ;
+    dct:language <http://id.loc.gov/vocabulary/iso639-1/he> ;
+    skos:hasTopConcept cnv:HebrewPartOfSpeech ;
+    skos:hasTopConcept cnv:HebrewNounGender ;
+    skos:hasTopConcept cnv:HebrewVerbBinyan ;
+    .
+
+cnv:HebrewPartOfSpeech a skos:Concept ;
+    skos:prefLabel "Part of Speech"@en ;
+    skos:altLabel "POS"@en ;
+    skos:definition "Hebrew grammatical part-of-speech categories from OSHB morphology coding" ;
+    skos:narrower cnv:Noun, cnv:Verb, cnv:Adjective, cnv:Preposition, cnv:Conjunction ;
+    dct:source <http://openscriptures.org/morphhb> ;
+    .
+
+cnv:HebrewNounGender a skos:Concept ;
+    skos:prefLabel "Gender"@en ;
+    skos:definition "Grammatical gender in Hebrew noun morphology" ;
+    skos:narrower cnv:Masculine, cnv:Feminine, cnv:Both ;
+    dct:source <http://openscriptures.org/morphhb> ;
+    .
+
+cnv:HebrewVerbBinyan a skos:Concept ;
+    skos:prefLabel "Binyan (Verbal Stem)"@en ;
+    skos:definition "Hebrew verb binyan (semantic verbal stem category: Qal, Niphal, Hiphil, etc.)" ;
+    skos:narrower cnv:Qal, cnv:Niphal, cnv:Piel, cnv:Pual, cnv:Hiphil, cnv:Hophal, cnv:Hithpael ;
+    dct:source <http://openscriptures.org/morphhb> ;
+    .
+
+# Lemma Layer Reference
+cnv:HebrewLemmaInventory a dcat:Dataset ;
+    dct:description "Hebrew lexeme (lemma) inventory with roots, transliteration, and semantic associations" ;
+    dcat:accessURL <https://github.com/openscriptures/morphhb/blob/master/morphhb/hebrew/> ;
+    dct:source <http://openscriptures.org/morphhb> ;
+    dcat:byteSize "2100000"^^xsd:long ;
+    dct:issued "2010-01-01"^^xsd:gYear ;
+    dcat:distribution [
+        dcat:accessURL <https://raw.githubusercontent.com/openscriptures/morphhb/master/morphhb/hebrew/lexicon.tsv> ;
+        dcat:mediaType "text/tab-separated-values" ;
+        dct:format "TSV" ;
+    ] ;
+    .
+
+# Compliance & Assessment Record
+cnv:OSHB_SourceAssessment a prov:Entity ;
+    dct:issued "2026-06-02"^^xsd:date ;
+    dct:title "OSHB Source License & Integration Assessment" ;
+    dct:description "Verification that Open Scriptures Hebrew Bible morphology and lemma layers are safe for reference integration under CC BY 4.0" ;
+    prov:wasAttributedTo <http://openscriptures.org/morphhb> ;
+    dct:relation [
+        rdfs:label "Verdict" ;
+        rdf:value "ALIVE" ;
+        rdfs:comment "Approved for safe reference integration with proper attribution" ;
+    ] ;
+    dct:relation [
+        rdfs:label "License Compliance" ;
+        rdf:value "PASS" ;
+        rdfs:comment "CC BY 4.0 terms are compatible with this project's use case" ;
+    ] ;
+    dct:relation [
+        rdfs:label "Attribution Burden" ;
+        rdf:value "Manageable" ;
+        rdfs:comment "Clear attribution requirements; integrate as external reference, not vendored copy" ;
+    ] ;
+    .

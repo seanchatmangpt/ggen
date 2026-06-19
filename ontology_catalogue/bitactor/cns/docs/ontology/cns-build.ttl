@@ -1,0 +1,424 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Build Ontology - All Build Systems and Automation Tools
+#################################################################
+
+# ============================================================================
+# BUILD CLASSES
+# ============================================================================
+
+cns:BuildSystem a rdfs:Class ;
+    rdfs:label "Build System" ;
+    rdfs:comment "A build system for CNS components" .
+
+cns:Makefile a rdfs:Class ;
+    rdfs:label "Makefile" ;
+    rdfs:comment "A Makefile for building CNS components" .
+
+cns:Script a rdfs:Class ;
+    rdfs:label "Script" ;
+    rdfs:comment "A build or automation script" .
+
+cns:Configuration a rdfs:Class ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "A build configuration file" .
+
+cns:Target a rdfs:Class ;
+    rdfs:label "Build Target" ;
+    rdfs:comment "A build target or goal" .
+
+# ============================================================================
+# BUILD PROPERTIES
+# ============================================================================
+
+cns:buildsComponent a rdf:Property ;
+    rdfs:label "builds component" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range cns:Engine .
+
+cns:hasTarget a rdf:Property ;
+    rdfs:label "has target" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range cns:Target .
+
+cns:usesScript a rdf:Property ;
+    rdfs:label "uses script" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range cns:Script .
+
+cns:filePath a rdf:Property ;
+    rdfs:label "file path" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range rdfs:Literal .
+
+cns:buildTime a rdf:Property ;
+    rdfs:label "build time" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range xsd:integer .
+
+cns:targetPlatform a rdf:Property ;
+    rdfs:label "target platform" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range rdfs:Literal .
+
+cns:optimizationLevel a rdf:Property ;
+    rdfs:label "optimization level" ;
+    rdfs:domain cns:BuildSystem ;
+    rdfs:range rdfs:Literal .
+
+# ============================================================================
+# MAKEFILES
+# ============================================================================
+
+cns:MainMakefile a cns:Makefile ;
+    rdfs:label "Main Makefile" ;
+    cns:filePath "cns/Makefile" ;
+    cns:buildTime 120 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    rdfs:comment "Main CNS build system" .
+
+cns:OWLMakefile a cns:Makefile ;
+    rdfs:label "OWL Makefile" ;
+    cns:filePath "cns/Makefile.owl" ;
+    cns:buildTime 45 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:OWLEngine ;
+    rdfs:comment "OWL engine build system" .
+
+cns:SHACLMakefile a cns:Makefile ;
+    rdfs:label "SHACL Makefile" ;
+    cns:filePath "cns/Makefile.shacl_49_cycle" ;
+    cns:buildTime 35 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:SHACLEngine ;
+    rdfs:comment "SHACL 49-cycle build system" .
+
+cns:SHACLAOTMakefile a cns:Makefile ;
+    rdfs:label "SHACL AOT Makefile" ;
+    cns:filePath "cns/Makefile.shacl_aot" ;
+    cns:buildTime 40 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:SHACLEngine ;
+    rdfs:comment "SHACL AOT build system" .
+
+cns:BenchmarkMakefile a cns:Makefile ;
+    rdfs:label "Benchmark Makefile" ;
+    cns:filePath "cns/Makefile.benchmark" ;
+    cns:buildTime 60 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:BenchmarkEngine ;
+    rdfs:comment "Benchmark build system" .
+
+cns:UltraMinimalMakefile a cns:Makefile ;
+    rdfs:label "Ultra Minimal Makefile" ;
+    cns:filePath "cns/Makefile.ultra_minimal" ;
+    cns:buildTime 15 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O0" ;
+    rdfs:comment "Ultra minimal build system" .
+
+cns:MinimalMakefile a cns:Makefile ;
+    rdfs:label "Minimal Makefile" ;
+    cns:filePath "cns/Makefile.minimal" ;
+    cns:buildTime 20 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O1" ;
+    rdfs:comment "Minimal build system" .
+
+cns:ARM64Makefile a cns:Makefile ;
+    rdfs:label "ARM64 Makefile" ;
+    cns:filePath "cns/Makefile.arm64" ;
+    cns:buildTime 50 ;
+    cns:targetPlatform "arm64" ;
+    cns:optimizationLevel "O2" ;
+    rdfs:comment "ARM64 optimized build system" .
+
+cns:TestsMakefile a cns:Makefile ;
+    rdfs:label "Tests Makefile" ;
+    cns:filePath "cns/tests/Makefile" ;
+    cns:buildTime 30 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    rdfs:comment "Test suite build system" .
+
+# ============================================================================
+# CMAKE CONFIGURATIONS
+# ============================================================================
+
+cns:CMakeLists a cns:Configuration ;
+    rdfs:label "CMakeLists.txt" ;
+    cns:filePath "cns/CMakeLists.txt" ;
+    cns:buildTime 90 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    rdfs:comment "CMake build configuration" .
+
+# ============================================================================
+# BUILD SCRIPTS
+# ============================================================================
+
+cns:ComprehensiveBenchmarkScript a cns:Script ;
+    rdfs:label "Comprehensive Benchmark Script" ;
+    cns:filePath "cns/run_comprehensive_benchmarks.sh" ;
+    cns:buildTime 300 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Run comprehensive benchmark suite" .
+
+cns:PerformanceValidationScript a cns:Script ;
+    rdfs:label "Performance Validation Script" ;
+    cns:filePath "cns/validate_cns_performance.sh" ;
+    cns:buildTime 180 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Validate CNS performance" .
+
+cns:TestRunnerScript a cns:Script ;
+    rdfs:label "Test Runner Script" ;
+    cns:filePath "cns/tests/run_tests.sh" ;
+    cns:buildTime 120 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Run all test suites" .
+
+cns:DemoScript a cns:Script ;
+    rdfs:label "Demo Script" ;
+    cns:filePath "cns/run_demo.sh" ;
+    cns:buildTime 60 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Run CNS demos" .
+
+# ============================================================================
+# CONFIGURATION FILES
+# ============================================================================
+
+cns:SchemaJSON a cns:Configuration ;
+    rdfs:label "Schema JSON" ;
+    cns:filePath "cns/schema.json" ;
+    rdfs:comment "JSON schema definitions" .
+
+cns:SQLQueriesHeader a cns:Configuration ;
+    rdfs:label "SQL Queries Header" ;
+    cns:filePath "cns/sql_queries.h" ;
+    rdfs:comment "SQL query definitions" .
+
+cns:SQLQueriesTemplate a cns:Configuration ;
+    rdfs:label "SQL Queries Template" ;
+    cns:filePath "cns/sql_queries_template.sql" ;
+    rdfs:comment "SQL query templates" .
+
+cns:SPARQLQueriesHeader a cns:Configuration ;
+    rdfs:label "SPARQL Queries Header" ;
+    cns:filePath "cns/sparql_queries.h" ;
+    rdfs:comment "SPARQL query definitions" .
+
+cns:SPARQLQueriesFile a cns:Configuration ;
+    rdfs:label "SPARQL Queries File" ;
+    cns:filePath "cns/queries.sparql" ;
+    rdfs:comment "SPARQL query examples" .
+
+cns:BusinessRulesTTL a cns:Configuration ;
+    rdfs:label "Business Rules TTL" ;
+    cns:filePath "cns/business_rules.ttl" ;
+    rdfs:comment "Business rules in TTL format" .
+
+cns:QueryPlansJSON a cns:Configuration ;
+    rdfs:label "Query Plans JSON" ;
+    cns:filePath "cns/query_plans.json" ;
+    rdfs:comment "Query execution plans" .
+
+# ============================================================================
+# BUILD TARGETS
+# ============================================================================
+
+cns:BuildTarget a cns:Target ;
+    rdfs:label "Build Target" ;
+    rdfs:comment "Generic build target" .
+
+cns:TestTarget a cns:Target ;
+    rdfs:label "Test Target" ;
+    rdfs:comment "Test execution target" .
+
+cns:BenchmarkTarget a cns:Target ;
+    rdfs:label "Benchmark Target" ;
+    rdfs:comment "Benchmark execution target" .
+
+cns:CleanTarget a cns:Target ;
+    rdfs:label "Clean Target" ;
+    rdfs:comment "Clean build artifacts target" .
+
+cns:InstallTarget a cns:Target ;
+    rdfs:label "Install Target" ;
+    rdfs:comment "Install target" .
+
+cns:DocumentationTarget a cns:Target ;
+    rdfs:label "Documentation Target" ;
+    rdfs:comment "Generate documentation target" .
+
+# ============================================================================
+# SPECIALIZED BUILD SYSTEMS
+# ============================================================================
+
+cns:OWLBuildSystem a cns:BuildSystem ;
+    rdfs:label "OWL Build System" ;
+    cns:filePath "cns/Makefile.owl" ;
+    cns:buildTime 45 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:OWLEngine ;
+    cns:hasTarget cns:TestTarget ;
+    cns:hasTarget cns:BenchmarkTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "Complete OWL engine build system" .
+
+cns:SHACLBuildSystem a cns:BuildSystem ;
+    rdfs:label "SHACL Build System" ;
+    cns:filePath "cns/Makefile.shacl_49_cycle" ;
+    cns:buildTime 35 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:SHACLEngine ;
+    cns:hasTarget cns:TestTarget ;
+    cns:hasTarget cns:BenchmarkTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "SHACL engine build system" .
+
+cns:BenchmarkBuildSystem a cns:BuildSystem ;
+    rdfs:label "Benchmark Build System" ;
+    cns:filePath "cns/Makefile.benchmark" ;
+    cns:buildTime 60 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:buildsComponent cns:BenchmarkEngine ;
+    cns:hasTarget cns:BenchmarkTarget ;
+    cns:hasTarget cns:TestTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "Benchmark engine build system" .
+
+cns:TestBuildSystem a cns:BuildSystem ;
+    rdfs:label "Test Build System" ;
+    cns:filePath "cns/tests/Makefile" ;
+    cns:buildTime 30 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O2" ;
+    cns:hasTarget cns:TestTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "Test suite build system" .
+
+cns:MinimalBuildSystem a cns:BuildSystem ;
+    rdfs:label "Minimal Build System" ;
+    cns:filePath "cns/Makefile.minimal" ;
+    cns:buildTime 20 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O1" ;
+    cns:hasTarget cns:BuildTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "Minimal build system" .
+
+cns:UltraMinimalBuildSystem a cns:BuildSystem ;
+    rdfs:label "Ultra Minimal Build System" ;
+    cns:filePath "cns/Makefile.ultra_minimal" ;
+    cns:buildTime 15 ;
+    cns:targetPlatform "multi" ;
+    cns:optimizationLevel "O0" ;
+    cns:hasTarget cns:BuildTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "Ultra minimal build system" .
+
+cns:ARM64BuildSystem a cns:BuildSystem ;
+    rdfs:label "ARM64 Build System" ;
+    cns:filePath "cns/Makefile.arm64" ;
+    cns:buildTime 50 ;
+    cns:targetPlatform "arm64" ;
+    cns:optimizationLevel "O2" ;
+    cns:hasTarget cns:BuildTarget ;
+    cns:hasTarget cns:TestTarget ;
+    cns:hasTarget cns:BenchmarkTarget ;
+    cns:hasTarget cns:CleanTarget ;
+    rdfs:comment "ARM64 optimized build system" .
+
+# ============================================================================
+# AUTOMATION SCRIPTS
+# ============================================================================
+
+cns:BenchmarkAutomationScript a cns:Script ;
+    rdfs:label "Benchmark Automation Script" ;
+    cns:filePath "cns/run_comprehensive_benchmarks.sh" ;
+    cns:buildTime 300 ;
+    cns:targetPlatform "multi" ;
+    cns:usesScript cns:PerformanceValidationScript ;
+    rdfs:comment "Automated benchmark execution" .
+
+cns:TestAutomationScript a cns:Script ;
+    rdfs:label "Test Automation Script" ;
+    cns:filePath "cns/tests/run_tests.sh" ;
+    cns:buildTime 120 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Automated test execution" .
+
+cns:PerformanceValidationScript a cns:Script ;
+    rdfs:label "Performance Validation Script" ;
+    cns:filePath "cns/validate_cns_performance.sh" ;
+    cns:buildTime 180 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Performance validation automation" .
+
+cns:DemoAutomationScript a cns:Script ;
+    rdfs:label "Demo Automation Script" ;
+    cns:filePath "cns/run_demo.sh" ;
+    cns:buildTime 60 ;
+    cns:targetPlatform "multi" ;
+    rdfs:comment "Demo execution automation" .
+
+# ============================================================================
+# BUILD RELATIONSHIPS
+# ============================================================================
+
+# OWL Build System Relationships
+cns:OWLBuildSystem cns:buildsComponent cns:OWLEngine ;
+    cns:usesScript cns:TestAutomationScript ;
+    cns:usesScript cns:BenchmarkAutomationScript .
+
+# SHACL Build System Relationships
+cns:SHACLBuildSystem cns:buildsComponent cns:SHACLEngine ;
+    cns:usesScript cns:TestAutomationScript ;
+    cns:usesScript cns:BenchmarkAutomationScript .
+
+# Benchmark Build System Relationships
+cns:BenchmarkBuildSystem cns:buildsComponent cns:BenchmarkEngine ;
+    cns:usesScript cns:BenchmarkAutomationScript ;
+    cns:usesScript cns:PerformanceValidationScript .
+
+# Test Build System Relationships
+cns:TestBuildSystem cns:usesScript cns:TestAutomationScript .
+
+# ARM64 Build System Relationships
+cns:ARM64BuildSystem cns:usesScript cns:TestAutomationScript ;
+    cns:usesScript cns:BenchmarkAutomationScript .
+
+# Main Makefile Relationships
+cns:MainMakefile cns:buildsComponent cns:CNSEngine ;
+    cns:buildsComponent cns:SPARQLEngine ;
+    cns:buildsComponent cns:SHACLEngine ;
+    cns:buildsComponent cns:OWLEngine ;
+    cns:buildsComponent cns:BenchmarkEngine ;
+    cns:usesScript cns:TestAutomationScript ;
+    cns:usesScript cns:BenchmarkAutomationScript ;
+    cns:usesScript cns:PerformanceValidationScript .
+
+# CMake Relationships
+cns:CMakeLists cns:buildsComponent cns:CNSEngine ;
+    cns:buildsComponent cns:SPARQLEngine ;
+    cns:buildsComponent cns:SHACLEngine ;
+    cns:buildsComponent cns:OWLEngine ;
+    cns:buildsComponent cns:BenchmarkEngine ;
+    cns:usesScript cns:TestAutomationScript ;
+    cns:usesScript cns:BenchmarkAutomationScript . 

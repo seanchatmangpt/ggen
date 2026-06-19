@@ -1,0 +1,480 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix cnv: <http://clap-noun-verb.io/ontology#> .
+
+# Core Ontology: clap-noun-verb Framework Classes and Properties
+# Defines the foundational concepts for noun-verb CLI pattern composition
+# using declarative Rust macros and compile-time auto-discovery via linkme
+
+cnv: a owl:Ontology ;
+    rdfs:label "CLAP Noun-Verb CLI Framework Ontology"@en ;
+    rdfs:comment "Defines core classes, traits, and properties for building composable noun-verb CLI applications with proc-macros and distributed slices"@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "5.6.0" .
+
+# ============================================================================
+# NOUN CLASS & HIERARCHY
+# ============================================================================
+
+cnv:Noun a rdfs:Class ;
+    rdfs:label "Noun"@en ;
+    rdfs:comment "A noun command represents a domain entity (e.g., 'services', 'users', 'database'). Nouns may contain verbs and sub-nouns."@en ;
+    rdfs:subClassOf cnv:Command .
+
+cnv:NounCommand a rdfs:Class ;
+    rdfs:label "NounCommand Trait"@en ;
+    rdfs:comment "Rust trait (Send + Sync) that defines the interface for noun implementations. All nouns must implement this trait."@en .
+
+cnv:hasNounName a rdf:Property ;
+    rdfs:label "noun name"@en ;
+    rdfs:comment "The CLI-safe identifier for a noun (e.g., 'services')"@en ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:nounAbout a rdf:Property ;
+    rdfs:label "noun description"@en ;
+    rdfs:comment "Human-readable description of what this noun does (displayed in --help)"@en ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:hasVerbs a rdf:Property ;
+    rdfs:label "has verbs"@en ;
+    rdfs:comment "Collection of verb commands associated with this noun"@en ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:Verb ;
+    a owl:ObjectProperty .
+
+cnv:hasSubNouns a rdf:Property ;
+    rdfs:label "has sub-nouns"@en ;
+    rdfs:comment "Child nouns for nested command hierarchies (optional, for compound nouns)"@en ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:Noun ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# VERB CLASS & HIERARCHY
+# ============================================================================
+
+cnv:Verb a rdfs:Class ;
+    rdfs:label "Verb"@en ;
+    rdfs:comment "A verb command represents an action on a noun (e.g., 'status', 'create', 'delete', 'restart'). Verbs are always children of nouns."@en ;
+    rdfs:subClassOf cnv:Command .
+
+cnv:VerbCommand a rdfs:Class ;
+    rdfs:label "VerbCommand Trait"@en ;
+    rdfs:comment "Rust trait (Send + Sync) that defines the interface for verb implementations. All verbs must implement this trait."@en .
+
+cnv:hasVerbName a rdf:Property ;
+    rdfs:label "verb name"@en ;
+    rdfs:comment "The CLI-safe identifier for a verb (e.g., 'status', 'start', 'stop')"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:verbAbout a rdf:Property ;
+    rdfs:label "verb description"@en ;
+    rdfs:comment "Human-readable description of what this verb action does"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:belongsToNoun a rdf:Property ;
+    rdfs:label "belongs to noun"@en ;
+    rdfs:comment "The parent noun that this verb operates on"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Noun ;
+    a owl:ObjectProperty .
+
+cnv:hasArguments a rdf:Property ;
+    rdfs:label "has arguments"@en ;
+    rdfs:comment "Collection of CLI arguments accepted by this verb"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Argument ;
+    a owl:ObjectProperty .
+
+cnv:runHandler a rdf:Property ;
+    rdfs:label "run handler"@en ;
+    rdfs:comment "Rust function implementing the verb's execution logic. Returns Result<()>."@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:returnType a rdf:Property ;
+    rdfs:label "return type"@en ;
+    rdfs:comment "Serializable return type of the verb handler (must implement Serialize)"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+# ============================================================================
+# ARGUMENT CLASS & VARIANTS
+# ============================================================================
+
+cnv:Argument a rdfs:Class ;
+    rdfs:label "Argument"@en ;
+    rdfs:comment "A command-line argument (flag, option, or positional) accepted by a verb"@en ;
+    rdfs:subClassOf cnv:CliElement .
+
+cnv:ArgumentType a rdfs:Class ;
+    rdfs:label "Argument Type"@en ;
+    rdfs:comment "Enumeration of CLI argument kinds: required, optional, flag, repeating"@en .
+
+cnv:ArgumentType_Required a cnv:ArgumentType ;
+    rdfs:label "Required"@en ;
+    rdfs:comment "Required positional or named argument; CLI fails if missing"@en .
+
+cnv:ArgumentType_Optional a cnv:ArgumentType ;
+    rdfs:label "Optional"@en ;
+    rdfs:comment "Optional argument with default or fallback behavior"@en .
+
+cnv:ArgumentType_Flag a cnv:ArgumentType ;
+    rdfs:label "Flag"@en ;
+    rdfs:comment "Boolean flag (--verbose, -v)"@en .
+
+cnv:ArgumentType_Repeating a cnv:ArgumentType ;
+    rdfs:label "Repeating"@en ;
+    rdfs:comment "Multi-value argument (--host localhost --host remote)"@en .
+
+cnv:hasArgumentName a rdf:Property ;
+    rdfs:label "argument name"@en ;
+    rdfs:comment "CLI identifier for the argument"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+# ----------------------------------------------------------------------------
+# CLI-FLAG vs RUST-FIELD-IDENTIFIER SPLIT (R2 — sanitizer spec, pinned)
+# ----------------------------------------------------------------------------
+# cnv:hasArgumentName  = the CLI flag the user types  (e.g. "dry-run", "type").
+# cnv:fieldName        = the Rust identifier the generated #[verb] uses for the
+#                        parameter. OPTIONAL. When ABSENT it DEFAULTS to the
+#                        SANITIZED flag name, per the spec below.
+#
+# SANITIZER SPEC (authoritative; every consumer of this pack inherits it).
+# The template/query that materialises the field name MUST implement exactly:
+#
+#   (a) Rust keyword  -> RAW-IDENTIFIER escaping, name preserved.
+#         "type"   -> r#type        "match" -> r#match     "move" -> r#move
+#       Never rename (no `type_`); never silently drop. The full reserved set
+#       (strict + reserved-for-future) is escaped: as,break,const,continue,
+#       crate,dyn,else,enum,extern,false,fn,for,if,impl,in,let,loop,match,mod,
+#       move,mut,pub,ref,return,self,Self,static,struct,super,trait,true,try,
+#       type,unsafe,use,where,while,async,await,abstract,become,box,do,final,
+#       macro,override,priv,typeof,unsized,virtual,yield.
+#       (`r#self`/`r#crate`/`r#super`/`r#Self` are NOT valid raw idents; none of
+#        them are legal CLI flag names that survive (b) either, so they cannot
+#        arise — but if authored explicitly via cnv:fieldName they are rejected.)
+#
+#   (b) kebab -> snake: every '-' in the flag becomes '_'  ("dry-run"->"dry_run"),
+#       WITH COLLISION DETECTION THAT ERRORS. If two distinct flags on the same
+#       verb sanitize to the same Rust field name (e.g. "dry-run" and "dry_run",
+#       or "dry-run" and "dry.run"), generation MUST FAIL — never silently merge.
+#       This is enforced by validation rule cnv-fieldname-collision (see the
+#       pack ggen.toml and ontology/queries/fieldname-collision.rq).
+#
+#   (c) leading-digit / empty -> REJECT. A field name that is empty or whose
+#       first char (after sanitisation) is an ASCII digit is not a legal Rust
+#       identifier and MUST be rejected, not coerced (no `_2fa` invention).
+#
+# An explicit cnv:fieldName OVERRIDES the default and is taken verbatim, but is
+# itself subject to (a)/(c) validity and (b) collision detection.
+
+cnv:fieldName a rdf:Property ;
+    rdfs:label "Rust field name"@en ;
+    rdfs:comment "The Rust parameter identifier the generated #[verb] uses for this argument, distinct from the CLI flag (cnv:hasArgumentName). Optional; when absent it defaults to the sanitized flag name. Sanitizer: (a) Rust keyword -> raw identifier r#kw (name preserved); (b) kebab->snake with ERRORING collision detection (never silent merge); (c) leading-digit/empty -> reject."@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:shortName a rdf:Property ;
+    rdfs:label "short name"@en ;
+    rdfs:comment "Single-character short form (e.g., -v for --verbose)"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:argumentAbout a rdf:Property ;
+    rdfs:label "argument description"@en ;
+    rdfs:comment "Human-readable help text for this argument"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:argumentType a rdf:Property ;
+    rdfs:label "argument type"@en ;
+    rdfs:comment "Kind of argument (required, optional, flag, repeating)"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:ArgumentType ;
+    a owl:ObjectProperty .
+
+cnv:valueType a rdf:Property ;
+    rdfs:label "value type"@en ;
+    rdfs:comment "Rust type of the argument value (String, u16, PathBuf, etc.)"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:required a rdf:Property ;
+    rdfs:label "required"@en ;
+    rdfs:comment "Whether this argument must be provided"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean ;
+    a owl:DatatypeProperty .
+
+cnv:defaultValue a rdf:Property ;
+    rdfs:label "default value"@en ;
+    rdfs:comment "Default value if argument is not provided"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:cliPosition a rdf:Property ;
+    rdfs:label "CLI position"@en ;
+    rdfs:comment "Position in positional argument sequence (1-indexed)"@en ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:positiveInteger ;
+    a owl:DatatypeProperty .
+
+# ============================================================================
+# TRAIT REQUIREMENTS & BOUNDS
+# ============================================================================
+
+cnv:TraitRequirement a rdfs:Class ;
+    rdfs:label "Trait Requirement"@en ;
+    rdfs:comment "A constraint on what traits or bounds a command must satisfy"@en .
+
+cnv:Send a cnv:TraitRequirement ;
+    rdfs:label "Send"@en ;
+    rdfs:comment "Rust Send marker trait: safe to send across thread boundaries"@en .
+
+cnv:Sync a cnv:TraitRequirement ;
+    rdfs:label "Sync"@en ;
+    rdfs:comment "Rust Sync marker trait: safe to share across thread boundaries"@en .
+
+cnv:Serialize a cnv:TraitRequirement ;
+    rdfs:label "Serialize"@en ;
+    rdfs:comment "serde::Serialize: verb return types must be serializable to JSON/YAML"@en .
+
+cnv:HasTraitBound a rdf:Property ;
+    rdfs:label "has trait bound"@en ;
+    rdfs:comment "Trait that this command or type must implement"@en ;
+    rdfs:domain [ a owl:Class ; owl:unionOf (cnv:Noun cnv:Verb cnv:Argument) ] ;
+    rdfs:range cnv:TraitRequirement ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# COMMAND REGISTRATION & DISCOVERY
+# ============================================================================
+
+cnv:Command a rdfs:Class ;
+    rdfs:label "Command"@en ;
+    rdfs:comment "Abstract base class for noun and verb commands"@en .
+
+cnv:CommandRegistry a rdfs:Class ;
+    rdfs:label "Command Registry"@en ;
+    rdfs:comment "Central registry collecting all registered nouns and verbs via linkme distributed slices"@en .
+
+cnv:RegistryConfig a rdfs:Class ;
+    rdfs:label "Registry Configuration"@en ;
+    rdfs:comment "Configuration settings for the CommandRegistry (name, version, global args, validation)"@en .
+
+cnv:hasRegisteredCommand a rdf:Property ;
+    rdfs:label "has registered command"@en ;
+    rdfs:comment "A command registered in the registry"@en ;
+    rdfs:domain cnv:CommandRegistry ;
+    rdfs:range cnv:Command ;
+    a owl:ObjectProperty .
+
+cnv:registryName a rdf:Property ;
+    rdfs:label "registry name"@en ;
+    rdfs:comment "Application name in the registry"@en ;
+    rdfs:domain cnv:RegistryConfig ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:registryVersion a rdf:Property ;
+    rdfs:label "registry version"@en ;
+    rdfs:comment "Application version in the registry"@en ;
+    rdfs:domain cnv:RegistryConfig ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:hasGlobalArgument a rdf:Property ;
+    rdfs:label "has global argument"@en ;
+    rdfs:comment "Global argument available to all commands (e.g., --verbose, --config)"@en ;
+    rdfs:domain cnv:RegistryConfig ;
+    rdfs:range cnv:Argument ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# MACRO SYSTEM
+# ============================================================================
+
+cnv:Macro a rdfs:Class ;
+    rdfs:label "Macro"@en ;
+    rdfs:comment "Rust proc-macro for declarative command registration"@en .
+
+cnv:VerbMacro a cnv:Macro ;
+    rdfs:label "#[verb] macro"@en ;
+    rdfs:comment "Proc-macro that generates linkme distributed slice entry for a function, registering it as a verb handler"@en .
+
+cnv:NounMacro a cnv:Macro ;
+    rdfs:label "#[noun] macro"@en ;
+    rdfs:comment "Helper macro for constructing nouns (now primarily a no-op, nouns are typically registered via trait impl)"@en .
+
+cnv:ArgMacro a cnv:Macro ;
+    rdfs:label "#[arg] macro"@en ;
+    rdfs:comment "Attribute macro for decorating function parameters as CLI arguments"@en .
+
+cnv:appliesMacro a rdf:Property ;
+    rdfs:label "applies macro"@en ;
+    rdfs:comment "The proc-macro that generates this command"@en ;
+    rdfs:domain cnv:Command ;
+    rdfs:range cnv:Macro ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# VERB ARGS TYPE & CONTEXT
+# ============================================================================
+
+cnv:VerbArgs a rdfs:Class ;
+    rdfs:label "VerbArgs Type"@en ;
+    rdfs:comment "Struct passed to verb handlers, providing parsed CLI args, parent matches, and context"@en .
+
+cnv:VerbContext a rdfs:Class ;
+    rdfs:label "VerbContext Type"@en ;
+    rdfs:comment "Context information (verb name, noun, data map, typed extensions) passed to handlers"@en .
+
+cnv:VerbArgsComponent a rdfs:Class ;
+    rdfs:label "VerbArgs Component"@en ;
+    rdfs:comment "Fields and methods available in the VerbArgs struct"@en .
+
+cnv:matches a cnv:VerbArgsComponent ;
+    rdfs:label "matches"@en ;
+    rdfs:comment "Raw clap ArgMatches for this verb's arguments"@en .
+
+cnv:parentMatches a cnv:VerbArgsComponent ;
+    rdfs:label "parent_matches"@en ;
+    rdfs:comment "Optional parent ArgMatches for accessing global arguments"@en .
+
+cnv:context a cnv:VerbArgsComponent ;
+    rdfs:label "context"@en ;
+    rdfs:comment "VerbContext with verb name, noun, data, and typed extensions"@en .
+
+cnv:hasComponent a rdf:Property ;
+    rdfs:label "has component"@en ;
+    rdfs:comment "A field or method of the VerbArgs struct"@en ;
+    rdfs:domain cnv:VerbArgs ;
+    rdfs:range cnv:VerbArgsComponent ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# BUILD & VALIDATION
+# ============================================================================
+
+cnv:CliBuilder a rdfs:Class ;
+    rdfs:label "CliBuilder"@en ;
+    rdfs:comment "API for constructing clap Command trees from registered nouns and verbs"@en .
+
+cnv:CommandRouter a rdfs:Class ;
+    rdfs:label "CommandRouter"@en ;
+    rdfs:comment "Routes parsed CLI arguments to the correct noun/verb handler based on command name"@en .
+
+cnv:buildCommand a rdf:Property ;
+    rdfs:label "build command"@en ;
+    rdfs:comment "Builds the clap Command tree for this noun or verb"@en ;
+    rdfs:domain [ a owl:Class ; owl:unionOf (cnv:Noun cnv:Verb) ] ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:CliElement a rdfs:Class ;
+    rdfs:label "CLI Element"@en ;
+    rdfs:comment "Base class for all CLI structural elements (args, flags, options)"@en .
+
+# ============================================================================
+# EXECUTION & HANDLERS
+# ============================================================================
+
+cnv:Handler a rdfs:Class ;
+    rdfs:label "Handler"@en ;
+    rdfs:comment "An executable function implementing verb logic"@en .
+
+cnv:handlerSignature a rdf:Property ;
+    rdfs:label "handler signature"@en ;
+    rdfs:comment "Rust function signature of the handler"@en ;
+    rdfs:domain cnv:Handler ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:handlerReturn a rdf:Property ;
+    rdfs:label "handler return"@en ;
+    rdfs:comment "Return type of the handler (always Result<()> for verbs)"@en ;
+    rdfs:domain cnv:Handler ;
+    rdfs:range xsd:string ;
+    a owl:DatatypeProperty .
+
+cnv:ExecutionContext a rdfs:Class ;
+    rdfs:label "Execution Context"@en ;
+    rdfs:comment "Runtime context during command execution (args, environment, state)"@en .
+
+# ============================================================================
+# ERROR HANDLING
+# ============================================================================
+
+cnv:NounVerbError a rdfs:Class ;
+    rdfs:label "NounVerbError"@en ;
+    rdfs:comment "Error type for noun-verb CLI operations"@en .
+
+cnv:ErrorKind a rdfs:Class ;
+    rdfs:label "Error Kind"@en ;
+    rdfs:comment "Classification of error conditions"@en .
+
+cnv:ErrorKind_ArgumentError a cnv:ErrorKind ;
+    rdfs:label "Argument Error"@en ;
+    rdfs:comment "CLI argument parsing or validation error"@en .
+
+cnv:ErrorKind_VerbNotFound a cnv:ErrorKind ;
+    rdfs:label "Verb Not Found"@en ;
+    rdfs:comment "Requested verb does not exist for the noun"@en .
+
+cnv:ErrorKind_CommandNotFound a cnv:ErrorKind ;
+    rdfs:label "Command Not Found"@en ;
+    rdfs:comment "Requested command not registered"@en .
+
+cnv:ErrorKind_InvalidStructure a cnv:ErrorKind ;
+    rdfs:label "Invalid Structure"@en ;
+    rdfs:comment "Noun/verb hierarchy structure violation"@en .
+
+cnv:hasErrorKind a rdf:Property ;
+    rdfs:label "has error kind"@en ;
+    rdfs:comment "The type of error that occurred"@en ;
+    rdfs:domain cnv:NounVerbError ;
+    rdfs:range cnv:ErrorKind ;
+    a owl:ObjectProperty .
+
+# ============================================================================
+# COMPOSITION & PATTERNS
+# ============================================================================
+
+cnv:ComposableCommand a rdfs:Class ;
+    rdfs:label "Composable Command"@en ;
+    rdfs:comment "A command that can be composed with other commands through shared registry"@en .
+
+cnv:CompoundNoun a rdfs:Class ;
+    rdfs:label "Compound Noun"@en ;
+    rdfs:comment "A noun containing other nouns for multi-level command hierarchies"@en ;
+    rdfs:subClassOf cnv:Noun .
+
+cnv:compositionDepth a rdf:Property ;
+    rdfs:label "composition depth"@en ;
+    rdfs:comment "Nesting level of this command in the hierarchy"@en ;
+    rdfs:domain cnv:ComposableCommand ;
+    rdfs:range xsd:nonNegativeInteger ;
+    a owl:DatatypeProperty .

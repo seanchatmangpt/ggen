@@ -1,0 +1,7 @@
+<urn:kgc:obs:fd80b8c9c34eeb4026408c4caa9d378c3fe0c901baa580688fb8e66963811a7e> <https://unrdf.org/kgc/probe#severity> "info";
+    <https://unrdf.org/kgc/probe#outputs> "{\"packageName\":\"@unrdf/kgc-probe\",\"version\":\"0.1.0\"}"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON>;
+    <https://unrdf.org/kgc/probe#hash> "fd80b8c9c34eeb4026408c4caa9d378c3fe0c901baa580688fb8e66963811a7e";
+    <https://unrdf.org/kgc/probe#timestamp> "2025-12-27T09:24:24.618Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>;
+    <https://unrdf.org/kgc/probe#method> "Package structure initialized (stub from Agent 1)";
+    <https://unrdf.org/kgc/probe#domain> "file";
+    a <https://unrdf.org/kgc/probe#Observation>.

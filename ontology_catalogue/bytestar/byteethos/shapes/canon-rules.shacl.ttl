@@ -1,0 +1,757 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ethos: <http://bytestar.org/ethos#> .
+@prefix canon: <http://bytestar.org/canon#> .
+
+# Governance Canon Validation Shapes
+# Defines SHACL constraints for ByteStar ETHOS governance canons
+
+# =======================
+# Canon Root Shape
+# =======================
+
+canon:CanonShape
+    a sh:NodeShape ;
+    sh:targetClass canon:GovernanceCanon ;
+    rdfs:label "Governance Canon Shape" ;
+    rdfs:comment "Validates the structure and content of governance canons" ;
+    
+    # Required properties
+    sh:property [
+        sh:path canon:id ;
+        sh:name "Canon ID" ;
+        sh:description "Unique identifier for the canon" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Za-z0-9+/=]{44}$" ; # Base64 encoded hash
+    ] ;
+    
+    sh:property [
+        sh:path canon:name ;
+        sh:name "Canon Name" ;
+        sh:description "Human-readable name for the canon" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 255 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:description ;
+        sh:name "Canon Description" ;
+        sh:description "Detailed description of the canon purpose" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 2048 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:riskTier ;
+        sh:name "Risk Tier" ;
+        sh:description "Risk tier classification for the canon" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:enforcementLevel ;
+        sh:name "Enforcement Level" ;
+        sh:description "Level of enforcement for canon rules" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "advisory" "mandatory" "blocking" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:version ;
+        sh:name "Canon Version" ;
+        sh:description "Version number of the canon" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:status ;
+        sh:name "Canon Status" ;
+        sh:description "Current status of the canon" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "draft" "active" "inactive" "deprecated" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:createdAt ;
+        sh:name "Created At" ;
+        sh:description "Unix timestamp when canon was created" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:createdBy ;
+        sh:name "Created By" ;
+        sh:description "Identity of canon creator" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+    ] ;
+    
+    # Optional properties
+    sh:property [
+        sh:path canon:activatedAt ;
+        sh:name "Activated At" ;
+        sh:description "Unix timestamp when canon was activated" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:deactivatedAt ;
+        sh:name "Deactivated At" ;
+        sh:description "Unix timestamp when canon was deactivated" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    # Rules collection
+    sh:property [
+        sh:path canon:hasRule ;
+        sh:name "Canon Rules" ;
+        sh:description "Rules that define canon behavior" ;
+        sh:class canon:Rule ;
+        sh:minCount 1 ; # Canon must have at least one rule
+        sh:maxCount 100 ; # Performance limit
+    ] ;
+    
+    # Constraints collection
+    sh:property [
+        sh:path canon:hasConstraint ;
+        sh:name "Canon Constraints" ;
+        sh:description "Constraints that limit canon execution" ;
+        sh:class canon:Constraint ;
+    ] ;
+    
+    # Metadata
+    sh:property [
+        sh:path canon:metadata ;
+        sh:name "Canon Metadata" ;
+        sh:description "Additional metadata for the canon" ;
+        sh:class canon:Metadata ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    # Hash for integrity
+    sh:property [
+        sh:path canon:contentHash ;
+        sh:name "Content Hash" ;
+        sh:description "SHA-256 hash of canon content for integrity verification" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ; # SHA-256 hex
+    ] .
+
+# =======================
+# Rule Shape
+# =======================
+
+canon:RuleShape
+    a sh:NodeShape ;
+    sh:targetClass canon:Rule ;
+    rdfs:label "Canon Rule Shape" ;
+    rdfs:comment "Validates individual canon rules" ;
+    
+    # Required properties
+    sh:property [
+        sh:path canon:ruleId ;
+        sh:name "Rule ID" ;
+        sh:description "Unique identifier for the rule within canon" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]{1,64}$" ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:ruleType ;
+        sh:name "Rule Type" ;
+        sh:description "Classification of the rule" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( 
+            "access_control" 
+            "data_validation" 
+            "workflow_control" 
+            "audit_requirement" 
+            "compliance_check" 
+            "security_policy" 
+            "performance_limit" 
+            "business_rule" 
+        ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:condition ;
+        sh:name "Rule Condition" ;
+        sh:description "Condition that triggers the rule" ;
+        sh:class canon:Condition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:action ;
+        sh:name "Rule Action" ;
+        sh:description "Action to take when rule is triggered" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "log" "deny" "allow" "require_approval" "notify" "escalate" ) ;
+    ] ;
+    
+    # Optional properties
+    sh:property [
+        sh:path canon:priority ;
+        sh:name "Rule Priority" ;
+        sh:description "Priority for rule execution order" ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:severity ;
+        sh:name "Rule Severity" ;
+        sh:description "Severity level for rule violations" ;
+        sh:maxCount 1 ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:operationTypes ;
+        sh:name "Operation Types" ;
+        sh:description "Types of operations this rule applies to" ;
+        sh:datatype xsd:string ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:ruleDescription ;
+        sh:name "Rule Description" ;
+        sh:description "Human-readable description of the rule" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 1024 ;
+    ] .
+
+# =======================
+# Condition Shape
+# =======================
+
+canon:ConditionShape
+    a sh:NodeShape ;
+    sh:targetClass canon:Condition ;
+    rdfs:label "Rule Condition Shape" ;
+    rdfs:comment "Validates rule conditions" ;
+    
+    # Required properties
+    sh:property [
+        sh:path canon:conditionType ;
+        sh:name "Condition Type" ;
+        sh:description "Type of condition logic" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( 
+            "equals" 
+            "contains" 
+            "greater_than" 
+            "less_than" 
+            "pattern_match" 
+            "time_window" 
+            "and_condition" 
+            "or_condition" 
+            "not_condition" 
+        ) ;
+    ] .
+
+# Simple Condition Shape (for equals, contains, etc.)
+canon:SimpleConditionShape
+    a sh:NodeShape ;
+    sh:targetClass canon:SimpleCondition ;
+    rdfs:label "Simple Condition Shape" ;
+    rdfs:comment "Validates simple conditions with field and value" ;
+    
+    sh:property [
+        sh:path canon:conditionType ;
+        sh:in ( "equals" "contains" "greater_than" "less_than" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:field ;
+        sh:name "Condition Field" ;
+        sh:description "Field to evaluate in the condition" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:value ;
+        sh:name "Condition Value" ;
+        sh:description "Value to compare against" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Pattern Match Condition Shape
+canon:PatternConditionShape
+    a sh:NodeShape ;
+    sh:targetClass canon:PatternCondition ;
+    rdfs:label "Pattern Match Condition Shape" ;
+    rdfs:comment "Validates pattern matching conditions" ;
+    
+    sh:property [
+        sh:path canon:conditionType ;
+        sh:in ( "pattern_match" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:field ;
+        sh:name "Pattern Field" ;
+        sh:description "Field to match pattern against" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:pattern ;
+        sh:name "Regex Pattern" ;
+        sh:description "Regular expression pattern" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 1000 ; # Limit pattern complexity
+    ] ;
+    
+    sh:property [
+        sh:path canon:flags ;
+        sh:name "Regex Flags" ;
+        sh:description "Regular expression flags" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 10 ;
+    ] .
+
+# Time Window Condition Shape
+canon:TimeWindowConditionShape
+    a sh:NodeShape ;
+    sh:targetClass canon:TimeWindowCondition ;
+    rdfs:label "Time Window Condition Shape" ;
+    rdfs:comment "Validates time window conditions" ;
+    
+    sh:property [
+        sh:path canon:conditionType ;
+        sh:in ( "time_window" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:startTime ;
+        sh:name "Start Time" ;
+        sh:description "Start of time window (Unix timestamp)" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:endTime ;
+        sh:name "End Time" ;
+        sh:description "End of time window (Unix timestamp)" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    # Constraint: endTime must be after startTime
+    sh:sparql [
+        sh:message "End time must be after start time" ;
+        sh:select """
+            SELECT $this ?startTime ?endTime
+            WHERE {
+                $this canon:startTime ?startTime .
+                $this canon:endTime ?endTime .
+                FILTER (?endTime <= ?startTime)
+            }
+        """ ;
+    ] .
+
+# Compound Condition Shape
+canon:CompoundConditionShape
+    a sh:NodeShape ;
+    sh:targetClass canon:CompoundCondition ;
+    rdfs:label "Compound Condition Shape" ;
+    rdfs:comment "Validates compound conditions (AND, OR, NOT)" ;
+    
+    sh:property [
+        sh:path canon:conditionType ;
+        sh:in ( "and_condition" "or_condition" "not_condition" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:subConditions ;
+        sh:name "Sub-conditions" ;
+        sh:description "List of sub-conditions" ;
+        sh:class canon:Condition ;
+        sh:minCount 1 ; # Must have at least one sub-condition
+        sh:maxCount 10 ; # Limit nesting complexity
+    ] .
+
+# =======================
+# Constraint Shape
+# =======================
+
+canon:ConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass canon:Constraint ;
+    rdfs:label "Canon Constraint Shape" ;
+    rdfs:comment "Validates canon execution constraints" ;
+    
+    sh:property [
+        sh:path canon:constraintType ;
+        sh:name "Constraint Type" ;
+        sh:description "Type of constraint" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( 
+            "max_executions_per_minute" 
+            "max_memory_usage_mb" 
+            "timeout_seconds" 
+            "allowed_hours" 
+            "allowed_days" 
+            "resource_limit" 
+        ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:constraintValue ;
+        sh:name "Constraint Value" ;
+        sh:description "Value for the constraint" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Performance Constraint Shape
+canon:PerformanceConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass canon:PerformanceConstraint ;
+    rdfs:label "Performance Constraint Shape" ;
+    rdfs:comment "Validates performance-related constraints" ;
+    
+    sh:property [
+        sh:path canon:constraintType ;
+        sh:in ( "max_executions_per_minute" "max_memory_usage_mb" "timeout_seconds" ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:constraintValue ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000000 ; # Reasonable upper limit
+    ] .
+
+# Time Constraint Shape
+canon:TimeConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass canon:TimeConstraint ;
+    rdfs:label "Time Constraint Shape" ;
+    rdfs:comment "Validates time-based constraints" ;
+    
+    sh:property [
+        sh:path canon:constraintType ;
+        sh:in ( "allowed_hours" "allowed_days" ) ;
+    ] .
+
+# =======================
+# Metadata Shape
+# =======================
+
+canon:MetadataShape
+    a sh:NodeShape ;
+    sh:targetClass canon:Metadata ;
+    rdfs:label "Canon Metadata Shape" ;
+    rdfs:comment "Validates canon metadata" ;
+    
+    # Optional recommended fields
+    sh:property [
+        sh:path canon:owner ;
+        sh:name "Canon Owner" ;
+        sh:description "Owner or team responsible for the canon" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 255 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:contact ;
+        sh:name "Contact Information" ;
+        sh:description "Contact information for canon owner" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 255 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:documentation ;
+        sh:name "Documentation URL" ;
+        sh:description "Link to detailed documentation" ;
+        sh:datatype xsd:anyURI ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:tags ;
+        sh:name "Canon Tags" ;
+        sh:description "Tags for categorizing the canon" ;
+        sh:datatype xsd:string ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:category ;
+        sh:name "Canon Category" ;
+        sh:description "High-level category for the canon" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ( 
+            "security" 
+            "compliance" 
+            "performance" 
+            "data_governance" 
+            "workflow" 
+            "audit" 
+            "business_logic" 
+        ) ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:lastModified ;
+        sh:name "Last Modified" ;
+        sh:description "Unix timestamp of last modification" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxCount 1 ;
+    ] ;
+    
+    sh:property [
+        sh:path canon:reviewDate ;
+        sh:name "Review Date" ;
+        sh:description "Date when canon should be reviewed" ;
+        sh:datatype xsd:positiveInteger ;
+        sh:maxCount 1 ;
+    ] .
+
+# =======================
+# Cross-Canon Constraints
+# =======================
+
+# Canon consistency constraints
+canon:CanonConsistencyShape
+    a sh:NodeShape ;
+    sh:targetClass canon:GovernanceCanon ;
+    rdfs:label "Canon Consistency Shape" ;
+    rdfs:comment "Validates consistency across canon properties" ;
+    
+    # Active canons must have activation timestamp
+    sh:sparql [
+        sh:message "Active canons must have activatedAt timestamp" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this canon:status "active" .
+                FILTER NOT EXISTS { $this canon:activatedAt ?activatedAt }
+            }
+        """ ;
+    ] ;
+    
+    # Inactive canons should have deactivation timestamp
+    sh:sparql [
+        sh:message "Inactive canons should have deactivatedAt timestamp" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this canon:status "inactive" .
+                FILTER NOT EXISTS { $this canon:deactivatedAt ?deactivatedAt }
+            }
+        """ ;
+    ] ;
+    
+    # Version consistency
+    sh:sparql [
+        sh:message "Canon version must be positive" ;
+        sh:select """
+            SELECT $this ?version
+            WHERE {
+                $this canon:version ?version .
+                FILTER (?version <= 0)
+            }
+        """ ;
+    ] ;
+    
+    # Time consistency
+    sh:sparql [
+        sh:message "Deactivation must be after activation" ;
+        sh:select """
+            SELECT $this ?activatedAt ?deactivatedAt
+            WHERE {
+                $this canon:activatedAt ?activatedAt .
+                $this canon:deactivatedAt ?deactivatedAt .
+                FILTER (?deactivatedAt <= ?activatedAt)
+            }
+        """ ;
+    ] .
+
+# =======================
+# Performance Constraints
+# =======================
+
+canon:PerformanceShape
+    a sh:NodeShape ;
+    sh:targetClass canon:GovernanceCanon ;
+    rdfs:label "Canon Performance Shape" ;
+    rdfs:comment "Validates performance-related constraints" ;
+    
+    # Limit number of rules per canon
+    sh:sparql [
+        sh:message "Canon has too many rules (performance limit)" ;
+        sh:select """
+            SELECT $this (COUNT(?rule) as ?ruleCount)
+            WHERE {
+                $this canon:hasRule ?rule .
+            }
+            GROUP BY $this
+            HAVING (?ruleCount > 100)
+        """ ;
+    ] ;
+    
+    # Check for overly complex regex patterns
+    sh:sparql [
+        sh:message "Regex pattern may be too complex" ;
+        sh:select """
+            SELECT $this ?rule ?pattern
+            WHERE {
+                $this canon:hasRule ?rule .
+                ?rule canon:condition ?condition .
+                ?condition canon:conditionType "pattern_match" .
+                ?condition canon:pattern ?pattern .
+                FILTER (STRLEN(?pattern) > 500)
+            }
+        """ ;
+    ] .
+
+# =======================
+# Security Constraints
+# =======================
+
+canon:SecurityShape
+    a sh:NodeShape ;
+    sh:targetClass canon:GovernanceCanon ;
+    rdfs:label "Canon Security Shape" ;
+    rdfs:comment "Validates security-related constraints" ;
+    
+    # Critical risk tier canons must have blocking enforcement
+    sh:sparql [
+        sh:message "Critical risk tier canons should use blocking enforcement" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this canon:riskTier "critical" .
+                $this canon:enforcementLevel ?enforcement .
+                FILTER (?enforcement != "blocking")
+            }
+        """ ;
+    ] ;
+    
+    # Security rules should have appropriate severity
+    sh:sparql [
+        sh:message "Security rules should have high or critical severity" ;
+        sh:select """
+            SELECT $this ?rule
+            WHERE {
+                $this canon:hasRule ?rule .
+                ?rule canon:ruleType "security_policy" .
+                ?rule canon:severity ?severity .
+                FILTER (?severity != "high" && ?severity != "critical")
+            }
+        """ ;
+    ] .
+
+# =======================
+# Audit Requirements
+# =======================
+
+canon:AuditShape
+    a sh:NodeShape ;
+    sh:targetClass canon:GovernanceCanon ;
+    rdfs:label "Canon Audit Shape" ;
+    rdfs:comment "Validates audit requirements" ;
+    
+    # High and critical risk tiers should have audit metadata
+    sh:sparql [
+        sh:message "High/critical risk canons should have owner metadata" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this canon:riskTier ?tier .
+                FILTER (?tier = "high" || ?tier = "critical")
+                FILTER NOT EXISTS { 
+                    $this canon:metadata ?metadata .
+                    ?metadata canon:owner ?owner .
+                }
+            }
+        """ ;
+    ] .
+
+# =======================
+# Data Quality Constraints
+# =======================
+
+canon:DataQualityShape
+    a sh:NodeShape ;
+    sh:targetClass canon:GovernanceCanon ;
+    rdfs:label "Canon Data Quality Shape" ;
+    rdfs:comment "Validates data quality requirements" ;
+    
+    # Canon names should be descriptive
+    sh:sparql [
+        sh:message "Canon name should be descriptive (not just ID)" ;
+        sh:select """
+            SELECT $this ?name
+            WHERE {
+                $this canon:name ?name .
+                FILTER (REGEX(?name, "^(canon|rule|test)_?[0-9]+$", "i"))
+            }
+        """ ;
+    ] ;
+    
+    # Descriptions should be meaningful
+    sh:sparql [
+        sh:message "Canon description should be meaningful" ;
+        sh:select """
+            SELECT $this ?description
+            WHERE {
+                $this canon:description ?description .
+                FILTER (STRLEN(?description) < 20)
+            }
+        """ ;
+    ] .

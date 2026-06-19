@@ -1,0 +1,417 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix oa:      <http://www.w3.org/ns/oa#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+
+@prefix kgc:     <http://unrdf.org/kgc#> .
+@prefix disney:  <http://example.disney.com/canon#> .
+@prefix bu:      <http://example.disney.com/bu#> .
+@prefix region:  <http://example.disney.com/region#> .
+@prefix receipt: <http://example.disney.com/receipt#> .
+
+#####################################################################
+# KGC Ontology Governance Model (ontology-first, substrate + overlays)
+#####################################################################
+
+kgc:GovernedUniverseOntology
+  a owl:Ontology ;
+  dcterms:title "Governed Universe Ontology (Industry substrate + controlled overlays)" ;
+  dcterms:description "Defines an ontology registry, allow-listing, partitioned universes, additive overlays, admissibility invariants, and receipts." ;
+  owl:imports
+    <http://www.w3.org/ns/prov#> ,
+    <http://www.w3.org/ns/odrl/2/> ,
+    <http://www.w3.org/2004/02/skos/core> ,
+    <http://www.w3.org/ns/shacl#> ,
+    <http://www.w3.org/ns/org#> ,
+    <http://www.w3.org/ns/oa#> ,
+    <http://www.w3.org/2006/time#> ,
+    <http://www.w3.org/ns/dcat#> .
+
+#####################################################################
+# Core classes
+#####################################################################
+
+kgc:Universe a owl:Class ;
+  rdfs:label "Universe" ;
+  rdfs:comment "A closed-world governed universe. Everything that matters for projection must be inside the Universe." .
+
+kgc:Partition a owl:Class ;
+  rdfs:label "Partition" ;
+  rdfs:comment "A named partition of the Universe with explicit admissibility rules." .
+
+kgc:IndustrialSubstrate a owl:Class ;
+  rdfs:subClassOf kgc:Partition ;
+  rdfs:label "Industrial Substrate" ;
+  rdfs:comment "Read-only partition containing only allow-listed industry ontologies (version-pinned, hashed)." .
+
+kgc:CorporateCanon a owl:Class ;
+  rdfs:subClassOf kgc:Partition ;
+  rdfs:label "Corporate Canon" ;
+  rdfs:comment "Globally governed Disney-wide canon entities and taxonomies. Cannot be weakened by overlays." .
+
+kgc:BusinessUnitOverlay a owl:Class ;
+  rdfs:subClassOf kgc:Partition ;
+  rdfs:label "Business Unit Overlay" ;
+  rdfs:comment "Additive overlays per BU (Studios, Streaming, Parks, etc.). Cannot redefine substrate or canon." .
+
+kgc:RegionalOverlay a owl:Class ;
+  rdfs:subClassOf kgc:Partition ;
+  rdfs:label "Regional Overlay" ;
+  rdfs:comment "Additive overlays per region/territory; typically restriction and localization surfaces." .
+
+kgc:ExecutionLedger a owl:Class ;
+  rdfs:subClassOf kgc:Partition ;
+  rdfs:label "Execution Ledger" ;
+  rdfs:comment "Immutable event log + receipts for admissibility, builds, validations, and publish decisions." .
+
+kgc:SystemPolicyPartition a owl:Class ;
+  rdfs:subClassOf kgc:Partition ;
+  rdfs:label "System Policy Partition" ;
+  rdfs:comment "Allow-lists, forbidden operations H, total order Λ, release channels, complexity bounds." .
+
+kgc:OntologyRelease a owl:Class ;
+  rdfs:label "Ontology Release" ;
+  rdfs:comment "A versioned release of an ontology/vocabulary with immutable distributions and hashes." .
+
+kgc:AllowedOntology a owl:Class ;
+  rdfs:subClassOf kgc:OntologyRelease ;
+  rdfs:label "Allowed Ontology" ;
+  rdfs:comment "A release that is allow-listed for inclusion in the industrial substrate." .
+
+kgc:Overlay a owl:Class ;
+  rdfs:label "Overlay" ;
+  rdfs:comment "A strictly additive overlay; it proposes additions without mutating protected namespaces." .
+
+kgc:DeltaCapsule a owl:Class ;
+  rdfs:label "Δ Capsule" ;
+  rdfs:comment "A proposed change capsule admitted only if invariants hold; on rejection, receipt only." .
+
+kgc:Invariant a owl:Class ;
+  rdfs:label "Invariant Q" ;
+  rdfs:comment "A machine-checkable invariant preserved by admissible Δ." .
+
+kgc:ForbiddenOperation a owl:Class ;
+  rdfs:label "Forbidden Operation H" ;
+  rdfs:comment "Operations with no admitted representation (e.g., edit industrial substrate terms)." .
+
+kgc:Receipt a owl:Class ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:label "Receipt" ;
+  rdfs:comment "A cryptographic or deterministic proof artifact binding inputs, outputs, toolchain, and decision." .
+
+#####################################################################
+# Core properties (partitioning, allow-listing, admissibility)
+#####################################################################
+
+kgc:hasPartition a owl:ObjectProperty ;
+  rdfs:domain kgc:Universe ;
+  rdfs:range kgc:Partition ;
+  rdfs:label "has partition" .
+
+kgc:partitionIri a owl:DatatypeProperty ;
+  rdfs:domain kgc:Partition ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "partition IRI" .
+
+kgc:containsOntologyRelease a owl:ObjectProperty ;
+  rdfs:domain kgc:IndustrialSubstrate ;
+  rdfs:range kgc:OntologyRelease ;
+  rdfs:label "contains ontology release" .
+
+kgc:namespaceIri a owl:DatatypeProperty ;
+  rdfs:domain kgc:OntologyRelease ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "namespace IRI" .
+
+kgc:distribution a owl:ObjectProperty ;
+  rdfs:domain kgc:OntologyRelease ;
+  rdfs:range dcat:Distribution ;
+  rdfs:label "distribution" .
+
+kgc:contentHash a owl:DatatypeProperty ;
+  rdfs:domain kgc:OntologyRelease ;
+  rdfs:range xsd:string ;
+  rdfs:label "content hash" .
+
+kgc:isReadOnly a owl:DatatypeProperty ;
+  rdfs:domain kgc:Partition ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is read-only" .
+
+kgc:protectsNamespace a owl:DatatypeProperty ;
+  rdfs:domain kgc:SystemPolicyPartition ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "protects namespace" ;
+  rdfs:comment "Protected namespaces cannot be redefined by overlays." .
+
+kgc:proposesDelta a owl:ObjectProperty ;
+  rdfs:domain kgc:Overlay ;
+  rdfs:range kgc:DeltaCapsule ;
+  rdfs:label "proposes Δ" .
+
+kgc:targetsPartition a owl:ObjectProperty ;
+  rdfs:domain kgc:DeltaCapsule ;
+  rdfs:range kgc:Partition ;
+  rdfs:label "targets partition" .
+
+kgc:mustPreserve a owl:ObjectProperty ;
+  rdfs:domain kgc:DeltaCapsule ;
+  rdfs:range kgc:Invariant ;
+  rdfs:label "must preserve" .
+
+kgc:forbids a owl:ObjectProperty ;
+  rdfs:domain kgc:SystemPolicyPartition ;
+  rdfs:range kgc:ForbiddenOperation ;
+  rdfs:label "forbids" .
+
+kgc:admissionReceipt a owl:ObjectProperty ;
+  rdfs:domain kgc:DeltaCapsule ;
+  rdfs:range kgc:Receipt ;
+  rdfs:label "admission receipt" .
+
+kgc:decision a owl:DatatypeProperty ;
+  rdfs:domain kgc:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "decision" ;
+  rdfs:comment "allow | deny" .
+
+kgc:epoch a owl:DatatypeProperty ;
+  rdfs:domain kgc:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "epoch τ" .
+
+#####################################################################
+# Disney global universe instance (shape as partitions + policies)
+#####################################################################
+
+disney:GlobalUniverse
+  a kgc:Universe ;
+  rdfs:label "Disney Global Universe" ;
+  kgc:hasPartition
+    disney:IndustrialSubstrate ,
+    disney:CorporateCanon ,
+    bu:StudiosOverlay ,
+    bu:StreamingOverlay ,
+    bu:ParksOverlay ,
+    bu:ConsumerProductsOverlay ,
+    region:EMEAOverlay ,
+    region:APACOverlay ,
+    region:AMEROverlay ,
+    disney:ExecutionLedger ,
+    disney:SystemPolicy .
+
+disney:IndustrialSubstrate
+  a kgc:IndustrialSubstrate ;
+  kgc:partitionIri <http://example.disney.com/graph/industrial-substrate> ;
+  kgc:isReadOnly true .
+
+disney:CorporateCanon
+  a kgc:CorporateCanon ;
+  kgc:partitionIri <http://example.disney.com/graph/corporate-canon> ;
+  kgc:isReadOnly false .
+
+bu:StudiosOverlay
+  a kgc:BusinessUnitOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/bu/studios> ;
+  kgc:isReadOnly false .
+
+bu:StreamingOverlay
+  a kgc:BusinessUnitOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/bu/streaming> ;
+  kgc:isReadOnly false .
+
+bu:ParksOverlay
+  a kgc:BusinessUnitOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/bu/parks> ;
+  kgc:isReadOnly false .
+
+bu:ConsumerProductsOverlay
+  a kgc:BusinessUnitOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/bu/consumer-products> ;
+  kgc:isReadOnly false .
+
+region:EMEAOverlay
+  a kgc:RegionalOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/region/emea> ;
+  kgc:isReadOnly false .
+
+region:APACOverlay
+  a kgc:RegionalOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/region/apac> ;
+  kgc:isReadOnly false .
+
+region:AMEROverlay
+  a kgc:RegionalOverlay ;
+  kgc:partitionIri <http://example.disney.com/graph/region/amer> ;
+  kgc:isReadOnly false .
+
+disney:ExecutionLedger
+  a kgc:ExecutionLedger ;
+  kgc:partitionIri <http://example.disney.com/graph/execution-ledger> ;
+  kgc:isReadOnly true .
+
+disney:SystemPolicy
+  a kgc:SystemPolicyPartition ;
+  kgc:partitionIri <http://example.disney.com/graph/system-policy> ;
+  kgc:isReadOnly false ;
+  kgc:protectsNamespace <http://www.w3.org/ns/prov#> ;
+  kgc:protectsNamespace <http://www.w3.org/ns/odrl/2/> ;
+  kgc:protectsNamespace <http://www.w3.org/2004/02/skos/core#> ;
+  kgc:protectsNamespace <http://www.w3.org/2006/time#> ;
+  kgc:protectsNamespace <http://www.w3.org/ns/dcat#> ;
+  kgc:protectsNamespace <http://www.w3.org/ns/org#> ;
+  kgc:protectsNamespace <http://www.w3.org/ns/oa#> ;
+  kgc:forbids disney:EditIndustrialSubstrate ;
+  kgc:forbids disney:RedefineProtectedTerm ;
+  kgc:forbids disney:WeakenCorporateCanon .
+
+disney:EditIndustrialSubstrate a kgc:ForbiddenOperation ;
+  rdfs:label "Edit industrial substrate" .
+
+disney:RedefineProtectedTerm a kgc:ForbiddenOperation ;
+  rdfs:label "Redefine protected namespace term" .
+
+disney:WeakenCorporateCanon a kgc:ForbiddenOperation ;
+  rdfs:label "Weaken corporate canon invariant" .
+
+#####################################################################
+# Allowed industry ontologies (as ontology releases in the substrate)
+#####################################################################
+
+# Example: PROV-O
+disney:prov_20130430
+  a kgc:AllowedOntology ;
+  dcterms:title "PROV-O (W3C)" ;
+  kgc:namespaceIri <http://www.w3.org/ns/prov#> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  dcterms:issued "2013-04-30"^^xsd:date ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" ;
+  kgc:distribution disney:prov_dist_ttl .
+
+disney:prov_dist_ttl
+  a dcat:Distribution ;
+  dcterms:format "text/turtle" ;
+  dcat:downloadURL <https://www.w3.org/ns/prov-o.ttl> .
+
+# Example: ODRL
+disney:odrl_20180215
+  a kgc:AllowedOntology ;
+  dcterms:title "ODRL 2.2 (W3C)" ;
+  kgc:namespaceIri <http://www.w3.org/ns/odrl/2/> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  dcterms:issued "2018-02-15"^^xsd:date ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" ;
+  kgc:distribution disney:odrl_dist .
+
+disney:odrl_dist
+  a dcat:Distribution ;
+  dcterms:format "text/turtle" ;
+  dcat:downloadURL <https://www.w3.org/ns/odrl/2/odrl.ttl> .
+
+# Example: SKOS
+disney:skos_core
+  a kgc:AllowedOntology ;
+  dcterms:title "SKOS Core" ;
+  kgc:namespaceIri <http://www.w3.org/2004/02/skos/core#> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" .
+
+# Example: OWL-Time
+disney:owl_time
+  a kgc:AllowedOntology ;
+  dcterms:title "OWL-Time" ;
+  kgc:namespaceIri <http://www.w3.org/2006/time#> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" .
+
+# Example: DCAT
+disney:dcat
+  a kgc:AllowedOntology ;
+  dcterms:title "DCAT" ;
+  kgc:namespaceIri <http://www.w3.org/ns/dcat#> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" .
+
+# Example: ORG
+disney:org
+  a kgc:AllowedOntology ;
+  dcterms:title "ORG" ;
+  kgc:namespaceIri <http://www.w3.org/ns/org#> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" .
+
+# Example: Web Annotation
+disney:oa
+  a kgc:AllowedOntology ;
+  dcterms:title "Web Annotation" ;
+  kgc:namespaceIri <http://www.w3.org/ns/oa#> ;
+  dcterms:publisher <https://www.w3.org/> ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" .
+
+# Attach releases to substrate
+disney:IndustrialSubstrate
+  kgc:containsOntologyRelease
+    disney:prov_20130430 ,
+    disney:odrl_20180215 ,
+    disney:skos_core ,
+    disney:owl_time ,
+    disney:dcat ,
+    disney:org ,
+    disney:oa .
+
+#####################################################################
+# Invariants Q (what every admissible Δ must preserve)
+#####################################################################
+
+disney:Q_Typing a kgc:Invariant ; rdfs:label "Q_typing: O ⊨ Σ per partition" .
+disney:Q_NonCollision a kgc:Invariant ; rdfs:label "Q_noncollision: overlays cannot collide with protected namespaces" .
+disney:Q_Monotone a kgc:Invariant ; rdfs:label "Q_monotone: additive overlays only; no weakening substrate/canon" .
+disney:Q_Determinism a kgc:Invariant ; rdfs:label "Q_determinism: same O → same A" .
+disney:Q_Provenance a kgc:Invariant ; rdfs:label "Q_provenance: receipts bind inputs/outputs/hashes" .
+disney:Q_Bounds a kgc:Invariant ; rdfs:label "Q_bounds: bounded complexity for admitted constructs" .
+
+#####################################################################
+# Example: an additive overlay Δ capsule and receipt
+#####################################################################
+
+bu:StudiosOverlayProposal_001
+  a kgc:Overlay ;
+  dcterms:title "Studios overlay additions (additive only)" ;
+  kgc:proposesDelta bu:Delta_001 .
+
+bu:Delta_001
+  a kgc:DeltaCapsule ;
+  dcterms:created "2026-01-15T12:00:00Z"^^xsd:dateTime ;
+  kgc:targetsPartition bu:StudiosOverlay ;
+  kgc:mustPreserve
+    disney:Q_Typing ,
+    disney:Q_NonCollision ,
+    disney:Q_Monotone ,
+    disney:Q_Determinism ,
+    disney:Q_Provenance ,
+    disney:Q_Bounds ;
+  kgc:admissionReceipt receipt:Admission_001 .
+
+receipt:Admission_001
+  a kgc:Receipt ;
+  kgc:decision "allow" ;
+  kgc:epoch "τ_2026_01_15_0001" ;
+  kgc:contentHash "sha256:REPLACE_WITH_ACTUAL" ;
+  prov:wasGeneratedBy receipt:AdmissibilityCheckRun_001 ;
+  prov:generatedAtTime "2026-01-15T12:00:02Z"^^xsd:dateTime .
+
+receipt:AdmissibilityCheckRun_001
+  a prov:Activity ;
+  rdfs:label "Admissibility check run" ;
+  prov:used bu:Delta_001 ;
+  prov:endedAtTime "2026-01-15T12:00:02Z"^^xsd:dateTime .

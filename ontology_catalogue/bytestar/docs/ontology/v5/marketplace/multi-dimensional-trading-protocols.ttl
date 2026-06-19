@@ -1,0 +1,1173 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bam: <http://bytestar.org/ontology/marketplace/> .
+@prefix bamt: <http://bytestar.org/ontology/marketplace/trading/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+@prefix pqc: <http://www.w3.org/2000/10/swap/pqc#> .
+
+# =============================================================================
+# ByteStar Multi-Dimensional Asset Trading Protocols
+# Version: 5.0.0 - Marketplace Phase
+# =============================================================================
+
+<http://bytestar.org/ontology/marketplace/trading-protocols> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/marketplace/trading-protocols/5.0.0> ;
+    dct:title "ByteStar Multi-Dimensional Asset Trading Protocols" ;
+    dct:description "Comprehensive trading protocols for N-dimensional asset exchange with PQC security, automated market making, and regulatory compliance" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/marketplace/vector-conservation>,
+                <http://bytestar.org/ontology/audit-system>,
+                <http://bytestar.org/ontology/compliance-framework> .
+
+# =============================================================================
+# Core Trading Protocol Classes
+# =============================================================================
+
+bamt:TradingProtocol a owl:Class ;
+    rdfs:label "Trading Protocol" ;
+    rdfs:comment "Base class for multi-dimensional asset trading protocols" ;
+    rdfs:subClassOf ba:Protocol .
+
+bamt:AtomicSwapProtocol a owl:Class ;
+    rdfs:label "Atomic Swap Protocol" ;
+    rdfs:comment "Protocol for atomic exchange of multi-dimensional assets" ;
+    rdfs:subClassOf bamt:TradingProtocol .
+
+bamt:BatchAuctionProtocol a owl:Class ;
+    rdfs:label "Batch Auction Protocol" ;
+    rdfs:comment "Protocol for batch auction trading of asset portfolios" ;
+    rdfs:subClassOf bamt:TradingProtocol .
+
+bamt:ContinuousTradingProtocol a owl:Class ;
+    rdfs:label "Continuous Trading Protocol" ;
+    rdfs:comment "Protocol for continuous order book trading" ;
+    rdfs:subClassOf bamt:TradingProtocol .
+
+bamt:CrossChainTradingProtocol a owl:Class ;
+    rdfs:label "Cross-Chain Trading Protocol" ;
+    rdfs:comment "Protocol for trading assets across different blockchain networks" ;
+    rdfs:subClassOf bamt:TradingProtocol .
+
+bamt:PrivacyPreservingProtocol a owl:Class ;
+    rdfs:label "Privacy Preserving Protocol" ;
+    rdfs:comment "Trading protocol with zero-knowledge privacy features" ;
+    rdfs:subClassOf bamt:TradingProtocol .
+
+# =============================================================================
+# Market Structure Classes
+# =============================================================================
+
+bamt:MarketMaker a owl:Class ;
+    rdfs:label "Market Maker" ;
+    rdfs:comment "Automated market maker providing liquidity" ;
+    rdfs:subClassOf ba:Agent .
+
+bamt:LiquidityPool a owl:Class ;
+    rdfs:label "Liquidity Pool" ;
+    rdfs:comment "Pool of assets providing liquidity for trading" ;
+    rdfs:subClassOf ba:ResourcePool .
+
+bamt:OrderBook a owl:Class ;
+    rdfs:label "Order Book" ;
+    rdfs:comment "Collection of buy and sell orders for assets" ;
+    rdfs:subClassOf ba:DataStructure .
+
+bamt:TradingPair a owl:Class ;
+    rdfs:label "Trading Pair" ;
+    rdfs:comment "Pair of assets that can be traded against each other" ;
+    rdfs:subClassOf ba:AssetPair .
+
+bamt:MarketDepth a owl:Class ;
+    rdfs:label "Market Depth" ;
+    rdfs:comment "Measure of market liquidity and order distribution" ;
+    rdfs:subClassOf ba:Metric .
+
+bamt:PriceOracle a owl:Class ;
+    rdfs:label "Price Oracle" ;
+    rdfs:comment "Oracle providing asset price information" ;
+    rdfs:subClassOf ba:Oracle .
+
+# =============================================================================
+# Order Management Classes
+# =============================================================================
+
+bamt:TradingOrder a owl:Class ;
+    rdfs:label "Trading Order" ;
+    rdfs:comment "Order to buy or sell multi-dimensional assets" ;
+    rdfs:subClassOf ba:Order .
+
+bamt:MarketOrder a owl:Class ;
+    rdfs:label "Market Order" ;
+    rdfs:comment "Order to trade at current market prices" ;
+    rdfs:subClassOf bamt:TradingOrder .
+
+bamt:LimitOrder a owl:Class ;
+    rdfs:label "Limit Order" ;
+    rdfs:comment "Order to trade at specified price limits" ;
+    rdfs:subClassOf bamt:TradingOrder .
+
+bamt:StopOrder a owl:Class ;
+    rdfs:label "Stop Order" ;
+    rdfs:comment "Order triggered when asset reaches stop price" ;
+    rdfs:subClassOf bamt:TradingOrder .
+
+bamt:IcebergOrder a owl:Class ;
+    rdfs:label "Iceberg Order" ;
+    rdfs:comment "Large order split into smaller visible portions" ;
+    rdfs:subClassOf bamt:TradingOrder .
+
+bamt:ConditionalOrder a owl:Class ;
+    rdfs:label "Conditional Order" ;
+    rdfs:comment "Order executed based on multi-dimensional conditions" ;
+    rdfs:subClassOf bamt:TradingOrder .
+
+bamt:AlgorithmicOrder a owl:Class ;
+    rdfs:label "Algorithmic Order" ;
+    rdfs:comment "Order executed by trading algorithm" ;
+    rdfs:subClassOf bamt:TradingOrder .
+
+# =============================================================================
+# Trade Execution Classes
+# =============================================================================
+
+bamt:TradeExecution a owl:Class ;
+    rdfs:label "Trade Execution" ;
+    rdfs:comment "Actual execution of a trade between parties" ;
+    rdfs:subClassOf ba:Transaction .
+
+bamt:PartialFill a owl:Class ;
+    rdfs:label "Partial Fill" ;
+    rdfs:comment "Partial execution of a trading order" ;
+    rdfs:subClassOf bamt:TradeExecution .
+
+bamt:CompleteFill a owl:Class ;
+    rdfs:label "Complete Fill" ;
+    rdfs:comment "Complete execution of a trading order" ;
+    rdfs:subClassOf bamt:TradeExecution .
+
+bamt:TradeMatching a owl:Class ;
+    rdfs:label "Trade Matching" ;
+    rdfs:comment "Process of matching buy and sell orders" ;
+    rdfs:subClassOf ba:MatchingProcess .
+
+bamt:ExecutionAlgorithm a owl:Class ;
+    rdfs:label "Execution Algorithm" ;
+    rdfs:comment "Algorithm for optimal trade execution" ;
+    rdfs:subClassOf ba:Algorithm .
+
+bamt:SlippageControl a owl:Class ;
+    rdfs:label "Slippage Control" ;
+    rdfs:comment "Mechanism to control price slippage during execution" ;
+    rdfs:subClassOf ba:ControlMechanism .
+
+# =============================================================================
+# Pricing and Valuation Classes
+# =============================================================================
+
+bamt:PricingModel a owl:Class ;
+    rdfs:label "Pricing Model" ;
+    rdfs:comment "Model for pricing multi-dimensional assets" ;
+    rdfs:subClassOf ba:Model .
+
+bamt:BlackScholesModel a owl:Class ;
+    rdfs:label "Black-Scholes Model" ;
+    rdfs:comment "Black-Scholes pricing model for options" ;
+    rdfs:subClassOf bamt:PricingModel .
+
+bamt:HullWhiteModel a owl:Class ;
+    rdfs:label "Hull-White Model" ;
+    rdfs:comment "Hull-White model for interest rate derivatives" ;
+    rdfs:subClassOf bamt:PricingModel .
+
+bamt:MonteCarloModel a owl:Class ;
+    rdfs:label "Monte Carlo Model" ;
+    rdfs:comment "Monte Carlo simulation for complex asset pricing" ;
+    rdfs:subClassOf bamt:PricingModel .
+
+bamt:MultiDimensionalPricingModel a owl:Class ;
+    rdfs:label "Multi-Dimensional Pricing Model" ;
+    rdfs:comment "Pricing model handling N-dimensional asset attributes" ;
+    rdfs:subClassOf bamt:PricingModel .
+
+bamt:VolatilitySurface a owl:Class ;
+    rdfs:label "Volatility Surface" ;
+    rdfs:comment "3D surface representing volatility across strikes and maturities" ;
+    rdfs:subClassOf ba:MathematicalSurface .
+
+# =============================================================================
+# Risk Management Classes
+# =============================================================================
+
+bamt:RiskManager a owl:Class ;
+    rdfs:label "Risk Manager" ;
+    rdfs:comment "System managing trading risks across dimensions" ;
+    rdfs:subClassOf ba:RiskManager .
+
+bamt:PositionLimitManager a owl:Class ;
+    rdfs:label "Position Limit Manager" ;
+    rdfs:comment "Manager enforcing position limits" ;
+    rdfs:subClassOf bamt:RiskManager .
+
+bamt:ExposureCalculator a owl:Class ;
+    rdfs:label "Exposure Calculator" ;
+    rdfs:comment "Calculator for multi-dimensional risk exposure" ;
+    rdfs:subClassOf ba:Calculator .
+
+bamt:VARCalculator a owl:Class ;
+    rdfs:label "VaR Calculator" ;
+    rdfs:comment "Value at Risk calculator for portfolios" ;
+    rdfs:subClassOf bamt:ExposureCalculator .
+
+bamt:StressTestEngine a owl:Class ;
+    rdfs:label "Stress Test Engine" ;
+    rdfs:comment "Engine for stress testing trading positions" ;
+    rdfs:subClassOf ba:TestEngine .
+
+bamt:MarginCalculator a owl:Class ;
+    rdfs:label "Margin Calculator" ;
+    rdfs:comment "Calculator for margin requirements" ;
+    rdfs:subClassOf ba:Calculator .
+
+# =============================================================================
+# Protocol State Management
+# =============================================================================
+
+bamt:TradingSession a owl:Class ;
+    rdfs:label "Trading Session" ;
+    rdfs:comment "Active trading session with state management" ;
+    rdfs:subClassOf ba:Session .
+
+bamt:SessionState a owl:Class ;
+    rdfs:label "Session State" ;
+    rdfs:comment "Current state of a trading session" ;
+    rdfs:subClassOf ba:State .
+
+bamt:OrderState a owl:Class ;
+    rdfs:label "Order State" ;
+    rdfs:comment "Current state of a trading order" ;
+    rdfs:subClassOf ba:State .
+
+bamt:ExecutionState a owl:Class ;
+    rdfs:label "Execution State" ;
+    rdfs:comment "State during trade execution process" ;
+    rdfs:subClassOf ba:State .
+
+bamt:SettlementState a owl:Class ;
+    rdfs:label "Settlement State" ;
+    rdfs:comment "State during settlement process" ;
+    rdfs:subClassOf ba:State .
+
+# =============================================================================
+# Properties for Trading Protocols
+# =============================================================================
+
+# Protocol Properties
+bamt:protocolVersion a owl:DatatypeProperty ;
+    rdfs:label "protocol version" ;
+    rdfs:domain bamt:TradingProtocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version of the trading protocol" .
+
+bamt:protocolType a owl:DatatypeProperty ;
+    rdfs:label "protocol type" ;
+    rdfs:domain bamt:TradingProtocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of trading protocol (atomic, batch, continuous, etc.)" .
+
+bamt:consensusMechanism a owl:DatatypeProperty ;
+    rdfs:label "consensus mechanism" ;
+    rdfs:domain bamt:TradingProtocol ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Consensus mechanism used by the protocol" .
+
+bamt:maxDimensions a owl:DatatypeProperty ;
+    rdfs:label "max dimensions" ;
+    rdfs:domain bamt:TradingProtocol ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Maximum number of dimensions supported" .
+
+# Order Properties
+bamt:orderID a owl:DatatypeProperty ;
+    rdfs:label "order ID" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the trading order" .
+
+bamt:orderType a owl:DatatypeProperty ;
+    rdfs:label "order type" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of order (market, limit, stop, etc.)" .
+
+bamt:orderSide a owl:DatatypeProperty ;
+    rdfs:label "order side" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Side of the order (buy, sell)" .
+
+bamt:orderQuantity a owl:DatatypeProperty ;
+    rdfs:label "order quantity" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantity of assets in the order" .
+
+bamt:orderPrice a owl:DatatypeProperty ;
+    rdfs:label "order price" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Price per unit for the order" .
+
+bamt:stopPrice a owl:DatatypeProperty ;
+    rdfs:label "stop price" ;
+    rdfs:domain bamt:StopOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Stop price for stop orders" .
+
+bamt:icebergQuantity a owl:DatatypeProperty ;
+    rdfs:label "iceberg quantity" ;
+    rdfs:domain bamt:IcebergOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Visible quantity for iceberg orders" .
+
+bamt:timeInForce a owl:DatatypeProperty ;
+    rdfs:label "time in force" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Time validity of order (GTC, IOC, FOK, etc.)" .
+
+bamt:orderTimestamp a owl:DatatypeProperty ;
+    rdfs:label "order timestamp" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when order was placed" .
+
+bamt:expirationTime a owl:DatatypeProperty ;
+    rdfs:label "expiration time" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Expiration time for the order" .
+
+# Execution Properties
+bamt:executionID a owl:DatatypeProperty ;
+    rdfs:label "execution ID" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for trade execution" .
+
+bamt:executionPrice a owl:DatatypeProperty ;
+    rdfs:label "execution price" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Actual price at which trade was executed" .
+
+bamt:executionQuantity a owl:DatatypeProperty ;
+    rdfs:label "execution quantity" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Actual quantity traded in execution" .
+
+bamt:executionTimestamp a owl:DatatypeProperty ;
+    rdfs:label "execution timestamp" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp of trade execution" .
+
+bamt:executionFee a owl:DatatypeProperty ;
+    rdfs:label "execution fee" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Fee charged for trade execution" .
+
+bamt:slippage a owl:DatatypeProperty ;
+    rdfs:label "slippage" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Price slippage from expected execution price" .
+
+# Market Properties
+bamt:bidPrice a owl:DatatypeProperty ;
+    rdfs:label "bid price" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Highest bid price in order book" .
+
+bamt:askPrice a owl:DatatypeProperty ;
+    rdfs:label "ask price" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Lowest ask price in order book" .
+
+bamt:bidSize a owl:DatatypeProperty ;
+    rdfs:label "bid size" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total quantity at best bid" .
+
+bamt:askSize a owl:DatatypeProperty ;
+    rdfs:label "ask size" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total quantity at best ask" .
+
+bamt:spread a owl:DatatypeProperty ;
+    rdfs:label "spread" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Spread between bid and ask prices" .
+
+bamt:midPrice a owl:DatatypeProperty ;
+    rdfs:label "mid price" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Mid price between bid and ask" .
+
+bamt:lastTradePrice a owl:DatatypeProperty ;
+    rdfs:label "last trade price" ;
+    rdfs:domain bamt:TradingPair ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Price of last executed trade" .
+
+bamt:volume24h a owl:DatatypeProperty ;
+    rdfs:label "24h volume" ;
+    rdfs:domain bamt:TradingPair ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Trading volume in last 24 hours" .
+
+# Liquidity Properties
+bamt:liquidityLevel a owl:DatatypeProperty ;
+    rdfs:label "liquidity level" ;
+    rdfs:domain bamt:LiquidityPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current liquidity level in the pool" .
+
+bamt:utilizationRate a owl:DatatypeProperty ;
+    rdfs:label "utilization rate" ;
+    rdfs:domain bamt:LiquidityPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Percentage of liquidity currently utilized" .
+
+bamt:reserveRatio a owl:DatatypeProperty ;
+    rdfs:label "reserve ratio" ;
+    rdfs:domain bamt:LiquidityPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Ratio of reserves in the liquidity pool" .
+
+bamt:swapFee a owl:DatatypeProperty ;
+    rdfs:label "swap fee" ;
+    rdfs:domain bamt:LiquidityPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Fee rate for swaps in the pool" .
+
+# Risk Properties
+bamt:riskScore a owl:DatatypeProperty ;
+    rdfs:label "risk score" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Risk score for the trading order" .
+
+bamt:marginRequirement a owl:DatatypeProperty ;
+    rdfs:label "margin requirement" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Margin required for the order" .
+
+bamt:exposureLimit a owl:DatatypeProperty ;
+    rdfs:label "exposure limit" ;
+    rdfs:domain bamt:RiskManager ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum exposure allowed" .
+
+bamt:varValue a owl:DatatypeProperty ;
+    rdfs:label "VaR value" ;
+    rdfs:domain bamt:VARCalculator ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Value at Risk calculation result" .
+
+bamt:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "confidence level" ;
+    rdfs:domain bamt:VARCalculator ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Confidence level for VaR calculation" .
+
+# Performance Properties (Doctrine of 8)
+bamt:orderProcessingTicks a owl:DatatypeProperty ;
+    rdfs:label "order processing ticks" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Ticks required for order processing (must be ≤8)" .
+
+bamt:matchingLatency a owl:DatatypeProperty ;
+    rdfs:label "matching latency" ;
+    rdfs:domain bamt:TradeMatching ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Latency for trade matching in milliseconds (must be ≤8ms)" .
+
+bamt:executionLatency a owl:DatatypeProperty ;
+    rdfs:label "execution latency" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Execution latency in milliseconds (must be ≤8ms)" .
+
+# =============================================================================
+# Object Properties for Trading Relationships
+# =============================================================================
+
+# Protocol Relationships
+bamt:implementsProtocol a owl:ObjectProperty ;
+    rdfs:label "implements protocol" ;
+    rdfs:domain bamt:TradingSession ;
+    rdfs:range bamt:TradingProtocol ;
+    rdfs:comment "Trading session implements the specified protocol" .
+
+bamt:supportsAssetType a owl:ObjectProperty ;
+    rdfs:label "supports asset type" ;
+    rdfs:domain bamt:TradingProtocol ;
+    rdfs:range ba:AssetType ;
+    rdfs:comment "Protocol supports trading of the asset type" .
+
+bamt:requiresOracle a owl:ObjectProperty ;
+    rdfs:label "requires oracle" ;
+    rdfs:domain bamt:TradingProtocol ;
+    rdfs:range bamt:PriceOracle ;
+    rdfs:comment "Protocol requires the price oracle for operation" .
+
+# Order Relationships
+bamt:placedBy a owl:ObjectProperty ;
+    rdfs:label "placed by" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range foaf:Agent ;
+    rdfs:comment "Order was placed by the specified agent" .
+
+bamt:targetsAsset a owl:ObjectProperty ;
+    rdfs:label "targets asset" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range ba:Asset ;
+    rdfs:comment "Order targets the specified asset for trading" .
+
+bamt:matchedWith a owl:ObjectProperty ;
+    rdfs:label "matched with" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range bamt:TradingOrder ;
+    rdfs:comment "Order was matched with another order" .
+
+bamt:executedAs a owl:ObjectProperty ;
+    rdfs:label "executed as" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range bamt:TradeExecution ;
+    rdfs:comment "Order was executed as the specified trade execution" .
+
+# Execution Relationships
+bamt:involvesOrders a owl:ObjectProperty ;
+    rdfs:label "involves orders" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range bamt:TradingOrder ;
+    rdfs:comment "Trade execution involves the specified orders" .
+
+bamt:processedBy a owl:ObjectProperty ;
+    rdfs:label "processed by" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range bamt:ExecutionAlgorithm ;
+    rdfs:comment "Trade was processed by the execution algorithm" .
+
+bamt:settlesTo a owl:ObjectProperty ;
+    rdfs:label "settles to" ;
+    rdfs:domain bamt:TradeExecution ;
+    rdfs:range bav:SettlementVector ;
+    rdfs:comment "Trade execution settles to the settlement vector" .
+
+# Market Relationships
+bamt:providesLiquidity a owl:ObjectProperty ;
+    rdfs:label "provides liquidity" ;
+    rdfs:domain bamt:MarketMaker ;
+    rdfs:range bamt:LiquidityPool ;
+    rdfs:comment "Market maker provides liquidity to the pool" .
+
+bamt:maintainsBook a owl:ObjectProperty ;
+    rdfs:label "maintains book" ;
+    rdfs:domain bamt:MarketMaker ;
+    rdfs:range bamt:OrderBook ;
+    rdfs:comment "Market maker maintains the order book" .
+
+bamt:containsOrder a owl:ObjectProperty ;
+    rdfs:label "contains order" ;
+    rdfs:domain bamt:OrderBook ;
+    rdfs:range bamt:TradingOrder ;
+    rdfs:comment "Order book contains the trading order" .
+
+bamt:pricesAsset a owl:ObjectProperty ;
+    rdfs:label "prices asset" ;
+    rdfs:domain bamt:PriceOracle ;
+    rdfs:range ba:Asset ;
+    rdfs:comment "Price oracle provides pricing for the asset" .
+
+# Risk Relationships
+bamt:managedBy a owl:ObjectProperty ;
+    rdfs:label "managed by" ;
+    rdfs:domain bamt:TradingOrder ;
+    rdfs:range bamt:RiskManager ;
+    rdfs:comment "Order risk is managed by the risk manager" .
+
+bamt:calculatesRisk a owl:ObjectProperty ;
+    rdfs:label "calculates risk" ;
+    rdfs:domain bamt:RiskManager ;
+    rdfs:range bamt:ExposureCalculator ;
+    rdfs:comment "Risk manager uses the exposure calculator" .
+
+bamt:appliesLimit a owl:ObjectProperty ;
+    rdfs:label "applies limit" ;
+    rdfs:domain bamt:PositionLimitManager ;
+    rdfs:range bamt:TradingOrder ;
+    rdfs:comment "Position limit manager applies limits to orders" .
+
+# State Relationships
+bamt:hasState a owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:range ba:State ;
+    rdfs:comment "Entity has the specified state" .
+
+bamt:transitionsTo a owl:ObjectProperty ;
+    rdfs:label "transitions to" ;
+    rdfs:domain ba:State ;
+    rdfs:range ba:State ;
+    rdfs:comment "State transitions to another state" .
+
+bamt:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:domain ba:StateTransition ;
+    rdfs:range ba:Event ;
+    rdfs:comment "State transition is triggered by the event" .
+
+# =============================================================================
+# Trading Protocol Instances
+# =============================================================================
+
+# Atomic Swap Protocol
+bamt:StandardAtomicSwap a bamt:AtomicSwapProtocol ;
+    rdfs:label "Standard Atomic Swap" ;
+    rdfs:comment "Standard atomic swap protocol for two-party asset exchange" ;
+    bamt:protocolVersion "1.0" ;
+    bamt:protocolType "atomic_swap" ;
+    bamt:consensusMechanism "HTLC" ;
+    bamt:maxDimensions 16 ;
+    bamt:orderProcessingTicks 4 .
+
+bamt:MultiDimensionalAtomicSwap a bamt:AtomicSwapProtocol ;
+    rdfs:label "Multi-Dimensional Atomic Swap" ;
+    rdfs:comment "Atomic swap for N-dimensional asset portfolios" ;
+    bamt:protocolVersion "2.0" ;
+    bamt:protocolType "multi_dimensional_atomic" ;
+    bamt:consensusMechanism "Vector_HTLC" ;
+    bamt:maxDimensions 256 ;
+    bamt:orderProcessingTicks 6 .
+
+# Continuous Trading Protocol
+bamt:StandardCLOB a bamt:ContinuousTradingProtocol ;
+    rdfs:label "Standard CLOB" ;
+    rdfs:comment "Standard Central Limit Order Book protocol" ;
+    bamt:protocolVersion "1.0" ;
+    bamt:protocolType "continuous_limit" ;
+    bamt:consensusMechanism "Time_Priority" ;
+    bamt:maxDimensions 8 ;
+    bamt:orderProcessingTicks 3 .
+
+bamt:MultiDimensionalCLOB a bamt:ContinuousTradingProtocol ;
+    rdfs:label "Multi-Dimensional CLOB" ;
+    rdfs:comment "CLOB supporting multi-dimensional asset attributes" ;
+    bamt:protocolVersion "2.0" ;
+    bamt:protocolType "multi_dimensional_continuous" ;
+    bamt:consensusMechanism "Vector_Priority" ;
+    bamt:maxDimensions 128 ;
+    bamt:orderProcessingTicks 5 .
+
+# Batch Auction Protocol
+bamt:FrequentBatchAuction a bamt:BatchAuctionProtocol ;
+    rdfs:label "Frequent Batch Auction" ;
+    rdfs:comment "High-frequency batch auction protocol" ;
+    bamt:protocolVersion "1.0" ;
+    bamt:protocolType "frequent_batch" ;
+    bamt:consensusMechanism "Uniform_Price" ;
+    bamt:maxDimensions 32 ;
+    bamt:orderProcessingTicks 7 .
+
+# Privacy-Preserving Protocol
+bamt:ZKTradingProtocol a bamt:PrivacyPreservingProtocol ;
+    rdfs:label "Zero-Knowledge Trading Protocol" ;
+    rdfs:comment "Trading protocol with zero-knowledge privacy" ;
+    bamt:protocolVersion "1.0" ;
+    bamt:protocolType "zero_knowledge" ;
+    bamt:consensusMechanism "ZK_STARK" ;
+    bamt:maxDimensions 64 ;
+    bamt:orderProcessingTicks 8 .
+
+# =============================================================================
+# Market Maker and Liquidity Instances
+# =============================================================================
+
+# Automated Market Makers
+bamt:ConstantProductAMM a bamt:MarketMaker ;
+    rdfs:label "Constant Product AMM" ;
+    rdfs:comment "Automated market maker using constant product formula" ;
+    bamt:liquidityLevel 1000000.0 ;
+    bamt:utilizationRate 0.65 ;
+    bamt:swapFee 0.003 .
+
+bamt:ConstantSumAMM a bamt:MarketMaker ;
+    rdfs:label "Constant Sum AMM" ;
+    rdfs:comment "Automated market maker using constant sum formula" ;
+    bamt:liquidityLevel 2000000.0 ;
+    bamt:utilizationRate 0.45 ;
+    bamt:swapFee 0.001 .
+
+bamt:CurveFiAMM a bamt:MarketMaker ;
+    rdfs:label "Curve Finance AMM" ;
+    rdfs:comment "AMM optimized for stable coin trading" ;
+    bamt:liquidityLevel 5000000.0 ;
+    bamt:utilizationRate 0.80 ;
+    bamt:swapFee 0.0004 .
+
+# Liquidity Pools
+bamt:PrimaryLiquidityPool a bamt:LiquidityPool ;
+    rdfs:label "Primary Liquidity Pool" ;
+    rdfs:comment "Primary liquidity pool for major trading pairs" ;
+    bamt:liquidityLevel 10000000.0 ;
+    bamt:utilizationRate 0.70 ;
+    bamt:reserveRatio 0.15 ;
+    bamt:swapFee 0.002 .
+
+bamt:SecondaryLiquidityPool a bamt:LiquidityPool ;
+    rdfs:label "Secondary Liquidity Pool" ;
+    rdfs:comment "Secondary pool for alternative assets" ;
+    bamt:liquidityLevel 1000000.0 ;
+    bamt:utilizationRate 0.40 ;
+    bamt:reserveRatio 0.25 ;
+    bamt:swapFee 0.005 .
+
+# =============================================================================
+# Order State Machine
+# =============================================================================
+
+# Order States
+bamt:PendingState a bamt:OrderState ;
+    rdfs:label "Pending State" ;
+    rdfs:comment "Order is pending validation and entry" .
+
+bamt:ActiveState a bamt:OrderState ;
+    rdfs:label "Active State" ;
+    rdfs:comment "Order is active in the order book" .
+
+bamt:PartiallyFilledState a bamt:OrderState ;
+    rdfs:label "Partially Filled State" ;
+    rdfs:comment "Order is partially executed" .
+
+bamt:FilledState a bamt:OrderState ;
+    rdfs:label "Filled State" ;
+    rdfs:comment "Order is completely executed" .
+
+bamt:CancelledState a bamt:OrderState ;
+    rdfs:label "Cancelled State" ;
+    rdfs:comment "Order was cancelled before execution" .
+
+bamt:RejectedState a bamt:OrderState ;
+    rdfs:label "Rejected State" ;
+    rdfs:comment "Order was rejected due to validation failure" .
+
+bamt:ExpiredState a bamt:OrderState ;
+    rdfs:label "Expired State" ;
+    rdfs:comment "Order expired before execution" .
+
+# State Transitions
+bamt:PendingToActive a ba:StateTransition ;
+    rdfs:label "Pending to Active" ;
+    rdfs:comment "Transition from pending to active state" ;
+    ba:fromState bamt:PendingState ;
+    ba:toState bamt:ActiveState .
+
+bamt:ActiveToPartiallyFilled a ba:StateTransition ;
+    rdfs:label "Active to Partially Filled" ;
+    rdfs:comment "Transition from active to partially filled" ;
+    ba:fromState bamt:ActiveState ;
+    ba:toState bamt:PartiallyFilledState .
+
+bamt:PartiallyFilledToFilled a ba:StateTransition ;
+    rdfs:label "Partially Filled to Filled" ;
+    rdfs:comment "Transition from partially filled to completely filled" ;
+    ba:fromState bamt:PartiallyFilledState ;
+    ba:toState bamt:FilledState .
+
+bamt:ActiveToCancelled a ba:StateTransition ;
+    rdfs:label "Active to Cancelled" ;
+    rdfs:comment "Transition from active to cancelled" ;
+    ba:fromState bamt:ActiveState ;
+    ba:toState bamt:CancelledState .
+
+# =============================================================================
+# Execution Algorithms
+# =============================================================================
+
+# Standard Execution Algorithms
+bamt:TWAPAlgorithm a bamt:ExecutionAlgorithm ;
+    rdfs:label "TWAP Algorithm" ;
+    rdfs:comment "Time-Weighted Average Price execution algorithm" ;
+    ba:algorithmType "TWAP" ;
+    bamt:executionLatency 5.0 .
+
+bamt:VWAPAlgorithm a bamt:ExecutionAlgorithm ;
+    rdfs:label "VWAP Algorithm" ;
+    rdfs:comment "Volume-Weighted Average Price execution algorithm" ;
+    ba:algorithmType "VWAP" ;
+    bamt:executionLatency 6.0 .
+
+bamt:POVAlgorithm a bamt:ExecutionAlgorithm ;
+    rdfs:label "POV Algorithm" ;
+    rdfs:comment "Percentage of Volume execution algorithm" ;
+    ba:algorithmType "POV" ;
+    bamt:executionLatency 4.0 .
+
+bamt:ImplementationShortfallAlgorithm a bamt:ExecutionAlgorithm ;
+    rdfs:label "Implementation Shortfall Algorithm" ;
+    rdfs:comment "Implementation shortfall minimization algorithm" ;
+    ba:algorithmType "IS" ;
+    bamt:executionLatency 7.0 .
+
+# Multi-Dimensional Execution Algorithms
+bamt:MultiDimensionalTWAP a bamt:ExecutionAlgorithm ;
+    rdfs:label "Multi-Dimensional TWAP" ;
+    rdfs:comment "TWAP algorithm for multi-dimensional assets" ;
+    ba:algorithmType "MD_TWAP" ;
+    bamt:executionLatency 8.0 ;
+    bamt:maxDimensions 64 .
+
+bamt:VectorOptimalExecution a bamt:ExecutionAlgorithm ;
+    rdfs:label "Vector Optimal Execution" ;
+    rdfs:comment "Optimal execution in N-dimensional space" ;
+    ba:algorithmType "VECTOR_OPTIMAL" ;
+    bamt:executionLatency 8.0 ;
+    bamt:maxDimensions 128 .
+
+# =============================================================================
+# SHACL Validation Shapes
+# =============================================================================
+
+bamt:TradingProtocolShape a sh:NodeShape ;
+    sh:targetClass bamt:TradingProtocol ;
+    sh:property [
+        sh:path bamt:protocolVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" ;
+        sh:message "Protocol version must follow semantic versioning format" ;
+    ] ;
+    sh:property [
+        sh:path bamt:protocolType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "atomic_swap" "batch_auction" "continuous_limit" "cross_chain" "zero_knowledge" ) ;
+        sh:message "Protocol type must be one of the supported types" ;
+    ] ;
+    sh:property [
+        sh:path bamt:maxDimensions ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1024 ;
+        sh:message "Max dimensions must be between 1 and 1024" ;
+    ] .
+
+bamt:TradingOrderShape a sh:NodeShape ;
+    sh:targetClass bamt:TradingOrder ;
+    sh:property [
+        sh:path bamt:orderID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z0-9-]+$" ;
+        sh:message "Order ID must be alphanumeric with hyphens" ;
+    ] ;
+    sh:property [
+        sh:path bamt:orderSide ;
+        sh:datatype xsd:string ;
+        sh:in ( "BUY" "SELL" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Order side must be BUY or SELL" ;
+    ] ;
+    sh:property [
+        sh:path bamt:orderQuantity ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Order quantity must be positive" ;
+    ] ;
+    sh:property [
+        sh:path bamt:orderPrice ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Order price must be positive" ;
+    ] ;
+    sh:property [
+        sh:path bamt:timeInForce ;
+        sh:datatype xsd:string ;
+        sh:in ( "GTC" "IOC" "FOK" "DAY" "GTD" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Time in force must be valid TIF code" ;
+    ] ;
+    sh:property [
+        sh:path bamt:orderProcessingTicks ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxInclusive 8 ;
+        sh:message "Order processing must comply with Doctrine of 8 (≤8 ticks)" ;
+    ] .
+
+bamt:TradeExecutionShape a sh:NodeShape ;
+    sh:targetClass bamt:TradeExecution ;
+    sh:property [
+        sh:path bamt:executionID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^EXE-[A-Z0-9-]+$" ;
+        sh:message "Execution ID must start with EXE- prefix" ;
+    ] ;
+    sh:property [
+        sh:path bamt:executionPrice ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Execution price must be positive" ;
+    ] ;
+    sh:property [
+        sh:path bamt:executionQuantity ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Execution quantity must be positive" ;
+    ] ;
+    sh:property [
+        sh:path bamt:executionTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path bamt:executionLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Execution latency must comply with Doctrine of 8 (≤8ms)" ;
+    ] .
+
+bamt:OrderBookShape a sh:NodeShape ;
+    sh:targetClass bamt:OrderBook ;
+    sh:property [
+        sh:path bamt:bidPrice ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Bid price must be positive" ;
+    ] ;
+    sh:property [
+        sh:path bamt:askPrice ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0.0 ;
+        sh:message "Ask price must be positive" ;
+    ] ;
+    sh:property [
+        sh:path bamt:spread ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Spread must be non-negative" ;
+    ] ;
+    sh:sparql [
+        sh:message "Ask price must be greater than or equal to bid price" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamt:bidPrice ?bid .
+                $this bamt:askPrice ?ask .
+                FILTER(?ask < ?bid)
+            }
+        """ ;
+    ] .
+
+bamt:LiquidityPoolShape a sh:NodeShape ;
+    sh:targetClass bamt:LiquidityPool ;
+    sh:property [
+        sh:path bamt:liquidityLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Liquidity level must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path bamt:utilizationRate ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Utilization rate must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path bamt:reserveRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Reserve ratio must be between 0 and 1" ;
+    ] ;
+    sh:property [
+        sh:path bamt:swapFee ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 0.1 ;
+        sh:message "Swap fee must be between 0 and 10%" ;
+    ] .
+
+bamt:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetNode ba:System ;
+    sh:property [
+        sh:path bamt:matchingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Matching latency must comply with Doctrine of 8 (≤8ms)" ;
+    ] ;
+    sh:property [
+        sh:path bamt:executionLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Execution latency must comply with Doctrine of 8 (≤8ms)" ;
+    ] .
+
+# Advanced validation rules
+bamt:OrderConsistencyShape a sh:NodeShape ;
+    sh:targetClass bamt:TradingOrder ;
+    sh:sparql [
+        sh:message "Stop orders must have stop price" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a bamt:StopOrder .
+                FILTER NOT EXISTS { $this bamt:stopPrice ?stopPrice }
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:message "Iceberg orders must have iceberg quantity" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a bamt:IcebergOrder .
+                FILTER NOT EXISTS { $this bamt:icebergQuantity ?icebergQty }
+            }
+        """ ;
+    ] .
+
+bamt:TimeValidationShape a sh:NodeShape ;
+    sh:targetClass bamt:TradingOrder ;
+    sh:sparql [
+        sh:message "Expiration time must be after order timestamp" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamt:orderTimestamp ?orderTime .
+                $this bamt:expirationTime ?expTime .
+                FILTER(?expTime <= ?orderTime)
+            }
+        """ ;
+    ] .
+
+bamt:RiskConstraintShape a sh:NodeShape ;
+    sh:targetClass bamt:TradingOrder ;
+    sh:sparql [
+        sh:message "Order must not exceed risk limits" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this bamt:riskScore ?riskScore .
+                $this bamt:managedBy ?riskManager .
+                ?riskManager bamt:exposureLimit ?limit .
+                FILTER(?riskScore > ?limit)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# Performance Metrics
+# =============================================================================
+
+bamt:OrderProcessingLatencyMetric a ba:PerformanceMetric ;
+    rdfs:label "Order Processing Latency Metric" ;
+    rdfs:comment "Latency for processing trading orders" ;
+    ba:targetValue 3.0 ;
+    ba:maxValue 8.0 ;
+    ba:unit "milliseconds" ;
+    ba:calculationMethod "order_accepted_time - order_submitted_time" .
+
+bamt:TradeMatchingThroughputMetric a ba:PerformanceMetric ;
+    rdfs:label "Trade Matching Throughput Metric" ;
+    rdfs:comment "Number of trades matched per second" ;
+    ba:targetValue 10000.0 ;
+    ba:unit "matches/second" ;
+    ba:calculationMethod "matched_trades / elapsed_time" .
+
+bamt:OrderBookUpdateLatencyMetric a ba:PerformanceMetric ;
+    rdfs:label "Order Book Update Latency Metric" ;
+    rdfs:comment "Latency for updating order book state" ;
+    ba:targetValue 1.0 ;
+    ba:maxValue 8.0 ;
+    ba:unit "milliseconds" ;
+    ba:calculationMethod "book_updated_time - trade_executed_time" .
+
+bamt:SlippageMinimizationMetric a ba:QualityMetric ;
+    rdfs:label "Slippage Minimization Metric" ;
+    rdfs:comment "Effectiveness of slippage control mechanisms" ;
+    ba:targetValue 95.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "orders_within_slippage_tolerance / total_orders * 100" .
+
+# =============================================================================
+# Integration with Other Systems
+# =============================================================================
+
+# Link to vector conservation system
+bav:AssetVector bamt:tradedVia bamt:TradingProtocol .
+bav:SettlementVector bamt:resultFrom bamt:TradeExecution .
+bav:ConservationLaw bamt:governsProtocol bamt:TradingProtocol .
+
+# Link to audit system
+baa:AuditEvent bamt:recordsOrder bamt:TradingOrder .
+baa:AuditEvent bamt:recordsExecution bamt:TradeExecution .
+baa:AuditTrail bamt:tracksProtocol bamt:TradingProtocol .
+
+# Link to compliance framework
+bac:ComplianceControl bamt:monitorsProtocol bamt:TradingProtocol .
+bac:ComplianceValidation bamt:validatesOrder bamt:TradingOrder .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

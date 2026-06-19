@@ -1,0 +1,59 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Old Gate = legacy/foundation gate.
+# The Old Gate represents the foundational layer: the pre-existing structural record
+# that must be named, sourced, and grounded before the new can be built on top of it.
+# Joiada and Meshullam did not invent a new gate — they restored the old one.
+# Foundation work is not glamorous; it is mandatory.
+
+bos:JoiadaSonOfPaseah a bos:Builder ;
+    rdfs:label "Joiada son of Paseah" ;
+    rdfs:comment "Co-builder of the Old Gate section. Named alongside Meshullam. Foundation work requires named, paired accountability." ;
+    bos:hasCanonicalReference "Neh.3.6"^^xsd:string ;
+    bos:assignedToGate bos:OldGate ;
+    bos:hasSource "Neh.3.6" ;
+    dcterms:created "2026-06-02"^^xsd:date .
+
+bos:MeshullamSonOfBesodeiah a bos:Builder ;
+    rdfs:label "Meshullam son of Besodeiah" ;
+    rdfs:comment "Co-builder of the Old Gate section. Named alongside Joiada. Two builders, one assignment — joint accountability for foundational restoration." ;
+    bos:hasCanonicalReference "Neh.3.6"^^xsd:string ;
+    bos:assignedToGate bos:OldGate ;
+    bos:hasSource "Neh.3.6" .
+
+bos:OldGateSection a bos:WallSection ;
+    rdfs:label "Old Gate Section" ;
+    rdfs:comment "The wall section including the Old Gate. Restored by Joiada son of Paseah and Meshullam son of Besodeiah: beams were laid, doors hung, bolts and bars set." ;
+    bos:assignedToGate bos:OldGate ;
+    bos:hasCanonicalReference "Neh.3.6"^^xsd:string ;
+    bos:hasBuilder bos:JoiadaSonOfPaseah ;
+    bos:hasBuilder bos:MeshullamSonOfBesodeiah ;
+    bos:hasSource "Neh.3.6" ;
+    bos:hasReceipt bos:OldGateSectionReceipt .
+
+bos:OldGateFoundationalElementRecord a bos:InspectionReceipt ;
+    rdfs:label "Old Gate Foundational Element Record" ;
+    rdfs:comment "Foundation record: The Old Gate section was restored by Joiada and Meshullam. Canonical source: Neh.3.6. Beams laid, doors hung, bolts and bars set. The Old Gate is the law that the foundation must be named before the new can be built." ;
+    bos:hasCanonicalReference "Neh.3.6"^^xsd:string ;
+    bos:hasBuilder bos:JoiadaSonOfPaseah ;
+    bos:hasBuilder bos:MeshullamSonOfBesodeiah ;
+    bos:hasSource "Neh.3.6" ;
+    bos:assignedToGate bos:OldGate ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasReceipt bos:OldGateSectionReceipt .
+
+bos:OldGateSectionReceipt a bos:InspectionReceipt ;
+    rdfs:label "Old Gate Section Receipt" ;
+    bos:hasCanonicalReference "Neh.3.6"^^xsd:string ;
+    bos:hasVerdict bos:VerdictAlive ;
+    bos:hasSource "Neh.3.6" ;
+    rdfs:comment "Section complete: foundational gate restored. Beams laid, doors hung, bolts and bars set. Two named builders. Source grounded." .
+
+bos:VerdictAlive a bos:Verdict ;
+    rdfs:label "ALIVE" ;
+    rdfs:comment "Section validated: structure is sound, receipt is grounded, builder is named." .

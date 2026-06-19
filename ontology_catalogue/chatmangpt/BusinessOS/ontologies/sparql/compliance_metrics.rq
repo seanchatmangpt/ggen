@@ -1,0 +1,153 @@
+# ============================================================================
+# COMPLIANCE METRICS COMPUTATION
+# ============================================================================
+# SPARQL SELECT query computing compliance scores and trends.
+#
+# Purpose: Aggregate pass/fail counts across controls to produce:
+#   - Overall compliance percentage per framework
+#   - Compliance by control area (access, encryption, audit, etc.)
+#   - Trend over time (week-over-week improvement or regression)
+#   - Risk score (weighted by severity)
+#
+# Input parameters:
+#   - framework: SOC2, GDPR, HIPAA, SOX
+#   - period: "week" | "month" | "quarter"
+#   - currentPeriod: ISO8601 date indicating end of current period
+#   - previousPeriod: ISO8601 date indicating end of previous period
+#
+# Output columns:
+#   - framework: compliance framework name
+#   - period: reporting period
+#   - controlArea: category (Access, Encryption, Audit, Monitoring, etc.)
+#   - totalControls: count of applicable controls
+#   - passedControls: count of passed checks
+#   - failedControls: count of failed checks
+#   - skippedControls: count of deferred/not-applicable checks
+#   - compliancePercent: (passedControls / (totalControls - skippedControls)) * 100
+#   - previousPercent: compliance % in previous period (for trend)
+#   - trend: "improving" | "stable" | "declining"
+#   - riskScore: 0-100 weighted by severity of failures
+#   - actionItems: count of open remediation items
+#
+# Timeout: 10 seconds max
+# ============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX bos: <https://chatmangpt.com/ontology/businessos/>
+PREFIX comp: <https://chatmangpt.com/ontology/compliance/>
+
+SELECT ?framework ?period ?controlArea ?totalControls ?passedControls ?failedControls ?skippedControls ?compliancePercent ?previousPercent ?trend ?riskScore ?actionItems
+WHERE {
+  # Input parameters
+  BIND("SOC2" AS ?framework)
+  BIND("month" AS ?period)
+  BIND("2026-03-26"^^xsd:date AS ?currentPeriod)
+  BIND("2026-02-26"^^xsd:date AS ?previousPeriod)
+
+  # Find all control check records for current period
+  {
+    SELECT ?controlArea
+      (COUNT(DISTINCT ?rule) AS ?totalControls)
+      (COUNT(DISTINCT ?passedRule) AS ?passedControls)
+      (COUNT(DISTINCT ?failedRule) AS ?failedControls)
+      (COUNT(DISTINCT ?skippedRule) AS ?skippedControls)
+    WHERE {
+      # Get all rules for this framework
+      ?rule a bos:ComplianceRule ;
+        bos:framework ?framework ;
+        bos:controlArea ?controlArea ;
+        rdfs:label ?ruleName .
+
+      # Left outer join: check results for current period
+      OPTIONAL {
+        ?auditEntry bos:ruleId ?ruleId ;
+          bos:checkFramework ?framework ;
+          dcterms:issued ?checkDate ;
+          bos:checkResult ?checkResult .
+
+        FILTER (?checkDate >= ?currentPeriod - xsd:dayTimeDuration("P30D") && ?checkDate <= ?currentPeriod)
+        FILTER (?checkResult = "PASSED" || ?checkResult = "FAILED" || ?checkResult = "SKIPPED")
+
+        # Classify results
+        BIND(IF(?checkResult = "PASSED", ?rule, ?undef) AS ?passedRule)
+        BIND(IF(?checkResult = "FAILED", ?rule, ?undef) AS ?failedRule)
+        BIND(IF(?checkResult = "SKIPPED", ?rule, ?undef) AS ?skippedRule)
+      }
+    }
+    GROUP BY ?controlArea
+  }
+
+  # Calculate compliance percentage
+  BIND(
+    IF(?totalControls - ?skippedControls > 0,
+      ROUND((?passedControls / (?totalControls - ?skippedControls)) * 100, 2),
+      100.0)
+    AS ?compliancePercent
+  )
+
+  # Get previous period compliance for trend
+  {
+    SELECT ?controlArea
+      (ROUND((COUNT(DISTINCT ?prevPassed) / MAX(?prevTotal)) * 100, 2) AS ?previousPercent)
+    WHERE {
+      OPTIONAL {
+        ?rule a bos:ComplianceRule ;
+          bos:framework ?framework ;
+          bos:controlArea ?controlArea .
+
+        OPTIONAL {
+          ?prevAudit bos:ruleId ?prevRuleId ;
+            bos:checkFramework ?framework ;
+            dcterms:issued ?prevCheckDate ;
+            bos:checkResult "PASSED" .
+
+          FILTER (?prevCheckDate >= ?previousPeriod - xsd:dayTimeDuration("P30D") && ?prevCheckDate <= ?previousPeriod)
+          BIND(?rule AS ?prevPassed)
+        }
+      }
+      BIND(1 AS ?prevTotal)
+    }
+    GROUP BY ?controlArea
+  }
+
+  # Calculate trend
+  BIND(
+    IF(?compliancePercent > ?previousPercent + 2, "improving",
+      IF(?compliancePercent < ?previousPercent - 2, "declining", "stable"))
+    AS ?trend
+  )
+
+  # Calculate risk score (0-100, higher = more risky)
+  # Risk = average severity of failed controls
+  {
+    SELECT ?controlArea
+      (ROUND(100 - ?compliancePercent, 1) AS ?riskScore)
+    WHERE {
+      # Weighted by failure count
+      OPTIONAL {
+        ?failedAudit bos:checkFramework ?framework ;
+          bos:controlArea ?controlArea ;
+          bos:checkResult "FAILED" ;
+          bos:severity ?severity .
+      }
+    }
+    GROUP BY ?controlArea
+  }
+
+  # Count open remediation items
+  {
+    SELECT ?controlArea (COUNT(DISTINCT ?remediation) AS ?actionItems)
+    WHERE {
+      OPTIONAL {
+        ?remediation a bos:RemediationItem ;
+          bos:controlArea ?controlArea ;
+          bos:status "open" .
+      }
+    }
+    GROUP BY ?controlArea
+  }
+}
+ORDER BY ?controlArea

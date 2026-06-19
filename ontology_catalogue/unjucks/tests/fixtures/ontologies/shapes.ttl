@@ -1,0 +1,94 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# SHACL Shapes for validation constraints
+# Used to generate validation rules in target project
+
+ex:PersonShape a sh:NodeShape ;
+  sh:targetClass ex:Person ;
+  sh:property [
+    sh:path ex:name ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 255 ;
+    sh:name "Name" ;
+    sh:description "Person's full name" ;
+  ] ;
+  sh:property [
+    sh:path ex:email ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:name "Email" ;
+    sh:description "Valid email address" ;
+  ] ;
+  sh:property [
+    sh:path ex:age ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 150 ;
+    sh:name "Age" ;
+    sh:description "Age in years" ;
+  ] ;
+  sh:property [
+    sh:path ex:phone ;
+    sh:datatype xsd:string ;
+    sh:pattern "^\\+?[1-9]\\d{1,14}$" ;
+    sh:name "Phone" ;
+    sh:description "E.164 format phone number" ;
+  ] .
+
+ex:OrganizationShape a sh:NodeShape ;
+  sh:targetClass ex:Organization ;
+  sh:property [
+    sh:path ex:organizationName ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 500 ;
+    sh:name "Organization Name" ;
+  ] ;
+  sh:property [
+    sh:path ex:website ;
+    sh:datatype xsd:anyURI ;
+    sh:pattern "^https?://.+" ;
+    sh:name "Website" ;
+    sh:description "Must be valid HTTP(S) URL" ;
+  ] ;
+  sh:property [
+    sh:path ex:foundedDate ;
+    sh:datatype xsd:date ;
+    sh:maxInclusive "2025-12-31"^^xsd:date ;
+    sh:name "Founded Date" ;
+  ] .
+
+ex:ProjectShape a sh:NodeShape ;
+  sh:targetClass ex:Project ;
+  sh:property [
+    sh:path ex:projectName ;
+    sh:datatype xsd:string ;
+    sh:minLength 3 ;
+    sh:maxLength 200 ;
+  ] ;
+  sh:property [
+    sh:path ex:budget ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:name "Budget" ;
+    sh:description "Must be non-negative" ;
+  ] ;
+  sh:property [
+    sh:path ex:startDate ;
+    sh:datatype xsd:date ;
+  ] .
+
+# Relationship constraints
+ex:WorksForConstraint a sh:NodeShape ;
+  sh:targetClass ex:Person ;
+  sh:property [
+    sh:path ex:worksFor ;
+    sh:class ex:Organization ;
+    sh:maxCount 1 ;
+    sh:name "Works For" ;
+    sh:description "Person can work for at most one organization" ;
+  ] .

@@ -30,3 +30,6 @@ reporting = ["ffiec-reporting", "ctr-filing", "sar-filing", "audit-trail"]
 entities = ["Account", "Customer", "Transaction", "Ledger", "InterestRate", "Limit"]
 relations = ["owns", "transfers", "earns_interest", "pays", "reports_to"]
 complexity = "very_high"
+
+[marketplace]
+production_ready = false

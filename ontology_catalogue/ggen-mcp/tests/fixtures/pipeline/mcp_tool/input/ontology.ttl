@@ -1,0 +1,37 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mcp: <http://example.org/mcp#> .
+@prefix ggen: <http://example.org/ggen#> .
+
+# MCP Tool Example - File Operations
+
+ggen:ReadFile a mcp:Tool ;
+    rdfs:label "read_file" ;
+    mcp:description "Read a file from the filesystem" ;
+    mcp:hasParameter ggen:ReadFile_path ;
+    mcp:returns "FileContent" .
+
+ggen:ReadFile_path a mcp:Parameter ;
+    rdfs:label "path" ;
+    mcp:parameterType "String" ;
+    mcp:required "true" ;
+    mcp:description "Path to the file to read" .
+
+ggen:WriteFile a mcp:Tool ;
+    rdfs:label "write_file" ;
+    mcp:description "Write content to a file" ;
+    mcp:hasParameter ggen:WriteFile_path ;
+    mcp:hasParameter ggen:WriteFile_content ;
+    mcp:returns "WriteResult" .
+
+ggen:WriteFile_path a mcp:Parameter ;
+    rdfs:label "path" ;
+    mcp:parameterType "String" ;
+    mcp:required "true" ;
+    mcp:description "Path where the file should be written" .
+
+ggen:WriteFile_content a mcp:Parameter ;
+    rdfs:label "content" ;
+    mcp:parameterType "String" ;
+    mcp:required "true" ;
+    mcp:description "Content to write to the file" .

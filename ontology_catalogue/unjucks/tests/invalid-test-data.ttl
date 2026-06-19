@@ -1,0 +1,61 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Invalid data that should violate SHACL constraints
+
+# User with missing required email (violates minCount)
+ex:user1 rdf:type ex:User ;
+    ex:name "John Doe" ;
+    ex:age "25"^^xsd:int .
+
+# User with invalid email pattern
+ex:user2 rdf:type ex:User ;
+    ex:name "Jane" ;
+    ex:email "invalid-email-format" ;
+    ex:age "30"^^xsd:int .
+
+# User with name too short (violates minLength)
+ex:user3 rdf:type ex:User ;
+    ex:name "A" ;
+    ex:email "alice@example.com" ;
+    ex:age "200"^^xsd:int .
+
+# User with negative age (violates minValue)
+ex:user4 rdf:type ex:User ;
+    ex:name "Bob Smith" ;
+    ex:email "bob@example.com" ;
+    ex:age "-5"^^xsd:int .
+
+# User with name exceeding max length
+ex:user5 rdf:type ex:User ;
+    ex:name "This is an extremely long name that should exceed the maximum allowed length of one hundred characters and thus violate the constraint" ;
+    ex:email "long@example.com" ;
+    ex:age "25"^^xsd:int .
+
+# Multiple users with same email (violates uniqueness if implemented)
+ex:user6 rdf:type ex:User ;
+    ex:name "Duplicate Email User 1" ;
+    ex:email "duplicate@example.com" ;
+    ex:age "35"^^xsd:int .
+
+ex:user7 rdf:type ex:User ;
+    ex:name "Duplicate Email User 2" ;
+    ex:email "duplicate@example.com" ;
+    ex:age "40"^^xsd:int .
+
+# User with wrong datatype for age
+ex:user8 rdf:type ex:User ;
+    ex:name "Wrong Type User" ;
+    ex:email "wrongtype@example.com" ;
+    ex:age "not-a-number" .
+
+# Service with missing required properties
+ex:incompleteService rdf:type ex:RESTService .
+
+# Service with invalid version format
+ex:badVersionService rdf:type ex:RESTService ;
+    ex:hasBaseURL "http://localhost:8080" ;
+    ex:hasVersion "not-semantic-version" ;
+    rdfs:label "Bad Version Service" .

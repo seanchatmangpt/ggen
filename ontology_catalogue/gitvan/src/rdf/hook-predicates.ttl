@@ -1,0 +1,499 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix gitv: <https://gitvan.dev/ontology/git#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# Hook Predicate Ontology
+# Version: 4.0.0
+# Description: RDF/OWL ontology for hook predicates, predicate patterns, and
+# SPARQL evaluation templates for Git-native hook system
+# ============================================================================
+
+# Ontology Declaration
+gh:PredicateOntology a owl:Ontology ;
+    dct:title "GitVan Hook Predicate Ontology" ;
+    dct:description "Complete ontology for hook predicates, patterns, and SPARQL-based evaluation" ;
+    dct:version "4.0.0" ;
+    dct:created "2025-01-10"^^xsd:date ;
+    dct:creator "GitVan Team" ;
+    owl:imports prov: .
+
+# ============================================================================
+# Core Predicate Classes
+# ============================================================================
+
+gh:Hook a owl:Class ;
+    rdfs:label "Hook" ;
+    rdfs:comment "A reactive automation hook that triggers on predicate evaluation" ;
+    rdfs:subClassOf prov:Activity .
+
+gh:Predicate a owl:Class ;
+    rdfs:label "Predicate" ;
+    rdfs:comment "Abstract base class for all hook predicates" .
+
+gh:SimplePattern a owl:Class ;
+    rdfs:subClassOf gh:Predicate ;
+    rdfs:label "Simple Pattern" ;
+    rdfs:comment "Single predicate pattern for matching" .
+
+gh:CompositePattern a owl:Class ;
+    rdfs:subClassOf gh:Predicate ;
+    rdfs:label "Composite Pattern" ;
+    rdfs:comment "Logical composition of multiple predicates (AND/OR/NOT)" .
+
+gh:ConditionalPattern a owl:Class ;
+    rdfs:subClassOf gh:Predicate ;
+    rdfs:label "Conditional Pattern" ;
+    rdfs:comment "If-then-else conditional predicate" .
+
+# ============================================================================
+# Predicate Pattern Types
+# ============================================================================
+
+gh:CommitMessagePattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "Commit Message Pattern" ;
+    rdfs:comment "Matches commit messages against regex patterns" .
+
+gh:FileChangePattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "File Change Pattern" ;
+    rdfs:comment "Matches changed files against glob or regex patterns" .
+
+gh:BranchPattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "Branch Pattern" ;
+    rdfs:comment "Matches branch names against patterns" .
+
+gh:AuthorPattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "Author Pattern" ;
+    rdfs:comment "Matches commit author against patterns" .
+
+gh:TimeWindowPattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "Time Window Pattern" ;
+    rdfs:comment "Matches events within time windows" .
+
+gh:StateChangePattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "State Change Pattern" ;
+    rdfs:comment "Matches RDF state changes detected via SPARQL MINUS" .
+
+gh:CountPattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "Count Pattern" ;
+    rdfs:comment "Matches based on SPARQL COUNT aggregation" .
+
+gh:TagPattern a owl:Class ;
+    rdfs:subClassOf gh:SimplePattern ;
+    rdfs:label "Tag Pattern" ;
+    rdfs:comment "Matches Git tags and releases" .
+
+# ============================================================================
+# Composite Pattern Operators
+# ============================================================================
+
+gh:ANDComposition a owl:Class ;
+    rdfs:subClassOf gh:CompositePattern ;
+    rdfs:label "AND Composition" ;
+    rdfs:comment "Logical AND of predicates (all must be true)" .
+
+gh:ORComposition a owl:Class ;
+    rdfs:subClassOf gh:CompositePattern ;
+    rdfs:label "OR Composition" ;
+    rdfs:comment "Logical OR of predicates (at least one must be true)" .
+
+gh:NOTComposition a owl:Class ;
+    rdfs:subClassOf gh:CompositePattern ;
+    rdfs:label "NOT Composition" ;
+    rdfs:comment "Logical NOT of predicate (must be false)" .
+
+# ============================================================================
+# Predicate Properties
+# ============================================================================
+
+gh:pattern a owl:DatatypeProperty ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "Regex or glob pattern string" ;
+    rdfs:domain gh:Predicate ;
+    rdfs:range xsd:string .
+
+gh:targetBranch a owl:DatatypeProperty ;
+    rdfs:label "Target Branch" ;
+    rdfs:comment "Branch where predicate applies" ;
+    rdfs:domain [ rdf:type owl:Class ;
+                   owl:unionOf (gh:CommitMessagePattern gh:FileChangePattern) ] ;
+    rdfs:range xsd:string .
+
+gh:predicates a rdf:Property ;
+    rdfs:label "Predicates" ;
+    rdfs:comment "List of sub-predicates in composition" ;
+    rdfs:domain gh:CompositePattern ;
+    rdfs:range rdf:List .
+
+gh:condition a owl:ObjectProperty ;
+    rdfs:label "Condition" ;
+    rdfs:comment "Condition predicate in if-then" ;
+    rdfs:domain gh:ConditionalPattern ;
+    rdfs:range gh:Predicate .
+
+gh:thenPredicate a owl:ObjectProperty ;
+    rdfs:label "Then Predicate" ;
+    rdfs:comment "Predicate to evaluate if condition is true" ;
+    rdfs:domain gh:ConditionalPattern ;
+    rdfs:range gh:Predicate .
+
+gh:elsePredicate a owl:ObjectProperty ;
+    rdfs:label "Else Predicate" ;
+    rdfs:comment "Predicate to evaluate if condition is false" ;
+    rdfs:domain gh:ConditionalPattern ;
+    rdfs:range gh:Predicate .
+
+gh:timeWindow a owl:DatatypeProperty ;
+    rdfs:label "Time Window" ;
+    rdfs:comment "Time window duration in milliseconds" ;
+    rdfs:domain gh:TimeWindowPattern ;
+    rdfs:range xsd:long .
+
+gh:since a owl:DatatypeProperty ;
+    rdfs:label "Since" ;
+    rdfs:comment "Start timestamp for time window" ;
+    rdfs:domain gh:TimeWindowPattern ;
+    rdfs:range xsd:long .
+
+gh:until a owl:DatatypeProperty ;
+    rdfs:label "Until" ;
+    rdfs:comment "End timestamp for time window" ;
+    rdfs:domain gh:TimeWindowPattern ;
+    rdfs:range xsd:long .
+
+# ============================================================================
+# Event Trigger Types
+# ============================================================================
+
+gh:EventTrigger a owl:Class ;
+    rdfs:label "Event Trigger" ;
+    rdfs:comment "Trigger on specific Git events" .
+
+gh:PreCommitTrigger a owl:Class ;
+    rdfs:subClassOf gh:EventTrigger ;
+    rdfs:label "Pre-Commit Trigger" ;
+    rdfs:comment "Trigger before commit is created" .
+
+gh:PostCommitTrigger a owl:Class ;
+    rdfs:subClassOf gh:EventTrigger ;
+    rdfs:label "Post-Commit Trigger" ;
+    rdfs:comment "Trigger after commit is created" .
+
+gh:PrePushTrigger a owl:Class ;
+    rdfs:subClassOf gh:EventTrigger ;
+    rdfs:label "Pre-Push Trigger" ;
+    rdfs:comment "Trigger before push to remote" .
+
+gh:PostPushTrigger a owl:Class ;
+    rdfs:subClassOf gh:EventTrigger ;
+    rdfs:label "Post-Push Trigger" ;
+    rdfs:comment "Trigger after push to remote" .
+
+# ============================================================================
+# Hook Properties
+# ============================================================================
+
+gh:hookId a owl:DatatypeProperty ;
+    rdfs:label "Hook ID" ;
+    rdfs:comment "Unique identifier for hook" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range xsd:string .
+
+gh:hookName a owl:DatatypeProperty ;
+    rdfs:label "Hook Name" ;
+    rdfs:comment "Human-readable hook name" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range xsd:string .
+
+gh:hookDescription a owl:DatatypeProperty ;
+    rdfs:label "Hook Description" ;
+    rdfs:comment "Description of what hook does" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range xsd:string .
+
+gh:predicate a owl:ObjectProperty ;
+    rdfs:label "Predicate" ;
+    rdfs:comment "Predicate that triggers this hook" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range gh:Predicate .
+
+gh:trigger a owl:ObjectProperty ;
+    rdfs:label "Trigger" ;
+    rdfs:comment "Event that causes predicate evaluation" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range gh:EventTrigger .
+
+gh:action a owl:ObjectProperty ;
+    rdfs:label "Action" ;
+    rdfs:comment "Action to execute when predicate matches" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range rdf:Resource .
+
+gh:dependsOn a owl:ObjectProperty ;
+    rdfs:label "Depends On" ;
+    rdfs:comment "Hooks that must complete before this one" ;
+    rdfs:domain gh:Hook ;
+    rdfs:range gh:Hook .
+
+# ============================================================================
+# SPARQL Query Templates for Pattern Matching
+# ============================================================================
+
+gh:sparqlTemplate a owl:DatatypeProperty ;
+    rdfs:label "SPARQL Template" ;
+    rdfs:comment "SPARQL query template for evaluating predicate" ;
+    rdfs:domain gh:Predicate ;
+    rdfs:range xsd:string .
+
+# Template for commit message pattern
+<gh:commitMessageTemplate> a gh:SparqlTemplate ;
+    rdfs:label "Commit Message SPARQL Template" ;
+    gh:sparqlTemplate """
+        PREFIX gitv: <https://gitvan.dev/ontology/git#>
+        ASK WHERE {
+            ?commit rdf:type gitv:Commit ;
+                    gitv:message ?msg ;
+                    gitv:branch ?branch .
+            FILTER(REGEX(?msg, "${pattern}"))
+            ${targetBranch ? `FILTER(REGEX(?branch, "${targetBranch}"))` : ''}
+        }
+    """ .
+
+# Template for file change pattern
+<gh:fileChangeTemplate> a gh:SparqlTemplate ;
+    rdfs:label "File Change SPARQL Template" ;
+    gh:sparqlTemplate """
+        PREFIX gitv: <https://gitvan.dev/ontology/git#>
+        ASK WHERE {
+            ?commit rdf:type gitv:Commit ;
+                    gitv:filesChanged ?files .
+            ?files rdf:type rdf:List ;
+                   rdf:first ?file .
+            FILTER(REGEX(?file, "${pattern}"))
+        }
+    """ .
+
+# Template for branch pattern
+<gh:branchTemplate> a gh:SparqlTemplate ;
+    rdfs:label "Branch SPARQL Template" ;
+    gh:sparqlTemplate """
+        PREFIX gitv: <https://gitvan.dev/ontology/git#>
+        ASK WHERE {
+            ?branch rdf:type gitv:Branch ;
+                    gitv:name ?branchName .
+            FILTER(REGEX(?branchName, "${pattern}"))
+        }
+    """ .
+
+# Template for author pattern
+<gh:authorTemplate> a gh:SparqlTemplate ;
+    rdfs:label "Author SPARQL Template" ;
+    gh:sparqlTemplate """
+        PREFIX gitv: <https://gitvan.dev/ontology/git#>
+        ASK WHERE {
+            ?commit rdf:type gitv:Commit ;
+                    gitv:author ?author .
+            FILTER(REGEX(?author, "${pattern}"))
+        }
+    """ .
+
+# Template for state change detection (SPARQL MINUS)
+<gh:stateChangeTemplate> a gh:SparqlTemplate ;
+    rdfs:label "State Change SPARQL Template" ;
+    gh:sparqlTemplate """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT ?subject ?predicate ?newValue WHERE {
+            ?subject ?predicate ?newValue
+        } MINUS {
+            ${previousStateTTL}
+        }
+    """ .
+
+# ============================================================================
+# SHACL Shapes for Hook Validation
+# ============================================================================
+
+gh:CommitMessagePatternShape a shacl:NodeShape ;
+    shacl:targetClass gh:CommitMessagePattern ;
+    shacl:property [
+        shacl:path gh:pattern ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Pattern must be a valid regex string"
+    ] ;
+    shacl:property [
+        shacl:path gh:targetBranch ;
+        shacl:datatype xsd:string ;
+        shacl:maxCount 1 ;
+        shacl:description "Target branch is optional"
+    ] .
+
+gh:CompositePatternShape a shacl:NodeShape ;
+    shacl:targetClass gh:CompositePattern ;
+    shacl:property [
+        shacl:path gh:predicates ;
+        shacl:minCount 1 ;
+        shacl:description "Composite pattern must have at least one sub-predicate"
+    ] .
+
+gh:ConditionalPatternShape a shacl:NodeShape ;
+    shacl:targetClass gh:ConditionalPattern ;
+    shacl:property [
+        shacl:path gh:condition ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Conditional must have exactly one condition"
+    ] ;
+    shacl:property [
+        shacl:path gh:thenPredicate ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Conditional must have then clause"
+    ] .
+
+gh:HookShape a shacl:NodeShape ;
+    shacl:targetClass gh:Hook ;
+    shacl:property [
+        shacl:path gh:hookId ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Hook must have unique ID"
+    ] ;
+    shacl:property [
+        shacl:path gh:hookName ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Hook must have name"
+    ] ;
+    shacl:property [
+        shacl:path gh:predicate ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Hook must have predicate"
+    ] ;
+    shacl:property [
+        shacl:path gh:trigger ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Hook must have trigger event"
+    ] ;
+    shacl:property [
+        shacl:path gh:action ;
+        shacl:minCount 1 ;
+        shacl:description "Hook must have at least one action"
+    ] .
+
+# ============================================================================
+# Performance Optimization Properties
+# ============================================================================
+
+gh:queryCache a owl:DatatypeProperty ;
+    rdfs:label "Query Cache" ;
+    rdfs:comment "Cached compiled SPARQL query for performance" ;
+    rdfs:domain gh:Predicate ;
+    rdfs:range xsd:string .
+
+gh:evaluationTime a owl:DatatypeProperty ;
+    rdfs:label "Evaluation Time" ;
+    rdfs:comment "Time in milliseconds to evaluate predicate" ;
+    rdfs:domain gh:Predicate ;
+    rdfs:range xsd:double .
+
+gh:hitCount a owl:DatatypeProperty ;
+    rdfs:label "Hit Count" ;
+    rdfs:comment "Number of times predicate evaluated to true" ;
+    rdfs:domain gh:Predicate ;
+    rdfs:range xsd:integer .
+
+gh:missCount a owl:DatatypeProperty ;
+    rdfs:label "Miss Count" ;
+    rdfs:comment "Number of times predicate evaluated to false" ;
+    rdfs:domain gh:Predicate ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# Example Hook Definitions in RDF
+# ============================================================================
+
+ex:HotfixAlert a gh:Hook ;
+    gh:hookId "hotfix-alert" ;
+    gh:hookName "Alert on Hotfix" ;
+    gh:hookDescription "Notify team when hotfix commits are made" ;
+    gh:predicate ex:HotfixPattern ;
+    gh:trigger ex:PostCommitTrigger ;
+    gh:action [
+        rdf:type gh:NotifyAction ;
+        gh:notificationTarget "slack" ;
+        gh:notificationTemplate "Hotfix: ${commit.message}"
+    ] .
+
+ex:HotfixPattern a gh:CommitMessagePattern ;
+    gh:pattern "^hotfix:" ;
+    gh:targetBranch "main" .
+
+ex:TestPattern a gh:FileChangePattern ;
+    gh:pattern "\\.test\\.js$" ;
+    rdfs:comment "Matches test file changes" .
+
+ex:FeatureCommitPattern a gh:CommitMessagePattern ;
+    gh:pattern "^feat:" ;
+    rdfs:comment "Matches feature commits" .
+
+ex:BugFixPattern a gh:CommitMessagePattern ;
+    gh:pattern "^fix:" ;
+    rdfs:comment "Matches bug fix commits" .
+
+ex:MainBranchPattern a gh:BranchPattern ;
+    gh:pattern "^main$" ;
+    rdfs:comment "Matches main branch" .
+
+# ============================================================================
+# Performance Metrics Classes
+# ============================================================================
+
+gh:EvaluationMetrics a owl:Class ;
+    rdfs:label "Evaluation Metrics" ;
+    rdfs:comment "Performance and execution metrics for predicates" .
+
+gh:metricsForPredicate a owl:ObjectProperty ;
+    rdfs:label "Metrics For Predicate" ;
+    rdfs:domain gh:EvaluationMetrics ;
+    rdfs:range gh:Predicate .
+
+gh:totalEvaluations a owl:DatatypeProperty ;
+    rdfs:label "Total Evaluations" ;
+    rdfs:domain gh:EvaluationMetrics ;
+    rdfs:range xsd:integer .
+
+gh:averageEvaluationTime a owl:DatatypeProperty ;
+    rdfs:label "Average Evaluation Time" ;
+    rdfs:comment "Average time in milliseconds" ;
+    rdfs:domain gh:EvaluationMetrics ;
+    rdfs:range xsd:double .
+
+gh:successRate a owl:DatatypeProperty ;
+    rdfs:label "Success Rate" ;
+    rdfs:comment "Percentage of evaluations that returned true" ;
+    rdfs:domain gh:EvaluationMetrics ;
+    rdfs:range xsd:double ;
+    shacl:minInclusive 0.0 ;
+    shacl:maxInclusive 100.0 .
+
+# Define common namespace prefix
+@prefix ex: <http://example.org/> .

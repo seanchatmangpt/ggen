@@ -1,0 +1,541 @@
+@prefix : <http://uvmgr.io/cli#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+#================================================================
+# CLI Command Ontology for uvmgr - COMPLETE SPECIFICATION
+# ================================================================
+# Full definition of all 13 uvmgr commands with parameters and options
+# Constitutional equation: cli_layer.py = μ(cli-commands-uvmgr-full.ttl)
+
+# ================================================================
+# 1. deps Command - Dependency Management
+# ================================================================
+
+:deps a :Command ;
+    :name "deps" ;
+    :description "Dependency management with uv (add/remove/upgrade/list/lock)" ;
+    :module "uvmgr.commands.deps" ;
+    :telemetryName "deps" ;
+    :outputFormat "text", "json" ;
+    :hasSubcommand :deps_add, :deps_remove, :deps_upgrade, :deps_list, :deps_lock .
+
+:deps_add a :Subcommand ;
+    :name "add" ;
+    :description "Add packages to project dependencies" ;
+    :hasParameter [
+        a :Parameter ;
+        :name "pkgs" ;
+        :parameterType "list[str]" ;
+        :required true ;
+        :isVariadic true ;
+        :description "Package names to add (e.g., requests pandas)" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "dev" ;
+        :flag "--dev" ;
+        :shortFlag "-D" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Add to development dependencies" ;
+    ] .
+
+:deps_remove a :Subcommand ;
+    :name "remove" ;
+    :description "Remove packages from project dependencies" ;
+    :hasParameter [
+        a :Parameter ;
+        :name "pkgs" ;
+        :parameterType "list[str]" ;
+        :required true ;
+        :isVariadic true ;
+        :description "Package names to remove" ;
+    ] .
+
+:deps_upgrade a :Subcommand ;
+    :name "upgrade" ;
+    :description "Upgrade packages to latest versions" ;
+    :hasOption [
+        a :Option ;
+        :name "all" ;
+        :flag "--all" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Upgrade all packages" ;
+    ] ;
+    :hasParameter [
+        a :Parameter ;
+        :name "pkgs" ;
+        :parameterType "list[str]" ;
+        :required false ;
+        :isVariadic true ;
+        :description "Specific packages to upgrade" ;
+    ] .
+
+:deps_list a :Subcommand ;
+    :name "list" ;
+    :description "List installed packages" .
+
+:deps_lock a :Subcommand ;
+    :name "lock" ;
+    :description "Generate or update lock file" ;
+    :hasOption [
+        a :Option ;
+        :name "verbose" ;
+        :flag "--verbose" ;
+        :shortFlag "-v" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Show detailed output" ;
+    ] .
+
+# ================================================================
+# 2. build Command - Package Building
+# ================================================================
+
+:build a :Command ;
+    :name "build" ;
+    :description "Build wheels, sdists, and executables using PyInstaller" ;
+    :module "uvmgr.commands.build" ;
+    :telemetryName "build" ;
+    :outputFormat "text", "json" ;
+    :hasSubcommand :build_dist, :build_wheel, :build_sdist, :build_exe, :build_spec, :build_dogfood .
+
+:build_dist a :Subcommand ;
+    :name "dist" ;
+    :description "Build Python wheel and source distribution" ;
+    :hasOption [
+        a :Option ;
+        :name "outdir" ;
+        :flag "--outdir" ;
+        :shortFlag "-o" ;
+        :parameterType "Path" ;
+        :required false ;
+        :description "Output directory for distributions" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "upload" ;
+        :flag "--upload" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Upload to PyPI after build" ;
+    ] .
+
+:build_exe a :Subcommand ;
+    :name "exe" ;
+    :description "Build standalone executable with PyInstaller" ;
+    :hasOption [
+        a :Option ;
+        :name "name" ;
+        :flag "--name" ;
+        :shortFlag "-n" ;
+        :parameterType "str" ;
+        :required false ;
+        :defaultValue "uvmgr" ;
+        :description "Executable name" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "onefile" ;
+        :flag "--onefile" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "true" ;
+        :description "Build single file vs directory" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "clean" ;
+        :flag "--clean" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "true" ;
+        :description "Clean build directories" ;
+    ] .
+
+:build_spec a :Subcommand ;
+    :name "spec" ;
+    :description "Generate PyInstaller spec file" ;
+    :hasOption [
+        a :Option ;
+        :name "outfile" ;
+        :flag "--outfile" ;
+        :shortFlag "-o" ;
+        :parameterType "Path" ;
+        :required false ;
+        :defaultValue "uvmgr.spec" ;
+        :description "Output spec file path" ;
+    ] .
+
+:build_dogfood a :Subcommand ;
+    :name "dogfood" ;
+    :description "Build uvmgr executable (eat own dog food)" ;
+    :hasOption [
+        a :Option ;
+        :name "version" ;
+        :flag "--version" ;
+        :shortFlag "-v" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Include version in executable name" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "test" ;
+        :flag "--test" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "true" ;
+        :description "Test built executable" ;
+    ] .
+
+# ================================================================
+# 3. tests Command - Test Execution
+# ================================================================
+
+:tests a :Command ;
+    :name "tests" ;
+    :description "Run tests with pytest, coverage, and CI verification" ;
+    :module "uvmgr.commands.tests" ;
+    :telemetryName "tests" ;
+    :outputFormat "text", "json" ;
+    :hasSubcommand :tests_run, :tests_coverage, :tests_ci_verify .
+
+:tests_run a :Subcommand ;
+    :name "run" ;
+    :description "Run comprehensive test suite" ;
+    :hasOption [
+        a :Option ;
+        :name "verbose" ;
+        :flag "--verbose" ;
+        :shortFlag "-v" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Verbose output" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "parallel" ;
+        :flag "--parallel" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "true" ;
+        :description "Run tests in parallel" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "coverage" ;
+        :flag "--coverage" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "true" ;
+        :description "Collect coverage data" ;
+    ] .
+
+:tests_coverage a :Subcommand ;
+    :name "coverage" ;
+    :description "Generate coverage reports" ;
+    :hasOption [
+        a :Option ;
+        :name "verbose" ;
+        :flag "--verbose" ;
+        :shortFlag "-v" ;
+        :parameterType "bool" ;
+        :required false ;
+        :defaultValue "false" ;
+        :description "Verbose output" ;
+    ] .
+
+:tests_ci_verify a :Subcommand ;
+    :name "ci" ;
+    :description "Comprehensive CI verification" ;
+    :hasOption [
+        a :Option ;
+        :name "timeout" ;
+        :flag "--timeout" ;
+        :shortFlag "-t" ;
+        :parameterType "int" ;
+        :required false ;
+        :defaultValue "300" ;
+        :description "Command timeout in seconds" ;
+    ] .
+
+# ================================================================
+# 4. cache Command - Cache Management
+# ================================================================
+
+:cache a :Command ;
+    :name "cache" ;
+    :description "Cache management and operations" ;
+    :module "uvmgr.commands.cache" ;
+    :telemetryName "cache" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "clear" ;
+        :flag "--clear" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Clear cache" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "status" ;
+        :flag "--status" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Show cache status" ;
+    ] .
+
+# ================================================================
+# 5. lint Command - Code Quality
+# ================================================================
+
+:lint a :Command ;
+    :name "lint" ;
+    :description "Code quality checks (ruff, black, mypy)" ;
+    :module "uvmgr.commands.lint" ;
+    :telemetryName "lint" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "check" ;
+        :flag "--check" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Check code without fixing" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "fix" ;
+        :flag "--fix" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Auto-fix code issues" ;
+    ] .
+
+# ================================================================
+# 6. otel Command - OpenTelemetry
+# ================================================================
+
+:otel a :Command ;
+    :name "otel" ;
+    :description "OpenTelemetry validation and management" ;
+    :module "uvmgr.commands.otel" ;
+    :telemetryName "otel" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "validate" ;
+        :flag "--validate" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Validate OTEL configuration" ;
+    ] .
+
+# ================================================================
+# 7. guides Command - Development Guides
+# ================================================================
+
+:guides a :Command ;
+    :name "guides" ;
+    :description "Development guides and documentation" ;
+    :module "uvmgr.commands.guides" ;
+    :telemetryName "guides" ;
+    :outputFormat "text" ;
+    :hasOption [
+        a :Option ;
+        :name "topic" ;
+        :flag "--topic" ;
+        :shortFlag "-t" ;
+        :parameterType "str" ;
+        :required false ;
+        :description "Guide topic to display" ;
+    ] .
+
+# ================================================================
+# 8. worktree Command - Git Worktree Management
+# ================================================================
+
+:worktree a :Command ;
+    :name "worktree" ;
+    :description "Git worktree management" ;
+    :module "uvmgr.commands.worktree" ;
+    :telemetryName "worktree" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "create" ;
+        :flag "--create" ;
+        :parameterType "str" ;
+        :required false ;
+        :description "Create new worktree" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "remove" ;
+        :flag "--remove" ;
+        :parameterType "str" ;
+        :required false ;
+        :description "Remove worktree" ;
+    ] .
+
+# ================================================================
+# 9. infodesign Command - Information Design
+# ================================================================
+
+:infodesign a :Command ;
+    :name "infodesign" ;
+    :description "Information design support and tools" ;
+    :module "uvmgr.commands.infodesign" ;
+    :telemetryName "infodesign" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "analyze" ;
+        :flag "--analyze" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Analyze documentation" ;
+    ] .
+
+# ================================================================
+# 10. mermaid Command - Diagram Generation
+# ================================================================
+
+:mermaid a :Command ;
+    :name "mermaid" ;
+    :description "Mermaid diagram generation from code/specs" ;
+    :module "uvmgr.commands.mermaid" ;
+    :telemetryName "mermaid" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "input" ;
+        :flag "--input" ;
+        :shortFlag "-i" ;
+        :parameterType "Path" ;
+        :required false ;
+        :description "Input file path" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "output" ;
+        :flag "--output" ;
+        :shortFlag "-o" ;
+        :parameterType "Path" ;
+        :required false ;
+        :description "Output file path" ;
+    ] .
+
+# ================================================================
+# 11. dod Command - Definition of Done
+# ================================================================
+
+:dod a :Command ;
+    :name "dod" ;
+    :description "Definition of Done automation and checklists" ;
+    :module "uvmgr.commands.dod" ;
+    :telemetryName "dod" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "check" ;
+        :flag "--check" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Check against DOD criteria" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "format" ;
+        :flag "--format" ;
+        :shortFlag "-f" ;
+        :parameterType "str" ;
+        :required false ;
+        :defaultValue "text" ;
+        :description "Output format (text/markdown/json)" ;
+    ] .
+
+# ================================================================
+# 12. docs Command - API Documentation
+# ================================================================
+
+:docs a :Command ;
+    :name "docs" ;
+    :description "API documentation generation" ;
+    :module "uvmgr.commands.docs" ;
+    :telemetryName "docs" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "generate" ;
+        :flag "--generate" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Generate documentation" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "serve" ;
+        :flag "--serve" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Serve documentation locally" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "port" ;
+        :flag "--port" ;
+        :shortFlag "-p" ;
+        :parameterType "int" ;
+        :required false ;
+        :defaultValue "8000" ;
+        :description "Port for documentation server" ;
+    ] .
+
+# ================================================================
+# 13. terraform Command - Infrastructure as Code
+# ================================================================
+
+:terraform a :Command ;
+    :name "terraform" ;
+    :description "Terraform support and infrastructure as code" ;
+    :module "uvmgr.commands.terraform" ;
+    :telemetryName "terraform" ;
+    :outputFormat "text", "json" ;
+    :hasOption [
+        a :Option ;
+        :name "init" ;
+        :flag "--init" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Initialize Terraform" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "plan" ;
+        :flag "--plan" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Plan infrastructure changes" ;
+    ] ;
+    :hasOption [
+        a :Option ;
+        :name "apply" ;
+        :flag "--apply" ;
+        :parameterType "bool" ;
+        :required false ;
+        :description "Apply infrastructure changes" ;
+    ] .

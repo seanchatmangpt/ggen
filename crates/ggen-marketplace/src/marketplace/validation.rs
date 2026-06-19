@@ -425,17 +425,35 @@ pub struct ReadmeValidator;
 #[async_trait]
 impl Validator for ReadmeValidator {
     async fn validate(&self, package: &Package) -> Result<ValidationCheck> {
-        // In a real implementation, this would check for actual README files
-        let has_documentation = !package.metadata.description.is_empty();
+        // Check for physical README file in marketplace/packages/{id}/
+        let pkg_dir = std::path::PathBuf::from(format!(
+            "marketplace/packages/{}",
+            package.metadata.id.as_str()
+        ));
+
+        let has_readme = if pkg_dir.is_dir() {
+            // Check for any README variant (case-insensitive on the stem)
+            std::fs::read_dir(&pkg_dir)
+                .map(|entries| {
+                    entries.flatten().any(|entry| {
+                        let name = entry.file_name();
+                        let name_str = name.to_string_lossy().to_uppercase();
+                        name_str.starts_with("README")
+                    })
+                })
+                .unwrap_or(false)
+        } else {
+            false
+        };
 
         Ok(ValidationCheck {
             name: "Documentation".to_string(),
-            passed: has_documentation,
+            passed: has_readme,
             severity: CheckSeverity::Major,
-            message: if has_documentation {
-                "Documentation present".to_string()
+            message: if has_readme {
+                "README file present".to_string()
             } else {
-                "Missing documentation".to_string()
+                "Missing README file in package directory".to_string()
             },
             weight: 20,
         })

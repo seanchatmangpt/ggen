@@ -1,0 +1,204 @@
+@prefix job: <http://rflow.dev/ontology/job-model#> .
+@prefix yawl: <http://rflow.dev/ontology/yawl-core#> .
+@prefix example: <http://rflow.dev/example/timer-workflow#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@base <http://rflow.dev/example/timer-workflow> .
+
+# Example ABox: Timer-based Workflow
+# Demonstrates: Start -> Activity A -> Timer -> Activity B -> End
+
+#################################################################
+# Job Definition
+#################################################################
+
+example:TimerWorkflowJob rdf:type job:JobDefinition ;
+   job:hasJobId "timer-workflow-001" ;
+   yawl:hasName "Timer Workflow" ;
+   yawl:hasDescription "Workflow with time-based delays and timer events" .
+
+#################################################################
+# Workflow Elements
+#################################################################
+
+# Start Event
+example:StartEvent rdf:type yawl:StartEvent ;
+   yawl:hasId "start" ;
+   yawl:hasName "Start" ;
+   yawl:belongsTo example:TimerWorkflowJob ;
+   yawl:isEnabled true .
+
+# Activity A
+example:ActivityA rdf:type yawl:AtomicActivity ;
+   yawl:hasId "activity-a" ;
+   yawl:hasName "Initialize Process" ;
+   yawl:hasDescription "Initialize the delayed process" ;
+   yawl:belongsTo example:TimerWorkflowJob ;
+   yawl:isEnabled false ;
+   yawl:isExecuting false ;
+   yawl:isCompleted false .
+
+# Timer Event (5 minute delay)
+example:TimerDelay rdf:type yawl:Timer ;
+   yawl:hasId "timer-delay" ;
+   yawl:hasName "5 Minute Delay" ;
+   yawl:hasDescription "Wait 5 minutes before proceeding" ;
+   yawl:belongsTo example:TimerWorkflowJob ;
+   yawl:hasDuration "PT5M"^^xsd:duration ;
+   yawl:isEnabled false .
+
+# Activity B  
+example:ActivityB rdf:type yawl:AtomicActivity ;
+   yawl:hasId "activity-b" ;
+   yawl:hasName "Complete Process" ;
+   yawl:hasDescription "Complete the process after timer" ;
+   yawl:belongsTo example:TimerWorkflowJob ;
+   yawl:isEnabled false ;
+   yawl:isExecuting false ;
+   yawl:isCompleted false .
+
+# End Event
+example:EndEvent rdf:type yawl:EndEvent ;
+   yawl:hasId "end" ;
+   yawl:hasName "End" ;
+   yawl:belongsTo example:TimerWorkflowJob ;
+   yawl:isEnabled false .
+
+#################################################################
+# Flow Connections
+#################################################################
+
+# Flow: Start -> Activity A
+example:Flow1 rdf:type yawl:Flow ;
+   yawl:hasId "flow-1" ;
+   yawl:flowsFrom example:StartEvent ;
+   yawl:flowsTo example:ActivityA .
+
+example:StartEvent yawl:hasOutputFlow example:Flow1 .
+example:ActivityA yawl:hasInputFlow example:Flow1 .
+
+# Flow: Activity A -> Timer
+example:Flow2 rdf:type yawl:Flow ;
+   yawl:hasId "flow-2" ;
+   yawl:flowsFrom example:ActivityA ;
+   yawl:flowsTo example:TimerDelay .
+
+example:ActivityA yawl:hasOutputFlow example:Flow2 .
+example:TimerDelay yawl:hasInputFlow example:Flow2 .
+
+# Flow: Timer -> Activity B
+example:Flow3 rdf:type yawl:Flow ;
+   yawl:hasId "flow-3" ;
+   yawl:flowsFrom example:TimerDelay ;
+   yawl:flowsTo example:ActivityB .
+
+example:TimerDelay yawl:hasOutputFlow example:Flow3 .
+example:ActivityB yawl:hasInputFlow example:Flow3 .
+
+# Flow: Activity B -> End
+example:Flow4 rdf:type yawl:Flow ;
+   yawl:hasId "flow-4" ;
+   yawl:flowsFrom example:ActivityB ;
+   yawl:flowsTo example:EndEvent .
+
+example:ActivityB yawl:hasOutputFlow example:Flow4 .
+example:EndEvent yawl:hasInputFlow example:Flow4 .
+
+#################################################################
+# Timer-specific Configuration
+#################################################################
+
+# Timer service configuration  
+example:TimerServiceConfig rdf:type job:TimerService ;
+   job:hasTickInterval "PT0.001S"^^xsd:duration ;
+   yawl:hasName "Hierarchical Timer Wheel" ;
+   yawl:hasDescription "1ms tick timer service" .
+
+# Timer event details
+example:TimerEvent rdf:type job:TimerEvent ;
+   yawl:hasId "timer-event-001" ;
+   yawl:belongsTo example:TimerWorkflowJob ;
+   job:hasScheduledTime "2025-08-28T10:00:00Z"^^xsd:dateTime .
+
+#################################################################
+# Pattern Classifications  
+#################################################################
+
+# Sequential patterns
+example:SequencePattern1 rdf:type yawl:Sequence ;
+   yawl:hasName "Start to Initialize Sequence" ;
+   yawl:flowsFrom example:StartEvent ;
+   yawl:flowsTo example:ActivityA ;
+   yawl:belongsTo example:TimerWorkflowJob .
+
+example:SequencePattern2 rdf:type yawl:Sequence ;
+   yawl:hasName "Initialize to Timer Sequence" ;
+   yawl:flowsFrom example:ActivityA ;
+   yawl:flowsTo example:TimerDelay ;
+   yawl:belongsTo example:TimerWorkflowJob .
+
+example:SequencePattern3 rdf:type yawl:Sequence ;
+   yawl:hasName "Timer to Complete Sequence" ;
+   yawl:flowsFrom example:TimerDelay ;
+   yawl:flowsTo example:ActivityB ;
+   yawl:belongsTo example:TimerWorkflowJob .
+
+example:SequencePattern4 rdf:type yawl:Sequence ;
+   yawl:hasName "Complete to End Sequence" ;
+   yawl:flowsFrom example:ActivityB ;
+   yawl:flowsTo example:EndEvent ;
+   yawl:belongsTo example:TimerWorkflowJob .
+
+#################################################################
+# Timer Wheel Configuration
+#################################################################
+
+# Timer wheel for efficient timer management
+example:TimerWheel rdf:type job:TimerWheel ;
+   yawl:hasId "main-timer-wheel" ;
+   job:hasTickInterval "PT0.001S"^^xsd:duration ;
+   yawl:hasName "Main Timer Wheel" ;
+   yawl:hasDescription "Hierarchical wheel with 1ms tick for timer jitter p99 ≤3ms" .
+
+#################################################################
+# Performance Requirements
+#################################################################
+
+# Timer jitter requirements (p99 ≤3ms at 1M/hour)
+example:TimerPerformanceReq rdf:type owl:Thing ;
+   rdfs:comment "Timer jitter p99 must be ≤3ms at 1M timers/hour" ;
+   job:hasTimerJitter "PT0.003S"^^xsd:duration .
+
+#################################################################
+# Runtime Configuration
+#################################################################
+
+# Execution context
+example:ExecutionContext rdf:type job:ExecutionContext ;
+   job:hasProgramCounter 0 ;
+   job:hasVersion "1.0.0" .
+
+# Namespace
+example:DefaultNamespace rdf:type job:Namespace ;
+   yawl:hasId "default" ;
+   yawl:hasName "Default Namespace" .
+
+example:TimerWorkflowJob job:belongsToNamespace example:DefaultNamespace .
+
+#################################################################
+# Expected PlanPack Metadata
+#################################################################
+
+example:ExpectedPlanPack rdf:type job:PlanPack ;
+   job:hasPlanHash "blake3-hash-timer-workflow" ;
+   job:hasTBoxHash "yawl-core-tbox-hash" ;
+   job:compiledFrom example:TimerWorkflowJob .
+
+# Pattern assertions
+example:PatternAssertions rdf:type job:PatternAssertions ;
+   rdfs:comment "All patterns (Sequence, Timer) are MVP supported" ;
+   rdfs:comment "Timer events supported with hierarchical wheel" ;
+   rdfs:comment "No RequiresRule patterns present" .

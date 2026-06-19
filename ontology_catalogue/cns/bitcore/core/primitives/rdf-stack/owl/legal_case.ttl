@@ -1,0 +1,245 @@
+@prefix : <http://cns-forge.io/legal#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix legal: <http://cns-forge.io/legal#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+:LegalOntology rdf:type owl:Ontology ;
+    dc:title "CNS Litigator Legal Case Management Ontology" ;
+    dc:description "Enterprise-grade legal case management and litigation support system" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Legal Entities
+
+:LegalCase rdf:type owl:Class ;
+    rdfs:label "Legal Case" ;
+    rdfs:comment "Represents a legal case or matter" .
+
+:CaseNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique case identifier" .
+
+:CaseTitle rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range xsd:string .
+
+:CaseStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Status: Open, Closed, Pending, Appeal" .
+
+:FilingDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range xsd:dateTime .
+
+:Jurisdiction rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range xsd:string .
+
+# Legal Actors
+
+:LegalActor rdf:type owl:Class ;
+    rdfs:label "Legal Actor" ;
+    rdfs:comment "Any participant in legal proceedings" .
+
+:Attorney rdf:type owl:Class ;
+    rdfs:subClassOf :LegalActor .
+
+:Client rdf:type owl:Class ;
+    rdfs:subClassOf :LegalActor .
+
+:Judge rdf:type owl:Class ;
+    rdfs:subClassOf :LegalActor .
+
+:Witness rdf:type owl:Class ;
+    rdfs:subClassOf :LegalActor .
+
+:hasAttorney rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :Attorney .
+
+:hasClient rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :Client .
+
+:presidingJudge rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :Judge .
+
+# Legal Documents
+
+:LegalDocument rdf:type owl:Class ;
+    rdfs:label "Legal Document" ;
+    rdfs:comment "Any document related to legal proceedings" .
+
+:Motion rdf:type owl:Class ;
+    rdfs:subClassOf :LegalDocument .
+
+:Brief rdf:type owl:Class ;
+    rdfs:subClassOf :LegalDocument .
+
+:Contract rdf:type owl:Class ;
+    rdfs:subClassOf :LegalDocument .
+
+:Evidence rdf:type owl:Class ;
+    rdfs:subClassOf :LegalDocument .
+
+:hasDocument rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :LegalDocument .
+
+:DocumentDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalDocument ;
+    rdfs:range xsd:dateTime .
+
+:DocumentType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalDocument ;
+    rdfs:range xsd:string .
+
+# Case Events
+
+:CaseEvent rdf:type owl:Class ;
+    rdfs:label "Case Event" ;
+    rdfs:comment "Events that occur during a case" .
+
+:Hearing rdf:type owl:Class ;
+    rdfs:subClassOf :CaseEvent .
+
+:Deposition rdf:type owl:Class ;
+    rdfs:subClassOf :CaseEvent .
+
+:Trial rdf:type owl:Class ;
+    rdfs:subClassOf :CaseEvent .
+
+:Settlement rdf:type owl:Class ;
+    rdfs:subClassOf :CaseEvent .
+
+:hasEvent rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :CaseEvent .
+
+:EventDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CaseEvent ;
+    rdfs:range xsd:dateTime .
+
+# Billing and Time Tracking
+
+:BillableActivity rdf:type owl:Class ;
+    rdfs:label "Billable Activity" ;
+    rdfs:comment "Time tracking for legal services" .
+
+:ActivityDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BillableActivity ;
+    rdfs:range xsd:string .
+
+:HoursWorked rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BillableActivity ;
+    rdfs:range xsd:decimal .
+
+:HourlyRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :BillableActivity ;
+    rdfs:range xsd:decimal .
+
+:hasBillableActivity rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :BillableActivity .
+
+# Legal Research
+
+:LegalResearch rdf:type owl:Class ;
+    rdfs:label "Legal Research" ;
+    rdfs:comment "Research related to case law and statutes" .
+
+:CaseLaw rdf:type owl:Class ;
+    rdfs:subClassOf :LegalResearch .
+
+:Statute rdf:type owl:Class ;
+    rdfs:subClassOf :LegalResearch .
+
+:Regulation rdf:type owl:Class ;
+    rdfs:subClassOf :LegalResearch .
+
+:hasResearch rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :LegalResearch .
+
+:Citation rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LegalResearch ;
+    rdfs:range xsd:string .
+
+# Compliance and Deadlines
+
+:Deadline rdf:type owl:Class ;
+    rdfs:label "Legal Deadline" ;
+    rdfs:comment "Important dates and deadlines" .
+
+:DeadlineDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Deadline ;
+    rdfs:range xsd:dateTime .
+
+:DeadlineType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Deadline ;
+    rdfs:range xsd:string .
+
+:hasDeadline rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :Deadline .
+
+# Analytics and Reporting
+
+:CaseAnalytics rdf:type owl:Class ;
+    rdfs:label "Case Analytics" ;
+    rdfs:comment "Analytics for case performance" .
+
+:SuccessRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CaseAnalytics ;
+    rdfs:range xsd:decimal .
+
+:AverageDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CaseAnalytics ;
+    rdfs:range xsd:decimal .
+
+:TotalBillings rdf:type owl:DatatypeProperty ;
+    rdfs:domain :CaseAnalytics ;
+    rdfs:range xsd:decimal .
+
+# Security and Access Control
+
+:AccessControl rdf:type owl:Class ;
+    rdfs:label "Access Control" ;
+    rdfs:comment "Security and permissions" .
+
+:hasPermission rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalActor ;
+    rdfs:range :AccessControl .
+
+:PermissionLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AccessControl ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Read, Write, Admin" .
+
+# Audit Trail
+
+:AuditEntry rdf:type owl:Class ;
+    rdfs:label "Audit Entry" ;
+    rdfs:comment "Audit trail for compliance" .
+
+:AuditTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:dateTime .
+
+:AuditAction rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:string .
+
+:AuditUser rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:string .
+
+:hasAuditEntry rdf:type owl:ObjectProperty ;
+    rdfs:domain :LegalCase ;
+    rdfs:range :AuditEntry .

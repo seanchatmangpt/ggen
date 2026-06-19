@@ -1,0 +1,252 @@
+# Semantic Web Demo Template - RDF/Turtle Generation
+# This template demonstrates the semantic web filters for generating RDF/Turtle content
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ex: <http://example.org/> .
+
+# ====================
+# PERSON PROFILE
+# ====================
+
+ex:john-doe-profile a schema:Person ;
+    foaf:name &quot;John Doe&quot;@en ;
+    foaf:givenName &quot;John&quot;@en ;
+    foaf:familyName &quot;Doe&quot;@en ;
+    foaf:mbox <mailto:john.doe@example.com> ;
+    foaf:age &quot;32&quot;^^xsd:integer ;
+    schema:BirthDate &quot;1992-05-15&quot;^^xsd:date ;
+    dcterms:created &quot;Sun, 07 Sep 2025 21:30:48 GMT&quot;^^xsd:dateTime ;
+    dcterms:identifier &quot;3cc60854-1bbc-49a9-84bd-022d83d5f84e&quot;^^xsd:string ;
+    
+    # Interests as RDF list
+    foaf:interest ( &quot;JavaScript&quot; &quot;Semantic Web&quot; &quot;Machine Learning&quot; &quot;Open Source&quot; ) ;
+    
+    # Social connections
+
+    foaf:knows ex:jane-smith ;
+
+    foaf:knows ex:bob-wilson ;
+
+    foaf:knows ex:alice-johnson ;
+
+    
+    # Work information
+    foaf:workplaceHomepage <https://techinnovations.com> ;
+    foaf:currentProject ex:semantic-web-toolkit .
+
+# ====================
+# ORGANIZATION DATA
+# ====================
+
+ex:tech-innovations-inc a schema:Organization ;
+    schema:Name &quot;Tech Innovations Inc&quot;@en ;
+    schema:Description &quot;A forward-thinking technology company specializing in semantic web solutions&quot;@en ;
+    schema:Url <https://techinnovations.com> ;
+    schema:FoundingDate &quot;2015-03-10&quot;^^xsd:date ;
+    schema:NumberOfEmployees &quot;250&quot;^^xsd:integer .
+
+# ====================
+# PROJECT INFORMATION
+# ====================
+
+ex:semantic-web-toolkit a schema:SoftwareApplication ;
+    schema:Name &quot;Semantic Web Toolkit&quot;@en ;
+    schema:Description &quot;A comprehensive toolkit for working with RDF, SPARQL, and semantic web technologies&quot;@en ;
+    schema:ProgrammingLanguage ( &quot;JavaScript&quot; &quot;TypeScript&quot; &quot;Python&quot; ) ;
+    schema:Version &quot;2.1.0&quot;^^xsd:string ;
+    schema:DateCreated &quot;2023-01-15T09:00:00Z&quot;^^xsd:dateTime ;
+    schema:License <https://opensource.org/licenses/MIT> ;
+    
+    # Repository information
+    schema:CodeRepository <https://github.com/techinnovations/semantic-web-toolkit> ;
+    
+    # Contributors
+
+    dcterms:contributor ex:john-doe ;
+
+    dcterms:contributor ex:jane-smith ;
+
+    dcterms:contributor ex:bob-wilson ;
+
+    
+    # Technologies used (as blank nodes)
+
+    schema:IsBasedOn [
+        a schema:SoftwareApplication ;
+        schema:Name &quot;Node.js&quot;@en ;
+        schema:Version &quot;20.0.0&quot;^^xsd:string
+    ] ;
+
+    schema:IsBasedOn [
+        a schema:SoftwareApplication ;
+        schema:Name &quot;Express&quot;@en ;
+        schema:Version &quot;4.18.0&quot;^^xsd:string
+    ] ;
+
+    schema:IsBasedOn [
+        a schema:SoftwareApplication ;
+        schema:Name &quot;N3&quot;@en ;
+        schema:Version &quot;1.16.0&quot;^^xsd:string
+    ] ;
+ .
+
+# ====================
+# VOCABULARY/TAXONOMY (SKOS)
+# ====================
+
+ex:programming-languages a skos:ConceptScheme ;
+    dcterms:title &quot;Programming Languages&quot;@en ;
+    dcterms:description &quot;A taxonomy of programming languages&quot;@en ;
+
+    skos:hasTopConcept ex:java-script ;
+
+    skos:hasTopConcept ex:type-script ;
+
+    skos:hasTopConcept ex:python ;
+
+    skos:hasTopConcept ex:java ;
+ .
+
+
+ex:java-script a skos:Concept ;
+    skos:prefLabel &quot;JavaScript&quot;@en ;
+    skos:definition &quot;A high-level, interpreted programming language&quot;@en ;
+    skos:inScheme ex:programming-languages ;
+
+    skos:broader ex:scripting-language ;
+
+
+    skos:related ( &lt;TypeScript&gt; &lt;Node.js&gt; ) ;
+
+    skos:notation &quot;.js&quot;^^xsd:string .
+
+
+ex:type-script a skos:Concept ;
+    skos:prefLabel &quot;TypeScript&quot;@en ;
+    skos:definition &quot;A strongly typed programming language that builds on JavaScript&quot;@en ;
+    skos:inScheme ex:programming-languages ;
+
+    skos:broader ex:scripting-language ;
+
+
+    skos:related ( &lt;JavaScript&gt; ) ;
+
+    skos:notation &quot;.ts&quot;^^xsd:string .
+
+
+ex:python a skos:Concept ;
+    skos:prefLabel &quot;Python&quot;@en ;
+    skos:definition &quot;A high-level, general-purpose programming language&quot;@en ;
+    skos:inScheme ex:programming-languages ;
+
+    skos:broader ex:scripting-language ;
+
+
+    skos:related ( &lt;JavaScript&gt; &lt;Java&gt; ) ;
+
+    skos:notation &quot;.py&quot;^^xsd:string .
+
+
+ex:java a skos:Concept ;
+    skos:prefLabel &quot;Java&quot;@en ;
+    skos:definition &quot;A high-level, class-based, object-oriented programming language&quot;@en ;
+    skos:inScheme ex:programming-languages ;
+
+    skos:broader ex:object-oriented-language ;
+
+
+    skos:related ( &lt;Python&gt; &lt;C++&gt; ) ;
+
+    skos:notation &quot;.java&quot;^^xsd:string .
+
+
+
+# ====================
+# OWL ONTOLOGY DEFINITIONS
+# ====================
+
+ex:ontology a owl:Ontology ;
+    dcterms:title &quot;Example Ontology&quot;@en ;
+    owl:versionInfo &quot;1.0.0&quot;^^xsd:string ;
+    dcterms:created &quot;Sun, 07 Sep 2025 21:30:48 GMT&quot;^^xsd:dateTime .
+
+# Custom classes
+ex:Developer a owl:Class ;
+    rdfs:label &quot;Developer&quot;@en ;
+    rdfs:comment &quot;A person who develops software&quot;@en ;
+    rdfs:subClassOf schema:Person .
+
+# Custom properties  
+ex:hasSkill a owl:ObjectProperty ;
+    rdfs:label &quot;has skill&quot;@en ;
+    rdfs:domain ex:Developer ;
+    rdfs:range ex:Skill .
+
+ex:experienceYears a owl:DatatypeProperty ;
+    rdfs:label &quot;experience in years&quot;@en ;
+    rdfs:domain ex:Developer ;
+    rdfs:range xsd:integer .
+
+# ====================
+# SPARQL QUERY GENERATION
+# ====================
+
+# Query for all developers with their skills
+# SELECT ?developer ?name ?skill
+# WHERE {
+#   ?developer a ex:Developer ;
+#                foaf:name ?name ;
+#                ex:hasSkill ?skill .
+#   ?experienceYears >= 5 | sparqlFilter }}
+# }
+
+# ====================
+# METADATA
+# ====================
+
+<> a void:dataset ;
+    dcterms:title &quot;Example Semantic Web Dataset&quot;@en ;
+    dcterms:description &quot;A demonstration dataset showcasing RDF/Turtle generation with semantic web filters&quot;@en ;
+    dcterms:creator &quot;Unjucks Development Team&quot;@en ;
+    dcterms:created &quot;Sun, 07 Sep 2025 21:30:48 GMT&quot;^^xsd:dateTime ;
+    dcterms:format &quot;text/turtle&quot;^^xsd:string ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    
+    # Statistics
+    void:triples &quot;156&quot;^^xsd:integer ;
+    void:entities &quot;42&quot;^^xsd:integer ;
+    
+    # Provenance
+    prov:wasGeneratedBy [
+        a prov:activity ;
+        prov:startedAtTime &quot;2024-01-01T10:00:00Z&quot;^^xsd:dateTime ;
+        prov:endedAtTime &quot;Sun, 07 Sep 2025 21:30:48 GMT&quot;^^xsd:dateTime ;
+        prov:wasAssociatedWith [
+            a prov:agent ;
+            foaf:name &quot;Unjucks Template Engine&quot;@en ;
+            prov:version &quot;1.0.0&quot;^^xsd:string
+        ]
+    ] .
+
+# ====================
+# NAMED GRAPHS (OPTIONAL)
+# ====================
+
+# GRAPH http://example.org/graphs/user-profiles {
+#   # User profile triples would go here
+# }
+
+# GRAPH http://example.org/graphs/company-data {
+#   # Company information triples would go here  
+# }
+
+# GRAPH http://example.org/graphs/project-metadata {
+#   # Project-related triples would go here
+# }

@@ -1,0 +1,144 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix pi:    <https://wasm4pm.dev/pi#> .
+
+# PI algorithm anti-cheat pointers — true + decoy value pairs per algorithm.
+# Authority: wasm4pm repo. Weakening requires a commit here AND to the fixture.
+# pi:hardcodeLockable "true" = numeric value that must be DERIVED, not hardcoded.
+# pi:hardcodeLockable "false" = vocabulary token that may appear as a string literal.
+
+# ── DFG ─────────────────────────────────────────────────────────────────────
+
+pi:APP_dfg_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_dfg ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "activities=8,edges=15" ;
+  pi:pointerLocus "van der Aalst 2016, Process Mining (2nd ed.), Springer, Chapter 7, Figure 7.2 — running-example DFG over the hospital log" ;
+  pi:pointerDerivation "8 distinct activities and 15 directly-follows pairs when all traces are counted with zero frequency filter on the canonical running-example log." ;
+  pi:hardcodeLockable "true" .
+
+pi:APP_dfg_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_dfg ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "activities=8,edges=12" ;
+  pi:pointerLocus "van der Aalst 2016, Chapter 7, Figure 7.2" ;
+  pi:decoyReason "Default frequency filter (minimum 2 occurrences) eliminates 3 low-frequency arcs, reporting 12 edges instead of the unfiltered 15." .
+
+# ── Alpha++ ──────────────────────────────────────────────────────────────────
+
+pi:APP_alpha_plus_plus_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_alpha_plus_plus ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "fitness=1.0" ;
+  pi:pointerLocus "van der Aalst, Weijters & Maruster 2004, IEEE TKDE 16(9), Section IV — Alpha++ correctness proof on the running-example log" ;
+  pi:pointerDerivation "Token-replay fitness on Alpha++-produced Petri net over canonical running-example log is exactly 1.0 — all trace variants replay without missing or remaining tokens." ;
+  pi:hardcodeLockable "true" .
+
+pi:APP_alpha_plus_plus_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_alpha_plus_plus ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "fitness=0.847" ;
+  pi:pointerLocus "van der Aalst, Weijters & Maruster 2004, IEEE TKDE 16(9), Section IV" ;
+  pi:decoyReason "0.847 is the precision score of the Alpha++-produced model, not the fitness. Conflates precision with fitness." .
+
+# ── Inductive Miner ──────────────────────────────────────────────────────────
+
+pi:APP_inductive_miner_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_inductive_miner ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "sound" ;
+  pi:pointerLocus "Leemans, Fahland & van der Aalst 2013, Petri Nets LNCS 7927, Theorem 1 — all process trees produced by IM are sound by construction" ;
+  pi:pointerDerivation "Theorem 1 proves block-structured process tree produced by IM is always a sound workflow net. Fixture asserts soundness on any IM-produced tree over any well-formed input log." ;
+  pi:hardcodeLockable "false" .
+
+pi:APP_inductive_miner_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_inductive_miner ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "fitness=0.92" ;
+  pi:pointerLocus "Leemans, Fahland & van der Aalst 2013, Petri Nets LNCS 7927" ;
+  pi:decoyReason "0.92 is a typical token-replay fitness reported by the Heuristic Miner on the same running-example log — not the Inductive Miner." .
+
+# ── Heuristic Miner ──────────────────────────────────────────────────────────
+
+pi:APP_heuristic_miner_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_heuristic_miner ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "dependency_threshold=0.5" ;
+  pi:pointerLocus "Weijters & van der Aalst 2006, BETA Working Paper WP 166, Section 3 — dependency measure threshold of 0.5 is the paper's recommended default" ;
+  pi:pointerDerivation "Paper explicitly recommends >= 0.5 as the boundary above which a directly-follows arc is a genuine causal dependency." ;
+  pi:hardcodeLockable "true" .
+
+pi:APP_heuristic_miner_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_heuristic_miner ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "dependency_threshold=0.3" ;
+  pi:pointerLocus "Weijters & van der Aalst 2006, BETA Working Paper WP 166, Section 3" ;
+  pi:decoyReason "0.3 is the operational default in smart_engine_run for noisy real-world logs. Confuses noise-tolerance setting with the paper's theoretical recommendation of 0.5." .
+
+# ── Alignments ───────────────────────────────────────────────────────────────
+
+pi:APP_alignments_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_alignments ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "fitness=1.0" ;
+  pi:pointerLocus "van der Aalst, Adriansyah & van Dongen 2012, WIREs DMKD 2(2):182-192, Section 3 — alignment fitness on running-example log" ;
+  pi:pointerDerivation "Alignment-based fitness on canonical 6-trace running-example log against Alpha++-produced Petri net is 1.0. All traces have optimal alignments with zero move costs." ;
+  pi:hardcodeLockable "true" .
+
+pi:APP_alignments_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_alignments ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "fitness=0.75" ;
+  pi:pointerLocus "van der Aalst, Adriansyah & van Dongen 2012, WIREs DMKD 2(2):182-192, Section 3" ;
+  pi:decoyReason "0.75 is per-trace fitness for a single non-conforming trace variant, not the log-level average over all traces." .
+
+# ── ETC Precision ────────────────────────────────────────────────────────────
+
+pi:APP_etconformance_precision_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_etconformance_precision ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "etc_precision" ;
+  pi:pointerLocus "Munoz-Gama & Carmona 2010, BPM LNCS 6336, Section 4 — ETC precision measure defined as fraction of model-allowed continuations observed in log" ;
+  pi:pointerDerivation "The paper introduces and names the ETC (Escaping Edges Conformance) precision measure. Fixture asserts output metric_name equals 'etc_precision'." ;
+  pi:hardcodeLockable "false" .
+
+pi:APP_etconformance_precision_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_etconformance_precision ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "behavioral_precision" ;
+  pi:pointerLocus "Munoz-Gama & Carmona 2010, BPM LNCS 6336, Section 2" ;
+  pi:decoyReason "Conflates ETC precision with 'behavioral precision' from Rozinat & van der Aalst 2008 — a different formula based on reachable states rather than escaping edges." .
+
+# ── ILP Discovery ────────────────────────────────────────────────────────────
+
+pi:APP_ilp_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_ilp ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "sound,precise" ;
+  pi:pointerLocus "van der Aalst et al. 2004, BPM Center Report BPM-06-30, Section 3 — ILP-mined nets are sound and maximally precise" ;
+  pi:pointerDerivation "ILP formulation guarantees: (a) token-replay fitness=1.0 on training log, (b) maximally precise — no sub-net is both fitting and more precise." ;
+  pi:hardcodeLockable "false" .
+
+pi:APP_ilp_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_ilp ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "fitness=0.98" ;
+  pi:pointerLocus "van der Aalst et al. 2004, BPM Center Report BPM-06-30, Section 4" ;
+  pi:decoyReason "0.98 is from approximate-ILP evaluations where solver is given a time budget. Confuses ILP exact solution (fitness=1.0 by construction) with heuristic ILP approximation." .
+
+# ── Genetic Algorithm ────────────────────────────────────────────────────────
+
+pi:APP_genetic_algorithm_true a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_genetic_algorithm ;
+  pi:pointerKind "true" ;
+  pi:pointerValue "population_size=50" ;
+  pi:pointerLocus "van der Aalst, de Medeiros & Weijters 2005, Petri Nets LNCS 3536, Section 4 — experimental setup: population size 50" ;
+  pi:pointerDerivation "Paper's Section 4 experimental setup uses population size 50 as primary configuration. Fixture asserts default population_size equals 50 with paper-canonical parameters." ;
+  pi:hardcodeLockable "true" .
+
+pi:APP_genetic_algorithm_decoy a pi:AlgorithmPointer ;
+  pi:forAlgorithm pi:Algo_genetic_algorithm ;
+  pi:pointerKind "decoy" ;
+  pi:pointerValue "population_size=100" ;
+  pi:pointerLocus "van der Aalst, de Medeiros & Weijters 2005, Petri Nets LNCS 3536, Section 4" ;
+  pi:decoyReason "100 is the population used in the paper's sensitivity analysis (Section 4.2). Confuses the sensitivity experiment variant with the paper's recommended canonical configuration." .

@@ -1,0 +1,32 @@
+# SPARQL Query: Select Witness Marker Projections
+# Authority: wasm4pm-compat Type-Law Atlas
+# Purpose: Extract all witness markers from lattice for Rust enum generation
+# Template Target: witness-marker.tera → witness-markers-20260601.rs
+
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?witness_name ?lattice_position ?structure ?formalism ?authority ?rustified_marker
+WHERE {
+  ?witness a compat:WitnessMarker ;
+    rdfs:label ?witness_name ;
+    compat:lattice_position ?lattice_position ;
+    compat:structure ?structure ;
+    compat:formalism ?formalism ;
+    compat:authority ?authority .
+
+  # Derive Rust-safe marker name from witness URI
+  BIND(
+    REPLACE(
+      REPLACE(
+        STR(?witness),
+        "https://process.intelligence/compat/",
+        ""
+      ),
+      "[^a-zA-Z0-9_]",
+      "_"
+    ) AS ?rustified_marker
+  )
+}
+ORDER BY ?lattice_position ?witness_name

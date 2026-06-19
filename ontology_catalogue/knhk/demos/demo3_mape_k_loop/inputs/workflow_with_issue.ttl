@@ -1,0 +1,156 @@
+@prefix wf: <http://knhk.example/workflow/> .
+@prefix yawl: <http://knhk.example/yawl/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# DEMO 3: MAPE-K Autonomous Loop
+# This workflow has a deliberate performance issue:
+# Task2 is I/O bound and takes 3000ms (violates 8-tick SLO)
+# The MAPE-K loop should detect this and adapt
+
+wf:ProblematicWorkflow a yawl:Workflow ;
+    dc:title "Workflow with Performance Issue" ;
+    dc:description "Deliberate slowdown to trigger MAPE-K adaptation" ;
+    yawl:hasStartTask wf:Task1 ;
+    yawl:chatmanConstant 3 ;
+    yawl:latencySLOTicks 8 ;
+    yawl:enableMAPEK true ;
+    yawl:mapeKConfig [
+        yawl:monitoringInterval "PT100MS" ;
+        yawl:anomalyThreshold 1.5 ;
+        yawl:adaptationStrategy yawl:SerializeBottlenecks
+    ] .
+
+wf:Task1 a yawl:Task ;
+    dc:title "Task 1: Data Ingestion" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT500MS" ;
+    yawl:nextTask wf:Task2 ;
+    yawl:outputs ([yawl:name "input_batch"]) .
+
+wf:Task2 a yawl:Task ;
+    dc:title "Task 2: I/O Intensive Processing (BOTTLENECK)" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT3000MS" ;  # 3000ms - violates SLO!
+    yawl:isIOBound true ;
+    yawl:ioType yawl:NetworkIO ;
+    yawl:nextTask wf:Task3 ;
+    yawl:outputs ([yawl:name "processed_batch"]) ;
+    yawl:knownIssues "Slow under high concurrency" .
+
+wf:Task3 a yawl:Task ;
+    dc:title "Task 3: Aggregation" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT500MS" ;
+    yawl:nextTask wf:Task4 ;
+    yawl:outputs ([yawl:name "aggregated_result"]) .
+
+wf:Task4 a yawl:Task ;
+    dc:title "Task 4: Final Output" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:estimatedDuration "PT200MS" ;
+    yawl:nextTask wf:EndTask ;
+    yawl:outputs ([yawl:name "final_result"]) .
+
+wf:EndTask a yawl:EndTask ;
+    yawl:pattern yawl:TerminationTask .
+
+# MAPE-K Monitoring Configuration
+wf:ProblematicWorkflow yawl:hasMonitor [
+    dc:title "Performance Monitor" ;
+    yawl:monitors (
+        wf:LatencyMetric
+        wf:ThroughputMetric
+        wf:CPUUtilization
+    ) ;
+    yawl:alertingRules (
+        [
+            yawl:name "LatencyViolation" ;
+            yawl:condition "latency > 8000" ;
+            yawl:severity yawl:Critical ;
+            yawl:action yawl:TriggerAnalysis
+        ]
+    )
+] .
+
+wf:LatencyMetric a yawl:Metric ;
+    dc:title "Task Latency (ms)" ;
+    yawl:unit "milliseconds" ;
+    yawl:threshold 8000 ;
+    yawl:reportingInterval "PT100MS" .
+
+wf:ThroughputMetric a yawl:Metric ;
+    dc:title "Throughput (tasks/sec)" ;
+    yawl:unit "count" ;
+    yawl:threshold 100 .
+
+wf:CPUUtilization a yawl:Metric ;
+    dc:title "CPU Usage (%)" ;
+    yawl:unit "percent" ;
+    yawl:threshold 85 .
+
+# Knowledge Store: What the system learns
+wf:ProblematicWorkflow yawl:hasKnowledge [
+    dc:title "Initial Knowledge" ;
+    yawl:rules (
+        [
+            yawl:pattern "network_io_bound" ;
+            yawl:action "none" ;
+            yawl:confidence 0.0
+        ]
+    )
+] .
+
+# Adaptation Strategy: What the system will do when it detects the issue
+wf:ProblematicWorkflow yawl:hasAdaptationStrategy [
+    dc:title "Serialization Strategy" ;
+    yawl:trigger yawl:LatencyViolation ;
+    yawl:analysis [
+        yawl:step1 "Detect that Task2 exceeds SLO" ;
+        yawl:step2 "Identify Task2 is I/O bound" ;
+        yawl:step3 "Root cause: Network contention" ;
+        yawl:step4 "Solution: Serialize Task2 (reduce parallelism)"
+    ] ;
+    yawl:plan [
+        yawl:planName "ReduceParallelism" ;
+        yawl:changes [
+            yawl:changeType "workflow_modification" ;
+            yawl:modification "Task2 becomes serial (max 1 concurrent instance)" ;
+            yawl:expectedImpact "Latency: 3000ms → 800ms (network buffer released)"
+        ]
+    ] ;
+    yawl:execution [
+        yawl:step1 "Update Task2 concurrency setting" ;
+        yawl:step2 "Re-run workflow with new config" ;
+        yawl:step3 "Verify latency now < 8ms" ;
+        yawl:step4 "Confirm task completes successfully"
+    ] ;
+    yawl:knowledge [
+        yawl:learned "IOBoundTasks need serialization" ;
+        yawl:storedAs "knowledge:io_serialization_pattern" ;
+        yawl:appliedTo "AllFutureIOBoundWorkflows"
+    ]
+] .
+
+# Q Invariants
+wf:ProblematicWorkflow yawl:hasInvariant [
+    dc:title "Q3: Chatman Constant" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "forall task: latency(task) <= 8" ;
+    yawl:enforcedAt "runtime" ;
+    yawl:violationAction "triggerAnalysis" ;
+    yawl:comment "Before MAPE-K: Task2 violates. After MAPE-K: Complies."
+] .
+
+# Initial expected violation
+wf:ProblematicWorkflow yawl:expectedBehavior [
+    dc:title "Before Adaptation" ;
+    yawl:status yawl:Problematic ;
+    yawl:issue "Task2 latency = 3000ms > 8ms SLO" ;
+    yawl:severity yawl:Critical
+] ;
+yawl:expectedBehavior [
+    dc:title "After Adaptation" ;
+    yawl:status yawl:Fixed ;
+    yawl:issue "Task2 latency = 500ms < 8ms SLO" ;
+    yawl:severity yawl:None
+] .

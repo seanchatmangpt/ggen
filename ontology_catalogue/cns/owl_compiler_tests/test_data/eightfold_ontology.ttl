@@ -1,0 +1,57 @@
+@prefix : <http://example.org/eightfold#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix eh: <http://cns.io/eightfold#> .
+
+# Ontology with Eightfold Path mappings
+: a owl:Ontology ;
+    rdfs:label "Eightfold Test Ontology" .
+
+# Right Understanding
+:KnowledgeBase a owl:Class ;
+    rdfs:label "Knowledge Base" ;
+    eh:stage "Right Understanding" ;
+    rdfs:comment "Base knowledge representation" .
+
+# Right Thought
+:IntentionProcessor a owl:Class ;
+    rdfs:label "Intention Processor" ;
+    eh:stage "Right Thought" ;
+    rdfs:comment "Processes intentions and plans" .
+
+# Right Speech
+:CommunicationInterface a owl:Class ;
+    rdfs:label "Communication Interface" ;
+    eh:stage "Right Speech" ;
+    rdfs:comment "Handles communication protocols" .
+
+# Right Action
+:ExecutionEngine a owl:Class ;
+    rdfs:label "Execution Engine" ;
+    eh:stage "Right Action" ;
+    rdfs:comment "Executes planned actions" .
+
+# Right Livelihood
+:MaintenanceSystem a owl:Class ;
+    rdfs:label "Maintenance System" ;
+    eh:stage "Right Livelihood" ;
+    rdfs:comment "Maintains system sustainability" .
+
+# Right Effort
+:OptimizationModule a owl:Class ;
+    rdfs:label "Optimization Module" ;
+    eh:stage "Right Effort" ;
+    rdfs:comment "Optimizes system performance" .
+
+# Right Mindfulness
+:MonitoringService a owl:Class ;
+    rdfs:label "Monitoring Service" ;
+    eh:stage "Right Mindfulness" ;
+    rdfs:comment "Monitors system state" .
+
+# Right Concentration
+:IntegrationHub a owl:Class ;
+    rdfs:label "Integration Hub" ;
+    eh:stage "Right Concentration" ;
+    rdfs:comment "Integrates all components" .

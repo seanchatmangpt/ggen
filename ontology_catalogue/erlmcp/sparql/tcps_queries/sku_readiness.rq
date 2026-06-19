@@ -1,0 +1,126 @@
+# Query: SKU Production Readiness Check
+#
+# Business Logic:
+# - Validates if a SKU is ready for production deployment
+# - Checks: 1) All required receipts present and passed
+#          2) No open/active Andon (quality alert) events
+#          3) All production stages completed successfully
+# - Returns readiness status with specific missing items
+#
+# Parameters:
+# - ?sku_id: SKU identifier to check (REQUIRED - bind before query)
+#
+# Returns:
+# - sku_id: The checked SKU
+# - is_ready: Boolean - true if ready for production
+# - missing_receipts: Count of required but missing receipts
+# - failed_receipts: Count of receipts that failed validation
+# - open_andon_count: Number of active quality alerts
+# - blocking_issues: Comma-separated list of blocking problems
+#
+# Usage Example:
+# BIND("SKU-12345" AS ?sku_id)
+
+PREFIX tcps: <http://example.org/tcps#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?sku_id ?is_ready ?missing_receipts ?failed_receipts ?open_andon_count
+       (GROUP_CONCAT(DISTINCT ?issue; separator=", ") AS ?blocking_issues)
+WHERE {
+  # Bind SKU parameter (must be provided by caller)
+  # Example: BIND("SKU-12345" AS ?sku_id)
+
+  ?sku rdf:type tcps:SKU ;
+       tcps:skuId ?sku_id .
+
+  # Count required receipts by stage
+  {
+    SELECT ?sku (COUNT(DISTINCT ?required_stage) AS ?total_required_stages)
+    WHERE {
+      ?sku tcps:requiresStage ?required_stage .
+    }
+    GROUP BY ?sku
+  }
+
+  # Count completed receipts with PASS status
+  OPTIONAL {
+    SELECT ?sku (COUNT(DISTINCT ?stage) AS ?completed_stages)
+    WHERE {
+      ?receipt rdf:type tcps:Receipt ;
+               tcps:skuId ?sku_id ;
+               tcps:stage ?stage ;
+               tcps:status "PASS" .
+
+      ?sku tcps:skuId ?sku_id ;
+           tcps:requiresStage ?stage .
+    }
+    GROUP BY ?sku
+  }
+
+  # Count failed receipts
+  OPTIONAL {
+    SELECT ?sku (COUNT(?failed_receipt) AS ?failed_receipts)
+    WHERE {
+      ?failed_receipt rdf:type tcps:Receipt ;
+                      tcps:skuId ?sku_id ;
+                      tcps:status "FAIL" .
+
+      ?sku tcps:skuId ?sku_id .
+    }
+    GROUP BY ?sku
+  }
+
+  # Count open Andon events for this SKU
+  OPTIONAL {
+    SELECT ?sku (COUNT(?andon) AS ?open_andon_count)
+    WHERE {
+      ?andon rdf:type tcps:AndonEvent ;
+             tcps:skuId ?sku_id ;
+             tcps:status "OPEN" .
+
+      ?sku tcps:skuId ?sku_id .
+    }
+    GROUP BY ?sku
+  }
+
+  # Calculate missing receipts
+  BIND(COALESCE(?total_required_stages, 0) - COALESCE(?completed_stages, 0) AS ?missing_receipts)
+  BIND(COALESCE(?failed_receipts, 0) AS ?failed_count)
+  BIND(COALESCE(?open_andon_count, 0) AS ?andon_count)
+
+  # Build list of blocking issues
+  OPTIONAL {
+    {
+      # Issue: Missing receipts
+      SELECT ?sku ("Missing required receipts" AS ?issue)
+      WHERE {
+        # This will be populated if ?missing_receipts > 0
+        FILTER(?missing_receipts > 0)
+      }
+    }
+    UNION
+    {
+      # Issue: Failed receipts
+      SELECT ?sku ("Failed quality checks" AS ?issue)
+      WHERE {
+        FILTER(?failed_count > 0)
+      }
+    }
+    UNION
+    {
+      # Issue: Open Andon alerts
+      SELECT ?sku ("Active Andon quality alerts" AS ?issue)
+      WHERE {
+        FILTER(?andon_count > 0)
+      }
+    }
+  }
+
+  # Determine readiness: Ready if no missing, no failed, no Andon
+  BIND(
+    (?missing_receipts = 0 && ?failed_count = 0 && ?andon_count = 0)
+    AS ?is_ready
+  )
+}
+GROUP BY ?sku_id ?is_ready ?missing_receipts ?failed_receipts ?open_andon_count

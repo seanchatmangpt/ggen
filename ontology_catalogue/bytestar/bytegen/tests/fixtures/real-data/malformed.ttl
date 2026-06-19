@@ -1,0 +1,44 @@
+# Malformed TTL for error handling testing
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ex: <http://example.org/> .
+
+# Missing closing > in prefix declaration above
+
+ex:TestOntology a owl:Ontology
+    rdfs:label "Test Ontology" .
+
+# Missing semicolon in triple above
+
+ex:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A person in our system" ;
+    # Incomplete comment
+
+ex:name a owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string
+    # Missing final period
+
+ex:hasAge a owl:DatatypeProperty
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:integer ;
+    
+# Missing property value entirely
+ex:invalidProperty ;
+
+# Invalid URI
+ex:person a <invalid-uri> ;
+    rdfs:label "Test Person" .
+
+# Undefined prefix
+unknown:concept rdfs:label "Unknown" .
+
+# Malformed literal
+ex:testLiteral "unclosed string ;
+
+# Invalid datatype
+ex:testNumber "not_a_number"^^xsd:integer .
+
+# Circular property definition
+ex:circularProp rdfs:subPropertyOf ex:circularProp .

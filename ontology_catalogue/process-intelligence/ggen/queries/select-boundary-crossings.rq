@@ -1,0 +1,22 @@
+# SPARQL Query: Select Boundary Crossing Definitions
+# Authority: wasm4pm-compat Type-Law Atlas
+# Purpose: Extract all boundary crossing definitions for WIT world export
+# Template Target: wasm-boundary.tera → boundary-law-20260601.wit
+
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?crossing_name ?source_type ?target_type ?algorithm ?witness_label ?rustified_signature
+WHERE {
+  ?crossing a compat:BoundaryCrossing ;
+    rdfs:label ?crossing_name ;
+    compat:source_type ?source_type ;
+    compat:target_type ?target_type ;
+    compat:algorithm ?algorithm ;
+    compat:witness ?witness ;
+    compat:rustified ?rustified_signature .
+
+  ?witness rdfs:label ?witness_label .
+}
+ORDER BY ?crossing_name

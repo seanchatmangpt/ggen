@@ -1,0 +1,189 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix kgen: <http://kgen.ai/ontology#> .
+@prefix ex: <http://example.org/> .
+
+# KGEN Workshop Sample Knowledge Base
+# This file demonstrates semantic modeling for code generation
+
+# KGEN Ontology Classes
+kgen:Template a owl:Class ;
+    rdfs:label "Code Generation Template" ;
+    rdfs:comment "A template used for deterministic code generation" .
+
+kgen:Artifact a owl:Class ;
+    rdfs:label "Generated Artifact" ;
+    rdfs:comment "An artifact generated from a template" .
+
+kgen:Variable a owl:Class ;
+    rdfs:label "Template Variable" ;
+    rdfs:comment "A variable used in template generation" .
+
+kgen:Rule a owl:Class ;
+    rdfs:label "Generation Rule" ;
+    rdfs:comment "A rule governing code generation" .
+
+# Properties
+kgen:hasTemplate a owl:ObjectProperty ;
+    rdfs:domain kgen:Artifact ;
+    rdfs:range kgen:Template ;
+    rdfs:label "has template" .
+
+kgen:hasVariable a owl:ObjectProperty ;
+    rdfs:domain kgen:Template ;
+    rdfs:range kgen:Variable ;
+    rdfs:label "has variable" .
+
+kgen:generatedAt a owl:DatatypeProperty ;
+    rdfs:domain kgen:Artifact ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "generated at" .
+
+kgen:templatePath a owl:DatatypeProperty ;
+    rdfs:domain kgen:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "template path" .
+
+kgen:variableName a owl:DatatypeProperty ;
+    rdfs:domain kgen:Variable ;
+    rdfs:range xsd:string ;
+    rdfs:label "variable name" .
+
+kgen:variableType a owl:DatatypeProperty ;
+    rdfs:domain kgen:Variable ;
+    rdfs:range xsd:string ;
+    rdfs:label "variable type" .
+
+kgen:isRequired a owl:DatatypeProperty ;
+    rdfs:domain kgen:Variable ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is required" .
+
+# Sample Templates
+ex:nextjsPageTemplate a kgen:Template ;
+    rdfs:label "Next.js Page Template" ;
+    kgen:templatePath "_templates/nextjs-app/page.tsx.njk" ;
+    dc:description "Generates Next.js page components with TypeScript" ;
+    dcterms:created "2025-09-12T00:00:00Z"^^xsd:dateTime ;
+    kgen:hasVariable ex:pageNameVar, ex:titleVar, ex:descriptionVar, ex:withAuthVar .
+
+ex:apiRouteTemplate a kgen:Template ;
+    rdfs:label "API Route Template" ;
+    kgen:templatePath "_templates/api-service/route.ts.njk" ;
+    dc:description "Generates Next.js API routes with authentication and validation" ;
+    dcterms:created "2025-09-12T00:00:00Z"^^xsd:dateTime ;
+    kgen:hasVariable ex:resourceNameVar, ex:withAuthVar, ex:withValidationVar .
+
+ex:officeReportTemplate a kgen:Template ;
+    rdfs:label "Office Report Template" ;
+    kgen:templatePath "_templates/office-report/report.docx.njk" ;
+    dc:description "Generates MS Office documents for compliance reporting" ;
+    dcterms:created "2025-09-12T00:00:00Z"^^xsd:dateTime ;
+    kgen:hasVariable ex:reportTypeVar, ex:reportTitleVar, ex:authorVar .
+
+# Sample Variables
+ex:pageNameVar a kgen:Variable ;
+    kgen:variableName "pageName" ;
+    kgen:variableType "string" ;
+    kgen:isRequired true ;
+    rdfs:label "Page Name" ;
+    rdfs:comment "The name of the page component to generate" .
+
+ex:titleVar a kgen:Variable ;
+    kgen:variableName "title" ;
+    kgen:variableType "string" ;
+    kgen:isRequired true ;
+    rdfs:label "Title" ;
+    rdfs:comment "The display title for the generated component" .
+
+ex:descriptionVar a kgen:Variable ;
+    kgen:variableName "description" ;
+    kgen:variableType "string" ;
+    kgen:isRequired false ;
+    rdfs:label "Description" ;
+    rdfs:comment "Optional description text" .
+
+ex:withAuthVar a kgen:Variable ;
+    kgen:variableName "withAuth" ;
+    kgen:variableType "boolean" ;
+    kgen:isRequired false ;
+    rdfs:label "With Authentication" ;
+    rdfs:comment "Include authentication logic" .
+
+ex:resourceNameVar a kgen:Variable ;
+    kgen:variableName "resourceName" ;
+    kgen:variableType "string" ;
+    kgen:isRequired true ;
+    rdfs:label "Resource Name" ;
+    rdfs:comment "The name of the API resource" .
+
+ex:withValidationVar a kgen:Variable ;
+    kgen:variableName "withValidation" ;
+    kgen:variableType "boolean" ;
+    kgen:isRequired false ;
+    rdfs:label "With Validation" ;
+    rdfs:comment "Include request validation" .
+
+ex:reportTypeVar a kgen:Variable ;
+    kgen:variableName "reportType" ;
+    kgen:variableType "string" ;
+    kgen:isRequired true ;
+    rdfs:label "Report Type" ;
+    rdfs:comment "The type of report to generate" .
+
+ex:reportTitleVar a kgen:Variable ;
+    kgen:variableName "reportTitle" ;
+    kgen:variableType "string" ;
+    kgen:isRequired true ;
+    rdfs:label "Report Title" ;
+    rdfs:comment "The title of the report" .
+
+ex:authorVar a kgen:Variable ;
+    kgen:variableName "author" ;
+    kgen:variableType "string" ;
+    kgen:isRequired true ;
+    rdfs:label "Author" ;
+    rdfs:comment "The report author" .
+
+# Sample Generated Artifacts
+ex:userDashboardPage a kgen:Artifact ;
+    rdfs:label "User Dashboard Page" ;
+    kgen:hasTemplate ex:nextjsPageTemplate ;
+    kgen:generatedAt "2025-09-12T10:30:00Z"^^xsd:dateTime ;
+    dc:description "Dashboard page generated for user management" .
+
+ex:productsApiRoute a kgen:Artifact ;
+    rdfs:label "Products API Route" ;
+    kgen:hasTemplate ex:apiRouteTemplate ;
+    kgen:generatedAt "2025-09-12T10:31:00Z"^^xsd:dateTime ;
+    dc:description "REST API for product management" .
+
+ex:complianceReport a kgen:Artifact ;
+    rdfs:label "HIPAA Compliance Report" ;
+    kgen:hasTemplate ex:officeReportTemplate ;
+    kgen:generatedAt "2025-09-12T10:32:00Z"^^xsd:dateTime ;
+    dc:description "HIPAA compliance assessment report" .
+
+# Project Context
+ex:workshopProject a owl:Thing ;
+    rdfs:label "KGEN Workshop Project" ;
+    dc:description "Demonstration project for KGEN capabilities" ;
+    dcterms:created "2025-09-12T00:00:00Z"^^xsd:dateTime ;
+    foaf:maker [
+        foaf:name "KGEN Workshop" ;
+        foaf:mbox <mailto:workshop@kgen.ai>
+    ] .
+
+# Knowledge Graph Statistics
+# This knowledge base contains:
+# - 4 ontology classes
+# - 8 properties 
+# - 3 template definitions
+# - 8 variable definitions
+# - 3 generated artifacts
+# Total: 26 semantic entities

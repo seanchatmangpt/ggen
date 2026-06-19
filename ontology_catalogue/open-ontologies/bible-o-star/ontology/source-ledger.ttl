@@ -1,0 +1,76 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# Bible O* Source Ledger
+# Gate: Old Gate (Joiada) — IP boundary inspection and source provenance registry.
+# Every public source used in composing Bible O* is declared here.
+# No proprietary dataset. No copyrighted Bible translation text.
+# Composed: 2026-06-02
+# =============================================================================
+
+<https://open-ontologies.org/bible-o-star/source-ledger>
+  a owl:Ontology ;
+  rdfs:label "Bible O* Source Ledger" ;
+  rdfs:comment "A formal provenance registry declaring every public source used as the footing for Bible O*. One entry per source. Each entry carries dcterms:source, dcterms:license, and dcterms:description." ;
+  dcterms:title "Bible O* Public Source Ledger" ;
+  dcterms:created "2026-06-02"^^xsd:date ;
+  dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+  owl:imports <https://open-ontologies.org/bible-o-star> .
+
+
+# =============================================================================
+# SOURCE 1 — OSIS: Open Scripture Information Standard
+# =============================================================================
+
+bos:OSIS_Source a bos:ScriptureWork, owl:NamedIndividual ;
+  rdfs:label "Open Scripture Information Standard (OSIS)" ;
+  dcterms:source <https://crosswire.org/osis/> ;
+  dcterms:license <https://creativecommons.org/licenses/by-sa/4.0/> ;
+  dcterms:description "A public XML schema defining canonical address structures for biblical texts: book, chapter, verse, passage, and pericope. Provides the OSIS reference syntax (e.g. 'Neh.3.1') used throughout bos:hasCanonicalReference." ;
+  rdfs:comment "Usage in Bible O*: reference model only. OSIS defines the canonical address format. No OSIS XML text content was copied. Foundation for bos:ScriptureWork, bos:Book, bos:Chapter, bos:Verse, bos:Passage, bos:hasCanonicalReference. License: CC BY-SA 4.0." ;
+  skos:notation "OSIS" .
+
+
+# =============================================================================
+# SOURCE 2 — OSHB: Open Scriptures Hebrew Bible
+# =============================================================================
+
+bos:OSHB_Source a bos:ScriptureWork, owl:NamedIndividual ;
+  rdfs:label "Open Scriptures Hebrew Bible (OSHB)" ;
+  dcterms:source <https://hb.openscriptures.org/> ;
+  dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+  dcterms:description "Hebrew Bible lemma and morphology data built on the Westminster Leningrad Codex (WLC). WLC base text is public domain. Lemma and morphology annotation data is CC BY 4.0. Attribution must credit 'the Open Scriptures Hebrew Bible Project'." ;
+  rdfs:comment "Usage in Bible O*: reference model only. No Hebrew text corpus was copied or reproduced. The OSHB lemma/morphology scheme informed the morphology and lemma modeling patterns. Attribution: Open Scriptures Hebrew Bible Project <https://hb.openscriptures.org/>. License: CC BY 4.0 for lemma/morphology data; public domain for WLC base text. CAUTION: do not conflate OSHB Strong's-augmented lemma identifiers with raw Strong's numbers." ;
+  skos:notation "OSHB" .
+
+
+# =============================================================================
+# SOURCE 3 — OpenBible.info Cross References
+# =============================================================================
+
+bos:OpenBibleCrossReferences a bos:ScriptureWork, owl:NamedIndividual ;
+  rdfs:label "OpenBible.info Cross References" ;
+  dcterms:source <https://www.openbible.info/labs/cross-references/> ;
+  dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+  dcterms:description "A public dataset of approximately 340,000 scripture-to-scripture cross-references drawn from the public-domain Treasury of Scripture Knowledge. Released under CC BY 4.0 by OpenBible.info. Attribution required." ;
+  rdfs:comment "Usage in Bible O*: relation model only. Cross-reference data treated as evidence-level links, not authoritative doctrine. Foundation for bos:hasCrossReference modeling. No raw cross-reference data was copied into the ontology. License: CC BY 4.0. Attribution: OpenBible.info <https://www.openbible.info/>." ;
+  skos:notation "OpenBible-XRef" .
+
+
+# =============================================================================
+# SOURCE 4 — Composite Gospel Index RDF (Semantic Bible)
+# =============================================================================
+
+bos:CompositeGospelIndex a bos:ScriptureWork, owl:NamedIndividual ;
+  rdfs:label "Composite Gospel Index RDF (Semantic Bible / CGI)" ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> ;
+  dcterms:license <https://creativecommons.org/licenses/by-nc-sa/2.0/> ;
+  dcterms:description "A public RDF schema for mapping Gospel chapters, verses, passages, and pericopes across Matthew, Mark, Luke, and John. Software components Apache 2.0. Bible text versions retain separate copyrights. Used here as modeling inspiration only (reuse_type: inspired_by)." ;
+  rdfs:comment "Usage in Bible O*: structural pattern only (inspired_by). No CGI RDF data was copied. The pericope and passage modeling in bos:Pericope and bos:Passage draws structural inspiration from CGI's public RDF pattern. License: CC BY-NC-SA 2.0 for data/ontology files. CAUTION: NC (NonCommercial) restriction applies to any direct CGI data reuse; Bible O* uses no CGI data, only structural pattern." ;
+  skos:notation "CGI-RDF" .

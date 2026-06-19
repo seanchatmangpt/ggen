@@ -1,0 +1,15 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+
+# AUDIT: Partial Checkpoint Possible
+# ASK query: Verifies PARTIAL verdicts are always renderable (not all-or-nothing)
+# Passes if: For each PARTIAL checkpoint, at least one gate passed and one gate failed
+# Date: 2026-06-01
+
+ASK {
+    FILTER NOT EXISTS {
+        ?checkpoint a pi:PARTIALVerdictCheckpoint .
+        FILTER NOT EXISTS { ?checkpoint pi:gatesPassed ?passCount . FILTER (?passCount > 0) }
+        FILTER NOT EXISTS { ?checkpoint pi:gatesFailed ?failCount . FILTER (?failCount > 0) }
+    }
+}

@@ -1,0 +1,199 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+#################################################################
+# CNS Core Ontology - Telemetry Spans and Functions
+#################################################################
+
+# Core CNS Classes
+cns:TelemetrySpan a rdfs:Class ;
+    rdfs:label "Telemetry Span" ;
+    rdfs:comment "A span for OpenTelemetry instrumentation" .
+
+cns:Function a rdfs:Class ;
+    rdfs:label "C Function" ;
+    rdfs:comment "A C function that can be instrumented" .
+
+cns:Pattern a rdfs:Class ;
+    rdfs:label "Design Pattern" ;
+    rdfs:comment "A design pattern used in CNS" .
+
+# Properties
+cns:providesFunction a rdf:Property ;
+    rdfs:label "provides function" ;
+    rdfs:domain cns:TelemetrySpan ;
+    rdfs:range cns:Function .
+
+cns:providesAPI a rdf:Property ;
+    rdfs:label "provides API" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+cns:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+#################################################################
+# SPARQL-7T Functions and Spans
+#################################################################
+
+cns:spqlAsk a cns:Function ;
+    cns:providesAPI "CnsSpqlResult* cns_spql_ask(CnsSpqlEngine*, const char*)" ;
+    cns:cycleCost 3 ;
+    rdfs:label "SPARQL Ask Function" .
+
+cns:spqlSelect a cns:Function ;
+    cns:providesAPI "CnsSpqlResult* cns_spql_select(CnsSpqlEngine*, const char*)" ;
+    cns:cycleCost 5 ;
+    rdfs:label "SPARQL Select Function" .
+
+cns:spqlAdd a cns:Function ;
+    cns:providesAPI "int cns_spql_add_triple(CnsSpqlEngine*, const char*, const char*, const char*)" ;
+    cns:cycleCost 2 ;
+    rdfs:label "SPARQL Add Triple Function" .
+
+cns:spqlAskSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlAsk ;
+    rdfs:label "SPARQL Ask Span" .
+
+cns:spqlSelectSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlSelect ;
+    rdfs:label "SPARQL Select Span" .
+
+cns:spqlAddSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:spqlAdd ;
+    rdfs:label "SPARQL Add Span" .
+
+#################################################################
+# Jinja-7T Functions and Spans
+#################################################################
+
+cns:jinjaExec a cns:Function ;
+    cns:providesAPI "char* cns_jinja_exec(const char*, const char*)" ;
+    cns:cycleCost 4 ;
+    rdfs:label "Jinja Execute Function" .
+
+cns:jinjaCompile a cns:Function ;
+    cns:providesAPI "CnsJinjaTemplate* cns_jinja_compile(const char*)" ;
+    cns:cycleCost 6 ;
+    rdfs:label "Jinja Compile Function" .
+
+cns:jinjaExecSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaExec ;
+    rdfs:label "Jinja Exec Span" .
+
+cns:jinjaCompileSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:jinjaCompile ;
+    rdfs:label "Jinja Compile Span" .
+
+#################################################################
+# SHACL-7T Functions and Spans
+#################################################################
+
+cns:shaclValidate a cns:Function ;
+    cns:providesAPI "int cns_shacl_validate(CnsShaclEngine*, const char*, const char*)" ;
+    cns:cycleCost 4 ;
+    rdfs:label "SHACL Validate Function" .
+
+cns:shaclLoadShape a cns:Function ;
+    cns:providesAPI "int cns_shacl_load_shape(CnsShaclEngine*, const char*)" ;
+    cns:cycleCost 3 ;
+    rdfs:label "SHACL Load Shape Function" .
+
+cns:shaclValidateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclValidate ;
+    rdfs:label "SHACL Validate Span" .
+
+cns:shaclLoadShapeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:shaclLoadShape ;
+    rdfs:label "SHACL Load Shape Span" .
+
+#################################################################
+# CNS Patterns
+#################################################################
+
+cns:SlabAllocator a cns:Pattern ;
+    rdfs:label "Lock-Free Slab Allocator" ;
+    rdfs:comment "Allocates small objects from pre-allocated pages" .
+
+cns:FastRadixBucket a cns:Pattern ;
+    rdfs:label "Radix-8 Bucket Sort" ;
+    rdfs:comment "Deterministic O(n) sorting for ORDER BY" .
+
+cns:SPSCCommandQueue a cns:Pattern ;
+    rdfs:label "Single Producer Single Consumer Command Queue" ;
+    rdfs:comment "Lock-free work packet queue" .
+
+cns:StringIDMap a cns:Pattern ;
+    rdfs:label "Static String-ID Map" ;
+    rdfs:comment "Replaces strcmp with 1-cycle ID comparison" .
+
+cns:RoaringBitset a cns:Pattern ;
+    rdfs:label "Roaring-style Bitset Merge" ;
+    rdfs:comment "Fast set operations on sparse data" .
+
+#################################################################
+# Pattern Functions
+#################################################################
+
+cns:slabAlloc a cns:Function ;
+    cns:providesAPI "void* cns_slab_alloc(CnsSlab*)" ;
+    cns:cycleCost 2 ;
+    rdfs:label "Slab Allocate Function" .
+
+cns:radixSort a cns:Function ;
+    cns:providesAPI "void cns_radix8_u32(uint32_t*, size_t)" ;
+    cns:cycleCost 5 ;
+    rdfs:label "Radix Sort Function" .
+
+cns:cmdqPush a cns:Function ;
+    cns:providesAPI "int cns_cmdq_push(CnsCmdQ*, const CnsCmd*)" ;
+    cns:cycleCost 3 ;
+    rdfs:label "Command Queue Push Function" .
+
+cns:cmdqPop a cns:Function ;
+    cns:providesAPI "int cns_cmdq_pop(CnsCmdQ*, CnsCmd*)" ;
+    cns:cycleCost 3 ;
+    rdfs:label "Command Queue Pop Function" .
+
+cns:stringID a cns:Function ;
+    cns:providesAPI "uint32_t cns_sid(const char*)" ;
+    cns:cycleCost 1 ;
+    rdfs:label "String ID Function" .
+
+cns:roarAnd a cns:Function ;
+    cns:providesAPI "size_t cns_roar_and(const CnsRoar*, const CnsRoar*, uint32_t*)" ;
+    cns:cycleCost 4 ;
+    rdfs:label "Roaring Bitset AND Function" .
+
+#################################################################
+# Pattern Spans
+#################################################################
+
+cns:slabAllocSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:slabAlloc ;
+    rdfs:label "Slab Allocate Span" .
+
+cns:radixSortSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:radixSort ;
+    rdfs:label "Radix Sort Span" .
+
+cns:cmdqPushSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:cmdqPush ;
+    rdfs:label "Command Queue Push Span" .
+
+cns:cmdqPopSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:cmdqPop ;
+    rdfs:label "Command Queue Pop Span" .
+
+cns:stringIDSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:stringID ;
+    rdfs:label "String ID Span" .
+
+cns:roarAndSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:roarAnd ;
+    rdfs:label "Roaring Bitset AND Span" . 

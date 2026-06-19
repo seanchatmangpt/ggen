@@ -1,0 +1,246 @@
+@prefix : <https://bytestar.org/ontology/byteactor/kernels-registry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteactor/kernels-registry>
+  a owl:Ontology ;
+  rdfs:label "ByteActor 64-Kernel Registry Ontology" ;
+  rdfs:comment "Formal specification of the 64 constant-time kernels implementing the 43 Van der Aalst workflow patterns with ≤8-tick performance guarantee." ;
+  owl:versionInfo "4.2.0" ;
+  owl:imports bcore: .
+
+#################################################################
+# Core Kernel Registry Classes
+#################################################################
+
+:KernelRegistry a owl:Class ;
+  rdfs:label "Kernel Registry" ;
+  rdfs:comment "Central registry managing all 64 constant-time kernels with O(1) dispatch." .
+
+:Kernel a owl:Class ;
+  rdfs:label "ByteActor Kernel" ;
+  rdfs:comment "A constant-time, branch-free micro-kernel implementing specific workflow pattern operations." ;
+  rdfs:subClassOf bcore:ProcessingUnit .
+
+:KernelSlot a owl:Class ;
+  rdfs:label "Kernel Registry Slot" ;
+  rdfs:comment "Individual slot in the 64-kernel registry table (pattern byte 0-63)." .
+
+:PerformanceConstraint a owl:Class ;
+  rdfs:label "Performance Constraint" ;
+  rdfs:comment "Execution time constraint enforcing ≤8-tick guarantee." .
+
+:WorkflowPattern a owl:Class ;
+  rdfs:label "Workflow Pattern" ;
+  rdfs:comment "Van der Aalst workflow pattern (P01-P43) implemented by kernel." .
+
+:AOTOptimization a owl:Class ;
+  rdfs:label "AOT Optimization" ;
+  rdfs:comment "Ahead-of-time optimization data for kernel dispatch." .
+
+#################################################################
+# Kernel Properties
+#################################################################
+
+:hasKernel a owl:ObjectProperty ;
+  rdfs:domain :KernelRegistry ;
+  rdfs:range :Kernel ;
+  rdfs:label "has kernel" ;
+  rdfs:comment "Registry contains kernel." .
+
+:occupiesSlot a owl:ObjectProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range :KernelSlot ;
+  rdfs:label "occupies slot" ;
+  rdfs:comment "Kernel occupies specific registry slot." .
+
+:implementsPattern a owl:ObjectProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range :WorkflowPattern ;
+  rdfs:label "implements pattern" ;
+  rdfs:comment "Kernel implements workflow pattern." .
+
+:hasConstraint a owl:ObjectProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range :PerformanceConstraint ;
+  rdfs:label "has constraint" ;
+  rdfs:comment "Kernel must satisfy performance constraint." .
+
+:hasOptimization a owl:ObjectProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range :AOTOptimization ;
+  rdfs:label "has optimization" ;
+  rdfs:comment "Kernel uses AOT optimization." .
+
+#################################################################
+# Kernel Data Properties
+#################################################################
+
+:kernelId a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "kernel ID" ;
+  rdfs:comment "Unique kernel identifier (0-63)." .
+
+:patternByte a owl:DatatypeProperty ;
+  rdfs:domain :KernelSlot ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "pattern byte" ;
+  rdfs:comment "Pattern byte value (0-63) identifying slot." .
+
+:kernelName a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:string ;
+  rdfs:label "kernel name" ;
+  rdfs:comment "Descriptive kernel name (max 15 chars)." .
+
+:maxTicks a owl:DatatypeProperty ;
+  rdfs:domain :PerformanceConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "maximum ticks" ;
+  rdfs:comment "Maximum allowed execution ticks." .
+
+:measuredTicks a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "measured ticks" ;
+  rdfs:comment "Actual measured execution ticks." .
+
+:isConstantTime a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is constant time" ;
+  rdfs:comment "Kernel executes in constant time." .
+
+:isBranchFree a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is branch free" ;
+  rdfs:comment "Kernel implementation is branch-free." .
+
+:isValidated a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is validated" ;
+  rdfs:comment "Kernel passes performance validation." .
+
+:isActive a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is active" ;
+  rdfs:comment "Kernel is active in registry." .
+
+:functionPointer a owl:DatatypeProperty ;
+  rdfs:domain :Kernel ;
+  rdfs:range xsd:string ;
+  rdfs:label "function pointer" ;
+  rdfs:comment "C function pointer implementing kernel." .
+
+:aotEnabled a owl:DatatypeProperty ;
+  rdfs:domain :AOTOptimization ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "AOT enabled" ;
+  rdfs:comment "Ahead-of-time optimization enabled." .
+
+:mphfEnabled a owl:DatatypeProperty ;
+  rdfs:domain :AOTOptimization ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "MPHF enabled" ;
+  rdfs:comment "Minimal perfect hash function enabled." .
+
+#################################################################
+# Workflow Pattern Instances (P01-P43)
+#################################################################
+
+:P01 a :WorkflowPattern ;
+  rdfs:label "Sequence" ;
+  rdfs:comment "Sequential execution pattern." .
+
+:P02 a :WorkflowPattern ;
+  rdfs:label "Parallel Split" ;
+  rdfs:comment "AND-split parallel execution." .
+
+:P03 a :WorkflowPattern ;
+  rdfs:label "Synchronization" ;
+  rdfs:comment "AND-join synchronization." .
+
+:P04 a :WorkflowPattern ;
+  rdfs:label "Exclusive Choice" ;
+  rdfs:comment "XOR-split exclusive choice." .
+
+:P05 a :WorkflowPattern ;
+  rdfs:label "Simple Merge" ;
+  rdfs:comment "XOR-join simple merge." .
+
+# ... [Additional P06-P43 patterns would be defined here] ...
+
+#################################################################
+# Registry Instances
+#################################################################
+
+:MainRegistry a :KernelRegistry ;
+  rdfs:label "Main Kernel Registry" ;
+  rdfs:comment "Primary 64-kernel registry instance." .
+
+:EightTickConstraint a :PerformanceConstraint ;
+  rdfs:label "8-Tick Constraint" ;
+  rdfs:comment "Maximum 8 CPU tick execution constraint." ;
+  :maxTicks 8 .
+
+:StandardAOT a :AOTOptimization ;
+  rdfs:label "Standard AOT Optimization" ;
+  rdfs:comment "Standard ahead-of-time optimization configuration." ;
+  :aotEnabled true ;
+  :mphfEnabled true .
+
+#################################################################
+# Kernel Slot Instances (A01-A64)
+#################################################################
+
+:SlotA01 a :KernelSlot ;
+  rdfs:label "Kernel Slot A01" ;
+  :patternByte 0 .
+
+:SlotA02 a :KernelSlot ;
+  rdfs:label "Kernel Slot A02" ;
+  :patternByte 1 .
+
+# ... [Additional slot definitions A03-A64] ...
+
+:SlotA64 a :KernelSlot ;
+  rdfs:label "Kernel Slot A64" ;
+  :patternByte 63 .
+
+#################################################################
+# Example Kernel Instances
+#################################################################
+
+:KernelA01 a :Kernel ;
+  rdfs:label "Sequence Kernel" ;
+  :kernelId 0 ;
+  :kernelName "sequence_kernel" ;
+  :isConstantTime true ;
+  :isBranchFree true ;
+  :isValidated true ;
+  :isActive true ;
+  :functionPointer "bs_kernel_sequence" ;
+  :occupiesSlot :SlotA01 ;
+  :implementsPattern :P01 ;
+  :hasConstraint :EightTickConstraint ;
+  :hasOptimization :StandardAOT .
+
+:KernelA02 a :Kernel ;
+  rdfs:label "Parallel Split Kernel" ;
+  :kernelId 1 ;
+  :kernelName "parallel_split" ;
+  :isConstantTime true ;
+  :isBranchFree true ;
+  :isValidated true ;
+  :isActive true ;
+  :functionPointer "bs_kernel_parallel_split" ;
+  :occupiesSlot :SlotA02 ;
+  :implementsPattern :P02 ;
+  :hasConstraint :EightTickConstraint ;
+  :hasOptimization :StandardAOT .

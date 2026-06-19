@@ -1,0 +1,245 @@
+@prefix erlmcp: <http://erlmcp.org/schema/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix mcp: <http://erlmcp.org/schema/mcp/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+erlmcp:MCPServer a otp:GenServer, owl:Class ;
+    rdfs:label "MCP Server" ;
+    rdfs:comment "JSON-RPC 2.0 MCP server implementation" ;
+    otp:moduleName "erlmcp_server" ;
+    erlmcp:hasCallback erlmcp:handle_initialize ;
+    erlmcp:hasCallback erlmcp:handle_call_tool ;
+    erlmcp:hasCallback erlmcp:handle_list_resources ;
+    erlmcp:hasCallback erlmcp:handle_list_prompts ;
+    erlmcp:implementsCapability mcp:Tools ;
+    erlmcp:implementsCapability mcp:Resources ;
+    erlmcp:implementsCapability mcp:Prompts ;
+    erlmcp:implementsCapability mcp:Roots .
+
+erlmcp:TransportRegistry a otp:GenServer, owl:Class ;
+    rdfs:label "Transport Registry" ;
+    rdfs:comment "Registry for transport connections" ;
+    otp:moduleName "erlmcp_transport_registry" ;
+    erlmcp:manages erlmcp:Transport ;
+    erlmcp:tracksLifecycle true .
+
+erlmcp:JsonRpcCodec a rdfs:Class, owl:Class ;
+    rdfs:label "JSON-RPC Codec" ;
+    rdfs:comment "JSON-RPC 2.0 message encoding/decoding" ;
+    erlmcp:encodes mcp:Request ;
+    erlmcp:encodes mcp:Response ;
+    erlmcp:encodes mcp:Notification ;
+    erlmcp:version "2.0"^^xsd:string .
+
+erlmcp:Connection a rdfs:Class, owl:Class ;
+    rdfs:label "Connection" ;
+    rdfs:comment "MCP connection representation" ;
+    rdfs:subClassOf otp:GenServer ;
+    erlmcp:hasState erlmcp:Connected ;
+    erlmcp:hasTransport a erlmcp:Transport ;
+    erlmcp:correlationId xsd:string ;
+    erlmcp:metadata a erlmcp:Metadata .
+
+erlmcp:hasTransport a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:Connection ;
+    rdfs:range erlmcp:Transport ;
+    rdfs:label "has transport" ;
+    rdfs:comment "Associates a connection with its transport implementation" .
+
+erlmcp:Transport a rdfs:Class, owl:Class ;
+    rdfs:label "Transport" ;
+    rdfs:comment "Transport layer implementation" ;
+    rdfs:subClassOf erlmcp:Behavior ;
+    owl:oneOf (
+        erlmcp:StdioTransport
+        erlmcp:TcpTransport
+        erlmcp:HttpTransport
+        erlmcp:WebSocketTransport
+        erlmcp:SseTransport
+    ) .
+
+erlmcp:StdioTransport a erlmcp:Transport ;
+    rdfs:label "Stdio Transport" ;
+    rdfs:comment "Standard input/output transport" ;
+    erlmcp:bidirectional true .
+
+erlmcp:TcpTransport a erlmcp:Transport ;
+    rdfs:label "TCP Transport" ;
+    rdfs:comment "TCP socket transport" ;
+    erlmcp:hasPort xsd:integer ;
+    erlmcp:hasHost xsd:string .
+
+erlmcp:HttpTransport a erlmcp:Transport ;
+    rdfs:label "HTTP Transport" ;
+    rdfs:comment "HTTP POST transport" ;
+    erlmcp:hasEndpoint xsd:anyURI .
+
+erlmcp:WebSocketTransport a erlmcp:Transport ;
+    rdfs:label "WebSocket Transport" ;
+    rdfs:comment "WebSocket transport for real-time communication" ;
+    erlmcp:hasPath xsd:string .
+
+erlmcp:SseTransport a erlmcp:Transport ;
+    rdfs:label "Server-Sent Events Transport" ;
+    rdfs:comment "Server-Sent Events transport for streaming" ;
+    erlmcp:hasEndpoint xsd:anyURI .
+
+erlmcp:Client a rdfs:Class, owl:Class ;
+    rdfs:label "Client" ;
+    rdfs:comment "MCP client connection" ;
+    rdfs:subClassOf erlmcp:Connection ;
+    erlmcp:initiates mcp:Request ;
+    erlmcp:receives mcp:Response .
+
+erlmcp:Server a rdfs:Class, owl:Class ;
+    rdfs:label "Server" ;
+    rdfs:comment "MCP server instance" ;
+    rdfs:subClassOf erlmcp:Connection ;
+    erlmcp:receives mcp:Request ;
+    erlmcp:initiates mcp:Response .
+
+erlmcp:Behavior a rdfs:Class, owl:Class ;
+    rdfs:label "Behavior" ;
+    rdfs:comment "Erlang behavior contract" ;
+    rdfs:subClassOf otp:Behavior ;
+    erlmcp:requiresCallbacks true .
+
+erlmcp:handle_initialize a rdf:Property, owl:FunctionalProperty ;
+    rdfs:label "handle_initialize" ;
+    rdfs:comment "Initialize callback for MCP protocol handshake" ;
+    rdfs:domain erlmcp:MCPServer ;
+    rdfs:range mcp:InitializeResult .
+
+erlmcp:handle_call_tool a rdf:Property, owl:FunctionalProperty ;
+    rdfs:label "handle_call_tool" ;
+    rdfs:comment "Callback for tool invocation" ;
+    rdfs:domain erlmcp:MCPServer ;
+    rdfs:range mcp:CallToolResult .
+
+erlmcp:handle_list_resources a rdf:Property, owl:FunctionalProperty ;
+    rdfs:label "handle_list_resources" ;
+    rdfs:comment "Callback for listing available resources" ;
+    rdfs:domain erlmcp:MCPServer ;
+    rdfs:range mcp:ResourceList .
+
+erlmcp:handle_list_prompts a rdf:Property, owl:FunctionalProperty ;
+    rdfs:label "handle_list_prompts" ;
+    rdfs:comment "Callback for listing available prompts" ;
+    rdfs:domain erlmcp:MCPServer ;
+    rdfs:range mcp:PromptList .
+
+erlmcp:Metadata a rdfs:Class, owl:Class ;
+    rdfs:label "Metadata" ;
+    rdfs:comment "Connection metadata dictionary" ;
+    erlmcp:hasKey xsd:string ;
+    erlmcp:hasValue rdfs:Literal .
+
+erlmcp:Connected a erlmcp:ConnectionState ;
+    rdfs:label "Connected" ;
+    rdfs:comment "Connection is active" .
+
+erlmcp:Disconnected a erlmcp:ConnectionState ;
+    rdfs:label "Disconnected" ;
+    rdfs:comment "Connection is closed" .
+
+erlmcp:Connecting a erlmcp:ConnectionState ;
+    rdfs:label "Connecting" ;
+    rdfs:comment "Connection is being established" .
+
+erlmcp:ConnectionState a rdfs:Class, owl:Class ;
+    rdfs:label "Connection State" ;
+    rdfs:comment "States of an MCP connection" ;
+    owl:oneOf (
+        erlmcp:Connected
+        erlmcp:Disconnected
+        erlmcp:Connecting
+    ) .
+
+erlmcp:implementsCapability a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:MCPServer ;
+    rdfs:range mcp:Capability ;
+    rdfs:label "implements capability" ;
+    rdfs:comment "Indicates which MCP capabilities the server supports" .
+
+erlmcp:manages a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:TransportRegistry ;
+    rdfs:range erlmcp:Transport ;
+    rdfs:label "manages" .
+
+erlmcp:tracksLifecycle a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:TransportRegistry ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "tracks lifecycle" .
+
+erlmcp:hasState a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:Connection ;
+    rdfs:range erlmcp:ConnectionState ;
+    rdfs:label "has state" .
+
+erlmcp:correlationId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:Connection ;
+    rdfs:range xsd:string ;
+    rdfs:label "correlation ID" .
+
+erlmcp:metadata a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:Connection ;
+    rdfs:range erlmcp:Metadata ;
+    rdfs:label "metadata" .
+
+erlmcp:encodes a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain erlmcp:JsonRpcCodec ;
+    rdfs:label "encodes" .
+
+erlmcp:version a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:JsonRpcCodec ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" .
+
+erlmcp:initiates a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "initiates" .
+
+erlmcp:receives a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "receives" .
+
+erlmcp:hasPort a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:TcpTransport ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has port" .
+
+erlmcp:hasHost a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:TcpTransport ;
+    rdfs:range xsd:string ;
+    rdfs:label "has host" .
+
+erlmcp:hasEndpoint a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:HttpTransport ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has endpoint" .
+
+erlmcp:hasPath a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:WebSocketTransport ;
+    rdfs:range xsd:string ;
+    rdfs:label "has path" .
+
+erlmcp:bidirectional a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:Transport ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "bidirectional" .
+
+erlmcp:requiresCallbacks a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:Behavior ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires callbacks" .
+
+erlmcp:hasKey a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:Metadata ;
+    rdfs:range xsd:string ;
+    rdfs:label "has key" .
+
+erlmcp:hasValue a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain erlmcp:Metadata ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "has value" .

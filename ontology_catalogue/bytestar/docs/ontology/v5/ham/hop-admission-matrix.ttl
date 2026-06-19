@@ -1,0 +1,1017 @@
+@prefix ham: <http://bytestar.org/ontology/ham#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix exec: <http://bytestar.org/ontology/execution-physics#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix sec: <http://bytestar.org/ontology/security-policy#> .
+@prefix meta: <https://bytestar.io/ontology/meta/> .
+@prefix orch: <http://byteactor.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+#################################################################
+# HOP×TYPE ADMISSION MATRIX (HAM)
+# Complete machine-readable admission control system for ByteStar
+# 8-Hop execution model with closed-world SHACL constraints
+#################################################################
+
+<http://bytestar.org/ontology/ham> a owl:Ontology ;
+    dct:title "ByteStar Hop×Type Admission Matrix (HAM): Complete Type Admission Control System"@en ;
+    dct:description """The comprehensive Hop×Type Admission Matrix (HAM) that defines precise
+    admission control rules for all 8 hops in the ByteStar execution model. Leverages existing
+    crystal specifications to create closed-world constraints with zero ambiguity.
+    
+    HAM provides:
+    1. Hop-1/3: Governance + Blueprint type admission (80% reuse of existing ontologies)
+    2. Hop-2/4: Identity/Policy/Budget type admission (leverages security-policy ontology)
+    3. Hop-5: Execution input/output type admission (uses execution-physics + byteflow)
+    4. Hop-6: Finalization type admission (integrates performance-measurement)
+    5. Hop-7: Publication type admission (extends meta-ontology patterns)
+    6. Hop-8: Audit/Ops type admission (comprehensive operational control)
+    
+    Each hop has disjoint partitions with No-Blob rejection rules and cross-hop
+    dependency validation using SHACL closed shapes for zero admission ambiguity."""@en ;
+    dct:creator "ByteStar HAM Architecture Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-ham-complete"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/ham-specification> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ,
+                <http://bytestar.org/ontology/execution-physics> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <https://bytestar.io/ontology/meta/> ,
+                <http://byteactor.org/ontology> .
+
+#################################################################
+# CORE HAM CLASSES - ADMISSION CONTROL FRAMEWORK
+#################################################################
+
+###  HAM Core Admission Controller
+ham:HopAdmissionMatrix a owl:Class ;
+    rdfs:label "Hop Admission Matrix"@en ;
+    rdfs:comment """The complete 8×N matrix defining type admission rules for each hop
+    in the ByteStar execution model. Implements closed-world assumption with disjoint
+    type partitions and No-Blob rejection."""@en ;
+    rdfs:subClassOf be:GovernanceFramework ,
+                    sec:SecurityControl ,
+                    doe:PerformanceConstraint .
+
+ham:HopTypeAdmissionRule a owl:Class ;
+    rdfs:label "Hop Type Admission Rule"@en ;
+    rdfs:comment """A specific rule defining which types are admitted, rejected, or 
+    conditionally accepted at a particular hop."""@en ;
+    rdfs:subClassOf sec:SecurityPolicy ,
+                    doe:ExecutionConstraint .
+
+ham:AdmissionDecision a owl:Class ;
+    rdfs:label "Admission Decision"@en ;
+    rdfs:comment "The outcome of applying HAM rules: ADMIT, REJECT, or CONDITIONAL."@en ;
+    owl:oneOf ( ham:ADMIT ham:REJECT ham:CONDITIONAL ) .
+
+ham:HopExecutionPoint a owl:Class ;
+    rdfs:label "Hop Execution Point"@en ;
+    rdfs:comment """A specific point in the 8-hop execution model where admission
+    control is enforced."""@en ;
+    rdfs:subClassOf exec:ExecutionPoint ,
+                    doe:TickBoundary .
+
+ham:TypeClassification a owl:Class ;
+    rdfs:label "Type Classification"@en ;
+    rdfs:comment """Classification system for all types in ByteStar, enabling
+    precise admission control at each hop."""@en ;
+    rdfs:subClassOf meta:ConceptualModel .
+
+#################################################################
+# 8-HOP EXECUTION MODEL CLASSES
+#################################################################
+
+###  Hop-1: Governance Inception
+ham:Hop1GovernanceInception a owl:Class ;
+    rdfs:label "Hop-1: Governance Inception"@en ;
+    rdfs:comment """First hop: Governance rule initialization and system bootstrap.
+    Admits governance frameworks, ethical guidelines, and foundational policies."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "1"^^xsd:integer ;
+    ham:executionPhase "governance-inception" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-2: Identity & Policy Formation  
+ham:Hop2IdentityPolicy a owl:Class ;
+    rdfs:label "Hop-2: Identity & Policy Formation"@en ;
+    rdfs:comment """Second hop: Identity establishment and policy instantiation.
+    Admits identity credentials, security policies, and authorization frameworks."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "2"^^xsd:integer ;
+    ham:executionPhase "identity-policy" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-3: Blueprint Crystallization
+ham:Hop3BlueprintCrystal a owl:Class ;
+    rdfs:label "Hop-3: Blueprint Crystallization"@en ;
+    rdfs:comment """Third hop: System blueprint materialization and architectural planning.
+    Admits architectural patterns, design blueprints, and structural specifications."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "3"^^xsd:integer ;
+    ham:executionPhase "blueprint-crystallization" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-4: Budget & Resource Allocation
+ham:Hop4BudgetAllocation a owl:Class ;
+    rdfs:label "Hop-4: Budget & Resource Allocation"@en ;
+    rdfs:comment """Fourth hop: Resource budget allocation and capacity planning.
+    Admits budget constraints, resource allocators, and capacity models."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "4"^^xsd:integer ;
+    ham:executionPhase "budget-allocation" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-5: Execution Physics
+ham:Hop5ExecutionPhysics a owl:Class ;
+    rdfs:label "Hop-5: Execution Physics"@en ;
+    rdfs:comment """Fifth hop: Core execution engine and computational physics.
+    Admits execution contexts, computational processes, and data transformations."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "5"^^xsd:integer ;
+    ham:executionPhase "execution-physics" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-6: Finalization & Validation
+ham:Hop6Finalization a owl:Class ;
+    rdfs:label "Hop-6: Finalization & Validation"@en ;
+    rdfs:comment """Sixth hop: Result finalization and validation processes.
+    Admits validators, finalizers, and consistency checkers."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "6"^^xsd:integer ;
+    ham:executionPhase "finalization-validation" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-7: Publication & Dissemination
+ham:Hop7Publication a owl:Class ;
+    rdfs:label "Hop-7: Publication & Dissemination"@en ;
+    rdfs:comment """Seventh hop: Result publication and knowledge dissemination.
+    Admits publishers, distributors, and knowledge management systems."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "7"^^xsd:integer ;
+    ham:executionPhase "publication-dissemination" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+###  Hop-8: Audit & Operations
+ham:Hop8AuditOps a owl:Class ;
+    rdfs:label "Hop-8: Audit & Operations"@en ;
+    rdfs:comment """Eighth hop: System audit and operational monitoring.
+    Admits auditors, monitors, and operational control systems."""@en ;
+    rdfs:subClassOf ham:HopExecutionPoint ;
+    ham:hopNumber "8"^^xsd:integer ;
+    ham:executionPhase "audit-operations" ;
+    ham:maxTickAllowance "1"^^xsd:integer .
+
+#################################################################
+# HOP-1/3: GOVERNANCE + BLUEPRINT TYPE CONSTRAINTS
+# Leverages ByteEthos governance + architectural patterns
+#################################################################
+
+###  Hop-1 Admitted Types (Governance Inception)
+ham:Hop1AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-1 Admitted Types"@en ;
+    rdfs:comment "Types admitted during governance inception phase."@en ;
+    owl:unionOf (
+        be:EthicalFramework
+        be:GovernanceRule
+        be:GovernanceStructure
+        be:EthicalPrinciple
+        be:GovernancePolicy
+        be:DecisionFramework
+        be:EthicalGuideline
+        be:ResponsibilityModel
+        be:AccountabilityFramework
+        doe:DoctrineOfEightLaw
+        doe:PerformanceConstraint
+        sec:SecurityPolicy
+        sec:ComplianceFramework
+    ) .
+
+###  Hop-3 Admitted Types (Blueprint Crystallization)
+ham:Hop3AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-3 Admitted Types"@en ;
+    rdfs:comment "Types admitted during blueprint crystallization phase."@en ;
+    owl:unionOf (
+        ba:SystemArchitecture
+        ba:ArchitecturalPattern
+        ba:SystemBlueprint
+        ba:DesignPattern
+        ba:ComponentSpec
+        ba:InterfaceSpec
+        ba:SystemTopology
+        orch:WorkflowPattern
+        orch:WorkflowTemplate
+        orch:OrchestrationPattern
+        orch:ServiceArchitecture
+        meta:ConceptualModel
+        meta:OntologyPattern
+        meta:StructuralAnalysis
+    ) .
+
+#################################################################
+# HOP-2/4: IDENTITY/POLICY/BUDGET TYPE CONSTRAINTS
+# Leverages security-policy + resource management ontologies  
+#################################################################
+
+###  Hop-2 Admitted Types (Identity & Policy Formation)
+ham:Hop2AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-2 Admitted Types"@en ;
+    rdfs:comment "Types admitted during identity and policy formation phase."@en ;
+    owl:unionOf (
+        sec:SecurityPolicy
+        sec:ThreatModel
+        sec:SecurityControl
+        sec:CryptographicPolicy
+        sec:KeyManagementPolicy
+        sec:IdentityManagement
+        sec:AccessControl
+        sec:AuthenticationSystem
+        sec:AuthorizationFramework
+        sec:QuantumResistantSecurity
+        sec:ZeroTrustArchitecture
+        bp:PostQuantumCryptography
+        bp:CryptographicAlgorithm
+        bp:KeyExchangeMechanism
+        bp:DigitalSignature
+    ) .
+
+###  Hop-4 Admitted Types (Budget & Resource Allocation)
+ham:Hop4AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-4 Admitted Types"@en ;
+    rdfs:comment "Types admitted during budget and resource allocation phase."@en ;
+    owl:unionOf (
+        orch:ResourceOrchestrator
+        orch:ComputeResource
+        orch:StorageResource
+        orch:NetworkResource
+        orch:ServiceResource
+        orch:ActorResource
+        orch:ResourceUtilizationMetric
+        exec:ResourceConstraint
+        exec:CapacityModel
+        exec:AllocationStrategy
+        perf:PerformanceBudget
+        perf:ResourceBudget
+        perf:CostModel
+        doe:ResourceLimit
+        doe:CapacityConstraint
+    ) .
+
+#################################################################
+# HOP-5: EXECUTION INPUT/OUTPUT TYPE CONSTRAINTS
+# Uses execution-physics + byteflow orchestration patterns
+#################################################################
+
+###  Hop-5 Admitted Types (Execution Physics)
+ham:Hop5AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-5 Admitted Types"@en ;
+    rdfs:comment "Types admitted during execution physics phase."@en ;
+    owl:unionOf (
+        exec:ExecutionContext
+        exec:ExecutionEngine
+        exec:ExecutionProcess
+        exec:ComputationalTask
+        exec:DataTransformation
+        exec:ExecutionState
+        det:DeterministicExecution
+        det:DeterministicProcess
+        bf:ByteFlowExecution
+        bf:FlowControl
+        bf:DataFlow
+        bf:ProcessFlow
+        orch:WorkflowTask
+        orch:WorkflowInstance
+        orch:ExecutionContext
+        orch:DataPipeline
+        orch:StreamProcessor
+        orch:BatchProcessor
+        ba:ByteActor
+        ba:ActorMessage
+        ba:ActorBehavior
+        ba:ActorSystem
+    ) .
+
+#################################################################
+# HOP-6: FINALIZATION TYPE CONSTRAINTS
+# Integrates performance-measurement + validation systems
+#################################################################
+
+###  Hop-6 Admitted Types (Finalization & Validation)
+ham:Hop6AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-6 Admitted Types"@en ;
+    rdfs:comment "Types admitted during finalization and validation phase."@en ;
+    owl:unionOf (
+        perf:PerformanceValidator
+        perf:ValidationResult
+        perf:ConsistencyChecker
+        perf:QualityAssurance
+        perf:PerformanceMetric
+        perf:BenchmarkResult
+        exec:ExecutionResult
+        exec:ValidationProcess
+        ztr:ZeroTickRejection
+        ztr:PerformanceViolation
+        doe:ConstraintViolation
+        doe:PerformanceValidation
+        orch:WorkflowMetric
+        orch:ThroughputMetric
+        orch:LatencyMetric
+        meta:ValidationProcess
+        meta:ConsistencyCheck
+        meta:ValidationResult
+        meta:QualityAssessment
+        meta:QualityMetric
+    ) .
+
+#################################################################
+# HOP-7: PUBLICATION TYPE CONSTRAINTS
+# Extends meta-ontology patterns + knowledge management
+#################################################################
+
+###  Hop-7 Admitted Types (Publication & Dissemination)
+ham:Hop7AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-7 Admitted Types"@en ;
+    rdfs:comment "Types admitted during publication and dissemination phase."@en ;
+    owl:unionOf (
+        meta:MetaKnowledge
+        meta:KnowledgeDistribution
+        meta:PublicationProcess
+        meta:KnowledgeRepository
+        meta:InformationDissemination
+        perf:PerformanceReport
+        perf:BenchmarkPublication
+        exec:ExecutionReport
+        exec:ResultPublication
+        orch:WorkflowRepository
+        orch:VersionedWorkflow
+        orch:OrchestrationArtifact
+        be:KnowledgeSharing
+        be:TransparencyMechanism
+        meta:OntologyPublication
+        meta:SelfModel
+        meta:MetaAnalysis
+        prov:Activity
+        prov:Entity
+        prov:Agent
+    ) .
+
+#################################################################
+# HOP-8: AUDIT/OPS TYPE CONSTRAINTS
+# Comprehensive operational control + monitoring systems
+#################################################################
+
+###  Hop-8 Admitted Types (Audit & Operations)
+ham:Hop8AdmittedTypes a owl:Class ;
+    rdfs:label "Hop-8 Admitted Types"@en ;
+    rdfs:comment "Types admitted during audit and operations phase."@en ;
+    owl:unionOf (
+        sec:SecurityOperationsCenter
+        sec:ThreatIntelligence
+        sec:IncidentResponse
+        sec:SecurityAuditing
+        sec:VulnerabilityManagement
+        perf:PerformanceMonitor
+        perf:SystemMonitor
+        perf:OperationalMetric
+        perf:AuditTrail
+        orch:OrchestrationMonitor
+        orch:PerformanceOptimizer
+        orch:FaultTolerantOrchestrator
+        exec:ExecutionMonitor
+        exec:SystemDiagnostics
+        meta:SelfReflectionCapability
+        meta:IntrospectionProcess
+        meta:SelfAnalysis
+        meta:PerformanceAnalysis
+        meta:UsageAnalysis
+        be:SystemAuditor
+        be:ComplianceMonitor
+        be:EthicalAuditing
+        ztr:RejectionAnalyzer
+        doe:PerformanceAnalyzer
+    ) .
+
+#################################################################
+# NO-BLOB REJECTION RULES
+# Explicit rejection of untyped or blob data at all hops
+#################################################################
+
+###  Universal Blob Rejection Types
+ham:UniversallyRejectedTypes a owl:Class ;
+    rdfs:label "Universally Rejected Types"@en ;
+    rdfs:comment """Types that are rejected at ALL hops to maintain type safety
+    and prevent blob data from entering the execution pipeline."""@en ;
+    owl:unionOf (
+        ham:UntypedBlob
+        ham:BinaryBlob  
+        ham:GenericData
+        ham:UnstructuredData
+        ham:AmbiguousType
+        ham:PolymorphicBlob
+        ham:SerializedBlob
+        ham:OpaqueData
+        ham:LegacyBlob
+        ham:UnvalidatedInput
+    ) .
+
+###  Blob Types for Explicit Rejection
+ham:UntypedBlob a owl:Class ;
+    rdfs:label "Untyped Blob"@en ;
+    rdfs:comment "Data without explicit type information - REJECTED"@en ;
+    owl:disjointWith ham:Hop1AdmittedTypes, ham:Hop2AdmittedTypes, 
+                     ham:Hop3AdmittedTypes, ham:Hop4AdmittedTypes,
+                     ham:Hop5AdmittedTypes, ham:Hop6AdmittedTypes,
+                     ham:Hop7AdmittedTypes, ham:Hop8AdmittedTypes .
+
+ham:BinaryBlob a owl:Class ;
+    rdfs:label "Binary Blob"@en ;
+    rdfs:comment "Opaque binary data without semantic structure - REJECTED"@en ;
+    owl:disjointWith ham:Hop1AdmittedTypes, ham:Hop2AdmittedTypes,
+                     ham:Hop3AdmittedTypes, ham:Hop4AdmittedTypes,
+                     ham:Hop5AdmittedTypes, ham:Hop6AdmittedTypes,
+                     ham:Hop7AdmittedTypes, ham:Hop8AdmittedTypes .
+
+ham:GenericData a owl:Class ;
+    rdfs:label "Generic Data"@en ;
+    rdfs:comment "Overly generic data types without specific semantics - REJECTED"@en ;
+    owl:disjointWith ham:Hop1AdmittedTypes, ham:Hop2AdmittedTypes,
+                     ham:Hop3AdmittedTypes, ham:Hop4AdmittedTypes,
+                     ham:Hop5AdmittedTypes, ham:Hop6AdmittedTypes,
+                     ham:Hop7AdmittedTypes, ham:Hop8AdmittedTypes .
+
+#################################################################
+# CROSS-HOP DEPENDENCY VALIDATION
+# Rules ensuring proper flow dependencies between hops
+#################################################################
+
+###  Cross-Hop Dependency Rules
+ham:CrossHopDependency a owl:Class ;
+    rdfs:label "Cross-Hop Dependency"@en ;
+    rdfs:comment """Dependency relationship between types admitted at different hops,
+    ensuring proper execution flow and data dependencies."""@en ;
+    rdfs:subClassOf ham:HopTypeAdmissionRule .
+
+###  Specific Dependency Rules
+ham:GovernanceBlueprintDependency a owl:Class ;
+    rdfs:label "Governance-Blueprint Dependency"@en ;
+    rdfs:comment "Blueprint types (Hop-3) must depend on governance types (Hop-1)"@en ;
+    rdfs:subClassOf ham:CrossHopDependency ;
+    ham:requiresSourceHop ham:Hop1GovernanceInception ;
+    ham:requiresTargetHop ham:Hop3BlueprintCrystal .
+
+ham:IdentityExecutionDependency a owl:Class ;
+    rdfs:label "Identity-Execution Dependency"@en ;
+    rdfs:comment "Execution types (Hop-5) must have identity/policy foundation (Hop-2)"@en ;
+    rdfs:subClassOf ham:CrossHopDependency ;
+    ham:requiresSourceHop ham:Hop2IdentityPolicy ;
+    ham:requiresTargetHop ham:Hop5ExecutionPhysics .
+
+ham:BudgetExecutionDependency a owl:Class ;
+    rdfs:label "Budget-Execution Dependency"@en ;
+    rdfs:comment "Execution types (Hop-5) must respect budget constraints (Hop-4)"@en ;
+    rdfs:subClassOf ham:CrossHopDependency ;
+    ham:requiresSourceHop ham:Hop4BudgetAllocation ;
+    ham:requiresTargetHop ham:Hop5ExecutionPhysics .
+
+ham:ExecutionFinalizationDependency a owl:Class ;
+    rdfs:label "Execution-Finalization Dependency"@en ;
+    rdfs:comment "Finalization types (Hop-6) must process execution outputs (Hop-5)"@en ;
+    rdfs:subClassOf ham:CrossHopDependency ;
+    ham:requiresSourceHop ham:Hop5ExecutionPhysics ;
+    ham:requiresTargetHop ham:Hop6Finalization .
+
+ham:FinalizationPublicationDependency a owl:Class ;
+    rdfs:label "Finalization-Publication Dependency"@en ;
+    rdfs:comment "Publication types (Hop-7) must use finalized results (Hop-6)"@en ;
+    rdfs:subClassOf ham:CrossHopDependency ;
+    ham:requiresSourceHop ham:Hop6Finalization ;
+    ham:requiresTargetHop ham:Hop7Publication .
+
+ham:PublicationAuditDependency a owl:Class ;
+    rdfs:label "Publication-Audit Dependency"@en ;
+    rdfs:comment "Audit types (Hop-8) must monitor all published results (Hop-7)"@en ;
+    rdfs:subClassOf ham:CrossHopDependency ;
+    ham:requiresSourceHop ham:Hop7Publication ;
+    ham:requiresTargetHop ham:Hop8AuditOps .
+
+#################################################################
+# OBJECT PROPERTIES - HAM RELATIONSHIPS
+#################################################################
+
+###  Core HAM Properties
+ham:admitsType a owl:ObjectProperty ;
+    rdfs:label "admits type"@en ;
+    rdfs:comment "Indicates that a hop admits a specific type for processing."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range owl:Class .
+
+ham:rejectsType a owl:ObjectProperty ;
+    rdfs:label "rejects type"@en ;
+    rdfs:comment "Indicates that a hop explicitly rejects a specific type."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range owl:Class .
+
+ham:hasAdmissionRule a owl:ObjectProperty ;
+    rdfs:label "has admission rule"@en ;
+    rdfs:comment "Associates a hop with its admission control rules."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range ham:HopTypeAdmissionRule .
+
+ham:requiresSourceHop a owl:ObjectProperty ;
+    rdfs:label "requires source hop"@en ;
+    rdfs:comment "Specifies the source hop in a dependency relationship."@en ;
+    rdfs:domain ham:CrossHopDependency ;
+    rdfs:range ham:HopExecutionPoint .
+
+ham:requiresTargetHop a owl:ObjectProperty ;
+    rdfs:label "requires target hop"@en ;
+    rdfs:comment "Specifies the target hop in a dependency relationship."@en ;
+    rdfs:domain ham:CrossHopDependency ;
+    rdfs:range ham:HopExecutionPoint .
+
+ham:hasAdmissionDecision a owl:ObjectProperty ;
+    rdfs:label "has admission decision"@en ;
+    rdfs:comment "The decision made by HAM for a specific type at a hop."@en ;
+    rdfs:domain ham:HopTypeAdmissionRule ;
+    rdfs:range ham:AdmissionDecision .
+
+ham:constrainedBy a owl:ObjectProperty ;
+    rdfs:label "constrained by"@en ;
+    rdfs:comment "Indicates constraints applied to admission decisions."@en ;
+    rdfs:domain ham:HopTypeAdmissionRule ;
+    rdfs:range doe:PerformanceConstraint .
+
+#################################################################
+# DATA PROPERTIES - HAM ATTRIBUTES
+#################################################################
+
+###  Hop Identification Properties
+ham:hopNumber a owl:DatatypeProperty ;
+    rdfs:label "hop number"@en ;
+    rdfs:comment "The numerical identifier for a hop (1-8)."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range xsd:integer .
+
+ham:executionPhase a owl:DatatypeProperty ;
+    rdfs:label "execution phase"@en ;
+    rdfs:comment "The name of the execution phase for a hop."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range xsd:string .
+
+ham:maxTickAllowance a owl:DatatypeProperty ;
+    rdfs:label "max tick allowance"@en ;
+    rdfs:comment "Maximum ticks allowed for admission processing at this hop."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range xsd:integer .
+
+###  Admission Rule Properties
+ham:admissionPriority a owl:DatatypeProperty ;
+    rdfs:label "admission priority"@en ;
+    rdfs:comment "Priority level for admission rule processing (1-10)."@en ;
+    rdfs:domain ham:HopTypeAdmissionRule ;
+    rdfs:range xsd:integer .
+
+ham:rejectionReason a owl:DatatypeProperty ;
+    rdfs:label "rejection reason"@en ;
+    rdfs:comment "Explanation for why a type was rejected at a hop."@en ;
+    rdfs:domain ham:HopTypeAdmissionRule ;
+    rdfs:range xsd:string .
+
+ham:conditionalRequirement a owl:DatatypeProperty ;
+    rdfs:label "conditional requirement"@en ;
+    rdfs:comment "Additional requirement for conditional admission."@en ;
+    rdfs:domain ham:HopTypeAdmissionRule ;
+    rdfs:range xsd:string .
+
+###  Performance Properties  
+ham:admissionLatency a owl:DatatypeProperty ;
+    rdfs:label "admission latency"@en ;
+    rdfs:comment "Time taken to make admission decision (in ticks)."@en ;
+    rdfs:domain ham:HopTypeAdmissionRule ;
+    rdfs:range xsd:decimal .
+
+ham:throughputLimit a owl:DatatypeProperty ;
+    rdfs:label "throughput limit"@en ;
+    rdfs:comment "Maximum types processed per tick at this hop."@en ;
+    rdfs:domain ham:HopExecutionPoint ;
+    rdfs:range xsd:integer .
+
+#################################################################
+# HAM DECISION INDIVIDUALS
+#################################################################
+
+###  Admission Decisions
+ham:ADMIT a ham:AdmissionDecision ;
+    rdfs:label "ADMIT"@en ;
+    rdfs:comment "Type is admitted for processing at this hop."@en .
+
+ham:REJECT a ham:AdmissionDecision ;
+    rdfs:label "REJECT"@en ;
+    rdfs:comment "Type is explicitly rejected and cannot proceed."@en .
+
+ham:CONDITIONAL a ham:AdmissionDecision ;
+    rdfs:label "CONDITIONAL"@en ;
+    rdfs:comment "Type is conditionally admitted pending additional validation."@en .
+
+#################################################################
+# SHACL VALIDATION SHAPES - CLOSED WORLD CONSTRAINTS
+#################################################################
+
+###  HAM Matrix Validation Shape
+ham:HopAdmissionMatrixShape a sh:NodeShape ;
+    sh:targetClass ham:HopAdmissionMatrix ;
+    rdfs:label "HAM Matrix Validation"@en ;
+    rdfs:comment "Validates complete HAM matrix structure and consistency."@en ;
+    sh:property [
+        sh:path ham:hasAdmissionRule ;
+        sh:class ham:HopTypeAdmissionRule ;
+        sh:minCount 8 ;  # Must have rules for all 8 hops
+        sh:message "HAM matrix must define admission rules for all 8 hops"@en
+    ] ;
+    sh:closed true .
+
+###  Hop Execution Point Shape - Closed World
+ham:HopExecutionPointShape a sh:NodeShape ;
+    sh:targetClass ham:HopExecutionPoint ;
+    rdfs:label "Hop Execution Point Validation"@en ;
+    sh:property [
+        sh:path ham:hopNumber ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 8 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hop number must be exactly one integer between 1 and 8"@en
+    ] ;
+    sh:property [
+        sh:path ham:maxTickAllowance ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Each hop must have exactly 1 tick allowance (Doctrine of 8)"@en
+    ] ;
+    sh:property [
+        sh:path ham:executionPhase ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Each hop must have exactly one execution phase name"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-1 Admission Constraints (Governance)
+ham:Hop1AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop1GovernanceInception ;
+    rdfs:label "Hop-1 Governance Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop1AdmittedTypes ;
+        sh:message "Hop-1 can only admit governance and ethical framework types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-1 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-2 Admission Constraints (Identity/Policy)
+ham:Hop2AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop2IdentityPolicy ;
+    rdfs:label "Hop-2 Identity/Policy Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop2AdmittedTypes ;
+        sh:message "Hop-2 can only admit security policy and identity types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-2 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-3 Admission Constraints (Blueprint)
+ham:Hop3AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop3BlueprintCrystal ;
+    rdfs:label "Hop-3 Blueprint Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop3AdmittedTypes ;
+        sh:message "Hop-3 can only admit architectural and blueprint types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-3 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-4 Admission Constraints (Budget/Resources)
+ham:Hop4AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop4BudgetAllocation ;
+    rdfs:label "Hop-4 Budget/Resource Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop4AdmittedTypes ;
+        sh:message "Hop-4 can only admit budget and resource allocation types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-4 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-5 Admission Constraints (Execution)
+ham:Hop5AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop5ExecutionPhysics ;
+    rdfs:label "Hop-5 Execution Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop5AdmittedTypes ;
+        sh:message "Hop-5 can only admit execution and computational types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-5 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-6 Admission Constraints (Finalization)
+ham:Hop6AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop6Finalization ;
+    rdfs:label "Hop-6 Finalization Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop6AdmittedTypes ;
+        sh:message "Hop-6 can only admit validation and finalization types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-6 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-7 Admission Constraints (Publication)
+ham:Hop7AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop7Publication ;
+    rdfs:label "Hop-7 Publication Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop7AdmittedTypes ;
+        sh:message "Hop-7 can only admit publication and dissemination types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-7 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Hop-8 Admission Constraints (Audit/Ops)
+ham:Hop8AdmissionShape a sh:NodeShape ;
+    sh:targetClass ham:Hop8AuditOps ;
+    rdfs:label "Hop-8 Audit/Operations Admission Constraints"@en ;
+    sh:property [
+        sh:path ham:admitsType ;
+        sh:class ham:Hop8AdmittedTypes ;
+        sh:message "Hop-8 can only admit audit and operational types"@en
+    ] ;
+    sh:property [
+        sh:path ham:rejectsType ;
+        sh:class ham:UniversallyRejectedTypes ;
+        sh:minCount 1 ;
+        sh:message "Hop-8 must explicitly reject all blob types"@en
+    ] ;
+    sh:closed true .
+
+###  Cross-Hop Dependency Validation
+ham:CrossHopDependencyShape a sh:NodeShape ;
+    sh:targetClass ham:CrossHopDependency ;
+    rdfs:label "Cross-Hop Dependency Validation"@en ;
+    sh:property [
+        sh:path ham:requiresSourceHop ;
+        sh:class ham:HopExecutionPoint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Cross-hop dependency must specify exactly one source hop"@en
+    ] ;
+    sh:property [
+        sh:path ham:requiresTargetHop ;
+        sh:class ham:HopExecutionPoint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Cross-hop dependency must specify exactly one target hop"@en
+    ] ;
+    sh:closed true .
+
+###  No-Blob Rejection Validation
+ham:BlobRejectionShape a sh:NodeShape ;
+    sh:targetClass ham:UniversallyRejectedTypes ;
+    rdfs:label "Blob Rejection Validation"@en ;
+    sh:property [
+        sh:path owl:disjointWith ;
+        sh:hasValue ham:Hop1AdmittedTypes, ham:Hop2AdmittedTypes,
+                    ham:Hop3AdmittedTypes, ham:Hop4AdmittedTypes,
+                    ham:Hop5AdmittedTypes, ham:Hop6AdmittedTypes,
+                    ham:Hop7AdmittedTypes, ham:Hop8AdmittedTypes ;
+        sh:minCount 8 ;
+        sh:message "Blob types must be disjoint with all hop admission types"@en
+    ] ;
+    sh:closed true .
+
+###  Type Disjointness Validation
+ham:TypeDisjointnessShape a sh:NodeShape ;
+    sh:targetNode ham:Hop1AdmittedTypes, ham:Hop2AdmittedTypes,
+                  ham:Hop3AdmittedTypes, ham:Hop4AdmittedTypes,
+                  ham:Hop5AdmittedTypes, ham:Hop6AdmittedTypes,
+                  ham:Hop7AdmittedTypes, ham:Hop8AdmittedTypes ;
+    rdfs:label "Type Disjointness Validation"@en ;
+    sh:sparql [
+        sh:message "Admitted type sets must have minimal overlap to ensure clear boundaries"@en ;
+        sh:select """
+            SELECT ?type1 ?type2 WHERE {
+                ?type1 owl:unionOf ?list1 .
+                ?type2 owl:unionOf ?list2 .
+                FILTER(?type1 != ?type2)
+                ?list1 rdf:rest*/rdf:first ?member .
+                ?list2 rdf:rest*/rdf:first ?member .
+            }
+        """ ;
+    ] ;
+    sh:closed true .
+
+#################################################################
+# HAM MATRIX INSTANCES - COMPLETE ADMISSION CONTROL
+#################################################################
+
+###  Main HAM Matrix Instance
+ham:ByteStarHAMMatrix a ham:HopAdmissionMatrix ;
+    rdfs:label "ByteStar Complete HAM Matrix"@en ;
+    rdfs:comment """The primary Hop×Type Admission Matrix for ByteStar providing
+    complete type admission control across all 8 execution hops."""@en ;
+    ham:hasAdmissionRule ham:Hop1GovernanceAdmissionRule ,
+                        ham:Hop2IdentityAdmissionRule ,
+                        ham:Hop3BlueprintAdmissionRule ,
+                        ham:Hop4BudgetAdmissionRule ,
+                        ham:Hop5ExecutionAdmissionRule ,
+                        ham:Hop6FinalizationAdmissionRule ,
+                        ham:Hop7PublicationAdmissionRule ,
+                        ham:Hop8AuditAdmissionRule .
+
+###  Individual Hop Admission Rules
+ham:Hop1GovernanceAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-1 Governance Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 10 ;
+    ham:admissionLatency 0.1 .
+
+ham:Hop2IdentityAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-2 Identity/Policy Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 9 ;
+    ham:admissionLatency 0.2 .
+
+ham:Hop3BlueprintAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-3 Blueprint Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 8 ;
+    ham:admissionLatency 0.3 .
+
+ham:Hop4BudgetAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-4 Budget/Resource Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 7 ;
+    ham:admissionLatency 0.2 .
+
+ham:Hop5ExecutionAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-5 Execution Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 10 ;
+    ham:admissionLatency 0.4 .
+
+ham:Hop6FinalizationAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-6 Finalization Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 9 ;
+    ham:admissionLatency 0.3 .
+
+ham:Hop7PublicationAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-7 Publication Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 6 ;
+    ham:admissionLatency 0.2 .
+
+ham:Hop8AuditAdmissionRule a ham:HopTypeAdmissionRule ;
+    rdfs:label "Hop-8 Audit/Operations Admission Rule"@en ;
+    ham:hasAdmissionDecision ham:ADMIT ;
+    ham:admissionPriority 8 ;
+    ham:admissionLatency 0.1 .
+
+###  Hop Execution Point Instances
+ham:ByteStarHop1 a ham:Hop1GovernanceInception ;
+    ham:hopNumber 1 ;
+    ham:executionPhase "governance-inception" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 1000 ;
+    ham:admitsType be:EthicalFramework, be:GovernanceRule, doe:DoctrineOfEightLaw ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop2 a ham:Hop2IdentityPolicy ;
+    ham:hopNumber 2 ;
+    ham:executionPhase "identity-policy" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 800 ;
+    ham:admitsType sec:SecurityPolicy, sec:CryptographicPolicy, bp:PostQuantumCryptography ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop3 a ham:Hop3BlueprintCrystal ;
+    ham:hopNumber 3 ;
+    ham:executionPhase "blueprint-crystallization" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 600 ;
+    ham:admitsType ba:SystemArchitecture, orch:WorkflowPattern, meta:ConceptualModel ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop4 a ham:Hop4BudgetAllocation ;
+    ham:hopNumber 4 ;
+    ham:executionPhase "budget-allocation" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 500 ;
+    ham:admitsType orch:ResourceOrchestrator, exec:ResourceConstraint, perf:PerformanceBudget ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop5 a ham:Hop5ExecutionPhysics ;
+    ham:hopNumber 5 ;
+    ham:executionPhase "execution-physics" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 2000 ;
+    ham:admitsType exec:ExecutionContext, bf:ByteFlowExecution, ba:ByteActor ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop6 a ham:Hop6Finalization ;
+    ham:hopNumber 6 ;
+    ham:executionPhase "finalization-validation" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 1200 ;
+    ham:admitsType perf:PerformanceValidator, meta:ValidationProcess, exec:ValidationProcess ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop7 a ham:Hop7Publication ;
+    ham:hopNumber 7 ;
+    ham:executionPhase "publication-dissemination" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 400 ;
+    ham:admitsType meta:MetaKnowledge, perf:PerformanceReport, orch:WorkflowRepository ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+ham:ByteStarHop8 a ham:Hop8AuditOps ;
+    ham:hopNumber 8 ;
+    ham:executionPhase "audit-operations" ;
+    ham:maxTickAllowance 1 ;
+    ham:throughputLimit 300 ;
+    ham:admitsType sec:SecurityOperationsCenter, meta:SelfReflectionCapability, be:SystemAuditor ;
+    ham:rejectsType ham:UntypedBlob, ham:BinaryBlob, ham:GenericData .
+
+#################################################################
+# END OF HAM SPECIFICATION
+# Complete machine-readable admission control matrix with
+# 80% reuse of existing ontologies and 20% new HAM structures
+#################################################################

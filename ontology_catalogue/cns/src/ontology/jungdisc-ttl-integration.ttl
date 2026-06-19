@@ -1,0 +1,429 @@
+@prefix jungdisc: <http://cns-litigation.org/jungdisc#> .
+@prefix legal: <http://cns-litigation.org/legal#> .
+@prefix yawl: <http://www.yawlframework.org/ontology#> .
+@prefix disc: <http://cns-psychology.org/disc#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# JungDISC Protocol - Cognitive Defense Swarm Ontology
+# TTL workflow integration for 12-agent defensive coordination
+
+jungdisc:CognitiveDefenseSwarm a owl:Class ;
+    rdfs:label "JungDISC Cognitive Defense Swarm" ;
+    rdfs:comment "12-agent swarm for maximum cognitive defense through institutional process" ;
+    jungdisc:agentCount 12 ;
+    jungdisc:defensivePosture "reactive_not_aggressive" ;
+    jungdisc:primaryObjective "safety_recognition_lawful_resolution" .
+
+# DISC Polarity Configuration (99/80/40/40)
+jungdisc:DISCPolarity a owl:Class ;
+    rdfs:label "DISC Personality Polarity Configuration" ;
+    disc:dominance 99 ;
+    disc:influence 80 ;
+    disc:steadiness 40 ;
+    disc:compliance 40 ;
+    jungdisc:polarityAware true .
+
+# Agent Roles and Capabilities
+jungdisc:SentinelAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 01: Sentinel" ;
+    jungdisc:function "Threat escalation monitoring" ;
+    jungdisc:capabilities (
+        "correspondence_threat_analysis"
+        "escalation_pattern_detection"
+        "emotional_trigger_identification"
+        "protective_response_generation"
+    ) ;
+    jungdisc:triggers (
+        "threat"
+        "escalation" 
+        "emotional_trigger"
+    ) .
+
+jungdisc:ArchivistAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 02: Archivist" ;
+    jungdisc:function "Evidence chain indexing" ;
+    jungdisc:capabilities (
+        "evidence_chain_maintenance"
+        "claim_indexing"
+        "chain_of_custody_verification"
+        "archive_integrity_checking"
+    ) ;
+    jungdisc:archivePath "/Users/sac/Legal/JungDISC/Evidence" ;
+    jungdisc:triggers (
+        "evidence"
+        "archive"
+        "chain_custody"
+    ) .
+
+jungdisc:NotaryAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 03: Notary" ;
+    jungdisc:function "Jurisdictional filing system" ;
+    jungdisc:capabilities (
+        "jurisdictional_filing_creation"
+        "legal_terminology_compliance"
+        "deadline_tracking"
+        "multi_jurisdiction_coordination"
+    ) ;
+    jungdisc:supportedJurisdictions (
+        jungdisc:CA_BAR
+        jungdisc:NV_BAR
+        jungdisc:CA_LABOR
+        jungdisc:DOL_FEDERAL
+    ) .
+
+jungdisc:MirrorAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 04: Mirror" ;
+    jungdisc:function "Psychological pressure reflection" ;
+    jungdisc:capabilities (
+        "pressure_level_assessment"
+        "psychological_balance_monitoring"
+        "disc_polarity_feedback"
+        "stress_response_optimization"
+    ) .
+
+jungdisc:SynthesizerAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 05: Synthesizer" ;
+    jungdisc:function "Contradiction reconciliation" ;
+    jungdisc:capabilities (
+        "legal_contradiction_detection"
+        "statement_consistency_analysis"
+        "opposing_document_reconciliation"
+        "claim_verification"
+    ) .
+
+jungdisc:ConductorAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 06: Conductor" ;
+    jungdisc:function "Daily checklist guidance" ;
+    jungdisc:capabilities (
+        "ivy_lee_methodology"
+        "daily_objective_sequencing"
+        "progress_trigger_monitoring"
+        "disc_feedback_generation"
+    ) ;
+    jungdisc:methodology jungdisc:IvyLeeMethod .
+
+jungdisc:AllyAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 07: Ally" ;
+    jungdisc:function "Sovereignty reinforcement" ;
+    jungdisc:capabilities (
+        "ethical_framing_maintenance"
+        "lawful_action_validation"
+        "sovereignty_assertion"
+        "rights_protection_guidance"
+    ) .
+
+jungdisc:InterpreterAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 08: Interpreter" ;
+    jungdisc:function "Legal language translation" ;
+    jungdisc:capabilities (
+        "legal_to_plain_translation"
+        "terminology_clarification"
+        "procedural_explanation"
+        "rights_education"
+    ) .
+
+jungdisc:BufferAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 09: Buffer" ;
+    jungdisc:function "Mental noise absorption" ;
+    jungdisc:capabilities (
+        "cognitive_load_filtering"
+        "irrelevant_stimuli_blocking"
+        "mental_bandwidth_preservation"
+        "noise_threshold_management"
+    ) .
+
+jungdisc:TrackerAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 10: Tracker" ;
+    jungdisc:function "Submission timing coordination" ;
+    jungdisc:capabilities (
+        "deadline_synchronization"
+        "filing_schedule_optimization"
+        "response_time_balancing"
+        "institutional_timing_coordination"
+    ) .
+
+jungdisc:ResolverAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 11: Resolver" ;
+    jungdisc:function "Low-energy action triage" ;
+    jungdisc:capabilities (
+        "action_priority_assessment"
+        "energy_efficient_routing"
+        "low_effort_high_impact_identification"
+        "resource_optimization"
+    ) .
+
+jungdisc:InterfaceAgent a jungdisc:DefenseAgent ;
+    rdfs:label "Agent 12: Interface" ;
+    jungdisc:function "macOS/iOS API integration" ;
+    jungdisc:capabilities (
+        "macos_calendar_integration"
+        "ios_reminder_coordination"
+        "message_context_tracking"
+        "device_state_synchronization"
+    ) ;
+    jungdisc:supportedPlatforms (
+        "macOS"
+        "iOS"
+        "Nuxt_Interface"
+    ) .
+
+# Jurisdictional Information
+jungdisc:CA_BAR a jungdisc:Jurisdiction ;
+    rdfs:label "California State Bar" ;
+    jungdisc:url "https://www.calbar.ca.gov/Attorneys/Conduct-Discipline/File-a-Complaint" ;
+    jungdisc:terminology (
+        "professional_misconduct"
+        "rule_violations"
+        "client_protection"
+    ) ;
+    jungdisc:requiredFields (
+        "attorney_name"
+        "bar_number"
+        "incident_date"
+        "description"
+    ) .
+
+jungdisc:NV_BAR a jungdisc:Jurisdiction ;
+    rdfs:label "Nevada State Bar" ;
+    jungdisc:url "https://www.nvbar.org/for-lawyers/ethics-discipline/file-a-complaint/" ;
+    jungdisc:terminology (
+        "ethical_violations"
+        "professional_conduct"
+        "disciplinary_action"
+    ) ;
+    jungdisc:requiredFields (
+        "attorney_name"
+        "incident_description"
+        "supporting_evidence"
+    ) .
+
+jungdisc:CA_LABOR a jungdisc:Jurisdiction ;
+    rdfs:label "California Department of Labor" ;
+    jungdisc:url "https://www.dir.ca.gov/dlse/HowToFileWageClaim.htm" ;
+    jungdisc:terminology (
+        "wage_claim"
+        "employment_classification"
+        "labor_violations"
+    ) ;
+    jungdisc:requiredFields (
+        "employer_name"
+        "work_dates"
+        "wages_owed"
+        "classification"
+    ) .
+
+jungdisc:DOL_FEDERAL a jungdisc:Jurisdiction ;
+    rdfs:label "US Department of Labor" ;
+    jungdisc:url "https://www.dol.gov/agencies/whd/contact/complaints" ;
+    jungdisc:terminology (
+        "fair_labor_standards"
+        "misclassification"
+        "wage_hour_violations"
+    ) ;
+    jungdisc:requiredFields (
+        "employer_info"
+        "job_description"
+        "violation_type"
+    ) .
+
+# Workflow Patterns (YAWL Integration)
+jungdisc:DefensiveWorkflow a yawl:Specification ;
+    rdfs:label "JungDISC Defensive Workflow" ;
+    yawl:implementsPatterns (
+        yawl:SequencePattern
+        yawl:ParallelSplitPattern
+        yawl:SynchronizationPattern
+        yawl:ExclusiveChoicePattern
+        yawl:DeferredChoicePattern
+        yawl:MilestonePattern
+    ) .
+
+# Workflow Tasks
+jungdisc:ThreatAssessment a yawl:Task ;
+    rdfs:label "Assess Incoming Threats" ;
+    yawl:decompositionType yawl:atomic ;
+    jungdisc:assignedAgent jungdisc:SentinelAgent ;
+    yawl:inputCondition jungdisc:CorrespondenceReceived ;
+    yawl:outputCondition jungdisc:ThreatLevelDetermined .
+
+jungdisc:EvidenceArchival a yawl:Task ;
+    rdfs:label "Archive Evidence with Chain of Custody" ;
+    yawl:decompositionType yawl:atomic ;
+    jungdisc:assignedAgent jungdisc:ArchivistAgent ;
+    yawl:inputCondition jungdisc:EvidenceIdentified ;
+    yawl:outputCondition jungdisc:EvidenceArchived .
+
+jungdisc:JurisdictionalFiling a yawl:Task ;
+    rdfs:label "Create Jurisdictional Filing" ;
+    yawl:decompositionType yawl:composite ;
+    jungdisc:assignedAgent jungdisc:NotaryAgent ;
+    yawl:subtasks (
+        jungdisc:SelectJurisdiction
+        jungdisc:ApplyTerminology
+        jungdisc:GenerateDocument
+        jungdisc:VerifyCompliance
+    ) .
+
+jungdisc:DailyChecklistExecution a yawl:Task ;
+    rdfs:label "Execute Daily Defensive Checklist" ;
+    yawl:decompositionType yawl:composite ;
+    jungdisc:assignedAgent jungdisc:ConductorAgent ;
+    jungdisc:methodology jungdisc:IvyLeeMethod ;
+    yawl:subtasks (
+        jungdisc:ReviewCorrespondence
+        jungdisc:CheckDeadlines
+        jungdisc:VerifyEvidenceChain
+        jungdisc:SubmitFiling
+        jungdisc:UpdateDeviceSystems
+        jungdisc:AssessMentalBandwidth
+    ) .
+
+# Ivy Lee Methodology
+jungdisc:IvyLeeMethod a jungdisc:Methodology ;
+    rdfs:label "Ivy Lee Daily Execution Method" ;
+    jungdisc:maxObjectivesPerDay 6 ;
+    jungdisc:executionOrder "sequential" ;
+    jungdisc:completionRequirement "binary_submitted_or_not" ;
+    jungdisc:objectiveTypes (
+        "correspondence_review"
+        "deadline_verification"
+        "evidence_maintenance"
+        "filing_submission"
+        "system_updates"
+        "bandwidth_assessment"
+    ) .
+
+# Threat Level Classifications
+jungdisc:ThreatLevel a owl:Class ;
+    rdfs:label "Threat Escalation Level" .
+
+jungdisc:BaselineLevel a jungdisc:ThreatLevel ;
+    rdfs:label "Baseline Threat Level" ;
+    jungdisc:numericValue 0 ;
+    jungdisc:responseRequired false .
+
+jungdisc:ElevatedLevel a jungdisc:ThreatLevel ;
+    rdfs:label "Elevated Threat Level" ;
+    jungdisc:numericValue 1 ;
+    jungdisc:responseRequired true ;
+    jungdisc:responseTimeframe "within_48_hours" .
+
+jungdisc:HighLevel a jungdisc:ThreatLevel ;
+    rdfs:label "High Threat Level" ;
+    jungdisc:numericValue 2 ;
+    jungdisc:responseRequired true ;
+    jungdisc:responseTimeframe "within_24_hours" .
+
+jungdisc:CriticalLevel a jungdisc:ThreatLevel ;
+    rdfs:label "Critical Threat Level" ;
+    jungdisc:numericValue 3 ;
+    jungdisc:responseRequired true ;
+    jungdisc:responseTimeframe "immediate" ;
+    jungdisc:institutionalProtectionRequired true .
+
+# Cognitive Defense Constraints
+jungdisc:DefenseConstraints a owl:Class ;
+    rdfs:label "JungDISC Defense Constraints" .
+
+jungdisc:NoAdversarialFraming a jungdisc:DefenseConstraints ;
+    rdfs:label "No Adversarial Framing Allowed" ;
+    jungdisc:constraint "all_actions_must_be_defensive_and_institutional" .
+
+jungdisc:NoLawInterpretation a jungdisc:DefenseConstraints ;
+    rdfs:label "No Legal Interpretation" ;
+    jungdisc:constraint "only_relay_verified_agency_process_and_timelines" .
+
+jungdisc:StructuredDataOnly a jungdisc:DefenseConstraints ;
+    rdfs:label "Structured Data Only" ;
+    jungdisc:constraint "no_llm_inferred_diagnostics_only_structured_data" .
+
+jungdisc:NoGenerativeEscalation a jungdisc:DefenseConstraints ;
+    rdfs:label "No Generative Escalation" ;
+    jungdisc:constraint "never_escalate_always_seek_procedural_recourse" .
+
+# Success Criteria (Definition of Done)
+jungdisc:DefinitionOfDone a owl:Class ;
+    rdfs:label "JungDISC Mission Success Criteria" .
+
+jungdisc:AllFilingsSubmitted a jungdisc:DefinitionOfDone ;
+    rdfs:label "All Bar/Labor/Federal Filings Submitted" ;
+    jungdisc:criterion "bar_labor_federal_filings_complete" .
+
+jungdisc:DashboardSynced a jungdisc:DefinitionOfDone ;
+    rdfs:label "Filing Dashboard Syncs with macOS/iOS" ;
+    jungdisc:criterion "device_state_synchronization_active" .
+
+jungdisc:ClaimsSupported a jungdisc:DefinitionOfDone ;
+    rdfs:label "All Claims Supported by Documented Contradictions" ;
+    jungdisc:criterion "contradiction_evidence_chain_complete" .
+
+jungdisc:ThreatsRecorded a jungdisc:DefinitionOfDone ;
+    rdfs:label "No Active Threats Left Unrecorded" ;
+    jungdisc:criterion "threat_documentation_complete" .
+
+jungdisc:ChecklistOperational a jungdisc:DefinitionOfDone ;
+    rdfs:label "Daily Checklist Operational with Fallbacks" ;
+    jungdisc:criterion "ivy_lee_method_with_overload_detection" .
+
+jungdisc:CognitiveClarityMaintained a jungdisc:DefinitionOfDone ;
+    rdfs:label "Mental Clarity and Cognitive Regulation Maintained" ;
+    jungdisc:criterion "disc_polarity_balance_optimal" .
+
+# Integration Points with Existing CNS Infrastructure
+jungdisc:CNSIntegration a owl:Class ;
+    rdfs:label "CNS Litigation Infrastructure Integration" .
+
+jungdisc:LegalWarfareIntegration a jungdisc:CNSIntegration ;
+    rdfs:label "Legal Warfare Orchestrator Integration" ;
+    jungdisc:integrationPath "/Users/sac/cns/legal-warfare-orchestrator.py" ;
+    jungdisc:sharedResources (
+        "evidence_vault"
+        "multi_jurisdictional_filing"
+        "YAWL_workflow_patterns"
+    ) .
+
+jungdisc:OperationFocusIntegration a jungdisc:CNSIntegration ;
+    rdfs:label "Operation Focus Swarm Integration" ;
+    jungdisc:integrationPath "/Users/sac/cns/operation-focus-swarm.py" ;
+    jungdisc:sharedCapabilities (
+        "cognitive_state_monitoring"
+        "shannon_entropy_calculation"
+        "multi_agent_consensus"
+        "cognitive_drift_detection"
+    ) .
+
+jungdisc:TTLWorkflowIntegration a jungdisc:CNSIntegration ;
+    rdfs:label "TTL Workflow Integration" ;
+    jungdisc:integrationPath "/Users/sac/cns/concurrent-coordination/fortune500-workflows/" ;
+    jungdisc:workflowPatterns (
+        "YAWL_professional_misconduct_workflows"
+        "Van_der_Aalst_process_patterns"
+        "Multi_jurisdictional_filing_automation"
+    ) .
+
+# Performance Metrics and Monitoring
+jungdisc:PerformanceMetrics a owl:Class ;
+    rdfs:label "JungDISC Performance Monitoring" .
+
+jungdisc:ThreatDetectionAccuracy a jungdisc:PerformanceMetrics ;
+    rdfs:label "Threat Detection Accuracy" ;
+    jungdisc:targetAccuracy 0.95 ;
+    jungdisc:measurementMethod "pattern_recognition_validation" .
+
+jungdisc:FilingComplianceRate a jungdisc:PerformanceMetrics ;
+    rdfs:label "Jurisdictional Filing Compliance Rate" ;
+    jungdisc:targetCompliance 1.0 ;
+    jungdisc:measurementMethod "jurisdictional_requirement_validation" .
+
+jungdisc:CognitiveDefenseEffectiveness a jungdisc:PerformanceMetrics ;
+    rdfs:label "Cognitive Defense Effectiveness" ;
+    jungdisc:targetEffectiveness 0.90 ;
+    jungdisc:measurementMethod "disc_polarity_balance_assessment" .
+
+jungdisc:InstitutionalProgressRate a jungdisc:PerformanceMetrics ;
+    rdfs:label "Institutional Progress Rate" ;
+    jungdisc:targetProgress 0.80 ;
+    jungdisc:measurementMethod "filing_submission_timeline_tracking" .

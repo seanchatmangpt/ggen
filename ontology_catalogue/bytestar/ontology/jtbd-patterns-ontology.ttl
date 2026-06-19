@@ -1,0 +1,371 @@
+@prefix : <https://bytestar.org/ontology/jtbd-patterns#> .
+@prefix jtbd: <https://bytestar.org/ontology/jtbd#> .
+@prefix bs: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bf: <https://bytestar.org/ontology/byteflow/fabrication-specification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/jtbd-patterns> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/jtbd-patterns/1.0.0> ;
+    rdfs:label "JTBD Workflow Patterns Ontology"@en ;
+    rdfs:comment "JTBD-specific workflow patterns optimized for ByteStar ecosystem. Maps to the canonical 43 patterns with JTBD semantics."@en ;
+    owl:imports <https://bytestar.org/ontology/jtbd> ,
+                <https://bytestar.org/ontology/bytestar-core> ;
+    bs:canonicalPatterns 43 ;
+    bs:doctrine8Compliant true .
+
+# ===============================================================================
+# JTBD WORKFLOW PATTERN CLASSES
+# ===============================================================================
+
+:JTBDPattern a owl:Class ;
+    rdfs:label "JTBD Pattern"@en ;
+    rdfs:comment "Base class for JTBD-specific workflow patterns that map to ByteStar canonical patterns."@en ;
+    rdfs:subClassOf bf:WorkflowPattern ;
+    bs:patternValidated true .
+
+:JobDiscoveryPattern a owl:Class ;
+    rdfs:label "Job Discovery Pattern"@en ;
+    rdfs:comment "Pattern for systematically identifying and cataloging jobs to be done within an organization."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P01" ;
+    bs:patternType "SEQUENCE" .
+
+:ContextAnalysisPattern a owl:Class ;
+    rdfs:label "Context Analysis Pattern"@en ;
+    rdfs:comment "Pattern for analyzing situational contexts that trigger job execution."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P02" ;
+    bs:patternType "PARALLEL_SPLIT" .
+
+:StruggleIdentificationPattern a owl:Class ;
+    rdfs:label "Struggle Identification Pattern"@en ;
+    rdfs:comment "Pattern for identifying and prioritizing customer struggles and pain points."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P03" ;
+    bs:patternType "EXCLUSIVE_CHOICE" .
+
+:SolutionMappingPattern a owl:Class ;
+    rdfs:label "Solution Mapping Pattern"@en ;
+    rdfs:comment "Pattern for mapping solutions to jobs and validating solution-job fit."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P04" ;
+    bs:patternType "SYNCHRONIZATION" .
+
+:OutcomeMeasurementPattern a owl:Class ;
+    rdfs:label "Outcome Measurement Pattern"@en ;
+    rdfs:comment "Pattern for measuring and validating job completion outcomes."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P05" ;
+    bs:patternType "AND_JOIN" .
+
+# ===============================================================================
+# ENTERPRISE WORKFLOW PATTERNS
+# ===============================================================================
+
+:EnterpriseOnboardingPattern a owl:Class ;
+    rdfs:label "Enterprise Onboarding Pattern"@en ;
+    rdfs:comment "Fortune 5 customer onboarding workflow with compliance validation and multi-system integration."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P06" ;
+    bs:enterpriseGrade true ;
+    bs:complianceIntegrated true .
+
+:RegulatoryCompliancePattern a owl:Class ;
+    rdfs:label "Regulatory Compliance Pattern"@en ;
+    rdfs:comment "Pattern ensuring all job execution meets regulatory requirements with audit trails."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P07" ;
+    bs:auditTrail true ;
+    bs:complianceValidation true .
+
+:MultiSystemIntegrationPattern a owl:Class ;
+    rdfs:label "Multi-System Integration Pattern"@en ;
+    rdfs:comment "Pattern for orchestrating jobs across multiple enterprise systems and data sources."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P08" ;
+    bs:systemIntegration true ;
+    bs:dataConsistency true .
+
+:WorkflowOrchestrationPattern a owl:Class ;
+    rdfs:label "Workflow Orchestration Pattern"@en ;
+    rdfs:comment "High-level orchestration pattern for complex multi-step JTBD workflows."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P09" ;
+    bs:orchestrationRequired true .
+
+# ===============================================================================
+# REAL-TIME PATTERNS
+# ===============================================================================
+
+:RealTimeDecisionPattern a owl:Class ;
+    rdfs:label "Real-Time Decision Pattern"@en ;
+    rdfs:comment "Pattern for making sub-50μs decisions in real-time JTBD scenarios."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P10" ;
+    bs:realTime true ;
+    bs:maxLatency "50μs"^^xsd:duration ;
+    bs:patternType "IMMEDIATE_RESPONSE" .
+
+:StreamProcessingPattern a owl:Class ;
+    rdfs:label "Stream Processing Pattern"@en ;
+    rdfs:comment "Pattern for processing continuous streams of JTBD events and data."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P11" ;
+    bs:streamProcessing true ;
+    bs:continuousExecution true .
+
+:EventDrivenPattern a owl:Class ;
+    rdfs:label "Event-Driven Pattern"@en ;
+    rdfs:comment "Pattern for reactive JTBD execution based on external events and triggers."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P12" ;
+    bs:eventDriven true ;
+    bs:reactiveProgramming true .
+
+# ===============================================================================
+# OPTIMIZATION PATTERNS
+# ===============================================================================
+
+:PerformanceOptimizationPattern a owl:Class ;
+    rdfs:label "Performance Optimization Pattern"@en ;
+    rdfs:comment "Pattern for continuously optimizing JTBD execution performance."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P13" ;
+    bs:performanceOptimization true ;
+    bs:continuousImprovement true .
+
+:CostOptimizationPattern a owl:Class ;
+    rdfs:label "Cost Optimization Pattern"@en ;
+    rdfs:comment "Pattern for minimizing costs while maintaining JTBD execution quality."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P14" ;
+    bs:costOptimization true ;
+    bs:resourceEfficiency true .
+
+:AutoScalingPattern a owl:Class ;
+    rdfs:label "Auto-Scaling Pattern"@en ;
+    rdfs:comment "Pattern for automatically scaling JTBD execution resources based on demand."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P15" ;
+    bs:autoScaling true ;
+    bs:elasticResources true .
+
+# ===============================================================================
+# SECURITY PATTERNS
+# ===============================================================================
+
+:QuantumSecurityPattern a owl:Class ;
+    rdfs:label "Quantum Security Pattern"@en ;
+    rdfs:comment "Pattern for applying post-quantum cryptographic protection to sensitive JTBD operations."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P16" ;
+    bs:pqcSecurity true ;
+    bs:quantumResistant true .
+
+:ZeroTrustPattern a owl:Class ;
+    rdfs:label "Zero Trust Pattern"@en ;
+    rdfs:comment "Pattern implementing zero-trust security model for JTBD execution."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P17" ;
+    bs:zeroTrust true ;
+    bs:identityValidation true .
+
+:PrivacyPreservingPattern a owl:Class ;
+    rdfs:label "Privacy-Preserving Pattern"@en ;
+    rdfs:comment "Pattern ensuring privacy protection during JTBD data processing."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P18" ;
+    bs:privacyProtection true ;
+    bs:dataMinimization true .
+
+# ===============================================================================
+# COLLABORATION PATTERNS
+# ===============================================================================
+
+:StakeholderCollaborationPattern a owl:Class ;
+    rdfs:label "Stakeholder Collaboration Pattern"@en ;
+    rdfs:comment "Pattern for coordinating JTBD execution across multiple stakeholders and teams."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P19" ;
+    bs:collaboration true ;
+    bs:stakeholderAlignment true .
+
+:CrossFunctionalPattern a owl:Class ;
+    rdfs:label "Cross-Functional Pattern"@en ;
+    rdfs:comment "Pattern for JTBD execution that spans multiple business functions and departments."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P20" ;
+    bs:crossFunctional true ;
+    bs:departmentIntegration true .
+
+# ===============================================================================
+# LEARNING AND ADAPTATION PATTERNS
+# ===============================================================================
+
+:MachineLearningPattern a owl:Class ;
+    rdfs:label "Machine Learning Pattern"@en ;
+    rdfs:comment "Pattern for integrating ML models into JTBD execution and optimization."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P21" ;
+    bs:machineLearning true ;
+    bs:adaptiveSystem true .
+
+:FeedbackLoopPattern a owl:Class ;
+    rdfs:label "Feedback Loop Pattern"@en ;
+    rdfs:comment "Pattern for creating continuous feedback loops to improve JTBD execution."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P22" ;
+    bs:feedbackLoop true ;
+    bs:continuousLearning true .
+
+:AdaptiveOptimizationPattern a owl:Class ;
+    rdfs:label "Adaptive Optimization Pattern"@en ;
+    rdfs:comment "Pattern for self-optimizing JTBD workflows based on execution history and performance data."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P23" ;
+    bs:adaptiveOptimization true ;
+    bs:selfOptimizing true .
+
+# ===============================================================================
+# FAILURE HANDLING PATTERNS
+# ===============================================================================
+
+:FaultTolerancePattern a owl:Class ;
+    rdfs:label "Fault Tolerance Pattern"@en ;
+    rdfs:comment "Pattern for handling failures and ensuring JTBD execution continuity."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P24" ;
+    bs:faultTolerance true ;
+    bs:resilientExecution true .
+
+:GracefulDegradationPattern a owl:Class ;
+    rdfs:label "Graceful Degradation Pattern"@en ;
+    rdfs:comment "Pattern for maintaining partial functionality when full JTBD execution is not possible."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P25" ;
+    bs:gracefulDegradation true ;
+    bs:partialExecution true .
+
+:DisasterRecoveryPattern a owl:Class ;
+    rdfs:label "Disaster Recovery Pattern"@en ;
+    rdfs:comment "Pattern for recovering from catastrophic failures in JTBD systems."@en ;
+    rdfs:subClassOf :JTBDPattern ;
+    bs:canonicalMapping "P26" ;
+    bs:disasterRecovery true ;
+    bs:businessContinuity true .
+
+# ===============================================================================
+# PATTERN PROPERTIES
+# ===============================================================================
+
+:appliesToJob a owl:ObjectProperty ;
+    rdfs:label "applies to job"@en ;
+    rdfs:comment "Specifies which JTBD jobs this pattern can be applied to."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range jtbd:Job .
+
+:requiresCapability a owl:ObjectProperty ;
+    rdfs:label "requires capability"@en ;
+    rdfs:comment "Specifies ByteStar capabilities required to execute this pattern."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range bs:Capability .
+
+:optimizesFor a owl:ObjectProperty ;
+    rdfs:label "optimizes for"@en ;
+    rdfs:comment "Specifies what aspect this pattern optimizes for."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range jtbd:OptimizationTarget .
+
+:executionComplexity a owl:DatatypeProperty ;
+    rdfs:label "execution complexity"@en ;
+    rdfs:comment "Computational complexity rating (1-10) for pattern execution."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range xsd:integer .
+
+:expectedLatency a owl:DatatypeProperty ;
+    rdfs:label "expected latency"@en ;
+    rdfs:comment "Expected execution latency in microseconds."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range xsd:long .
+
+:resourceRequirement a owl:DatatypeProperty ;
+    rdfs:label "resource requirement"@en ;
+    rdfs:comment "Resource requirement level (LOW, MEDIUM, HIGH)."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range xsd:string .
+
+# ===============================================================================
+# PATTERN INDIVIDUALS - EXAMPLE IMPLEMENTATIONS
+# ===============================================================================
+
+:CustomerOnboardingWorkflow a :EnterpriseOnboardingPattern ;
+    rdfs:label "Customer Onboarding Workflow"@en ;
+    rdfs:comment "Specific implementation of enterprise onboarding pattern for Fortune 5 customer acquisition."@en ;
+    :appliesToJob jtbd:CustomerOnboarding ;
+    :executionComplexity 7 ;
+    :expectedLatency 2000 ;
+    :resourceRequirement "HIGH" .
+
+:FraudDetectionWorkflow a :RealTimeDecisionPattern ;
+    rdfs:label "Fraud Detection Workflow"@en ;
+    rdfs:comment "Real-time fraud detection implementation with sub-50μs response time."@en ;
+    :appliesToJob jtbd:FraudDetection ;
+    :executionComplexity 9 ;
+    :expectedLatency 25 ;
+    :resourceRequirement "HIGH" .
+
+:SupplyChainOptimizationWorkflow a :PerformanceOptimizationPattern ;
+    rdfs:label "Supply Chain Optimization Workflow"@en ;
+    rdfs:comment "End-to-end supply chain optimization using ML and real-time analytics."@en ;
+    :appliesToJob jtbd:SupplyChainOptimization ;
+    :executionComplexity 8 ;
+    :expectedLatency 5000 ;
+    :resourceRequirement "MEDIUM" .
+
+# ===============================================================================
+# PATTERN COMPOSITION RULES
+# ===============================================================================
+
+:PatternComposition a owl:Class ;
+    rdfs:label "Pattern Composition"@en ;
+    rdfs:comment "Rules for composing multiple patterns into complex JTBD workflows."@en .
+
+:canComposeWith a owl:ObjectProperty ;
+    rdfs:label "can compose with"@en ;
+    rdfs:comment "Specifies patterns that can be composed together."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range :JTBDPattern ;
+    owl:propertyChainAxiom (:requiresCapability bs:compatibleWith) .
+
+:compositionOrder a owl:DatatypeProperty ;
+    rdfs:label "composition order"@en ;
+    rdfs:comment "Order of execution when patterns are composed (1=first)."@en ;
+    rdfs:domain :JTBDPattern ;
+    rdfs:range xsd:integer .
+
+# ===============================================================================
+# VALIDATION RULES
+# ===============================================================================
+
+# Pattern validation constraints
+[] a owl:Restriction ;
+   owl:onProperty :expectedLatency ;
+   owl:onClass :RealTimeDecisionPattern ;
+   owl:maxInclusive 50 ;
+   rdfs:comment "Real-time decision patterns must execute within 50 microseconds" .
+
+[] a owl:Restriction ;
+   owl:onProperty :executionComplexity ;
+   owl:onClass :JTBDPattern ;
+   owl:minInclusive 1 ;
+   owl:maxInclusive 10 ;
+   rdfs:comment "Execution complexity must be between 1 and 10" .
+
+# Pattern composition rules
+:JobDiscoveryPattern :canComposeWith :ContextAnalysisPattern .
+:ContextAnalysisPattern :canComposeWith :StruggleIdentificationPattern .
+:StruggleIdentificationPattern :canComposeWith :SolutionMappingPattern .
+:SolutionMappingPattern :canComposeWith :OutcomeMeasurementPattern .

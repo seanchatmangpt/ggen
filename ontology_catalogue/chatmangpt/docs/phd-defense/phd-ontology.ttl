@@ -1,0 +1,325 @@
+# =============================================================================
+# ChatmanGPT PhD Defense Ontology
+# Models thesis using ggen documentation ontology vocabulary (doc: prefix)
+# Source: https://ggen.dev/ontology/documentation#
+# =============================================================================
+
+@prefix doc: <https://ggen.dev/ontology/documentation#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix thesis: <https://chatmangpt.com/phd/ontology#> .
+
+# =============================================================================
+# Thesis Metadata
+# =============================================================================
+
+thesis:MainThesis a doc:Explanation ;
+    doc:title "Ontology-Driven Multi-Agent Orchestration: Signal Theory, Formal Soundness, and Evidence-Based Verification for Fortune 500 AI Systems" ;
+    doc:description "This thesis presents a unified theoretical and practical framework for building reliable, observable, and formally sound multi-agent AI systems. The Chatman Equation A=mu(O) provides the mathematical foundation: artifacts are projections of ontologies via transformations. Signal Theory S=(M,G,T,F,W) defines a universal encoding for all system outputs. The framework integrates Armstrong fault-tolerance principles (let-it-crash, supervision, no shared state), van der Aalst process soundness (deadlock-freedom, liveness, boundedness), and a three-layer evidence standard (OTEL spans + test assertions + Weaver schema conformance). The ChatmanGPT system serves as the empirical validation platform, comprising four integrated projects (OSA, BusinessOS, Canopy, pm4py-rust) with 9,211 tests passing across Elixir, Go, and Rust." ;
+    doc:targetAudience "advanced" ;
+    doc:aiGenerated false ;
+    doc:personalizationTags "phd-defense,distributed-systems,fault-tolerance,process-mining,multi-agent-ai,formal-verification,otel" .
+
+# =============================================================================
+# Key Concepts Explained (Diataxis: Understanding Quadrant)
+# =============================================================================
+
+# --- Signal Theory S=(M,G,T,F,W) ---
+
+thesis:SignalTheory a doc:Concept ;
+    rdfs:label "Signal Theory" ;
+    rdfs:comment "Every output across all projects uses the encoding S=(M,G,T,F,W), where M=Mode, G=Genre, T=Type, F=Format, W=Structure. This provides a universal signal taxonomy enabling deterministic artifact generation." .
+
+thesis:SignalTheoryExplanation a doc:Explanation ;
+    doc:title "Signal Theory S=(M,G,T,F,W)" ;
+    doc:explainsConcept thesis:SignalTheory ;
+    doc:hasKeyIdea "Every system output is a signal that can be classified along five orthogonal dimensions: Mode (linguistic, visual, code, data, mixed), Genre (spec, brief, report, plan, email), Type (direct, inform, commit, decide, express), Format (markdown, code, JSON, YAML, HTML), and Structure (ADR-template, review-checklist, cold-email-anatomy)." ;
+    doc:hasKeyIdea "Signal quality is governed by Shannon's Information Theory: bandwidth constraints require progressive disclosure (L0/L1/L2 token budgets) to stay within channel capacity." ;
+    doc:hasKeyIdea "The S/N (signal-to-noise) threshold of 0.7 serves as a quality gate: outputs below this threshold are rejected before transmission." ;
+    doc:hasAnalogy "Signal Theory is to system outputs what Mendeleev's periodic table is to chemistry: a complete classification that reveals hidden structure and predicts properties of unseen elements." ;
+    doc:order 1 .
+
+# --- Chatman Equation A=mu(O) ---
+
+thesis:ChatmanEquation a doc:Concept ;
+    rdfs:label "Chatman Equation" ;
+    rdfs:comment "A=mu(O) states that artifacts are projections of ontologies via transformation functions. Before Ontology Closure, outputs are probabilistic; after Ontology Closure, generation becomes deterministic." .
+
+thesis:ChatmanEquationExplanation a doc:Explanation ;
+    doc:title "The Chatman Equation A=mu(O)" ;
+    doc:explainsConcept thesis:ChatmanEquation ;
+    doc:hasKeyIdea "Artifacts (A) are never created ex nihilo. They are projections of formal ontologies (O) through transformation functions (mu). The same ontology projected through different transformations yields different but consistent artifacts." ;
+    doc:hasKeyIdea "Ontology Closure is the phase transition from probabilistic to deterministic generation. When the ontology is complete and consistent, the transformation function becomes a pure function: same input always yields identical output." ;
+    doc:hasKeyIdea "The equation unifies documentation generation (RDF + Tera templates), code generation (ggen pipeline), and AI agent behavior (prompt + context = deterministic response)." ;
+    doc:hasAnalogy "If the ontology is a blueprint and the artifact is a building, then mu is the construction process. Two builders (transformations) working from the same blueprint will produce buildings with the same structure but potentially different aesthetics." ;
+    doc:order 2 .
+
+# --- 7-Layer Architecture ---
+
+thesis:SevenLayerArchitecture a doc:Concept ;
+    rdfs:label "7-Layer Architecture" ;
+    rdfs:comment "Universal Optimal Systems have 7 layers: Network, Signal, Composition, Interface, Data, Feedback, and Governance. Each project implements these layers differently but maintains structural isomorphism." .
+
+thesis:SevenLayerExplanation a doc:Explanation ;
+    doc:title "7-Layer Architecture" ;
+    doc:explainsConcept thesis:SevenLayerArchitecture ;
+    doc:hasKeyIdea "The 7 layers provide separation of concerns that enables independent evolution. Network (who connects) changes independently from Signal (how intent is encoded), which changes independently from Composition (internal structure)." ;
+    doc:hasKeyIdea "Structural isomorphism across projects enables cross-system integration. BusinessOS and OSA share the same Signal and Governance layers, enabling seamless agent coordination." ;
+    doc:order 3 .
+
+# --- Armstrong Fault Tolerance ---
+
+thesis:ArmstrongFaultTolerance a doc:Concept ;
+    rdfs:label "Armstrong Fault Tolerance" ;
+    rdfs:comment "Joe Armstrong's principles from Erlang/OTP: let-it-crash (fast failure), supervision trees (hierarchical restart), no shared mutable state (message passing only), budget constraints (resource limits), and hot reload (configuration without restart)." .
+
+thesis:ArmstrongExplanation a doc:Explanation ;
+    doc:title "Armstrong Fault Tolerance" ;
+    doc:explainsConcept thesis:ArmstrongFaultTolerance ;
+    doc:hasKeyIdea "Let-it-crash is mandatory at nanosecond granularity: exception-catching overhead (120-500ns) exceeds operation latency (2-10ns) for most agent operations, making crash-and-restart cheaper than error handling." ;
+    doc:hasKeyIdea "Supervision trees scale with O(D) cost where D = tree depth. For the ChatmanGPT integration (depth 3), overhead is constant O(1) per heartbeat cycle." ;
+    doc:hasKeyIdea "Throughput scales linearly: Throughput(N) = const x N for Armstrong systems vs. Throughput(N) = const / (1 + N x p x retry_factor) for traditional 2PC. At N=10 domains, Armstrong achieves 50-100x higher throughput." ;
+    doc:hasKeyIdea "No shared state eliminates data races entirely. All inter-process communication uses message passing (Elixir GenServer, Go channels, Rust MPSC)." ;
+    doc:hasAnalogy "Armstrong's approach is like a biological immune system: individual cells (processes) die when damaged, but the organism (system) survives through hierarchical recovery mechanisms (supervision trees)." ;
+    doc:order 4 .
+
+# --- van der Aalst Soundness ---
+
+thesis:WvdASoundness a doc:Concept ;
+    rdfs:label "WvdA Process Soundness" ;
+    rdfs:comment "Wil van der Aalst's three soundness properties: deadlock-freedom (no circular waits), liveness (all actions eventually complete), and boundedness (no unbounded resource growth). Every agent and coordination mechanism must satisfy all three." .
+
+thesis:WvdAExplanation a doc:Explanation ;
+    doc:title "van der Aalst Process Soundness" ;
+    doc:explainsConcept thesis:WvdASoundness ;
+    doc:hasKeyIdea "Deadlock-freedom is enforced by requiring explicit timeout_ms on every blocking operation (GenServer.call, channel receive, HTTP request). No operation can wait indefinitely." ;
+    doc:hasKeyIdea "Liveness is guaranteed by bounded iteration in all loops, explicit escape conditions, and max-retry limits. No infinite execution paths exist in the system." ;
+    doc:hasKeyIdea "Boundedness is enforced through explicit queue limits (max_queue_size), cache TTLs, and memory limits. Resource accumulation cannot grow without bound." ;
+    doc:hasAnalogy "WvdA soundness is to software systems what traffic laws are to road networks: every vehicle (process) has a right of way (liveness), no vehicle waits forever at an intersection (deadlock-freedom), and parking lots have capacity limits (boundedness)." ;
+    doc:order 5 .
+
+# =============================================================================
+# Design Decisions with Rationale and Tradeoffs
+# =============================================================================
+
+thesis:DecisionCustomA2AProtocol a doc:DesignDecision ;
+    doc:decision "Use custom A2A protocol (JSON-RPC) over external SDK dependencies" ;
+    doc:rationale "Custom implementations provide full control over message format, error handling, and tracing instrumentation. External SDKs introduce opaque dependencies that conflict with Armstrong's let-it-crash principle and make WvdA soundness verification impossible." ;
+    doc:tradeoff "Increased initial development cost (approximately 2 weeks) in exchange for full observability, zero dependency risk, and deterministic behavior under fault conditions." .
+
+thesis:DecisionEvidenceStandard a doc:DesignDecision ;
+    doc:decision "Require three-layer evidence standard (OTEL span + test assertion + Weaver schema) for all claims" ;
+    doc:rationale "Single proof artifacts (e.g., only tests) can produce false positives. The AND logic across three independent verification mechanisms eliminates happy-path lies, proxy lies, and silent failure lies." ;
+    doc:tradeoff "Higher merge friction (approximately 15 minutes per claim) in exchange for zero unverifiable claims in production. Empirical result: 9,211 tests, 0 failures across the system." .
+
+thesis:DecisionChicagoOverLondon a doc:DesignDecision ;
+    doc:decision "Adopt Chicago School TDD (behavior verification) over London School TDD (interaction specification)" ;
+    doc:rationale "Chicago TDD with real implementations produces observable proof compatible with OTEL instrumentation. London School mocks hide actual execution, making evidence collection impossible." ;
+    doc:tradeoff "Less granular isolation between units in exchange for integration-level correctness. Tests verify WHAT the system does (observable behavior) rather than HOW it does it (internal contracts)." .
+
+thesis:DecisionElixirOTPCore a doc:DesignDecision ;
+    doc:decision "Use Elixir/OTP as the core runtime for OSA and Canopy agent orchestration" ;
+    doc:rationale "Erlang/OTP provides native supervision trees, preemptive scheduling, and message passing that directly implement Armstrong principles without additional framework overhead." ;
+    doc:tradeoff "Smaller talent pool compared to JVM or Node.js ecosystems in exchange for 30+ years of battle-tested fault tolerance in telecommunications (Ericsson, WhatsApp, Discord)." .
+
+thesis:DecisionRDFForOntology a doc:DesignDecision ;
+    doc:decision "Use RDF/SPARQL as the ontology representation and query language" ;
+    doc:rationale "RDF provides formal semantics (OWL reasoning), SPARQL provides graph traversal (CONSTRUCT for inference, SELECT for extraction), and the combination enables the Chatman Equation A=mu(O) where mu is a SPARQL CONSTRUCT query and O is an RDF graph." ;
+    doc:tradeoff "Steeper learning curve and more verbose representation compared to YAML/JSON schemas in exchange for formal reasoning, provenance tracking (PROV-O), and interoperability with semantic web standards." .
+
+# =============================================================================
+# Learning Objectives (for Tutorial-style PhD Defense Presentation)
+# =============================================================================
+
+thesis:ThesisTutorial a doc:Tutorial ;
+    doc:title "ChatmanGPT PhD Defense: From Theory to Verified Multi-Agent Systems" ;
+    doc:description "A structured walkthrough of the thesis contributions, covering theoretical foundations (Signal Theory, Chatman Equation), engineering principles (Armstrong, WvdA), and empirical validation (9,211 tests across 4 systems)." ;
+    doc:difficultyLevel "advanced" ;
+    doc:estimatedTime "75 minutes" ;
+    doc:hasPrerequisite "Understanding of distributed systems, basic knowledge of RDF/SPARQL, familiarity with at least one of: Elixir/OTP, Go, or Rust" ;
+    doc:hasLearningObjective "Understand how Signal Theory S=(M,G,T,F,W) provides a universal classification for multi-agent system outputs" ;
+    doc:hasLearningObjective "Explain the Chatman Equation A=mu(O) and how it enables deterministic artifact generation from formal ontologies" ;
+    doc:hasLearningObjective "Compare Armstrong fault tolerance (throughput N x const) with traditional 2PC (throughput const / (1 + N x p))" ;
+    doc:hasLearningObjective "Apply WvdA soundness verification (deadlock-freedom, liveness, boundedness) to multi-agent coordination" ;
+    doc:hasLearningObjective "Evaluate the three-layer evidence standard (OTEL + tests + Weaver) for production system claims" ;
+    doc:order 1 .
+
+# =============================================================================
+# Code Examples
+# =============================================================================
+
+# --- Armstrong Supervision Tree (Elixir/OTP) ---
+
+thesis:ArmstrongSupervisionExample a doc:Example ;
+    doc:title "Armstrong Supervision Tree: OSA Root Supervisor" ;
+    doc:codeLanguage "elixir" ;
+    doc:codeExample """defmodule OSA.Supervisor do
+  use Supervisor
+
+  def start_link(init_arg) do
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_arg) do
+    children = [
+      {OSA.WebServer, []},           # permanent: restart on any crash
+      {OSA.AgentPool, max_agents: 10}, # permanent: bounded instance count
+      {OSA.HealthCheck, interval_ms: 5000} # permanent: liveness heartbeat
+    ]
+
+    # one_for_one: child crash does NOT restart siblings
+    # max_restarts: 5 in 60 seconds prevents restart storms
+    Supervisor.init(children, strategy: :one_for_one,
+                     max_restarts: 5, max_seconds: 60)
+  end
+end""" .
+
+# --- WvdA Soundness: Timeout + Fallback ---
+
+thesis:WvdATimeoutExample a doc:Example ;
+    doc:title "WvdA Deadlock-Freedom: Explicit Timeout with Fallback" ;
+    doc:codeLanguage "elixir" ;
+    doc:codeExample """# Every GenServer.call has explicit timeout_ms
+# This guarantees deadlock-freedom: no process waits forever
+case GenServer.call(pid, {:request, data}, 5000) do
+  {:ok, result} -> {:ok, result}
+  :timeout -> escalate_to_supervisor(pid)
+end""" .
+
+# --- A2A Instrumentation with OTEL ---
+
+thesis:A2AOTELExample a doc:Example ;
+    doc:title "A2A Task Instrumentation with OpenTelemetry" ;
+    doc:codeLanguage "elixir" ;
+    doc:codeExample """# OTEL span captures execution proof for three-layer verification
+def handle_task(task) do
+  OpenTelemetry.Tracer.with_span "a2a.task.create",
+    attributes: [
+      agent_id: task.agent_id,
+      resource_id: task.resource_id,
+      status: "ok"
+    ] do
+    # ... task processing ...
+    {:ok, result}
+  end
+end""" .
+
+# --- WvdA Boundedness: Bounded Queue ---
+
+thesis:WvdABoundednessExample a doc:Example ;
+    doc:title "WvdA Boundedness: Queue with Eviction Policy" ;
+    doc:codeLanguage "elixir" ;
+    doc:codeExample """# Bounded queue prevents unbounded memory growth
+def queue_loop(items, max_size: 1000) do
+  receive do
+    {:add, item} ->
+      new_items =
+        if length(items) >= 1000 do
+          tl(items)  # Drop oldest when at capacity
+        else
+          items
+        end
+      queue_loop([item | new_items], max_size: 1000)
+
+    :drain -> process_items(items)
+  end
+end""" .
+
+# =============================================================================
+# Related Work References
+# =============================================================================
+
+thesis:RelatedWorkArmstrong a doc:Reference ;
+    doc:title "Making Reliable Distributed Systems in the Presence of Software Errors" ;
+    doc:description "Joe Armstrong's PhD thesis (2003) establishing the theoretical foundation for Erlang/OTP fault tolerance: let-it-crash, supervision trees, and message passing as the basis for reliable distributed systems." ;
+    doc:order 1 .
+
+thesis:RelatedWorkVdA a doc:Reference ;
+    doc:title "Process Mining: Discovery, Conformance and Enhancement of Business Processes" ;
+    doc:description "Wil van der Aalst's comprehensive treatment of process soundness verification (2016). Defines the three soundness properties (deadlock-freedom, liveness, boundedness) applied in this thesis to multi-agent coordination." ;
+    doc:order 2 .
+
+thesis:RelatedWorkBeck a doc:Reference ;
+    doc:title "Test-Driven Development: By Example" ;
+    doc:description "Kent Beck's foundational work on TDD (2002). This thesis extends Chicago School TDD with three-layer evidence (OTEL + tests + Weaver) for distributed system verification." ;
+    doc:order 3 .
+
+thesis:RelatedWorkShannon a doc:Reference ;
+    doc:title "A Mathematical Theory of Communication" ;
+    doc:description "Claude Shannon's information theory (1948). Signal Theory S=(M,G,T,F,W) applies Shannon's bandwidth constraints to system outputs, motivating progressive disclosure (L0/L1/L2 token budgets)." ;
+    doc:order 4 .
+
+thesis:RelatedWorkPoppendieck a doc:Reference ;
+    doc:title "Lean Software Development: An Agile Toolkit" ;
+    doc:description "Mary and Tom Poppendieck (2003). Toyota Production System principles applied to software: muda elimination, kaizen, gemba. Integrated into ChatmanGPT via TPS rules in .claude/rules/toyota-production.md." ;
+    doc:order 5 .
+
+thesis:RelatedWorkYAWL a doc:Reference ;
+    doc:title "YAWL: Yet Another Workflow Language" ;
+    doc:description "van der Aalst and ter Hofstede (2005). The YAWL v6 engine (Java 25) provides the workflow pattern catalog (43 patterns) used in ChatmanGPT for agent coordination modeling." ;
+    doc:order 6 .
+
+# =============================================================================
+# Thesis Sections (mapped to paper template structure)
+# =============================================================================
+
+thesis:IntroductionSection a doc:Explanation ;
+    doc:title "Introduction: The Reliability Problem in Multi-Agent AI" ;
+    doc:description "Multi-agent AI systems present a fundamental reliability challenge: agents must coordinate across process boundaries, network partitions, and partial failures while maintaining observable correctness. Existing approaches rely on exception handling (violating Armstrong's let-it-crash), shared state (creating deadlock risk under WvdA), and insufficient verification (allowing unverifiable claims). This thesis addresses these gaps with a unified framework." ;
+    doc:order 1 .
+
+thesis:RelatedWorkSection a doc:Explanation ;
+    doc:title "Related Work: Fault Tolerance, Process Mining, and Test-Driven Verification" ;
+    doc:description "Survey of Armstrong (2003), van der Aalst (2016), Beck (2002), Shannon (1948), and their integration in the ChatmanGPT framework. Identifies the gap: no existing work combines Armstrong fault tolerance, WvdA soundness, and three-layer evidence verification in a single multi-agent system." ;
+    doc:order 2 .
+
+thesis:MethodsSection a doc:Explanation ;
+    doc:title "Methodology: Ontology-Driven Development with Signal Theory" ;
+    doc:description "The Chatman Equation A=mu(O) provides the methodology: formal ontologies (RDF/SPARQL) projected through transformation functions (ggen Tera templates) to generate verifiable artifacts. Signal Theory S=(M,G,T,F,W) classifies all outputs. The three-layer evidence standard (OTEL + tests + Weaver) verifies all claims." ;
+    doc:order 3 .
+
+thesis:ResultsSection a doc:Explanation ;
+    doc:title "Results: 9,211 Tests, 0 Failures Across 4 Systems" ;
+    doc:description "Empirical validation across OSA (8,433 Elixir tests), pm4py-rust (722 Rust tests), BusinessOS (56 Go tests), and 16 cross-system E2E smoke tests. Armstrong throughput: 2,500 req/sec measured vs. 41 req/sec theoretical 2PC baseline (60x speedup). WvdA verification: all blocking operations have explicit timeout_ms. Weaver schema conformance: exit code 0 across all semconv domains." ;
+    doc:order 4 .
+
+thesis:DiscussionSection a doc:Explanation ;
+    doc:title "Discussion: Scalability Implications and Limitations" ;
+    doc:description "The Armstrong scalability theorem (Throughput(N) = const x N) predicts linear scaling with process count. Empirical validation at N=10 shows 100x throughput advantage over 2PC. At extreme load (N=1000), theoretical speedup exceeds 500,000x. Limitations: supervision tree depth must remain bounded; message passing latency adds 1-10us per hop; hot reload requires external configuration stores." ;
+    doc:order 5 .
+
+thesis:ConclusionSection a doc:Explanation ;
+    doc:title "Conclusion: Toward Fortune 500-Grade AI Systems" ;
+    doc:description "The unified framework of Signal Theory + Chatman Equation + Armstrong + WvdA + three-layer evidence enables construction of multi-agent AI systems with formally verified reliability. The ChatmanGPT implementation demonstrates feasibility at Fortune 500 scale across four technology stacks (Elixir, Go, Rust, SvelteKit). Future work: formal proof of supervision tree O(D) optimality, integration with LLM-based reasoning, and deployment to production environments." ;
+    doc:order 6 .
+
+# =============================================================================
+# Thesis Evidence Data (for evidence template)
+# =============================================================================
+
+thesis:OSAEvidence a doc:Reference ;
+    doc:title "OSA Test Suite Evidence" ;
+    doc:description "8,433 Elixir tests, 0 failures. Covers supervision trees, let-it-crash patterns, message passing, budget constraints, WvdA soundness verification, A2A instrumentation, and MCP integration." ;
+    doc:order 1 .
+
+thesis:PM4PYEvidence a doc:Reference ;
+    doc:title "pm4py-rust Test Suite Evidence" ;
+    doc:description "722 Rust tests, 0 failures. Covers process mining algorithms, timeout enforcement via tokio::time::timeout, channel-based message passing, and A2A client instrumentation." ;
+    doc:order 2 .
+
+thesis:BusinessOSEvidence a doc:Reference ;
+    doc:title "BusinessOS Test Suite Evidence" ;
+    doc:description "56 Go tests, 0 failures. Covers Groq Armstrong tests (5), KNHK integration tests (4), compliance rule engine, and SOC2 rule validation." ;
+    doc:order 3 .
+
+thesis:CrossSystemEvidence a doc:Reference ;
+    doc:title "Cross-System E2E Smoke Test Evidence" ;
+    doc:description "16/16 E2E smoke tests pass. Validates integration chain: pm4py-rust (8090) -> BusinessOS (8001) -> Canopy (9089) -> OSA (8089)." ;
+    doc:order 4 .
+
+thesis:WeaverEvidence a doc:Reference ;
+    doc:title "Weaver Schema Conformance Evidence" ;
+    doc:description "weaver registry check -r ./semconv/model -p ./semconv/policies exits 0. All span definitions conform to semconv schema. Generated typed constants used in test assertions provide compile-time schema enforcement." ;
+    doc:order 5 .

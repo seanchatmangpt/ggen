@@ -84,3 +84,6 @@ ggen paper submit paper.pdf --venue neurips-2025
 quick_start = "NeurIPS conference paper with double-blind review support"
 features = "Anonymization, appendices, algorithm environment, strict validation"
 use_cases = "NeurIPS submissions, machine learning conferences, deep learning research"
+
+[marketplace]
+production_ready = false

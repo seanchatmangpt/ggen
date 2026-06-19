@@ -389,7 +389,9 @@ impl RdfControlPlane {
 
     #[allow(clippy::unused_self)]
     fn detect_injection(&self, query: &str) -> bool {
-        // Basic injection detection
+        // Case-insensitive injection detection — convert to uppercase before matching
+        // so mixed-case variants like "dRoP", "iNsErT", etc. are all caught.
+        let query_upper = query.to_uppercase();
         let suspicious_patterns = [
             "DROP",
             "DELETE WHERE {",
@@ -399,7 +401,7 @@ impl RdfControlPlane {
         ];
 
         for pattern in &suspicious_patterns {
-            if query.contains(pattern) {
+            if query_upper.contains(pattern) {
                 warn!("Suspicious pattern detected in query: {pattern}");
                 return true;
             }

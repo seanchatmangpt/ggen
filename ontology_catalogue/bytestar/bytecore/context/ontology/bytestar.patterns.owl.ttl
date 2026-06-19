@@ -1,0 +1,6 @@
+# The 43 Pattern individuals (P01..P43).
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix bs: <urn:bs:> .
+
+<urn:bs:p/P01> a bs:Pattern .
+# ... up to P43

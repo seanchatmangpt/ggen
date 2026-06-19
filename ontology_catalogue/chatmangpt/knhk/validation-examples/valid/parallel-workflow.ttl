@@ -1,0 +1,121 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/workflow/parallel#> .
+
+# =============================================================================
+# VALID PARALLEL WORKFLOW - DEMONSTRATES Q5 RESOURCE BOUNDS
+# =============================================================================
+#
+# This workflow demonstrates:
+# ✅ Q5: Proper concurrency limits for parallel tasks
+# ✅ Valid AND-AND split-join combination (Pattern 2+3)
+# ✅ Proper synchronization
+#
+# =============================================================================
+
+:ParallelWorkflow a yawl:WorkflowSpecification ;
+    yawl:id "parallel-workflow-001" ;
+    yawl:versionNumber "1.0.0" ;
+    rdfs:label "Valid Parallel Workflow" ;
+    yawl:hasInputCondition :start ;
+    yawl:hasOutputCondition :end ;
+    yawl:hasTask :split, :taskA, :taskB, :taskC, :join ;
+    yawl:hasCondition :start, :end .
+
+:start a yawl:Condition ;
+    yawl:flowsInto :flow1 .
+
+:end a yawl:Condition .
+
+# AND split task
+:split a yawl:Task ;
+    rdfs:label "Parallel Split" ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl-exec:runtimeBehavior <http://example.org/services/splitter> ;
+    yawl:expectedDuration "PT0.000000001S"^^xsd:duration ;
+    yawl:criticalPath true ;
+
+    # Valid AND split (requires multiple outgoing flows)
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flowA, :flowB, :flowC .
+
+# Parallel tasks with proper Q5 resource bounds
+:taskA a yawl:Task ;
+    rdfs:label "Task A" ;
+    yawl-exec:executionMode yawl-exec:Parallel ;
+    yawl-exec:runtimeBehavior <http://example.org/services/taskA> ;
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutRetry ;
+    yawl:expectedDuration "PT0.05S"^^xsd:duration ;
+
+    # Q5: Concurrency limit declared for parallel task
+    yawl-exec:MaxConcurrency 4 ;
+
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flowA2 .
+
+:taskB a yawl:Task ;
+    rdfs:label "Task B" ;
+    yawl-exec:executionMode yawl-exec:Parallel ;
+    yawl-exec:runtimeBehavior <http://example.org/services/taskB> ;
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutRetry ;
+    yawl:expectedDuration "PT0.03S"^^xsd:duration ;
+
+    # Q5: Concurrency limit
+    yawl-exec:MaxConcurrency 8 ;
+
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flowB2 .
+
+:taskC a yawl:Task ;
+    rdfs:label "Task C" ;
+    yawl-exec:executionMode yawl-exec:Parallel ;
+    yawl-exec:runtimeBehavior <http://example.org/services/taskC> ;
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutRetry ;
+    yawl:expectedDuration "PT0.04S"^^xsd:duration ;
+
+    # Q5: Concurrency limit
+    yawl-exec:MaxConcurrency 2 ;
+
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flowC2 .
+
+# AND join task (synchronization)
+:join a yawl:Task ;
+    rdfs:label "Synchronization" ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl-exec:runtimeBehavior <http://example.org/services/joiner> ;
+    yawl:expectedDuration "PT0.000000002S"^^xsd:duration ;
+    yawl:criticalPath true ;
+
+    # Valid AND join (requires multiple incoming flows)
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND ;
+    yawl:flowsInto :flow2 .
+
+# Flows
+:flow1 a yawl:Flow ; yawl:nextElementRef :split .
+:flowA a yawl:Flow ; yawl:nextElementRef :taskA .
+:flowB a yawl:Flow ; yawl:nextElementRef :taskB .
+:flowC a yawl:Flow ; yawl:nextElementRef :taskC .
+:flowA2 a yawl:Flow ; yawl:nextElementRef :join .
+:flowB2 a yawl:Flow ; yawl:nextElementRef :join .
+:flowC2 a yawl:Flow ; yawl:nextElementRef :join .
+:flow2 a yawl:Flow ; yawl:nextElementRef :end .
+
+# =============================================================================
+# VALIDATION EXPECTATIONS
+# =============================================================================
+#
+# ✅ AND-AND split-join is valid permutation (Pattern 2+3)
+# ✅ All parallel tasks declare MaxConcurrency (Q5)
+# ✅ Proper synchronization with AND join
+# ✅ All structural requirements met
+#
+# Expected: SUCCESS (exit code 0)
+#
+# =============================================================================

@@ -1,0 +1,332 @@
+@prefix pcl: <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bfab: <https://bytestar.org/ontology/byteflow/fabrication-specification#> .
+@prefix dflss: <https://bytestar.org/ontology/v5/dflss-concepts#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice>
+  a owl:Ontology ;
+  rdfs:label "Polycrystal Lattice (.pcl) Crystal Ontology" ;
+  rdfs:comment "Defines polycrystal lattice structures with dependency graphs, task crystals, and performance budgets under Doctrine of 8 and HAM compliance for blueprint/workflow domain fabrication." ;
+  owl:imports 
+    <https://bytestar.org/ontology/bytestar-core> ,
+    <https://bytestar.org/ontology/byteflow/fabrication-specification> ,
+    <https://bytestar.org/ontology/v5/dflss-concepts> ;
+  owl:versionInfo "5.0.0" ;
+  pcl:doctrineOfEightCompliant "true"^^xsd:boolean ;
+  pcl:hamHopsSupported "1,3,5"^^xsd:string .
+
+#################################################################
+# Core Polycrystal Lattice Structure
+#################################################################
+
+pcl:PolycrystalLattice a owl:Class ;
+  rdfs:label "Polycrystal Lattice" ;
+  rdfs:comment "A fabricated crystal structure containing organized task crystals with dependency graphs and performance budgets." ;
+  rdfs:subClassOf bcore:PolycrystalLattice ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasTaskCrystal ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasDependencyGraph ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasPerformanceBudget ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+pcl:TaskCrystal a owl:Class ;
+  rdfs:label "Task Crystal" ;
+  rdfs:comment "Individual crystallized task unit with atomic execution properties and capability requirements." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasCapabilityRequirement ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasExecutionBudget ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasHAMHop ;
+    owl:allValuesFrom pcl:HAMHop
+  ] .
+
+pcl:DependencyGraph a owl:Class ;
+  rdfs:label "Crystal Dependency Graph" ;
+  rdfs:comment "Graph structure defining execution dependencies between task crystals with HAM compliance." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasNode ;
+    owl:allValuesFrom pcl:TaskCrystal
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:hasEdge ;
+    owl:allValuesFrom pcl:DependencyEdge
+  ] .
+
+pcl:DependencyEdge a owl:Class ;
+  rdfs:label "Dependency Edge" ;
+  rdfs:comment "Directed edge connecting task crystals with dependency type and constraints." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:dependsOn ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:enables ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+#################################################################
+# Performance Budgeting under Doctrine of 8
+#################################################################
+
+pcl:PerformanceBudget a owl:Class ;
+  rdfs:label "Performance Budget" ;
+  rdfs:comment "Doctrine of 8 compliant performance budget allocation across task crystals." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:maxCpuTicks ;
+    owl:maxCardinality "8"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:l1CacheResident ;
+    owl:hasValue "true"^^xsd:boolean
+  ] .
+
+pcl:ExecutionBudget a owl:Class ;
+  rdfs:label "Task Execution Budget" ;
+  rdfs:comment "Individual task crystal execution budget with 8-tick maximum constraint." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:tickAllocation ;
+    owl:maxInclusive "8"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:memoryFootprint ;
+    owl:allValuesFrom pcl:L1ResidentSize
+  ] .
+
+pcl:L1ResidentSize a owl:Class ;
+  rdfs:label "L1 Cache Resident Size" ;
+  rdfs:comment "Memory size constraint for L1 cache residency compliance." ;
+  owl:equivalentClass [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:integer ;
+    owl:withRestrictions (
+      [ xsd:maxInclusive "32768" ]  # 32KB L1 cache limit
+    )
+  ] .
+
+#################################################################
+# HAM (Hardware Abstraction Model) Compliance
+#################################################################
+
+pcl:HAMHop a owl:Class ;
+  rdfs:label "HAM Hop" ;
+  rdfs:comment "Hardware abstraction hop level for memory hierarchy access patterns." ;
+  owl:oneOf ( pcl:Hop1 pcl:Hop3 pcl:Hop5 ) .
+
+pcl:Hop1 a pcl:HAMHop ;
+  rdfs:label "HAM Hop 1 - L1 Cache" ;
+  pcl:latencyTicks "1"^^xsd:integer ;
+  pcl:bandwidthGBps "1000"^^xsd:decimal .
+
+pcl:Hop3 a pcl:HAMHop ;
+  rdfs:label "HAM Hop 3 - L3 Cache" ;
+  pcl:latencyTicks "12"^^xsd:integer ;
+  pcl:bandwidthGBps "100"^^xsd:decimal .
+
+pcl:Hop5 a pcl:HAMHop ;
+  rdfs:label "HAM Hop 5 - Main Memory" ;
+  pcl:latencyTicks "300"^^xsd:integer ;
+  pcl:bandwidthGBps "50"^^xsd:decimal .
+
+#################################################################
+# DfLSS 6-Phase Integration
+#################################################################
+
+pcl:DfLSSPhase a owl:Class ;
+  rdfs:label "DfLSS Phase" ;
+  rdfs:comment "Design for Lean Six Sigma methodology phase integration." ;
+  owl:oneOf ( 
+    pcl:Define pcl:Measure pcl:Analyze 
+    pcl:Design pcl:Verify pcl:Control 
+  ) .
+
+pcl:Define a pcl:DfLSSPhase ;
+  rdfs:label "Define Phase" ;
+  pcl:phasePriority "1"^^xsd:integer .
+
+pcl:Measure a pcl:DfLSSPhase ;
+  rdfs:label "Measure Phase" ;
+  pcl:phasePriority "2"^^xsd:integer .
+
+pcl:Analyze a pcl:DfLSSPhase ;
+  rdfs:label "Analyze Phase" ;
+  pcl:phasePriority "3"^^xsd:integer .
+
+pcl:Design a pcl:DfLSSPhase ;
+  rdfs:label "Design Phase" ;
+  pcl:phasePriority "4"^^xsd:integer .
+
+pcl:Verify a pcl:DfLSSPhase ;
+  rdfs:label "Verify Phase" ;
+  pcl:phasePriority "5"^^xsd:integer .
+
+pcl:Control a pcl:DfLSSPhase ;
+  rdfs:label "Control Phase" ;
+  pcl:phasePriority "6"^^xsd:integer .
+
+#################################################################
+# Capability Mappings and Requirements
+#################################################################
+
+pcl:CapabilityRequirement a owl:Class ;
+  rdfs:label "Capability Requirement" ;
+  rdfs:comment "Required capability for task crystal execution." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pcl:requiresCapability ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+pcl:WorkflowCapability a owl:Class ;
+  rdfs:label "Workflow Capability" ;
+  rdfs:comment "Available workflow pattern capability." ;
+  owl:oneOf ( 
+    pcl:SequentialExecution pcl:ParallelExecution pcl:ConditionalBranching
+    pcl:LoopExecution pcl:ExceptionHandling pcl:StateManagement
+    pcl:DataTransformation pcl:EventHandling
+  ) .
+
+#################################################################
+# Object Properties
+#################################################################
+
+pcl:hasTaskCrystal a owl:ObjectProperty ;
+  rdfs:label "has task crystal" ;
+  rdfs:domain pcl:PolycrystalLattice ;
+  rdfs:range pcl:TaskCrystal .
+
+pcl:hasDependencyGraph a owl:ObjectProperty ;
+  rdfs:label "has dependency graph" ;
+  rdfs:domain pcl:PolycrystalLattice ;
+  rdfs:range pcl:DependencyGraph .
+
+pcl:hasPerformanceBudget a owl:ObjectProperty ;
+  rdfs:label "has performance budget" ;
+  rdfs:domain pcl:PolycrystalLattice ;
+  rdfs:range pcl:PerformanceBudget .
+
+pcl:hasCapabilityRequirement a owl:ObjectProperty ;
+  rdfs:label "has capability requirement" ;
+  rdfs:domain pcl:TaskCrystal ;
+  rdfs:range pcl:CapabilityRequirement .
+
+pcl:hasExecutionBudget a owl:ObjectProperty ;
+  rdfs:label "has execution budget" ;
+  rdfs:domain pcl:TaskCrystal ;
+  rdfs:range pcl:ExecutionBudget .
+
+pcl:hasHAMHop a owl:ObjectProperty ;
+  rdfs:label "has HAM hop" ;
+  rdfs:domain pcl:TaskCrystal ;
+  rdfs:range pcl:HAMHop .
+
+pcl:hasNode a owl:ObjectProperty ;
+  rdfs:label "has node" ;
+  rdfs:domain pcl:DependencyGraph ;
+  rdfs:range pcl:TaskCrystal .
+
+pcl:hasEdge a owl:ObjectProperty ;
+  rdfs:label "has edge" ;
+  rdfs:domain pcl:DependencyGraph ;
+  rdfs:range pcl:DependencyEdge .
+
+pcl:dependsOn a owl:ObjectProperty ;
+  rdfs:label "depends on" ;
+  rdfs:domain pcl:DependencyEdge ;
+  rdfs:range pcl:TaskCrystal .
+
+pcl:enables a owl:ObjectProperty ;
+  rdfs:label "enables" ;
+  rdfs:domain pcl:DependencyEdge ;
+  rdfs:range pcl:TaskCrystal .
+
+pcl:alignsWithDfLSSPhase a owl:ObjectProperty ;
+  rdfs:label "aligns with DfLSS phase" ;
+  rdfs:domain pcl:TaskCrystal ;
+  rdfs:range pcl:DfLSSPhase .
+
+pcl:requiresCapability a owl:ObjectProperty ;
+  rdfs:label "requires capability" ;
+  rdfs:domain pcl:CapabilityRequirement ;
+  rdfs:range pcl:WorkflowCapability .
+
+#################################################################
+# Data Properties
+#################################################################
+
+pcl:doctrineOfEightCompliant a owl:DatatypeProperty ;
+  rdfs:label "Doctrine of 8 compliant" ;
+  rdfs:range xsd:boolean .
+
+pcl:hamHopsSupported a owl:DatatypeProperty ;
+  rdfs:label "HAM hops supported" ;
+  rdfs:range xsd:string .
+
+pcl:maxCpuTicks a owl:DatatypeProperty ;
+  rdfs:label "max CPU ticks" ;
+  rdfs:range xsd:integer .
+
+pcl:l1CacheResident a owl:DatatypeProperty ;
+  rdfs:label "L1 cache resident" ;
+  rdfs:range xsd:boolean .
+
+pcl:tickAllocation a owl:DatatypeProperty ;
+  rdfs:label "tick allocation" ;
+  rdfs:range xsd:integer .
+
+pcl:memoryFootprint a owl:DatatypeProperty ;
+  rdfs:label "memory footprint" ;
+  rdfs:range xsd:integer .
+
+pcl:latencyTicks a owl:DatatypeProperty ;
+  rdfs:label "latency ticks" ;
+  rdfs:range xsd:integer .
+
+pcl:bandwidthGBps a owl:DatatypeProperty ;
+  rdfs:label "bandwidth GB/s" ;
+  rdfs:range xsd:decimal .
+
+pcl:phasePriority a owl:DatatypeProperty ;
+  rdfs:label "phase priority" ;
+  rdfs:range xsd:integer .
+
+pcl:crystalId a owl:DatatypeProperty ;
+  rdfs:label "crystal ID" ;
+  rdfs:range xsd:string .
+
+pcl:dependencyType a owl:DatatypeProperty ;
+  rdfs:label "dependency type" ;
+  rdfs:range xsd:string .
+
+pcl:executionPriority a owl:DatatypeProperty ;
+  rdfs:label "execution priority" ;
+  rdfs:range xsd:integer .

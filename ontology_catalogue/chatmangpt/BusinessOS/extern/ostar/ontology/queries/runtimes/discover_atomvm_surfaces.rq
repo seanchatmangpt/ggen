@@ -1,0 +1,16 @@
+
+PREFIX proj: <https://chatmangpt.com/ontologies/o-star/proj:>
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?moduleName ?description ?beamFile ?capabilities
+WHERE {
+  ?mod a ostar:AtomVMModule ;
+       rdfs:label ?moduleName .
+
+  OPTIONAL { ?mod rdfs:comment ?description }
+  OPTIONAL { ?mod ostar:beamFile ?beamFile }
+  OPTIONAL { ?mod ostar:moduleCapabilities ?capabilities }
+}
+ORDER BY ?moduleName

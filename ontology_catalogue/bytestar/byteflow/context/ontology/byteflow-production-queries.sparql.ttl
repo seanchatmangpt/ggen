@@ -1,0 +1,57 @@
+@prefix : <https://bytestar.org/ontology/byteflow/production-queries#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bfpr: <https://bytestar.org/ontology/byteflow/production-readiness#> .
+
+<https://bytestar.org/ontology/byteflow/production-queries>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow Production Readiness SPARQL Queries" ;
+  rdfs:comment "SPARQL queries for auditing, reporting, and assessing the production readiness status of ByteFlow instances." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    bfpr: .
+
+#################################################################
+# SPARQL Queries for Production Readiness Assessment
+#################################################################
+
+# Query 1: Get all ByteFlow instances and their production readiness status
+# SELECT ?flowInstance ?status
+# WHERE {
+#   ?flowInstance a bcore:ByteFlow ;
+#                 bfpr:hasStatus ?statusInstance .
+#   ?statusInstance rdfs:label ?status .
+# }
+
+# Query 2: Get all performance metrics that are not meeting their target values
+# SELECT ?flowInstance ?metricName ?metricValue ?targetValue ?unit
+# WHERE {
+#   ?flowInstance a bcore:ByteFlow ;
+#                 bfpr:hasMetric ?metric .
+#   ?metric bfpr:metricName ?metricName ;
+#           bfpr:metricValue ?metricValue ;
+#           bfpr:targetValue ?targetValue ;
+#           bfpr:unit ?unit .
+#   FILTER (?metricName = "Admission Latency" && ?metricValue > ?targetValue) # Example for latency (lower is better)
+#   # OR FILTER (?metricName = "Fabrication Throughput" && ?metricValue < ?targetValue) # Example for throughput (higher is better)
+# }
+
+# Query 3: Check if a specific ByteFlow instance meets all required security requirements
+# ASK
+# WHERE {
+#   ?flowInstance a bcore:ByteFlow .
+#   FILTER NOT EXISTS {
+#     ?flowInstance bfpr:meetsSecurityRequirement ?req .
+#     ?req bfpr:requirementName ?reqName .
+#     FILTER (?reqName = "Manifest Signing Integrity" && ?req bfpr:targetValue != 1.0) # Example: Check if Manifest Signing Integrity is not 100%
+#   }
+# }
+
+# Query 4: List all ByteFlow instances that are currently in a 'Degraded' status
+SELECT ?flowInstance
+WHERE {
+  ?flowInstance a bcore:ByteFlow ;
+                 bfpr:hasStatus bfpr:Degraded .
+}

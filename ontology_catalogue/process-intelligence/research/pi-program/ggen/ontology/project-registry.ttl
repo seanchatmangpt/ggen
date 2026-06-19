@@ -1,0 +1,324 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+@prefix proj:    <https://process.intelligence/project/> .
+
+# ============================================================
+# project-registry.ttl — All Projects and Their Program Roles
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# Census Sources: 8 census agents (zoeapp, wasm4pm, wasm4pm-compat,
+#   ggen, otel-weaver, claude-workflow, expo-supabase, blue-river-dam)
+# ============================================================
+
+<https://process.intelligence/ontology/project-registry>
+    a owl:Ontology ;
+    owl:imports <https://process.intelligence/ontology/pi-program> ;
+    dcterms:title "PI Program Project Registry" ;
+    dcterms:description "Registry of all projects, repositories, and system components in the Process Intelligence program, each classified with its program role per the unified census." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================
+# SECTION 1: THE PROGRAM ITSELF
+# ============================================================
+
+proj:process-intelligence
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:PROGRAM ;
+    rdfs:label "Process Intelligence Research Foundry" ;
+    dcterms:description "The governing research foundry at /Users/sac/process-intelligence. Produces evidence, verdicts, doctrine, and downstream authorizations. 570+ commits, 13 gate criteria, ALIVE_001 verdict." ;
+    schema:codeRepository <file:///Users/sac/process-intelligence> ;
+    dcterms:created "2026-05-31"^^xsd:date ;
+    prov:wasGeneratedBy proj:phase-0-doctrine-lock ;
+    skos:note "Mission: study, validate, and manufacture the complete doctrine stack required for full-lifecycle process intelligence." .
+
+# ============================================================
+# SECTION 2: PROOF CELLS
+# ============================================================
+
+proj:zoeapp
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:PROOF_CELL ;
+    rdfs:label "ZOEapp" ;
+    dcterms:description "Expo SDK 56 + React Native 0.85 + Supabase mobile application for Zoe Community Church. Demonstrates full-lifecycle process intelligence: OCEL 2.0 event logs, BLAKE3 receipts, 516 replay fixtures, 268 Jest test suites, RDF inference engine, Schema.org ministry workflows." ;
+    schema:codeRepository <file:///Users/sac/zoeapp> ;
+    dcterms:subject "Church ministry process intelligence proof cell" ;
+    prov:wasAttributedTo <https://process.intelligence/agent/zoeapp-census> ;
+    skos:note "ZOEapp is not a standalone product. It is a PROOF_CELL validating process mining, event conformance, and domain governance patterns required for wasm4pm." ;
+    pi:hasRole proj:zoeapp-admission-surface ;
+    pi:hasRole proj:zoeapp-refusal-surface ;
+    pi:hasRole proj:zoeapp-receipt-surface ;
+    pi:hasRole proj:zoeapp-replay-surface .
+
+proj:zoeapp-admission-surface
+    a pi:ADMISSION_SURFACE ;
+    rdfs:label "ZOEapp Admission Surface" ;
+    dcterms:description "Route admission gates in ZOEapp: identity boundary checks (anonymous|authenticated|verified|mfa_verified), disclosure verification, and BLAKE3 receipt verification via 3-tier storage fallback (Zustand→MMKV→SQLite)." ;
+    skos:example "src/route-law/ProtectedRoute.tsx" .
+
+proj:zoeapp-refusal-surface
+    a pi:REFUSAL_SURFACE ;
+    rdfs:label "ZOEapp Refusal Surface" ;
+    dcterms:description "Named refusal codes from ZOEapp route gating: UNAUTHENTICATED, INSUFFICIENT_BOUNDARY, MISSING_DISCLOSURE, RECEIPT_NOT_FOUND, RECEIPT_HASH_MISMATCH, RECEIPT_VERIFICATION_ERROR." ;
+    skos:example "src/route-law/ProtectedRoute.tsx RefusalReason enum" .
+
+proj:zoeapp-receipt-surface
+    a pi:RECEIPT_SURFACE ;
+    rdfs:label "ZOEapp Receipt Surface" ;
+    dcterms:description "BLAKE3-signed cryptographic receipts in ZOEapp. Supabase Edge Functions: truex-verify, truex-min-verify, truex-hook-replay. Tables: actor_receipts. 516 replay fixtures in OCEL 2.0 format with SHA256 batch hashes and BLAKE3 receipt hashes." ;
+    skos:example "supabase/functions/truex-verify/, replays/rec_intel_*.json" .
+
+proj:zoeapp-replay-surface
+    a pi:REPLAY_SURFACE ;
+    rdfs:label "ZOEapp Replay Surface" ;
+    dcterms:description "Deterministic replay verification in ZOEapp via truex-hook-replay Edge Function. 516 × rec_intel_*.json replay fixtures with ocel2 batch hashes, SHA256 expected_path_hash, BLAKE3 receipt_hash, batchValid/receiptValid/verified audit verdicts." ;
+    skos:example "supabase/functions/truex-hook-replay/, replays/" .
+
+# ============================================================
+# SECTION 3: ENGINE
+# ============================================================
+
+proj:wasm4pm
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:ENGINE ;
+    rdfs:label "wasm4pm" ;
+    dcterms:description "Pure-Rust WASM execution court. 10,098 source lines. Implements: Inductive Miner, Heuristics Miner, Alpha Miner, DFG mining, token-game replay executor, step simulator, token-replay conformance, OCPQ object-centric queries, BLAKE3/Ed25519/SHA-256/Curve25519 cryptography, zero-copy OCEL 2.0 binary parser, 12-state autonomic lifecycle, gas metering, FFI bridge. Checkpoint: PROCESS_INTELLIGENCE_ALIVE_001." ;
+    schema:codeRepository <file:///Users/sac/process-intelligence/sources/wasm4pm> ;
+    prov:wasAttributedTo <https://process.intelligence/agent/wasm4pm-engine-census> ;
+    dcterms:conformsTo <https://doi.org/10.1109/TKDE.2023.3318844> . # OCEL 2.0
+
+proj:wasm4pm-discovery
+    a pi:EXECUTION_COURT ;
+    rdfs:label "wasm4pm Discovery Surface" ;
+    dcterms:description "Three discovery algorithms: Inductive Miner (Evidence<ProcessTree, Admitted, InductiveWitness>), Heuristics Miner (Evidence<PetriNet, Admitted, HeuristicsWitness>), Alpha Miner (Evidence<PetriNet, Admitted, AlphaWitness>), DFG Mining. All output Evidence<T, Admitted, W> with BLAKE3 sealing." ;
+    prov:wasPartOf proj:wasm4pm .
+
+proj:wasm4pm-conformance
+    a pi:CONFORMANCE_SURFACE ;
+    rdfs:label "wasm4pm Conformance Surface" ;
+    dcterms:description "Token replay conformance producing ConformanceVerdict (FullyConforming|PartiallyConforming{fitness,deviations}|NonConforming). ConformanceVerdicts aggregator with aggregate_fitness, aggregate_precision, admission_rate. Fitness = 1.0 - (alignment_cost / (log_length * 2))." ;
+    prov:wasPartOf proj:wasm4pm .
+
+proj:wasm4pm-replay
+    a pi:REPLAY_SURFACE ;
+    rdfs:label "wasm4pm Replay Surface" ;
+    dcterms:description "ReplayEngine (full token game, OtelSpan per step, BLAKE3 receipt per step) and StepSimulator (interactive single-step execution). ReplayRefusal enum: EmptyLog, NoValidReplay, ActivityNotEnabled, NoFinalMarking, Deadlock, ChainCapExceeded, TimestampNonMonotonic." ;
+    prov:wasPartOf proj:wasm4pm .
+
+proj:wasm4pm-receipts
+    a pi:RECEIPT_SURFACE ;
+    rdfs:label "wasm4pm Receipt Surface" ;
+    dcterms:description "ReplayModuleReceipt::mint(artifact_hash, witness_marker, previous_receipt). OtelTrace with event_chain_root (Blake3 hex). Evidence<T, State, W> with IdentitySignature (Ed25519 32-byte pubkey + 64-byte signature) and Blake3Hash binding." ;
+    prov:wasPartOf proj:wasm4pm .
+
+proj:wasm4pm-admission
+    a pi:ADMISSION_SURFACE ;
+    rdfs:label "wasm4pm Admission Surface" ;
+    dcterms:description "Evidence lifecycle admission: Evidence<T, Parsed> → transition_to_validated(public_key) → Evidence<T, ValidatedSound> → transition_to_replayed(next_witness) → Evidence<T, Replayed>. Monotonic witness lattice enforced." ;
+    prov:wasPartOf proj:wasm4pm .
+
+proj:wasm4pm-refusals
+    a pi:REFUSAL_SURFACE ;
+    rdfs:label "wasm4pm Refusal Surface" ;
+    dcterms:description "ConformanceRefusal (EmptyLog, EmptyModel, UnsoundNet, UnknownActivity, EarlyTermination, StateSpaceExceeded, MalformedCase, NotImplementedYet). ReplayRefusal (EmptyLog, NoValidReplay, ActivityNotEnabled, NoFinalMarking, Deadlock, ChainCapExceeded, TimestampNonMonotonic). OcelError (InvalidMagic, InvalidVersion, OutOfBounds, Utf8Error, NullPointer)." ;
+    prov:wasPartOf proj:wasm4pm .
+
+# ============================================================
+# SECTION 4: COMPATIBILITY LAYER
+# ============================================================
+
+proj:wasm4pm-compat
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:COMPATIBILITY_LAYER ;
+    rdfs:label "wasm4pm-compat" ;
+    dcterms:description "Nightly-only, paper-complete, structure-only Rust process-evidence standard. Enforces one-way lifecycle (Raw→Parsed→Admitted→{Projected|Exportable|Receipted}) via typestate. 46 compile-pass/fail fixtures. PAPERLAW_ALIVE verdict. Zero execution engine logic. 5 Cargo features (3 documented + 2 undocumented: ts, wasm)." ;
+    schema:codeRepository <file:///Users/sac/wasm4pm-compat> ;
+    prov:wasAttributedTo <https://process.intelligence/agent/wasm4pm-compat-census> .
+
+proj:compat-admission
+    a pi:ADMISSION_SURFACE ;
+    rdfs:label "wasm4pm-compat Admission Surface" ;
+    dcterms:description "Admit trait: Evidence<T, Raw, W> → Result<Admission<T, W>, Refusal<R, W>>. Every impl Admit must return a specific Reason type with named law variants. No bare InvalidInput. Compile-time enforcement via typestate." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+proj:compat-refusals
+    a pi:REFUSAL_SURFACE ;
+    rdfs:label "wasm4pm-compat Refusal Surface" ;
+    dcterms:description "Named refusal laws: DanglingEventObjectLink, MissingFinalMarking, UnsoundWfNet, FlatteningLoss, InvalidPowlProjection, UnreplayableClaim, MissingWitness. StrictViolation: MissingWitness, MissingRoundTripFixture, MissingLossPolicy, RawEvidenceExported, MissingRefusalPath, MissingConformanceFields, MissingReceiptShape, HiddenProcessMiningGrowth." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+proj:compat-graduation
+    a pi:GRADUATION_SIGNAL ;
+    rdfs:label "wasm4pm-compat Graduation Bridge" ;
+    dcterms:description "GraduateToWasm4pm trait. GraduationReason: NeedsDiscovery, NeedsConformanceExecution, NeedsReplay, NeedsObjectCentricQueryExecution, RebuildingProcessMiningLocally. Available only with wasm4pm Cargo feature." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+proj:compat-forbidden-collapse
+    a pi:FORBIDDEN_COLLAPSE ;
+    rdfs:label "wasm4pm-compat DTO Boundary Risk" ;
+    dcterms:description "WASM boundary DTOs serialize string fields without enumeration or bounds: WasmStateTag::name:String, WasmAdmissionResult::refusal_law:Option<String>, WasmGraduationCandidate::evidence_ref:String, WasmLossReport::items_dropped:Vec<String>, WasmWitness::key:String. Validation deferred to wasm4pm engine. Audit 1 FAIL in GGEN census: to_json_string() and receipt_json() in manufacturing module." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+# ============================================================
+# SECTION 5: MANUFACTURING CELLS
+# ============================================================
+
+proj:ggen-primary-cell
+    a prov:Entity ;
+    pi:hasRole pi:MANUFACTURING_CELL ;
+    rdfs:label "ggen Primary Manufacturing Cell" ;
+    dcterms:description "Primary ggen cell at /ggen/. Manufactures board-admissible M&A assets and autonomic governance engines. Ontology: ontology-extensions.ttl (592 lines). SPARQL queries: extract-board-claims.rq, extract-diligence-claims.rq, extract-lifecycle-governance.rq. Templates: ma-deck.tera, ma-diligence.tera, blue-river.tera. Board-admissible gate: fitness >= 0.95 AND precision >= 0.90." ;
+    schema:codeRepository <file:///Users/sac/process-intelligence/ggen> ;
+    prov:wasAttributedTo <https://process.intelligence/agent/ggen-census> .
+
+proj:ggen-telemetry-cell
+    a prov:Entity ;
+    pi:hasRole pi:MANUFACTURING_CELL ;
+    rdfs:label "ggen Telemetry Bridge Manufacturing Cell" ;
+    dcterms:description "Telemetry bridge cell at /otel-weaver/ggen/. Generates OTel Weaver intake validation code and court consequence routing. Manifests: live-check-intake.manifest.yaml, weaver-template-targets.manifest.yaml. Audit templates enforce feedstock/court separation." ;
+    schema:codeRepository <file:///Users/sac/process-intelligence/otel-weaver/ggen> ;
+    prov:wasPartOf proj:ggen-primary-cell .
+
+# ============================================================
+# SECTION 6: TELEMETRY FEEDSTOCK
+# ============================================================
+
+proj:otel-weaver
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:TELEMETRY_FEEDSTOCK ;
+    rdfs:label "OTel Weaver Integration Layer" ;
+    dcterms:description "OpenTelemetry Weaver integration at /otel-weaver/. Validates OTel schema compliance (live-check), maps feedstock witnesses, routes findings to named refusal codes, enforces feedstock/court separation. Status: GGEN_OTEL_WEAVER_PI_ALIVE_001. Doctrine: 6 foundational laws. 5 experiments (custom registry, diff bridge, live-check validator, witness generator, collector config)." ;
+    schema:codeRepository <file:///Users/sac/process-intelligence/otel-weaver> ;
+    prov:wasAttributedTo <https://process.intelligence/agent/otel-weaver-census> ;
+    dcterms:conformsTo <https://opentelemetry.io/schemas/1.25.0> .
+
+proj:otel-weaver-admission
+    a pi:ADMISSION_SURFACE ;
+    rdfs:label "OTel Weaver Admission Surface" ;
+    dcterms:description "Feedstock admitted via Admit boundary: OTel spans wrapped in Admission<T, W> using OtelSpanToOcelEventProjection witness. Requirements: schema URL present, TraceID present, timestamps monotonic, no dangling parent spans, payload non-empty. Admitted feedstock generates LossReport." ;
+    prov:wasPartOf proj:otel-weaver .
+
+proj:otel-weaver-refusals
+    a pi:REFUSAL_SURFACE ;
+    rdfs:label "OTel Weaver Refusal Surface" ;
+    dcterms:description "Finding-to-refusal codex: find_empty_payload→EmptyTrace(violation_halt), find_missing_trace_id→MissingCaseId(violation_halt), find_non_monotone_timestamps→InvalidTimestampOrder(violation_halt), find_dangling_span_parent→DanglingEventObjectLink(escalation_warning), find_schema_url_missing→ProjectionNameRequired(violation_halt), find_strict_schema_mismatch→SchemaVersionMismatch(escalation_warning)." ;
+    prov:wasPartOf proj:otel-weaver .
+
+# ============================================================
+# SECTION 7: MOBILE SUBSTRATE
+# ============================================================
+
+proj:expo-supabase-framework
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:MOBILE_SUBSTRATE ;
+    rdfs:label "Expo/Supabase Mobile Framework" ;
+    dcterms:description "Reusable mobile substrate extracted from ZOEapp. Components: Expo Router file-system navigation with Stack.Protected guards, Supabase Auth (SessionProvider, JWT lifecycle, AsyncStorage persistence), RLS deny-by-default policies, Realtime CDC channels (actor_commands/events/receipts/rdf_quads_ld), Edge Functions (Deno), EAS build/update infrastructure, ApprovalFlowManager governance, identity boundary hierarchy (anonymous→authenticated→verified→mfa_verified)." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/expo-supabase-census> ;
+    skos:note "Reusable across domains. Church-specific patterns (Schema.org Church, volunteer scheduling, pastoral gates) are domain-specific." .
+
+# ============================================================
+# SECTION 8: WORKFLOW SUBSTRATE
+# ============================================================
+
+proj:claude-workflow
+    a prov:Entity ;
+    pi:hasRole pi:WORKFLOW_SUBSTRATE ;
+    rdfs:label "Claude Code Research Orchestration" ;
+    dcterms:description "Phase-gated, receipt-bearing, adversarial audit loop. 12 sequential phases (0-11). 13 simultaneous gate criteria, all met (ALIVE). 570+ commits in conventional commit format. 4 master checkpoints. 6 receipt categories. 13 subagent roles. 20-agent adversarial swarm (v30.1.1). State persists via git commit log + immutable checkpoints + BLAKE3 receipt chain." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/claude-workflow-census> .
+
+# ============================================================
+# SECTION 9: SOURCE COURT
+# ============================================================
+
+proj:source-court
+    a prov:Entity ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "PI Source Courts" ;
+    dcterms:description "All source authority repositories: sources/papers/ (9 classified papers with type-law mappings), sources/pm4py/ (PM4Py capability atlas, 140+ functions), sources/wasm4pm-compat/ (type-law atlas), standards/ (39 public standards compliance mappings), comparisons/ (5 comparison matrices), crosswalks/ (4 type-law crosswalks)." ;
+    prov:wasPartOf proj:process-intelligence .
+
+proj:paper-canon
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Paper Canon" ;
+    dcterms:description "9 classified process mining papers with formal object mappings and type-law bindings. Van der Aalst corpus: Workflow Mining (2004), Inductive Miner (2011/2013), OCEL 2.0 (2023), Conformance Checking (1999/2011/2014), Petri Nets (Murata 1989), Workflow Management (2002). Every citation confirmed in source text." ;
+    schema:url <file:///Users/sac/process-intelligence/sources/papers> .
+
+proj:pm4py-capability-atlas
+    a prov:Entity, dcat:Dataset ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "PM4Py Capability Atlas" ;
+    dcterms:description "9-file capability atlas mapping 140+ PM4Py functions to wasm4pm equivalence/gap status. Functions classified as: COVERED (direct equivalent), GAP (no equivalent), PARTIAL (partial coverage). Serves as comparative truth oracle for downstream conformance claims." ;
+    schema:url <file:///Users/sac/process-intelligence/sources/pm4py> .
+
+# ============================================================
+# SECTION 10: AUTHORIZATION COURT
+# ============================================================
+
+proj:blue-river-dam
+    a prov:Entity ;
+    pi:hasRole pi:AUTHORIZATION_COURT ;
+    pi:hasRole pi:EXECUTION_COURT ;
+    rdfs:label "Blue River Dam Orchestrator" ;
+    dcterms:description "629-line safe Rust MAPE-K orchestrator. 5 authority components (Governor, Architect, Operator, Auditor, Doctor). 6 lifecycle quality gates. 4 actuation protocols (elastic 0.85-0.95, compliance <0.85, debt >15%, retirement). 11-pathway admission law. Cryptographic governance ledger (SHA-256 block chain). LTL safety invariants. Status: ORCHESTRATOR_ALIVE." ;
+    schema:codeRepository <file:///Users/sac/process-intelligence/blue_river_dam> ;
+    prov:wasAttributedTo <https://process.intelligence/agent/blue-river-dam-census> .
+
+proj:blue-river-admission
+    a pi:ADMISSION_SURFACE ;
+    rdfs:label "Blue River Dam Admission Law" ;
+    dcterms:description "11-pathway refusal boundary. Pathways: (1) temporal monotonicity, (2) schema type mismatch, (3) causal disconnection, (4) memory bounds violation, (5) cryptographic signature invalid, (6) Petri net soundness violation, (7) fitness threshold violation, (8) object identity conflict, (9) BPMN OR-join quorum undefined, (10) Declare constraints not supported, (11) duplicate event IDs. Default policy: DENY." ;
+    prov:wasPartOf proj:blue-river-dam .
+
+proj:blue-river-refusals
+    a pi:REFUSAL_SURFACE ;
+    rdfs:label "Blue River Dam Refusal Surface" ;
+    dcterms:description "Structured RefusalReport: TemporalAnomaly, SchemaViolation, CausalDisconnect, MemoryBoundsViolation, HashMismatch, UnknownAuthority, SignatureVerificationFailed, UnsoundPetriNet, FitnessThresholdViolation, ObjectIdentityConflict, AmbiguousBpmnGateway, UnsupportedFeature, DuplicateEventId. All refusals logged to immutable governance ledger." ;
+    prov:wasPartOf proj:blue-river-dam .
+
+proj:blue-river-receipts
+    a pi:RECEIPT_SURFACE ;
+    rdfs:label "Blue River Dam Receipt Surface" ;
+    dcterms:description "Receipt emitted on every action execution (success and failure). Receipt {action_id: u64, timestamp: u64, outcome: ActionOutcome}. Decommissioning magic constant: 0xDEC0FFEE. Governance ledger: SHA-256 block-chained entries with authority_signature (Ed25519)." ;
+    prov:wasPartOf proj:blue-river-dam .
+
+proj:blue-river-conformance
+    a pi:CONFORMANCE_SURFACE ;
+    rdfs:label "Blue River Dam Conformance Surface" ;
+    dcterms:description "Auditor::compute_fitness (LCS-based alignment). ConformanceMetric {fitness, trace_id, alignment_moves, threshold}. ConformanceViolation: CriticalDeviation (fitness < 0.85, lockdown+escalation), WarningDeviation (0.85 <= fitness < 0.95, elastic repair). Gate 3: admissible(σ) ≡ fitness(σ,N) >= 0.95 ∨ (fitness >= 0.85 ∧ override_signed)." ;
+    prov:wasPartOf proj:blue-river-dam .
+
+# ============================================================
+# SECTION 11: SHACL — Registry Completeness
+# ============================================================
+
+pi:ProjectRegistryShape
+    a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:property [
+        sh:path pi:hasRole ;
+        sh:minCount 1 ;
+        sh:message "Every registered project must have at least one program role." ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every registered project must have a label." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:description ;
+        sh:minCount 1 ;
+        sh:message "Every registered project must have a description." ;
+    ] .

@@ -1,0 +1,409 @@
+# ============================================================================
+# FIBO DEAL INTEGRATION - EXAMPLE ENTITIES
+# ============================================================================
+# Real-world examples of financial deals in FIBO RDF format.
+# Demonstrates:
+# - Deal creation with FIBO terms
+# - Counterparty modeling
+# - Contract terms specification
+# - Compliance framework mapping
+# - KYC/AML verification records
+#
+# Date: 2026-03-25
+# ============================================================================
+
+@prefix : <https://ontology.businessos.dev/fibo-deals/> .
+@prefix bos: <https://businessos.dev/> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix fibo-fbc: <https://spec.edmcouncil.org/fibo/ontology/FBC/> .
+@prefix fibo-be: <https://spec.edmcouncil.org/fibo/ontology/BE/> .
+@prefix schema: <http://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+
+# ============================================================================
+# EXAMPLE 1: SaaS Cloud Infrastructure Deal
+# ============================================================================
+# A 12-month SaaS contract for cloud infrastructure services.
+# Demonstrates: Deal, MonetaryAmount, Parties, ContractualTerms, Compliance
+
+<https://businessos.dev/id/deals/d-acme-cloudtech-2026> a :Deal ;
+  a fibo-fnd:Agreement ;
+  a fibo-fbc:FinancialInstrument ;
+  :dealIdentifier "d-acme-cloudtech-2026"^^xsd:string ;
+  :dealName "Cloud Infrastructure Managed Services"@en ;
+  :dealDescription "12-month managed cloud infrastructure services including VM hosting, load balancing, backup, and 24/7 support"@en ;
+  :dealStatus <#DealNegotiation> ;
+  :hasPrimaryBuyer <https://businessos.dev/id/parties/acme-corp> ;
+  :hasPrimarySeller <https://businessos.dev/id/parties/cloudtech-inc> ;
+  :hasCounterparty <https://businessos.dev/id/parties/cloudtech-inc> ;
+  :dealAmount <https://businessos.dev/id/amounts/d-acme-cloudtech-principal> ;
+  :dealCurrency "USD"^^xsd:string ;
+  :expectedCloseDate "2026-06-30T00:00:00Z"^^xsd:dateTime ;
+  :actualCloseDate "2026-04-15T00:00:00Z"^^xsd:dateTime ;
+  :dealProbability "95"^^xsd:integer ;
+  :currentStage <#ExecutionStage> ;
+  :stageTransitionDate "2026-04-15T00:00:00Z"^^xsd:dateTime ;
+  :stageDurationDays "31"^^xsd:integer ;
+  schema:dateCreated "2026-01-15T10:30:00Z"^^xsd:dateTime ;
+  schema:dateModified "2026-04-15T09:15:00Z"^^xsd:dateTime ;
+  schema:creator "john.smith@businessos.dev" ;
+  schema:description "Enterprise SaaS deal with multi-year commitment and expansion potential"@en ;
+  # Associated contract
+  :hasAssociatedContract <https://businessos.dev/id/contracts/c-acme-cloudtech-2026> ;
+  # Compliance requirements
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/sox-itg-acme> ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/gdpr-acme> ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/soc2-acme> .
+
+# Principal monetary amount
+<https://businessos.dev/id/amounts/d-acme-cloudtech-principal> a :MonetaryAmount ;
+  a fibo-fnd:MonetaryAmount ;
+  :amount "250000"^^xsd:decimal ;
+  :currency "USD"^^xsd:string ;
+  schema:priceCurrency "USD" ;
+  schema:price "250000"@en ;
+  rdfs:comment "Annual recurring revenue (ARR) for managed cloud services"@en .
+
+# Buyer: Acme Corp (internal party)
+<https://businessos.dev/id/parties/acme-corp> a :BusinessOSParty ;
+  a :InternalParty ;
+  a fibo-be:LegalPerson ;
+  a fibo-fnd:Party ;
+  :partyIdentifier "acme-corp"^^xsd:string ;
+  :legalName "Acme Corporation, Inc."@en ;
+  :businessRegistrationNumber "12-3456789"^^xsd:string ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  :partyRole <#BuyerRole> ;
+  :hasKYCStatus :KYCVerified ;
+  :kycVerificationDate "2025-06-01T00:00:00Z"^^xsd:dateTime ;
+  :kycExpiryDate "2026-06-01T00:00:00Z"^^xsd:dateTime ;
+  :amlScreeningResult "NO_MATCH"^^xsd:string ;
+  :amlScreeningDate "2025-06-01T00:00:00Z"^^xsd:dateTime ;
+  schema:name "Acme Corporation" ;
+  schema:url "https://acmecorp.com"^^xsd:anyURI ;
+  schema:contactPoint "procurement@acmecorp.com" .
+
+# Seller: CloudTech Inc (counterparty)
+<https://businessos.dev/id/parties/cloudtech-inc> a :BusinessOSParty ;
+  a :Counterparty ;
+  a fibo-be:LegalPerson ;
+  a fibo-fnd:Party ;
+  :partyIdentifier "cloudtech-inc"^^xsd:string ;
+  :legalName "CloudTech Inc."@en ;
+  :businessRegistrationNumber "98-7654321"^^xsd:string ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  :partyRole <#SellerRole> ;
+  :hasKYCStatus :KYCVerified ;
+  :kycVerificationDate "2025-08-15T00:00:00Z"^^xsd:dateTime ;
+  :kycExpiryDate "2026-08-15T00:00:00Z"^^xsd:dateTime ;
+  :amlScreeningResult "NO_MATCH"^^xsd:string ;
+  :amlScreeningDate "2025-08-15T00:00:00Z"^^xsd:dateTime ;
+  schema:name "CloudTech Inc" ;
+  schema:url "https://cloudtech.io"^^xsd:anyURI ;
+  schema:contactPoint "sales@cloudtech.io" .
+
+# Contract entity
+<https://businessos.dev/id/contracts/c-acme-cloudtech-2026> a :Contract ;
+  a fibo-fnd:Agreement ;
+  a fibo-fei:ContractualElement ;
+  :dealIdentifier "c-acme-cloudtech-2026"^^xsd:string ;
+  :dealName "Cloud Services Master Service Agreement (MSA)"@en ;
+  schema:dateCreated "2026-02-01T00:00:00Z"^^xsd:dateTime ;
+  schema:dateModified "2026-04-15T00:00:00Z"^^xsd:dateTime ;
+  # Contractual terms
+  :hasContractualTerm <https://businessos.dev/id/terms/pricing-acme-cloudtech> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/payment-acme-cloudtech> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/liability-acme-cloudtech> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/confidentiality-acme-cloudtech> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/termination-acme-cloudtech> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/compliance-acme-cloudtech> .
+
+# Pricing term
+<https://businessos.dev/id/terms/pricing-acme-cloudtech> a :PricingTerm ;
+  a fibo-fnd:ContractualDefinition ;
+  :termDescription "Principal pricing term specifying monthly recurring charges and annual commitment"@en ;
+  :termCondition "Annual prepayment or monthly invoicing at customer option"@en ;
+  schema:priceSpecification <https://businessos.dev/id/amounts/d-acme-cloudtech-principal> ;
+  rdfs:comment "Monthly: $20,833.33 | Annual prepayment discount: 5%"@en .
+
+# Payment term
+<https://businessos.dev/id/terms/payment-acme-cloudtech> a :PaymentTerm ;
+  a fibo-fnd:PaymentObligation ;
+  :termDescription "Payment due within 30 days of invoice receipt (Net 30)"@en ;
+  :termCondition "Invoice issued on first day of month for services rendered that month"@en ;
+  rdfs:comment "ACH or wire transfer to CloudTech designated bank account. Late payment interest: 1.5% per month"@en .
+
+# Liability term
+<https://businessos.dev/id/terms/liability-acme-cloudtech> a :LiabilityTerm ;
+  a fibo-fnd:ContractualDefinition ;
+  :termDescription "Limitation of liability and indemnification provisions"@en ;
+  :termCondition "Each party indemnifies other against third-party IP infringement claims"@en ;
+  rdfs:comment "Aggregate liability capped at 12 months of fees. Excludes data loss, security breaches from third-party attacks"@en .
+
+# Confidentiality term
+<https://businessos.dev/id/terms/confidentiality-acme-cloudtech> a :ConfidentialityTerm ;
+  a fibo-fnd:ContractualDefinition ;
+  :termDescription "Protection of confidential information and trade secrets shared during performance"@en ;
+  :termCondition "Confidentiality obligations survive 3 years after contract termination"@en ;
+  rdfs:comment "Standard NDA provisions. Public information and independently developed knowledge excluded"@en .
+
+# Termination term
+<https://businessos.dev/id/terms/termination-acme-cloudtech> a :TerminationTerm ;
+  a fibo-fnd:ContractualDefinition ;
+  :termDescription "Contract termination rights, notice periods, and wind-down procedures"@en ;
+  :termCondition "Either party may terminate with 90 days written notice for any reason. For convenience termination incurs early termination fee"@en ;
+  rdfs:comment "Early termination fee: 6 months of remaining committed fees. Data return/deletion within 30 days of termination"@en .
+
+# Compliance term
+<https://businessos.dev/id/terms/compliance-acme-cloudtech> a :ComplianceTerm ;
+  a fibo-fnd:ContractualDefinition ;
+  :termDescription "Regulatory compliance and security requirements applicable to service delivery"@en ;
+  :termCondition "CloudTech must maintain SOC2 Type II, comply with GDPR for EU customer data, and achieve 99.9% uptime SLA"@en ;
+  rdfs:comment "Annual compliance audits required. Data Processing Agreement (DPA) executed separately for GDPR"@en .
+
+# Compliance requirements
+<https://businessos.dev/id/requirements/sox-itg-acme> a :ComplianceRequirement ;
+  a :ComplianceTerm ;
+  :complianceFramework :SOXCompliance ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-03-20T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "SOX IT General Controls: Segregation of duties verified. CloudTech provides quarterly audit reports"@en .
+
+<https://businessos.dev/id/requirements/gdpr-acme> a :ComplianceRequirement ;
+  :complianceFramework :GDPRCompliance ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-03-20T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "GDPR compliance: DPA signed. Data Processing Agreement executed. Data residency in EU region confirmed"@en .
+
+<https://businessos.dev/id/requirements/soc2-acme> a :ComplianceRequirement ;
+  :complianceFramework :SOXCompliance ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-03-20T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "SOC2 Type II certification maintained. Annual audit completed. Security controls validated"@en .
+
+# Audit trail
+<https://businessos.dev/id/audits/acme-created> a :DealAuditEntry ;
+  :auditTimestamp "2026-01-15T10:30:00Z"^^xsd:dateTime ;
+  :auditUser "john.smith@businessos.dev" ;
+  :auditAction "create"@en ;
+  :auditField "deal"@en ;
+  :previousValue "null" ;
+  :newValue "d-acme-cloudtech-2026" ;
+  :auditReason "Initial deal creation from Acme Corp RFP"@en .
+
+<https://businessos.dev/id/audits/acme-stage-change> a :DealAuditEntry ;
+  :auditTimestamp "2026-04-15T09:15:00Z"^^xsd:dateTime ;
+  :auditUser "jane.doe@businessos.dev" ;
+  :auditAction "status_change"@en ;
+  :auditField "currentStage"@en ;
+  :previousValue "NegotiationStage"@en ;
+  :newValue "ExecutionStage"@en ;
+  :auditReason "Contract fully executed and signed by authorized representatives"@en .
+
+
+# ============================================================================
+# EXAMPLE 2: Financial Services Loan Agreement
+# ============================================================================
+# A $5M commercial loan with multi-year repayment schedule.
+# Demonstrates: Guarantor role, complex payment terms, regulatory framework
+
+<https://businessos.dev/id/deals/d-finance-loan-widget-corp> a :Deal ;
+  a fibo-fnd:Agreement ;
+  a fibo-fbc:FinancialInstrument ;
+  :dealIdentifier "d-finance-loan-widget-corp"^^xsd:string ;
+  :dealName "Commercial Equipment Loan - Widget Corp"@en ;
+  :dealDescription "5-year term loan for manufacturing equipment purchase and working capital"@en ;
+  :dealStatus <#DealClosedWon> ;
+  :hasPrimaryBuyer <https://businessos.dev/id/parties/widget-corp> ;
+  :hasPrimarySeller <https://businessos.dev/id/parties/finance-bank> ;
+  :dealAmount <https://businessos.dev/id/amounts/d-finance-loan-principal> ;
+  :dealCurrency "USD"^^xsd:string ;
+  :expectedCloseDate "2026-03-15T00:00:00Z"^^xsd:dateTime ;
+  :actualCloseDate "2026-03-20T00:00:00Z"^^xsd:dateTime ;
+  :dealProbability "100"^^xsd:integer ;
+  :currentStage <#ClosureStage> ;
+  schema:dateCreated "2025-09-01T00:00:00Z"^^xsd:dateTime ;
+  schema:dateModified "2026-03-20T00:00:00Z"^^xsd:dateTime ;
+  # Guarantee
+  :hasGuarantor <https://businessos.dev/id/parties/widget-founder-guarantee> ;
+  # Associated documents
+  :hasAssociatedContract <https://businessos.dev/id/contracts/loan-agreement-widget> ;
+  # Compliance
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/finra-loan-widget> ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/kyc-loan-widget> .
+
+# Loan amount
+<https://businessos.dev/id/amounts/d-finance-loan-principal> a :MonetaryAmount ;
+  a fibo-fnd:MonetaryAmount ;
+  :amount "5000000"^^xsd:decimal ;
+  :currency "USD"^^xsd:string ;
+  rdfs:comment "Principal amount: $5,000,000 at 4.75% annual interest"@en .
+
+# Borrower: Widget Corp
+<https://businessos.dev/id/parties/widget-corp> a :BusinessOSParty ;
+  a :Counterparty ;
+  a fibo-be:LegalPerson ;
+  :partyIdentifier "widget-corp"^^xsd:string ;
+  :legalName "Widget Manufacturing Corporation"@en ;
+  :businessRegistrationNumber "55-9876543"^^xsd:string ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  :partyRole <#BorrowerRole> ;
+  :hasKYCStatus :KYCVerified ;
+  :kycVerificationDate "2025-10-01T00:00:00Z"^^xsd:dateTime ;
+  :kycExpiryDate "2026-10-01T00:00:00Z"^^xsd:dateTime ;
+  :amlScreeningResult "NO_MATCH"^^xsd:string ;
+  schema:name "Widget Manufacturing Corp" .
+
+# Lender: Finance Bank
+<https://businessos.dev/id/parties/finance-bank> a :BusinessOSParty ;
+  a :Counterparty ;
+  a fibo-be:LegalPerson ;
+  :partyIdentifier "finance-bank"^^xsd:string ;
+  :legalName "Finance Bank, N.A."@en ;
+  :businessRegistrationNumber "99-1234567"^^xsd:string ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  :partyRole <#LenderRole> ;
+  :hasKYCStatus :KYCVerified ;
+  :kycVerificationDate "2025-06-15T00:00:00Z"^^xsd:dateTime ;
+  :amlScreeningResult "NO_MATCH"^^xsd:string ;
+  schema:name "Finance Bank" .
+
+# Guarantor: Widget Founder (personal guarantee)
+<https://businessos.dev/id/parties/widget-founder-guarantee> a :BusinessOSParty ;
+  a :Counterparty ;
+  a fibo-be:ThirdParty ;
+  a fibo-fei:Guarantor ;
+  :partyIdentifier "widget-founder-001"^^xsd:string ;
+  :legalName "John Widget (Owner/Guarantor)"@en ;
+  :partyRole <#GuarantorRole> ;
+  :hasKYCStatus :KYCVerified ;
+  :kycVerificationDate "2025-10-15T00:00:00Z"^^xsd:dateTime ;
+  schema:name "John Widget" .
+
+# Loan contract with complex terms
+<https://businessos.dev/id/contracts/loan-agreement-widget> a :Contract ;
+  a fibo-fnd:Agreement ;
+  :dealName "Commercial Term Loan Agreement"@en ;
+  :hasContractualTerm <https://businessos.dev/id/terms/loan-pricing-widget> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/loan-repayment-widget> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/loan-covenants-widget> ;
+  :hasContractualTerm <https://businessos.dev/id/terms/loan-guarantee-widget> .
+
+# Loan pricing term
+<https://businessos.dev/id/terms/loan-pricing-widget> a :PricingTerm ;
+  :termDescription "Interest rate and fee structure"@en ;
+  :termCondition "Fixed rate 4.75% per annum, accrued daily, paid monthly"@en ;
+  rdfs:comment "Origination fee: 1.0% ($50,000). No prepayment penalty. Annual account fee: $2,500"@en .
+
+# Repayment term (amortizing loan)
+<https://businessos.dev/id/terms/loan-repayment-widget> a :PaymentTerm ;
+  :termDescription "Amortizing payment schedule over 5-year term"@en ;
+  :termCondition "Principal + interest due monthly. Final payment on March 20, 2031"@en ;
+  rdfs:comment "Monthly payment: approximately $92,500. Repayment waterfall: interest first, then principal"@en .
+
+# Loan covenants (financial obligations)
+<https://businessos.dev/id/terms/loan-covenants-widget> a :ContractualTerm ;
+  a fibo-fnd:ContractualDefinition ;
+  :termDescription "Affirmative and negative covenants restricting borrower conduct"@en ;
+  :termCondition "Widget Corp must maintain minimum debt service coverage ratio (DSCR) of 1.25x"@en ;
+  rdfs:comment "Negative covenants: No additional debt without bank approval, maintain minimum current ratio of 1.5x, no asset sales without approval"@en .
+
+# Guarantee term
+<https://businessos.dev/id/terms/loan-guarantee-widget> a :ContractualTerm ;
+  a fibo-fei:GuaranteeTerms ;
+  :termDescription "Personal guarantee by Widget Corp founder"@en ;
+  :termCondition "Guarantor personally liable for full loan amount in event of borrower default"@en ;
+  rdfs:comment "Continuing guarantee surviving bankruptcy. Guarantor waives suretyship defenses"@en .
+
+
+# ============================================================================
+# EXAMPLE 3: Government Contractor Deal (Complex Compliance)
+# ============================================================================
+# Demonstrates: Multi-framework compliance, export controls, security clearances
+
+<https://businessos.dev/id/deals/d-defense-contractor-2026> a :Deal ;
+  a fibo-fnd:Agreement ;
+  :dealIdentifier "d-defense-contractor-2026"^^xsd:string ;
+  :dealName "Defense Department IT Modernization Contract"@en ;
+  :dealDescription "5-year IDIQ (Indefinite Delivery/Indefinite Quantity) contract for IT services to DoD agency"@en ;
+  :dealStatus <#DealClosedWon> ;
+  :hasPrimaryBuyer <https://businessos.dev/id/parties/dod-agency> ;
+  :hasPrimarySeller <https://businessos.dev/id/parties/defense-tech-contractor> ;
+  :dealAmount <https://businessos.dev/id/amounts/d-defense-idiq-principal> ;
+  :dealCurrency "USD"^^xsd:string ;
+  :dealProbability "100"^^xsd:integer ;
+  :currentStage <#ExecutionStage> ;
+  schema:dateCreated "2025-06-01T00:00:00Z"^^xsd:dateTime ;
+  schema:dateModified "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/dfars-compliance> ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/itar-compliance> ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/security-clearance> ;
+  :hasComplianceRequirement <https://businessos.dev/id/requirements/export-control> .
+
+<https://businessos.dev/id/amounts/d-defense-idiq-principal> a :MonetaryAmount ;
+  :amount "10000000"^^xsd:decimal ;
+  :currency "USD"^^xsd:string ;
+  rdfs:comment "5-year IDIQ ceiling: $10M. Task orders issued as needed"@en .
+
+<https://businessos.dev/id/parties/dod-agency> a :BusinessOSParty ;
+  a :InternalParty ;
+  :partyIdentifier "dod-agency-001"^^xsd:string ;
+  :legalName "U.S. Department of Defense"@en ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  schema:name "DoD" .
+
+<https://businessos.dev/id/parties/defense-tech-contractor> a :BusinessOSParty ;
+  a :Counterparty ;
+  a fibo-be:LegalPerson ;
+  :partyIdentifier "defense-tech-contractor"^^xsd:string ;
+  :legalName "DefenseTech Solutions, Inc."@en ;
+  :businessRegistrationNumber "88-5555555"^^xsd:string ;
+  :operatingJurisdiction "US"^^xsd:string ;
+  :hasKYCStatus :KYCVerified ;
+  schema:name "DefenseTech Solutions" .
+
+# DFARS Compliance (Defense Federal Acquisition Regulation Supplement)
+<https://businessos.dev/id/requirements/dfars-compliance> a :ComplianceRequirement ;
+  :complianceFramework :FINRACompliance ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "DFARS clause 252.204-7012: Safeguarding controlled unclassified information (CUI). DefenseTech maintains compliance through annual training"@en .
+
+# ITAR Compliance (International Traffic in Arms Regulations)
+<https://businessos.dev/id/requirements/itar-compliance> a :ComplianceRequirement ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "ITAR designation: This contract involves defense articles. DefenseTech maintains registered ITAR compliance program"@en .
+
+# Security Clearance Requirement
+<https://businessos.dev/id/requirements/security-clearance> a :ComplianceRequirement ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-01-15T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "All DefenseTech personnel accessing classified information must maintain Secret or Top Secret security clearances. Currently 25/30 personnel cleared"@en .
+
+# Export Control Compliance
+<https://businessos.dev/id/requirements/export-control> a :ComplianceRequirement ;
+  :complianceStatus "compliant"@en ;
+  :complianceValidationDate "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  rdfs:comment "EAR/ITAR export control screening required for foreign nationals. No technology transfer to restricted countries authorized"@en .
+
+
+# ============================================================================
+# END OF EXAMPLES
+# ============================================================================
+# These examples demonstrate:
+# - Complete FIBO deal modeling (Example 1: SaaS)
+# - Guarantor roles and financial instruments (Example 2: Loan)
+# - Complex regulatory compliance (Example 3: Defense)
+# - Party verification and KYC status tracking
+# - Contractual term specification
+# - Audit trail generation
+# - Compliance framework integration
+#
+# Ready for insertion into Oxigraph or RDF database and querying with
+# SPARQL CONSTRUCT queries defined in fibo-deal-sparql-queries.rq
+# ============================================================================

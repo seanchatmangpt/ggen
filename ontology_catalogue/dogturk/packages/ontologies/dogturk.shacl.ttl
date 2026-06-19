@@ -1,0 +1,741 @@
+@prefix : <https://dogturk.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<https://dogturk.com/shacl> a <http://www.w3.org/2002/07/owl#Ontology> ;
+    rdfs:label "DogTurk SHACL Shapes" ;
+    rdfs:comment "SHACL constraint shapes for validating DogTurk ontology data" .
+
+# =============================================================================
+# DOG SHAPES - Core dog entity validation
+# =============================================================================
+
+:DogShape a sh:NodeShape ;
+    sh:targetClass :Dog ;
+    rdfs:label "Dog Shape" ;
+    rdfs:comment "Validation shape for Dog instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:pattern "^[A-Za-z][A-Za-z0-9\\s\\-']*$" ;
+        sh:message "Dog name must be 1-100 characters, start with letter, contain only letters, numbers, spaces, hyphens, or apostrophes"
+    ] ;
+    
+    sh:property [
+        sh:path :hasBreed ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+        sh:message "Dog breed is required and must be 3-50 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasAge ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 300 ;
+        sh:message "Dog age must be between 1 and 300 months"
+    ] ;
+    
+    sh:property [
+        sh:path :hasWeight ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.5 ;
+        sh:maxInclusive 200.0 ;
+        sh:message "Dog weight must be between 0.5 and 200.0 kg"
+    ] ;
+    
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 1000 ;
+        sh:message "Dog description must not exceed 1000 characters"
+    ] .
+
+# =============================================================================
+# TRAINING CASE SHAPES - Core training workflow validation
+# =============================================================================
+
+:TrainingCaseShape a sh:NodeShape ;
+    sh:targetClass :TrainingCase ;
+    rdfs:label "Training Case Shape" ;
+    rdfs:comment "Validation shape for TrainingCase instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+        sh:message "Training case name is required and must be 5-200 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :involvesDog ;
+        sh:class :Dog ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training case must involve exactly one dog"
+    ] ;
+    
+    sh:property [
+        sh:path :assignedToTrainer ;
+        sh:class :Trainer ;
+        sh:minCount 1 ;
+        sh:maxCount 3 ;
+        sh:message "Training case must have 1-3 assigned trainers"
+    ] ;
+    
+    sh:property [
+        sh:path :createdDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training case must have a creation date"
+    ] ;
+    
+    sh:property [
+        sh:path :startDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training case must have a start date"
+    ] ;
+    
+    sh:property [
+        sh:path :endDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Training case may have an end date"
+    ] ;
+    
+    sh:property [
+        sh:path :priority ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "Training case priority must be between 1 (highest) and 5 (lowest)"
+    ] ;
+    
+    sh:property [
+        sh:path :isActive ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training case must have active status"
+    ] ;
+    
+    # Custom constraint: end date must be after start date
+    sh:sparql [
+        sh:message "End date must be after start date" ;
+        sh:prefixes :, xsd: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this :startDate ?start ;
+                      :endDate ?end .
+                FILTER (?end <= ?start)
+            }
+        """
+    ] .
+
+# =============================================================================
+# TRAINING SESSION SHAPES - Individual session validation
+# =============================================================================
+
+:TrainingSessionShape a sh:NodeShape ;
+    sh:targetClass :TrainingSession ;
+    rdfs:label "Training Session Shape" ;
+    rdfs:comment "Validation shape for TrainingSession instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 150 ;
+        sh:message "Training session name is required and must be 3-150 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :partOfCase ;
+        sh:class :TrainingCase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training session must be part of exactly one training case"
+    ] ;
+    
+    sh:property [
+        sh:path :startDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training session must have a start date"
+    ] ;
+    
+    sh:property [
+        sh:path :duration ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 5 ;
+        sh:maxInclusive 480 ;
+        sh:message "Training session duration must be between 5 and 480 minutes"
+    ] ;
+    
+    sh:property [
+        sh:path :hasSessionType ;
+        sh:class :SessionType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training session must have exactly one session type"
+    ] ;
+    
+    sh:property [
+        sh:path :sessionNotes ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 5000 ;
+        sh:message "Session notes must not exceed 5000 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :usesTechnique ;
+        sh:class :TrainingTechnique ;
+        sh:minCount 0 ;
+        sh:message "Training session may use multiple techniques"
+    ] .
+
+# =============================================================================
+# TRAINER SHAPES - Personnel and certification validation
+# =============================================================================
+
+:TrainerShape a sh:NodeShape ;
+    sh:targetClass :Trainer ;
+    rdfs:label "Trainer Shape" ;
+    rdfs:comment "Validation shape for Trainer instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:pattern "^[A-Za-z][A-Za-z\\s\\-']*$" ;
+        sh:message "Trainer name must be 2-100 characters, start with letter"
+    ] ;
+    
+    sh:property [
+        sh:path :email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Valid email address is required"
+    ] ;
+    
+    sh:property [
+        sh:path :phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\+?[1-9]\\d{1,14}$" ;
+        sh:message "Phone number must be valid international format"
+    ] ;
+    
+    sh:property [
+        sh:path :yearsExperience ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 50 ;
+        sh:message "Years of experience must be between 0 and 50"
+    ] ;
+    
+    sh:property [
+        sh:path :hasCertification ;
+        sh:class :TrainingCertification ;
+        sh:minCount 1 ;
+        sh:message "Trainer must have at least one certification"
+    ] ;
+    
+    sh:property [
+        sh:path :isActive ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Trainer must have active status"
+    ] .
+
+# =============================================================================
+# BEHAVIORAL ISSUE SHAPES - Issue tracking validation
+# =============================================================================
+
+:BehavioralIssueShape a sh:NodeShape ;
+    sh:targetClass :BehavioralIssue ;
+    rdfs:label "Behavioral Issue Shape" ;
+    rdfs:comment "Validation shape for BehavioralIssue instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 100 ;
+        sh:message "Behavioral issue name is required and must be 3-100 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 2000 ;
+        sh:message "Behavioral issue description is required and must be 10-2000 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasSeverity ;
+        sh:class :SeverityLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (:Mild :Moderate :Severe :Critical) ;
+        sh:message "Behavioral issue must have one severity level from the defined list"
+    ] ;
+    
+    sh:property [
+        sh:path :priority ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "Priority must be between 1 (highest) and 5 (lowest)"
+    ] .
+
+# =============================================================================
+# MEDIA SHAPES - Video and audio content validation
+# =============================================================================
+
+:VideoRecordingShape a sh:NodeShape ;
+    sh:targetClass :VideoRecording ;
+    rdfs:label "Video Recording Shape" ;
+    rdfs:comment "Validation shape for VideoRecording instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 200 ;
+        sh:message "Video recording name is required and must be 3-200 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"\\|\\?\\*]*\\.(mp4|avi|mov|mkv|webm)$" ;
+        sh:message "Valid file path with supported video extension required"
+    ] ;
+    
+    sh:property [
+        sh:path :fileSize ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1000 ;
+        sh:maxInclusive 10737418240 ; # 10GB
+        sh:message "File size must be between 1KB and 10GB"
+    ] ;
+    
+    sh:property [
+        sh:path :mimeType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("video/mp4" "video/avi" "video/quicktime" "video/x-msvideo" "video/webm") ;
+        sh:message "MIME type must be a supported video format"
+    ] ;
+    
+    sh:property [
+        sh:path :duration ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 14400 ; # 4 hours
+        sh:message "Video duration must be between 1 and 14400 minutes"
+    ] ;
+    
+    sh:property [
+        sh:path :resolution ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d{3,4}x\\d{3,4}$" ;
+        sh:message "Resolution must be in format like 1920x1080"
+    ] ;
+    
+    sh:property [
+        sh:path :frameRate ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 15.0 ;
+        sh:maxInclusive 120.0 ;
+        sh:message "Frame rate must be between 15 and 120 fps"
+    ] ;
+    
+    sh:property [
+        sh:path :recordedDuring ;
+        sh:class :TrainingSession ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Video must be recorded during exactly one training session"
+    ] .
+
+:AudioRecordingShape a sh:NodeShape ;
+    sh:targetClass :AudioRecording ;
+    rdfs:label "Audio Recording Shape" ;
+    rdfs:comment "Validation shape for AudioRecording instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 200 ;
+        sh:message "Audio recording name is required and must be 3-200 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"\\|\\?\\*]*\\.(mp3|wav|aac|flac|m4a)$" ;
+        sh:message "Valid file path with supported audio extension required"
+    ] ;
+    
+    sh:property [
+        sh:path :duration ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 14400 ; # 4 hours
+        sh:message "Audio duration must be between 1 and 14400 minutes"
+    ] ;
+    
+    sh:property [
+        sh:path :sampleRate ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:in (22050 44100 48000 96000) ;
+        sh:message "Sample rate must be one of: 22050, 44100, 48000, 96000 Hz"
+    ] ;
+    
+    sh:property [
+        sh:path :bitRate ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 64000 ;
+        sh:maxInclusive 320000 ;
+        sh:message "Bit rate must be between 64kbps and 320kbps"
+    ] .
+
+# =============================================================================
+# OUTCOME AND MEASUREMENT SHAPES - Progress tracking validation
+# =============================================================================
+
+:TrainingOutcomeShape a sh:NodeShape ;
+    sh:targetClass :TrainingOutcome ;
+    rdfs:label "Training Outcome Shape" ;
+    rdfs:comment "Validation shape for TrainingOutcome instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 150 ;
+        sh:message "Training outcome name is required and must be 3-150 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 1000 ;
+        sh:message "Outcome description must not exceed 1000 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasMetric ;
+        sh:class :OutcomeMetric ;
+        sh:minCount 1 ;
+        sh:message "Training outcome must have at least one metric"
+    ] ;
+    
+    sh:property [
+        sh:path :hasStatus ;
+        sh:class :OutcomeStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (:InProgress :Achieved :PartiallyAchieved :NotAchieved) ;
+        sh:message "Training outcome must have one status from the defined list"
+    ] ;
+    
+    sh:property [
+        sh:path :successRate ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Success rate must be between 0 and 100 percent"
+    ] ;
+    
+    sh:property [
+        sh:path :targetValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Target value must be non-negative"
+    ] .
+
+:ProgressMeasurementShape a sh:NodeShape ;
+    sh:targetClass :ProgressMeasurement ;
+    rdfs:label "Progress Measurement Shape" ;
+    rdfs:comment "Validation shape for ProgressMeasurement instances" ;
+    
+    sh:property [
+        sh:path :measuredValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Progress measurement must have a measured value"
+    ] ;
+    
+    sh:property [
+        sh:path :measurementUnit ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 20 ;
+        sh:message "Measurement unit is required and must be 1-20 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :measuredOn ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Progress measurement must have a measurement date"
+    ] ;
+    
+    # Custom constraint: measurement date should not be in the future
+    sh:sparql [
+        sh:message "Measurement date cannot be in the future" ;
+        sh:prefixes :, xsd: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this :measuredOn ?date .
+                FILTER (?date > NOW())
+            }
+        """
+    ] .
+
+# =============================================================================
+# WORKFLOW AND PLANNING SHAPES - Process validation
+# =============================================================================
+
+:TrainingPlanShape a sh:NodeShape ;
+    sh:targetClass :TrainingPlan ;
+    rdfs:label "Training Plan Shape" ;
+    rdfs:comment "Validation shape for TrainingPlan instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+        sh:message "Training plan name is required and must be 5-200 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 20 ;
+        sh:maxLength 5000 ;
+        sh:message "Training plan description is required and must be 20-5000 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :createdFor ;
+        sh:class :TrainingCase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training plan must be created for exactly one training case"
+    ] ;
+    
+    sh:property [
+        sh:path :createdDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Training plan must have a creation date"
+    ] ;
+    
+    sh:property [
+        sh:path :lastModified ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "Training plan may have a last modified date"
+    ] ;
+    
+    # Custom constraint: plan must have at least one goal
+    sh:sparql [
+        sh:message "Training plan must have at least one goal" ;
+        sh:prefixes : ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a :TrainingPlan .
+                FILTER NOT EXISTS {
+                    ?goal :partOfPlan $this .
+                }
+            }
+        """
+    ] .
+
+:ProcessingPipelineShape a sh:NodeShape ;
+    sh:targetClass :ProcessingPipeline ;
+    rdfs:label "Processing Pipeline Shape" ;
+    rdfs:comment "Validation shape for ProcessingPipeline instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 100 ;
+        sh:message "Processing pipeline name is required and must be 3-100 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 1000 ;
+        sh:message "Pipeline description must not exceed 1000 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :isActive ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Processing pipeline must have active status"
+    ] ;
+    
+    # Custom constraint: pipeline must have at least one processing step
+    sh:sparql [
+        sh:message "Processing pipeline must have at least one step" ;
+        sh:prefixes : ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a :ProcessingPipeline .
+                FILTER NOT EXISTS {
+                    ?step :partOfPipeline $this .
+                }
+            }
+        """
+    ] .
+
+# =============================================================================
+# AI ANALYSIS SHAPES - ML/AI processing validation
+# =============================================================================
+
+:AIAnalysisShape a sh:NodeShape ;
+    sh:targetClass :AIAnalysis ;
+    rdfs:label "AI Analysis Shape" ;
+    rdfs:comment "Validation shape for AIAnalysis instances" ;
+    
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 150 ;
+        sh:message "AI analysis name is required and must be 3-150 characters"
+    ] ;
+    
+    sh:property [
+        sh:path :confidenceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence score is required and must be between 0.0 and 1.0"
+    ] ;
+    
+    sh:property [
+        sh:path :createdDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "AI analysis must have a creation date"
+    ] ;
+    
+    sh:property [
+        sh:path :processingStatus ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("pending" "processing" "completed" "failed" "cancelled") ;
+        sh:message "Processing status must be one of: pending, processing, completed, failed, cancelled"
+    ] .

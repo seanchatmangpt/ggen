@@ -1,0 +1,379 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Performance Ontology
+#################################################################
+
+# ============================================================================
+# PERFORMANCE CONSTRAINTS
+# ============================================================================
+
+cns:PerformanceConstraint a rdfs:Class ;
+    rdfs:label "Performance Constraint" ;
+    rdfs:comment "A performance constraint that must be met" .
+
+cns:SevenTickConstraint a cns:PerformanceConstraint ;
+    rdfs:label "7-Tick Constraint" ;
+    rdfs:comment "Critical operations must complete within 7 CPU cycles" ;
+    cns:maxCycles 7 ;
+    cns:maxTime "10"^^xsd:integer ;
+    cns:timeUnit "ns" .
+
+cns:SubMicrosecondConstraint a cns:PerformanceConstraint ;
+    rdfs:label "Sub-Microsecond Constraint" ;
+    rdfs:comment "Operations must complete within 1 microsecond" ;
+    cns:maxCycles 1000 ;
+    cns:maxTime "1000"^^xsd:integer ;
+    cns:timeUnit "ns" .
+
+cns:MicrosecondConstraint a cns:PerformanceConstraint ;
+    rdfs:label "Microsecond Constraint" ;
+    rdfs:comment "Operations must complete within 10 microseconds" ;
+    cns:maxCycles 10000 ;
+    cns:maxTime "10000"^^xsd:integer ;
+    cns:timeUnit "ns" .
+
+# ============================================================================
+# PERFORMANCE METRICS
+# ============================================================================
+
+cns:CycleMetric a rdfs:Class ;
+    rdfs:label "Cycle Metric" ;
+    rdfs:comment "CPU cycle-based performance metric" .
+
+cns:ThroughputMetric a rdfs:Class ;
+    rdfs:label "Throughput Metric" ;
+    rdfs:comment "Operations per second performance metric" .
+
+cns:LatencyMetric a rdfs:Class ;
+    rdfs:label "Latency Metric" ;
+    rdfs:comment "Time-based latency metric" .
+
+cns:MemoryMetric a rdfs:Class ;
+    rdfs:label "Memory Metric" ;
+    rdfs:comment "Memory usage and allocation metric" .
+
+# ============================================================================
+# BENCHMARK TYPES
+# ============================================================================
+
+cns:BenchmarkType a rdfs:Class ;
+    rdfs:label "Benchmark Type" ;
+    rdfs:comment "A type of performance benchmark" .
+
+cns:MicroBenchmark a cns:BenchmarkType ;
+    rdfs:label "Micro-benchmark" ;
+    rdfs:comment "Benchmark for individual operations" .
+
+cns:MacroBenchmark a cns:BenchmarkType ;
+    rdfs:label "Macro-benchmark" ;
+    rdfs:comment "Benchmark for end-to-end workflows" .
+
+cns:StressBenchmark a cns:BenchmarkType ;
+    rdfs:label "Stress Benchmark" ;
+    rdfs:comment "Benchmark under high load conditions" .
+
+cns:RegressionBenchmark a cns:BenchmarkType ;
+    rdfs:label "Regression Benchmark" ;
+    rdfs:comment "Benchmark for detecting performance regressions" .
+
+# ============================================================================
+# OPTIMIZATION STRATEGIES
+# ============================================================================
+
+cns:OptimizationStrategy a rdfs:Class ;
+    rdfs:label "Optimization Strategy" ;
+    rdfs:comment "A strategy for performance optimization" .
+
+cns:SimdStrategy a cns:OptimizationStrategy ;
+    rdfs:label "SIMD Strategy" ;
+    rdfs:comment "Single Instruction Multiple Data optimization" ;
+    cns:improvementFactor "4"^^xsd:integer .
+
+cns:CacheStrategy a cns:OptimizationStrategy ;
+    rdfs:label "Cache Strategy" ;
+    rdfs:comment "Cache-friendly memory layout optimization" ;
+    cns:improvementFactor "2"^^xsd:integer .
+
+cns:BranchStrategy a cns:OptimizationStrategy ;
+    rdfs:label "Branch Strategy" ;
+    rdfs:comment "Branch prediction optimization" ;
+    cns:improvementFactor "3"^^xsd:integer .
+
+cns:MemoryStrategy a cns:OptimizationStrategy ;
+    rdfs:label "Memory Strategy" ;
+    rdfs:comment "Memory allocation and access optimization" ;
+    cns:improvementFactor "2"^^xsd:integer .
+
+cns:AlgorithmStrategy a cns:OptimizationStrategy ;
+    rdfs:label "Algorithm Strategy" ;
+    rdfs:comment "Algorithmic optimization" ;
+    cns:improvementFactor "5"^^xsd:integer .
+
+# ============================================================================
+# PERFORMANCE PATTERNS
+# ============================================================================
+
+cns:PerformancePattern a rdfs:Class ;
+    rdfs:label "Performance Pattern" ;
+    rdfs:comment "A pattern for achieving performance goals" .
+
+cns:SlabAllocationPattern a cns:PerformancePattern ;
+    rdfs:label "Slab Allocation Pattern" ;
+    rdfs:comment "Pre-allocated memory slabs for fast allocation" ;
+    cns:cycleCost 2 ;
+    cns:memoryEfficiency "high" .
+
+cns:RadixSortPattern a cns:PerformancePattern ;
+    rdfs:label "Radix Sort Pattern" ;
+    rdfs:comment "Deterministic O(n) sorting for ORDER BY" ;
+    cns:cycleCost 5 ;
+    cns:timeComplexity "O(n)" .
+
+cns:CommandQueuePattern a cns:PerformancePattern ;
+    rdfs:label "Command Queue Pattern" ;
+    rdfs:comment "Lock-free work packet queue" ;
+    cns:cycleCost 3 ;
+    cns:threadSafety "lock-free" .
+
+cns:StringIDPattern a cns:PerformancePattern ;
+    rdfs:label "String ID Pattern" ;
+    rdfs:comment "Replaces strcmp with 1-cycle ID comparison" ;
+    cns:cycleCost 1 ;
+    cns:comparisonSpeed "1-cycle" .
+
+cns:RoaringBitsetPattern a cns:PerformancePattern ;
+    rdfs:label "Roaring Bitset Pattern" ;
+    rdfs:comment "Fast set operations on sparse data" ;
+    cns:cycleCost 4 ;
+    cns:spaceEfficiency "high" .
+
+# ============================================================================
+# PERFORMANCE PROPERTIES
+# ============================================================================
+
+cns:maxCycles a rdf:Property ;
+    rdfs:label "maximum cycles" ;
+    rdfs:domain cns:PerformanceConstraint ;
+    rdfs:range xsd:integer .
+
+cns:maxTime a rdf:Property ;
+    rdfs:label "maximum time" ;
+    rdfs:domain cns:PerformanceConstraint ;
+    rdfs:range xsd:integer .
+
+cns:timeUnit a rdf:Property ;
+    rdfs:label "time unit" ;
+    rdfs:domain cns:PerformanceConstraint ;
+    rdfs:range xsd:string .
+
+cns:improvementFactor a rdf:Property ;
+    rdfs:label "improvement factor" ;
+    rdfs:domain cns:OptimizationStrategy ;
+    rdfs:range xsd:integer .
+
+cns:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:domain cns:PerformancePattern ;
+    rdfs:range xsd:integer .
+
+cns:memoryEfficiency a rdf:Property ;
+    rdfs:label "memory efficiency" ;
+    rdfs:domain cns:PerformancePattern ;
+    rdfs:range xsd:string .
+
+cns:timeComplexity a rdf:Property ;
+    rdfs:label "time complexity" ;
+    rdfs:domain cns:PerformancePattern ;
+    rdfs:range xsd:string .
+
+cns:threadSafety a rdf:Property ;
+    rdfs:label "thread safety" ;
+    rdfs:domain cns:PerformancePattern ;
+    rdfs:range xsd:string .
+
+cns:comparisonSpeed a rdf:Property ;
+    rdfs:label "comparison speed" ;
+    rdfs:domain cns:PerformancePattern ;
+    rdfs:range xsd:string .
+
+cns:spaceEfficiency a rdf:Property ;
+    rdfs:label "space efficiency" ;
+    rdfs:domain cns:PerformancePattern ;
+    rdfs:range xsd:string .
+
+cns:hasBenchmarkType a rdf:Property ;
+    rdfs:label "has benchmark type" ;
+    rdfs:domain cns:Benchmark ;
+    rdfs:range cns:BenchmarkType .
+
+cns:enforcesConstraint a rdf:Property ;
+    rdfs:label "enforces constraint" ;
+    rdfs:domain cns:Benchmark ;
+    rdfs:range cns:PerformanceConstraint .
+
+cns:usesStrategy a rdf:Property ;
+    rdfs:label "uses strategy" ;
+    rdfs:domain cns:Optimization ;
+    rdfs:range cns:OptimizationStrategy .
+
+cns:implementsPattern a rdf:Property ;
+    rdfs:label "implements pattern" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:PerformancePattern .
+
+# ============================================================================
+# BENCHMARK INSTANCES
+# ============================================================================
+
+cns:sparqlBenchmark a cns:Benchmark ;
+    cns:hasBenchmarkType cns:MicroBenchmark ;
+    cns:enforcesConstraint cns:SevenTickConstraint ;
+    rdfs:label "SPARQL Benchmark" ;
+    rdfs:comment "Benchmark for SPARQL query performance" .
+
+cns:shaclBenchmark a cns:Benchmark ;
+    cns:hasBenchmarkType cns:MicroBenchmark ;
+    cns:enforcesConstraint cns:SubMicrosecondConstraint ;
+    rdfs:label "SHACL Benchmark" ;
+    rdfs:comment "Benchmark for SHACL validation performance" .
+
+cns:cjinjaBenchmark a cns:Benchmark ;
+    cns:hasBenchmarkType cns:MicroBenchmark ;
+    cns:enforcesConstraint cns:SubMicrosecondConstraint ;
+    rdfs:label "CJinja Benchmark" ;
+    rdfs:comment "Benchmark for template rendering performance" .
+
+cns:telemetryBenchmark a cns:Benchmark ;
+    cns:hasBenchmarkType cns:MicroBenchmark ;
+    cns:enforcesConstraint cns:SevenTickConstraint ;
+    rdfs:label "Telemetry Benchmark" ;
+    rdfs:comment "Benchmark for telemetry overhead" .
+
+cns:gatekeeperBenchmark a cns:Benchmark ;
+    cns:hasBenchmarkType cns:MacroBenchmark ;
+    cns:enforcesConstraint cns:SubMicrosecondConstraint ;
+    rdfs:label "Gatekeeper Benchmark" ;
+    rdfs:comment "Benchmark for quality gate performance" .
+
+cns:stressBenchmark a cns:Benchmark ;
+    cns:hasBenchmarkType cns:StressBenchmark ;
+    cns:enforcesConstraint cns:MicrosecondConstraint ;
+    rdfs:label "Stress Benchmark" ;
+    rdfs:comment "Benchmark under high load conditions" .
+
+# ============================================================================
+# OPTIMIZATION INSTANCES
+# ============================================================================
+
+cns:simdOptimization a cns:Optimization ;
+    cns:usesStrategy cns:SimdStrategy ;
+    rdfs:label "SIMD Optimization" ;
+    rdfs:comment "Vectorized operations using AVX2/NEON" .
+
+cns:cacheOptimization a cns:Optimization ;
+    cns:usesStrategy cns:CacheStrategy ;
+    rdfs:label "Cache Optimization" ;
+    rdfs:comment "Cache-friendly memory layout" .
+
+cns:branchOptimization a cns:Optimization ;
+    cns:usesStrategy cns:BranchStrategy ;
+    rdfs:label "Branch Optimization" ;
+    rdfs:comment "Optimized control flow" .
+
+cns:memoryOptimization a cns:Optimization ;
+    cns:usesStrategy cns:MemoryStrategy ;
+    rdfs:label "Memory Optimization" ;
+    rdfs:comment "Memory allocation optimization" .
+
+cns:algorithmOptimization a cns:Optimization ;
+    cns:usesStrategy cns:AlgorithmStrategy ;
+    rdfs:label "Algorithm Optimization" ;
+    rdfs:comment "Algorithmic improvements" .
+
+# ============================================================================
+# FUNCTION-PATTERN RELATIONSHIPS
+# ============================================================================
+
+cns:slabAlloc cns:implementsPattern cns:SlabAllocationPattern .
+cns:radixSort cns:implementsPattern cns:RadixSortPattern .
+cns:cmdQueuePush cns:implementsPattern cns:CommandQueuePattern .
+cns:cmdQueuePop cns:implementsPattern cns:CommandQueuePattern .
+cns:stringID cns:implementsPattern cns:StringIDPattern .
+cns:roaringBitsetAnd cns:implementsPattern cns:RoaringBitsetPattern .
+
+# ============================================================================
+# SHACL SHAPES FOR PERFORMANCE VALIDATION
+# ============================================================================
+
+cns:PerformanceConstraintShape a sh:NodeShape ;
+    sh:targetClass cns:PerformanceConstraint ;
+    sh:property [
+        sh:path cns:maxCycles ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:message "Every performance constraint must have a maximum cycle count"
+    ] ;
+    sh:property [
+        sh:path cns:maxTime ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:message "Every performance constraint must have a maximum time"
+    ] ;
+    sh:property [
+        sh:path cns:timeUnit ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("ns" "us" "ms" "s") ;
+        sh:message "Time unit must be ns, us, ms, or s"
+    ] .
+
+cns:BenchmarkShape a sh:NodeShape ;
+    sh:targetClass cns:Benchmark ;
+    sh:property [
+        sh:path cns:hasBenchmarkType ;
+        sh:class cns:BenchmarkType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every benchmark must have exactly one benchmark type"
+    ] ;
+    sh:property [
+        sh:path cns:enforcesConstraint ;
+        sh:class cns:PerformanceConstraint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every benchmark must enforce exactly one performance constraint"
+    ] .
+
+cns:OptimizationStrategyShape a sh:NodeShape ;
+    sh:targetClass cns:OptimizationStrategy ;
+    sh:property [
+        sh:path cns:improvementFactor ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:message "Every optimization strategy must have an improvement factor"
+    ] .
+
+cns:PerformancePatternShape a sh:NodeShape ;
+    sh:targetClass cns:PerformancePattern ;
+    sh:property [
+        sh:path cns:cycleCost ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Every performance pattern must have a cycle cost between 1 and 100"
+    ] . 

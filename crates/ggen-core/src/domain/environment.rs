@@ -291,6 +291,31 @@ impl Clone for EnvironmentContext {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
+
+    /// Saves the prior value of an env var on construction and restores it
+    /// (or removes it if previously unset) on Drop.
+    struct EnvVarGuard {
+        key: &'static str,
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl EnvVarGuard {
+        fn set(key: &'static str, value: &str) -> Self {
+            let previous = std::env::var_os(key);
+            std::env::set_var(key, value);
+            Self { key, previous }
+        }
+    }
+
+    impl Drop for EnvVarGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => std::env::remove_var(self.key),
+                Some(v) => std::env::set_var(self.key, v),
+            }
+        }
+    }
 
     #[test]
     fn test_development_config() {
@@ -308,16 +333,14 @@ mod tests {
     }
 
     #[test]
+    #[serial(API_KEY)]
     fn test_secrets() {
         // Set a known secret environment variable from the hardcoded lookup list
-        env::set_var("API_KEY", "test_value");
+        let _guard = EnvVarGuard::set("API_KEY", "test_value");
 
         // Use new() which loads secrets from environment variables
         let config = EnvironmentConfig::new("development").unwrap();
         assert_eq!(config.get_secret("api_key"), Some("test_value"));
-
-        // Clean up
-        env::remove_var("API_KEY");
     }
 
     #[test]

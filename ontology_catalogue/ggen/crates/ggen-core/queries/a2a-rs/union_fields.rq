@@ -1,0 +1,8 @@
+SELECT DISTINCT ?type ?field_name ?field_type
+WHERE {
+    ?type a ggen:Type .
+    ?type ggen:isUnion true .
+    ?type ggen:hasField ?field .
+    ?field ggen:name ?field_name .
+    ?field ggen:type ?field_type .
+} ORDER BY ?type ?field_name

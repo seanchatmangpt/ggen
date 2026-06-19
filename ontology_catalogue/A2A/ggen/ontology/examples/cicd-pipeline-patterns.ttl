@@ -1,0 +1,256 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# CI/CD Pipeline Pattern Examples
+
+# GitHub Actions Workflow for Web Application Deployment
+# GitHub Actions Workflow Instance
+:web_app_github_actions a a2a:github_actions_workflow ;
+    a2a:app_label "web-app-cd" ;
+    a2a:version_label "4.3.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:trigger_event "push" ;
+    a2a:trigger_event "pull_request" ;
+    a2a:trigger_event "workflow_dispatch" ;
+    a2a:branch_filter "main" ;
+    a2a:branch_filter "develop" ;
+    a2a:branch_filter "feature/*" ;
+    a2a:environment "staging" ;
+    a2a:environment "production" ;
+    a2a:approval_required true ;
+    a2a:build_matrix "python-version: 3.8, 3.9, 3.10, 3.11" ;
+    a2a:build_matrix "node-version: 14, 16, 18" ;
+    a2a:build_matrix "os: ubuntu-latest, windows-latest, macos-latest" ;
+    a2a:artifacts "dist/*.zip", "test-results.xml", "coverage/*.html" ;
+    a2a:artifacts "build/libs/*.jar" ;
+    a2a:dependencies "build-tools", "test-framework", "deployment-tools" ;
+    a2a:cache_node_modules true ;
+    a2a:cache_python_pip true ;
+    a2a:timeout_minutes 60 ;
+    a2a:concurrency_group "web-app" ;
+    a2a:concurrency_limit 1 .
+
+# GitLab CI Configuration for API Service
+:api_service_gitlab_ci a a2a:gitlab_ci ;
+    a2a:app_label "api-service-ci" ;
+    a2a:version_label "5.1.2" ;
+    a2a:managed_by "a2a" ;
+    a2a:trigger_event "push" ;
+    a2a:trigger_event "merge_request" ;
+    a2a:branch_filter "main" ;
+    a2a:branch_filter "develop" ;
+    a2a:branch_filter "features/api/*" ;
+    a2a:stages "build", "test", "security", "deploy" ;
+    a2a:build_matrix "java-version: 11, 17" ;
+    a2a:build_matrix "database: postgresql, mysql" ;
+    a2a:artifacts "*.jar", "*.war", "target/*.jar" ;
+    a2a:artifacts "security-scan-report.json" ;
+    a2a:artifacts "performance-test-results.json" ;
+    a2a:cache_maven true ;
+    a2a:cache_gradle true ;
+    a2a:timeout_minutes 45 ;
+    a2a:retry "max: 3, min: 2s" ;
+    a2a:interruptible true .
+
+# Jenkins Pipeline for Microservices
+:microservices_jenkins_pipeline a a2a:jenkins_pipeline ;
+    a2a:app_label "microservices-cd" ;
+    a2a:version_label "2.8.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:trigger_event "scm" ;
+    a2a:trigger_event "timer" ;
+    a2a:branch_filter "main" ;
+    a2a:branch_filter "develop" ;
+    a2a:branch_filter "releases/*" ;
+    a2a:environment "development", "staging", "production" ;
+    a2a:approval_required true ;
+    a2a:build_matrix "service: api, frontend, worker, database" ;
+    a2a:build_matrix "region: us-east-1, us-west-2, eu-west-1" ;
+    a2a:artifacts "target/*.jar", "dist/*.tar.gz", "docker-compose.yml" ;
+    a2a:artifacts "test-reports/*", "performance-reports/*" ;
+    a2a:parallelism 4 ;
+    a2a:retry_count 3 ;
+    a2a:timeout_minutes 90 ;
+    a2a:polling_interval "H" ;
+    a2a:build_discarder "logrotate(30)" ;
+    a2a:disable_concurrent_builds true ;
+    a2a:quiet_period 60 .
+
+# CI/CD Pipeline Classes
+:ci_pipeline_build a owl:Class ;
+    rdfs:label "CI Pipeline Build Stage" ;
+    rdfs:comment "Build stage for continuous integration" ;
+    rdfs:subClassOf a2a:ci_pipeline ;
+    rdfs:property [
+        rdfs:label "Build Command" ;
+        rdfs:comment "Command to build the application" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Build Environment" ;
+        rdfs:comment "Environment variables for build" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Build Tools" ;
+        rdfs:comment "Build tools used" ;
+        rdfs:range ["maven", "gradle", "npm", "yarn", "cargo", "go"] ;
+    ] .
+
+:ci_pipeline_test a owl:Class ;
+    rdfs:label "CI Pipeline Test Stage" ;
+    rdfs:comment "Test stage for continuous integration" ;
+    rdfs:subClassOf a2a:ci_pipeline ;
+    rdfs:property [
+        rdfs:label "Test Command" ;
+        rdfs:comment "Command to run tests" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Test Framework" ;
+        rdfs:comment "Testing framework used" ;
+        rdfs:range ["junit", "pytest", "jest", "mocha", "rspec", "testng"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Test Coverage" ;
+        rdfs:comment "Required test coverage percentage" ;
+        rdfs:range xsd:integer ;
+        rdfs:minValue 0 ;
+        rdfs:maxValue 100 ;
+    ] .
+
+:ci_pipeline_security a owl:Class ;
+    rdfs:label "CI Pipeline Security Stage" ;
+    rdfs:comment "Security scan stage for continuous integration" ;
+    rdfs:subClassOf a2a:ci_pipeline ;
+    rdfs:property [
+        rdfs:label "Security Tool" ;
+        rdfs:comment "Security scanning tool" ;
+        rdfs:range ["sonarqube", "snyk", "trivy", "grype", "clair", "owasp"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Security Threshold" ;
+        rdfs:comment "Security vulnerability threshold" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "SAST" ;
+        rdfs:comment "Static Application Security Testing" ;
+        rdfs:range xsd:boolean ;
+    ] ;
+    rdfs:property [
+        rdfs:label "DAST" ;
+        rdfs:comment "Dynamic Application Security Testing" ;
+        rdfs:range xsd:boolean ;
+    ] .
+
+:cd_pipeline_deploy a owl:Class ;
+    rdfs:label "CD Pipeline Deploy Stage" ;
+    rdfs:comment "Deploy stage for continuous deployment" ;
+    rdfs:subClassOf a2a:cd_pipeline ;
+    rdfs:property [
+        rdfs:label "Deploy Command" ;
+        rdfs:comment "Command to deploy application" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Deploy Target" ;
+        rdfs:comment "Target environment for deployment" ;
+        rdfs:range ["development", "staging", "production", "canary"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Blue Green Deployment" ;
+        rdfs:comment "Enable blue-green deployment" ;
+        rdfs:range xsd:boolean ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Rollback Strategy" ;
+        rdfs:comment "Deployment rollback strategy" ;
+        rdfs:range ["auto", "manual", "health-based"] ;
+    ] .
+
+:cd_pipeline_canary a owl:Class ;
+    rdfs:label "CD Pipeline Canary Stage" ;
+    rdfs:comment "Canary deployment stage for continuous deployment" ;
+    rdfs:subClassOf a2a:cd_pipeline ;
+    rdfs:property [
+        rdfs:label "Canary Percentage" ;
+        rdfs:comment "Percentage of traffic for canary" ;
+        rdfs:range xsd:integer ;
+        rdfs:minValue 1 ;
+        rdfs:maxValue 50 ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Canary Metrics" ;
+        rdfs:comment "Metrics to monitor for canary" ;
+        rdfs:range ["error-rate", "latency", "cpu-usage", "memory-usage"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Canary Duration" ;
+        rdfs:comment "Duration to monitor canary in minutes" ;
+        rdfs:range xsd:integer ;
+        rdfs:minValue 5 ;
+        rdfs:maxValue 60 ;
+    ] .
+
+# Pipeline Event Triggers
+:push_trigger a owl:Class ;
+    rdfs:label "Push Event Trigger" ;
+    rdfs:comment "Trigger pipeline on push to branch" ;
+    rdfs:subClassOf a2a:cicd_pipeline ;
+    rdfs:property [
+        rdfs:label "Branch Pattern" ;
+        rdfs:comment "Branch pattern to trigger on" ;
+        rdfs:range xsd:string ;
+        rdfs:pattern "^refs/heads/.*$" ;
+    ] ;
+    rdfs:property [
+        rdfs:label "File Pattern" ;
+        rdfs:comment "File pattern to trigger on" ;
+        rdfs:range xsd:string ;
+    ] .
+
+:pull_request_trigger a owl:Class ;
+    rdfs:label "Pull Request Event Trigger" ;
+    rdfs:comment "Trigger pipeline on pull request" ;
+    rdfs:subClassOf a2a:cicd_pipeline ;
+    rdfs:property [
+        rdfs:label "PR Branch Pattern" ;
+        rdfs:comment "Source branch pattern" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Target Branch Pattern" ;
+        rdfs:comment "Target branch pattern" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Auto Merge" ;
+        rdfs:comment "Auto merge after success" ;
+        rdfs:range xsd:boolean ;
+    ] .
+
+:schedule_trigger a owl:Class ;
+    rdfs:label "Scheduled Event Trigger" ;
+    rdfs:comment "Trigger pipeline on schedule" ;
+    rdfs:subClassOf a2a:cicd_pipeline ;
+    rdfs:property [
+        rdfs:label "Schedule Pattern" ;
+        rdfs:comment "Cron expression for schedule" ;
+        rdfs:range xsd:string ;
+        rdfs:pattern "^(@(hourly|daily|weekly|monthly|yearly)|[0-9*,-/ ]+)$" ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Timezone" ;
+        rdfs:comment "Timezone for schedule" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Branch" ;
+        rdfs:comment "Branch to run on" ;
+        rdfs:range xsd:string ;
+    ] .

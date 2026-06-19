@@ -205,9 +205,11 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
             })?;
 
         // Render body with SPARQL results available
-        template.render(&mut tera, &context, std::path::Path::new("")).map_err(|e| {
-            crate::utils::error::Error::new(&format!("Template rendering failed: {}", e))
-        })?
+        template
+            .render(&mut tera, &context, std::path::Path::new(""))
+            .map_err(|e| {
+                crate::utils::error::Error::new(&format!("Template rendering failed: {}", e))
+            })?
     } else {
         // No RDF files - backward compatible v1 API
         template
@@ -216,9 +218,11 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
                 crate::utils::error::Error::new(&format!("Failed to process graph: {}", e))
             })?;
 
-        template.render(&mut tera, &context, std::path::Path::new("")).map_err(|e| {
-            crate::utils::error::Error::new(&format!("Template rendering failed: {}", e))
-        })?
+        template
+            .render(&mut tera, &context, std::path::Path::new(""))
+            .map_err(|e| {
+                crate::utils::error::Error::new(&format!("Template rendering failed: {}", e))
+            })?
     };
 
     // Check for file markers and split if present

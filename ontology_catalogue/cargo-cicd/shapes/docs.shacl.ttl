@@ -1,0 +1,143 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix cc:      <https://cargo-cicd.rs/ontology/> .
+@prefix ccsh:    <https://cargo-cicd.rs/shapes/> .
+
+# ── Shape ontology header ─────────────────────────────────────────────────────
+ccsh:DocsShapes
+    a owl:Ontology ;
+    dcterms:title "cargo-cicd documentation coverage SHACL shapes"@en ;
+    dcterms:description
+        "Validates documentation coverage law: every cc:Capability must appear in at least one cc:Reference doc; every cc:Tutorial must cover at least one cc:Capability; no doc node may use forbidden terms."@en ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    owl:imports <https://cargo-cicd.rs/ontology/diataxis> ;
+    owl:versionInfo "26.6.2" .
+
+# ── CapabilityReferenceCoverageShape ─────────────────────────────────────────
+#
+# Every prov:SoftwareAgent (command/capability) must have at least one
+# cc:coveredByDocType link pointing to cc:Reference.
+#
+# Implementation note:
+#   sh:qualifiedValueShape with sh:qualifiedMinCount enforces that at least one
+#   value of cc:coveredByDocType is exactly cc:Reference (checked via sh:hasValue).
+#
+ccsh:CapabilityReferenceCoverageShape
+    a sh:NodeShape ;
+    sh:name "CapabilityReferenceCoverageShape" ;
+    sh:description
+        "Every cc:Capability must appear in at least one cc:Reference documentation node. Enforced by requiring cc:coveredByDocType cc:Reference on each prov:SoftwareAgent."@en ;
+
+    sh:targetClass prov:SoftwareAgent ;
+
+    sh:property [
+        sh:path cc:coveredByDocType ;
+        sh:name "coveredByReference" ;
+        sh:description "The capability must be linked to cc:Reference doc coverage."@en ;
+        sh:qualifiedValueShape [
+            sh:hasValue cc:Reference ;
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "Every cc:Capability must be covered by at least one cc:Reference documentation node (cc:coveredByDocType cc:Reference)."@en ;
+    ] .
+
+# ── TutorialCapabilityCoverageShape ──────────────────────────────────────────
+#
+# In the Diátaxis model, cc:Tutorial is a skos:Concept. Capabilities linked
+# to the Tutorial quadrant carry cc:coveredByDocType cc:Tutorial. The shape
+# targets cc:Tutorial itself and enforces via sh:sparql that at least one
+# capability links to it.
+#
+# Simpler approach: target the Tutorial concept and check via SPARQL that at
+# least one subject has coveredByDocType pointing to it.
+#
+ccsh:TutorialCapabilityCoverageShape
+    a sh:NodeShape ;
+    sh:name "TutorialCapabilityCoverageShape" ;
+    sh:description
+        "Every cc:Tutorial document concept must cover at least one cc:Capability. Checked by verifying at least one prov:SoftwareAgent carries cc:coveredByDocType pointing to this tutorial node."@en ;
+
+    sh:targetNode cc:Tutorial ;
+
+    sh:sparql [
+        sh:message "cc:Tutorial must be referenced by at least one cc:Capability via cc:coveredByDocType. No capabilities cover this tutorial node."@en ;
+        sh:prefixes ccsh:DocsShapes ;
+        sh:select """
+            PREFIX cc:   <https://cargo-cicd.rs/ontology/>
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS {
+                    ?cap a prov:SoftwareAgent ;
+                         cc:coveredByDocType $this .
+                }
+            }
+        """ ;
+    ] .
+
+# ── DocForbiddenTermsShape ────────────────────────────────────────────────────
+#
+# No documentation node (skos:Concept in cc:DiataxisScheme, or dcterms:title /
+# dcterms:description on any ontology subject) may contain the forbidden terms:
+#   ALIVE, Nehemiah, Truex, CONSTRUCT8, Field8, Instinct8, Cargo Court, AGI
+#
+# Targeting: we validate all nodes that carry a skos:prefLabel, skos:definition,
+# dcterms:title, or dcterms:description string. In practice these are ontology
+# nodes, concept scheme entries, and documentation concepts.
+#
+# The pattern is a case-sensitive alternation. The | character inside sh:pattern
+# is standard XSD regex alternation.
+#
+ccsh:DocForbiddenTermsShape
+    a sh:NodeShape ;
+    sh:name "DocForbiddenTermsShape" ;
+    sh:description
+        "No documentation node may use the private/reserved terms: ALIVE, Nehemiah, Truex, CONSTRUCT8, Field8, Instinct8, Cargo Court, AGI."@en ;
+
+    sh:targetClass skos:Concept ;
+
+    # Check skos:prefLabel
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:name "prefLabel-forbidden-terms" ;
+        sh:not [
+            sh:pattern "ALIVE|Nehemiah|Truex|CONSTRUCT8|Field8|Instinct8|Cargo Court|\\bAGI\\b" ;
+        ] ;
+        sh:message "skos:prefLabel must not contain forbidden terms: ALIVE, Nehemiah, Truex, CONSTRUCT8, Field8, Instinct8, Cargo Court, AGI."@en ;
+    ] ;
+
+    # Check skos:definition
+    sh:property [
+        sh:path skos:definition ;
+        sh:name "definition-forbidden-terms" ;
+        sh:not [
+            sh:pattern "ALIVE|Nehemiah|Truex|CONSTRUCT8|Field8|Instinct8|Cargo Court|\\bAGI\\b" ;
+        ] ;
+        sh:message "skos:definition must not contain forbidden terms."@en ;
+    ] ;
+
+    # Check dcterms:description
+    sh:property [
+        sh:path dcterms:description ;
+        sh:name "description-forbidden-terms" ;
+        sh:not [
+            sh:pattern "ALIVE|Nehemiah|Truex|CONSTRUCT8|Field8|Instinct8|Cargo Court|\\bAGI\\b" ;
+        ] ;
+        sh:message "dcterms:description must not contain forbidden terms."@en ;
+    ] ;
+
+    # Check dcterms:title
+    sh:property [
+        sh:path dcterms:title ;
+        sh:name "title-forbidden-terms" ;
+        sh:not [
+            sh:pattern "ALIVE|Nehemiah|Truex|CONSTRUCT8|Field8|Instinct8|Cargo Court|\\bAGI\\b" ;
+        ] ;
+        sh:message "dcterms:title must not contain forbidden terms."@en ;
+    ] .

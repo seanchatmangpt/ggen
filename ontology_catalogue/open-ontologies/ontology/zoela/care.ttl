@@ -1,0 +1,361 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix schema:  <https://schema.org/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ZOE LA Mobile — Care Ontology
+# ============================================================================
+# Models pastoral care requests, prayer requests, and follow-up tasks in
+# the ZOE LA combinatorial service graph.
+#
+# Design alignment:
+#   zoe:CareRequest        → schema:RequestAction + prov:Entity (auditable)
+#   zoe:PrayerRequest      → zoe:CareRequest (specific care subtype)
+#   zoe:FollowUpTask       → schema:Action + prov:Activity
+#   zoe:CareRequestTypeScheme → skos:ConceptScheme (request categories)
+#   zoe:FollowUpMethodScheme  → skos:ConceptScheme (contact methods)
+# ============================================================================
+
+zoe:CareOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Care Ontology"@en ;
+  rdfs:comment "Pastoral care request, prayer request, and follow-up task ontology for the ZOE LA Mobile manufacturing pipeline."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:created  "2026-05-17"^^xsd:date ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ── Class: CareRequest ────────────────────────────────────────────────────────
+
+zoe:CareRequest a owl:Class ;
+  rdfs:subClassOf schema:RequestAction ;
+  rdfs:subClassOf prov:Entity ;
+  rdfs:label   "Care Request"@en ;
+  rdfs:comment "A request for pastoral care, spiritual support, or a community service need submitted on behalf of an individual or household at ZOE LA."@en ;
+  skos:notation "care_request" .
+
+zoe:careRequestId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Care Request ID"@en ;
+  rdfs:comment "UUID primary key uniquely identifying this care request record."@en ;
+  skos:notation "care_request_id" .
+
+zoe:requestType a owl:ObjectProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   zoe:CareRequestTypeTerm ;
+  rdfs:label   "Request Type"@en ;
+  rdfs:comment "Controlled-vocabulary type classifying the nature of this care request."@en ;
+  skos:notation "request_type" .
+
+zoe:requestedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Requested At"@en ;
+  rdfs:comment "ISO-8601 timestamp when this care request was submitted."@en ;
+  skos:notation "requested_at" .
+
+zoe:requestedBy a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Requested By"@en ;
+  rdfs:comment "Identifier of the person (member or staff) who submitted this care request."@en ;
+  skos:notation "requested_by" .
+
+zoe:subjectId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Subject ID"@en ;
+  rdfs:comment "Identifier of the individual who is the subject of this care request. May differ from requestedBy when submitted on behalf of another."@en ;
+  skos:notation "subject_id" .
+
+zoe:householdId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Household ID"@en ;
+  rdfs:comment "Identifier of the household associated with the care request subject."@en ;
+  skos:notation "household_id" .
+
+zoe:sensitivityLevel a owl:ObjectProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   skos:Concept ;
+  rdfs:label   "Sensitivity Level"@en ;
+  rdfs:comment "SKOS concept from the policy sensitivity scheme indicating the privacy and access-control tier for this care request."@en ;
+  skos:notation "sensitivity_level" .
+
+zoe:assignedCareTeamMember a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Assigned Care Team Member"@en ;
+  rdfs:comment "Identifier of the pastoral care team member currently responsible for this request."@en ;
+  skos:notation "assigned_care_team_member" .
+
+zoe:followUpScheduled a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Follow-Up Scheduled"@en ;
+  rdfs:comment "When true, at least one follow-up task has been scheduled for this care request."@en ;
+  skos:notation "follow_up_scheduled" .
+
+zoe:followUpDue a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Follow-Up Due"@en ;
+  rdfs:comment "ISO-8601 timestamp of the earliest outstanding follow-up task due date for this care request."@en ;
+  skos:notation "follow_up_due" .
+
+zoe:isAnonymous a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Is Anonymous"@en ;
+  rdfs:comment "When true, the subject identity is withheld from general pastoral staff. Only designated care team members may view the subject identifier."@en ;
+  skos:notation "is_anonymous" .
+
+zoe:hasMedicalComponent a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Has Medical Component"@en ;
+  rdfs:comment "When true, the request involves a medical situation. Triggers elevated privacy handling and potential referral routing."@en ;
+  skos:notation "has_medical_component" .
+
+zoe:requiresPastoral a owl:DatatypeProperty ;
+  rdfs:domain  zoe:CareRequest ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Requires Pastoral"@en ;
+  rdfs:comment "When true, this request must be reviewed and actioned by an ordained pastoral staff member, not a lay volunteer."@en ;
+  skos:notation "requires_pastoral" .
+
+# ── Class: PrayerRequest ──────────────────────────────────────────────────────
+
+zoe:PrayerRequest a owl:Class ;
+  rdfs:subClassOf zoe:CareRequest ;
+  rdfs:label   "Prayer Request"@en ;
+  rdfs:comment "A care request specifically for intercessory prayer. Extends CareRequest with public visibility, intercession count, and campus routing."@en ;
+  skos:notation "prayer_request" .
+
+zoe:isPublic a owl:DatatypeProperty ;
+  rdfs:domain  zoe:PrayerRequest ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Is Public"@en ;
+  rdfs:comment "When true, this prayer request may be shared with the congregation prayer wall. When false, it remains private to the care team."@en ;
+  skos:notation "is_public" .
+
+zoe:prayedForCount a owl:DatatypeProperty ;
+  rdfs:domain  zoe:PrayerRequest ;
+  rdfs:range   xsd:integer ;
+  rdfs:label   "Prayed For Count"@en ;
+  rdfs:comment "Number of members who have indicated they are interceding for this prayer request."@en ;
+  skos:notation "prayed_for_count" .
+
+zoe:prayerCampusId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:PrayerRequest ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Campus ID"@en ;
+  rdfs:comment "Identifier of the ZOE LA campus to which this prayer request is routed for pastoral follow-up."@en ;
+  skos:notation "campus_id" .
+
+# ── Class: FollowUpTask ───────────────────────────────────────────────────────
+
+zoe:FollowUpTask a owl:Class ;
+  rdfs:subClassOf schema:Action ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label   "Follow-Up Task"@en ;
+  rdfs:comment "A discrete, assignable pastoral action item created in response to a care request. Records the method, schedule, outcome, and escalation state."@en ;
+  skos:notation "follow_up_task" .
+
+zoe:followUpId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Follow-Up ID"@en ;
+  rdfs:comment "UUID primary key uniquely identifying this follow-up task."@en ;
+  skos:notation "follow_up_id" .
+
+zoe:followUpCareRequestId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Care Request ID"@en ;
+  rdfs:comment "Identifier of the parent care request that generated this follow-up task."@en ;
+  skos:notation "care_request_id" .
+
+zoe:dueAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Due At"@en ;
+  rdfs:comment "ISO-8601 timestamp by which this follow-up task should be completed."@en ;
+  skos:notation "task_due_at" .
+
+zoe:assignedTo a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Assigned To"@en ;
+  rdfs:comment "Identifier of the pastoral staff member or care team volunteer responsible for this follow-up task."@en ;
+  skos:notation "task_assigned_to" .
+
+zoe:followUpMethod a owl:ObjectProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   zoe:FollowUpMethodTerm ;
+  rdfs:label   "Follow-Up Method"@en ;
+  rdfs:comment "Controlled-vocabulary contact method for this follow-up task."@en ;
+  skos:notation "follow_up_method" .
+
+zoe:taskCompletedAt a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:dateTime ;
+  rdfs:label   "Completed At"@en ;
+  rdfs:comment "ISO-8601 timestamp when this follow-up task was marked complete."@en ;
+  skos:notation "task_completed_at" .
+
+zoe:taskDescription a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Task Description"@en ;
+  rdfs:comment "Narrative description of the follow-up action to be taken."@en ;
+  skos:notation "task_description" .
+
+zoe:relatedNeedId a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:string ;
+  rdfs:label   "Related Need ID"@en ;
+  rdfs:comment "Identifier of the parent Need that generated this follow-up task."@en ;
+  skos:notation "related_need_id" .
+
+zoe:isComplete a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Is Complete"@en ;
+  rdfs:comment "When true, this follow-up task has been completed and an outcome note has been recorded."@en ;
+  skos:notation "is_complete" .
+
+zoe:escalated a owl:DatatypeProperty ;
+  rdfs:domain  zoe:FollowUpTask ;
+  rdfs:range   xsd:boolean ;
+  rdfs:label   "Escalated"@en ;
+  rdfs:comment "When true, this follow-up task has been escalated to pastoral leadership because the initial contact method or assignee was insufficient."@en ;
+  skos:notation "escalated" .
+
+# ── SKOS ConceptScheme: CareRequestType ───────────────────────────────────────
+
+zoe:CareRequestTypeScheme a skos:ConceptScheme ;
+  rdfs:label   "Care Request Type Scheme"@en ;
+  rdfs:comment "Controlled vocabulary of care request types for routing, reporting, and sensitivity classification."@en ;
+  dcterms:title "ZOE LA Care Request Types" .
+
+zoe:CareRequestTypeTerm a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Care Request Type Term"@en ;
+  rdfs:comment "An individual type term within the CareRequestType controlled vocabulary."@en .
+
+zoe:PastorCareType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Pastoral Care"@en ;
+  rdfs:label     "Pastoral Care"@en ;
+  rdfs:comment   "General pastoral care and spiritual support requests not covered by a more specific category."@en ;
+  skos:notation  "PASTORAL" .
+
+zoe:PrayerType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Prayer"@en ;
+  rdfs:label     "Prayer"@en ;
+  rdfs:comment   "Requests specifically for intercessory prayer on behalf of the subject."@en ;
+  skos:notation  "PRAYER" .
+
+zoe:FoodNeedType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Food Need"@en ;
+  rdfs:label     "Food Need"@en ;
+  rdfs:comment   "Care requests indicating food insecurity or a need for grocery assistance."@en ;
+  skos:notation  "FOOD-NEED" .
+
+zoe:ClothingNeedType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Clothing Need"@en ;
+  rdfs:label     "Clothing Need"@en ;
+  rdfs:comment   "Care requests indicating a need for clothing donations or wardrobe assistance."@en ;
+  skos:notation  "CLOTH-NEED" .
+
+zoe:BenevolenceType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Benevolence"@en ;
+  rdfs:label     "Benevolence"@en ;
+  rdfs:comment   "Care requests for financial assistance including bill payment, rent support, or emergency funds."@en ;
+  skos:notation  "BENEV" .
+
+zoe:CrisisType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Crisis"@en ;
+  rdfs:label     "Crisis"@en ;
+  rdfs:comment   "Urgent care requests involving acute personal, family, or health crises requiring immediate pastoral response."@en ;
+  skos:notation  "CRISIS" .
+
+zoe:BereavementType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Bereavement"@en ;
+  rdfs:label     "Bereavement"@en ;
+  rdfs:comment   "Care requests related to grief support following the loss of a family member or loved one."@en ;
+  skos:notation  "BEREAVEMENT" .
+
+zoe:HospitalType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Hospital"@en ;
+  rdfs:label     "Hospital"@en ;
+  rdfs:comment   "Care requests for in-person pastoral or volunteer visitation at a hospital or medical facility."@en ;
+  skos:notation  "HOSPITAL" .
+
+zoe:ReferralType a zoe:CareRequestTypeTerm ;
+  skos:inScheme  zoe:CareRequestTypeScheme ;
+  skos:prefLabel "Referral"@en ;
+  rdfs:label     "Referral"@en ;
+  rdfs:comment   "Care requests requiring referral to an external professional service (counseling, social services, legal aid)."@en ;
+  skos:notation  "REFERRAL" .
+
+# ── SKOS ConceptScheme: FollowUpMethod ────────────────────────────────────────
+
+zoe:FollowUpMethodScheme a skos:ConceptScheme ;
+  rdfs:label   "Follow-Up Method Scheme"@en ;
+  rdfs:comment "Controlled vocabulary of contact methods for pastoral follow-up tasks."@en ;
+  dcterms:title "ZOE LA Follow-Up Contact Methods" .
+
+zoe:FollowUpMethodTerm a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Follow-Up Method Term"@en ;
+  rdfs:comment "An individual contact method term within the FollowUpMethod controlled vocabulary."@en .
+
+zoe:CallMethod a zoe:FollowUpMethodTerm ;
+  skos:inScheme  zoe:FollowUpMethodScheme ;
+  skos:prefLabel "Call"@en ;
+  rdfs:label     "Call"@en ;
+  rdfs:comment   "Follow-up conducted via a telephone or video call."@en ;
+  skos:notation  "CALL" .
+
+zoe:TextMethod a zoe:FollowUpMethodTerm ;
+  skos:inScheme  zoe:FollowUpMethodScheme ;
+  skos:prefLabel "Text"@en ;
+  rdfs:label     "Text"@en ;
+  rdfs:comment   "Follow-up conducted via SMS or messaging app text."@en ;
+  skos:notation  "TEXT" .
+
+zoe:EmailMethod a zoe:FollowUpMethodTerm ;
+  skos:inScheme  zoe:FollowUpMethodScheme ;
+  skos:prefLabel "Email"@en ;
+  rdfs:label     "Email"@en ;
+  rdfs:comment   "Follow-up conducted via email correspondence."@en ;
+  skos:notation  "EMAIL" .
+
+zoe:HomeVisitMethod a zoe:FollowUpMethodTerm ;
+  skos:inScheme  zoe:FollowUpMethodScheme ;
+  skos:prefLabel "Home Visit"@en ;
+  rdfs:label     "Home Visit"@en ;
+  rdfs:comment   "Follow-up conducted via an in-person pastoral home visit."@en ;
+  skos:notation  "HOME-VISIT" .
+
+zoe:ChurchVisitMethod a zoe:FollowUpMethodTerm ;
+  skos:inScheme  zoe:FollowUpMethodScheme ;
+  skos:prefLabel "Church Visit"@en ;
+  rdfs:label     "Church Visit"@en ;
+  rdfs:comment   "Follow-up conducted during a scheduled in-person meeting at the church campus."@en ;
+  skos:notation  "CHURCH-VISIT" .

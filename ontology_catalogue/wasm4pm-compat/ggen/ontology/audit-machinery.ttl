@@ -1,0 +1,900 @@
+# audit-machinery.ttl — SPARC Audit Law Specification
+# Machine-readable audit ontology for the SPARC development environment.
+#
+# Represents: AuditSpec, AuditTemplate, AuditExecutable, AuditGate,
+#            ForbiddenPattern, AllowedContext, Gap, CommitEvidence,
+#            ClosureClaim, AuxiliaryCommit, CheckpointClaim.
+#
+# Integration: Links to wasm4pm-compat.ttl (witness markers, evidence states)
+#             and process-mining-chicago-tdd doctrine (hostile assumptions).
+#
+# Structure only — this ontology does NOT execute audits or compute verdicts.
+# Execution and verdict logic graduate to wasm4pm audit engines.
+
+@prefix audit:   <https://wasm4pm-compat.rs/audit#> .
+@prefix compat:  <https://wasm4pm-compat.rs/ontology#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dct:     <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# ONTOLOGY HEADER
+# ============================================================================
+
+<https://wasm4pm-compat.rs/audit>
+    a owl:Ontology ;
+    rdfs:label "SPARC Audit Machinery Ontology" ;
+    rdfs:comment "Machine-readable specification of audit law surfaces for the wasm4pm-compat nightly-first crate. Represents audit specifications, enforcement templates, executable audit gates, forbidden patterns, gaps, and evidence collection machinery. Integration point with wasm4pm-compat type law and process-mining-chicago-tdd hostile assumptions." ;
+    owl:imports <https://wasm4pm-compat.rs/ontology> ;
+    owl:versionInfo "26.6.9" ;
+    dct:created "2026-06-01"^^xsd:date ;
+    dct:creator "SPARC Audit Machinery" .
+
+# ============================================================================
+# CORE AUDIT CLASSES
+# ============================================================================
+
+audit:AuditSpec
+    a rdfs:Class ;
+    rdfs:label "AuditSpec" ;
+    rdfs:comment "A named audit specification: the declared audit contract. An AuditSpec names a specific law, identifies the scope (single module, crate-wide, cross-crate), specifies the carrier (Evidence<T, State, W>, type signature, event log), and defines the expected verdict type." ;
+    rdfs:subClassOf prov:Plan .
+
+audit:AuditTemplate
+    a rdfs:Class ;
+    rdfs:label "AuditTemplate" ;
+    rdfs:comment "A template (pattern) defining how an audit is conducted. An AuditTemplate is parameterized: it takes an AuditSpec and produces a concrete AuditExecutable by binding the parameters to specific witness markers, state tokens, and scope boundaries." ;
+    rdfs:subClassOf sh:Shape .
+
+audit:AuditExecutable
+    a rdfs:Class ;
+    rdfs:label "AuditExecutable" ;
+    rdfs:comment "A fully instantiated, concrete audit ready to run. Binds an AuditTemplate to an AuditSpec with specific Witness, State, scope, fixtures, and assertion bounds. Carries a reference identifier and execution preconditions." ;
+    rdfs:subClassOf prov:Activity .
+
+audit:AuditGate
+    a rdfs:Class ;
+    rdfs:label "AuditGate" ;
+    rdfs:comment "A proof gate (validation check) that must pass for an audit to be certified. Each AuditGate specifies the verdict type (boolean, metric, verdict enum), success criteria, and failure handling (abort, log, retry)." ;
+    rdfs:subClassOf sh:NodeShape .
+
+audit:ForbiddenPattern
+    a rdfs:Class ;
+    rdfs:label "ForbiddenPattern" ;
+    rdfs:comment "A structural or behavioral pattern that is explicitly forbidden and auditable. Examples: RawEvidenceExportedAsAdmitted, SilentStructureLoss, BareInvalidInputRefusal, WitnessDiscriminationViolation. Each pattern names a law and optionally a compile-fail fixture that proves it unbreakable." ;
+    skos:related compat:CompileFailLaw .
+
+audit:AllowedContext
+    a rdfs:Class ;
+    rdfs:label "AllowedContext" ;
+    rdfs:comment "A context (module, feature gate, witness marker, execution phase) in which an otherwise forbidden pattern is permitted under a named exception. Specifies the exception reason and audit override policy." ;
+    skos:related compat:WitnessMarker .
+
+audit:Gap
+    a rdfs:Class ;
+    rdfs:label "Gap" ;
+    rdfs:comment "A documented discrepancy between declared audit law and actual audit evidence. Examples: unimplemented audit fixture (expected to exist but missing), uncovered law (law without a compile-fail fixture), unreachable audit path (code path with no trybuild proof). Carries a named reason, severity (warning, error), and remediation plan." ;
+    skos:related prov:Fault .
+
+audit:CommitEvidence
+    a rdfs:Class ;
+    rdfs:label "CommitEvidence" ;
+    rdfs:comment "A git commit that carries manufacturing receipts (proof of audit passage or gap closure). Each commit is an auditable unit: commit hash, author, timestamp, parentage, and attached evidence (test passes, trybuild receipts, diagnostic outputs)." ;
+    skos:related prov:EntityBundle .
+
+audit:ClosureClaim
+    a rdfs:Class ;
+    rdfs:label "ClosureClaim" ;
+    rdfs:comment "An assertion that a gap has been closed by a commit. Specifies the gap ID, the closing commit hash(es), the closure method (audit fixture added, law proved by fixture, path proved reachable), and timestamp." ;
+    skos:related prov:Qualification .
+
+audit:AuxiliaryCommit
+    a rdfs:Class ;
+    rdfs:label "AuxiliaryCommit" ;
+    rdfs:comment "A supporting commit that advances audit readiness without directly closing a gap: adds documentation, improves fixture coverage, refactors for auditability, or establishes preconditions for a gap closure." ;
+    skos:related prov:Entity .
+
+audit:CheckpointClaim
+    a rdfs:Class ;
+    rdfs:label "CheckpointClaim" ;
+    rdfs:comment "A certified audit checkpoint: a point in commit history where all declared laws are backed by either compile-fail fixtures, compile-pass proofs, or named exception contexts. Checkpoints are immutable audit milestones." ;
+    skos:related prov:Bundle .
+
+# ============================================================================
+# AUDIT PROPERTY DEFINITIONS
+# ============================================================================
+
+audit:specName
+    a rdf:Property ;
+    rdfs:label "specName" ;
+    rdfs:comment "The stable machine name of an AuditSpec (e.g., 'witness-discrimination-law', 'raw-evidence-exported-as-admitted')." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range xsd:string .
+
+audit:lawName
+    a rdf:Property ;
+    rdfs:label "lawName" ;
+    rdfs:comment "The human-readable law name this audit enforces (e.g., 'WitnessDiscrimination', 'RawEvidenceExportedAsAdmitted'). Corresponds to compat:lawName for compile-fail laws." ;
+    rdfs:range xsd:string .
+
+audit:auditScope
+    a rdf:Property ;
+    rdfs:label "auditScope" ;
+    rdfs:comment "The scope of audit authority: 'module' (single src/*.rs file), 'crate' (entire wasm4pm-compat), 'feature' (guarded by cargo feature), 'cross-crate' (multiple crates)." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range xsd:string ;
+    rdfs:seeAlso audit:scopeTarget .
+
+audit:scopeTarget
+    a rdf:Property ;
+    rdfs:label "scopeTarget" ;
+    rdfs:comment "The module, feature name, or cross-crate reference targeted by this audit scope (e.g., 'src/admission.rs', 'formats', 'wasm4pm-compat:src/witness.rs')." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range xsd:string .
+
+audit:carrierType
+    a rdf:Property ;
+    rdfs:label "carrierType" ;
+    rdfs:comment "The Rust type signature of the evidence carrier under audit, e.g., 'Evidence<T, Admitted, W>', 'Admission<T, W>', 'Refusal<R, W>'." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range xsd:string .
+
+audit:witnessRequired
+    a rdf:Property ;
+    rdfs:label "witnessRequired" ;
+    rdfs:comment "The witness marker(s) that must be present in evidence for this audit to apply. Instances link to compat:WitnessMarker. If unspecified, audit applies to all witnesses in scope." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range compat:WitnessMarker .
+
+audit:stateRequired
+    a rdf:Property ;
+    rdfs:label "stateRequired" ;
+    rdfs:comment "The evidence state(s) under audit, e.g., Admitted, Projected, Receipted. Links to compat:EvidenceState. If unspecified, audit applies to all legal states." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range compat:EvidenceState .
+
+audit:verdictType
+    a rdf:Property ;
+    rdfs:label "verdictType" ;
+    rdfs:comment "The type of audit verdict this spec produces: 'boolean' (pass/fail), 'metric' (numeric score), 'enum' (named verdict variant), 'evidence' (structured evidence bundle)." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range xsd:string .
+
+audit:applicableTemplate
+    a rdf:Property ;
+    rdfs:label "applicableTemplate" ;
+    rdfs:comment "Links an AuditSpec to its AuditTemplate(s). One spec may have multiple templates covering different implementations or scope levels." ;
+    rdfs:domain audit:AuditSpec ;
+    rdfs:range audit:AuditTemplate .
+
+audit:templateName
+    a rdf:Property ;
+    rdfs:label "templateName" ;
+    rdfs:comment "The stable machine name of an AuditTemplate (e.g., 'trybuild-compile-fail-fixture', 'ocel-structural-validate', 'conftest-pytest-suite')." ;
+    rdfs:domain audit:AuditTemplate ;
+    rdfs:range xsd:string .
+
+audit:templateKind
+    a rdf:Property ;
+    rdfs:label "templateKind" ;
+    rdfs:comment "The audit implementation pattern: 'compile-fail-fixture' (trybuild), 'compile-pass-fixture', 'runtime-test', 'static-analysis', 'event-log-conformance', 'type-state-proof'." ;
+    rdfs:domain audit:AuditTemplate ;
+    rdfs:range xsd:string .
+
+audit:instantiatedBy
+    a rdf:Property ;
+    rdfs:label "instantiatedBy" ;
+    rdfs:comment "Links an AuditExecutable to its parent AuditTemplate. The executable is the template with all parameters bound." ;
+    rdfs:domain audit:AuditExecutable ;
+    rdfs:range audit:AuditTemplate .
+
+audit:executableId
+    a rdf:Property ;
+    rdfs:label "executableId" ;
+    rdfs:comment "The stable unique identifier for this AuditExecutable (e.g., 'compile-fail-witness-discrimination-ocel-20', 'runtime-admission-boundary-xes')." ;
+    rdfs:domain audit:AuditExecutable ;
+    rdfs:range xsd:string .
+
+audit:fixtureFile
+    a rdf:Property ;
+    rdfs:label "fixtureFile" ;
+    rdfs:comment "Path to a test fixture (trybuild .rs file, pytest conftest, runtime test module) that instantiates this executable, relative to the crate root." ;
+    rdfs:domain audit:AuditExecutable ;
+    rdfs:range xsd:string .
+
+audit:expectedStderr
+    a rdf:Property ;
+    rdfs:label "expectedStderr" ;
+    rdfs:comment "For compile-fail fixtures: path to the .stderr file containing the expected compiler diagnostic output, relative to the crate root." ;
+    rdfs:domain audit:AuditExecutable ;
+    rdfs:range xsd:string .
+
+audit:gateCondition
+    a rdf:Property ;
+    rdfs:label "gateCondition" ;
+    rdfs:comment "A SPARQL ASK query or other logical condition that an AuditGate evaluates. If true, the gate passes; if false or error, it fails." ;
+    rdfs:domain audit:AuditGate ;
+    rdfs:range xsd:string .
+
+audit:gateName
+    a rdf:Property ;
+    rdfs:label "gateName" ;
+    rdfs:comment "The stable machine name of an AuditGate (e.g., 'all-laws-have-fixtures', 'all-fixtures-have-expected-stderr', 'all-gaps-closed')." ;
+    rdfs:domain audit:AuditGate ;
+    rdfs:range xsd:string .
+
+audit:gateDescription
+    a rdf:Property ;
+    rdfs:label "gateDescription" ;
+    rdfs:comment "Human-readable description of what this gate validates and why it matters." ;
+    rdfs:domain audit:AuditGate ;
+    rdfs:range xsd:string .
+
+audit:gateSeverity
+    a rdf:Property ;
+    rdfs:label "gateSeverity" ;
+    rdfs:comment "Gate failure severity: 'fatal' (audit fails, block release), 'error' (audit fails, must remediate), 'warning' (log and continue), 'info' (informational only)." ;
+    rdfs:domain audit:AuditGate ;
+    rdfs:range xsd:string .
+
+audit:forbiddenBy
+    a rdf:Property ;
+    rdfs:label "forbiddenBy" ;
+    rdfs:comment "Links a ForbiddenPattern to the audit laws or compile-fail fixtures that prove it forbidden." ;
+    rdfs:domain audit:ForbiddenPattern ;
+    rdfs:range compat:CompileFailLaw .
+
+audit:patternName
+    a rdf:Property ;
+    rdfs:label "patternName" ;
+    rdfs:comment "The stable machine name of a ForbiddenPattern (e.g., 'raw-evidence-exported-as-admitted', 'silent-structure-loss')." ;
+    rdfs:domain audit:ForbiddenPattern ;
+    rdfs:range xsd:string .
+
+audit:patternDescription
+    a rdf:Property ;
+    rdfs:label "patternDescription" ;
+    rdfs:comment "Human-readable description of the forbidden pattern, what makes it harmful, and why it is forbidden structurally." ;
+    rdfs:domain audit:ForbiddenPattern ;
+    rdfs:range xsd:string .
+
+audit:allowedIn
+    a rdf:Property ;
+    rdfs:label "allowedIn" ;
+    rdfs:comment "Links a ForbiddenPattern to AllowedContext instance(s) where it is permitted under a named exception." ;
+    rdfs:domain audit:ForbiddenPattern ;
+    rdfs:range audit:AllowedContext .
+
+audit:contextName
+    a rdf:Property ;
+    rdfs:label "contextName" ;
+    rdfs:comment "The stable machine name of an AllowedContext (e.g., 'wasm4pm-graduation', 'internal-bridge-assembly')." ;
+    rdfs:domain audit:AllowedContext ;
+    rdfs:range xsd:string .
+
+audit:contextScope
+    a rdf:Property ;
+    rdfs:label "contextScope" ;
+    rdfs:comment "The scope(s) in which this exception applies: 'module' (e.g., src/graduation.rs), 'feature' (e.g., wasm4pm), 'witness' (e.g., Wasm4pmBridge), 'phase' (e.g., development, release)." ;
+    rdfs:domain audit:AllowedContext ;
+    rdfs:range xsd:string .
+
+audit:exceptionReason
+    a rdf:Property ;
+    rdfs:label "exceptionReason" ;
+    rdfs:comment "Human-readable reason why the forbidden pattern is permitted in this context. Must be explicit and documented." ;
+    rdfs:domain audit:AllowedContext ;
+    rdfs:range xsd:string .
+
+audit:gapId
+    a rdf:Property ;
+    rdfs:label "gapId" ;
+    rdfs:comment "The stable unique identifier for a Gap (e.g., 'GAP_001_MISSING_CONFORMANCE_FIXTURE', 'GAP_042_UNREACHABLE_BRANCH')." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range xsd:string .
+
+audit:gapCategory
+    a rdf:Property ;
+    rdfs:label "gapCategory" ;
+    rdfs:comment "The gap category: 'missing-fixture' (audit law without a test fixture), 'uncovered-law' (law without a compile-fail proof), 'unreachable-path' (code path without proof it is reachable), 'unresolved-todo', 'unverified-graduation'." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range xsd:string .
+
+audit:relatedLaw
+    a rdf:Property ;
+    rdfs:label "relatedLaw" ;
+    rdfs:comment "Links a Gap to the audit law, compile-fail fixture, or graduation boundary that is gapped." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range compat:CompileFailLaw, compat:GraduationBoundary, audit:AuditSpec .
+
+audit:gapSeverity
+    a rdf:Property ;
+    rdfs:label "gapSeverity" ;
+    rdfs:comment "Gap severity: 'critical' (breaks the ALIVE gate, blocks release), 'major' (must be remediated before next release), 'minor' (nice-to-have), 'accepted-debt' (intentional, accepted risk)." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range xsd:string .
+
+audit:remediationPlan
+    a rdf:Property ;
+    rdfs:label "remediationPlan" ;
+    rdfs:comment "Human-readable plan to close this gap. May reference specific commits, papers, or refactoring plans." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range xsd:string .
+
+audit:gapOpenedAt
+    a rdf:Property ;
+    rdfs:label "gapOpenedAt" ;
+    rdfs:comment "The git commit hash when this gap was identified or created." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range xsd:string .
+
+audit:gapOpenedDate
+    a rdf:Property ;
+    rdfs:label "gapOpenedDate" ;
+    rdfs:comment "The timestamp when this gap was identified." ;
+    rdfs:domain audit:Gap ;
+    rdfs:range xsd:dateTime .
+
+audit:commitHash
+    a rdf:Property ;
+    rdfs:label "commitHash" ;
+    rdfs:comment "The full git commit hash (SHA-1 or SHA-256) of this CommitEvidence." ;
+    rdfs:domain audit:CommitEvidence ;
+    rdfs:range xsd:string .
+
+audit:commitAuthor
+    a rdf:Property ;
+    rdfs:label "commitAuthor" ;
+    rdfs:comment "The author email (or name) of the commit." ;
+    rdfs:domain audit:CommitEvidence ;
+    rdfs:range xsd:string .
+
+audit:commitTimestamp
+    a rdf:Property ;
+    rdfs:label "commitTimestamp" ;
+    rdfs:comment "The commit timestamp in ISO 8601 format." ;
+    rdfs:domain audit:CommitEvidence ;
+    rdfs:range xsd:dateTime .
+
+audit:commitMessage
+    a rdf:Property ;
+    rdfs:label "commitMessage" ;
+    rdfs:comment "The commit message (first line and body). Must follow conventional commits format." ;
+    rdfs:domain audit:CommitEvidence ;
+    rdfs:range xsd:string .
+
+audit:parentCommit
+    a rdf:Property ;
+    rdfs:label "parentCommit" ;
+    rdfs:comment "The parent commit hash(es). For merge commits, may have multiple parents." ;
+    rdfs:domain audit:CommitEvidence ;
+    rdfs:range xsd:string .
+
+audit:carriesReceipt
+    a rdf:Property ;
+    rdfs:label "carriesReceipt" ;
+    rdfs:comment "Links a CommitEvidence to one or more compat:Receipt instances proving audit passage or gap closure." ;
+    rdfs:domain audit:CommitEvidence ;
+    rdfs:range compat:Receipt .
+
+audit:closesGap
+    a rdf:Property ;
+    rdfs:label "closesGap" ;
+    rdfs:comment "Links a ClosureClaim to the Gap it claims to close." ;
+    rdfs:domain audit:ClosureClaim ;
+    rdfs:range audit:Gap .
+
+audit:closingCommit
+    a rdf:Property ;
+    rdfs:label "closingCommit" ;
+    rdfs:comment "The commit hash that closes (or begins to close) the gap. May reference multiple commits in a sequence." ;
+    rdfs:domain audit:ClosureClaim ;
+    rdfs:range xsd:string .
+
+audit:closureMethod
+    a rdf:Property ;
+    rdfs:label "closureMethod" ;
+    rdfs:comment "How the gap was closed: 'fixture-added' (new trybuild fixture), 'law-proved' (compile-fail/pass proof added), 'path-proved-reachable', 'reclassified' (gap reclassified as accepted-debt or out-of-scope)." ;
+    rdfs:domain audit:ClosureClaim ;
+    rdfs:range xsd:string .
+
+audit:closureTimestamp
+    a rdf:Property ;
+    rdfs:label "closureTimestamp" ;
+    rdfs:comment "The timestamp when the gap was declared closed." ;
+    rdfs:domain audit:ClosureClaim ;
+    rdfs:range xsd:dateTime .
+
+audit:supportsGapClosure
+    a rdf:Property ;
+    rdfs:label "supportsGapClosure" ;
+    rdfs:comment "Links an AuxiliaryCommit to one or more ClosureClaim instances it advances (without directly closing the gap)." ;
+    rdfs:domain audit:AuxiliaryCommit ;
+    rdfs:range audit:ClosureClaim .
+
+audit:advancesAuditReadiness
+    a rdf:Property ;
+    rdfs:label "advancesAuditReadiness" ;
+    rdfs:comment "A free-text description of how this auxiliary commit advances audit readiness (documentation, fixture improvements, refactoring, preconditions)." ;
+    rdfs:domain audit:AuxiliaryCommit ;
+    rdfs:range xsd:string .
+
+audit:checkpointName
+    a rdf:Property ;
+    rdfs:label "checkpointName" ;
+    rdfs:comment "The stable name of a checkpoint milestone (e.g., 'PAPERLAW_ALIVE_002', 'PAPERLAW_CROWN_ALIVE_004')." ;
+    rdfs:domain audit:CheckpointClaim ;
+    rdfs:range xsd:string .
+
+audit:checkpointCommit
+    a rdf:Property ;
+    rdfs:label "checkpointCommit" ;
+    rdfs:comment "The commit hash at which this checkpoint is declared." ;
+    rdfs:domain audit:CheckpointClaim ;
+    rdfs:range xsd:string .
+
+audit:checkpointTimestamp
+    a rdf:Property ;
+    rdfs:label "checkpointTimestamp" ;
+    rdfs:comment "The timestamp at which this checkpoint was certified." ;
+    rdfs:domain audit:CheckpointClaim ;
+    rdfs:range xsd:dateTime .
+
+audit:allLawsCovered
+    a rdf:Property ;
+    rdfs:label "allLawsCovered" ;
+    rdfs:comment "True if all declared laws are covered by compile-fail or compile-pass fixtures at this checkpoint." ;
+    rdfs:domain audit:CheckpointClaim ;
+    rdfs:range xsd:boolean .
+
+audit:allGapsClosed
+    a rdf:Property ;
+    rdfs:label "allGapsClosed" ;
+    rdfs:comment "True if all non-accepted-debt gaps are closed at this checkpoint." ;
+    rdfs:domain audit:CheckpointClaim ;
+    rdfs:range xsd:boolean .
+
+audit:passedAllGates
+    a rdf:Property ;
+    rdfs:label "passedAllGates" ;
+    rdfs:comment "True if all configured AuditGate instances pass at this checkpoint." ;
+    rdfs:domain audit:CheckpointClaim ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# HOSTILE ASSUMPTIONS (Process-Mining-Chicago-TDD Doctrine)
+# ============================================================================
+
+audit:HostileAssumption
+    a rdfs:Class ;
+    rdfs:label "HostileAssumption" ;
+    rdfs:comment "A hostile assumption from the process-mining-chicago-tdd doctrine: if the code says it worked but the event log cannot prove a lawful process happened, then it did not work. This class documents assumptions the audit must not trust." .
+
+audit:HA_DeclaredPipelineNotReal
+    a audit:HostileAssumption ;
+    rdfs:label "Declared Pipeline ≠ Real Runtime" ;
+    rdfs:comment "The declared manufacturing pipeline is not the real runtime process. Stages may be skipped or repeated without detection. Audit must derive actual process from event logs and compare against declared model." .
+
+audit:HA_ReceiptsEmittedOutOfCycle
+    a audit:HostileAssumption ;
+    rdfs:label "Receipts Emitted Outside Lawful Cycles" ;
+    rdfs:comment "Receipts may be emitted outside lawful object lifecycles. Audit must verify receipt provenance chains are consistent with event log causality." .
+
+audit:HA_ProofGatesCanPass_NonConforming
+    a audit:HostileAssumption ;
+    rdfs:label "Proof Gates May Pass Despite Non-Conformance" ;
+    rdfs:comment "Proof gates may pass despite non-conforming execution. Audit must derive actual conformance from OCEL event logs and compare against declared gates (ALIVE certification, trybuild success)." .
+
+audit:HA_ReleaseMayOccurFromInvalid
+    a audit:HostileAssumption ;
+    rdfs:label "Release May Occur From Invalid History" ;
+    rdfs:comment "Release may occur from invalid or incomplete histories. Audit must verify object lifecycle soundness before accepting any release claim." .
+
+audit:HA_VariantExplosion
+    a audit:HostileAssumption ;
+    rdfs:label "System May Appear Deterministic; Logs Reveal Variants" ;
+    rdfs:comment "The system may appear deterministic while logs reveal variant explosion, hidden loops, retries, or rework. Audit must conduct drift analysis and variant count metrics." .
+
+# ============================================================================
+# SPARC AUDIT SPECIFICATIONS (Core Laws)
+# ============================================================================
+
+audit:RawEvidenceExportedAsAdmittedSpec
+    a audit:AuditSpec ;
+    rdfs:label "RawEvidenceExportedAsAdmittedSpec" ;
+    audit:specName "raw-evidence-exported-as-admitted" ;
+    audit:lawName "RawEvidenceExportedAsAdmitted" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Evidence<T, Raw, W>" ;
+    audit:stateRequired compat:Raw ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:TryBuildCompileFailTemplate ;
+    rdfs:comment "Audit: Evidence<T, Raw, W> must never be exported, returned, or coerced as if it were Admitted. The one-way door (Raw → Parsed → Admitted) is a compile-time law, not a runtime assumption. Compile-fail fixture proves this law unbreakable." .
+
+audit:WitnessDiscriminationLawSpec
+    a audit:AuditSpec ;
+    rdfs:label "WitnessDiscriminationLawSpec" ;
+    audit:specName "witness-discrimination-law" ;
+    audit:lawName "WitnessDiscrimination" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Admission<T, W>" ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:TryBuildCompileFailTemplate ;
+    rdfs:comment "Audit: Admission<T, W1> cannot be used as Admission<T, W2>. An Ocel20-admitted value is not an Xes1849-admitted value at the type level. Witness tags are sealed and non-interchangeable. Compile-fail fixture proves this law unbreakable." .
+
+audit:SilentStructureLossSpec
+    a audit:AuditSpec ;
+    rdfs:label "SilentStructureLossSpec" ;
+    audit:specName "silent-structure-loss-audit" ;
+    audit:lawName "SilentStructureLoss" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Evidence<T, Projected, W>" ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:RuntimeLossAuditTemplate ;
+    rdfs:comment "Audit: Every projected evidence must carry a LossReport naming what was lost, from what form, to what form, and which items were affected. Silent loss (lossy transformation with no report) is a structural defect. Runtime validation required." .
+
+audit:BareInvalidInputRefusalSpec
+    a audit:AuditSpec ;
+    rdfs:label "BareInvalidInputRefusalSpec" ;
+    audit:specName "bare-invalid-input-refusal" ;
+    audit:lawName "BareInvalidInputRefusal" ;
+    audit:auditScope "module" ;
+    audit:scopeTarget "src/admission.rs" ;
+    audit:carrierType "Refusal<R, W>" ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:StaticAnalysisTemplate ;
+    rdfs:comment "Audit: Refusal<InvalidInput, W> (bare reason type) must never be used. Every refusal must carry a specific named law (e.g., DanglingEventObjectLink, MissingFinalMarking). Static analysis of crate to ensure no InvalidInput enum variant is instantiated." .
+
+audit:TypeStateAdmissionBoundarySpec
+    a audit:AuditSpec ;
+    rdfs:label "TypeStateAdmissionBoundarySpec" ;
+    audit:specName "typestate-admission-boundary" ;
+    audit:lawName "TypeStateAdmissionBoundary" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Evidence<T, Admitted, W>" ;
+    audit:stateRequired compat:Admitted ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:TryBuildCompilePassTemplate ;
+    rdfs:comment "Audit: The Admitted constructor path is the only sanctioned way to transition from Raw/Parsed to Admitted. Admit trait impl must succeed (return Admission<T, W>) or fail (return Refusal<R, W>). No coercion or unsafe casting. Compile-pass fixture proves lawful path is open." .
+
+audit:ReceiptProvenanceSpec
+    a audit:AuditSpec ;
+    rdfs:label "ReceiptProvenanceSpec" ;
+    audit:specName "receipt-provenance-audit" ;
+    audit:lawName "ReceiptProvenance" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Evidence<T, Receipted, W>" ;
+    audit:stateRequired compat:Receipted ;
+    audit:verdictType "enum" ;
+    audit:applicableTemplate audit:OcelConformanceTemplate ;
+    rdfs:comment "Audit: Every Receipt must carry provenance chain: who created it, at what commit, with which witness, and what evidence it admits. Receipt may not be forged or backdated. OCEL conformance check validates receipt lifecycle against event log." .
+
+# ============================================================================
+# AUDIT TEMPLATES (Implementation Patterns)
+# ============================================================================
+
+audit:TryBuildCompileFailTemplate
+    a audit:AuditTemplate ;
+    rdfs:label "TryBuildCompileFailTemplate" ;
+    audit:templateName "trybuild-compile-fail-fixture" ;
+    audit:templateKind "compile-fail-fixture" ;
+    rdfs:comment "Template: Each forbidden law is backed by a trybuild compile-fail fixture in tests/ui/compile_fail/. The fixture names the law, must fail for the intended reason (not by accident), and includes an expected .stderr file with the expected compiler diagnostic." .
+
+audit:TryBuildCompilePassTemplate
+    a audit:AuditTemplate ;
+    rdfs:label "TryBuildCompilePassTemplate" ;
+    audit:templateName "trybuild-compile-pass-fixture" ;
+    audit:templateKind "compile-pass-fixture" ;
+    rdfs:comment "Template: Each lawful path is backed by a trybuild compile-pass fixture in tests/ui/compile_pass/. The fixture proves the path compiles successfully, demonstrating the law is not overly restrictive." .
+
+audit:RuntimeLossAuditTemplate
+    a audit:AuditTemplate ;
+    rdfs:label "RuntimeLossAuditTemplate" ;
+    audit:templateName "runtime-loss-validation" ;
+    audit:templateKind "runtime-test" ;
+    rdfs:comment "Template: Loss audits run at runtime by inspecting LossReport<From, To, Items> carriers. Each projected evidence must carry exactly one report stating what was lost and why. Validation checks report completeness and consistency." .
+
+audit:StaticAnalysisTemplate
+    a audit:AuditTemplate ;
+    rdfs:label "StaticAnalysisTemplate" ;
+    audit:templateName "static-refusal-analysis" ;
+    audit:templateKind "static-analysis" ;
+    rdfs:comment "Template: Static code analysis (e.g., via cargo-audit, clippy plugin, or grep -r) scans the crate for forbidden patterns. Refusal instantiations must use specific named enums, never bare InvalidInput." .
+
+audit:OcelConformanceTemplate
+    a audit:AuditTemplate ;
+    rdfs:label "OcelConformanceTemplate" ;
+    audit:templateName "ocel-event-log-conformance" ;
+    audit:templateKind "event-log-conformance" ;
+    rdfs:comment "Template: Audit by deriving an OCEL event log of actual audit execution, then running process-mining conformance checks (via wasm4pm). Compare declared audit model against discovered actual audit process." .
+
+# ============================================================================
+# AUDIT GATES (Proof Gates)
+# ============================================================================
+
+audit:AllLawsHaveFixturesGate
+    a audit:AuditGate ;
+    rdfs:label "AllLawsHaveFixturesGate" ;
+    audit:gateName "all-laws-have-fixtures" ;
+    audit:gateDescription "Every compile-fail law must have a corresponding trybuild fixture in tests/ui/compile_fail/. This gate fails if any law listed in compat:CompileFailLaw lacks a fixture file." ;
+    audit:gateSeverity "fatal" ;
+    rdfs:comment "ALIVE gate requirement. A law without a fixture is an audit gap. The gate passes only if compat:fixtureFile is non-empty for all compat:CompileFailLaw instances." .
+
+audit:AllFixturesHaveStderrGate
+    a audit:AuditGate ;
+    rdfs:label "AllFixturesHaveStderrGate" ;
+    audit:gateName "all-fixtures-have-expected-stderr" ;
+    audit:gateDescription "Every compile-fail fixture must have a corresponding .stderr file with the expected rustc diagnostic. Missing .stderr files indicate the fixture is not properly validated." ;
+    audit:gateSeverity "fatal" ;
+    rdfs:comment "ALIVE gate requirement. Trybuild infers expected output from .stderr files. Without them, the fixture is not a valid proof." .
+
+audit:AllGapsClosedOrAcceptedGate
+    a audit:AuditGate ;
+    rdfs:label "AllGapsClosedOrAcceptedGate" ;
+    audit:gateName "all-gaps-closed-or-accepted" ;
+    audit:gateDescription "Every documented gap must either be closed (with a ClosureClaim and commit evidence) or reclassified as 'accepted-debt' with explicit justification. Unresolved gaps block audit certification." ;
+    audit:gateSeverity "fatal" ;
+    rdfs:comment "ALIVE gate requirement. No audit can pass with open critical or major gaps. Each gap must have a clear remediation status." .
+
+audit:AllCommitMessagesConventionalGate
+    a audit:AuditGate ;
+    rdfs:label "AllCommitMessagesConventionalGate" ;
+    audit:gateName "all-commits-conventional-format" ;
+    audit:gateDescription "All commits in audit scope must follow conventional commit format (type(scope): description). This ensures commit history is machine-parseable and carries semantic intent." ;
+    audit:gateSeverity "error" ;
+    rdfs:comment "Required for audit trail auditability. Conventional commits allow event log derivation and process mining analysis of development history." .
+
+audit:AllReceiptsValidateGate
+    a audit:AuditGate ;
+    rdfs:label "AllReceiptsValidateGate" ;
+    audit:gateName "all-receipts-validate" ;
+    audit:gateDescription "Every Receipt in CommitEvidence must have valid provenance: commit hash, author, timestamp, and witness marker are present and consistent. Forged or corrupted receipts fail this gate." ;
+    audit:gateSeverity "fatal" ;
+    rdfs:comment "ALIVE gate requirement. Receipts are the unit of trust. If receipts don't validate, the entire audit chain is suspect." .
+
+audit:NoSilentLossInProjectionsGate
+    a audit:AuditGate ;
+    rdfs:label "NoSilentLossInProjectionsGate" ;
+    audit:gateName "no-silent-loss-in-projections" ;
+    audit:gateDescription "Every Evidence<T, Projected, W> must carry exactly one LossReport. Runtime validation scans all projections and ensures no lossy transformation occurs without an attached report." ;
+    audit:gateSeverity "fatal" ;
+    rdfs:comment "ALIVE gate requirement. Silent loss is a structural defect that breaks the audit model." .
+
+# ============================================================================
+# FORBIDDEN PATTERNS
+# ============================================================================
+
+audit:RawExportedAsAdmittedPattern
+    a audit:ForbiddenPattern ;
+    rdfs:label "RawExportedAsAdmittedPattern" ;
+    audit:patternName "raw-evidence-exported-as-admitted" ;
+    audit:patternDescription "Exporting or returning Evidence<T, Raw, W> as if it were Admitted, or using a Raw-state evidence where Admitted is required. This violates the one-way-door law." ;
+    audit:forbiddenBy compat:RawExportedAsAdmittedLaw ;
+    rdfs:comment "The type system makes this pattern unrepresentable. Evidence<T, Raw, W> and Evidence<T, Admitted, W> are different types; attempting coercion is a compile error (E0308)." .
+
+audit:WitnessDiscriminationViolationPattern
+    a audit:ForbiddenPattern ;
+    rdfs:label "WitnessDiscriminationViolationPattern" ;
+    audit:patternName "witness-discrimination-violation" ;
+    audit:patternDescription "Using Admission<T, W1> in place of Admission<T, W2>, or merging evidence admitted against different witnesses without proper re-admission. Witness tags are sealed." ;
+    audit:forbiddenBy compat:WitnessDiscriminationLaw ;
+    rdfs:comment "The type system enforces witness discrimination. Admission<T, Ocel20> is a different type from Admission<T, Xes1849>; no implicit conversion exists." .
+
+audit:SilentStructureLossPattern
+    a audit:ForbiddenPattern ;
+    rdfs:label "SilentStructureLossPattern" ;
+    audit:patternName "silent-structure-loss" ;
+    audit:patternDescription "Performing a lossy transformation (e.g., OCEL → XES, removing object links) without emitting a LossReport. The loss is hidden from audit." ;
+    audit:forbiddenBy compat:CompatDiagnostic ;
+    audit:allowedIn audit:NamedProjectionException ;
+    rdfs:comment "The loss.rs module requires all lossy paths to go through Project trait and emit LossReport<From, To, Items>. This is a runtime enforcement via type structure." .
+
+audit:ConditionCellOverflowPattern
+    a audit:ForbiddenPattern ;
+    rdfs:label "ConditionCellOverflowPattern" ;
+    audit:patternName "condition-cell-overflow" ;
+    audit:patternDescription "Declaring or using ConditionCell<BITS> with BITS > 8, violating the 'Need 9 means split' law. The Blue River Dam covenant limits condition cells to 8 bits." ;
+    audit:forbiddenBy compat:ConditionCellOverflowLaw ;
+    rdfs:comment "The type system enforces via generic_const_exprs and E0080 (evaluates to an illegal value)." .
+
+audit:SoundnessForgedPattern
+    a audit:ForbiddenPattern ;
+    rdfs:label "SoundnessForgedPattern" ;
+    audit:patternName "soundness-forged" ;
+    audit:patternDescription "Constructing or manipulating a WfNetConst<SoundnessWitnessed> without passing through wasm4pm's soundness verification. Soundness witnesses are non-forgeable." ;
+    audit:forbiddenBy compat:SoundnessForgedLaw ;
+    rdfs:comment "The witness path on WfNetConst<SOUNDNESS> is sealed. Only wasm4pm can produce SoundnessWitnessed tokens by proving soundness; external code cannot forge them." .
+
+# ============================================================================
+# ALLOWED CONTEXTS (Named Exceptions)
+# ============================================================================
+
+audit:Wasm4pmGraduationContext
+    a audit:AllowedContext ;
+    rdfs:label "Wasm4pmGraduationContext" ;
+    audit:contextName "wasm4pm-graduation" ;
+    audit:contextScope "feature" ;
+    audit:exceptionReason "The src/graduation.rs module and the wasm4pm feature gate are entry points to the wasm4pm engine. Some otherwise forbidden patterns (e.g., non-forgeable witness construction) are allowed here because the wasm4pm engine is a trusted execution boundary." ;
+    rdfs:comment "This context allows patterns forbidden elsewhere because wasm4pm has its own audit machinery (external to this crate)." .
+
+audit:InternalBridgeAssemblyContext
+    a audit:AllowedContext ;
+    rdfs:label "InternalBridgeAssemblyContext" ;
+    audit:contextName "internal-bridge-assembly" ;
+    audit:contextScope "witness" ;
+    audit:exceptionReason "The Wasm4pmBridge and InternalBridge witness markers are used in src/witness.rs to tag internal bridge code. Some forbidden patterns are allowed during bridge assembly for compatibility reasons." ;
+    rdfs:comment "This is a narrow exception for the bridge implementation layer only." .
+
+audit:NamedProjectionException
+    a audit:AllowedContext ;
+    rdfs:label "NamedProjectionException" ;
+    audit:contextName "named-projection" ;
+    audit:contextScope "module" ;
+    audit:exceptionReason "The src/loss.rs module explicitly implements loss accounting. Lossy transformations are allowed here only if they use the Project trait and emit a LossReport. This is not a blanket exception — loss must be named and recorded." ;
+    rdfs:comment "Exception is conditional: loss is only allowed if LossReport is present." .
+
+# ============================================================================
+# KNOWN GAPS (Documented Audit Discrepancies)
+# ============================================================================
+
+audit:Gap001_UnimplementedConformanceAudit
+    a audit:Gap ;
+    rdfs:label "Gap001: Unimplemented Conformance Audit" ;
+    audit:gapId "GAP_001" ;
+    audit:gapCategory "missing-fixture" ;
+    audit:relatedLaw compat:ConformanceAuthority ;
+    audit:gapSeverity "major" ;
+    audit:remediationPlan "Implement OCEL-based audit of actual conformance execution by deriving event logs of wasm4pm conformance checker runs. Requires wasm4pm integration." ;
+    audit:gapOpenedDate "2026-05-30T00:00:00Z"^^xsd:dateTime ;
+    rdfs:comment "The ConformanceAuthority graduation boundary requires audit verification, but the actual conformance execution is in wasm4pm. This gap cannot be closed in wasm4pm-compat alone." .
+
+audit:Gap002_UncoveredProcessTreeConstruction
+    a audit:Gap ;
+    rdfs:label "Gap002: Uncovered Process Tree Construction Laws" ;
+    audit:gapId "GAP_002" ;
+    audit:gapCategory "uncovered-law" ;
+    audit:relatedLaw compat:ProcessTree ;
+    audit:gapSeverity "minor" ;
+    audit:remediationPlan "Add compile-fail fixtures proving ProcessTree block-structure invariants (no illegal node nesting, proper operator arity constraints). May require extending generic_const_exprs." ;
+    audit:gapOpenedDate "2026-05-30T00:00:00Z"^^xsd:dateTime ;
+    rdfs:comment "ProcessTree construction is not guarded by compile-fail laws for all invariants. TypedLoopNode<ARITY> has one law (arity == 2), but operator nesting rules are uncovered." .
+
+audit:Gap003_UnverifiedGraduationPaths
+    a audit:Gap ;
+    rdfs:label "Gap003: Unverified Graduation Paths" ;
+    audit:gapId "GAP_003" ;
+    audit:gapCategory "unresolved-todo" ;
+    audit:relatedLaw compat:GraduationCandidate ;
+    audit:gapSeverity "critical" ;
+    audit:remediationPlan "Integrate with wasm4pm to verify each GraduationBoundary has a real corresponding entry point and receipt-bearing execution path. Requires cross-crate audit." ;
+    audit:gapOpenedDate "2026-05-30T00:00:00Z"^^xsd:dateTime ;
+    rdfs:comment "GraduationReason enum variants map to GraduationBoundary instances, but we do not verify that each boundary actually exists in wasm4pm and that evidence graduates correctly." .
+
+# ============================================================================
+# SAMPLE COMMIT EVIDENCE (Example ALIVE Checkpoints)
+# ============================================================================
+
+audit:CommitAliveEvidence_f94762a
+    a audit:CommitEvidence ;
+    rdfs:label "Commit: WASM4PM-COMPAT-PRD-ARD.md documentation" ;
+    audit:commitHash "f94762a" ;
+    audit:commitAuthor "Sean Chatman <xpointsh@gmail.com>" ;
+    audit:commitTimestamp "2026-05-30T10:15:00Z"^^xsd:dateTime ;
+    audit:commitMessage "docs: add WASM4PM-COMPAT-PRD-ARD.md — nightly-first covenant, 10-point ALIVE, paper→type mapping" ;
+    audit:parentCommit "277d528" ;
+    rdfs:comment "Documentation commit advancing audit readiness by clarifying the ALIVE gate requirements and covenant." .
+
+audit:CommitAliveEvidence_2426fac
+    a audit:CommitEvidence ;
+    rdfs:label "Commit: Type-law surfaces in nightly_foundry" ;
+    audit:commitHash "2426fac" ;
+    audit:commitAuthor "Sean Chatman <xpointsh@gmail.com>" ;
+    audit:commitTimestamp "2026-05-30T11:30:00Z"^^xsd:dateTime ;
+    audit:commitMessage "feat(nightly): implement zero-cost type-law surfaces in nightly_foundry" ;
+    audit:parentCommit "f94762a" ;
+    rdfs:comment "Feature commit adding zero-cost type-law surfaces to the nightly_foundry module. Carries trybuild receipt evidence." .
+
+# ============================================================================
+# SAMPLE CLOSURE CLAIMS (Example Gap Closures)
+# ============================================================================
+
+audit:ClosureClaim_Gap001_Partial
+    a audit:ClosureClaim ;
+    rdfs:label "ClosureClaim: Partial closure of GAP_001" ;
+    audit:closesGap audit:Gap001_UnimplementedConformanceAudit ;
+    audit:closingCommit "2426fac" ;
+    audit:closureMethod "fixture-added" ;
+    audit:closureTimestamp "2026-05-30T11:45:00Z"^^xsd:dateTime ;
+    rdfs:comment "Partial closure: basic conformance audit structure added, but full wasm4pm integration still pending." .
+
+# ============================================================================
+# SAMPLE CHECKPOINT CLAIMS (ALIVE Milestones)
+# ============================================================================
+
+audit:CheckpointAlive002
+    a audit:CheckpointClaim ;
+    rdfs:label "PAPERLAW_ALIVE_002" ;
+    audit:checkpointName "PAPERLAW_ALIVE_002" ;
+    audit:checkpointCommit "2426fac" ;
+    audit:checkpointTimestamp "2026-05-30T12:00:00Z"^^xsd:dateTime ;
+    audit:allLawsCovered true ;
+    audit:allGapsClosed false ;
+    audit:passedAllGates true ;
+    rdfs:comment "Checkpoint: All declared laws are covered by compile-fail/pass fixtures. Some gaps remain (major/minor severity) but ALIVE gate is sealed." .
+
+audit:CheckpointCrownAlive004
+    a audit:CheckpointClaim ;
+    rdfs:label "PAPERLAW_CROWN_ALIVE_004" ;
+    audit:checkpointName "PAPERLAW_CROWN_ALIVE_004" ;
+    audit:checkpointCommit "277d528" ;
+    audit:checkpointTimestamp "2026-05-28T14:00:00Z"^^xsd:dateTime ;
+    audit:allLawsCovered true ;
+    audit:allGapsClosed false ;
+    audit:passedAllGates true ;
+    rdfs:comment "Previous sealed checkpoint: 196 compile-fail + 406 compile-pass receipts. Foundation for subsequent work." .
+
+# ============================================================================
+# AUDIT SPECIFICATIONS FOR CORE RECEIPT MACHINERY
+# ============================================================================
+
+audit:ReceiptConsistencySpec
+    a audit:AuditSpec ;
+    rdfs:label "ReceiptConsistencySpec" ;
+    audit:specName "receipt-consistency-audit" ;
+    audit:lawName "ReceiptConsistency" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Receipt" ;
+    audit:verdictType "enum" ;
+    audit:applicableTemplate audit:OcelConformanceTemplate ;
+    rdfs:comment "Audit: All Receipt instances carry consistent provenance. A receipt's witness marker must match the evidence's witness. Timestamps must be monotonically increasing in the commit history. Commit hashes must be valid and reachable." .
+
+audit:EvidenceLifecycleSoundnessSpec
+    a audit:AuditSpec ;
+    rdfs:label "EvidenceLifecycleSoundnessSpec" ;
+    audit:specName "evidence-lifecycle-soundness" ;
+    audit:lawName "EvidenceLifecycleSoundness" ;
+    audit:auditScope "crate" ;
+    audit:scopeTarget "wasm4pm-compat" ;
+    audit:carrierType "Evidence<T, State, W>" ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:OcelConformanceTemplate ;
+    rdfs:comment "Audit: Every evidence instance follows the one-way-door state machine. No backwards transitions. No illegal state skips (e.g., Raw directly to Receipted). OCEL replay validates state sequence lawfulness." .
+
+audit:LossReportCompletenessSpec
+    a audit:AuditSpec ;
+    rdfs:label "LossReportCompletenessSpec" ;
+    audit:specName "loss-report-completeness" ;
+    audit:lawName "LossReportCompleteness" ;
+    audit:auditScope "module" ;
+    audit:scopeTarget "src/loss.rs" ;
+    audit:carrierType "LossReport<From, To, Items>" ;
+    audit:verdictType "boolean" ;
+    audit:applicableTemplate audit:RuntimeLossAuditTemplate ;
+    rdfs:comment "Audit: Every LossReport must specify: (1) FromType (original form), (2) ToType (projected form), (3) Items lost (by name and count). Missing fields indicate incomplete loss accounting." .
+
+# ============================================================================
+# PROV INTEGRATION (W3C Provenance Vocabulary)
+# ============================================================================
+
+audit:CommitEvidence
+    prov:hadRole prov:Role ;
+    rdfs:comment "CommitEvidence instances carry provenance triples linking commits to Evidence carriers, authors to receipt timestamps, and parent commits to closure claims." .
+
+audit:ClosureClaim
+    prov:wasInformedBy audit:CommitEvidence ;
+    rdfs:comment "ClosureClaim instances use prov:wasInformedBy to link to the CommitEvidence that enacts the closure." .
+
+# ============================================================================
+# END OF AUDIT MACHINERY ONTOLOGY
+# ============================================================================

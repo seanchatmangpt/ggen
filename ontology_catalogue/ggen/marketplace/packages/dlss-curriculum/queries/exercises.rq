@@ -1,0 +1,18 @@
+# Exercises Query
+# Extracts all exercises with their type, estimated time, and associated module.
+# Output: exerciseTitle, estimatedMinutes, moduleCode, moduleTitle, hasSolution (boolean).
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?exerciseTitle ?estimatedMinutes ?moduleCode ?moduleTitle ?hasSolution
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:exercise ?exercise .
+  ?exercise dlss:title ?exerciseTitle ;
+            dlss:estimatedMinutes ?estimatedMinutes ;
+            dlss:hasSolution ?hasSolution .
+}
+ORDER BY ?moduleCode ?exerciseTitle

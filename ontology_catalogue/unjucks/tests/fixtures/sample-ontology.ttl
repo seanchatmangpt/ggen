@@ -1,0 +1,43 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ex: <http://example.org/ontology#> .
+
+# Define the ontology
+ex:PersonOntology rdf:type owl:Ontology ;
+    rdfs:label "Person Ontology Example" ;
+    rdfs:comment "A simple example ontology for persons and relationships" .
+
+# Define classes
+ex:Person rdf:type owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human being" .
+
+ex:Organization rdf:type owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A structured group of people" .
+
+# Define properties
+ex:hasName rdf:type owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .
+
+ex:hasAge rdf:type owl:DatatypeProperty ;
+    rdfs:label "has age" ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:int .
+
+ex:worksFor rdf:type owl:ObjectProperty ;
+    rdfs:label "works for" ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+# Define individuals
+ex:JohnDoe rdf:type ex:Person ;
+    ex:hasName "John Doe" ;
+    ex:hasAge 30 ;
+    ex:worksFor ex:TechCorp .
+
+ex:TechCorp rdf:type ex:Organization ;
+    ex:hasName "Technology Corporation" .

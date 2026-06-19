@@ -1,0 +1,110 @@
+@prefix :      <https://example.org/nuxt-cert#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+
+#################################################################
+# Classes
+#################################################################
+
+:CertificationProgram a owl:Class ; rdfs:label "Certification Program" .
+:CertificateLevel     a owl:Class ; rdfs:label "Certificate Level" .
+:Exam                 a owl:Class ; rdfs:label "Exam" .
+:ExamSection          a owl:Class ; rdfs:label "Exam Section" .
+:Question             a owl:Class ; rdfs:label "Question" .
+:CodingChallenge      a owl:Class ; rdfs:label "Coding Challenge" .
+:TrainingOffering     a owl:Class ; rdfs:label "Training Offering" .
+:SelfStudy            a owl:Class ; rdfs:subClassOf :TrainingOffering ; rdfs:label "Self-Study Training" .
+:Bootcamp             a owl:Class ; rdfs:subClassOf :TrainingOffering ; rdfs:label "Live Bootcamp" .
+:Step                 a owl:Class ; rdfs:label "Certification Step" .
+:Candidate            a owl:Class ; rdfs:label "Candidate" .
+:Enrollment           a owl:Class ; rdfs:label "Enrollment" .
+:ExamAttempt          a owl:Class ; rdfs:label "Exam Attempt" .
+:Certificate          a owl:Class ; rdfs:label "Certificate" .
+:Issuer               a owl:Class ; rdfs:label "Issuer" .
+:Company              a owl:Class ; rdfs:label "Company" .
+:Benefit              a owl:Class ; rdfs:label "Benefit" .
+:PricingPlan          a owl:Class ; rdfs:label "Pricing Plan" .
+
+# Specific Steps
+:ExamPreparation      a owl:Class ; rdfs:subClassOf :Step ; rdfs:label "Exam Preparation" .
+:OptionalTraining     a owl:Class ; rdfs:subClassOf :Step ; rdfs:label "Optional Training" .
+:TakeExamination      a owl:Class ; rdfs:subClassOf :Step ; rdfs:label "Take Examination" .
+
+#################################################################
+# Object Properties
+#################################################################
+
+:hasLevel a rdf:Property ; rdfs:label "has level" ; rdfs:domain :CertificationProgram ; rdfs:range  :CertificateLevel .
+:hasExam a rdf:Property ; rdfs:label "has exam" ; rdfs:domain :CertificateLevel ; rdfs:range  :Exam .
+:hasSection a rdf:Property ; rdfs:label "has exam section" ; rdfs:domain :Exam ; rdfs:range  :ExamSection .
+:includesQuestion a rdf:Property ; rdfs:label "includes question" ; rdfs:domain :ExamSection ; rdfs:range  :Question .
+:includesChallenge a rdf:Property ; rdfs:label "includes coding challenge" ; rdfs:domain :ExamSection ; rdfs:range  :CodingChallenge .
+:requiresStep a rdf:Property ; rdfs:label "requires step" ; rdfs:domain :CertificationProgram ; rdfs:range  :Step .
+:offersTraining a rdf:Property ; rdfs:label "offers training" ; rdfs:domain :CertificationProgram ; rdfs:range  :TrainingOffering .
+:issuedBy a rdf:Property ; rdfs:label "issued by" ; rdfs:domain :Certificate ; rdfs:range  :Issuer .
+:awardsCertificate a rdf:Property ; rdfs:label "awards certificate" ; rdfs:domain :CertificationProgram ; rdfs:range  :Certificate .
+:usedByCompany a rdf:Property ; rdfs:label "used by company" ; rdfs:domain :CertificationProgram ; rdfs:range  :Company .
+:hasBenefit a rdf:Property ; rdfs:label "has benefit" ; rdfs:domain :CertificationProgram ; rdfs:range  :Benefit .
+:hasPricing a rdf:Property ; rdfs:label "has pricing plan" ; rdfs:domain :CertificationProgram ; rdfs:range  :PricingPlan .
+:enrolledIn a rdf:Property ; rdfs:label "enrolled in" ; rdfs:domain :Enrollment ; rdfs:range  :CertificationProgram .
+:enrollmentOf a rdf:Property ; rdfs:label "enrollment of" ; rdfs:domain :Enrollment ; rdfs:range  :Candidate .
+:attemptOfExam a rdf:Property ; rdfs:label "attempt of exam" ; rdfs:domain :ExamAttempt ; rdfs:range  :Exam .
+:attemptBy a rdf:Property ; rdfs:label "attempt by candidate" ; rdfs:domain :ExamAttempt ; rdfs:range  :Candidate .
+:obtainsCertificate a rdf:Property ; rdfs:label "obtains certificate" ; rdfs:domain :Candidate ; rdfs:range  :Certificate .
+
+#################################################################
+# Datatype Properties
+#################################################################
+
+:name a rdf:Property ; rdfs:label "name" ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .
+:description a rdf:Property ; rdfs:label "description" ; rdfs:domain rdfs:Resource ; rdfs:range xsd:string .
+:durationMinutes a rdf:Property ; rdfs:label "duration (minutes)" ; rdfs:domain :ExamSection ; rdfs:range xsd:integer .
+:numberOfQuestions a rdf:Property ; rdfs:label "number of questions" ; rdfs:domain :ExamSection ; rdfs:range xsd:integer .
+:numberOfCodingMinutes a rdf:Property ; rdfs:label "coding minutes" ; rdfs:domain :ExamSection ; rdfs:range xsd:integer .
+:passingScore a rdf:Property ; rdfs:label "passing score (0..100)" ; rdfs:domain :Exam ; rdfs:range xsd:float .
+:priceUSD a rdf:Property ; rdfs:label "price (USD)" ; rdfs:domain :PricingPlan ; rdfs:range xsd:float .
+:issuedAt a rdf:Property ; rdfs:label "issued at" ; rdfs:domain :Certificate ; rdfs:range xsd:dateTime .
+:score a rdf:Property ; rdfs:label "score" ; rdfs:domain :ExamAttempt ; rdfs:range xsd:float .
+:passed a rdf:Property ; rdfs:label "passed" ; rdfs:domain :ExamAttempt ; rdfs:range xsd:boolean .
+
+#################################################################
+# Example Instances
+#################################################################
+
+:NuxtCertProgram a :CertificationProgram ;
+  :name "Nuxt Certification" ;
+  :hasBenefit :BenefitDemonstrateCompetency, :BenefitCareer, :BenefitTeam ;
+  :requiresStep :ExamPreparation, :OptionalTraining, :TakeExamination .
+
+:MidLevel a :CertificateLevel ; :name "Mid-Level Nuxt Developer" .
+:SeniorLevel a :CertificateLevel ; :name "Senior Nuxt Developer" .
+
+:MidExam a :Exam ;
+  :name "Mid-Level Exam" ;
+  :passingScore 70.0 .
+
+:MidQuestions a :ExamSection ;
+  :name "MCQ Section" ;
+  :durationMinutes 30 ;
+  :numberOfQuestions 30 .
+
+:MidCoding a :ExamSection ;
+  :name "Coding Challenges Section" ;
+  :numberOfCodingMinutes 105 .
+
+:MidExam :hasSection :MidQuestions, :MidCoding .
+:NuxtCertProgram :hasLevel :MidLevel, :SeniorLevel .
+:MidLevel :hasExam :MidExam .
+
+:SelfStudyPack a :SelfStudy ; :name "Self-Study Training" .
+:Bootcamp3Day a :Bootcamp ; :name "3-Day Bootcamp" .
+:NuxtCertProgram :offersTraining :SelfStudyPack, :Bootcamp3Day .
+
+:BenefitDemonstrateCompetency a :Benefit ; :name "Demonstrate Nuxt competency" .
+:BenefitCareer a :Benefit ; :name "Enhanced career opportunities" .
+:BenefitTeam a :Benefit ; :name "Team productivity & efficiency" .
+
+:StandardPlan a :PricingPlan ; :name "Standard" ; :priceUSD 0.0 .
+

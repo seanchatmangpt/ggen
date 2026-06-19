@@ -1,0 +1,675 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix tcps: <http://erlmcp.org/ontology/tcps#> .
+@prefix tcps-core: <http://erlmcp.org/ontology/tcps/core#> .
+@prefix tcps-quality: <http://erlmcp.org/ontology/tcps/quality#> .
+
+<http://erlmcp.org/ontology/tcps/quality>
+    a owl:Ontology ;
+    dcterms:title "Toyota Code Production System - Quality Ontology"@en ;
+    dcterms:description """
+        Quality ontology for the Toyota Code Production System (TCPS).
+        Defines Jidoka (built-in quality / automation with human touch),
+        Poka-Yoke (error proofing), and Quality Gate specifications.
+
+        Core principles:
+        - Build quality in (don't inspect it in)
+        - Stop and fix problems immediately
+        - Mistake-proof processes
+        - Continuous improvement through learning
+    """@en ;
+    dcterms:created "2026-01-26"^^xsd:date ;
+    dcterms:creator "TCPS Development Team"@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://erlmcp.org/ontology/tcps/core> ;
+    rdfs:seeAlso <http://erlmcp.org/ontology/tcps/flow> .
+
+###############################################################################
+# Jidoka - Automation with Human Touch / Built-in Quality
+###############################################################################
+
+tcps-quality:Jidoka
+    a owl:Class ;
+    rdfs:label "Jidoka"@en ;
+    rdfs:comment """
+        Jidoka (自働化) is the Toyota principle of "automation with a human touch"
+        or "autonomation". In TCPS, Jidoka represents built-in quality mechanisms
+        that automatically detect defects and stop production.
+
+        Key characteristics:
+        1. Automatic defect detection (sensors, monitors, tests)
+        2. Automatic production stop (when defects detected)
+        3. Human problem-solving (root cause analysis)
+        4. Prevention of defect propagation (fail-fast)
+        5. Continuous improvement (learning from stops)
+
+        Examples in TCPS:
+        - Automated test suites that fail builds
+        - Static analysis catching errors pre-compilation
+        - Security scanners blocking vulnerable code
+        - Performance monitors detecting degradation
+        - Type checkers preventing type errors
+
+        Jidoka separates humans from machines: machines detect and stop,
+        humans analyze and improve.
+    """@en ;
+    skos:example """
+        Jidoka-TypeChecker:
+          Type: STATIC_ANALYSIS
+          Detects: Type errors, undefined functions
+          Action: Halt compilation, report to developer
+          Prevention: Type errors cannot reach runtime
+    """@en .
+
+tcps-quality:jidokaId
+    a owl:DatatypeProperty ;
+    rdfs:label "jidoka ID"@en ;
+    rdfs:comment "Unique identifier for this Jidoka mechanism"@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:string .
+
+tcps-quality:jidokaName
+    a owl:DatatypeProperty ;
+    rdfs:label "jidoka name"@en ;
+    rdfs:comment "Human-readable name for this quality mechanism"@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:string .
+
+tcps-quality:jidokaType
+    a owl:DatatypeProperty ;
+    rdfs:label "jidoka type"@en ;
+    rdfs:comment """
+        Type of Jidoka mechanism:
+        - STATIC_ANALYSIS: Pre-runtime code analysis (dialyzer, xref)
+        - AUTOMATED_TEST: Runtime test execution (eunit, ct, proper)
+        - SECURITY_SCAN: Vulnerability detection (sobelow, credo security)
+        - PERFORMANCE_MONITOR: Performance regression detection
+        - DEPENDENCY_CHECK: Dependency vulnerability scanning
+        - COMPLIANCE_AUDIT: Policy and regulatory compliance
+    """@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:string .
+
+tcps-quality:detectsDefect
+    a owl:DatatypeProperty ;
+    rdfs:label "detects defect"@en ;
+    rdfs:comment "Description of what types of defects this Jidoka mechanism detects"@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:string .
+
+tcps-quality:automatedAction
+    a owl:DatatypeProperty ;
+    rdfs:label "automated action"@en ;
+    rdfs:comment """
+        Automatic action taken when defect is detected:
+        - HALT_BUILD: Stop compilation immediately
+        - FAIL_TEST: Mark test suite as failed
+        - BLOCK_MERGE: Prevent code merge to main branch
+        - TRIGGER_ANDON: Raise Andon event
+        - QUARANTINE: Isolate affected artifacts
+    """@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:string .
+
+tcps-quality:appliesToStage
+    a owl:ObjectProperty ;
+    rdfs:label "applies to stage"@en ;
+    rdfs:comment "The ProductionStage(s) where this Jidoka mechanism is active"@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-quality:preventsPropagation
+    a owl:DatatypeProperty ;
+    rdfs:label "prevents propagation"@en ;
+    rdfs:comment """
+        Boolean indicating if this Jidoka prevents defects from moving
+        to the next stage (fail-fast principle).
+    """@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:boolean .
+
+tcps-quality:sensitivityLevel
+    a owl:DatatypeProperty ;
+    rdfs:label "sensitivity level"@en ;
+    rdfs:comment """
+        Detection sensitivity: STRICT, MODERATE, PERMISSIVE.
+        STRICT: Zero tolerance, stop on any deviation
+        MODERATE: Stop on significant issues, warn on minor
+        PERMISSIVE: Informational only, manual review
+    """@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:string .
+
+tcps-quality:averageDetectionTime
+    a owl:DatatypeProperty ;
+    rdfs:label "average detection time"@en ;
+    rdfs:comment "Average time (in seconds) for this mechanism to detect defects"@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:decimal .
+
+tcps-quality:falsePositiveRate
+    a owl:DatatypeProperty ;
+    rdfs:label "false positive rate"@en ;
+    rdfs:comment """
+        Percentage of false positives (0.0 to 1.0).
+        Used to tune sensitivity and reduce noise.
+    """@en ;
+    rdfs:domain tcps-quality:Jidoka ;
+    rdfs:range xsd:decimal .
+
+###############################################################################
+# Poka-Yoke - Error Proofing / Mistake Proofing
+###############################################################################
+
+tcps-quality:PokaYoke
+    a owl:Class ;
+    rdfs:label "Poka-Yoke"@en ;
+    rdfs:comment """
+        Poka-Yoke (ポカヨケ) means "mistake proofing" or "error proofing".
+        In TCPS, Poka-Yoke represents design mechanisms that prevent errors
+        from occurring in the first place, or detect them immediately when
+        they do occur.
+
+        Two types of Poka-Yoke:
+        1. PREVENTION: Makes it impossible to make the mistake
+        2. DETECTION: Detects the mistake before damage occurs
+
+        Examples in TCPS:
+        - Type systems (prevent type errors)
+        - Schema validation (prevent invalid data)
+        - Immutable data structures (prevent mutation bugs)
+        - Exhaustive pattern matching (prevent missing cases)
+        - Dependency version locking (prevent dependency drift)
+        - Required code review (prevent unchecked changes)
+        - Automated formatters (prevent style inconsistencies)
+
+        Poka-Yoke shifts quality from inspection to prevention.
+    """@en ;
+    skos:example """
+        PokaYoke-ExhaustiveMatch:
+          Type: PREVENTION
+          Mechanism: Compiler enforces all cases handled
+          Prevents: Runtime errors from unhandled cases
+          Stage: COMPILE
+    """@en .
+
+tcps-quality:pokaYokeId
+    a owl:DatatypeProperty ;
+    rdfs:label "poka-yoke ID"@en ;
+    rdfs:comment "Unique identifier for this Poka-Yoke mechanism"@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:string .
+
+tcps-quality:pokaYokeName
+    a owl:DatatypeProperty ;
+    rdfs:label "poka-yoke name"@en ;
+    rdfs:comment "Human-readable name for this error-proofing mechanism"@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:string .
+
+tcps-quality:pokaYokeType
+    a owl:DatatypeProperty ;
+    rdfs:label "poka-yoke type"@en ;
+    rdfs:comment """
+        Type of Poka-Yoke:
+        - PREVENTION: Makes error impossible (design constraint)
+        - DETECTION: Catches error immediately (validation)
+    """@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:string .
+
+tcps-quality:preventsMistake
+    a owl:DatatypeProperty ;
+    rdfs:label "prevents mistake"@en ;
+    rdfs:comment "Description of what mistake this Poka-Yoke prevents or detects"@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:string .
+
+tcps-quality:mechanism
+    a owl:DatatypeProperty ;
+    rdfs:label "mechanism"@en ;
+    rdfs:comment """
+        How the Poka-Yoke works:
+        - TYPE_SYSTEM: Compiler enforces type safety
+        - SCHEMA_VALIDATION: Runtime validation against schema
+        - IMMUTABILITY: Data structures cannot be modified
+        - EXHAUSTIVE_MATCH: All pattern cases must be handled
+        - REQUIRED_REVIEW: Human approval required
+        - AUTOMATED_FORMAT: Code automatically formatted
+        - DEPENDENCY_LOCK: Versions pinned in lock file
+    """@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:string .
+
+tcps-quality:enforcedAt
+    a owl:ObjectProperty ;
+    rdfs:label "enforced at"@en ;
+    rdfs:comment "The ProductionStage where this Poka-Yoke is enforced"@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-quality:isAutomated
+    a owl:DatatypeProperty ;
+    rdfs:label "is automated"@en ;
+    rdfs:comment """
+        Boolean indicating if this Poka-Yoke is fully automated (true)
+        or requires human intervention (false).
+    """@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:boolean .
+
+tcps-quality:effectivenessScore
+    a owl:DatatypeProperty ;
+    rdfs:label "effectiveness score"@en ;
+    rdfs:comment """
+        Measured effectiveness of this Poka-Yoke (0.0 to 1.0).
+        Based on defect escape rate: 1.0 = zero escapes, 0.0 = all escape.
+    """@en ;
+    rdfs:domain tcps-quality:PokaYoke ;
+    rdfs:range xsd:decimal .
+
+###############################################################################
+# Quality Gate - Stage Exit Criteria
+###############################################################################
+
+tcps-quality:QualityGate
+    a owl:Class ;
+    rdfs:label "Quality Gate"@en ;
+    rdfs:comment """
+        A QualityGate defines mandatory criteria that must be satisfied
+        before a WorkOrder can exit a ProductionStage. Gates enforce
+        quality standards and prevent defective work from propagating.
+
+        Quality gates combine multiple checks:
+        - Jidoka mechanisms must pass
+        - Poka-Yoke validations must succeed
+        - Metrics must meet thresholds
+        - Evidence must be collected
+        - Approvals must be obtained
+
+        Gates implement the "build quality in" philosophy: quality is
+        not inspected at the end but verified at each step.
+    """@en ;
+    skos:example """
+        QualityGate-TEST:
+          Stage: TEST
+          Criteria:
+            - All tests pass (100% success rate)
+            - Code coverage >= 80%
+            - No security vulnerabilities
+            - Performance benchmarks pass
+            - Static analysis clean
+    """@en .
+
+tcps-quality:gateId
+    a owl:DatatypeProperty ;
+    rdfs:label "gate ID"@en ;
+    rdfs:comment "Unique identifier for this Quality Gate"@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:string .
+
+tcps-quality:gateName
+    a owl:DatatypeProperty ;
+    rdfs:label "gate name"@en ;
+    rdfs:comment "Human-readable name for this Quality Gate"@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:string .
+
+tcps-quality:forStage
+    a owl:ObjectProperty ;
+    rdfs:label "for stage"@en ;
+    rdfs:comment "The ProductionStage that this Quality Gate guards"@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-quality:requiresJidoka
+    a owl:ObjectProperty ;
+    rdfs:label "requires jidoka"@en ;
+    rdfs:comment "Jidoka mechanism(s) that must pass for this gate"@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range tcps-quality:Jidoka .
+
+tcps-quality:requiresPokaYoke
+    a owl:ObjectProperty ;
+    rdfs:label "requires poka-yoke"@en ;
+    rdfs:comment "Poka-Yoke mechanism(s) that must pass for this gate"@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range tcps-quality:PokaYoke .
+
+tcps-quality:criteriaDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "criteria description"@en ;
+    rdfs:comment "Detailed description of all criteria that must be satisfied"@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:string .
+
+tcps-quality:minimumThreshold
+    a owl:DatatypeProperty ;
+    rdfs:label "minimum threshold"@en ;
+    rdfs:comment """
+        Minimum acceptable value for quantitative criteria.
+        Example: coverage >= 0.80, performance <= 100ms
+    """@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:decimal .
+
+tcps-quality:isBlocking
+    a owl:DatatypeProperty ;
+    rdfs:label "is blocking"@en ;
+    rdfs:comment """
+        Boolean indicating if this gate blocks WorkOrder progression (true)
+        or is advisory only (false). Blocking gates cannot be overridden.
+    """@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:boolean .
+
+tcps-quality:requiresApproval
+    a owl:DatatypeProperty ;
+    rdfs:label "requires approval"@en ;
+    rdfs:comment """
+        Boolean indicating if human approval is required in addition
+        to automated checks.
+    """@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:boolean .
+
+tcps-quality:approverRole
+    a owl:DatatypeProperty ;
+    rdfs:label "approver role"@en ;
+    rdfs:comment """
+        Role(s) authorized to approve this gate:
+        TECH_LEAD, SECURITY_REVIEWER, QA_ENGINEER, RELEASE_MANAGER
+    """@en ;
+    rdfs:domain tcps-quality:QualityGate ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# Quality Metric - Measurable Quality Indicators
+###############################################################################
+
+tcps-quality:QualityMetric
+    a owl:Class ;
+    rdfs:label "Quality Metric"@en ;
+    rdfs:comment """
+        A QualityMetric represents a measurable indicator of product quality.
+        Metrics are collected at each ProductionStage and evaluated against
+        Quality Gate thresholds.
+
+        Categories of metrics:
+        - CODE_COVERAGE: Percentage of code exercised by tests
+        - TEST_PASS_RATE: Percentage of tests passing
+        - DEFECT_DENSITY: Defects per 1000 lines of code
+        - SECURITY_SCORE: Security vulnerability assessment
+        - PERFORMANCE: Response time, throughput, resource usage
+        - COMPLEXITY: Cyclomatic complexity, maintainability index
+        - DOCUMENTATION: API docs coverage, comment ratio
+    """@en .
+
+tcps-quality:metricId
+    a owl:DatatypeProperty ;
+    rdfs:label "metric ID"@en ;
+    rdfs:comment "Unique identifier for this Quality Metric"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:string .
+
+tcps-quality:metricName
+    a owl:DatatypeProperty ;
+    rdfs:label "metric name"@en ;
+    rdfs:comment "Human-readable name for this metric"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:string .
+
+tcps-quality:metricCategory
+    a owl:DatatypeProperty ;
+    rdfs:label "metric category"@en ;
+    rdfs:comment """
+        Category: CODE_COVERAGE, TEST_PASS_RATE, DEFECT_DENSITY,
+        SECURITY_SCORE, PERFORMANCE, COMPLEXITY, DOCUMENTATION
+    """@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:string .
+
+tcps-quality:measuredValue
+    a owl:DatatypeProperty ;
+    rdfs:label "measured value"@en ;
+    rdfs:comment "The actual measured value of this metric"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+tcps-quality:targetValue
+    a owl:DatatypeProperty ;
+    rdfs:label "target value"@en ;
+    rdfs:comment "The target/goal value for this metric"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:decimal .
+
+tcps-quality:unit
+    a owl:DatatypeProperty ;
+    rdfs:label "unit"@en ;
+    rdfs:comment "Unit of measurement: percentage, milliseconds, count, etc."@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:string .
+
+tcps-quality:collectedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "collected at"@en ;
+    rdfs:comment "Timestamp when this metric was measured"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:dateTime .
+
+tcps-quality:forWorkOrder
+    a owl:ObjectProperty ;
+    rdfs:label "for work order"@en ;
+    rdfs:comment "The WorkOrder this metric applies to"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range tcps-core:WorkOrder .
+
+tcps-quality:atStage
+    a owl:ObjectProperty ;
+    rdfs:label "at stage"@en ;
+    rdfs:comment "The ProductionStage where this metric was collected"@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-quality:meetsThreshold
+    a owl:DatatypeProperty ;
+    rdfs:label "meets threshold"@en ;
+    rdfs:comment """
+        Boolean indicating if measured value meets or exceeds
+        the Quality Gate threshold.
+    """@en ;
+    rdfs:domain tcps-quality:QualityMetric ;
+    rdfs:range xsd:boolean .
+
+###############################################################################
+# SHACL Shapes for Quality Gate Validation
+###############################################################################
+
+tcps-quality:QualityGateShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-quality:QualityGate ;
+    rdfs:label "Quality Gate Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating Quality Gate definitions"@en ;
+    sh:property [
+        sh:path tcps-quality:gateId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Quality Gate must have exactly one gateId"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:gateName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Quality Gate must have exactly one gateName"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:forStage ;
+        sh:minCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "Quality Gate must be associated with at least one ProductionStage"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:isBlocking ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Quality Gate must specify if it is blocking"@en ;
+    ] .
+
+tcps-quality:JidokaShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-quality:Jidoka ;
+    rdfs:label "Jidoka Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating Jidoka mechanisms"@en ;
+    sh:property [
+        sh:path tcps-quality:jidokaId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:preventsPropagation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Jidoka must specify if it prevents defect propagation"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:appliesToStage ;
+        sh:minCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "Jidoka must be associated with at least one ProductionStage"@en ;
+    ] .
+
+tcps-quality:PokaYokeShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-quality:PokaYoke ;
+    rdfs:label "Poka-Yoke Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating Poka-Yoke mechanisms"@en ;
+    sh:property [
+        sh:path tcps-quality:pokaYokeId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:pokaYokeType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "PREVENTION" "DETECTION" ) ;
+        sh:message "Poka-Yoke type must be either PREVENTION or DETECTION"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:enforcedAt ;
+        sh:minCount 1 ;
+        sh:class tcps-core:ProductionStage ;
+        sh:message "Poka-Yoke must be enforced at least one ProductionStage"@en ;
+    ] .
+
+tcps-quality:QualityMetricShape
+    a sh:NodeShape ;
+    sh:targetClass tcps-quality:QualityMetric ;
+    rdfs:label "Quality Metric Validation Shape"@en ;
+    rdfs:comment "SHACL shape for validating Quality Metrics"@en ;
+    sh:property [
+        sh:path tcps-quality:metricId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:measuredValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Quality Metric must have a measured value"@en ;
+    ] ;
+    sh:property [
+        sh:path tcps-quality:forWorkOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tcps-core:WorkOrder ;
+        sh:message "Quality Metric must be associated with exactly one WorkOrder"@en ;
+    ] .
+
+###############################################################################
+# Standard Quality Gate Instances
+###############################################################################
+
+tcps-quality:CompileGate
+    a tcps-quality:QualityGate ;
+    tcps-quality:gateId "COMPILE_GATE"^^xsd:string ;
+    tcps-quality:gateName "Compile Stage Quality Gate"@en ;
+    tcps-quality:forStage tcps-core:CompileStage ;
+    tcps-quality:isBlocking "true"^^xsd:boolean ;
+    tcps-quality:requiresApproval "false"^^xsd:boolean ;
+    tcps-quality:criteriaDescription """
+        Compile gate criteria:
+        - Zero compilation errors
+        - Zero compilation warnings (strict mode)
+        - All dependencies resolved
+        - Static analysis passes (dialyzer, xref)
+        - Type specifications complete
+    """@en .
+
+tcps-quality:TestGate
+    a tcps-quality:QualityGate ;
+    tcps-quality:gateId "TEST_GATE"^^xsd:string ;
+    tcps-quality:gateName "Test Stage Quality Gate"@en ;
+    tcps-quality:forStage tcps-core:TestStage ;
+    tcps-quality:isBlocking "true"^^xsd:boolean ;
+    tcps-quality:requiresApproval "false"^^xsd:boolean ;
+    tcps-quality:minimumThreshold "0.80"^^xsd:decimal ;
+    tcps-quality:criteriaDescription """
+        Test gate criteria:
+        - All unit tests pass (100% success rate)
+        - All integration tests pass
+        - Code coverage >= 80%
+        - Property tests pass (if applicable)
+        - No security vulnerabilities (CRITICAL/HIGH)
+        - Performance benchmarks within limits
+    """@en .
+
+tcps-quality:ReleaseGate
+    a tcps-quality:QualityGate ;
+    tcps-quality:gateId "RELEASE_GATE"^^xsd:string ;
+    tcps-quality:gateName "Release Stage Quality Gate"@en ;
+    tcps-quality:forStage tcps-core:ReleaseStage ;
+    tcps-quality:isBlocking "true"^^xsd:boolean ;
+    tcps-quality:requiresApproval "true"^^xsd:boolean ;
+    tcps-quality:approverRole "RELEASE_MANAGER"^^xsd:string ;
+    tcps-quality:criteriaDescription """
+        Release gate criteria:
+        - Valid semantic version
+        - Release notes complete
+        - Documentation updated
+        - SBOM generated
+        - Artifacts signed (cryptographic)
+        - License compliance verified
+        - Security scan clean
+        - Human approval from Release Manager
+    """@en .
+
+tcps-quality:PublishGate
+    a tcps-quality:QualityGate ;
+    tcps-quality:gateId "PUBLISH_GATE"^^xsd:string ;
+    tcps-quality:gateName "Publish Stage Quality Gate"@en ;
+    tcps-quality:forStage tcps-core:PublishStage ;
+    tcps-quality:isBlocking "true"^^xsd:boolean ;
+    tcps-quality:requiresApproval "false"^^xsd:boolean ;
+    tcps-quality:criteriaDescription """
+        Publish gate criteria:
+        - Registry upload successful
+        - Artifact signature verified
+        - Availability check passed
+        - CDN propagation confirmed
+        - Download test successful
+        - Marketplace listing updated
+    """@en .

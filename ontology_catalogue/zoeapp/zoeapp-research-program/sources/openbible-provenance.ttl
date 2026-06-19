@@ -1,0 +1,74 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Source Definition
+bos:OpenBible_Project
+    a prov:Entity ;
+    dc:title "OpenBible.info Cross-References" ;
+    dc:creator "OpenBible.info (Chris Harrison)" ;
+    dc:source <https://www.openbible.info/labs/cross-references/> ;
+    dc:license <https://creativecommons.org/licenses/by/4.0/> ;
+    prov:wasDerivedFrom bos:TreasuryOfScriptureKnowledge .
+
+# Cross-Reference Data Layer
+bos:OpenBible_CrossReferences
+    a bos:DataLayer, prov:Entity ;
+    dc:title "OpenBible.info Relation Graph Layer" ;
+    dc:description "Community-voted cross-references based on the Treasury of Scripture Knowledge (TSK)." ;
+    bos:role bos:RelationGraph ;
+    dc:license <https://creativecommons.org/licenses/by/4.0/> ;
+    prov:wasDerivedFrom bos:OpenBible_Project ;
+    bos:format "TSV (Tab-Separated Values)" ;
+    bos:contentScope "340,000+ Verse-to-Verse relations" .
+
+# Ontology Definitions
+bos:CrossReference a rdfs:Class ;
+    rdfs:label "Cross Reference" ;
+    rdfs:comment "A relationship between two scripture passages derived from public datasets." .
+
+bos:hasCrossReference a rdf:Property ;
+    rdfs:label "has cross reference" ;
+    rdfs:comment "Associates a passage with a cross-reference relation." ;
+    rdfs:domain bos:Passage ;
+    rdfs:range bos:CrossReference .
+
+bos:relatesPassage a rdf:Property ;
+    rdfs:label "relates passage" ;
+    rdfs:comment "Identifies the target passage in a cross-reference relationship." ;
+    rdfs:domain bos:CrossReference ;
+    rdfs:range bos:Passage .
+
+bos:relationEvidence a rdf:Property ;
+    rdfs:label "relation evidence" ;
+    rdfs:comment "Provides supporting data for the relationship, such as community vote counts or relevance scores." ;
+    rdfs:domain bos:CrossReference ;
+    rdfs:range xsd:string .
+
+# Provenance Entry for Research Task
+bos:OpenBible_Provenance
+    a prov:Bundle ;
+    prov:wasGeneratedBy bos:BIBLE_O_STAR_001_Agent3 ;
+    prov:qualifiedAttribution [
+        a prov:Attribution ;
+        prov:agent bos:Agent_Meshullam ;
+        prov:hadRole bos:Researcher 
+    ] .
+
+bos:BIBLE_O_STAR_001_Agent3
+    a prov:Activity ;
+    dc:title "Research OpenBible.info as public relation graph layer" ;
+    prov:startedAtTime "2024-06-12T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith bos:Agent_Meshullam .
+
+# Example Record
+# Genesis 1:1 cross-references John 1:1 with 50 votes
+<urn:osis:Gen.1.1> bos:hasCrossReference [
+    a bos:CrossReference ;
+    bos:relatesPassage <urn:osis:John.1.1> ;
+    bos:relationEvidence "50 votes" ;
+    prov:wasDerivedFrom bos:OpenBible_CrossReferences
+] .

@@ -1,0 +1,253 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ip: <http://cns-litigation.org/ip-ontology#> .
+@prefix emp: <http://cns-litigation.org/employment-ontology#> .
+@prefix legal: <http://cns-litigation.org/legal-ontology#> .
+@prefix pattern: <http://cns-litigation.org/patterns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Employment-IP Contradiction Pattern Definitions
+
+<http://cns-litigation.org/patterns> a owl:Ontology ;
+    rdfs:label "Employment-IP Contradiction Patterns" ;
+    rdfs:comment "Comprehensive patterns for detecting contradictions between employment agreements, IP assignments, and actual work performed" ;
+    owl:versionInfo "1.0.0" ;
+    legal:jurisdiction "US Federal and State Law" .
+
+# Core Pattern Classes
+
+pattern:ContradictionPattern a owl:Class ;
+    rdfs:label "Contradiction Pattern" ;
+    rdfs:comment "Abstract pattern for detecting legal contradictions in IP/employment contexts" ;
+    rdfs:subClassOf legal:LegalPattern .
+
+pattern:OwnershipContradictionPattern a owl:Class ;
+    rdfs:label "Ownership Contradiction Pattern" ;
+    rdfs:comment "Patterns for detecting contradictory ownership claims" ;
+    rdfs:subClassOf pattern:ContradictionPattern .
+
+pattern:ScopeContradictionPattern a owl:Class ;
+    rdfs:label "Scope Contradiction Pattern" ;
+    rdfs:comment "Patterns for detecting contradictory scope definitions" ;
+    rdfs:subClassOf pattern:ContradictionPattern .
+
+pattern:TemporalContradictionPattern a owl:Class ;
+    rdfs:label "Temporal Contradiction Pattern" ;
+    rdfs:comment "Patterns for detecting time-based contradictions" ;
+    rdfs:subClassOf pattern:ContradictionPattern .
+
+# Specific Contradiction Patterns
+
+## Pattern 1: Conflicting IP Ownership Claims
+pattern:ConflictingOwnershipClaims a pattern:OwnershipContradictionPattern ;
+    rdfs:label "Conflicting IP Ownership Claims" ;
+    rdfs:comment "Detects when multiple documents claim ownership of the same IP" ;
+    pattern:severity "HIGH" ;
+    pattern:detectionRules [
+        pattern:rule "Same invention claimed by employment agreement AND separate IP assignment" ;
+        pattern:condition "ip:invention ?inv . ?emp emp:claimsOwnership ?inv . ?assign ip:assignsOwnership ?inv . ?emp != ?assign" ;
+        pattern:confidence "0.95"^^xsd:decimal
+    ] ;
+    pattern:evidenceRequired [
+        pattern:primaryEvidence "Invention identification in multiple documents" ;
+        pattern:secondaryEvidence "Overlapping temporal scope" ;
+        pattern:supportingEvidence "Conflicting assignment language"
+    ] ;
+    pattern:legalImplications [
+        legal:riskLevel "HIGH" ;
+        legal:potentialDamages "Significant monetary damages, injunctive relief" ;
+        legal:recommendedAction "Immediate clarification and amendment"
+    ] .
+
+## Pattern 2: Work-for-Hire vs. Explicit Assignment Contradiction
+pattern:WorkForHireAssignmentConflict a pattern:OwnershipContradictionPattern ;
+    rdfs:label "Work-for-Hire vs Assignment Conflict" ;
+    rdfs:comment "Detects contradictions between work-for-hire claims and explicit assignments" ;
+    pattern:severity "MEDIUM" ;
+    pattern:detectionRules [
+        pattern:rule "Work claimed as work-for-hire AND separately assigned" ;
+        pattern:condition "?work emp:workForHire true . ?work ip:explicitlyAssigned true" ;
+        pattern:confidence "0.88"^^xsd:decimal
+    ] ;
+    pattern:legalAnalysis [
+        legal:doctrine "Work-for-hire creates automatic ownership; assignment requires separate conveyance" ;
+        legal:contradiction "Double ownership mechanism indicates drafting error or intentional redundancy" ;
+        legal:resolution "Determine primary ownership mechanism and clarify secondary provisions"
+    ] .
+
+## Pattern 3: Temporal Scope Contradictions
+pattern:TemporalScopeConflict a pattern:TemporalContradictionPattern ;
+    rdfs:label "Temporal Scope Conflict" ;
+    rdfs:comment "Detects contradictory temporal scopes in different agreements" ;
+    pattern:severity "MEDIUM" ;
+    pattern:detectionRules [
+        pattern:rule "Overlapping but contradictory time periods" ;
+        pattern:condition "?doc1 legal:effectiveDate ?date1 . ?doc2 legal:effectiveDate ?date2 . ?doc1 legal:scope ?scope1 . ?doc2 legal:scope ?scope2 . FILTER(?scope1 != ?scope2 && ?date1 < ?date2 && ?date1 + ?doc1.duration > ?date2)" ;
+        pattern:confidence "0.82"^^xsd:decimal
+    ] ;
+    pattern:temporalAnalysis [
+        pattern:overlapDetection "true"^^xsd:boolean ;
+        pattern:priorityRules "Later agreement generally supersedes unless explicitly stated otherwise" ;
+        pattern:ambiguityResolution "Apply contract interpretation principles"
+    ] .
+
+## Pattern 4: Invention Disclosure Contradictions
+pattern:InventionDisclosureConflict a pattern:ScopeContradictionPattern ;
+    rdfs:label "Invention Disclosure Conflict" ;
+    rdfs:comment "Detects contradictions in invention disclosure requirements and actual practice" ;
+    pattern:severity "MEDIUM" ;
+    pattern:detectionRules [
+        pattern:rule "Required disclosure vs. actual disclosure mismatch" ;
+        pattern:condition "?emp emp:requiresDisclosure ?req . ?inv ip:actualDisclosure ?actual . FILTER(?req != ?actual)" ;
+        pattern:confidence "0.75"^^xsd:decimal
+    ] ;
+    pattern:disclosureAnalysis [
+        pattern:requirementType "Mandatory, Optional, Conditional" ;
+        pattern:actualPractice "Disclosed, Undisclosed, Partially Disclosed" ;
+        pattern:complianceLevel "Full, Partial, Non-compliant"
+    ] .
+
+## Pattern 5: Competing Work Restrictions
+pattern:CompetingWorkRestriction a pattern:ScopeContradictionPattern ;
+    rdfs:label "Competing Work Restriction Violation" ;
+    rdfs:comment "Detects violations of competing work restrictions" ;
+    pattern:severity "HIGH" ;
+    pattern:detectionRules [
+        pattern:rule "Work performed conflicts with restriction clause" ;
+        pattern:condition "?emp emp:prohibitsWork ?restriction . ?work emp:actualWork ?workType . FILTER(conflicts(?restriction, ?workType))" ;
+        pattern:confidence "0.91"^^xsd:decimal
+    ] ;
+    pattern:restrictionAnalysis [
+        pattern:restrictionScope "Industry, Technology, Customer, Geographic" ;
+        pattern:workClassification "Direct competition, Indirect competition, Non-competing" ;
+        pattern:violationSeverity "Clear violation, Gray area, Compliant"
+    ] .
+
+## Pattern 6: Export Control Contradiction
+pattern:ExportControlContradiction a pattern:ContradictionPattern ;
+    rdfs:label "Export Control Compliance Contradiction" ;
+    rdfs:comment "Detects contradictions between IP assignments and export control requirements" ;
+    pattern:severity "CRITICAL" ;
+    pattern:detectionRules [
+        pattern:rule "Assigned IP subject to export controls not properly restricted" ;
+        pattern:condition "?ip ip:assignedTo ?entity . ?ip ip:subjectToExportControl true . ?assignment ip:exportControlRestrictions false" ;
+        pattern:confidence "0.98"^^xsd:decimal
+    ] ;
+    pattern:exportControlAnalysis [
+        pattern:technologyClassification "ITAR, EAR, Dual-use" ;
+        pattern:controlLevel "Export License Required, General License, No License" ;
+        pattern:violationRisk "Criminal penalties, Civil penalties, License revocation"
+    ] ;
+    pattern:complianceRequirements [
+        pattern:licenseRequired "true"^^xsd:boolean ;
+        pattern:restrictedParties "Check against denied persons list" ;
+        pattern:destinationControls "Country-specific restrictions apply"
+    ] .
+
+## Pattern 7: Joint Inventorship Conflicts
+pattern:JointInventorshipConflict a pattern:OwnershipContradictionPattern ;
+    rdfs:label "Joint Inventorship Conflict" ;
+    rdfs:comment "Detects conflicts in joint inventorship claims and assignments" ;
+    pattern:severity "HIGH" ;
+    pattern:detectionRules [
+        pattern:rule "Joint inventor rights inconsistently assigned" ;
+        pattern:condition "?inv ip:hasJointInventor ?inv1, ?inv2 . ?inv1 ip:assignsRights ?assign1 . ?inv2 ip:assignsRights ?assign2 . FILTER(?assign1 != ?assign2)" ;
+        pattern:confidence "0.89"^^xsd:decimal
+    ] ;
+    pattern:jointInventorshipAnalysis [
+        pattern:inventorContribution "Independent assessment required" ;
+        pattern:assignmentConsistency "All joint inventors must assign consistently" ;
+        pattern:ownershipFractionation "Avoid fractional ownership complications"
+    ] .
+
+## Pattern 8: Consideration Adequacy Issues
+pattern:ConsiderationAdequacy a pattern:ContradictionPattern ;
+    rdfs:label "Inadequate Consideration Pattern" ;
+    rdfs:comment "Detects potential consideration adequacy issues in IP assignments" ;
+    pattern:severity "MEDIUM" ;
+    pattern:detectionRules [
+        pattern:rule "IP assignment lacks adequate consideration" ;
+        pattern:condition "?assign ip:hasConsideration ?consideration . FILTER(?consideration = 'nominal' || ?consideration < 100)" ;
+        pattern:confidence "0.70"^^xsd:decimal
+    ] ;
+    pattern:considerationAnalysis [
+        pattern:considerationType "Monetary, Employment continuation, Equity, Benefits" ;
+        pattern:adequacyStandard "Fair market value, Nominal consideration, Bargained-for exchange" ;
+        pattern:enforceabilityRisk "Assignment may be unenforceable without adequate consideration"
+    ] .
+
+# Pattern Detection Rules and Logic
+
+pattern:PatternDetectionEngine a owl:Class ;
+    rdfs:label "Pattern Detection Engine" ;
+    rdfs:comment "Engine for applying pattern detection rules to legal documents" .
+
+pattern:hasDetectionRule a owl:ObjectProperty ;
+    rdfs:domain pattern:ContradictionPattern ;
+    rdfs:range pattern:DetectionRule .
+
+pattern:DetectionRule a owl:Class ;
+    rdfs:label "Detection Rule" ;
+    rdfs:comment "Logical rule for pattern detection" .
+
+pattern:hasSeverityLevel a owl:DatatypeProperty ;
+    rdfs:domain pattern:ContradictionPattern ;
+    rdfs:range xsd:string .
+
+pattern:hasConfidenceScore a owl:DatatypeProperty ;
+    rdfs:domain pattern:DetectionRule ;
+    rdfs:range xsd:decimal .
+
+# Remediation Patterns
+
+pattern:RemediationPattern a owl:Class ;
+    rdfs:label "Remediation Pattern" ;
+    rdfs:comment "Pattern for resolving detected contradictions" .
+
+pattern:ClarificationAmendment a pattern:RemediationPattern ;
+    rdfs:label "Clarification Amendment" ;
+    rdfs:comment "Resolve contradiction through clarifying amendment" ;
+    pattern:priority "HIGH" ;
+    pattern:complexity "LOW" ;
+    pattern:timeframe "1-2 weeks" .
+
+pattern:SupplementalAgreement a pattern:RemediationPattern ;
+    rdfs:label "Supplemental Agreement" ;
+    rdfs:comment "Create supplemental agreement to resolve conflicts" ;
+    pattern:priority "MEDIUM" ;
+    pattern:complexity "MEDIUM" ;
+    pattern:timeframe "2-4 weeks" .
+
+pattern:DocumentReplacement a pattern:RemediationPattern ;
+    rdfs:label "Document Replacement" ;
+    rdfs:comment "Replace contradictory documents with consistent versions" ;
+    pattern:priority "LOW" ;
+    pattern:complexity "HIGH" ;
+    pattern:timeframe "4-8 weeks" .
+
+# Validation and Testing Patterns
+
+pattern:PatternValidation a owl:Class ;
+    rdfs:label "Pattern Validation" ;
+    rdfs:comment "Framework for validating pattern detection accuracy" .
+
+pattern:TestCase a owl:Class ;
+    rdfs:label "Test Case" ;
+    rdfs:comment "Test case for pattern detection validation" .
+
+pattern:hasTestCase a owl:ObjectProperty ;
+    rdfs:domain pattern:ContradictionPattern ;
+    rdfs:range pattern:TestCase .
+
+# Performance Metrics
+
+pattern:DetectionMetrics a owl:Class ;
+    rdfs:label "Detection Metrics" ;
+    rdfs:comment "Metrics for pattern detection performance" ;
+    pattern:precision "0.92"^^xsd:decimal ;
+    pattern:recall "0.87"^^xsd:decimal ;
+    pattern:f1Score "0.895"^^xsd:decimal ;
+    pattern:falsePositiveRate "0.08"^^xsd:decimal ;
+    pattern:falseNegativeRate "0.13"^^xsd:decimal .

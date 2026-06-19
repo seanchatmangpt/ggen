@@ -1,0 +1,207 @@
+# Example: Product Roadmap with JTBD Prioritization
+# Demonstrates how to plan releases based on job frequency and importance
+
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix jtbd: <http://github.com/github/spec-kit/jtbd#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Q1 2025 Release - Dependency Management Foundation
+# =============================================================================
+
+:q1-2025-release a jtbd:Release ;
+    jtbd:quarter "Q1 2025" ;
+    jtbd:releaseName "Dependency Management Foundation" ;
+    jtbd:releaseDescription "Enable RDF designers to manage dependencies efficiently" ;
+    jtbd:hasFeature :deps-add-roadmap, :deps-validate-roadmap, :deps-graph-roadmap .
+
+:deps-add-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "deps-add" ;
+    jtbd:accomplishesJob :specify-dependency-job ;
+    jtbd:deliversOutcome :faster-dependency-addition ;
+    jtbd:targetPersona :rdf-designer ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" ;
+    jtbd:estimatedEffort "Small" ;
+    jtbd:riskLevel "Low" ;
+    jtbd:mitigation "Use established CLI patterns from existing commands" ;
+    jtbd:dependencies "" .
+
+:deps-validate-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "deps-validate" ;
+    jtbd:accomplishesJob :ensure-semantic-integrity-job ;
+    jtbd:deliversOutcome :zero-dependency-conflicts ;
+    jtbd:targetPersona :rdf-designer ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" ;
+    jtbd:estimatedEffort "Medium" ;
+    jtbd:riskLevel "Medium" ;
+    jtbd:mitigation "Integrate with existing SHACL validation pipeline" ;
+    jtbd:dependencies "deps-add" .
+
+:deps-graph-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "deps-graph" ;
+    jtbd:accomplishesJob :visualize-dependencies-job ;
+    jtbd:deliversOutcome :understand-dependency-structure ;
+    jtbd:targetPersona :rdf-designer ;
+    jtbd:jobFrequency "Medium" ;
+    jtbd:jobImportance "High" ;
+    jtbd:estimatedEffort "Medium" ;
+    jtbd:riskLevel "Low" ;
+    jtbd:mitigation "Reuse Mermaid integration from existing visualization features" ;
+    jtbd:dependencies "deps-add|deps-validate" .
+
+# =============================================================================
+# Q2 2025 Release - Collaborative Specification
+# =============================================================================
+
+:q2-2025-release a jtbd:Release ;
+    jtbd:quarter "Q2 2025" ;
+    jtbd:releaseName "Collaborative Specification" ;
+    jtbd:releaseDescription "Enable teams to collaborate on RDF specifications" ;
+    jtbd:hasFeature :collab-merge-roadmap, :collab-review-roadmap .
+
+:collab-merge-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "collab-merge" ;
+    jtbd:accomplishesJob :merge-specifications-job ;
+    jtbd:deliversOutcome :conflict-free-merges ;
+    jtbd:targetPersona :team-lead ;
+    jtbd:jobFrequency "Medium" ;
+    jtbd:jobImportance "High" ;
+    jtbd:estimatedEffort "Large" ;
+    jtbd:riskLevel "High" ;
+    jtbd:mitigation "Develop RDF-aware merge algorithm; extensive testing" ;
+    jtbd:dependencies "deps-validate" .
+
+:collab-review-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "collab-review" ;
+    jtbd:accomplishesJob :review-specifications-job ;
+    jtbd:deliversOutcome :faster-review-cycles ;
+    jtbd:targetPersona :ontology-reviewer ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Medium" ;
+    jtbd:estimatedEffort "Medium" ;
+    jtbd:riskLevel "Medium" ;
+    jtbd:mitigation "Integrate with GitHub PR workflow" ;
+    jtbd:dependencies "" .
+
+# =============================================================================
+# Q3 2025 Release - Advanced Validation
+# =============================================================================
+
+:q3-2025-release a jtbd:Release ;
+    jtbd:quarter "Q3 2025" ;
+    jtbd:releaseName "Advanced Validation" ;
+    jtbd:releaseDescription "Provide comprehensive validation and quality checks" ;
+    jtbd:hasFeature :validate-shapes-roadmap, :validate-performance-roadmap .
+
+:validate-shapes-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "validate-shapes" ;
+    jtbd:accomplishesJob :ensure-data-quality-job ;
+    jtbd:deliversOutcome :zero-validation-errors ;
+    jtbd:targetPersona :rdf-designer ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" ;
+    jtbd:estimatedEffort "Large" ;
+    jtbd:riskLevel "Medium" ;
+    jtbd:mitigation "Build on proven SHACL libraries; comprehensive test suite" ;
+    jtbd:dependencies "deps-validate" .
+
+:validate-performance-roadmap a jtbd:PlannedFeature ;
+    sk:featureName "validate-performance" ;
+    jtbd:accomplishesJob :optimize-query-performance-job ;
+    jtbd:deliversOutcome :faster-validation ;
+    jtbd:targetPersona :performance-engineer ;
+    jtbd:jobFrequency "Low" ;
+    jtbd:jobImportance "Medium" ;
+    jtbd:estimatedEffort "Medium" ;
+    jtbd:riskLevel "Medium" ;
+    jtbd:mitigation "Profile existing validation bottlenecks" ;
+    jtbd:dependencies "validate-shapes" .
+
+# =============================================================================
+# Job Definitions (Referenced Above)
+# =============================================================================
+
+:specify-dependency-job a jtbd:Job ;
+    jtbd:jobTitle "Specify dependency management" ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" .
+
+:ensure-semantic-integrity-job a jtbd:Job ;
+    jtbd:jobTitle "Ensure semantic integrity" ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" .
+
+:visualize-dependencies-job a jtbd:Job ;
+    jtbd:jobTitle "Visualize dependency structure" ;
+    jtbd:jobFrequency "Medium" ;
+    jtbd:jobImportance "High" .
+
+:merge-specifications-job a jtbd:Job ;
+    jtbd:jobTitle "Merge RDF specifications" ;
+    jtbd:jobFrequency "Medium" ;
+    jtbd:jobImportance "High" .
+
+:review-specifications-job a jtbd:Job ;
+    jtbd:jobTitle "Review ontology changes" ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Medium" .
+
+:ensure-data-quality-job a jtbd:Job ;
+    jtbd:jobTitle "Ensure data quality" ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" .
+
+:optimize-query-performance-job a jtbd:Job ;
+    jtbd:jobTitle "Optimize SPARQL performance" ;
+    jtbd:jobFrequency "Low" ;
+    jtbd:jobImportance "Medium" .
+
+# =============================================================================
+# Outcome Definitions
+# =============================================================================
+
+:faster-dependency-addition a jtbd:Outcome ;
+    jtbd:outcomeDescription "Add dependencies 50% faster" ;
+    jtbd:targetValue "< 10 seconds" .
+
+:zero-dependency-conflicts a jtbd:Outcome ;
+    jtbd:outcomeDescription "Eliminate dependency conflicts" ;
+    jtbd:targetValue "0 conflicts" .
+
+:understand-dependency-structure a jtbd:Outcome ;
+    jtbd:outcomeDescription "Visualize entire dependency graph in < 5 seconds" ;
+    jtbd:targetValue "< 5 seconds" .
+
+:conflict-free-merges a jtbd:Outcome ;
+    jtbd:outcomeDescription "Merge specifications without manual conflict resolution" ;
+    jtbd:targetValue "> 95% automatic merges" .
+
+:faster-review-cycles a jtbd:Outcome ;
+    jtbd:outcomeDescription "Reduce review time by 60%" ;
+    jtbd:targetValue "< 30 minutes per review" .
+
+:zero-validation-errors a jtbd:Outcome ;
+    jtbd:outcomeDescription "Catch all SHACL violations pre-commit" ;
+    jtbd:targetValue "100% pre-commit detection" .
+
+:faster-validation a jtbd:Outcome ;
+    jtbd:outcomeDescription "Validate large ontologies 3x faster" ;
+    jtbd:targetValue "< 2 seconds for 10k triples" .
+
+# =============================================================================
+# Persona Definitions
+# =============================================================================
+
+:rdf-designer a jtbd:Persona ;
+    jtbd:personaName "RDF Designer" .
+
+:team-lead a jtbd:Persona ;
+    jtbd:personaName "Team Lead" .
+
+:ontology-reviewer a jtbd:Persona ;
+    jtbd:personaName "Ontology Reviewer" .
+
+:performance-engineer a jtbd:Persona ;
+    jtbd:personaName "Performance Engineer" .

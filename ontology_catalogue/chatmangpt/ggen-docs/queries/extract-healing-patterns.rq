@@ -1,0 +1,28 @@
+# Extract OSA healing patterns and failure analysis
+PREFIX osa: <https://chatmangpt.com/osa#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?pattern ?label ?failureType ?confidenceThreshold ?strategyFailureMode ?fixAction ?escalation
+WHERE {
+  ?pattern a osa:HealingPattern ;
+           rdfs:label ?label .
+  {
+    ?pattern osa:analyzes ?analysis .
+    ?analysis a osa:Failure ;
+              osa:type ?failureType .
+    OPTIONAL { ?analysis osa:confidence_threshold ?confidenceThreshold }
+    OPTIONAL { ?analysis osa:detector ?detector }
+    BIND("" AS ?strategyFailureMode)
+    BIND("" AS ?fixAction)
+    BIND("" AS ?escalation)
+  } UNION {
+    ?pattern osa:strategies ?strat .
+    ?strat a osa:Strategy ;
+           osa:failure_mode ?strategyFailureMode ;
+           osa:fix_action ?fixAction ;
+           osa:escalation ?escalation .
+    BIND("" AS ?failureType)
+    BIND("" AS ?confidenceThreshold)
+  }
+}
+ORDER BY ?label ?failureType ?strategyFailureMode

@@ -1,0 +1,184 @@
+# Three-Layer Verification DoD Ontology
+# Full verification: OTEL span + test assertion + weaver schema conformance
+# All 12 check types across 5 categories for production-grade verification
+
+@prefix dod: <http://ggen.chatmangpt.com/dod#> .
+@prefix tl: <http://ggen.chatmangpt.com/three-layer#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# REUSE DOD ONTOLOGY CLASSES (import via dod: prefix)
+# ============================================================================
+
+# Categories
+tl:WvdASoundness
+  a dod:CheckCategory ;
+  dod:categoryName "WvdA Soundness" ;
+  dod:categoryOrder 1 .
+
+tl:ArmstrongFaultTolerance
+  a dod:CheckCategory ;
+  dod:categoryName "Armstrong Fault Tolerance" ;
+  dod:categoryOrder 2 .
+
+tl:ChicagoTDD
+  a dod:CheckCategory ;
+  dod:categoryName "Chicago TDD" ;
+  dod:categoryOrder 3 .
+
+tl:Verification
+  a dod:CheckCategory ;
+  dod:categoryName "Verification" ;
+  dod:categoryOrder 4 .
+
+tl:CodeQuality
+  a dod:CheckCategory ;
+  dod:categoryName "Code Quality" ;
+  dod:categoryOrder 5 .
+
+# ============================================================================
+# DEFAULT CHECKS (applied to every feature)
+# ============================================================================
+
+# --- WvdA Soundness ---
+
+tl:default-deadlock
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "All blocking operations have explicit timeout_ms with fallback" ;
+  dod:evidenceRequired "Code review: grep for await/receive/get without timeout; formal deadlock proof or cycle check in resource dependency graph" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'await\\(|receive\\(|\\.get\\(' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ | grep -v 'timeout'" ;
+  dod:belongsToCategory tl:WvdASoundness .
+
+tl:default-liveness
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "All loops have bounded iteration or explicit exit; no infinite execution paths" ;
+  dod:evidenceRequired "Code review: no while true without sleep and escape; formal liveness proof" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'loop \\{|while true|recursion' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory tl:WvdASoundness .
+
+tl:default-boundedness
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "All queues, caches, and in-memory structures have explicit size limits and TTL" ;
+  dod:evidenceRequired "Code review: max_size, capacity, TTL set on all collections; load test showing bounded growth" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'VecDeque|HashMap|BTreeMap|Vec<|Queue' --type rust src/ | grep -v 'capacity\\|with_capacity\\|max\\|limit'" ;
+  dod:belongsToCategory tl:WvdASoundness .
+
+# --- Armstrong Fault Tolerance ---
+
+tl:default-supervision
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Every worker process has explicit supervisor with documented restart strategy" ;
+  dod:evidenceRequired "Supervisor tree showing all children supervised; restart strategy (permanent/transient/temporary) documented per child" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'Supervisor|supervisor|start_link|spawn' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory tl:ArmstrongFaultTolerance .
+
+tl:default-no-shared-state
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-no-shared-state" ;
+  dod:checkDescription "No shared mutable state; all inter-process communication via message passing" ;
+  dod:evidenceRequired "Code review: no global mutex, no shared memory, all communication via channels/messages/GenServer calls" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'static mut|Arc<Mutex|global|GlobalMutex' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory tl:ArmstrongFaultTolerance .
+
+tl:default-let-it-crash
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-let-it-crash" ;
+  dod:checkDescription "No bare try/catch/unwrap_or_default swallowing errors; failures propagate to supervisor" ;
+  dod:evidenceRequired "Code review: no catch-all exception handlers that hide failures; crashes visible in supervisor logs" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'unwrap_or_default|catch_all|catch\\(|rescue' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ | grep -v 'TODO\\|FIXME'" ;
+  dod:belongsToCategory tl:ArmstrongFaultTolerance .
+
+# --- Chicago TDD ---
+
+tl:default-tdd-red
+  a dod:DoDCheck ;
+  dod:checkType "chicago-tdd-red" ;
+  dod:checkDescription "Failing test written before implementation; test name describes the claim being tested" ;
+  dod:evidenceRequired "Test file with _test.{rs,go,exs} extension; test name matches claim; assertion on exact behavior; test FAILS without implementation" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test --no-run 2>&1 | head -20" ;
+  dod:belongsToCategory tl:ChicagoTDD .
+
+tl:default-tdd-green
+  a dod:DoDCheck ;
+  dod:checkType "chicago-tdd-green" ;
+  dod:checkDescription "Minimal implementation makes Red test pass; no extra features added; test is deterministic" ;
+  dod:evidenceRequired "Test output shows PASS; run 10x confirms determinism; implementation contains only code needed for test" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test 2>&1 | tail -10" ;
+  dod:belongsToCategory tl:ChicagoTDD .
+
+# --- Verification (Three-Layer) ---
+
+tl:default-otel-span
+  a dod:DoDCheck ;
+  dod:checkType "otel-span-exists" ;
+  dod:checkDescription "OTEL span exists in Jaeger with correct service name, span name, status, and attributes" ;
+  dod:evidenceRequired "Jaeger trace showing: service name match, span name match, timestamp with us precision, attributes with values, status = ok" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "curl -s http://localhost:16686/api/traces?service=SERVICE_NAME | jq '.data[0].spans[] | select(.operationName==\"SPAN_NAME\") | .tags'" ;
+  dod:belongsToCategory tl:Verification .
+
+tl:default-weaver-check
+  a dod:DoDCheck ;
+  dod:checkType "weaver-registry-check" ;
+  dod:checkDescription "Span definition in semconv/model; weaver registry check exits 0; typed constants used in tests" ;
+  dod:evidenceRequired "weaver registry check -r ./semconv/model -p ./semconv/policies/ exits 0; semconv constants compile-linked in test assertions" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "weaver registry check -r ./semconv/model -p ./semconv/policies/ --quiet; echo exit=$?" ;
+  dod:belongsToCategory tl:Verification .
+
+tl:default-test-passing
+  a dod:DoDCheck ;
+  dod:checkType "test-passing" ;
+  dod:checkDescription "All tests pass with zero failures and zero skipped tests on production code" ;
+  dod:evidenceRequired "Test runner output: N passed, 0 failed, 0 skipped; no @skip tags on production tests" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test 2>&1 | tail -5" ;
+  dod:belongsToCategory tl:Verification .
+
+# --- Code Quality ---
+
+tl:default-zero-warnings
+  a dod:DoDCheck ;
+  dod:checkType "zero-warnings" ;
+  dod:checkDescription "Zero compiler warnings; zero clippy warnings; code formatted" ;
+  dod:evidenceRequired "cargo clippy -- -D warnings exits 0; cargo fmt --check exits 0" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo clippy -- -D warnings 2>&1 && cargo fmt --check 2>&1" ;
+  dod:belongsToCategory tl:CodeQuality .
+
+tl:default-commit-convention
+  a dod:DoDCheck ;
+  dod:checkType "commit-message-convention" ;
+  dod:checkDescription "All commits follow conventional commit format: type(scope): description" ;
+  dod:evidenceRequired "git log on branch shows all commits matching ^(feat|fix|docs|refactor|test|chore)\\(" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "git log --oneline -20 | rg '^(feat|fix|docs|refactor|test|chore)\\('" ;
+  dod:belongsToCategory tl:CodeQuality .

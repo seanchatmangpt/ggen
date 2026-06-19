@@ -1,0 +1,424 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# SHACL Shapes for CLI Command Specifications
+# ============================================================================
+# Purpose: Validate RDF command specifications for test generation
+# Stage: μ₁ (Normalization/Validation)
+# Usage: shacl validate -s cli-command-shapes.ttl -d cli-commands.ttl
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# CLICommand Shape
+# ----------------------------------------------------------------------------
+
+sk:CLICommandShape a sh:NodeShape ;
+    sh:targetClass sk:CLICommand ;
+    sh:name "CLI Command Shape" ;
+    sh:description "Validates CLI command specifications" ;
+
+    # Required properties
+    sh:property [
+        sh:path sk:commandName ;
+        sh:name "Command Name" ;
+        sh:description "The CLI command name (e.g., 'check', 'init')" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9-]*$" ;
+        sh:message "Command name must be lowercase with hyphens, starting with a letter" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:commandDescription ;
+        sh:name "Command Description" ;
+        sh:description "Brief description of what the command does" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Command description is required and must be at least 10 characters" ;
+    ] ;
+
+    # Optional properties
+    sh:property [
+        sh:path sk:commandGroup ;
+        sh:name "Command Group" ;
+        sh:description "Command category (e.g., 'tools', 'project')" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:commandPurpose ;
+        sh:name "Command Purpose" ;
+        sh:description "Detailed purpose explanation" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    # Relationships
+    sh:property [
+        sh:path sk:hasArgument ;
+        sh:name "Command Arguments" ;
+        sh:description "Positional arguments for this command" ;
+        sh:class sk:CommandArgument ;
+    ] ;
+
+    sh:property [
+        sh:path sk:hasOption ;
+        sh:name "Command Options" ;
+        sh:description "Options/flags for this command" ;
+        sh:class sk:CommandOption ;
+    ] ;
+
+    sh:property [
+        sh:path sk:hasErrorCase ;
+        sh:name "Error Cases" ;
+        sh:description "Known error scenarios to test" ;
+        sh:class sk:CommandErrorCase ;
+    ] ;
+
+    sh:property [
+        sh:path sk:hasExpectedOutputField ;
+        sh:name "Expected Output Fields" ;
+        sh:description "Expected output structure for success cases" ;
+        sh:class sk:OutputField ;
+    ] .
+
+
+# ----------------------------------------------------------------------------
+# CommandArgument Shape
+# ----------------------------------------------------------------------------
+
+sk:CommandArgumentShape a sh:NodeShape ;
+    sh:targetClass sk:CommandArgument ;
+    sh:name "Command Argument Shape" ;
+    sh:description "Validates command argument specifications" ;
+
+    # Required properties
+    sh:property [
+        sh:path sk:argumentName ;
+        sh:name "Argument Name" ;
+        sh:description "The argument parameter name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Argument name must be lowercase with underscores" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:argumentType ;
+        sh:name "Argument Type" ;
+        sh:description "Data type of the argument" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("string" "int" "float" "path" "boolean") ;
+        sh:message "Argument type must be one of: string, int, float, path, boolean" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:argumentRequired ;
+        sh:name "Argument Required" ;
+        sh:description "Whether this argument is required" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("true" "false") ;
+        sh:message "argumentRequired must be 'true' or 'false'" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:argumentPosition ;
+        sh:name "Argument Position" ;
+        sh:description "Positional index (0-based)" ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Argument position must be a non-negative integer" ;
+    ] ;
+
+    # Optional properties
+    sh:property [
+        sh:path sk:argumentDescription ;
+        sh:name "Argument Description" ;
+        sh:description "Help text for this argument" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:argumentDefaultTestValue ;
+        sh:name "Default Test Value" ;
+        sh:description "Default value to use in generated tests" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] .
+
+
+# ----------------------------------------------------------------------------
+# CommandOption Shape
+# ----------------------------------------------------------------------------
+
+sk:CommandOptionShape a sh:NodeShape ;
+    sh:targetClass sk:CommandOption ;
+    sh:name "Command Option Shape" ;
+    sh:description "Validates command option specifications" ;
+
+    # Required properties
+    sh:property [
+        sh:path sk:optionName ;
+        sh:name "Option Name" ;
+        sh:description "Full option name (e.g., '--verbose')" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^--[a-z][a-z0-9-]*$" ;
+        sh:message "Option name must start with '--' and be lowercase with hyphens" ;
+    ] ;
+
+    # Optional but recommended properties
+    sh:property [
+        sh:path sk:optionShortFlag ;
+        sh:name "Short Flag" ;
+        sh:description "Short option flag (e.g., '-v')" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^-[a-zA-Z]$" ;
+        sh:message "Short flag must be a single letter with dash (e.g., '-v')" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:optionType ;
+        sh:name "Option Type" ;
+        sh:description "Type of option value" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:in ("flag" "string" "int" "float" "path" "boolean") ;
+        sh:message "Option type must be one of: flag, string, int, float, path, boolean" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:optionDefault ;
+        sh:name "Default Value" ;
+        sh:description "Default value when option not specified" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:optionDescription ;
+        sh:name "Option Description" ;
+        sh:description "Help text for this option" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:optionTestValue ;
+        sh:name "Test Value" ;
+        sh:description "Value to use in generated tests" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:optionExpectedBehavior ;
+        sh:name "Expected Behavior" ;
+        sh:description "Description of what this option does" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] .
+
+
+# ----------------------------------------------------------------------------
+# CommandErrorCase Shape
+# ----------------------------------------------------------------------------
+
+sk:CommandErrorCaseShape a sh:NodeShape ;
+    sh:targetClass sk:CommandErrorCase ;
+    sh:name "Command Error Case Shape" ;
+    sh:description "Validates error case specifications for testing" ;
+
+    # Required properties
+    sh:property [
+        sh:path sk:errorId ;
+        sh:name "Error ID" ;
+        sh:description "Unique identifier for this error case" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9-]*$" ;
+        sh:message "Error ID must be lowercase with hyphens" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorScenario ;
+        sh:name "Error Scenario" ;
+        sh:description "Description of what triggers this error" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Error scenario description required (min 10 characters)" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorExpectedBehavior ;
+        sh:name "Expected Behavior" ;
+        sh:description "How the system should handle this error" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:message "Expected behavior description required (min 10 characters)" ;
+    ] ;
+
+    # Optional properties
+    sh:property [
+        sh:path sk:errorTrigger ;
+        sh:name "Error Trigger" ;
+        sh:description "What causes this error to occur" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorExpectedExitCode ;
+        sh:name "Expected Exit Code" ;
+        sh:description "Expected process exit code (default: 1)" ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Exit code must be between 0 and 255" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorException ;
+        sh:name "Exception Class" ;
+        sh:description "Exception class name (e.g., 'RuntimeError')" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorExceptionModule ;
+        sh:name "Exception Module" ;
+        sh:description "Python module containing the exception" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorMessage ;
+        sh:name "Error Message" ;
+        sh:description "Error message text" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorCommandArgs ;
+        sh:name "Command Arguments" ;
+        sh:description "Command arguments as JSON array" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorExpectedOutput ;
+        sh:name "Expected Output" ;
+        sh:description "Expected substring in output" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path sk:errorMockSetup ;
+        sh:name "Mock Setup Code" ;
+        sh:description "Python code to set up mocks for this error" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] .
+
+
+# ----------------------------------------------------------------------------
+# OutputField Shape
+# ----------------------------------------------------------------------------
+
+sk:OutputFieldShape a sh:NodeShape ;
+    sh:targetClass sk:OutputField ;
+    sh:name "Output Field Shape" ;
+    sh:description "Validates expected output field specifications" ;
+
+    # Required properties
+    sh:property [
+        sh:path sk:fieldName ;
+        sh:name "Field Name" ;
+        sh:description "Name of the output field" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Field name must be lowercase with underscores" ;
+    ] ;
+
+    sh:property [
+        sh:path sk:fieldTestValue ;
+        sh:name "Test Value" ;
+        sh:description "Expected value in tests" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+
+# ============================================================================
+# Validation Examples
+# ============================================================================
+#
+# Valid command specification:
+# ```turtle
+# sk:CheckCommand a sk:CLICommand ;
+#     sk:commandName "check" ;
+#     sk:commandDescription "Check for required and optional tools" ;
+#     sk:hasOption sk:VerboseOption .
+# ```
+#
+# Invalid command specification (missing description):
+# ```turtle
+# sk:CheckCommand a sk:CLICommand ;
+#     sk:commandName "check" .
+# ```
+# Validation error: "Command description is required and must be at least 10 characters"
+#
+# Invalid argument (wrong type):
+# ```turtle
+# sk:MyArg a sk:CommandArgument ;
+#     sk:argumentName "my-arg" ;
+#     sk:argumentType "invalid" .
+# ```
+# Validation error: "Argument type must be one of: string, int, float, path, boolean"
+#
+# ============================================================================
+
+# ============================================================================
+# Constitutional Equation
+# ============================================================================
+# μ₁: Validate RDF with SHACL shapes ← YOU ARE HERE
+# μ₂: Execute SPARQL query (command-test-query.rq)
+# μ₃: Render Tera template (command-test.tera)
+# μ₄: Format with Ruff (Python formatter)
+# μ₅: Verify with pytest --collect-only
+#
+# Usage:
+#   shacl validate -s ontology/cli-command-shapes.ttl -d ontology/cli-commands.ttl
+# ============================================================================

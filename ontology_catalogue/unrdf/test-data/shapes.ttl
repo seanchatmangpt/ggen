@@ -1,0 +1,20 @@
+
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:PersonShape a sh:NodeShape ;
+    sh:targetClass foaf:Person ;
+    sh:property [
+        sh:path foaf:name ;
+        sh:datatype <http://www.w3.org/2001/XMLSchema#string> ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path foaf:age ;
+        sh:datatype <http://www.w3.org/2001/XMLSchema#integer> ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150
+    ] .

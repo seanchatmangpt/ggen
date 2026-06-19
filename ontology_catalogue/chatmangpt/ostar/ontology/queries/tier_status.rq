@@ -1,0 +1,80 @@
+# Tier Status Derivation Query
+#
+# Derives tier verification status from law vector dimension statuses.
+# Status is COMPUTED, never asserted. The deprecated tierVerificationStatus
+# property should not be used; this query is the canonical derivation.
+#
+# Derivation rules:
+#   verified  — all 6 dimensions have status "verified"
+#   violated  — any dimension has status "violated"
+#   unverified — mix of verified and unverified (no violations),
+#               OR all dimensions are unverified
+#
+# Output columns:
+#   ?tier — the deployment tier
+#   ?tier_label — human-readable tier name
+#   ?derived_status — computed status (verified/violated/unverified)
+#   ?verified_count — number of dimensions with "verified" status
+#   ?violated_count — number of dimensions with "violated" status
+#   ?unverified_count — number of dimensions with "unverified" status
+#   ?total_dimensions — total dimensions in law vector (should be 6)
+
+PREFIX tier: <https://chatmangpt.com/ontologies/o-star-tier#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?tier ?tier_label ?derived_status
+       ?verified_count ?violated_count ?unverified_count ?total_dimensions
+WHERE {
+  # Get all deployment tiers
+  ?tier a tier:DeploymentTier .
+  ?tier rdfs:label ?tier_label .
+
+  # Get total dimension count
+  ?tier tier:hasLawVector ?lv .
+  {
+    SELECT ?tier (COUNT(DISTINCT ?d) AS ?total_dimensions) WHERE {
+      ?tier tier:hasLawVector ?lv .
+      ?lv tier:hasDimension ?d .
+    } GROUP BY ?tier
+  } .
+
+  # Count verified dimensions (LEFT JOIN: returns 0 if none verified)
+  OPTIONAL {
+    SELECT ?tier (COUNT(DISTINCT ?d) AS ?verified_count) WHERE {
+      ?tier tier:hasLawVector ?lv .
+      ?lv tier:hasDimension ?d .
+      ?d tier:dimensionStatus "verified" .
+    } GROUP BY ?tier
+  } .
+  BIND(COALESCE(?verified_count, 0) AS ?verified_count)
+
+  # Count violated dimensions (LEFT JOIN: returns 0 if none violated)
+  OPTIONAL {
+    SELECT ?tier (COUNT(DISTINCT ?d) AS ?violated_count_raw) WHERE {
+      ?tier tier:hasLawVector ?lv .
+      ?lv tier:hasDimension ?d .
+      ?d tier:dimensionStatus "violated" .
+    } GROUP BY ?tier
+  } .
+  BIND(COALESCE(?violated_count_raw, 0) AS ?violated_count)
+
+  # Count unverified dimensions (LEFT JOIN: returns 0 if none unverified)
+  OPTIONAL {
+    SELECT ?tier (COUNT(DISTINCT ?d) AS ?unverified_count_raw) WHERE {
+      ?tier tier:hasLawVector ?lv .
+      ?lv tier:hasDimension ?d .
+      ?d tier:dimensionStatus "unverified" .
+    } GROUP BY ?tier
+  } .
+  BIND(COALESCE(?unverified_count_raw, 0) AS ?unverified_count)
+
+  # Derive status from dimension counts
+  BIND(
+    IF(?violated_count > 0, "violated",
+      IF(?verified_count = ?total_dimensions, "verified",
+        "unverified"
+      )
+    ) AS ?derived_status
+  )
+}
+ORDER BY ?tier_label

@@ -1,0 +1,585 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix bos: <https://chatmangpt.com/ontology/businessos/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHACL Shapes for BusinessOS Organizational Data (CONSTRUCT Output Validation)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Purpose: Define constraints for RDF output from SPARQL CONSTRUCT queries
+# Validation: Use `obsr validate --data output.ttl --shapes shapes.ttl`
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 1: Person Shape (foaf:Person entities)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/PersonShape> a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Person Shape" ;
+  sh:description "Validates foaf:Person entities from Query 1 (Team Members)" ;
+
+  # Required properties
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 200 ;
+    sh:message "foaf:name is required, single value, non-empty string (max 200 chars)" ;
+  ] ;
+
+  sh:property [
+    sh:path foaf:mbox ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^mailto:.+" ;
+    sh:message "foaf:mbox is required, must be mailto: URI" ;
+  ] ;
+
+  sh:property [
+    sh:path foaf:givenName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "foaf:givenName is optional, max 1 value" ;
+  ] ;
+
+  sh:property [
+    sh:path foaf:familyName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "foaf:familyName is optional, max 1 value" ;
+  ] ;
+
+  # Business properties
+  sh:property [
+    sh:path org:holds ;
+    sh:minCount 1 ;
+    sh:class org:Post ;
+    sh:message "org:holds must reference at least one org:Post" ;
+  ] ;
+
+  sh:property [
+    sh:path foaf:reports ;
+    sh:maxCount 1 ;
+    sh:class foaf:Person ;
+    sh:message "foaf:reports is optional, references another Person (manager)" ;
+  ] ;
+
+  sh:property [
+    sh:path foaf:workplaceHomepage ;
+    sh:maxCount 1 ;
+    sh:class org:Organization ;
+    sh:message "foaf:workplaceHomepage is optional, references Department org:Organization" ;
+  ] ;
+
+  sh:property [
+    sh:path dcterms:created ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "dcterms:created is optional, xsd:date format (YYYY-MM-DD)" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:employeeStatus ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "active" "inactive" "on_leave" ) ;
+    sh:message "bos:employeeStatus must be one of: active, inactive, on_leave" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:personId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "bos:personId is required, unique identifier" ;
+  ] ;
+
+  # Provenance requirement
+  sh:property [
+    sh:path prov:wasGeneratedBy ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class prov:Activity ;
+    sh:message "prov:wasGeneratedBy must reference prov:Activity" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 2: Post Shape (org:Post job assignments)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/PostShape> a sh:NodeShape ;
+  sh:targetClass org:Post ;
+  sh:name "Post Shape" ;
+  sh:description "Validates org:Post job assignments" ;
+
+  sh:property [
+    sh:path org:role ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 100 ;
+    sh:message "org:role is required, single non-empty string" ;
+  ] ;
+
+  sh:property [
+    sh:path org:organization ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class org:Organization ;
+    sh:message "org:organization is required, references org:Organization" ;
+  ] ;
+
+  sh:property [
+    sh:path org:reportsTo ;
+    sh:maxCount 1 ;
+    sh:class org:Post ;
+    sh:message "org:reportsTo is optional, references manager's org:Post" ;
+  ] ;
+
+  sh:property [
+    sh:path dcterms:issued ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "dcterms:issued is optional, xsd:date format" ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "rdfs:label is optional, human-readable post description" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 3: Organization Shape (org:Organization + schema:Organization)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/OrganizationShape> a sh:NodeShape ;
+  sh:targetClass org:Organization ;
+  sh:targetClass schema:Organization ;
+  sh:name "Organization Shape" ;
+  sh:description "Validates org:Organization (departments) and schema:Organization (customers)" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "rdfs:label is optional, describes organization" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:name ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "schema:name is optional, customer organization name" ;
+  ] ;
+
+  sh:property [
+    sh:path org:isPartOf ;
+    sh:maxCount 1 ;
+    sh:class org:Organization ;
+    sh:message "org:isPartOf is optional, parent organization" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:industry ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "schema:industry is optional, customer industry classification" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:contractValue ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "bos:contractValue must be >= 0" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:customerTier ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "smb" "midmarket" "enterprise" "strategic" ) ;
+    sh:message "bos:customerTier must be one of: smb, midmarket, enterprise, strategic" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 4: ContactPoint Shape (schema:ContactPoint)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/ContactPointShape> a sh:NodeShape ;
+  sh:targetClass schema:ContactPoint ;
+  sh:name "Contact Point Shape" ;
+  sh:description "Validates schema:ContactPoint for customers" ;
+
+  sh:property [
+    sh:path schema:contactType ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "sales" "support" "technical" "billing" ) ;
+    sh:message "schema:contactType is optional, must be valid contact type" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:name ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "schema:name is optional, contact person name" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:email ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:message "schema:email must be valid email address" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:telephone ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^\\+?[0-9\\-\\(\\) ]{7,}$" ;
+    sh:message "schema:telephone must be valid phone format" ;
+  ] ;
+
+  sh:property [
+    sh:path dcterms:created ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "dcterms:created is optional, xsd:dateTime format" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 5: Project Shape (schema:Project)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/ProjectShape> a sh:NodeShape ;
+  sh:targetClass schema:Project ;
+  sh:name "Project Shape" ;
+  sh:description "Validates schema:Project entities from Query 4" ;
+
+  sh:property [
+    sh:path schema:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 200 ;
+    sh:message "schema:name is required" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:customer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class schema:Organization ;
+    sh:message "schema:customer is required, references schema:Organization (client)" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:provider ;
+    sh:maxCount 1 ;
+    sh:class foaf:Person ;
+    sh:message "schema:provider is optional, references foaf:Person (account owner)" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:budget ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "schema:budget must be >= 0" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:projectStatus ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "planning" "in-progress" "at-risk" "completed" "cancelled" ) ;
+    sh:message "bos:projectStatus must be valid project status" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:startDate ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "schema:startDate is optional, xsd:date format" ;
+  ] ;
+
+  sh:property [
+    sh:path schema:endDate ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "schema:endDate is optional, xsd:date format" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:teamSize ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "bos:teamSize must be non-negative integer" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 6: ProjectTeamAssignment Shape (bos:ProjectTeamAssignment)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/ProjectTeamAssignmentShape> a sh:NodeShape ;
+  sh:targetClass bos:ProjectTeamAssignment ;
+  sh:name "Project Team Assignment Shape" ;
+  sh:description "Validates team member assignments to projects" ;
+
+  sh:property [
+    sh:path bos:assignee ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class foaf:Person ;
+    sh:message "bos:assignee is required, references foaf:Person" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:role ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "bos:role is optional, job title on project" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:hoursAllocated ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "bos:hoursAllocated must be non-negative integer" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:allocationPercentage ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100 ;
+    sh:message "bos:allocationPercentage must be 0-100" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:assignmentStatus ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "active" "inactive" "on_leave" "completed" ) ;
+    sh:message "bos:assignmentStatus must be valid status" ;
+  ] ;
+
+  sh:property [
+    sh:path org:memberOf ;
+    sh:maxCount 1 ;
+    sh:class schema:Project ;
+    sh:message "org:memberOf must reference schema:Project" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 7: ReportingHierarchy Shape (bos:ReportingHierarchy)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/ReportingHierarchyShape> a sh:NodeShape ;
+  sh:targetClass bos:ReportingHierarchy ;
+  sh:name "Reporting Hierarchy Shape" ;
+  sh:description "Validates org:reportsTo chains (Query 3)" ;
+
+  sh:property [
+    sh:path bos:root ;
+    sh:maxCount 1 ;
+    sh:class foaf:Person ;
+    sh:message "bos:root is optional, CEO or top-level person" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:leaf ;
+    sh:maxCount 1 ;
+    sh:class foaf:Person ;
+    sh:message "bos:leaf is optional, individual contributor" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:chainMembers ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "bos:chainMembers is optional, serialized path" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:totalDepth ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:message "bos:totalDepth must be non-negative integer" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 8: Provenance Activity Shape (prov:Activity)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/ProvActivityShape> a sh:NodeShape ;
+  sh:targetClass prov:Activity ;
+  sh:name "Provenance Activity Shape" ;
+  sh:description "Validates provenance metadata for all generated entities" ;
+
+  sh:property [
+    sh:path prov:startedAtTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+    sh:message "prov:startedAtTime is required, xsd:dateTime format with timezone" ;
+  ] ;
+
+  sh:property [
+    sh:path prov:wasAssociatedWith ;
+    sh:maxCount 1 ;
+    sh:message "prov:wasAssociatedWith is optional, agent that created data" ;
+  ] ;
+
+  sh:property [
+    sh:path prov:description ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "prov:description is optional" ;
+  ] ;
+
+  sh:property [
+    sh:path prov:used ;
+    sh:class prov:Entity ;
+    sh:message "prov:used references source entities" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHAPE 9: BudgetAllocation Shape (bos:BudgetAllocation)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/BudgetAllocationShape> a sh:NodeShape ;
+  sh:targetClass bos:BudgetAllocation ;
+  sh:name "Budget Allocation Shape" ;
+  sh:description "Validates project budget allocations" ;
+
+  sh:property [
+    sh:path bos:allocatedTo ;
+    sh:maxCount 1 ;
+    sh:class schema:Project ;
+    sh:message "bos:allocatedTo must reference schema:Project" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:allocatedFrom ;
+    sh:maxCount 1 ;
+    sh:class schema:Organization ;
+    sh:message "bos:allocatedFrom must reference schema:Organization (customer)" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:allocatedAmount ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "bos:allocatedAmount must be >= 0" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:remainingBudget ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "bos:remainingBudget must be >= 0" ;
+  ] ;
+
+  sh:property [
+    sh:path bos:allocationStatus ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ( "active" "completed" "cancelled" ) ;
+    sh:message "bos:allocationStatus must be valid allocation status" ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Custom SPARQL Constraint: No Circular Reporting (bos:Person)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/NoCircularReportingConstraint> a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "No Circular Reporting Constraint" ;
+  sh:description "Ensures no person reports to themselves (directly or transitively)" ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Circular reporting detected: person cannot report to themselves" ;
+    sh:prefixes [
+      sh:declare [
+        sh:prefix "org" ;
+        sh:namespace "http://www.w3.org/ns/org#" ;
+      ] ;
+      sh:declare [
+        sh:prefix "foaf" ;
+        sh:namespace "http://xmlns.com/foaf/0.1/" ;
+      ] ;
+    ] ;
+    sh:sparql """
+      SELECT $this
+      WHERE {
+        $this (org:reportsTo)+ $this .
+      }
+    """ ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Custom SPARQL Constraint: Budget Consistency
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://chatmangpt.com/shapes/BudgetConsistencyConstraint> a sh:NodeShape ;
+  sh:targetClass bos:BudgetAllocation ;
+  sh:name "Budget Consistency Constraint" ;
+  sh:description "Ensures remaining budget <= allocated budget" ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Budget error: remainingBudget cannot exceed allocatedAmount" ;
+    sh:prefixes [
+      sh:declare [
+        sh:prefix "bos" ;
+        sh:namespace "https://chatmangpt.com/ontology/businessos/" ;
+      ] ;
+    ] ;
+    sh:sparql """
+      SELECT $this
+      WHERE {
+        $this bos:allocatedAmount ?allocated ;
+              bos:remainingBudget ?remaining .
+        FILTER (?remaining > ?allocated)
+      }
+    """ ;
+  ] .
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# End of SHACL Shapes
+# ═══════════════════════════════════════════════════════════════════════════════

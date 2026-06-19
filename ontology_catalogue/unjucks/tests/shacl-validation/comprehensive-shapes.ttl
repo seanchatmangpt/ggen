@@ -1,0 +1,474 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix test: <http://test.example.org/> .
+
+# ==================================================
+# COMPREHENSIVE SHACL VALIDATION SHAPES
+# Testing all major constraint types and scenarios
+# ==================================================
+
+# 1. REQUIRED PROPERTIES VALIDATION
+test:PersonRequiredPropsShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+        sh:path ex:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:message "Person must have exactly one name (2-100 characters)" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:email ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Person must have exactly one valid email address" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:birthDate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Person can have at most one birth date" ;
+        sh:severity sh:Warning
+    ] .
+
+# 2. DATATYPE CONSTRAINTS
+test:DatatypeValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ex:DataTypeTest ;
+    sh:property [
+        sh:path ex:integerValue ;
+        sh:datatype xsd:integer ;
+        sh:message "integerValue must be an integer" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:decimalValue ;
+        sh:datatype xsd:decimal ;
+        sh:message "decimalValue must be a decimal number" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:booleanValue ;
+        sh:datatype xsd:boolean ;
+        sh:message "booleanValue must be true or false" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:dateTimeValue ;
+        sh:datatype xsd:dateTime ;
+        sh:message "dateTimeValue must be a valid dateTime" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:stringValue ;
+        sh:datatype xsd:string ;
+        sh:message "stringValue must be a string" ;
+        sh:severity sh:Violation
+    ] .
+
+# 3. CARDINALITY CONSTRAINTS
+test:CardinalityConstraintsShape
+    a sh:NodeShape ;
+    sh:targetClass ex:CardinalityTest ;
+    sh:property [
+        sh:path ex:exactlyOne ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Must have exactly one exactlyOne property" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:atLeastTwo ;
+        sh:minCount 2 ;
+        sh:message "Must have at least two atLeastTwo properties" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:atMostThree ;
+        sh:maxCount 3 ;
+        sh:message "Cannot have more than three atMostThree properties" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:optional ;
+        sh:maxCount 1 ;
+        sh:message "Can have at most one optional property" ;
+        sh:severity sh:Info
+    ] .
+
+# 4. VALUE RANGE VALIDATION
+test:ValueRangeShape
+    a sh:NodeShape ;
+    sh:targetClass ex:RangeTest ;
+    sh:property [
+        sh:path ex:percentage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Percentage must be between 0 and 100 (inclusive)" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:positiveInteger ;
+        sh:datatype xsd:integer ;
+        sh:minExclusive 0 ;
+        sh:message "Must be a positive integer (greater than 0)" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:ageRange ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:message "Age must be between 0 and 150 years" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:temperature ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive -273.15 ;
+        sh:maxInclusive 1000.0 ;
+        sh:message "Temperature must be above absolute zero (-273.15°C) and below 1000°C" ;
+        sh:severity sh:Violation
+    ] .
+
+# 5. STRING PATTERN VALIDATION
+test:PatternValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ex:PatternTest ;
+    sh:property [
+        sh:path ex:phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\+?[1-9]\\d{1,14}$" ;
+        sh:message "Phone number must follow E.164 format" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:zipCode ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d{5}(-\\d{4})?$" ;
+        sh:message "ZIP code must be in format 12345 or 12345-6789" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:hexColor ;
+        sh:datatype xsd:string ;
+        sh:pattern "^#[0-9A-Fa-f]{6}$" ;
+        sh:message "Hex color must be in format #RRGGBB" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:ipAddress ;
+        sh:datatype xsd:string ;
+        sh:pattern "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" ;
+        sh:message "Must be a valid IPv4 address" ;
+        sh:severity sh:Violation
+    ] .
+
+# 6. STRING LENGTH CONSTRAINTS
+test:StringLengthShape
+    a sh:NodeShape ;
+    sh:targetClass ex:StringLengthTest ;
+    sh:property [
+        sh:path ex:shortString ;
+        sh:datatype xsd:string ;
+        sh:minLength 5 ;
+        sh:maxLength 10 ;
+        sh:message "Short string must be 5-10 characters long" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:longDescription ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:message "Description cannot exceed 500 characters" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:nonEmptyString ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "String cannot be empty" ;
+        sh:severity sh:Violation
+    ] .
+
+# 7. NODE KIND VALIDATION
+test:NodeKindShape
+    a sh:NodeShape ;
+    sh:targetClass ex:NodeKindTest ;
+    sh:property [
+        sh:path ex:iriProperty ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Property must be an IRI" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:literalProperty ;
+        sh:nodeKind sh:Literal ;
+        sh:message "Property must be a literal value" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:blankNodeProperty ;
+        sh:nodeKind sh:BlankNode ;
+        sh:message "Property must be a blank node" ;
+        sh:severity sh:Violation
+    ] .
+
+# 8. VALUE SET CONSTRAINTS (sh:in)
+test:ValueSetShape
+    a sh:NodeShape ;
+    sh:targetClass ex:ValueSetTest ;
+    sh:property [
+        sh:path ex:status ;
+        sh:in ("active" "inactive" "pending" "suspended") ;
+        sh:message "Status must be one of: active, inactive, pending, suspended" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:priority ;
+        sh:datatype xsd:integer ;
+        sh:in (1 2 3 4 5) ;
+        sh:message "Priority must be 1, 2, 3, 4, or 5" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:category ;
+        sh:in (ex:CategoryA ex:CategoryB ex:CategoryC) ;
+        sh:message "Category must be CategoryA, CategoryB, or CategoryC" ;
+        sh:severity sh:Violation
+    ] .
+
+# 9. CLASS CONSTRAINT
+test:ClassConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass ex:ClassConstraintTest ;
+    sh:property [
+        sh:path ex:hasManager ;
+        sh:class ex:Person ;
+        sh:message "Manager must be a Person" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:hasAddress ;
+        sh:class ex:Address ;
+        sh:maxCount 1 ;
+        sh:message "Must have at most one Address" ;
+        sh:severity sh:Violation
+    ] .
+
+# 10. LOGICAL CONSTRAINTS (OR, AND, NOT)
+test:LogicalConstraintsShape
+    a sh:NodeShape ;
+    sh:targetClass ex:LogicalTest ;
+    sh:property [
+        sh:path ex:flexibleDate ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:dateTime ]
+            [ sh:datatype xsd:gYear ]
+        ) ;
+        sh:message "flexibleDate must be a date, dateTime, or year" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:requiredStringOrNumber ;
+        sh:minCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:string ; sh:minLength 1 ]
+            [ sh:datatype xsd:integer ; sh:minInclusive 0 ]
+        ) ;
+        sh:message "Must be a non-empty string or non-negative integer" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:not [
+        sh:property [
+            sh:path ex:forbiddenCombination ;
+            sh:hasValue "forbidden" ;
+        ]
+    ] ;
+    sh:message "Cannot have forbiddenCombination with value 'forbidden'" ;
+    sh:severity sh:Violation .
+
+# 11. QUALIFIED VALUE SHAPES
+test:QualifiedValueShape
+    a sh:NodeShape ;
+    sh:targetClass ex:QualifiedTest ;
+    sh:property [
+        sh:path ex:hasContact ;
+        sh:qualifiedValueShape [
+            sh:property [
+                sh:path ex:contactType ;
+                sh:hasValue "primary" ;
+            ]
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Must have exactly one primary contact" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:hasPhone ;
+        sh:qualifiedValueShape [
+            sh:datatype xsd:string ;
+            sh:pattern "^\\+?[1-9]\\d{1,14}$" ;
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "Must have at least one valid phone number" ;
+        sh:severity sh:Violation
+    ] .
+
+# 12. SPARQL-BASED CONSTRAINTS
+test:SPARQLConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass ex:SPARQLTest ;
+    sh:sparql [
+        sh:message "Start date must be before end date" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ex" ;
+                sh:namespace "http://example.org/"^^xsd:anyURI ;
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?startDate ?endDate WHERE {
+                $this ex:startDate ?startDate ;
+                      ex:endDate ?endDate .
+                FILTER(?endDate <= ?startDate)
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+    sh:sparql [
+        sh:message "Person cannot be their own manager" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ex" ;
+                sh:namespace "http://example.org/"^^xsd:anyURI ;
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this ex:hasManager $this .
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# 13. COMPLEX BUSINESS RULES
+test:BusinessRuleShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Employee ;
+    sh:property [
+        sh:path ex:salary ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Salary must be non-negative" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:department ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class ex:Department ;
+        sh:message "Employee must belong to exactly one department" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:sparql [
+        sh:message "Manager salary must be higher than subordinate salary" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ex" ;
+                sh:namespace "http://example.org/"^^xsd:anyURI ;
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?thisSalary ?managerSalary WHERE {
+                $this ex:salary ?thisSalary ;
+                      ex:hasManager ?manager .
+                ?manager ex:salary ?managerSalary .
+                FILTER(?thisSalary >= ?managerSalary)
+            }
+        """ ;
+        sh:severity sh:Warning
+    ] .
+
+# 14. SEVERITY LEVELS TESTING
+test:SeverityTestShape
+    a sh:NodeShape ;
+    sh:targetClass ex:SeverityTest ;
+    sh:property [
+        sh:path ex:criticalField ;
+        sh:minCount 1 ;
+        sh:message "Critical field is missing - system will fail" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:warningField ;
+        sh:pattern "^[A-Z].*" ;
+        sh:message "Warning: Field should start with uppercase letter" ;
+        sh:severity sh:Warning
+    ] ;
+    sh:property [
+        sh:path ex:infoField ;
+        sh:maxLength 100 ;
+        sh:message "Info: Consider keeping field under 100 characters for readability" ;
+        sh:severity sh:Info
+    ] .
+
+# 15. EDGE CASE VALIDATION
+test:EdgeCaseShape
+    a sh:NodeShape ;
+    sh:targetClass ex:EdgeCaseTest ;
+    sh:property [
+        sh:path ex:unicodeString ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[\\p{L}\\p{N}\\p{P}\\s]*$" ;
+        sh:message "String contains invalid Unicode characters" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:largeNumber ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 9223372036854775807 ;  # Max long value
+        sh:message "Number exceeds maximum safe integer value" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:preciseDecimal ;
+        sh:datatype xsd:decimal ;
+        sh:pattern "^\\d+\\.\\d{1,2}$" ;
+        sh:message "Decimal must have exactly 1-2 decimal places" ;
+        sh:severity sh:Violation
+    ] .
+
+# 16. PERFORMANCE TEST SHAPE (for large graphs)
+test:PerformanceTestShape
+    a sh:NodeShape ;
+    sh:targetClass ex:PerformanceTest ;
+    sh:property [
+        sh:path ex:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "ID is required and must be unique integer" ;
+        sh:severity sh:Violation
+    ] ;
+    sh:property [
+        sh:path ex:label ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+        sh:message "Label must be 1-50 characters" ;
+        sh:severity sh:Violation
+    ] .

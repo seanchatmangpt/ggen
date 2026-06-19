@@ -1,0 +1,334 @@
+# Complete Enterprise Ontology Example
+# Generated using Unjucks semantic web filters
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix enterprise: <https://enterprise.example.org/ontology#> .
+
+# Ontology Declaration
+<https://enterprise.example.org/ontology> rdf:type owl:Ontology ;
+    dcterms:title "Enterprise Knowledge Management Ontology"@en ;
+    dcterms:description "Comprehensive ontology for enterprise resource planning and knowledge management"@en ;
+    dcterms:creator "Enterprise Architecture Team" ;
+    dcterms:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dcterms:modified "2024-12-07T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://xmlns.com/foaf/0.1/> ,
+                <http://schema.org/> .
+
+# ========================================
+# ORGANIZATIONAL STRUCTURE CLASSES
+# ========================================
+
+enterprise:Organization rdf:type owl:Class ;
+    rdfs:subClassOf foaf:Organization, schema:Organization ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "A structured group within the enterprise"@en ;
+    skos:definition "A legal or administrative entity that has specific business objectives"@en .
+
+enterprise:Department rdf:type owl:Class ;
+    rdfs:subClassOf enterprise:Organization ;
+    rdfs:label "Department"@en ;
+    rdfs:comment "A specialized division within an organization"@en ;
+    skos:definition "A functional unit within an organization focused on specific business activities"@en .
+
+enterprise:Team rdf:type owl:Class ;
+    rdfs:subClassOf enterprise:Organization ;
+    rdfs:label "Team"@en ;
+    rdfs:comment "A small working group within a department"@en ;
+    skos:definition "A cross-functional group of individuals working toward common goals"@en .
+
+enterprise:Project rdf:type owl:Class ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "A structured endeavor with defined objectives"@en ;
+    skos:definition "A temporary organizational structure designed to accomplish specific goals within time and resource constraints"@en .
+
+# ========================================
+# HUMAN RESOURCES CLASSES
+# ========================================
+
+enterprise:Person rdf:type owl:Class ;
+    rdfs:subClassOf foaf:Person, schema:Person ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "An individual within the enterprise"@en ;
+    skos:definition "A human being associated with the enterprise in any capacity"@en .
+
+enterprise:Employee rdf:type owl:Class ;
+    rdfs:subClassOf enterprise:Person ;
+    rdfs:label "Employee"@en ;
+    rdfs:comment "A person employed by the enterprise"@en ;
+    skos:definition "An individual who works for the organization under an employment contract"@en .
+
+enterprise:Manager rdf:type owl:Class ;
+    rdfs:subClassOf enterprise:Employee ;
+    rdfs:label "Manager"@en ;
+    rdfs:comment "An employee with management responsibilities"@en ;
+    skos:definition "An employee responsible for planning, directing, and controlling organizational resources"@en .
+
+enterprise:Contractor rdf:type owl:Class ;
+    rdfs:subClassOf enterprise:Person ;
+    rdfs:label "Contractor"@en ;
+    rdfs:comment "An external person providing services to the enterprise"@en ;
+    skos:definition "An independent service provider working under contract terms"@en .
+
+enterprise:Consultant rdf:type owl:Class ;
+    rdfs:subClassOf enterprise:Contractor ;
+    rdfs:label "Consultant"@en ;
+    rdfs:comment "A contractor providing expert advice and specialized services"@en .
+
+# ========================================
+# ROLE AND POSITION CLASSES
+# ========================================
+
+enterprise:Role rdf:type owl:Class ;
+    rdfs:label "Role"@en ;
+    rdfs:comment "A position or function within the enterprise"@en ;
+    skos:definition "A set of responsibilities and expectations associated with a position"@en .
+
+enterprise:JobTitle rdf:type owl:Class ;
+    rdfs:label "Job Title"@en ;
+    rdfs:comment "A specific job title or position designation"@en ;
+    skos:definition "The official name or designation for a specific position within the organization"@en .
+
+enterprise:SecurityClearance rdf:type owl:Class ;
+    rdfs:label "Security Clearance"@en ;
+    rdfs:comment "Authorization level for accessing sensitive information"@en .
+
+# ========================================
+# ORGANIZATIONAL PROPERTIES
+# ========================================
+
+enterprise:partOf rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Organization ;
+    rdfs:range enterprise:Organization ;
+    rdfs:label "part of"@en ;
+    rdfs:comment "Indicates organizational hierarchy relationship"@en ;
+    owl:inverseOf enterprise:hasPart .
+
+enterprise:hasPart rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Organization ;
+    rdfs:range enterprise:Organization ;
+    rdfs:label "has part"@en ;
+    rdfs:comment "Indicates organizational composition relationship"@en .
+
+enterprise:manages rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Manager ;
+    rdfs:range [ rdf:type owl:Class ; owl:unionOf ( enterprise:Organization enterprise:Project ) ] ;
+    rdfs:label "manages"@en ;
+    rdfs:comment "Indicates management relationship"@en .
+
+# ========================================
+# EMPLOYMENT PROPERTIES
+# ========================================
+
+enterprise:employedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range enterprise:Organization ;
+    rdfs:label "employed by"@en ;
+    rdfs:comment "Employment relationship"@en .
+
+enterprise:worksInDepartment rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range enterprise:Department ;
+    rdfs:label "works in department"@en ;
+    rdfs:comment "Department assignment"@en .
+
+enterprise:reportsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range enterprise:Manager ;
+    rdfs:label "reports to"@en ;
+    rdfs:comment "Reporting relationship"@en .
+
+enterprise:hasRole rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Person ;
+    rdfs:range enterprise:Role ;
+    rdfs:label "has role"@en ;
+    rdfs:comment "Role assignment"@en .
+
+enterprise:assignedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain enterprise:Person ;
+    rdfs:range enterprise:Project ;
+    rdfs:label "assigned to"@en ;
+    rdfs:comment "Project assignment"@en .
+
+# ========================================
+# DATATYPE PROPERTIES
+# ========================================
+
+enterprise:employeeId rdf:type owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range xsd:string ;
+    rdfs:label "employee ID"@en ;
+    rdfs:comment "Unique employee identifier"@en .
+
+enterprise:hireDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range xsd:date ;
+    rdfs:label "hire date"@en ;
+    rdfs:comment "Date of employment commencement"@en .
+
+enterprise:terminationDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range xsd:date ;
+    rdfs:label "termination date"@en ;
+    rdfs:comment "Date of employment termination"@en .
+
+enterprise:salary rdf:type owl:DatatypeProperty ;
+    rdfs:domain enterprise:Employee ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "salary"@en ;
+    rdfs:comment "Annual compensation"@en .
+
+enterprise:securityClearanceLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain enterprise:Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "security clearance level"@en .
+
+# ========================================
+# OWL RESTRICTIONS AND CONSTRAINTS
+# ========================================
+
+# Manager must manage at least one entity
+enterprise:Manager rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty enterprise:manages ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# Employee must be employed by exactly one organization
+enterprise:Employee rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty enterprise:employedBy ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# Employee must work in exactly one department
+enterprise:Employee rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty enterprise:worksInDepartment ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# Employee can report to at most one manager
+enterprise:Employee rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty enterprise:reportsTo ;
+    owl:maxCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# Project must have exactly one project manager
+enterprise:Project rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty enterprise:projectManager ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# ========================================
+# SAMPLE ENTERPRISE DATA INSTANCES
+# ========================================
+
+# Organization Hierarchy
+enterprise:TechCorp rdf:type enterprise:Organization ;
+    rdfs:label "TechCorp Inc."@en ;
+    rdfs:comment "A leading technology company"@en ;
+    foaf:homepage <https://www.techcorp.example.com> ;
+    schema:foundingDate "2010-01-01"^^xsd:date ;
+    schema:numberOfEmployees "500"^^xsd:integer ;
+    enterprise:hasPart enterprise:EngineeringDept ,
+                        enterprise:MarketingDept ,
+                        enterprise:HRDept .
+
+enterprise:EngineeringDept rdf:type enterprise:Department ;
+    rdfs:label "Engineering Department"@en ;
+    enterprise:partOf enterprise:TechCorp ;
+    enterprise:hasPart enterprise:DevTeam ,
+                       enterprise:QATeam .
+
+enterprise:DevTeam rdf:type enterprise:Team ;
+    rdfs:label "Development Team"@en ;
+    enterprise:partOf enterprise:EngineeringDept .
+
+# Employee Data
+enterprise:JohnSmith rdf:type enterprise:Employee, enterprise:Manager ;
+    foaf:firstName "John"@en ;
+    foaf:lastName "Smith"@en ;
+    foaf:mbox <mailto:john.smith@techcorp.example.com> ;
+    enterprise:employeeId "EMP001" ;
+    enterprise:hireDate "2020-01-15"^^xsd:date ;
+    enterprise:salary "120000.00"^^xsd:decimal ;
+    enterprise:employedBy enterprise:TechCorp ;
+    enterprise:worksInDepartment enterprise:EngineeringDept ;
+    enterprise:manages enterprise:DevTeam ;
+    enterprise:securityClearanceLevel "Level 3" .
+
+enterprise:JaneDoe rdf:type enterprise:Employee ;
+    foaf:firstName "Jane"@en ;
+    foaf:lastName "Doe"@en ;
+    foaf:mbox <mailto:jane.doe@techcorp.example.com> ;
+    enterprise:employeeId "EMP002" ;
+    enterprise:hireDate "2021-03-01"^^xsd:date ;
+    enterprise:salary "95000.00"^^xsd:decimal ;
+    enterprise:employedBy enterprise:TechCorp ;
+    enterprise:worksInDepartment enterprise:EngineeringDept ;
+    enterprise:reportsTo enterprise:JohnSmith .
+
+enterprise:BobConsultant rdf:type enterprise:Consultant ;
+    foaf:firstName "Bob"@en ;
+    foaf:lastName "Expert"@en ;
+    foaf:mbox <mailto:bob@consultant.example.com> ;
+    rdfs:comment "Security consultant providing specialized services"@en .
+
+# Project Data
+enterprise:ProjectAlpha rdf:type enterprise:Project ;
+    rdfs:label "Project Alpha"@en ;
+    rdfs:comment "Next-generation enterprise software platform"@en ;
+    enterprise:projectManager enterprise:JohnSmith ;
+    enterprise:startDate "2024-01-01"^^xsd:date ;
+    enterprise:endDate "2024-12-31"^^xsd:date ;
+    enterprise:priority "High"@en .
+
+# Role Definitions
+enterprise:SoftwareDeveloper rdf:type enterprise:Role ;
+    rdfs:label "Software Developer"@en ;
+    rdfs:comment "Responsible for designing and implementing software solutions"@en .
+
+enterprise:TeamLead rdf:type enterprise:Role ;
+    rdfs:label "Team Lead"@en ;
+    rdfs:comment "Responsible for leading development teams and technical decisions"@en .
+
+# ========================================
+# KNOWLEDGE GRAPH ASSERTIONS
+# ========================================
+
+enterprise:JaneDoe enterprise:hasRole enterprise:SoftwareDeveloper ;
+                   enterprise:assignedTo enterprise:ProjectAlpha .
+
+enterprise:JohnSmith enterprise:hasRole enterprise:TeamLead .
+
+# Organizational relationships
+enterprise:EngineeringDept enterprise:manages enterprise:ProjectAlpha .
+
+# SKOS Concept Hierarchy for Skills
+enterprise:TechnicalSkills rdf:type skos:ConceptScheme ;
+    rdfs:label "Technical Skills Taxonomy"@en ;
+    skos:hasTopConcept enterprise:Programming ,
+                       enterprise:Architecture ,
+                       enterprise:Testing .
+
+enterprise:Programming rdf:type skos:Concept ;
+    skos:inScheme enterprise:TechnicalSkills ;
+    skos:prefLabel "Programming"@en ;
+    skos:narrower enterprise:WebDevelopment ,
+                  enterprise:MobileDevelopment ,
+                  enterprise:DatabaseDevelopment .
+
+enterprise:WebDevelopment rdf:type skos:Concept ;
+    skos:inScheme enterprise:TechnicalSkills ;
+    skos:prefLabel "Web Development"@en ;
+    skos:broader enterprise:Programming .

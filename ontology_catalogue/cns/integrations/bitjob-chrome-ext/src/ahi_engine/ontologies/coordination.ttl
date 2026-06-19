@@ -1,0 +1,294 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix coord: <http://bitflow.ai/coordination#> .
+@prefix eight: <http://8space.org/constraints#> .
+@prefix ahi: <http://ahi.bitflow.ai/core#> .
+@prefix yawl: <http://yawlsystem.org/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# Coordination Ontology - Human-Machine Task Distribution and Decision Making
+# Based on existing coordination patterns from CNS concurrent-coordination framework
+# Implements YAWL workflow patterns with 8-Space constraints
+
+<http://bitflow.ai/coordination/model> rdf:type owl:Ontology ;
+    rdfs:comment "Human-machine coordination ontology with 8-Space workflow constraints" ;
+    owl:versionInfo "2026.1.1" ;
+    owl:imports <http://bitflow.ai/ahi/core> ;
+    owl:imports <http://yawlsystem.org/ontology> ;
+    owl:imports <http://8space.org/constraints> .
+
+# Human Capability Framework
+coord:HumanCapability rdf:type owl:Class ;
+    rdfs:comment "Human cognitive and operational capabilities" ;
+    eight:maxCognitiveLoad 8 ;
+    eight:maxSimultaneousTasks 8 ;
+    eight:maxDecisionTime 8 .
+
+coord:CognitiveCapability rdf:type owl:Class ;
+    rdfs:subClassOf coord:HumanCapability ;
+    rdfs:comment "Human cognitive abilities for complex reasoning" ;
+    coord:capabilityTypes ("Creative Thinking" "Pattern Recognition" "Ethical Reasoning" "Strategic Planning") ;
+    eight:maxComplexity 8 .
+
+coord:OperationalCapability rdf:type owl:Class ;
+    rdfs:subClassOf coord:HumanCapability ;
+    rdfs:comment "Human operational and execution abilities" ;
+    coord:capabilityTypes ("Document Review" "Client Communication" "Negotiation" "Quality Control") ;
+    eight:maxWorkloadHours 8 .
+
+coord:DomainExpertise rdf:type owl:Class ;
+    rdfs:subClassOf coord:HumanCapability ;
+    rdfs:comment "Specialized domain knowledge" ;
+    coord:domains ("Legal" "Financial" "Technical" "Regulatory") ;
+    coord:experienceYears 8 ;
+    eight:maxExpertiseBreadth 8 .
+
+# Machine Capability Framework
+coord:MachineCapability rdf:type owl:Class ;
+    rdfs:comment "Machine computational and processing capabilities" ;
+    eight:maxProcessingPower 8 ;  # cores
+    eight:maxMemoryGB 8 ;
+    eight:maxThroughput 8 .
+
+coord:ComputationalCapability rdf:type owl:Class ;
+    rdfs:subClassOf coord:MachineCapability ;
+    rdfs:comment "Machine computational processing abilities" ;
+    coord:capabilityTypes ("Data Processing" "Mathematical Calculation" "Pattern Matching" "Optimization") ;
+    eight:maxCalculationsPerSecond 8 .
+
+coord:AutomationCapability rdf:type owl:Class ;
+    rdfs:subClassOf coord:MachineCapability ;
+    rdfs:comment "Machine automation and execution abilities" ;
+    coord:capabilityTypes ("Document Generation" "Data Entry" "System Integration" "Process Execution") ;
+    eight:maxAutomationDepth 8 .
+
+coord:AnalyticalCapability rdf:type owl:Class ;
+    rdfs:subClassOf coord:MachineCapability ;
+    rdfs:comment "Machine analytical and intelligence abilities" ;
+    coord:capabilityTypes ("Statistical Analysis" "Predictive Modeling" "Risk Assessment" "Trend Analysis") ;
+    eight:maxModelComplexity 8 .
+
+# Task Classification and Distribution
+coord:Task rdf:type owl:Class ;
+    rdfs:comment "Task requiring coordination between human and machine" ;
+    eight:maxTaskComplexity 8 ;
+    eight:maxExecutionTime 8 ;
+    eight:maxSubTasks 8 .
+
+coord:RoutineTask rdf:type owl:Class ;
+    rdfs:subClassOf coord:Task ;
+    rdfs:comment "Routine task suitable for full machine automation" ;
+    coord:automationLevel 1.0 ;
+    coord:humanOversight false ;
+    eight:maxAutomationLatency 8 .
+
+coord:ComplexTask rdf:type owl:Class ;
+    rdfs:subClassOf coord:Task ;
+    rdfs:comment "Complex task requiring human-machine collaboration" ;
+    coord:automationLevel 0.5 ;
+    coord:humanOversight true ;
+    eight:maxCollaborationDepth 8 .
+
+coord:CreativeTask rdf:type owl:Class ;
+    rdfs:subClassOf coord:Task ;
+    rdfs:comment "Creative task requiring human leadership with machine support" ;
+    coord:automationLevel 0.2 ;
+    coord:humanOversight true ;
+    coord:creativityRequired true ;
+    eight:maxCreativityIterations 8 .
+
+coord:CriticalTask rdf:type owl:Class ;
+    rdfs:subClassOf coord:Task ;
+    rdfs:comment "Critical task requiring human final approval" ;
+    coord:automationLevel 0.8 ;
+    coord:humanOversight true ;
+    coord:approvalRequired true ;
+    eight:maxApprovalTime 8 .
+
+# Coordination Patterns (YAWL Integration)
+coord:CoordinationPattern rdf:type owl:Class ;
+    rdfs:subClassOf yawl:WorkflowPattern ;
+    rdfs:comment "Human-machine coordination pattern" ;
+    eight:maxPatternComplexity 8 ;
+    eight:maxCoordinationSteps 8 .
+
+coord:SequentialCoordination rdf:type coord:CoordinationPattern ;
+    rdfs:comment "Sequential hand-off between human and machine" ;
+    yawl:hasPattern yawl:Sequence ;
+    coord:handoffType "sequential" ;
+    eight:maxSequenceLength 8 .
+
+coord:ParallelCoordination rdf:type coord:CoordinationPattern ;
+    rdfs:comment "Parallel execution with synchronization points" ;
+    yawl:hasPattern yawl:ParallelSplit ;
+    yawl:hasPattern yawl:Synchronization ;
+    coord:syncPoints ("Milestone" "Quality Gate" "Decision Point") ;
+    eight:maxParallelBranches 8 .
+
+coord:ConditionalCoordination rdf:type coord:CoordinationPattern ;
+    rdfs:comment "Conditional routing based on task complexity or results" ;
+    yawl:hasPattern yawl:ExclusiveChoice ;
+    yawl:hasPattern yawl:SimpleMerge ;
+    coord:decisionCriteria ("Complexity" "Risk Level" "Quality Score" "Time Pressure") ;
+    eight:maxConditions 8 .
+
+coord:IterativeCoordination rdf:type coord:CoordinationPattern ;
+    rdfs:comment "Iterative refinement between human and machine" ;
+    yawl:hasPattern yawl:ArbitraryLoop ;
+    coord:maxIterations 8 ;
+    coord:convergenceCriteria ("Quality Threshold" "Time Limit" "Resource Constraint") ;
+    eight:maxLoopDepth 8 .
+
+# Decision Making Framework
+coord:DecisionMaker rdf:type owl:Class ;
+    rdfs:comment "Entity responsible for making decisions in coordination" ;
+    eight:maxDecisionTime 8 ;
+    eight:maxDecisionFactors 8 .
+
+coord:HumanDecisionMaker rdf:type coord:DecisionMaker ;
+    rdfs:comment "Human decision maker with contextual judgment" ;
+    coord:decisionTypes ("Strategic" "Ethical" "Creative" "Interpersonal") ;
+    coord:intuitionWeight 0.4 ;
+    coord:experienceWeight 0.6 .
+
+coord:MachineDecisionMaker rdf:type coord:DecisionMaker ;
+    rdfs:comment "Machine decision maker with analytical processing" ;
+    coord:decisionTypes ("Computational" "Optimization" "Pattern-Based" "Risk-Based") ;
+    coord:analyticsWeight 0.8 ;
+    coord:dataWeight 0.2 .
+
+coord:HybridDecisionMaker rdf:type coord:DecisionMaker ;
+    rdfs:comment "Hybrid human-machine decision making" ;
+    coord:humanComponent 0.6 ;
+    coord:machineComponent 0.4 ;
+    coord:consensusRequired true ;
+    eight:maxConsensusTime 8 .
+
+# Priority and Routing Logic
+coord:PriorityLevel rdf:type owl:Class ;
+    rdfs:comment "Task priority level for routing decisions" ;
+    eight:maxPriorityScore 8 .
+
+coord:CriticalPriority rdf:type coord:PriorityLevel ;
+    rdfs:comment "Critical priority requiring immediate human attention" ;
+    coord:priorityScore 8 ;
+    coord:escalationTime 0 ;
+    coord:humanRequired true .
+
+coord:HighPriority rdf:type coord:PriorityLevel ;
+    rdfs:comment "High priority with expedited processing" ;
+    coord:priorityScore 6 ;
+    coord:escalationTime 8 ;
+    coord:automationAllowed true .
+
+coord:MediumPriority rdf:type coord:PriorityLevel ;
+    rdfs:comment "Medium priority with standard processing" ;
+    coord:priorityScore 4 ;
+    coord:escalationTime 8 ;
+    coord:automationPreferred true .
+
+coord:LowPriority rdf:type coord:PriorityLevel ;
+    rdfs:comment "Low priority suitable for batch processing" ;
+    coord:priorityScore 2 ;
+    coord:escalationTime 8 ;
+    coord:fullAutomation true .
+
+# Quality Control and Feedback
+coord:QualityMetric rdf:type owl:Class ;
+    rdfs:comment "Quality measurement for coordination effectiveness" ;
+    eight:maxMeasurementTime 8 ;
+    otel:traceable true .
+
+coord:AccuracyMetric rdf:type coord:QualityMetric ;
+    rdfs:comment "Task execution accuracy measurement" ;
+    coord:accuracyThreshold 0.95 ;
+    coord:measurementMethod "comparison" ;
+    eight:maxSampleSize 8 .
+
+coord:EfficiencyMetric rdf:type coord:QualityMetric ;
+    rdfs:comment "Coordination efficiency measurement" ;
+    coord:efficiencyThreshold 0.8 ;
+    coord:measurementMethod "time_analysis" ;
+    eight:maxTimeWindow 8 .  # hours
+
+coord:SatisfactionMetric rdf:type coord:QualityMetric ;
+    rdfs:comment "User satisfaction with coordination" ;
+    coord:satisfactionThreshold 4.0 ;  # out of 5
+    coord:measurementMethod "survey" ;
+    eight:maxSurveyQuestions 8 .
+
+# Conflict Resolution Framework
+coord:ConflictResolution rdf:type owl:Class ;
+    rdfs:comment "Framework for resolving human-machine conflicts" ;
+    eight:maxResolutionTime 8 ;
+    eight:maxResolutionSteps 8 .
+
+coord:EscalationResolution rdf:type coord:ConflictResolution ;
+    rdfs:comment "Escalation to human oversight for conflict resolution" ;
+    coord:escalationTriggers ("Quality Failure" "Timeout" "Resource Conflict" "Policy Violation") ;
+    coord:escalationLevel ("Supervisor" "Manager" "Executive") ;
+    eight:maxEscalationHops 8 .
+
+coord:AutomaticResolution rdf:type coord:ConflictResolution ;
+    rdfs:comment "Automatic conflict resolution through predefined rules" ;
+    coord:resolutionRules ("Priority Based" "Resource Based" "Historical" "Policy Based") ;
+    coord:confidenceThreshold 0.8 ;
+    eight:maxRuleComplexity 8 .
+
+# Properties for Coordination Domain
+coord:capabilityTypes rdf:type owl:DatatypeProperty ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Types of capabilities available" .
+
+coord:automationLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain coord:Task ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Level of automation (0.0 to 1.0)" .
+
+coord:humanOversight rdf:type owl:DatatypeProperty ;
+    rdfs:domain coord:Task ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether human oversight is required" .
+
+coord:priorityScore rdf:type owl:DatatypeProperty ;
+    rdfs:domain coord:PriorityLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Priority score (1-8)" .
+
+coord:escalationTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain coord:PriorityLevel ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Time before escalation in milliseconds" .
+
+coord:maxIterations rdf:type owl:DatatypeProperty ;
+    rdfs:domain coord:IterativeCoordination ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Maximum iterations allowed" .
+
+# SHACL Validation for Coordination Domain
+[] rdf:type sh:NodeShape ;
+    sh:targetClass coord:Task ;
+    sh:property [
+        sh:path eight:maxTaskComplexity ;
+        sh:maxInclusive 8 ;
+        sh:message "Task complexity limited to 8 under 8-Space constraints"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass coord:CoordinationPattern ;
+    sh:property [
+        sh:path eight:maxCoordinationSteps ;
+        sh:maxInclusive 8 ;
+        sh:message "Coordination patterns cannot exceed 8 steps"
+    ] .
+
+[] rdf:type sh:NodeShape ;
+    sh:targetClass coord:DecisionMaker ;
+    sh:property [
+        sh:path eight:maxDecisionTime ;
+        sh:maxInclusive 8000 ;
+        sh:message "Decision time cannot exceed 8000 milliseconds"
+    ] .

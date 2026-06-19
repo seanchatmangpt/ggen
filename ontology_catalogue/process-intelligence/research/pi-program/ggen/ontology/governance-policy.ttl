@@ -1,0 +1,116 @@
+# Governance Policy Ontology
+# Authority: Blue River Dam v30.1.1
+# Encodes: LTL Safety Invariants, Policy Rules, Compliance Boundaries
+
+@prefix gov: <http://process-intelligence.local/governance/> .
+@prefix aka: <http://process-intelligence.local/autonomic/> .
+@prefix br: <http://process-intelligence.local/blue-river/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Governance Policy Class Hierarchy
+gov:GovernancePolicy a owl:Class ;
+  rdfs:label "Governance Policy" ;
+  rdfs:comment "Root class for all governance policy definitions" ;
+  owl:disjointWith aka:AutonomicPolicy .
+
+gov:LTLSafetyInvariant a owl:Class ;
+  rdfs:subClassOf gov:GovernancePolicy ;
+  rdfs:label "LTL Safety Invariant" ;
+  rdfs:comment "Temporal safety property enforced via Linear Temporal Logic" .
+
+gov:ComplianceBoundary a owl:Class ;
+  rdfs:subClassOf gov:GovernancePolicy ;
+  rdfs:label "Compliance Boundary" ;
+  rdfs:comment "Threshold at which system state violates policy" .
+
+gov:PolicyMutation a owl:Class ;
+  rdfs:subClassOf gov:GovernancePolicy ;
+  rdfs:label "Policy Mutation" ;
+  rdfs:comment "Modification to LTL safety policies (requires GovToken)" .
+
+# Authority Hierarchy
+gov:Authority a owl:Class ;
+  rdfs:label "Authority" ;
+  rdfs:comment "Component authorized to enforce policy" .
+
+gov:ostarGovernor a gov:Authority ;
+  rdfs:label "ostar-governor" ;
+  rdfs:comment "Root authority for LTL policy signing and GovToken generation" ;
+  gov:authorizes gov:PolicyMutation ;
+  gov:authorizes gov:ComplianceOverride .
+
+gov:ostarAuditor a gov:Authority ;
+  rdfs:label "ostar-auditor" ;
+  rdfs:comment "Continuous monitor of trace alignment and conformance fitness" ;
+  gov:monitors gov:ConformanceDeviation .
+
+gov:ostarDoctor a gov:Authority ;
+  rdfs:label "ostar-doctor" ;
+  rdfs:comment "Executes containment protocols and rollback procedures" ;
+  gov:executes gov:RollbackSequence .
+
+# Policy Properties
+gov:hasInvariant a rdf:Property ;
+  rdfs:label "has invariant" ;
+  rdfs:domain gov:GovernancePolicy ;
+  rdfs:range rdfs:Literal .
+
+gov:minConformanceFitness a owl:DatatypeProperty ;
+  rdfs:label "minimum conformance fitness" ;
+  rdfs:domain gov:ComplianceBoundary ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Minimum fitness threshold (0.0 to 1.0)" .
+
+gov:authorizes a rdf:Property ;
+  rdfs:label "authorizes" ;
+  rdfs:domain gov:Authority ;
+  rdfs:range gov:GovernancePolicy .
+
+gov:enforces a rdf:Property ;
+  rdfs:label "enforces" ;
+  rdfs:domain gov:Authority ;
+  rdfs:range gov:GovernancePolicy .
+
+gov:monitors a rdf:Property ;
+  rdfs:label "monitors" ;
+  rdfs:domain gov:Authority ;
+  rdfs:range gov:ComplianceBoundary .
+
+gov:executes a rdf:Property ;
+  rdfs:label "executes" ;
+  rdfs:domain gov:Authority ;
+  rdfs:range gov:Procedure .
+
+# Compliance and Deviation
+gov:ConformanceDeviation a owl:Class ;
+  rdfs:label "Conformance Deviation" ;
+  rdfs:comment "Trace fitness below threshold" .
+
+gov:ComplianceOverride a owl:Class ;
+  rdfs:subClassOf gov:PolicyMutation ;
+  rdfs:label "Compliance Override" ;
+  rdfs:comment "Overriding conformance violations (requires GovToken)" .
+
+gov:Procedure a owl:Class ;
+  rdfs:label "Procedure" ;
+  rdfs:comment "Operational procedure (e.g., rollback)" .
+
+gov:RollbackSequence a gov:Procedure ;
+  rdfs:label "Rollback Sequence" ;
+  rdfs:comment "Restore system state to last verified marking" .
+
+# Primary Containment Invariant (encoded in LTL)
+gov:PrimaryContainmentInvariant a gov:LTLSafetyInvariant ;
+  rdfs:label "Primary Containment Invariant" ;
+  rdfs:comment "G (¬Compliant(s) ⇒ X (¬Actuated(s)))" ;
+  gov:hasInvariant "G (not-compliant implies next(not-actuated))" ;
+  rdfs:comment "Non-compliant state cannot actuate in the next step" .
+
+# Default Compliance Boundary
+gov:DefaultComplianceBoundary a gov:ComplianceBoundary ;
+  rdfs:label "Default Compliance Boundary" ;
+  gov:minConformanceFitness 0.85 ;
+  rdfs:comment "Fitness below 0.85 triggers auditor violation alert" .

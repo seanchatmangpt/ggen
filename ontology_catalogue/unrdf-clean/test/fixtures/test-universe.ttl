@@ -1,0 +1,68 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix unrdf: <https://unrdf.org/> .
+@prefix substrate: <https://unrdf.org/substrate/> .
+
+# Test Universe Ontology
+<https://unrdf.org/test-universe>
+  a owl:Ontology ;
+  dc:title "UNRDF Test Universe" ;
+  dc:description "Test ontology for UNRDF admission system" ;
+  owl:versionInfo "1.0.0" .
+
+# Industrial Substrate - Read-only foundation
+substrate:Entity
+  a owl:Class ;
+  rdfs:label "Entity" ;
+  rdfs:comment "Base entity in the substrate" .
+
+substrate:hasIdentifier
+  a owl:DatatypeProperty ;
+  rdfs:domain substrate:Entity ;
+  rdfs:range xsd:string .
+
+substrate:createdAt
+  a owl:DatatypeProperty ;
+  rdfs:domain substrate:Entity ;
+  rdfs:range xsd:dateTime .
+
+# System Policy Partition
+<https://unrdf.org/policy/AccessControl>
+  a owl:Class ;
+  rdfs:label "Access Control Policy" .
+
+<https://unrdf.org/policy/ValidationRule>
+  a owl:Class ;
+  rdfs:label "Validation Rule" .
+
+# Studios Overlay
+<https://unrdf.org/studios/Project>
+  a owl:Class ;
+  rdfs:label "Studio Project" ;
+  rdfs:subClassOf substrate:Entity .
+
+<https://unrdf.org/studios/hasStudio>
+  a owl:ObjectProperty ;
+  rdfs:domain <https://unrdf.org/studios/Project> ;
+  rdfs:range <https://unrdf.org/studios/Studio> .
+
+# Application Overlay
+<https://unrdf.org/app/User>
+  a owl:Class ;
+  rdfs:label "Application User" ;
+  rdfs:subClassOf substrate:Entity .
+
+# Temporal Overlay
+<https://unrdf.org/temporal/Event>
+  a owl:Class ;
+  rdfs:label "Temporal Event" ;
+  rdfs:subClassOf substrate:Entity .
+
+# Projection Overlay
+<https://unrdf.org/projection/Artifact>
+  a owl:Class ;
+  rdfs:label "Projection Artifact" ;
+  rdfs:subClassOf substrate:Entity .

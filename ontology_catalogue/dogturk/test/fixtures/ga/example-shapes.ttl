@@ -1,0 +1,129 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.com/canine/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Canine Training Domain Shapes
+ex:DogShape a sh:NodeShape ;
+  sh:targetClass ex:Dog ;
+  rdfs:label "Dog Shape" ;
+  rdfs:comment "SHACL shape for canine entities in training system" ;
+  sh:property [
+    sh:path ex:name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Dog must have exactly one name" ;
+  ] ;
+  sh:property [
+    sh:path ex:breed ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Dog may have a breed specified" ;
+  ] ;
+  sh:property [
+    sh:path ex:age ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 25 ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Dog age in years, between 0 and 25" ;
+  ] ;
+  sh:property [
+    sh:path ex:status ;
+    sh:in ("active" "inactive" "training" "graduated") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Dog training status" ;
+  ] .
+
+ex:TrainingSessionShape a sh:NodeShape ;
+  sh:targetClass ex:TrainingSession ;
+  rdfs:label "Training Session Shape" ;
+  rdfs:comment "SHACL shape for training session data" ;
+  sh:property [
+    sh:path ex:sessionId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Unique session identifier" ;
+  ] ;
+  sh:property [
+    sh:path ex:dog ;
+    sh:class ex:Dog ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Reference to the dog being trained" ;
+  ] ;
+  sh:property [
+    sh:path ex:date ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Date and time of training session" ;
+  ] ;
+  sh:property [
+    sh:path ex:duration ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 5 ;
+    sh:maxInclusive 180 ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Session duration in minutes, 5-180 minutes" ;
+  ] ;
+  sh:property [
+    sh:path ex:skillsWorked ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    rdfs:comment "Skills practiced during session" ;
+  ] ;
+  sh:property [
+    sh:path ex:outcome ;
+    sh:in ("excellent" "good" "fair" "needs_work") ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Overall session outcome rating" ;
+  ] .
+
+ex:InstructorShape a sh:NodeShape ;
+  sh:targetClass ex:Instructor ;
+  rdfs:label "Instructor Shape" ;
+  rdfs:comment "SHACL shape for training instructors" ;
+  sh:property [
+    sh:path ex:instructorId ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Unique instructor identifier" ;
+  ] ;
+  sh:property [
+    sh:path ex:name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Instructor full name" ;
+  ] ;
+  sh:property [
+    sh:path ex:email ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Instructor email address" ;
+  ] ;
+  sh:property [
+    sh:path ex:certificationLevel ;
+    sh:in ("novice" "intermediate" "advanced" "master") ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    rdfs:comment "Instructor certification level" ;
+  ] ;
+  sh:property [
+    sh:path ex:specialties ;
+    sh:datatype xsd:string ;
+    sh:minCount 0 ;
+    rdfs:comment "Instructor training specialties" ;
+  ] .

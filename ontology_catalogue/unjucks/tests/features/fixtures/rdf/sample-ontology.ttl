@@ -1,0 +1,121 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <http://example.org/ontology/> .
+
+# Ontology metadata
+ex: a owl:Ontology ;
+    rdfs:label "Test Domain Ontology"@en ;
+    rdfs:comment "A sample ontology for testing RDF processing capabilities"@en ;
+    dcterms:created "2025-01-15T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "1.0" .
+
+# Classes
+ex:Person a owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A human being"@en ;
+    rdfs:subClassOf owl:Thing .
+
+ex:Organization a owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "A structured group of people with a common purpose"@en ;
+    rdfs:subClassOf owl:Thing .
+
+ex:Project a owl:Class ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "A temporary endeavor undertaken to create a unique product or service"@en ;
+    rdfs:subClassOf owl:Thing .
+
+ex:Publication a owl:Class ;
+    rdfs:label "Publication"@en ;
+    rdfs:comment "A work made available to the public"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# Object Properties
+ex:worksFor a owl:ObjectProperty ;
+    rdfs:label "works for"@en ;
+    rdfs:comment "Indicates employment relationship"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+ex:collaboratesWith a owl:ObjectProperty ;
+    rdfs:label "collaborates with"@en ;
+    rdfs:comment "Indicates collaboration relationship"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Person ;
+    owl:inverseOf ex:collaboratesWith .
+
+ex:participatesIn a owl:ObjectProperty ;
+    rdfs:label "participates in"@en ;
+    rdfs:comment "Indicates participation in a project"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Project .
+
+ex:hasAuthor a owl:ObjectProperty ;
+    rdfs:label "has author"@en ;
+    rdfs:comment "Indicates authorship of a publication"@en ;
+    rdfs:domain ex:Publication ;
+    rdfs:range ex:Person .
+
+# Data Properties
+ex:fullName a owl:DatatypeProperty ;
+    rdfs:label "full name"@en ;
+    rdfs:comment "The complete name of a person"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:email a owl:DatatypeProperty ;
+    rdfs:label "email address"@en ;
+    rdfs:comment "Email address of a person"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:establishedDate a owl:DatatypeProperty ;
+    rdfs:label "established date"@en ;
+    rdfs:comment "The date when an organization was established"@en ;
+    rdfs:domain ex:Organization ;
+    rdfs:range xsd:date .
+
+ex:budget a owl:DatatypeProperty ;
+    rdfs:label "budget"@en ;
+    rdfs:comment "The budget allocated to a project"@en ;
+    rdfs:domain ex:Project ;
+    rdfs:range xsd:decimal .
+
+ex:publicationYear a owl:DatatypeProperty ;
+    rdfs:label "publication year"@en ;
+    rdfs:comment "The year a publication was published"@en ;
+    rdfs:domain ex:Publication ;
+    rdfs:range xsd:gYear .
+
+# Sample instances
+ex:john-doe a ex:Person ;
+    ex:fullName "John Doe"@en ;
+    ex:email "john.doe@example.org" ;
+    ex:worksFor ex:acme-corp ;
+    ex:participatesIn ex:ai-research-project .
+
+ex:jane-smith a ex:Person ;
+    ex:fullName "Jane Smith"@en ;
+    ex:email "jane.smith@example.org" ;
+    ex:worksFor ex:tech-university ;
+    ex:collaboratesWith ex:john-doe .
+
+ex:acme-corp a ex:Organization ;
+    rdfs:label "ACME Corporation"@en ;
+    ex:establishedDate "1990-05-15"^^xsd:date .
+
+ex:tech-university a ex:Organization ;
+    rdfs:label "Technology University"@en ;
+    ex:establishedDate "1965-09-01"^^xsd:date .
+
+ex:ai-research-project a ex:Project ;
+    rdfs:label "AI Research Project"@en ;
+    ex:budget "250000.00"^^xsd:decimal .
+
+ex:ml-paper-2025 a ex:Publication ;
+    rdfs:label "Advances in Machine Learning"@en ;
+    ex:publicationYear "2025"^^xsd:gYear ;
+    ex:hasAuthor ex:john-doe, ex:jane-smith .

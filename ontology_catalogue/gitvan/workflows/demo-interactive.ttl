@@ -1,0 +1,26 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# 'Demo Workflow
+# Generated on: 2025-09-21T00:35:31.441Z
+
+ex:demo-interactive rdf:type gh:Hook ;
+    gv:title "'Demo" ;
+    gh:hasPredicate ex:demointeractive ;
+    gh:orderedPipelines ex:demo-interactive-pipeline .
+
+ex:demo-interactive-pipeline rdf:type op:Pipeline ;
+    op:steps ex:demo-interactive-step1 .
+
+# Example Step
+ex:demo-interactive-step1 rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX ex: <http://example.org/>
+        SELECT ?item WHERE {
+            ?item rdf:type ex:ExampleItem .
+        }
+    """ ;
+    gv:outputMapping '{"items": "results"}' .

@@ -1,0 +1,359 @@
+@prefix cli: <http://cns.io/unified-cli#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix weaver: <http://opentelemetry.io/weaver#> .
+
+# =============================================================================
+# SHACL Constraints for Unified CLI Ontology
+# Ensures data quality and enables automatic validation
+# =============================================================================
+
+# Command Validation Shapes
+cli:CommandShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:property [
+        sh:path cli:commandName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+([_-][a-z]+)*$" ;
+        sh:message "Command name must be lowercase with hyphens or underscores"
+    ] ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("turtle" "semantic" "bitactor" "pipeline" "deployment" "heuristics" "system") ;
+        sh:message "Command group must be one of: turtle, semantic, bitactor, pipeline, deployment, heuristics, system"
+    ] ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("high" "medium" "low") ;
+        sh:message "Priority must be high, medium, or low"
+    ] ;
+    sh:property [
+        sh:path cli:coverage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Coverage must be between 0 and 100 percent"
+    ] ;
+    sh:property [
+        sh:path cli:usageFrequency ;
+        sh:datatype xsd:string ;
+        sh:in ("daily" "weekly" "monthly" "rare") ;
+        sh:message "Usage frequency must be daily, weekly, monthly, or rare"
+    ] ;
+    sh:property [
+        sh:path cli:moduleFile ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern ".*\\.py$" ;
+        sh:message "Module file must be a Python file (.py extension)"
+    ] ;
+    sh:property [
+        sh:path cli:functionName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z_][a-z0-9_]*$" ;
+        sh:message "Function name must be valid Python identifier"
+    ] .
+
+# Core Command Validation (80/20 Rule)
+cli:CoreCommandShape a sh:NodeShape ;
+    sh:targetClass cli:CoreCommand ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:hasValue "high" ;
+        sh:message "Core commands must have high priority"
+    ] ;
+    sh:property [
+        sh:path cli:coverage ;
+        sh:minInclusive 60.0 ;
+        sh:message "Core commands must cover at least 60% of use cases"
+    ] ;
+    sh:property [
+        sh:path cli:usageFrequency ;
+        sh:in ("daily" "weekly") ;
+        sh:message "Core commands must be used daily or weekly"
+    ] .
+
+# Extended Command Validation
+cli:ExtendedCommandShape a sh:NodeShape ;
+    sh:targetClass cli:ExtendedCommand ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:in ("medium" "low") ;
+        sh:message "Extended commands must have medium or low priority"
+    ] ;
+    sh:property [
+        sh:path cli:coverage ;
+        sh:maxInclusive 40.0 ;
+        sh:message "Extended commands should cover at most 40% of use cases"
+    ] .
+
+# Parameter Validation
+cli:ParameterShape a sh:NodeShape ;
+    sh:targetClass cli:Parameter ;
+    sh:property [
+        sh:path cli:parameterName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9_]*$" ;
+        sh:message "Parameter name must be valid Python identifier starting with lowercase letter"
+    ] ;
+    sh:property [
+        sh:path cli:parameterType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("str" "int" "float" "bool" "Path" "List[str]" "Optional[str]" "Optional[int]" "Optional[Path]") ;
+        sh:message "Parameter type must be valid Python type"
+    ] ;
+    sh:property [
+        sh:path cli:required ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+# Argument-specific validation
+cli:ArgumentShape a sh:NodeShape ;
+    sh:targetClass cli:Argument ;
+    sh:property [
+        sh:path cli:required ;
+        sh:hasValue true ;
+        sh:message "Arguments are typically required"
+    ] .
+
+# Option-specific validation
+cli:OptionShape a sh:NodeShape ;
+    sh:targetClass cli:Option ;
+    sh:property [
+        sh:path cli:defaultValue ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "Options can have at most one default value"
+    ] .
+
+# OTEL Instrumentation Validation
+cli:InstrumentedCommandShape a sh:NodeShape ;
+    sh:targetClass cli:InstrumentedCommand ;
+    sh:property [
+        sh:path cli:spanName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+([._][a-z]+)*$" ;
+        sh:message "Span name must follow OTEL naming conventions"
+    ] ;
+    sh:property [
+        sh:path cli:traceName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+([._][a-z]+)*$" ;
+        sh:message "Trace name must follow OTEL naming conventions"
+    ] .
+
+# Metric Command Validation
+cli:MetricCommandShape a sh:NodeShape ;
+    sh:targetClass cli:MetricCommand ;
+    sh:property [
+        sh:path cli:metricName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+([._][a-z]+)*$" ;
+        sh:message "Metric name must follow OTEL naming conventions"
+    ] .
+
+# uvmgr Architecture Level Validation
+cli:ArchitectureLevelShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("L1" "L2" "L3") ;
+        sh:message "Architecture level must be L1, L2, or L3"
+    ] .
+
+# L1 Command Constraints (Direct Operations)
+cli:L1CommandShape a sh:NodeShape ;
+    sh:targetClass cli:L1Command ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:hasValue "L1" ;
+        sh:message "L1 commands must have architecture level L1"
+    ] ;
+    sh:property [
+        sh:path cli:coordinationRequired ;
+        sh:hasValue false ;
+        sh:message "L1 commands should not require coordination"
+    ] .
+
+# L2 Command Constraints (State Management)
+cli:L2CommandShape a sh:NodeShape ;
+    sh:targetClass cli:L2Command ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:hasValue "L2" ;
+        sh:message "L2 commands must have architecture level L2"
+    ] ;
+    sh:property [
+        sh:path cli:coordinationRequired ;
+        sh:datatype xsd:boolean ;
+        sh:message "L2 commands may require coordination"
+    ] .
+
+# L3 Command Constraints (Strategic Operations)
+cli:L3CommandShape a sh:NodeShape ;
+    sh:targetClass cli:L3Command ;
+    sh:property [
+        sh:path cli:architectureLevel ;
+        sh:hasValue "L3" ;
+        sh:message "L3 commands must have architecture level L3"
+    ] ;
+    sh:property [
+        sh:path cli:coordinationRequired ;
+        sh:hasValue true ;
+        sh:message "L3 commands must require coordination"
+    ] ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:hasValue "high" ;
+        sh:message "L3 commands should have high priority"
+    ] .
+
+# Command Group Validation
+cli:TurtleCommandShape a sh:NodeShape ;
+    sh:targetClass cli:TurtleCommand ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:hasValue "turtle" ;
+        sh:message "Turtle commands must belong to turtle group"
+    ] .
+
+cli:SemanticCommandShape a sh:NodeShape ;
+    sh:targetClass cli:SemanticCommand ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:hasValue "semantic" ;
+        sh:message "Semantic commands must belong to semantic group"
+    ] .
+
+cli:BitActorCommandShape a sh:NodeShape ;
+    sh:targetClass cli:BitActorCommand ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:hasValue "bitactor" ;
+        sh:message "BitActor commands must belong to bitactor group"
+    ] .
+
+cli:PipelineCommandShape a sh:NodeShape ;
+    sh:targetClass cli:PipelineCommand ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:hasValue "pipeline" ;
+        sh:message "Pipeline commands must belong to pipeline group"
+    ] .
+
+cli:HeuristicCommandShape a sh:NodeShape ;
+    sh:targetClass cli:HeuristicCommand ;
+    sh:property [
+        sh:path cli:commandGroup ;
+        sh:hasValue "heuristics" ;
+        sh:message "Heuristic commands must belong to heuristics group"
+    ] ;
+    sh:property [
+        sh:path cli:priority ;
+        sh:hasValue "high" ;
+        sh:message "Heuristic commands should have high priority for optimization"
+    ] .
+
+# Performance Budget Constraints
+cli:PerformanceBudgetShape a sh:NodeShape ;
+    sh:targetClass cli:CoreCommand ;
+    sh:sparql [
+        sh:message "Core commands should complete within performance budget" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cli:priority "high" .
+                $this cli:usageFrequency ?freq .
+                FILTER(?freq IN ("daily", "weekly"))
+                # Core commands used frequently should be optimized
+            }
+        """
+    ] .
+
+# 80/20 Distribution Validation
+cli:ParetoPrincipleShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:sparql [
+        sh:message "Command distribution should follow 80/20 principle" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                {
+                    SELECT (COUNT(?core) as ?coreCount) (COUNT(?all) as ?allCount)
+                    WHERE {
+                        ?all rdf:type/rdfs:subClassOf* cli:Command .
+                        OPTIONAL { ?core rdf:type/rdfs:subClassOf* cli:CoreCommand }
+                    }
+                }
+                BIND(?coreCount * 5 as ?expectedCore)
+                FILTER(?expectedCore <= ?allCount)
+                # Core commands should be roughly 20% of all commands
+            }
+        """
+    ] .
+
+# Integration Validation
+cli:OTELIntegrationShape a sh:NodeShape ;
+    sh:targetClass cli:InstrumentedCommand ;
+    sh:property [
+        sh:path cli:generatesSpan ;
+        sh:minCount 1 ;
+        sh:message "Instrumented commands must generate at least one span"
+    ] .
+
+# Weaver Code Generation Validation
+cli:WeaverCompatibilityShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:property [
+        sh:path cli:moduleFile ;
+        sh:minCount 1 ;
+        sh:message "Commands must specify implementation module for Weaver generation"
+    ] ;
+    sh:property [
+        sh:path cli:functionName ;
+        sh:minCount 1 ;
+        sh:message "Commands must specify implementation function for Weaver generation"
+    ] .
+
+# Security Constraints
+cli:SecurityShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:sparql [
+        sh:message "Commands with system access should be properly secured" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this cli:commandGroup ?group .
+                $this cli:architectureLevel ?level .
+                FILTER(?group IN ("deployment", "system") || ?level = "L3")
+                # System and deployment commands need security review
+            }
+        """
+    ] .

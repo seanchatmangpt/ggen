@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_02_verify_package_constraints> a prov:Activity ;
+    dcterms:identifier "02_verify_package_constraints" ;
+    prov:startedAtTime "2026-05-27T04:21:52.660Z" ; 
+    prov:endedAtTime "2026-05-27T04:21:52.666Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_02_verify_package_constraints> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_02_verify_package_constraints> ;
+    dcterms:title "02_verify_package_constraints.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "23c02dafd08dd2839cf0fe95900fc3e15f86483bfc0b8e15ac90ba5bf3398c69"
+    ] .
+
+<#stderr_02_verify_package_constraints> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_02_verify_package_constraints> ;
+    dcterms:title "02_verify_package_constraints.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ] .

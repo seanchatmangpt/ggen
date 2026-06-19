@@ -1,0 +1,349 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bit: <http://cns.litigation/bit#> .
+@prefix flow: <http://cns.litigation/flow#> .
+@prefix sparql: <http://cns.litigation/sparql#> .
+@prefix shock: <http://cns.litigation/shock#> .
+@prefix memory: <http://cns.litigation/memory#> .
+
+# ===================================================================
+# Bit Agent RDF Memory Model - The Semantic Execution Substrate
+# ===================================================================
+
+# This ontology defines how agents store knowledge and execute
+# SPARQL-based cognition. Agents literally think by querying
+# and updating this RDF graph structure.
+
+# ===================================================================
+# Core Agent Ontology
+# ===================================================================
+
+bit:Agent a rdfs:Class ;
+    rdfs:label "Bit Agent" ;
+    rdfs:comment "A SPARQL-programmable memory walker that thinks via semantic queries" .
+
+bit:tickBudget a rdf:Property ;
+    rdfs:domain bit:Agent ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Trinity constraint: 8-tick execution budget" .
+
+bit:currentState a rdf:Property ;
+    rdfs:domain bit:Agent ;
+    rdfs:range bit:State ;
+    rdfs:comment "Agent's current execution state in semantic space" .
+
+bit:currentFlow a rdf:Property ;
+    rdfs:domain bit:Agent ;
+    rdfs:range flow:Bitflow ;
+    rdfs:comment "Active bitflow (compiled SPARQL execution plan)" .
+
+# ===================================================================
+# Memory Segments - How Agents Organize Knowledge
+# ===================================================================
+
+memory:WorkingMemory a rdfs:Class ;
+    rdfs:subClassOf memory:MemorySegment ;
+    rdfs:comment "Short-term storage for active computations" ;
+    memory:ttl "60"^^xsd:integer ;  # 60 second TTL
+    memory:maxTriples "1000"^^xsd:integer .
+
+memory:SemanticMemory a rdfs:Class ;
+    rdfs:subClassOf memory:MemorySegment ;
+    rdfs:comment "Long-term ontological knowledge" ;
+    memory:persistent true ;
+    memory:indexed true .
+
+memory:ProceduralMemory a rdfs:Class ;
+    rdfs:subClassOf memory:MemorySegment ;
+    rdfs:comment "Compiled shocks and bitflows" ;
+    memory:cacheSize "10000"^^xsd:integer .
+
+# ===================================================================
+# SPARQL Thought Patterns - How Agents Think
+# ===================================================================
+
+sparql:ThoughtPattern a rdfs:Class ;
+    rdfs:comment "Reusable SPARQL query templates for cognition" .
+
+sparql:StateTransition a sparql:ThoughtPattern ;
+    sparql:template """
+        SELECT ?nextState ?action ?cost
+        WHERE {
+            ?agent bit:currentState ?currentState .
+            ?transition flow:fromState ?currentState .
+            ?transition flow:toState ?nextState .
+            ?transition flow:action ?action .
+            ?transition flow:tickCost ?cost .
+            ?agent bit:tickBudget ?budget .
+            FILTER(?cost <= ?budget)
+        }
+        ORDER BY ?cost
+        LIMIT 1
+    """ .
+
+sparql:MemoryRecall a sparql:ThoughtPattern ;
+    sparql:template """
+        SELECT ?memory ?relevance ?timestamp
+        WHERE {
+            ?memory memory:storedIn memory:SemanticMemory .
+            ?memory memory:relatedTo ?concept .
+            ?memory memory:timestamp ?timestamp .
+            ?memory memory:relevance ?relevance .
+            FILTER(?relevance > 0.7)
+        }
+        ORDER BY DESC(?relevance) DESC(?timestamp)
+        LIMIT 10
+    """ .
+
+sparql:PatternMatch a sparql:ThoughtPattern ;
+    sparql:template """
+        CONSTRUCT {
+            ?match shock:pattern ?pattern .
+            ?match shock:confidence ?confidence .
+        }
+        WHERE {
+            ?pattern shock:storedIn memory:ProceduralMemory .
+            ?pattern shock:matches ?input .
+            BIND(shock:calculateConfidence(?pattern, ?input) AS ?confidence)
+            FILTER(?confidence > 0.8)
+        }
+    """ .
+
+# ===================================================================
+# Bitflow Definitions - Compiled Execution Plans
+# ===================================================================
+
+flow:Bitflow a rdfs:Class ;
+    rdfs:comment "Chain of SPARQL operations forming an execution plan" .
+
+flow:MessageRoutingFlow a flow:Bitflow ;
+    flow:steps (
+        [
+            flow:step 1 ;
+            flow:operation sparql:StateQuery ;
+            flow:query "SELECT ?state WHERE { ?agent bit:currentState ?state }"
+        ]
+        [
+            flow:step 2 ;
+            flow:operation sparql:RouteCalculation ;
+            flow:query """
+                SELECT ?route ?priority WHERE {
+                    ?msg rdf:type bit:Message .
+                    ?msg bit:destination ?dest .
+                    ?route flow:canReach ?dest .
+                    ?route flow:priority ?priority .
+                }
+                ORDER BY DESC(?priority)
+            """
+        ]
+        [
+            flow:step 3 ;
+            flow:operation sparql:StateUpdate ;
+            flow:update """
+                DELETE { ?agent bit:currentState ?old }
+                INSERT { ?agent bit:currentState bit:routing }
+                WHERE { ?agent bit:currentState ?old }
+            """
+        ]
+    ) .
+
+# ===================================================================
+# Shock Definitions - Cached Query Plans
+# ===================================================================
+
+shock:Shock a rdfs:Class ;
+    rdfs:comment "Pre-compiled SPARQL execution plan for ultrathink performance" .
+
+shock:TickAllocationShock a shock:Shock ;
+    shock:pattern """
+        SELECT ?available WHERE {
+            ?agent bit:tickBudget ?budget .
+            ?agent bit:ticksConsumed ?consumed .
+            BIND(?budget - ?consumed AS ?available)
+        }
+    """ ;
+    shock:compiledPlan [
+        shock:accessMethod shock:DirectIndex ;
+        shock:estimatedTicks 1 ;
+        shock:parallelizable false
+    ] .
+
+# ===================================================================
+# Agent State Space - Semantic States
+# ===================================================================
+
+bit:State a rdfs:Class ;
+    rdfs:comment "Semantic state in agent's execution space" .
+
+bit:idle a bit:State ;
+    bit:allowedTransitions (bit:thinking bit:executing) ;
+    bit:tickConsumption 0 .
+
+bit:thinking a bit:State ;
+    bit:allowedTransitions (bit:executing bit:waiting bit:idle) ;
+    bit:tickConsumption 1 ;
+    bit:sparqlActivity "high" .
+
+bit:executing a bit:State ;
+    bit:allowedTransitions (bit:committing bit:rolling_back) ;
+    bit:tickConsumption 2 ;
+    bit:requiresLock true .
+
+bit:routing a bit:State ;
+    bit:allowedTransitions (bit:forwarding bit:queueing) ;
+    bit:tickConsumption 1 ;
+    bit:hopIncrement true .
+
+# ===================================================================
+# Example Agent Instance - BitScheduler's Memory
+# ===================================================================
+
+<http://cns.litigation/agents/bit_scheduler/memory> a bit:Agent ;
+    bit:id "bit_scheduler" ;
+    bit:tickBudget 8 ;
+    bit:currentState bit:idle ;
+    bit:hasMemory memory:WorkingMemory, memory:SemanticMemory, memory:ProceduralMemory ;
+    
+    # Scheduler-specific knowledge
+    bit:manages [
+        a bit:TickPool ;
+        bit:totalTicks 64 ;
+        bit:allocatedTicks 0 ;
+        bit:tickAllocationStrategy bit:FairShare
+    ] ;
+    
+    # Cached shocks for fast tick operations
+    bit:hasShock shock:TickAllocationShock ;
+    bit:hasShock shock:TickReclamationShock ;
+    
+    # Current working memory
+    memory:workingMemory [
+        memory:contains [
+            a bit:AllocationRequest ;
+            bit:requestor <http://cns.litigation/agents/flow_router> ;
+            bit:requestedTicks 3 ;
+            bit:priority bit:high ;
+            bit:timestamp "2025-01-30T18:45:23.456Z"^^xsd:dateTime
+        ]
+    ] .
+
+# ===================================================================
+# SPARQL Reasoning Rules - How Knowledge Propagates
+# ===================================================================
+
+# Rule: If an agent exhausts tick budget, transition to waiting
+[
+    a sparql:InferenceRule ;
+    sparql:condition """
+        ASK WHERE {
+            ?agent bit:tickBudget ?budget .
+            ?agent bit:ticksConsumed ?consumed .
+            FILTER(?consumed >= ?budget)
+        }
+    """ ;
+    sparql:consequence """
+        DELETE { ?agent bit:currentState ?state }
+        INSERT { ?agent bit:currentState bit:waiting }
+        WHERE { ?agent bit:currentState ?state . FILTER(?state != bit:waiting) }
+    """
+] .
+
+# Rule: Propagate high-priority messages through semantic hops
+[
+    a sparql:InferenceRule ;
+    sparql:condition """
+        ASK WHERE {
+            ?msg bit:priority bit:critical .
+            ?msg bit:currentLocation ?loc .
+            ?loc bit:connectedTo ?next .
+        }
+    """ ;
+    sparql:consequence """
+        INSERT {
+            ?msg bit:nextHop ?next .
+            ?next bit:incomingCritical true .
+        }
+        WHERE {
+            ?msg bit:priority bit:critical .
+            ?msg bit:currentLocation ?loc .
+            ?loc bit:connectedTo ?next .
+        }
+    """
+] .
+
+# ===================================================================
+# Ontological Intelligence - Self-Modifying Patterns
+# ===================================================================
+
+bit:OntologicalRewrite a rdfs:Class ;
+    rdfs:comment "Agents can rewrite their own semantic structure" .
+
+bit:ConceptEvolution a bit:OntologicalRewrite ;
+    bit:pattern """
+        # When a concept is accessed frequently, promote it
+        DELETE { ?concept memory:tier memory:Slow }
+        INSERT { ?concept memory:tier memory:Fast }
+        WHERE {
+            ?concept memory:accessCount ?count .
+            FILTER(?count > 100)
+        }
+    """ .
+
+bit:RelationLearning a bit:OntologicalRewrite ;
+    bit:pattern """
+        # Learn new relations from co-occurrence
+        INSERT {
+            ?concept1 bit:coOccursWith ?concept2 .
+            ?concept1 bit:coOccurrenceStrength ?strength .
+        }
+        WHERE {
+            SELECT ?concept1 ?concept2 (COUNT(*) as ?strength)
+            WHERE {
+                ?context memory:mentions ?concept1 .
+                ?context memory:mentions ?concept2 .
+                FILTER(?concept1 != ?concept2)
+            }
+            GROUP BY ?concept1 ?concept2
+            HAVING (?strength > 10)
+        }
+    """ .
+
+# ===================================================================
+# The Semantic Swarm - Multi-Agent Coordination via SPARQL
+# ===================================================================
+
+bit:SwarmCoordination a rdfs:Class ;
+    rdfs:comment "Agents coordinate by querying shared semantic space" .
+
+# Agents discover each other through SPARQL
+sparql:AgentDiscovery a sparql:ThoughtPattern ;
+    sparql:template """
+        SELECT ?agent ?capability ?load WHERE {
+            ?agent rdf:type bit:Agent .
+            ?agent bit:provides ?capability .
+            ?agent bit:currentLoad ?load .
+            FILTER(?load < 0.8)
+        }
+        ORDER BY ?load
+    """ .
+
+# Semantic consensus through SPARQL queries
+sparql:ConsensusQuery a sparql:ThoughtPattern ;
+    sparql:template """
+        SELECT ?decision (COUNT(?vote) as ?votes) WHERE {
+            ?agent bit:votedFor ?decision .
+            ?agent bit:inQuorum true .
+        }
+        GROUP BY ?decision
+        HAVING (?votes > 3)
+        ORDER BY DESC(?votes)
+        LIMIT 1
+    """ .
+
+# ===================================================================
+# This is the key insight: Agents don't execute code,
+# they execute SPARQL queries over semantic memory.
+# The RDF graph IS the program, and SPARQL IS the CPU.
+# ===================================================================

@@ -1,0 +1,489 @@
+# Governor Mission Goals and Commander's Intent Semantic Structures
+# Declarative goal system for real-time battlespace operations
+# Compatible with TTL Weaver framework and coalition bidding
+
+@prefix goal: <https://governor.mil/ontology/goals#> .
+@prefix gov: <https://governor.mil/ontology/battlespace#> .
+@prefix unit: <https://governor.mil/ontology/units#> .
+@prefix terrain: <https://governor.mil/ontology/terrain#> .
+@prefix mission: <https://governor.mil/ontology/mission#> .
+@prefix intent: <https://governor.mil/ontology/commander-intent#> .
+@prefix coalition: <https://governor.mil/ontology/coalition#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# GOAL SYSTEM ONTOLOGY
+
+## Base Goal Classes
+goal:Goal a owl:Class ;
+    rdfs:label "Military Goal" ;
+    rdfs:comment "Base class for all military goals in the goal system" .
+
+goal:StrategicGoal a owl:Class ;
+    rdfs:label "Strategic Goal" ;
+    rdfs:comment "High-level strategic military goal" ;
+    rdfs:subClassOf goal:Goal .
+
+goal:OperationalGoal a owl:Class ;
+    rdfs:label "Operational Goal" ;
+    rdfs:comment "Mid-level operational military goal" ;
+    rdfs:subClassOf goal:Goal .
+
+goal:TacticalGoal a owl:Class ;
+    rdfs:label "Tactical Goal" ;
+    rdfs:comment "Low-level tactical military goal" ;
+    rdfs:subClassOf goal:Goal .
+
+## Goal States (derived from forex market states)
+goal:GoalState a owl:Class ;
+    rdfs:label "Goal State" ;
+    rdfs:comment "Current state of a military goal" .
+
+goal:Pending a goal:GoalState ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Goal is defined but not yet started" .
+
+goal:InProgress a goal:GoalState ;
+    rdfs:label "In Progress" ;
+    rdfs:comment "Goal is actively being pursued" .
+
+goal:OnHold a goal:GoalState ;
+    rdfs:label "On Hold" ;
+    rdfs:comment "Goal execution is temporarily suspended" .
+
+goal:Completed a goal:GoalState ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Goal has been successfully achieved" .
+
+goal:Failed a goal:GoalState ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Goal could not be achieved" .
+
+goal:Cancelled a goal:GoalState ;
+    rdfs:label "Cancelled" ;
+    rdfs:comment "Goal was cancelled before completion" .
+
+## Goal Priority Levels (adapted from forex trading priorities)
+goal:Priority a owl:Class ;
+    rdfs:label "Goal Priority" ;
+    rdfs:comment "Priority level for military goals" .
+
+goal:Critical a goal:Priority ;
+    rdfs:label "Critical" ;
+    rdfs:comment "Mission-critical goal (priority 1)" ;
+    goal:priorityValue 1 .
+
+goal:High a goal:Priority ;
+    rdfs:label "High" ;
+    rdfs:comment "High priority goal (priority 2-3)" ;
+    goal:priorityValue 2 .
+
+goal:Medium a goal:Priority ;
+    rdfs:label "Medium" ;
+    rdfs:comment "Medium priority goal (priority 4-6)" ;
+    goal:priorityValue 4 .
+
+goal:Low a goal:Priority ;
+    rdfs:label "Low" ;
+    rdfs:comment "Low priority goal (priority 7-10)" ;
+    goal:priorityValue 7 .
+
+# GOAL PROPERTIES
+
+## Core Goal Properties
+goal:hasState a owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:comment "Current state of the goal" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:GoalState .
+
+goal:hasPriority a owl:ObjectProperty ;
+    rdfs:label "has priority" ;
+    rdfs:comment "Priority level of the goal" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:Priority .
+
+goal:hasDeadline a owl:DatatypeProperty ;
+    rdfs:label "has deadline" ;
+    rdfs:comment "Goal completion deadline (Unix timestamp)" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range xsd:integer .
+
+goal:estimatedDuration a owl:DatatypeProperty ;
+    rdfs:label "estimated duration" ;
+    rdfs:comment "Estimated time to complete goal (seconds)" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range xsd:integer .
+
+goal:actualDuration a owl:DatatypeProperty ;
+    rdfs:label "actual duration" ;
+    rdfs:comment "Actual time taken to complete goal (seconds)" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range xsd:integer .
+
+goal:completionPercentage a owl:DatatypeProperty ;
+    rdfs:label "completion percentage" ;
+    rdfs:comment "Percentage of goal completion (0-100)" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range xsd:integer .
+
+## Goal Relationships
+goal:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:comment "Goal depends on completion of another goal" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:Goal .
+
+goal:enables a owl:ObjectProperty ;
+    rdfs:label "enables" ;
+    rdfs:comment "Goal enables execution of another goal" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:Goal .
+
+goal:conflicts a owl:ObjectProperty ;
+    rdfs:label "conflicts" ;
+    rdfs:comment "Goal conflicts with another goal" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:Goal .
+
+goal:supports a owl:ObjectProperty ;
+    rdfs:label "supports" ;
+    rdfs:comment "Goal supports achievement of another goal" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:Goal .
+
+## Goal Assignment and Execution
+goal:assignedTo a owl:ObjectProperty ;
+    rdfs:label "assigned to" ;
+    rdfs:comment "Goal assigned to military unit" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range unit:MilitaryUnit .
+
+goal:usesResource a owl:ObjectProperty ;
+    rdfs:label "uses resource" ;
+    rdfs:comment "Goal requires specific coalition resource" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range coalition:Resource .
+
+goal:requiresTerrain a owl:ObjectProperty ;
+    rdfs:label "requires terrain" ;
+    rdfs:comment "Goal requires control of specific terrain" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range terrain:TerrainFeature .
+
+# SUCCESS METRICS (derived from forex P&L tracking)
+
+goal:SuccessMetric a owl:Class ;
+    rdfs:label "Success Metric" ;
+    rdfs:comment "Quantitative measure of goal success" .
+
+goal:hasSuccessMetric a owl:ObjectProperty ;
+    rdfs:label "has success metric" ;
+    rdfs:comment "Goal has defined success metric" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:SuccessMetric .
+
+goal:metricName a owl:DatatypeProperty ;
+    rdfs:label "metric name" ;
+    rdfs:comment "Name of the success metric" ;
+    rdfs:domain goal:SuccessMetric ;
+    rdfs:range xsd:string .
+
+goal:targetValue a owl:DatatypeProperty ;
+    rdfs:label "target value" ;
+    rdfs:comment "Target value for the success metric" ;
+    rdfs:domain goal:SuccessMetric ;
+    rdfs:range xsd:float .
+
+goal:actualValue a owl:DatatypeProperty ;
+    rdfs:label "actual value" ;
+    rdfs:comment "Actual achieved value for the success metric" ;
+    rdfs:domain goal:SuccessMetric ;
+    rdfs:range xsd:float .
+
+goal:metricUnit a owl:DatatypeProperty ;
+    rdfs:label "metric unit" ;
+    rdfs:comment "Unit of measurement for the metric" ;
+    rdfs:domain goal:SuccessMetric ;
+    rdfs:range xsd:string .
+
+# COMMANDER'S INTENT GOAL STRUCTURES
+
+intent:IntentGoal a owl:Class ;
+    rdfs:label "Commander's Intent Goal" ;
+    rdfs:comment "Goal derived from commander's intent" ;
+    rdfs:subClassOf goal:StrategicGoal .
+
+intent:PurposeGoal a owl:Class ;
+    rdfs:label "Purpose Goal" ;
+    rdfs:comment "Goal representing mission purpose" ;
+    rdfs:subClassOf intent:IntentGoal .
+
+intent:TaskGoal a owl:Class ;
+    rdfs:label "Task Goal" ;
+    rdfs:comment "Goal representing key task from commander's intent" ;
+    rdfs:subClassOf intent:IntentGoal .
+
+intent:EndStateGoal a owl:Class ;
+    rdfs:label "End State Goal" ;
+    rdfs:comment "Goal representing desired end state" ;
+    rdfs:subClassOf intent:IntentGoal .
+
+## Commander's Intent Properties
+intent:intentStatement a owl:DatatypeProperty ;
+    rdfs:label "intent statement" ;
+    rdfs:comment "Original commander's intent statement" ;
+    rdfs:domain intent:IntentGoal ;
+    rdfs:range xsd:string .
+
+intent:guidance a owl:DatatypeProperty ;
+    rdfs:label "guidance" ;
+    rdfs:comment "Additional guidance for goal execution" ;
+    rdfs:domain intent:IntentGoal ;
+    rdfs:range xsd:string .
+
+intent:constraintsAndLimitations a owl:DatatypeProperty ;
+    rdfs:label "constraints and limitations" ;
+    rdfs:comment "Constraints on goal execution" ;
+    rdfs:domain intent:IntentGoal ;
+    rdfs:range xsd:string .
+
+# REAL-TIME GOAL ADAPTATION (derived from forex pattern evolution)
+
+goal:GoalAdaptation a owl:Class ;
+    rdfs:label "Goal Adaptation" ;
+    rdfs:comment "Adaptation of goal based on battlefield conditions" .
+
+goal:hasAdaptation a owl:ObjectProperty ;
+    rdfs:label "has adaptation" ;
+    rdfs:comment "Goal has been adapted" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:GoalAdaptation .
+
+goal:adaptationReason a owl:DatatypeProperty ;
+    rdfs:label "adaptation reason" ;
+    rdfs:comment "Reason for goal adaptation" ;
+    rdfs:domain goal:GoalAdaptation ;
+    rdfs:range xsd:string .
+
+goal:adaptationTimestamp a owl:DatatypeProperty ;
+    rdfs:label "adaptation timestamp" ;
+    rdfs:comment "When adaptation was made (Unix timestamp)" ;
+    rdfs:domain goal:GoalAdaptation ;
+    rdfs:range xsd:integer .
+
+goal:adaptationConfidence a owl:DatatypeProperty ;
+    rdfs:label "adaptation confidence" ;
+    rdfs:comment "Confidence in adaptation decision (0-1)" ;
+    rdfs:domain goal:GoalAdaptation ;
+    rdfs:range xsd:float .
+
+# COALITION GOAL COORDINATION
+
+coalition:CoalitionGoal a owl:Class ;
+    rdfs:label "Coalition Goal" ;
+    rdfs:comment "Goal requiring coalition coordination" ;
+    rdfs:subClassOf goal:OperationalGoal .
+
+coalition:participatingNations a owl:ObjectProperty ;
+    rdfs:label "participating nations" ;
+    rdfs:comment "Nations participating in coalition goal" ;
+    rdfs:domain coalition:CoalitionGoal ;
+    rdfs:range coalition:Nation .
+
+coalition:leadNation a owl:ObjectProperty ;
+    rdfs:label "lead nation" ;
+    rdfs:comment "Lead nation for coalition goal" ;
+    rdfs:domain coalition:CoalitionGoal ;
+    rdfs:range coalition:Nation .
+
+coalition:resourceSharing a owl:DatatypeProperty ;
+    rdfs:label "resource sharing" ;
+    rdfs:comment "Resource sharing arrangement for goal" ;
+    rdfs:domain coalition:CoalitionGoal ;
+    rdfs:range xsd:string .
+
+# EXAMPLE GOAL DECLARATIONS
+
+## Strategic Level Goals
+goal:SecureRegion a goal:StrategicGoal ;
+    rdfs:label "Secure Northern Region" ;
+    goal:hasState goal:InProgress ;
+    goal:hasPriority goal:Critical ;
+    goal:hasDeadline 1735689600 ;  # New Year 2024
+    goal:estimatedDuration 604800 ; # 7 days
+    goal:completionPercentage 35 .
+
+goal:EstablishAirSuperiority a goal:StrategicGoal ;
+    rdfs:label "Establish Air Superiority" ;
+    goal:hasState goal:Pending ;
+    goal:hasPriority goal:High ;
+    goal:dependsOn goal:SecureAirfields ;
+    goal:hasDeadline 1735603200 ;  # Earlier deadline
+    goal:estimatedDuration 259200 . # 3 days
+
+## Operational Level Goals
+goal:SecureAirfields a goal:OperationalGoal ;
+    rdfs:label "Secure Key Airfields" ;
+    goal:hasState goal:InProgress ;
+    goal:hasPriority goal:High ;
+    goal:assignedTo unit:AirborneDiv ;
+    goal:completionPercentage 60 ;
+    goal:enables goal:EstablishAirSuperiority .
+
+goal:ClearSupplyRoutes a goal:OperationalGoal ;
+    rdfs:label "Clear Main Supply Routes" ;
+    goal:hasState goal:Pending ;
+    goal:hasPriority goal:Medium ;
+    goal:assignedTo unit:EngineerBn ;
+    goal:dependsOn goal:SecureRegion ;
+    goal:requiresTerrain terrain:MainHighway .
+
+## Tactical Level Goals
+goal:NeutralizeAirDefenses a goal:TacticalGoal ;
+    rdfs:label "Neutralize Enemy Air Defenses" ;
+    goal:hasState goal:InProgress ;
+    goal:hasPriority goal:Critical ;
+    goal:assignedTo unit:SpecialOperationsTeam ;
+    goal:supports goal:SecureAirfields ;
+    goal:completionPercentage 25 .
+
+goal:EstablishPerimeterDefense a goal:TacticalGoal ;
+    rdfs:label "Establish Airfield Perimeter Defense" ;
+    goal:hasState goal:Pending ;
+    goal:hasPriority goal:High ;
+    goal:assignedTo unit:InfantryCompany ;
+    goal:dependsOn goal:NeutralizeAirDefenses .
+
+# COMMANDER'S INTENT GOALS
+
+intent:AirfieldOperation a intent:PurposeGoal ;
+    rdfs:label "Enable Follow-on Aviation Operations" ;
+    intent:intentStatement "Secure airfield facilities to enable rapid deployment of follow-on aviation assets" ;
+    intent:guidance "Minimize infrastructure damage while ensuring complete security" ;
+    intent:constraintsAndLimitations "Avoid civilian casualties, preserve runway integrity" ;
+    goal:hasState goal:InProgress ;
+    goal:hasPriority goal:Critical .
+
+intent:AirDefenseNeutralization a intent:TaskGoal ;
+    rdfs:label "Neutralize Area Air Defenses" ;
+    intent:intentStatement "Eliminate enemy air defense systems within 50km radius" ;
+    goal:supports intent:AirfieldOperation ;
+    goal:assignedTo unit:SpecialOperationsTeam ;
+    goal:hasState goal:InProgress .
+
+intent:OperationalAirfield a intent:EndStateGoal ;
+    rdfs:label "Fully Operational Airfield" ;
+    intent:intentStatement "Airfield capable of supporting squadron-level operations" ;
+    goal:dependsOn intent:AirfieldOperation ;
+    goal:dependsOn intent:AirDefenseNeutralization ;
+    goal:hasState goal:Pending .
+
+# SUCCESS METRICS EXAMPLES
+
+goal:AirfieldCapacityMetric a goal:SuccessMetric ;
+    rdfs:label "Airfield Capacity Metric" ;
+    goal:metricName "Aircraft Capacity" ;
+    goal:targetValue 24.0 ;
+    goal:metricUnit "aircraft" ;
+    goal:actualValue 14.0 .
+
+goal:DefenseRadius a goal:SuccessMetric ;
+    rdfs:label "Defense Radius Metric" ;
+    goal:metricName "Secure Perimeter Radius" ;
+    goal:targetValue 5.0 ;
+    goal:metricUnit "kilometers" ;
+    goal:actualValue 3.2 .
+
+goal:AirDefenseDestruction a goal:SuccessMetric ;
+    rdfs:label "Air Defense Destruction Metric" ;
+    goal:metricName "Enemy Air Defense Systems Destroyed" ;
+    goal:targetValue 12.0 ;
+    goal:metricUnit "systems" ;
+    goal:actualValue 7.0 .
+
+# Link metrics to goals
+goal:SecureAirfields goal:hasSuccessMetric goal:AirfieldCapacityMetric ;
+                    goal:hasSuccessMetric goal:DefenseRadius .
+
+goal:NeutralizeAirDefenses goal:hasSuccessMetric goal:AirDefenseDestruction .
+
+# COALITION GOALS EXAMPLE
+
+coalition:AirSupportCoordination a coalition:CoalitionGoal ;
+    rdfs:label "Coordinate Coalition Air Support" ;
+    coalition:participatingNations coalition:USA ;
+    coalition:participatingNations coalition:UK ;
+    coalition:participatingNations coalition:France ;
+    coalition:leadNation coalition:USA ;
+    coalition:resourceSharing "Shared AWACS, individual CAS assets" ;
+    goal:hasState goal:InProgress ;
+    goal:hasPriority goal:High ;
+    goal:supports goal:EstablishAirSuperiority .
+
+# REAL-TIME ADAPTATIONS
+
+goal:AirfieldAdaptation a goal:GoalAdaptation ;
+    goal:adaptationReason "Enemy reinforcements detected, extending timeline" ;
+    goal:adaptationTimestamp 1735516800 ;
+    goal:adaptationConfidence 0.85 .
+
+goal:SecureAirfields goal:hasAdaptation goal:AirfieldAdaptation .
+
+# GOAL DEPENDENCY GRAPH EXAMPLES
+
+# Complex dependency chain
+goal:SecureRegion goal:enables goal:EstablishAirSuperiority .
+goal:EstablishAirSuperiority goal:enables goal:ClearSupplyRoutes .
+goal:NeutralizeAirDefenses goal:supports goal:SecureAirfields .
+goal:SecureAirfields goal:supports goal:EstablishAirSuperiority .
+goal:EstablishPerimeterDefense goal:supports goal:SecureAirfields .
+
+# Resource requirements
+goal:SecureAirfields goal:usesResource coalition:CombatEngineers ;
+                    goal:usesResource coalition:AirDefenseUnits .
+
+goal:NeutralizeAirDefenses goal:usesResource coalition:SpecialOperationsCapability .
+
+# Terrain requirements  
+goal:EstablishPerimeterDefense goal:requiresTerrain terrain:AirfieldPerimeter .
+goal:ClearSupplyRoutes goal:requiresTerrain terrain:MainHighway ;
+                      goal:requiresTerrain terrain:SecondaryRoute .
+
+# GOAL MONITORING AND REPORTING
+
+goal:GoalReport a owl:Class ;
+    rdfs:label "Goal Progress Report" ;
+    rdfs:comment "Progress report for goal execution" .
+
+goal:hasReport a owl:ObjectProperty ;
+    rdfs:label "has report" ;
+    rdfs:comment "Goal has progress report" ;
+    rdfs:domain goal:Goal ;
+    rdfs:range goal:GoalReport .
+
+goal:reportTimestamp a owl:DatatypeProperty ;
+    rdfs:label "report timestamp" ;
+    rdfs:comment "When report was generated" ;
+    rdfs:domain goal:GoalReport ;
+    rdfs:range xsd:integer .
+
+goal:reportNarrative a owl:DatatypeProperty ;
+    rdfs:label "report narrative" ;
+    rdfs:comment "Narrative description of progress" ;
+    rdfs:domain goal:GoalReport ;
+    rdfs:range xsd:string .
+
+goal:obstaclesEncountered a owl:DatatypeProperty ;
+    rdfs:label "obstacles encountered" ;
+    rdfs:comment "Obstacles encountered during execution" ;
+    rdfs:domain goal:GoalReport ;
+    rdfs:range xsd:string .
+
+goal:nextSteps a owl:DatatypeProperty ;
+    rdfs:label "next steps" ;
+    rdfs:comment "Planned next steps for goal execution" ;
+    rdfs:domain goal:GoalReport ;
+    rdfs:range xsd:string .

@@ -1,0 +1,94 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix edge: <http://edge.test.com/> .
+
+# Edge case ontology for testing boundary conditions
+
+# Class with no properties
+edge:EmptyClass rdf:type rdfs:Class ;
+    rdfs:label "Empty Class" ;
+    rdfs:comment "A class with no properties for testing edge cases" .
+
+# Class with very long names
+edge:VeryLongClassNameThatExceedsTypicalLimitsForTestingPurposes rdf:type rdfs:Class ;
+    rdfs:label "Very Long Class Name" ;
+    rdfs:comment "A class with an extremely long name to test name handling" .
+
+# Properties with special characters and edge cases
+edge:property-with-dashes rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:EmptyClass ;
+    rdfs:range xsd:string ;
+    rdfs:label "Property With Dashes" .
+
+edge:property_with_underscores rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:EmptyClass ;
+    rdfs:range xsd:string ;
+    rdfs:label "Property With Underscores" .
+
+edge:propertyWithNumbers123 rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:EmptyClass ;
+    rdfs:range xsd:string ;
+    rdfs:label "Property With Numbers" .
+
+# Properties with no domain or range
+edge:orphanProperty rdf:type owl:DatatypeProperty ;
+    rdfs:label "Orphan Property" ;
+    rdfs:comment "A property with no domain or range specified" .
+
+# Multiple inheritance scenario
+edge:BaseClass rdf:type rdfs:Class ;
+    rdfs:label "Base Class" .
+
+edge:MixinClass rdf:type rdfs:Class ;
+    rdfs:label "Mixin Class" .
+
+edge:DerivedClass rdf:type rdfs:Class ;
+    rdfs:subClassOf edge:BaseClass , edge:MixinClass ;
+    rdfs:label "Derived Class" .
+
+# Circular reference scenario
+edge:NodeA rdf:type rdfs:Class ;
+    rdfs:label "Node A" .
+
+edge:NodeB rdf:type rdfs:Class ;
+    rdfs:label "Node B" .
+
+edge:refersToB rdf:type owl:ObjectProperty ;
+    rdfs:domain edge:NodeA ;
+    rdfs:range edge:NodeB .
+
+edge:refersToA rdf:type owl:ObjectProperty ;
+    rdfs:domain edge:NodeB ;
+    rdfs:range edge:NodeA .
+
+# Self-referential property
+edge:refersToSelf rdf:type owl:ObjectProperty ;
+    rdfs:domain edge:NodeA ;
+    rdfs:range edge:NodeA .
+
+# Properties with unusual XSD types
+edge:binaryData rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:EmptyClass ;
+    rdfs:range xsd:base64Binary ;
+    rdfs:label "Binary Data" .
+
+edge:duration rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:EmptyClass ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Duration" .
+
+edge:geoCoordinate rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:EmptyClass ;
+    rdfs:range xsd:double ;
+    rdfs:label "Geo Coordinate" .
+
+# Unicode characters in names
+edge:🎯TargetClass rdf:type rdfs:Class ;
+    rdfs:label "Target Class with Emoji" .
+
+edge:propertyWith中文 rdf:type owl:DatatypeProperty ;
+    rdfs:domain edge:🎯TargetClass ;
+    rdfs:range xsd:string ;
+    rdfs:label "Property with Chinese characters" .

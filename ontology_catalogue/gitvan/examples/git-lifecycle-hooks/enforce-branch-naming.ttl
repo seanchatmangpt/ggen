@@ -1,0 +1,302 @@
+@prefix ex: <http://example.org/gitvan/hooks/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix git: <https://gitvan.dev/git#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# Enforce Branch Naming Convention Hook
+# =============================================================================
+#
+# USE CASE:
+# Block commits to branches that don't follow team naming conventions
+# (e.g., feature/*, bugfix/*, hotfix/*, release/*)
+#
+# TRIGGERS ON:
+# - pre-commit (validation before commit is created)
+# - pre-push (validation before pushing to remote)
+#
+# SUCCESS CRITERIA:
+# - Commits to properly named branches succeed
+# - Commits to incorrectly named branches are blocked with helpful message
+# - Protected branches (main, master, develop) require special permission
+#
+# INSTALLATION:
+# 1. Copy to .gitvan/hooks/enforce-branch-naming.ttl
+# 2. Configure allowed patterns in git config:
+#    git config gitvan.branchPatterns "feature/*,bugfix/*,hotfix/*,release/*"
+# 3. Configure protected branches:
+#    git config gitvan.protectedBranches "main,master,develop"
+# 4. Enable hook: gitvan hooks enable enforce-branch-naming
+#
+# =============================================================================
+
+ex:enforce-branch-naming-hook rdf:type gh:Hook ;
+    rdfs:label "Enforce Branch Naming Convention" ;
+    gv:title "Branch Naming Convention Enforcement" ;
+    rdfs:comment "Validates branch names against team conventions and blocks non-compliant commits" ;
+    gh:hookType "pre-commit" ;
+    gh:priority 100 ;
+    gh:enabled true ;
+    gh:hasPredicate ex:branch-naming-predicate ;
+    gh:orderedPipelines ex:branch-naming-pipeline .
+
+# =============================================================================
+# ASK Predicate - Detects Invalid Branch Names
+# =============================================================================
+ex:branch-naming-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        ASK WHERE {
+            # Get current branch
+            ?branch rdf:type git:Branch ;
+                    git:isCurrent true ;
+                    git:branchName ?name .
+
+            # Check if branch name is invalid
+            # Valid patterns: feature/*, bugfix/*, hotfix/*, release/*, main, master, develop
+            FILTER(
+                !REGEX(?name, "^(feature|bugfix|hotfix|release)/[a-z0-9-]+$", "i") &&
+                !(?name IN ("main", "master", "develop"))
+            )
+        }
+    """ ;
+    gh:description "Detects branches with invalid naming conventions" .
+
+# =============================================================================
+# Pipeline - Validate and Block Invalid Branch Names
+# =============================================================================
+ex:branch-naming-pipeline rdf:type op:Pipeline ;
+    rdfs:label "Branch Naming Validation Pipeline" ;
+    op:steps (
+        ex:detect-invalid-branch,
+        ex:check-protected-branch,
+        ex:generate-branch-report,
+        ex:block-commit
+    ) .
+
+# =============================================================================
+# Step 1: Detect Invalid Branch Names
+# =============================================================================
+ex:detect-invalid-branch rdf:type gv:SparqlStep ;
+    rdfs:label "Detect Invalid Branch Names" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?branch ?branchName ?pattern ?isValid ?isProtected WHERE {
+            # Get current branch
+            ?branch rdf:type git:Branch ;
+                    git:isCurrent true ;
+                    git:branchName ?branchName .
+
+            # Check against allowed patterns
+            BIND(
+                REGEX(?branchName, "^(feature|bugfix|hotfix|release)/[a-z0-9-]+$", "i")
+                AS ?matchesPattern
+            )
+
+            # Check if protected branch
+            BIND(
+                ?branchName IN ("main", "master", "develop")
+                AS ?isProtected
+            )
+
+            # Determine validity
+            BIND(?matchesPattern || ?isProtected AS ?isValid)
+
+            # Suggest correct pattern
+            BIND(
+                IF(?isProtected,
+                   "protected-branch",
+                   IF(CONTAINS(?branchName, "fix"), "bugfix/",
+                   IF(CONTAINS(?branchName, "feature"), "feature/",
+                   IF(CONTAINS(?branchName, "hotfix"), "hotfix/",
+                   IF(CONTAINS(?branchName, "release"), "release/", "feature/"))))
+                )
+                AS ?pattern
+            )
+        }
+    """ ;
+    gv:outputMapping '{
+        "branchName": "results[0].branchName.value",
+        "isValid": "results[0].isValid.value === \"true\"",
+        "isProtected": "results[0].isProtected.value === \"true\"",
+        "suggestedPattern": "results[0].pattern.value"
+    }' .
+
+# =============================================================================
+# Step 2: Check Protected Branch Direct Commits
+# =============================================================================
+ex:check-protected-branch rdf:type gv:SparqlStep ;
+    rdfs:label "Check Protected Branch Rules" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?branchName ?author ?hasPermission WHERE {
+            # Get current branch and author
+            ?branch rdf:type git:Branch ;
+                    git:isCurrent true ;
+                    git:branchName ?branchName .
+
+            ?commit rdf:type git:Commit ;
+                    git:author ?author ;
+                    git:onBranch ?branch .
+
+            # Check if branch is protected
+            FILTER(?branchName IN ("main", "master", "develop"))
+
+            # Check if author has permission (from configuration or team role)
+            OPTIONAL {
+                ?author git:hasRole ?role .
+                FILTER(?role IN ("maintainer", "admin", "release-manager"))
+                BIND(true AS ?hasPermission)
+            }
+
+            BIND(COALESCE(?hasPermission, false) AS ?hasPermission)
+        }
+    """ ;
+    gv:outputMapping '{
+        "isProtectedBranch": "results.length > 0",
+        "hasPermission": "results.length > 0 && results[0].hasPermission.value === \"true\"",
+        "author": "results.length > 0 ? results[0].author.value : \"unknown\""
+    }' ;
+    gv:dependsOn ex:detect-invalid-branch .
+
+# =============================================================================
+# Step 3: Generate Validation Report
+# =============================================================================
+ex:generate-branch-report rdf:type gv:TemplateStep ;
+    rdfs:label "Generate Branch Naming Report" ;
+    gv:text """
+# Branch Naming Convention Validation
+
+**Generated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+**Hook:** Enforce Branch Naming Convention
+**Branch:** `{{ branchName }}`
+**Status:** {% if isValid %}✅ VALID{% else %}❌ INVALID{% endif %}
+
+## Validation Results
+
+{% if isProtected %}
+### Protected Branch Warning
+- This is a **protected branch** ({{ branchName }})
+- Direct commits are {% if hasPermission %}✅ ALLOWED (you have permission){% else %}❌ BLOCKED (insufficient permissions){% endif %}
+- **Author:** {{ author }}
+- **Required Role:** maintainer, admin, or release-manager
+
+**Recommendation:** Create a feature branch and submit a pull request instead.
+
+{% elif !isValid %}
+### Invalid Branch Name
+- **Current:** `{{ branchName }}`
+- **Required Pattern:** One of the following:
+  - `feature/*` - New features (e.g., feature/user-auth)
+  - `bugfix/*` - Bug fixes (e.g., bugfix/login-error)
+  - `hotfix/*` - Urgent production fixes (e.g., hotfix/security-patch)
+  - `release/*` - Release preparation (e.g., release/v2.1.0)
+- **Suggested:** `{{ suggestedPattern }}{{ branchName }}`
+
+### How to Fix
+```bash
+# Rename your current branch
+git branch -m {{ suggestedPattern }}{{ branchName }}
+
+# Or create a new branch with correct naming
+git checkout -b {{ suggestedPattern }}your-feature-name
+```
+
+{% else %}
+### Branch Name Valid
+✅ Branch name follows team conventions
+
+**Pattern:** {{ suggestedPattern }}
+
+{% endif %}
+
+## Branch Naming Convention Reference
+
+### Feature Branches
+```bash
+feature/user-authentication
+feature/dashboard-redesign
+feature/api-v2
+```
+
+### Bug Fix Branches
+```bash
+bugfix/login-error
+bugfix/memory-leak
+bugfix/validation-issue
+```
+
+### Hotfix Branches
+```bash
+hotfix/security-vulnerability
+hotfix/critical-crash
+hotfix/data-corruption
+```
+
+### Release Branches
+```bash
+release/v1.0.0
+release/v2.1.0
+release/2024-q1
+```
+
+## Configuration
+
+**Allowed Patterns:** feature/*, bugfix/*, hotfix/*, release/*
+**Protected Branches:** main, master, develop
+**Pattern Format:** type/lowercase-with-hyphens
+
+---
+*This report was automatically generated by the Branch Naming Convention Hook*
+    """ ;
+    gv:filePath "./reports/hooks/branch-naming-validation-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.md" ;
+    gv:dependsOn ex:check-protected-branch .
+
+# =============================================================================
+# Step 4: Block Commit if Invalid
+# =============================================================================
+ex:block-commit rdf:type gv:ActionStep ;
+    rdfs:label "Block Invalid Commit" ;
+    gv:actionType "block-commit" ;
+    gv:condition "!isValid || (isProtectedBranch && !hasPermission)" ;
+    gv:errorMessage """
+❌ COMMIT BLOCKED: Invalid branch name
+
+Branch: {{ branchName }}
+{% if isProtectedBranch %}
+Reason: Direct commits to protected branch '{{ branchName }}' are not allowed.
+Action: Create a feature branch or request special permission.
+{% else %}
+Reason: Branch name does not follow team conventions.
+Required: feature/*, bugfix/*, hotfix/*, release/*
+Suggested: {{ suggestedPattern }}{{ branchName }}
+
+Fix: git branch -m {{ suggestedPattern }}{{ branchName }}
+{% endif %}
+
+Report: {{ reportPath }}
+    """ ;
+    gv:exitCode 1 ;
+    gv:dependsOn ex:generate-branch-report .
+
+# =============================================================================
+# Metadata
+# =============================================================================
+ex:enforce-branch-naming-hook
+    gv:version "1.0.0" ;
+    gv:author "GitVan Team" ;
+    gv:created "2025-12-03T00:00:00Z" ;
+    gv:tags "git", "validation", "branch-naming", "policy-enforcement" ;
+    gv:documentation "https://gitvan.dev/docs/hooks/enforce-branch-naming" .

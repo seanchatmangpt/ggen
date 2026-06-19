@@ -1,0 +1,14 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT all ALIVE_CLAIM checkpoints
+SELECT ?aliveClaim ?label ?gatesMet ?created
+WHERE {
+  ?aliveClaim a pi:ALIVE_CLAIM ;
+              rdfs:label ?label ;
+              pi:gatesCriteriaMet ?gatesMet ;
+              dcterms:created ?created .
+}
+ORDER BY DESC(?created)

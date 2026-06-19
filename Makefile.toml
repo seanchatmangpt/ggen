@@ -1396,7 +1396,8 @@ command = "./scripts/gh-pages-setup-check.sh"
 [tasks.marketplace-validate]
 description = "Validate all marketplace packages for production readiness"
 workspace = false
-command = "./marketplace/scripts/validate_all_packages.sh"
+command = "timeout"
+args = ["120s", "bash", "marketplace/scripts/validate_all_packages.sh"]
 
 [tasks.rebuild-marketplace-index]
 description = "Rebuild marketplace registry index from package metadata (scans all package.toml files)"
@@ -1405,14 +1406,16 @@ command = "bash"
 args = ["scripts/marketplace/rebuild-index.sh"]
 
 [tasks.marketplace-validate-update]
-description = "Validate all packages and update production_ready flags"
+description = "Update production_ready flags in package.toml and registry index"
 workspace = false
-command = "./marketplace/scripts/update_production_flags.sh"
+command = "timeout"
+args = ["120s", "bash", "marketplace/scripts/update_production_flags.sh"]
 
 [tasks.marketplace-report]
-description = "Generate validation reports for all marketplace packages"
+description = "Generate comprehensive validation reports in both Markdown and JSON"
 workspace = false
-command = "./marketplace/scripts/generate_validation_report.sh"
+command = "timeout"
+args = ["120s", "bash", "marketplace/scripts/generate_validation_report.sh"]
 
 [tasks.marketplace-emit-receipts]
 description = "Emit validation receipts for all marketplace packages (Track A)"
@@ -2072,3 +2075,4 @@ args = [
   "-W",
   "clippy::dbg_macro",
 ]
+

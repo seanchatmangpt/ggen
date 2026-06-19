@@ -1,0 +1,377 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Configuration Management Pattern Examples
+
+# Ansible Playbook for Web Server Configuration
+# Ansible Playbook Instance
+:web_server_ansible_config a a2a:ansible_playbook ;
+    a2a:app_label "web-server-config" ;
+    a2a:version_label "2.4.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:config_template "nginx.yml.j2" ;
+    a2a:config_file_path "/etc/nginx/nginx.conf" ;
+    a2a:config_file_path "/etc/nginx/sites-available/default" ;
+    a2a:config_file_path "/etc/nginx/ssl/nginx.conf" ;
+    a2a:inventory "production-webservers" ;
+    a2a:inventory "staging-webservers" ;
+    a2a:inventory "development-webservers" ;
+    a2a:become_user "root" ;
+    a2a:become_method "sudo" ;
+    a2a:connection "ssh" ;
+    a2a:ansible_version "2.9" ;
+    a2a:playbook_format "yaml" ;
+    a2a:variable_files "vars/common.yml", "vars/production.yml" ;
+    a2a:role_dependencies "nginx", "certbot", "monitoring" ;
+    a2a:tags "nginx", "web", "ssl", "monitoring" ;
+    a2a:skip_tags "debug", "test" ;
+    a2a:serial "1" ;
+    a2a:flush_cache "true" ;
+    a2a:timeout "300" ;
+    a2a:annotations "environment=production", "managed_by=ansible", "owner=devops" .
+
+# Ansible Role Structure
+:ansible_role a a2a:ansible_playbook ;
+    rdfs:label "Ansible Role Structure" ;
+    rdfs:comment "Common Ansible role structure for configuration management" ;
+    rdfs:property [
+        rdfs:label "Role Name" ;
+        rdfs:comment "Name of the Ansible role" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Dependencies" ;
+        rdfs:comment "Role dependencies" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Variables" ;
+        rdfs:comment "Role variables" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Tasks" ;
+        rdfs:comment "Role tasks" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Handlers" ;
+        rdfs:comment "Role handlers" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Templates" ;
+        rdfs:comment "Role templates" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Files" ;
+        rdfs:comment "Role files" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Role Meta" ;
+        rdfs:comment "Role metadata" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+# Puppet Manifest Configuration
+:puppet_master_config a a2a:puppet_manifest ;
+    a2a:app_label "puppet-master-config" ;
+    a2a:version_label "6.24.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:config_template "site.pp" ;
+    a2a:config_file_path "/etc/puppetlabs/code/environments/production/manifests/site.pp" ;
+    a2a:config_file_path "/etc/puppetlabs/code/environments/production/hieradata" ;
+    a2a:config_file_path "/etc/puppetlabs/code/environments/production/modules" ;
+    a2a:module_path "/etc/puppetlabs/code/modules" ;
+    a2a:hiera_path "/etc/puppetlabs/code/hiera" ;
+    a2a:environment "production" ;
+    a2a:environment "staging" ;
+    a2a:environment "development" ;
+    a2a:master_url "puppet://puppet.example.com" ;
+    a2a:certname "puppet.example.com" ;
+    a2a:report "true" ;
+    a2a:noop "false" ;
+    a2a:timeout "300" ;
+    a2a:verbose "false" ;
+    a2a:debug "false" ;
+    a2a:annotations "environment=production", "managed_by=puppet", "owner=devops" .
+
+# Puppet Manifest Classes
+:puppet_class a owl:Class ;
+    rdfs:label "Puppet Class" ;
+    rdfs:comment "Puppet manifest class" ;
+    rdfs:subClassOf a2a:puppet_manifest ;
+    rdfs:property [
+        rdfs:label "Class Name" ;
+        rdfs:comment "Name of the Puppet class" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Class Parameters" ;
+        rdfs:comment "Class parameters" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Class Resources" ;
+        rdfs:comment "Class resources" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Class Dependencies" ;
+        rdfs:comment "Class dependencies" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+# Chef Cookbook Configuration
+:chef_cookbook_config a a2a:chef_cookbook ;
+    a2a:app_label "chef-cookbook-config" ;
+    a2a:version_label "15.14.0" ;
+    a2a:managed_by "a2a" ;
+    a2a:config_template "webserver.rb" ;
+    a2a:config_file_path "/var/chef/cookbooks/webserver/recipes/default.rb" ;
+    a2a:config_file_path "/var/chef/cookbooks/webserver/attributes/default.rb" ;
+    a2a:config_file_path "/var/chef/cookbooks/webserver/templates/default/nginx.conf.erb" ;
+    a2a:cookbook_path "/var/chef/cookbooks" ;
+    a2a:role_path "/var/chef/roles" ;
+    a2a:environment_path "/var/chef/environments" ;
+    a2a:data_bag_path "/var/chef/data_bags" ;
+    a2a:node_path "/var/chef/nodes" ;
+    a2a:client_path "/var/chef/clients" ;
+    a2a:server_url "https://chef.example.com" ;
+    a2a:client_key "/var/chef/client.pem" ;
+    a2a:validation_key "/var/chef/validation.pem" ;
+    a2a:environment "production" ;
+    a2a:environment "staging" ;
+    a2a:environment "development" ;
+    a2a:chef_version "15.14.0" ;
+    a2a:run_list "recipe[webserver]", "recipe[nginx]", "recipe[ssl]" ;
+    a2a:json_attributes "default", "production" ;
+    a2a:annotations "environment=production", "managed_by=chef", "owner=devops" .
+
+# Chef Cookbook Classes
+:chef_cookbook a owl:Class ;
+    rdfs:label "Chef Cookbook" ;
+    rdfs:comment "Chef cookbook structure" ;
+    rdfs:subClassOf a2a:chef_cookbook ;
+    rdfs:property [
+        rdfs:label "Cookbook Name" ;
+        rdfs:comment "Name of the Chef cookbook" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Version" ;
+        rdfs:comment "Version of the Chef cookbook" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Dependencies" ;
+        rdfs:comment "Cookbook dependencies" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Attributes" ;
+        rdfs:comment "Cookbook attributes" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Recipes" ;
+        rdfs:comment "Cookbook recipes" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Templates" ;
+        rdfs:comment "Cookbook templates" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Files" ;
+        rdfs:comment "Cookbook files" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Cookbook Resources" ;
+        rdfs:comment "Cookbook resources" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+# Configuration Template Classes
+:jinja2_template a a2a:config_template ;
+    rdfs:label "Jinja2 Template" ;
+    rdfs:comment "Jinja2 template for configuration management" ;
+    rdfs:property [
+        rdfs:label "Template Variables" ;
+        rdfs:comment "Template variables" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Filters" ;
+        rdfs:comment "Template filters" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Macros" ;
+        rdfs:comment "Template macros" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Includes" ;
+        rdfs:comment "Template includes" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Extends" ;
+        rdfs:comment "Template extends" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Block" ;
+        rdfs:comment "Template blocks" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+:erb_template a a2a:config_template ;
+    rdfs:label "ERB Template" ;
+    rdfs:comment "ERB template for configuration management" ;
+    rdfs:property [
+        rdfs:label "Template Variables" ;
+        rdfs:comment "Template variables" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Methods" ;
+        rdfs:comment "Template methods" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Helpers" ;
+        rdfs:comment "Template helpers" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Partials" ;
+        rdfs:comment "Template partials" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Layouts" ;
+        rdfs:comment "Template layouts" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Content" ;
+        rdfs:comment "Template content" ;
+        rdfs:range xsd:string ;
+    ] .
+
+# Configuration Management Pattern Examples
+:configuration_pattern a owl:Class ;
+    rdfs:label "Configuration Management Pattern" ;
+    rdfs:comment "Common configuration management patterns" ;
+    rdfs:subClassOf owl:Thing .
+
+:idempotent_configuration a configuration_pattern ;
+    rdfs:label "Idempotent Configuration" ;
+    rdfs:comment "Configuration that can be applied multiple times without side effects" ;
+    rdfs:property [
+        rdfs:label "State" ;
+        rdfs:comment "Desired state of the configuration" ;
+        rdfs:range ["present", "absent", "started", "stopped", "enabled", "disabled"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Resource" ;
+        rdfs:comment "Resource to configure" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Properties" ;
+        rdfs:comment "Resource properties" ;
+        rdfs:range [a rdf:List] ;
+    ] .
+
+:templated_configuration a configuration_pattern ;
+    rdfs:label "Templated Configuration" ;
+    rdfs:comment "Configuration generated from templates" ;
+    rdfs:property [
+        rdfs:label "Template Engine" ;
+        rdfs:comment "Template engine used" ;
+        rdfs:range ["jinja2", "erb", "handlebars", "mustache"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template File" ;
+        rdfs:comment "Template file path" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Template Variables" ;
+        rdfs:comment "Template variables" ;
+        rdfs:range [a rdf:List] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Output File" ;
+        rdfs:comment "Output file path" ;
+        rdfs:range xsd:string ;
+    ] .
+
+:versioned_configuration a configuration_pattern ;
+    rdfs:label "Versioned Configuration" ;
+    rdfs:comment "Configuration with version control" ;
+    rdfs:property [
+        rdfs:label "Version Control System" ;
+        rdfs:comment "Version control system used" ;
+        rdfs:range ["git", "svn", "mercurial", "perforce"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Repository URL" ;
+        rdfs:comment "Repository URL" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Branch" ;
+        rdfs:comment "Branch name" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Commit Message" ;
+        rdfs:comment "Commit message pattern" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Version Strategy" ;
+        rdfs:comment "Version strategy" ;
+        rdfs:range ["semantic", "calendar", "incremental"] ;
+    ] .
+
+:encrypted_configuration a configuration_pattern ;
+    rdfs:label "Encrypted Configuration" ;
+    rdfs:comment "Configuration with encryption" ;
+    rdfs:property [
+        rdfs:label "Encryption Algorithm" ;
+        rdfs:comment "Encryption algorithm" ;
+        rdfs:range ["aes-256", "aes-128", "rsa-2048", "rsa-4096"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Encryption Key" ;
+        rdfs:comment "Encryption key" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Encryption Mode" ;
+        rdfs:comment "Encryption mode" ;
+        rdfs:range ["cbc", "gcm", "ecb"] ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Sensitive Data" ;
+        rdfs:comment "Sensitive data pattern" ;
+        rdfs:range xsd:string ;
+    ] ;
+    rdfs:property [
+        rdfs:label "Decryption Command" ;
+        rdfs:comment "Decryption command" ;
+        rdfs:range xsd:string ;
+    ] .

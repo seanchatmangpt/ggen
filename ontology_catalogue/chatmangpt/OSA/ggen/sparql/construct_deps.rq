@@ -1,0 +1,21 @@
+# SPARQL CONSTRUCT Query: Generate SPR deps.json from workspace.ttl
+# Fortune 5 Layer 4: Correlation
+# Signal Theory: S=(code,spec,inform,sparql,query)
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX osa: <https://chatmangpt.com/workspace#>
+PREFIX dep: <https://chatmangpt.com/workspace#dep/>
+
+CONSTRUCT {
+  ?dep_uri a osa:Dependency ;
+    osa:from ?from ;
+    osa:to ?to ;
+    osa:type ?type .
+}
+WHERE {
+  ?dep_uri a osa:Dependency ;
+    osa:from ?from ;
+    osa:to ?to ;
+    osa:type ?type .
+}
+ORDER BY ?from ?to

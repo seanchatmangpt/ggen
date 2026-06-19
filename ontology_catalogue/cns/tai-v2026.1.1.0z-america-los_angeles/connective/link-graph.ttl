@@ -1,0 +1,315 @@
+# TAI v2026.1.1.0z Link Graph - Live Inter-Substrate Relevance
+# Tracks mutual relevance suggestions between bit* ecosystem actors
+# Updated continuously as cognitive mesh evolves
+
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix link: <http://tai.cognitive-mesh.org/link#> .
+@prefix bit: <http://bit-ecosystem.org/ontology#> .
+@prefix actor: <http://tai.cognitive-mesh.org/actor#> .
+@prefix rel: <http://tai.cognitive-mesh.org/relevance#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Link Ontology - Core Relationship Primitives
+link:MutualRelevance a owl:Class ;
+    rdfs:label "Mutual Relevance" ;
+    rdfs:comment "Suggestion that two actors belong together now" .
+
+link:RelevanceStrength a owl:DatatypeProperty ;
+    rdfs:domain link:MutualRelevance ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Strength of suggested connection (0.0-1.0)" .
+
+link:RelevanceType a owl:DatatypeProperty ;
+    rdfs:domain link:MutualRelevance ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of relevance relationship" .
+
+link:TemporalScope a owl:DatatypeProperty ;
+    rdfs:domain link:MutualRelevance ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Time scope of relevance (tick, cycle, pulse)" .
+
+link:CognitiveDistance a owl:DatatypeProperty ;
+    rdfs:domain link:MutualRelevance ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Cognitive distance between actors" .
+
+# bit* Ecosystem Actor Registry
+actor:bitactor_core a tai:CognitiveActor ;
+    rdfs:label "BitActor Core" ;
+    bit:role "memory-scope-manager" ;
+    bit:substrate "erlang-otp" ;
+    bit:capability "signal-purpose-registration" .
+
+actor:bitflow_engine a tai:CognitiveActor ;
+    rdfs:label "BitFlow Engine" ;
+    bit:role "edge-permission-manager" ;
+    bit:substrate "c-compilation" ;
+    bit:capability "cognitive-sequence-identification" .
+
+actor:bitmesh_coordinator a tai:CognitiveActor ;
+    rdfs:label "BitMesh Coordinator" ;
+    bit:role "topology-computer" ;
+    bit:substrate "distributed-mesh" ;
+    bit:capability "semantic-topology-computation" .
+
+actor:tos_temporal_engine a tai:CognitiveActor ;
+    rdfs:label "TOS Temporal Engine" ;
+    bit:role "timing-instructor" ;
+    bit:substrate "temporal-logic" ;
+    bit:capability "cycle-pulse-alignment" .
+
+actor:sparkle_interpreter a tai:CognitiveActor ;
+    rdfs:label "Sparkle Interpreter" ;
+    bit:role "ttl-ontology-interpreter" ;
+    bit:substrate "sparql-reasoning" ;
+    bit:capability "cognitive-ontology-interpretation" .
+
+actor:fossilizer_daemon a tai:CognitiveActor ;
+    rdfs:label "Fossilizer Daemon" ;
+    bit:role "forgetting-organizer" ;
+    bit:substrate "temporal-cleanup" ;
+    bit:capability "semantic-death-window-definition" .
+
+# Active Link Relationships - Current Suggestions
+
+link:bitactor_bitflow_001 a link:MutualRelevance ;
+    rdfs:label "BitActor ↔ BitFlow Memory-Edge Coordination" ;
+    link:RelevanceStrength 0.89 ;
+    link:RelevanceType "memory-edge-coordination" ;
+    link:TemporalScope "cycle" ;
+    link:CognitiveDistance 0.23 ;
+    tai:suggests actor:bitactor_core, actor:bitflow_engine ;
+    tai:reason "Memory scope decisions need edge permission context" ;
+    tai:suggestedAt "2025-07-31T17:16:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.8 ;
+    tai:priority "high" .
+
+link:bitflow_bitmesh_002 a link:MutualRelevance ;
+    rdfs:label "BitFlow ↔ BitMesh Edge-Topology Synthesis" ;
+    link:RelevanceStrength 0.92 ;
+    link:RelevanceType "edge-topology-synthesis" ;
+    link:TemporalScope "pulse" ;
+    link:CognitiveDistance 0.15 ;
+    tai:suggests actor:bitflow_engine, actor:bitmesh_coordinator ;
+    tai:reason "Edge permissions shape topology computation requirements" ;
+    tai:suggestedAt "2025-07-31T17:17:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.0 ;
+    tai:priority "critical" .
+
+link:tos_sparkle_003 a link:MutualRelevance ;
+    rdfs:label "TOS ↔ Sparkle Temporal-Semantic Alignment" ;
+    link:RelevanceStrength 0.76 ;
+    link:RelevanceType "temporal-semantic-alignment" ;
+    link:TemporalScope "tick" ;
+    link:CognitiveDistance 0.41 ;
+    tai:suggests actor:tos_temporal_engine, actor:sparkle_interpreter ;
+    tai:reason "Timing instructions need ontological interpretation context" ;
+    tai:suggestedAt "2025-07-31T17:18:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.16 ;
+    tai:priority "medium" .
+
+link:sparkle_fossilizer_004 a link:MutualRelevance ;
+    rdfs:label "Sparkle ↔ Fossilizer Semantic-Temporal Cleanup" ;
+    link:RelevanceStrength 0.84 ;
+    link:RelevanceType "semantic-temporal-cleanup" ;
+    link:TemporalScope "cycle" ;
+    link:CognitiveDistance 0.32 ;
+    tai:suggests actor:sparkle_interpreter, actor:fossilizer_daemon ;
+    tai:reason "Ontology interpretation informs forgetting decisions" ;
+    tai:suggestedAt "2025-07-31T17:19:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.8 ;
+    tai:priority "medium" .
+
+# Cross-Domain Integration Links
+
+link:human_ai_bridge_005 a link:MutualRelevance ;
+    rdfs:label "Human ↔ AI Cognitive Bridge" ;
+    link:RelevanceStrength 0.67 ;
+    link:RelevanceType "cross-substrate-bridge" ;
+    link:TemporalScope "pulse" ;
+    link:CognitiveDistance 0.58 ;
+    tai:suggests actor:human_cognitive_interface, actor:ai_reasoning_engine ;
+    tai:reason "Human intuition complements AI processing for complete cognition" ;
+    tai:suggestedAt "2025-07-31T17:20:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.0 ;
+    tai:priority "medium" .
+
+link:erlang_c_integration_006 a link:MutualRelevance ;
+    rdfs:label "Erlang ↔ C Integration Pipeline" ;
+    link:RelevanceStrength 0.95 ;
+    link:RelevanceType "substrate-integration" ;
+    link:TemporalScope "tick" ;
+    link:CognitiveDistance 0.12 ;
+    tai:suggests actor:erlang_bit_agent_swarm, actor:bitflow_c_engine ;
+    tai:reason "Erlang supervision trees coordinate C compilation processes" ;
+    tai:suggestedAt "2025-07-31T17:21:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.16 ;
+    tai:priority "critical" .
+
+# Emergent Pattern Links - Discovered Through Wave Analysis
+
+link:trinity_meta_pattern_007 a link:MutualRelevance ;
+    rdfs:label "Trinity Meta-Layer Pattern Emergence" ;
+    link:RelevanceStrength 0.88 ;
+    link:RelevanceType "meta-pattern-emergence" ;
+    link:TemporalScope "cycle" ;
+    link:CognitiveDistance 0.27 ;
+    tai:suggests actor:trinity_l0_foundation, actor:trinity_l1_cognitive, actor:trinity_l2_semantic ;
+    tai:reason "Meta-layer coherence emerging across Trinity stack" ;
+    tai:suggestedAt "2025-07-31T17:22:00Z"^^xsd:dateTime ;
+    tai:pulseTiming 0.8 ;
+    tai:priority "high" .
+
+# Temporal Relevance Decay Tracking
+
+link:DecayTracker a owl:Class ;
+    rdfs:label "Link Decay Tracker" ;
+    rdfs:comment "Tracks relevance decay over time" .
+
+link:decay_tracker_001 a link:DecayTracker ;
+    rdfs:label "BitActor-BitFlow Decay Monitor" ;
+    link:trackedLink link:bitactor_bitflow_001 ;
+    link:initialStrength 0.89 ;
+    link:currentStrength 0.89 ;
+    link:decayRate 0.05 ;
+    link:halfLife 86400 ;  # 24 hours
+    link:estimatedExpiry "2025-08-07T17:16:00Z"^^xsd:dateTime ;
+    link:lastMeasurement "2025-07-31T17:22:30Z"^^xsd:dateTime .
+
+# Relevance Amplification Events
+
+link:AmplificationEvent a owl:Class ;
+    rdfs:label "Relevance Amplification Event" ;
+    rdfs:comment "Events that strengthen link relevance" .
+
+link:amplification_001 a link:AmplificationEvent ;
+    rdfs:label "BitFlow-BitMesh Amplification" ;
+    link:amplifiedLink link:bitflow_bitmesh_002 ;
+    link:amplificationFactor 1.15 ;
+    link:triggerEvent "topology-optimization-success" ;
+    link:preAmplificationStrength 0.80 ;
+    link:postAmplificationStrength 0.92 ;
+    time:hasBeginning "2025-07-31T17:17:00Z"^^xsd:dateTime .
+
+# Contextual Relevance Modifiers
+
+link:ContextualModifier a owl:Class ;
+    rdfs:label "Contextual Relevance Modifier" ;
+    rdfs:comment "Context-dependent relevance adjustments" .
+
+link:context_time_modifier a link:ContextualModifier ;
+    rdfs:label "Time-Based Relevance Modifier" ;
+    link:modifierType "temporal" ;
+    link:contextVariable "time_of_day" ;
+    link:peakRelevanceTime "morning" ;
+    link:relevanceMultiplier 1.2 ;
+    link:affectedLinks link:tos_sparkle_003 ;
+    link:activeWindow "06:00-12:00" .
+
+link:context_load_modifier a link:ContextualModifier ;
+    rdfs:label "System Load Relevance Modifier" ;
+    link:modifierType "performance" ;
+    link:contextVariable "system_load" ;
+    link:threshold 0.8 ;
+    link:relevanceMultiplier 0.7 ;
+    link:affectedLinks link:erlang_c_integration_006 ;
+    link:reason "Reduce integration complexity under high load" .
+
+# Link Quality Metrics
+
+link:QualityMetrics a owl:Class ;
+    rdfs:label "Link Quality Metrics" ;
+    rdfs:comment "Quality assessment for relevance links" .
+
+link:quality_bitactor_bitflow a link:QualityMetrics ;
+    rdfs:label "BitActor-BitFlow Link Quality" ;
+    link:evaluatedLink link:bitactor_bitflow_001 ;
+    link:coherence 0.91 ;
+    link:stability 0.87 ;
+    link:utility 0.93 ;
+    link:overallQuality 0.90 ;
+    link:measurementWindow 3600 ;  # 1 hour
+    time:hasBeginning "2025-07-31T16:22:30Z"^^xsd:dateTime ;
+    time:hasEnd "2025-07-31T17:22:30Z"^^xsd:dateTime .
+
+# Suggested Connection Protocols
+
+link:ConnectionProtocol a owl:Class ;
+    rdfs:label "Connection Protocol" ;
+    rdfs:comment "Suggested protocol for establishing connections" .
+
+link:protocol_memory_edge a link:ConnectionProtocol ;
+    rdfs:label "Memory-Edge Coordination Protocol" ;
+    link:forLinkType "memory-edge-coordination" ;
+    link:handshakeSequence "memory-scope-query -> edge-permission-request -> coordination-established" ;
+    link:requiredCapabilities "signal-purpose-registration", "cognitive-sequence-identification" ;
+    link:establishmentLatency 0.05 ;  # seconds
+    link:connectionDuration 3600 ;  # 1 hour typical
+    link:maintenanceProtocol "periodic-sync-every-300s" .
+
+# Cross-Substrate Translation Requirements
+
+link:TranslationRequirement a owl:Class ;
+    rdfs:label "Translation Requirement" ;
+    rdfs:comment "Translation needed for cross-substrate links" .
+
+link:translation_human_ai a link:TranslationRequirement ;
+    rdfs:label "Human-AI Translation Requirement" ;
+    link:sourceSubstrate "human-cognitive" ;
+    link:targetSubstrate "ai-neural" ;
+    link:translationProtocol "semantic-intent-mapping" ;
+    link:requiredAdapters "intuition-to-logic", "emotion-to-weight" ;
+    link:translationLatency 0.15 ;
+    link:fidelityLoss 0.08 ;
+    link:bidirectional true .
+
+# Link Clustering and Patterns
+
+link:LinkCluster a owl:Class ;
+    rdfs:label "Link Cluster" ;
+    rdfs:comment "Group of related links forming a pattern" .
+
+link:cluster_core_coordination a link:LinkCluster ;
+    rdfs:label "Core Coordination Cluster" ;
+    link:clusterType "coordination-hub" ;
+    link:memberLinks link:bitactor_bitflow_001, link:bitflow_bitmesh_002, link:erlang_c_integration_006 ;
+    link:clusterStrength 0.89 ;
+    link:emergentBehavior "coordinated-substrate-processing" ;
+    link:clusterDensity 0.85 ;
+    link:centralityScore 0.92 .
+
+# Real-time Link Status Monitoring
+
+link:LinkMonitor a owl:Class ;
+    rdfs:label "Link Monitor" ;
+    rdfs:comment "Real-time monitoring of link status" .
+
+link:monitor_active a link:LinkMonitor ;
+    rdfs:label "Active Links Monitor" ;
+    link:totalActiveLinks 7 ;
+    link:highPriorityLinks 3 ;
+    link:averageStrength 0.84 ;
+    link:peakStrength 0.95 ;
+    link:unstableLinks 0 ;
+    link:lastUpdate "2025-07-31T17:22:30Z"^^xsd:dateTime ;
+    link:monitoringStatus "ACTIVE" .
+
+# Link Lifecycle Management
+
+link:LinkLifecycle a owl:Class ;
+    rdfs:label "Link Lifecycle" ;
+    rdfs:comment "Lifecycle management for relevance links" .
+
+link:lifecycle_management a link:LinkLifecycle ;
+    rdfs:label "Link Lifecycle Manager" ;
+    link:birthThreshold 0.6 ;
+    link:deathThreshold 0.3 ;
+    link:maintenanceInterval 300 ;  # 5 minutes
+    link:archivalPeriod 604800 ;  # 1 week
+    link:fossilizationEnabled true ;
+    link:lastMaintenanceRun "2025-07-31T17:20:00Z"^^xsd:dateTime .

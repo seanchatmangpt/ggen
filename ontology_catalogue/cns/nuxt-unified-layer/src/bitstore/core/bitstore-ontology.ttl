@@ -1,0 +1,487 @@
+# BitStore Core Ontology
+# Ontology-First Distributed Storage with 8-Space Constraints
+# Version: 1.0.0
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+@prefix bitstore: <https://bitstore.systems/ontology#> .
+@prefix truth: <https://bitstore.systems/truth#> .
+@prefix consensus: <https://bitstore.systems/consensus#> .
+@prefix perf: <https://bitstore.systems/performance#> .
+@prefix sec: <https://bitstore.systems/security#> .
+
+# =============================================================================
+# ONTOLOGY DECLARATION
+# =============================================================================
+
+<https://bitstore.systems/ontology> a owl:Ontology ;
+    rdfs:label "BitStore Core Ontology" ;
+    rdfs:comment "Ontology-first distributed storage with 8-space constraints and Byzantine consensus" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://www.w3.org/ns/prov#> ;
+    owl:imports <http://www.w3.org/2006/time#> ;
+    owl:imports <http://www.w3.org/2004/02/skos/core#> ;
+    owl:imports <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# 8-SPACE CONSTRAINT SYSTEM
+# =============================================================================
+
+perf:EightSpaceConstraint a owl:Class ;
+    rdfs:label "8-Space Constraint" ;
+    rdfs:comment "Fundamental constraint system: ≤8 ticks temporal, ≤8 hops cognitive, 8-byte quantized data" ;
+    perf:maxTicks 8 ;
+    perf:maxHops 8 ;
+    perf:quantumBytes 8 .
+
+perf:EightTickContract a owl:Class ;
+    rdfs:subClassOf perf:EightSpaceConstraint ;
+    rdfs:label "8-Tick Performance Contract" ;
+    rdfs:comment "All operations must complete within 8 CPU cycles" ;
+    perf:enforcementLevel perf:Critical ;
+    perf:validationMode perf:Continuous ;
+    perf:violationConsequence perf:OperationRejection .
+
+perf:EightHopContract a owl:Class ;
+    rdfs:subClassOf perf:EightSpaceConstraint ;
+    rdfs:label "8-Hop Cognitive Contract" ;
+    rdfs:comment "All logical reasoning must complete within 8 inference hops" ;
+    perf:maxInferenceDepth 8 ;
+    perf:reasoningComplexity perf:Polynomial .
+
+perf:EightByteQuantum a owl:Class ;
+    rdfs:subClassOf perf:EightSpaceConstraint ;
+    rdfs:label "8-Byte Quantum Alignment" ;
+    rdfs:comment "All data structures must be 8-byte aligned with zero fragmentation" ;
+    perf:quantumSize 8 ;
+    perf:alignmentRequirement perf:Strict ;
+    perf:fragmentationTolerance 0.0 .
+
+# =============================================================================
+# TRUTH STORE ONTOLOGY
+# =============================================================================
+
+truth:TruthStore a owl:Class ;
+    rdfs:label "Truth Store" ;
+    rdfs:comment "Immutable, contradiction-free fact storage with cryptographic verification" ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty perf:hasContract ;
+        owl:someValuesFrom perf:EightTickContract
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty truth:hasConsistencyGuarantee ;
+        owl:hasValue truth:ContradictionFree
+    ] .
+
+truth:TruthEntry a owl:Class ;
+    rdfs:label "Truth Entry" ;
+    rdfs:comment "Individual immutable fact with cryptographic proof and consensus verification" ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty truth:hasTick ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty truth:hasProof ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty truth:hasConsensusProof ;
+        owl:cardinality 1
+    ] .
+
+truth:CryptographicProof a owl:Class ;
+    rdfs:label "Cryptographic Proof" ;
+    rdfs:comment "SHA3-256 cryptographic proof of truth entry integrity" ;
+    rdfs:subClassOf sec:DigitalProof ;
+    sec:hashAlgorithm sec:SHA3_256 ;
+    sec:proofType sec:IntegrityProof .
+
+truth:ConsensusProof a owl:Class ;
+    rdfs:label "Consensus Proof" ;
+    rdfs:comment "Byzantine consensus proof of truth entry acceptance" ;
+    rdfs:subClassOf sec:DigitalProof ;
+    consensus:consensusAlgorithm consensus:Byzantine ;
+    consensus:faultTolerance "33%"^^xsd:decimal .
+
+# Truth Store Properties
+truth:hasTick a owl:DatatypeProperty ;
+    rdfs:domain truth:TruthEntry ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has tick" ;
+    rdfs:comment "Monotonic tick index for temporal ordering" .
+
+truth:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:domain truth:TruthEntry ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has timestamp" ;
+    rdfs:comment "ISO 8601 timestamp of truth entry creation" .
+
+truth:hasFact a owl:ObjectProperty ;
+    rdfs:domain truth:TruthEntry ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "has fact" ;
+    rdfs:comment "The actual fact being stored as truth" .
+
+truth:hasProof a owl:ObjectProperty ;
+    rdfs:domain truth:TruthEntry ;
+    rdfs:range truth:CryptographicProof ;
+    rdfs:label "has proof" ;
+    rdfs:comment "Cryptographic proof of fact integrity" .
+
+truth:hasConsensusProof a owl:ObjectProperty ;
+    rdfs:domain truth:TruthEntry ;
+    rdfs:range truth:ConsensusProof ;
+    rdfs:label "has consensus proof" ;
+    rdfs:comment "Consensus proof of fact acceptance" .
+
+truth:hasSourceNode a owl:ObjectProperty ;
+    rdfs:domain truth:TruthEntry ;
+    rdfs:range consensus:Node ;
+    rdfs:label "has source node" ;
+    rdfs:comment "Node that originally proposed this truth" .
+
+# =============================================================================
+# BYZANTINE CONSENSUS ONTOLOGY
+# =============================================================================
+
+consensus:ByzantineConsensus a owl:Class ;
+    rdfs:label "Byzantine Consensus" ;
+    rdfs:comment "Byzantine fault-tolerant consensus protocol (3f+1 nodes)" ;
+    rdfs:subClassOf consensus:ConsensusProtocol ;
+    consensus:faultTolerance "33%"^^xsd:decimal ;
+    consensus:minNodes 4 ;
+    consensus:safetyGuarantee consensus:Agreement ;
+    consensus:livenessGuarantee consensus:Termination .
+
+consensus:ConsensusRound a owl:Class ;
+    rdfs:label "Consensus Round" ;
+    rdfs:comment "Single round of Byzantine consensus protocol" ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty consensus:hasPhase ;
+        owl:someValuesFrom consensus:ConsensusPhase
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty perf:hasContract ;
+        owl:someValuesFrom perf:EightTickContract
+    ] .
+
+consensus:ConsensusPhase a owl:Class ;
+    rdfs:label "Consensus Phase" ;
+    rdfs:comment "Phase in the three-phase Byzantine consensus protocol" .
+
+consensus:PreparePhase a consensus:ConsensusPhase ;
+    rdfs:label "Prepare Phase" ;
+    rdfs:comment "Initial phase where nodes prepare to vote" ;
+    consensus:phaseOrder 1 .
+
+consensus:CommitPhase a consensus:ConsensusPhase ;
+    rdfs:label "Commit Phase" ;
+    rdfs:comment "Second phase where nodes commit to voting" ;
+    consensus:phaseOrder 2 .
+
+consensus:DecidedPhase a consensus:ConsensusPhase ;
+    rdfs:label "Decided Phase" ;
+    rdfs:comment "Final phase where consensus is reached" ;
+    consensus:phaseOrder 3 .
+
+consensus:Node a owl:Class ;
+    rdfs:label "Consensus Node" ;
+    rdfs:comment "Participant node in Byzantine consensus" ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty consensus:hasReputation ;
+        owl:someValuesFrom xsd:decimal
+    ] .
+
+consensus:Vote a owl:Class ;
+    rdfs:label "Consensus Vote" ;
+    rdfs:comment "Vote cast by node in consensus round" ;
+    rdfs:subClassOf prov:Activity .
+
+# Consensus Properties
+consensus:hasRoundId a owl:DatatypeProperty ;
+    rdfs:domain consensus:ConsensusRound ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has round ID" .
+
+consensus:hasPhase a owl:ObjectProperty ;
+    rdfs:domain consensus:ConsensusRound ;
+    rdfs:range consensus:ConsensusPhase ;
+    rdfs:label "has phase" .
+
+consensus:hasProposer a owl:ObjectProperty ;
+    rdfs:domain consensus:ConsensusRound ;
+    rdfs:range consensus:Node ;
+    rdfs:label "has proposer" .
+
+consensus:hasVote a owl:ObjectProperty ;
+    rdfs:domain consensus:ConsensusRound ;
+    rdfs:range consensus:Vote ;
+    rdfs:label "has vote" .
+
+consensus:hasReputation a owl:DatatypeProperty ;
+    rdfs:domain consensus:Node ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has reputation" ;
+    rdfs:comment "Node reputation score for weighted voting" .
+
+# =============================================================================
+# RDF TRIPLE STORE INTEGRATION
+# =============================================================================
+
+bitstore:RDFTripleStore a owl:Class ;
+    rdfs:label "RDF Triple Store" ;
+    rdfs:comment "Semantic web RDF triple store with SPARQL query engine" ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty perf:hasContract ;
+        owl:someValuesFrom perf:EightHopContract
+    ] .
+
+bitstore:SPARQLQuery a owl:Class ;
+    rdfs:label "SPARQL Query" ;
+    rdfs:comment "SPARQL query with 8-hop cognitive constraint" ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty perf:hasComplexity ;
+        owl:someValuesFrom perf:CognitiveComplexity
+    ] .
+
+perf:CognitiveComplexity a owl:Class ;
+    rdfs:label "Cognitive Complexity" ;
+    rdfs:comment "Complexity measurement for reasoning operations" ;
+    perf:maxHops 8 ;
+    perf:complexityClass perf:Polynomial .
+
+# RDF Properties
+bitstore:hasTripleCount a owl:DatatypeProperty ;
+    rdfs:domain bitstore:RDFTripleStore ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has triple count" .
+
+bitstore:supportsSPARQL a owl:DatatypeProperty ;
+    rdfs:domain bitstore:RDFTripleStore ;
+    rdfs:range xsd:string ;
+    rdfs:label "supports SPARQL" ;
+    rdfs:comment "Supported SPARQL version" .
+
+# =============================================================================
+# PERFORMANCE CONTRACTS
+# =============================================================================
+
+perf:PerformanceContract a owl:Class ;
+    rdfs:label "Performance Contract" ;
+    rdfs:comment "Binding performance guarantee with SLA enforcement" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty perf:hasMetric ;
+        owl:someValuesFrom perf:PerformanceMetric
+    ] .
+
+perf:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Measurable performance characteristic" .
+
+perf:Latency a perf:PerformanceMetric ;
+    rdfs:label "Latency" ;
+    rdfs:comment "Time to complete operation" .
+
+perf:Throughput a perf:PerformanceMetric ;
+    rdfs:label "Throughput" ;
+    rdfs:comment "Operations per unit time" .
+
+perf:MemoryUsage a perf:PerformanceMetric ;
+    rdfs:label "Memory Usage" ;
+    rdfs:comment "Memory consumption" .
+
+# Performance Properties
+perf:hasTarget a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has target" .
+
+perf:hasActual a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has actual" .
+
+perf:hasUnit a owl:DatatypeProperty ;
+    rdfs:domain perf:PerformanceMetric ;
+    rdfs:range xsd:string ;
+    rdfs:label "has unit" .
+
+# =============================================================================
+# SECURITY ONTOLOGY
+# =============================================================================
+
+sec:PostQuantumCryptography a owl:Class ;
+    rdfs:label "Post-Quantum Cryptography" ;
+    rdfs:comment "Cryptography resistant to quantum computing attacks" ;
+    sec:quantumResistant true ;
+    sec:algorithm sec:Dilithium ;
+    sec:keyExchange sec:Kyber .
+
+sec:WASMSandbox a owl:Class ;
+    rdfs:label "WASM Sandbox" ;
+    rdfs:comment "WebAssembly sandbox with no DOM/network access" ;
+    sec:domAccess false ;
+    sec:networkAccess false ;
+    sec:systemCallRestricted true .
+
+sec:AccessControl a owl:Class ;
+    rdfs:label "Access Control" ;
+    rdfs:comment "Role-based access control system" ;
+    sec:model sec:RBAC ;
+    sec:enforcementLevel sec:Mandatory .
+
+# =============================================================================
+# INTEGRATION PATTERNS
+# =============================================================================
+
+bitstore:BitStoreSystem a owl:Class ;
+    rdfs:label "BitStore System" ;
+    rdfs:comment "Complete BitStore distributed storage system" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitstore:hasTruthStore ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitstore:hasRDFStore ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitstore:hasConsensusEngine ;
+        owl:cardinality 1
+    ] .
+
+# Integration Properties
+bitstore:hasTruthStore a owl:ObjectProperty ;
+    rdfs:domain bitstore:BitStoreSystem ;
+    rdfs:range truth:TruthStore ;
+    rdfs:label "has truth store" .
+
+bitstore:hasRDFStore a owl:ObjectProperty ;
+    rdfs:domain bitstore:BitStoreSystem ;
+    rdfs:range bitstore:RDFTripleStore ;
+    rdfs:label "has RDF store" .
+
+bitstore:hasConsensusEngine a owl:ObjectProperty ;
+    rdfs:domain bitstore:BitStoreSystem ;
+    rdfs:range consensus:ByzantineConsensus ;
+    rdfs:label "has consensus engine" .
+
+# =============================================================================
+# WORKFLOW INTEGRATION
+# =============================================================================
+
+bitstore:StorageWorkflow a owl:Class ;
+    rdfs:label "Storage Workflow" ;
+    rdfs:comment "Workflow for distributed storage operations" ;
+    rdfs:subClassOf prov:Plan .
+
+bitstore:TruthStorageWorkflow a bitstore:StorageWorkflow ;
+    rdfs:label "Truth Storage Workflow" ;
+    rdfs:comment "Workflow for storing immutable truths with consensus" .
+
+bitstore:RDFQueryWorkflow a bitstore:StorageWorkflow ;
+    rdfs:label "RDF Query Workflow" ;
+    rdfs:comment "Workflow for executing SPARQL queries with 8-hop constraint" .
+
+# =============================================================================
+# TEMPORAL ONTOLOGY INTEGRATION
+# =============================================================================
+
+bitstore:TemporalOrdering a owl:Class ;
+    rdfs:label "Temporal Ordering" ;
+    rdfs:comment "Tick-based temporal ordering system" ;
+    rdfs:subClassOf time:TemporalEntity .
+
+bitstore:Tick a owl:Class ;
+    rdfs:label "Tick" ;
+    rdfs:comment "Monotonic time unit for ordering operations" ;
+    rdfs:subClassOf time:Instant ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty bitstore:hasTickValue ;
+        owl:cardinality 1
+    ] .
+
+bitstore:hasTickValue a owl:DatatypeProperty ;
+    rdfs:domain bitstore:Tick ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has tick value" .
+
+# =============================================================================
+# VALIDATION HOOKS
+# =============================================================================
+
+# All truth entries must satisfy 8-space constraints
+truth:TruthEntryShape a sh:NodeShape ;
+    sh:targetClass truth:TruthEntry ;
+    sh:property [
+        sh:path truth:hasTick ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger
+    ] ;
+    sh:property [
+        sh:path truth:hasProof ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class truth:CryptographicProof
+    ] .
+
+# All consensus rounds must complete within 8 ticks
+consensus:ConsensusRoundShape a sh:NodeShape ;
+    sh:targetClass consensus:ConsensusRound ;
+    sh:sparql [
+        sh:message "Consensus round must complete within 8 ticks" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a consensus:ConsensusRound .
+                $this perf:actualTicks ?ticks .
+                FILTER (?ticks > 8)
+            }
+        """
+    ] .
+
+# All SPARQL queries must complete within 8 hops
+bitstore:SPARQLQueryShape a sh:NodeShape ;
+    sh:targetClass bitstore:SPARQLQuery ;
+    sh:sparql [
+        sh:message "SPARQL query must complete within 8 hops" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a bitstore:SPARQLQuery .
+                $this perf:actualHops ?hops .
+                FILTER (?hops > 8)
+            }
+        """
+    ] .
+
+# End of BitStore Core Ontology

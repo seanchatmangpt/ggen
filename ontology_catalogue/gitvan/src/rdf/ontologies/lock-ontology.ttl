@@ -1,0 +1,232 @@
+@prefix lock: <https://gitvan.dev/lock#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# ============================================================================
+# GitVan Lock Ontology
+# ============================================================================
+# Defines semantic representation of distributed locks in GitVan.
+# Enables deadlock detection, lock state queries, and duration analysis.
+# Version: 1.0.0
+# Date: January 9, 2026
+# ============================================================================
+
+# Classes
+# ============================================================================
+
+lock:Lock a owl:Class ;
+  rdfs:label "Lock" ;
+  rdfs:comment "A named lock acquired for mutual exclusion of resources" ;
+  rdfs:isDefinedBy <https://gitvan.dev/lock-ontology> .
+
+lock:LockState a owl:Class ;
+  rdfs:label "Lock State" ;
+  rdfs:comment "Enumeration of possible lock states" ;
+  rdfs:isDefinedBy <https://gitvan.dev/lock-ontology> .
+
+lock:LockEvent a owl:Class ;
+  rdfs:label "Lock Event" ;
+  rdfs:comment "Event in lock lifecycle (acquire, release, expire)" ;
+  rdfs:isDefinedBy <https://gitvan.dev/lock-ontology> .
+
+# Lock State Individuals
+# ============================================================================
+
+lock:Active a lock:LockState ;
+  rdfs:label "Active" ;
+  rdfs:comment "Lock is currently held and valid" .
+
+lock:Expired a lock:LockState ;
+  rdfs:label "Expired" ;
+  rdfs:comment "Lock has expired and should be cleaned up" .
+
+lock:Released a lock:LockState ;
+  rdfs:label "Released" ;
+  rdfs:comment "Lock has been explicitly released" .
+
+lock:Contested a lock:LockState ;
+  rdfs:label "Contested" ;
+  rdfs:comment "Multiple waiters for this lock (contention detected)" .
+
+# Lock Properties
+# ============================================================================
+
+lock:lockId a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:string ;
+  rdfs:label "Lock ID" ;
+  rdfs:comment "Unique UUID identifying this lock instance" ;
+  owl:cardinality 1 .
+
+lock:resourceId a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:string ;
+  rdfs:label "Resource ID" ;
+  rdfs:comment "URI or identifier of the locked resource" ;
+  owl:cardinality 1 .
+
+lock:owner a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:string ;
+  rdfs:label "Owner" ;
+  rdfs:comment "Process ID, hostname, user, or identifier that holds the lock" ;
+  owl:cardinality 1 .
+
+lock:ownerPid a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Owner Process ID" ;
+  rdfs:comment "Process ID of lock owner (for local debugging)" .
+
+lock:ownerHostname a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:string ;
+  rdfs:label "Owner Hostname" ;
+  rdfs:comment "Hostname of machine holding the lock" .
+
+lock:acquiredAt a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Acquired At" ;
+  rdfs:comment "ISO 8601 timestamp when lock was acquired" ;
+  owl:cardinality 1 .
+
+lock:expiresAt a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Expires At" ;
+  rdfs:comment "ISO 8601 timestamp when lock expires if not renewed" ;
+  owl:cardinality 1 .
+
+lock:releasedAt a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Released At" ;
+  rdfs:comment "ISO 8601 timestamp when lock was explicitly released" .
+
+lock:timeout a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Timeout (ms)" ;
+  rdfs:comment "Lock timeout in milliseconds" ;
+  owl:cardinality 1 .
+
+lock:fingerprint a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:string ;
+  rdfs:label "Fingerprint" ;
+  rdfs:comment "Process fingerprint for lock validation" .
+
+lock:priority a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Priority" ;
+  rdfs:comment "Lock priority (higher = more important, for deadlock resolution)" .
+
+lock:exclusive a owl:DatatypeProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Exclusive" ;
+  rdfs:comment "Whether this is an exclusive lock (true) or shared (false)" ;
+  owl:cardinality 1 .
+
+lock:state a owl:ObjectProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range lock:LockState ;
+  rdfs:label "State" ;
+  rdfs:comment "Current state of the lock" ;
+  owl:cardinality 1 .
+
+# Lock Relationship Properties
+# ============================================================================
+
+lock:blockedBy a owl:ObjectProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range lock:Lock ;
+  rdfs:label "Blocked By" ;
+  rdfs:comment "Lock that is blocking this one (for deadlock detection)" ;
+  owl:asymmetricProperty owl:AsymmetricProperty .
+
+lock:blocks a owl:ObjectProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range lock:Lock ;
+  rdfs:label "Blocks" ;
+  rdfs:comment "Lock that this one is blocking" ;
+  owl:inverseOf lock:blockedBy ;
+  owl:asymmetricProperty owl:AsymmetricProperty .
+
+lock:waitedFor a owl:ObjectProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range lock:Lock ;
+  rdfs:label "Waited For" ;
+  rdfs:comment "Previously held lock that this one waited for" .
+
+lock:heldsLock a owl:ObjectProperty ;
+  rdfs:domain prov:Agent ;
+  rdfs:range lock:Lock ;
+  rdfs:label "Holds Lock" ;
+  rdfs:comment "Relationship between agent and held locks" .
+
+# Provenance Properties
+# ============================================================================
+
+lock:acquiredBy a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasAssociatedWith ;
+  rdfs:domain lock:Lock ;
+  rdfs:range prov:Agent ;
+  rdfs:label "Acquired By" ;
+  rdfs:comment "Agent that acquired this lock" .
+
+lock:releasedBy a owl:ObjectProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range prov:Agent ;
+  rdfs:label "Released By" ;
+  rdfs:comment "Agent that released this lock" .
+
+lock:activity a owl:ObjectProperty ;
+  rdfs:domain lock:Lock ;
+  rdfs:range prov:Activity ;
+  rdfs:label "Associated Activity" ;
+  rdfs:comment "Workflow or operation using this lock" .
+
+# SHACL Constraints
+# ============================================================================
+
+lock:LockShape a owl:Class ;
+  sh:targetClass lock:Lock .
+
+# Required properties
+lock:lockId owl:minCardinality 1 .
+lock:resourceId owl:minCardinality 1 .
+lock:owner owl:minCardinality 1 .
+lock:acquiredAt owl:minCardinality 1 .
+lock:expiresAt owl:minCardinality 1 .
+lock:timeout owl:minCardinality 1 .
+lock:exclusive owl:minCardinality 1 .
+lock:state owl:minCardinality 1 .
+
+# Rules / N3 Reasoning
+# ============================================================================
+
+# Rule 1: If now > expiresAt, state should be Expired
+# { ?lock lock:expiresAt ?expiry .
+#   FILTER(NOW() > ?expiry)
+# } => { ?lock lock:state lock:Expired } .
+
+# Rule 2: Circular dependency = deadlock
+# { ?lock1 lock:blockedBy ?lock2 .
+#   ?lock2 lock:blockedBy+ ?lock1
+# } => { ?lock1 a lock:DeadlockedLock } .
+
+# Rule 3: Long-running lock = potential issue
+# { ?lock lock:acquiredAt ?start ;
+#         lock:expiresAt ?end .
+#   FILTER((?end - ?start) > 3600000)  # > 1 hour
+# } => { ?lock a lock:LongRunningLock } .
+
+# ============================================================================
+# End of Lock Ontology
+# ============================================================================

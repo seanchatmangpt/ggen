@@ -1,0 +1,94 @@
+# ============================================================================
+# JTBD Query: Extract All Jobs and Outcomes
+# ============================================================================
+# Purpose: Extract all customer segments, their jobs, and associated outcomes
+#          sorted by priority and importance for CSV export and analysis.
+#
+# Output: Customer segment, job details, outcomes with metrics, painpoints
+# Use: Feature planning, roadmap prioritization, gap analysis
+#
+# Example Output:
+# Segment       | Job                  | Frequency | Importance | Outcome              | Priority | Metric
+# Dev Lead      | Manage dependencies  | Daily     | 9          | Fast dep resolution  | 1        | time
+# Backend Dev   | Configure OTEL       | Weekly    | 7          | Complete observability| 2       | coverage
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?segmentName
+  ?personaName
+  ?personaRole
+  ?jobName
+  ?jobDescription
+  ?jobFrequency
+  ?jobImportance
+  ?jobSatisfaction
+  ((?jobImportance - ?jobSatisfaction) AS ?jobOpportunity)
+  ?outcomeName
+  ?outcomeDescription
+  ?outcomePriority
+  ?outcomeMetric
+  ?outcomeTarget
+  ?outcomeImportance
+  ?outcomeSatisfaction
+  ?outcomeOpportunityScore
+  ?painpointDescription
+  ?painpointSeverity
+  ?progressMakerDescription
+WHERE {
+  # Customer Segment
+  ?segment a sk:CustomerSegment ;
+           sk:segmentName ?segmentName .
+
+  # Optionally, segment is a Persona
+  OPTIONAL {
+    ?segment a sk:Persona ;
+             sk:personaName ?personaName ;
+             sk:personaRole ?personaRole .
+  }
+
+  # Job for this segment
+  ?segment sk:hasJob ?job .
+  ?job sk:jobName ?jobName .
+
+  OPTIONAL { ?job sk:jobDescription ?jobDescription }
+  OPTIONAL { ?job sk:jobFrequency ?jobFrequency }
+  OPTIONAL { ?job sk:jobImportance ?jobImportance }
+  OPTIONAL { ?job sk:jobSatisfaction ?jobSatisfaction }
+
+  # Outcomes for this job
+  OPTIONAL {
+    ?job sk:hasOutcome ?outcome .
+    ?outcome sk:outcomeName ?outcomeName .
+
+    OPTIONAL { ?outcome sk:outcomeDescription ?outcomeDescription }
+    OPTIONAL { ?outcome sk:outcomePriority ?outcomePriority }
+    OPTIONAL { ?outcome sk:outcomeMetric ?outcomeMetric }
+    OPTIONAL { ?outcome sk:outcomeTarget ?outcomeTarget }
+    OPTIONAL { ?outcome sk:outcomeImportance ?outcomeImportance }
+    OPTIONAL { ?outcome sk:outcomeSatisfaction ?outcomeSatisfaction }
+    OPTIONAL { ?outcome sk:outcomeOpportunityScore ?outcomeOpportunityScore }
+  }
+
+  # Painpoints for job or outcome
+  OPTIONAL {
+    { ?job sk:hasPainpoint ?painpoint }
+    UNION
+    { ?outcome sk:hasPainpoint ?painpoint }
+
+    ?painpoint sk:painpointDescription ?painpointDescription .
+    OPTIONAL { ?painpoint sk:painpointSeverity ?painpointSeverity }
+  }
+
+  # Progress makers for job or outcome
+  OPTIONAL {
+    { ?job sk:hasProgressMaker ?progressMaker }
+    UNION
+    { ?outcome sk:hasProgressMaker ?progressMaker }
+
+    ?progressMaker sk:progressMakerDescription ?progressMakerDescription .
+  }
+}
+ORDER BY ?segmentName ?jobImportance DESC ?outcomePriority

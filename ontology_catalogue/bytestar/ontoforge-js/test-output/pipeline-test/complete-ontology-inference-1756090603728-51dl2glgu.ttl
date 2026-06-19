@@ -1,0 +1,179 @@
+@prefix : <http://example.org/onto#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+
+<http://example.org/onto> a owl:Ontology;
+    rdfs:label "Comprehensive OWL Test Ontology"@en;
+    rdfs:comment "Testing ontology with rich semantic constructs for inference generation"@en.
+:Entity a owl:Class;
+    rdfs:label "Entity"@en;
+    rdfs:comment "Top-level entity class"@en.
+:LivingBeing a owl:Class;
+    rdfs:label "Living Being"@en;
+    rdfs:subClassOf :Entity.
+:Animal a owl:Class;
+    rdfs:label "Animal"@en;
+    rdfs:subClassOf :Entity, :LivingBeing.
+:Mammal a owl:Class;
+    rdfs:label "Mammal"@en;
+    rdfs:subClassOf :Entity, :LivingBeing, :Animal.
+:Carnivore a owl:Class;
+    rdfs:label "Carnivore"@en;
+    rdfs:subClassOf :Entity, :LivingBeing, :Animal.
+:Dog a owl:Class;
+    rdfs:label "Dog"@en;
+    rdfs:subClassOf :Entity, :LivingBeing, :Animal, :Mammal.
+:Cat a owl:Class;
+    rdfs:label "Cat"@en;
+    rdfs:subClassOf :Entity, :LivingBeing, :Animal, :Mammal, :Carnivore.
+:Person a owl:Class;
+    rdfs:label "Person"@en;
+    rdfs:subClassOf :Entity, :LivingBeing, :Animal, :Mammal.
+:Plant a owl:Class;
+    rdfs:label "Plant"@en;
+    rdfs:subClassOf :Entity, :LivingBeing.
+:Tree a owl:Class;
+    rdfs:label "Tree"@en;
+    rdfs:subClassOf :Entity, :LivingBeing, :Plant.
+:buddy a :Entity, :LivingBeing, :Animal, :Mammal, :Dog, :Canine;
+    rdfs:label "Buddy"@en;
+    rdfs:comment "A friendly dog"@en;
+    :hasOwner :alice;
+    :livesIn :home;
+    :hasAge 5.
+:fluffy a :Entity, :LivingBeing, :Animal, :Mammal, :Carnivore, :Cat;
+    rdfs:label "Fluffy"@en;
+    rdfs:comment "A fluffy cat"@en;
+    :hasOwner :bob;
+    :hasName "Fluffy the Cat".
+:alice a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    rdfs:label "Alice"@en;
+    :ancestorOf :bob, :charlie;
+    :marriedTo :bob;
+    :owns :buddy;
+    :hasAge 30.
+:bob a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    rdfs:label "Bob"@en;
+    :ancestorOf :charlie;
+    :marriedTo :alice;
+    :owns :fluffy.
+:charlie a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    rdfs:label "Charlie"@en.
+:oak1 a :Entity, :LivingBeing, :Plant, :Tree;
+    rdfs:label "Old Oak"@en.
+:hasOwner a owl:ObjectProperty;
+    rdfs:label "has owner"@en;
+    rdfs:comment "Relationship between an animal and its owner"@en;
+    rdfs:domain :Animal;
+    rdfs:range :Person.
+:hasParent a owl:ObjectProperty;
+    rdfs:label "has parent"@en;
+    rdfs:domain :LivingBeing;
+    rdfs:range :LivingBeing.
+:livesIn a owl:ObjectProperty;
+    rdfs:label "lives in"@en;
+    rdfs:domain :LivingBeing;
+    rdfs:range :Place.
+:Place a owl:Class;
+    rdfs:label "Place"@en.
+:home a :Place;
+    rdfs:label "Home"@en.
+:ancestorOf a owl:ObjectProperty, owl:TransitiveProperty;
+    rdfs:label "ancestor of"@en;
+    rdfs:domain :Person;
+    rdfs:range :Person.
+:partOf a owl:ObjectProperty, owl:TransitiveProperty;
+    rdfs:label "part of"@en;
+    rdfs:comment "Transitive parthood relation"@en.
+:locatedIn a owl:ObjectProperty, owl:TransitiveProperty;
+    rdfs:label "located in"@en.
+:finger :partOf :hand, :body, :person.
+:hand :partOf :body, :person.
+:body :partOf :person.
+:room :locatedIn :house, :city, :country.
+:house :locatedIn :city, :country.
+:city :locatedIn :country.
+:marriedTo a owl:ObjectProperty, owl:SymmetricProperty;
+    rdfs:label "married to"@en;
+    rdfs:domain :Person;
+    rdfs:range :Person.
+:neighborOf a owl:ObjectProperty, owl:SymmetricProperty;
+    rdfs:label "neighbor of"@en.
+:siblingOf a owl:ObjectProperty, owl:SymmetricProperty;
+    rdfs:label "sibling of"@en;
+    rdfs:domain :Person;
+    rdfs:range :Person.
+:house1 :neighborOf :house2.
+:house2 :neighborOf :house1.
+:owns a owl:ObjectProperty;
+    rdfs:label "owns"@en;
+    rdfs:domain :Person;
+    rdfs:range :Animal;
+    owl:inverseOf :hasOwner.
+:parentOf a owl:ObjectProperty;
+    rdfs:label "parent of"@en;
+    rdfs:domain :Person;
+    rdfs:range :Person;
+    owl:inverseOf :hasParent.
+:childOf a owl:ObjectProperty;
+    rdfs:label "child of"@en;
+    rdfs:domain :Person;
+    rdfs:range :Person;
+    owl:inverseOf :parentOf.
+:dave a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    :parentOf :eve.
+:eve a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    :hasParent :dave;
+    :childOf :dave.
+:Human a owl:Class;
+    rdfs:label "Human"@en;
+    owl:equivalentClass :Person.
+:Canine a owl:Class;
+    rdfs:label "Canine"@en;
+    owl:equivalentClass :Dog.
+:grandparentOf a owl:ObjectProperty;
+    rdfs:label "grandparent of"@en;
+    rdfs:domain :Person;
+    rdfs:range :Person;
+    owl:propertyChainAxiom _:n3-27.
+_:n3-27 rdf:first :parentOf;
+    rdf:rest _:n3-28.
+_:n3-28 rdf:first :parentOf;
+    rdf:rest rdf:nil.
+:uncleOf a owl:ObjectProperty;
+    rdfs:label "uncle of"@en;
+    owl:propertyChainAxiom _:n3-29.
+_:n3-29 rdf:first :siblingOf;
+    rdf:rest _:n3-30.
+_:n3-30 rdf:first :parentOf;
+    rdf:rest rdf:nil.
+:john a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    :parentOf :mary.
+:mary a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    :hasParent :john;
+    :siblingOf :david;
+    :parentOf :tom;
+    :childOf :john.
+:tom a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    :hasParent :mary;
+    :childOf :mary.
+:david a :Entity, :LivingBeing, :Animal, :Mammal, :Person, :Human;
+    :siblingOf :mary.
+:feeds a owl:ObjectProperty;
+    rdfs:label "feeds"@en;
+    rdfs:domain :Person;
+    rdfs:range :Animal.
+:protects a owl:ObjectProperty;
+    rdfs:label "protects"@en;
+    rdfs:domain :Animal;
+    rdfs:range :Person.
+:hasAge a owl:DatatypeProperty;
+    rdfs:label "has age"@en;
+    rdfs:domain :LivingBeing;
+    rdfs:range xsd:integer.
+:hasName a owl:DatatypeProperty;
+    rdfs:label "has name"@en;
+    rdfs:domain :Entity;
+    rdfs:range xsd:string.

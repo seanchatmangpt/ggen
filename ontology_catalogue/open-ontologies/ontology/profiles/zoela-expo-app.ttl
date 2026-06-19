@@ -1,0 +1,279 @@
+@prefix ggen:    <https://open-ontologies.org/ggen#> .
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# ZOE LA Expo App Manifest
+# ============================================================================
+#
+# Source-law for the apps/mobile/ project scaffold. Every file under
+# apps/mobile/ that is not a developer script or doc has a ggen rule that
+# reads from this manifest:
+#
+#   package.json       ← zoela-expo-package-json
+#   app.json           ← zoela-expo-app-json
+#   tsconfig.json      ← zoela-expo-tsconfig
+#   babel.config.js    ← zoela-expo-babel-config
+#   metro.config.js    ← zoela-expo-metro-config
+#   App.tsx            ← zoela-expo-app-entry
+#   src/lib/
+#     supabaseClient.ts ← zoela-expo-supabase-client
+#
+# Hand-written and STAYS hand-written:
+#   scripts/verify-supabase.mjs (host-side ops tool, not app code)
+#   README.md                   (humans-only doc)
+#
+# Doctrine: edit this TTL, run ggen sync, the scaffold regenerates.
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/zoela-expo-app>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Expo App Manifest"@en ;
+    rdfs:comment "Declarative source for the apps/mobile Expo project scaffold."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-19"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.8" .
+
+# ============================================================================
+# § 1  Profile vocabulary
+# ============================================================================
+
+ggen:ExpoAppManifest a owl:Class ;
+    rdfs:label "Expo App Manifest"@en ;
+    rdfs:comment "An Expo project manifest describing app metadata, runtime config, and dependency contracts."@en .
+
+ggen:appName            a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "app display name"@en .
+ggen:appSlug            a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "app slug"@en .
+ggen:appVersion         a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "app version"@en .
+ggen:appBundleId        a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "app bundle identifier"@en .
+ggen:packageName        a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "npm package name"@en .
+ggen:packageDescription a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "npm package description"@en .
+ggen:expoSdkVersion     a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "Expo SDK version"@en .
+ggen:reactVersion       a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "React version"@en .
+ggen:reactNativeVersion a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "React Native version"@en .
+ggen:supabaseUrl        a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "default Supabase URL"@en .
+ggen:supabaseAnonKey    a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "default Supabase anon key"@en .
+ggen:entryScreenComponent  a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "entry screen component name"@en .
+ggen:entryScreenImportPath a owl:DatatypeProperty ; rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string ; rdfs:label "entry screen import path"@en .
+
+ggen:hasNpmDependency a owl:DatatypeProperty ;
+    rdfs:label "has npm dependency"@en ;
+    rdfs:comment "A runtime dependency expressed as 'name:semver-range' (single colon separator)."@en ;
+    rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string .
+
+ggen:hasNpmDevDependency a owl:DatatypeProperty ;
+    rdfs:label "has npm devDependency"@en ;
+    rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string .
+
+ggen:hasTsPathAlias a owl:DatatypeProperty ;
+    rdfs:label "has TypeScript path alias"@en ;
+    rdfs:comment "TS path alias as 'alias=>target' where alias may end in '/*' and target may end in '/*'."@en ;
+    rdfs:domain ggen:ExpoAppManifest ; rdfs:range xsd:string .
+
+# ── Ops scripts (host-side health checks, CI probes) ──────────────────────────
+
+ggen:OpsScript a owl:Class ;
+    rdfs:label "Ops Script"@en ;
+    rdfs:comment "A host-side ops/CI script. Manufactured by ggen so probe targets live in TTL, not as hard-coded literals."@en .
+
+ggen:scriptName        a owl:DatatypeProperty ; rdfs:domain ggen:OpsScript ; rdfs:range xsd:string .
+ggen:scriptDescription a owl:DatatypeProperty ; rdfs:domain ggen:OpsScript ; rdfs:range xsd:string .
+ggen:hasProbeTarget    a owl:ObjectProperty   ; rdfs:domain ggen:OpsScript ; rdfs:range ggen:ProbeTarget .
+
+ggen:ProbeTarget a owl:Class ;
+    rdfs:label "Probe Target"@en ;
+    rdfs:comment "A single host-side health probe: name, kind, table, expected behavior."@en .
+
+ggen:probeName          a owl:DatatypeProperty ; rdfs:domain ggen:ProbeTarget ; rdfs:range xsd:string .
+ggen:probeOrder         a owl:DatatypeProperty ; rdfs:domain ggen:ProbeTarget ; rdfs:range xsd:integer .
+ggen:probeKind          a owl:DatatypeProperty ; rdfs:domain ggen:ProbeTarget ; rdfs:range xsd:string ;
+    rdfs:comment "Probe kind: 'rest_reachable', 'rls_denied', 'seed_present'."@en .
+ggen:probeTable         a owl:DatatypeProperty ; rdfs:domain ggen:ProbeTarget ; rdfs:range xsd:string .
+ggen:probeColumn        a owl:DatatypeProperty ; rdfs:domain ggen:ProbeTarget ; rdfs:range xsd:string ;
+    rdfs:comment "Column to project for 'seed_present' probes."@en .
+ggen:probeMinRows       a owl:DatatypeProperty ; rdfs:domain ggen:ProbeTarget ; rdfs:range xsd:integer ;
+    rdfs:comment "Minimum row count required for the probe to pass."@en .
+
+# ── Documentation pages ───────────────────────────────────────────────────────
+
+ggen:DocPage a owl:Class ;
+    rdfs:label "Doc Page"@en ;
+    rdfs:comment "A documentation file (Markdown). Sections are declared as RDF triples so the template can render them in order."@en .
+
+ggen:docTitle       a owl:DatatypeProperty ; rdfs:domain ggen:DocPage  ; rdfs:range xsd:string .
+ggen:docSummary     a owl:DatatypeProperty ; rdfs:domain ggen:DocPage  ; rdfs:range xsd:string .
+ggen:hasDocSection  a owl:ObjectProperty   ; rdfs:domain ggen:DocPage  ; rdfs:range ggen:DocSection .
+
+ggen:DocSection a owl:Class ;
+    rdfs:label "Doc Section"@en .
+
+ggen:sectionOrder    a owl:DatatypeProperty ; rdfs:domain ggen:DocSection ; rdfs:range xsd:integer .
+ggen:sectionHeading  a owl:DatatypeProperty ; rdfs:domain ggen:DocSection ; rdfs:range xsd:string .
+ggen:sectionLevel    a owl:DatatypeProperty ; rdfs:domain ggen:DocSection ; rdfs:range xsd:integer .
+ggen:sectionBody     a owl:DatatypeProperty ; rdfs:domain ggen:DocSection ; rdfs:range xsd:string .
+
+# ============================================================================
+# § 2  The Manifest (instance)
+# ============================================================================
+
+zoe:ZoelaLaExpoApp a ggen:ExpoAppManifest ;
+    ggen:appName            "ZOE LA" ;
+    ggen:appSlug            "zoela-la-mobile" ;
+    ggen:appVersion         "0.1.0" ;
+    ggen:appBundleId        "org.zoela.la.mobile" ;
+    ggen:packageName        "zoela-la-mobile" ;
+    ggen:packageDescription "ZOE LA Expo shell — consumes ggen-manufactured screens, types, and navigation from ../../packages/*" ;
+    ggen:expoSdkVersion     "~52.0.0" ;
+    ggen:reactVersion       "18.3.1" ;
+    ggen:reactNativeVersion "0.76.9" ;
+    ggen:supabaseUrl        "http://127.0.0.1:54321" ;
+    ggen:supabaseAnonKey    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" ;
+    ggen:entryScreenComponent  "GroupInterestFormScreen" ;
+    ggen:entryScreenImportPath "../../packages/screens/zoela" .
+
+# ── runtime deps ──────────────────────────────────────────────────────────────
+
+zoe:ZoelaLaExpoApp
+    ggen:hasNpmDependency "@react-navigation/native:^7.0.0" ,
+                          "@react-navigation/native-stack:^7.0.0" ,
+                          "@supabase/supabase-js:^2.45.0" ,
+                          "expo:~52.0.0" ,
+                          "expo-constants:~17.0.0" ,
+                          "expo-status-bar:~2.0.0" ,
+                          "react:18.3.1" ,
+                          "react-native:0.76.9" ,
+                          "react-native-gesture-handler:~2.20.0" ,
+                          "react-native-reanimated:~3.16.0" ,
+                          "react-native-safe-area-context:~4.12.0" ,
+                          "react-native-screens:~4.4.0" ,
+                          "react-native-url-polyfill:^2.0.0" .
+
+# ── dev deps ──────────────────────────────────────────────────────────────────
+
+zoe:ZoelaLaExpoApp
+    ggen:hasNpmDevDependency "@types/react:~18.3.0" ,
+                             "typescript:~5.3.0" .
+
+# ── TS path aliases ───────────────────────────────────────────────────────────
+
+zoe:ZoelaLaExpoApp
+    ggen:hasTsPathAlias "@zoela/types=>../../packages/types/zoela.ts" ,
+                        "@zoela/types/*=>../../packages/types/*" ,
+                        "@zoela/screens=>../../packages/screens/zoela.tsx" ,
+                        "@zoela/screens/*=>../../packages/screens/*" ,
+                        "@zoela/navigation=>../../packages/navigation/zoela.tsx" ,
+                        "@zoela/navigation/*=>../../packages/navigation/*" ,
+                        "@zoela/schemas=>../../packages/schemas/zoela.ts" ,
+                        "@zoela/routes/*=>../../packages/routes/*" ,
+                        "@zoela/forms/*=>../../packages/forms/*" ,
+                        "@zoela/evidence/*=>../../packages/evidence/*" .
+
+# ============================================================================
+# § 3  verify-supabase ops script
+# ============================================================================
+
+zoe:VerifySupabaseScript a ggen:OpsScript ;
+    ggen:scriptName        "verify-supabase" ;
+    ggen:scriptDescription "Host-side connectivity + RLS sanity check against the local self-hosted Supabase Docker stack." ;
+    ggen:hasProbeTarget    zoe:probeRestReachable ,
+                           zoe:probeRlsDeniedPushNotification ,
+                           zoe:probeRolesSeedAccessible .
+
+zoe:probeRestReachable a ggen:ProbeTarget ;
+    ggen:probeName  "REST endpoint reachable" ;
+    ggen:probeOrder 10 ;
+    ggen:probeKind  "rest_reachable" .
+
+zoe:probeRlsDeniedPushNotification a ggen:ProbeTarget ;
+    ggen:probeName  "push_notification: anon SELECT denied by RLS" ;
+    ggen:probeOrder 20 ;
+    ggen:probeKind  "rls_denied" ;
+    ggen:probeTable "push_notification" ;
+    ggen:probeColumn "id" .
+
+zoe:probeRolesSeedAccessible a ggen:ProbeTarget ;
+    ggen:probeName    "roles: seed data accessible" ;
+    ggen:probeOrder   30 ;
+    ggen:probeKind    "seed_present" ;
+    ggen:probeTable   "roles" ;
+    ggen:probeColumn  "role_code" ;
+    ggen:probeMinRows 4 .
+
+# ============================================================================
+# § 4  Documentation pages
+# ============================================================================
+
+zoe:AppsMobileReadme a ggen:DocPage ;
+    ggen:docTitle   "ZOE LA Mobile — Expo Shell" ;
+    ggen:docSummary "Generated project scaffold for an Expo app that consumes ggen-manufactured packages and talks to local Supabase Docker." ;
+    ggen:hasDocSection zoe:readmeSecDoctrine ,
+                       zoe:readmeSecQuickstart ,
+                       zoe:readmeSecAppLogic ,
+                       zoe:readmeSecLimitations ,
+                       zoe:readmeSecVerified .
+
+zoe:readmeSecDoctrine a ggen:DocSection ;
+    ggen:sectionOrder   10 ;
+    ggen:sectionHeading "Doctrine" ;
+    ggen:sectionLevel   2 ;
+    ggen:sectionBody    """- **This directory** is the Expo project scaffold (`package.json`, `app.json`, `babel.config.js`, `metro.config.js`, `tsconfig.json`, `App.tsx`, `src/lib/supabaseClient.ts`, `scripts/verify-supabase.mjs`, and this README). Every one of those files is generated by ggen from a TTL source. Edit the ontology, run `ggen sync`, the file regenerates.
+- **`../../packages/*`** are the manufactured app surfaces — types, screens, navigation, forms, routes, evidence.
+- **`../../supabase/migrations/*`** are the manufactured database schema and RLS.""" .
+
+zoe:readmeSecQuickstart a ggen:DocSection ;
+    ggen:sectionOrder   20 ;
+    ggen:sectionHeading "Quick start" ;
+    ggen:sectionLevel   2 ;
+    ggen:sectionBody    """```bash
+# 1. Bring up local Supabase Docker (in the repo root)
+cd /Users/sac/open-ontologies
+supabase start
+
+# 2. (Optional) generate types
+supabase gen types typescript --local > packages/types/supabase.ts
+
+# 3. Install Expo deps and boot the shell
+cd apps/mobile
+pnpm install
+pnpm start          # or `pnpm web` for browser
+
+# 4. Verify Supabase connectivity + RLS from the host
+pnpm verify:supabase
+```""" .
+
+zoe:readmeSecAppLogic a ggen:DocSection ;
+    ggen:sectionOrder   30 ;
+    ggen:sectionHeading "What the shell does" ;
+    ggen:sectionLevel   2 ;
+    ggen:sectionBody    """`App.tsx` mounts the ggen-generated entry screen and runs an in-app RLS probe against `push_notification`. The probe classifies the result as `rls_blocked_ok`, `rls_permissive_warn`, or `error` and shows the verdict in the header.
+
+`scripts/verify-supabase.mjs` does the same checks plus a reachability ping and a governance-table read, all from the host process. Use it in CI.""" .
+
+zoe:readmeSecLimitations a ggen:DocSection ;
+    ggen:sectionOrder   40 ;
+    ggen:sectionHeading "Known limitations" ;
+    ggen:sectionLevel   2 ;
+    ggen:sectionBody    """- **Node version**: Expo SDK 52's `expo-modules-core` declares `main: src/index.ts`, which Node 22.13+ and Node 24/25 can't import via ESM. Use Node 20 LTS to run `expo start` / `expo export`. The Supabase Docker stack, `verify-supabase.mjs`, and `pnpm typecheck` all work on any Node version.
+- **Session storage** uses RN AsyncStorage (TODO once `@react-native-async-storage/async-storage` is added).
+- **No real auth flow yet** — the shell uses anon access only.""" .
+
+zoe:readmeSecVerified a ggen:DocSection ;
+    ggen:sectionOrder   50 ;
+    ggen:sectionHeading "Verified end-to-end" ;
+    ggen:sectionLevel   2 ;
+    ggen:sectionBody    """```
+$ node scripts/verify-supabase.mjs
+✓ REST endpoint reachable
+    HTTP 200 from http://127.0.0.1:54321/rest/v1/
+✓ push_notification: anon SELECT denied by RLS
+    rows: 0
+✓ roles: seed data accessible
+    rows: 4 (admin,member,ministry_lead,volunteer)
+
+All checks passed.
+```""" .

@@ -1,0 +1,99 @@
+@prefix : <https://bytestar.org/ontology/metrics#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+
+<https://bytestar.org/ontology/metrics>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/metrics/v1.0> ;
+    rdfs:comment "Ontology defining Key Performance Indicators (KPIs), performance metrics, and observability concepts within the ByteStar ecosystem." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:KPI rdf:type owl:Class ;
+    rdfs:comment "A Key Performance Indicator for the ByteStar ecosystem." .
+
+:PerformanceMetric rdf:type owl:Class ;
+    rdfs:comment "A measurable quantity reflecting the performance of a system or component." .
+
+:ObservabilityConcept rdf:type owl:Class ;
+    rdfs:comment "A concept related to understanding the internal state of a system from its external outputs." .
+
+:Latency rdf:type owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:comment "The time delay between a cause and effect in the system." .
+
+:Throughput rdf:type owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:comment "The rate at which a system processes units of work." .
+
+:Reliability rdf:type owl:Class ;
+    rdfs:subClassOf :PerformanceMetric ;
+    rdfs:comment "The probability of a system performing its intended function without failure." .
+
+:ReceiptsAsTruth rdf:type owl:Class ;
+    rdfs:subClassOf :ObservabilityConcept ;
+    rdfs:comment "The concept that cryptographic receipts are the primary source of truth for system behavior." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasKPI rdf:type owl:ObjectProperty ;
+    rdfs:domain arch:ByteStarEcosystem ;
+    rdfs:range :KPI ;
+    rdfs:comment "The ByteStar ecosystem has specific KPIs." .
+
+:measuresPerformance rdf:type owl:ObjectProperty ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range arch:Component ;
+    rdfs:comment "A performance metric measures the performance of a component." .
+
+:usesObservabilityConcept rdf:type owl:ObjectProperty ;
+    rdfs:domain arch:ByteStarEcosystem ;
+    rdfs:range :ObservabilityConcept ;
+    rdfs:comment "The ByteStar ecosystem uses specific observability concepts." .
+
+:isPrimaryTruthSource rdf:type owl:ObjectProperty ;
+    rdfs:domain spr:Receipt ;
+    rdfs:range :ReceiptsAsTruth ;
+    rdfs:comment "A receipt is a primary truth source for system behavior." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasTargetValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :KPI ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The target value for a KPI." .
+
+:hasUnit rdf:type owl:DatatypeProperty ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The unit of measurement for a performance metric (e.g., 'ms', 'ops/s')." .
+
+:hasP99Latency rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Latency ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The 99th percentile latency in milliseconds or microseconds." .
+
+:hasThroughputRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Throughput ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The throughput rate (e.g., operations per second)." .
+
+:hasAvailabilityPercentage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Reliability ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The percentage of time a system is available." .
+

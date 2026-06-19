@@ -1,0 +1,54 @@
+PREFIX lsp: <http://ggen.io/ontology/lsp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# One row per (server, pack).  rules_code is a pre-formatted Rust snippet.
+#
+# Placeholders (no backslashes or doublequotes in the GROUP_CONCAT output):
+#   |NL|  →  actual newline    (Tera replaces via literal-newline in to="...")
+#   |Q|   →  "                 (Rust string delimiter)
+#
+# Rule data must NOT contain backslash or doublequote characters.
+# Use regex character classes [\\x22] for doublequote and [\\x5c] for backslash
+# in lsp.ttl pattern fields if those characters are needed.
+
+SELECT ?server_name ?pack_id ?pack_id_safe ?pack_version
+    (GROUP_CONCAT(
+        CONCAT(
+            "            Rule {|NL|",
+            "                id:            |Q|", ?rule_id,   "|Q|.to_string(),|NL|",
+            "                name:          |Q|", ?rule_name, "|Q|.to_string(),|NL|",
+            "                severity:      |Q|", ?severity,  "|Q|.to_string(),|NL|",
+            "                pattern:       |Q|", ?pattern,   "|Q|.to_string(),|NL|",
+            "                message:       |Q|", ?message,   "|Q|.to_string(),|NL|",
+            "                rationale:     |Q|", ?rationale, "|Q|.to_string(),|NL|",
+            "                eval_budget:   EvalBudget::",
+            IF(BOUND(?eval_budget) && ?eval_budget = "background", "Background", "Sync"),
+            ",|NL|",
+            "                path_globs:    vec![],|NL|",
+            "                exclude_globs: vec![],|NL|",
+            "            },"
+        );
+        SEPARATOR="|NL|"
+    ) AS ?rules_code)
+WHERE {
+    ?server a lsp:Server ;
+            lsp:serverName ?server_name ;
+            lsp:hasRulePack ?pack .
+
+    ?pack lsp:packId ?pack_id ;
+          lsp:packVersion ?pack_version ;
+          lsp:hasRule ?rule .
+
+    BIND(REPLACE(REPLACE(STR(?pack_id), "@.*", ""), "-", "_") AS ?pack_id_safe)
+
+    ?rule lsp:ruleId     ?rule_id ;
+          lsp:ruleName   ?rule_name ;
+          lsp:severity   ?severity ;
+          lsp:pattern    ?pattern ;
+          lsp:message    ?message ;
+          lsp:rationale  ?rationale .
+
+    OPTIONAL { ?rule lsp:evalBudget ?eval_budget . }
+}
+GROUP BY ?server_name ?pack_id ?pack_id_safe ?pack_version
+ORDER BY ?server_name ?pack_id

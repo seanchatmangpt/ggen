@@ -1,0 +1,8 @@
+
+    @prefix api: <http://example.org/api#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    
+    api:API a rdfs:Class .
+    api:RESTService rdfs:subClassOf api:API .
+    api:GraphQLService rdfs:subClassOf api:API .
+  

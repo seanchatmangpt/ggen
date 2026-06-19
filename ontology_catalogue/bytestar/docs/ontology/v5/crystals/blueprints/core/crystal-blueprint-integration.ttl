@@ -1,0 +1,437 @@
+@prefix cbi: <https://bytestar.org/ontology/v5/crystals/blueprints/crystal-blueprint-integration#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix pcl: <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice#> .
+@prefix mbp: <https://bytestar.org/ontology/v5/crystals/blueprints/mission-blueprint#> .
+@prefix pb: <https://bytestar.org/ontology/v5/crystals/blueprints/fabricated-execution-plan#> .
+@prefix wpr: <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://bytestar.org/ontology/v5/crystals/blueprints/crystal-blueprint-integration>
+  a owl:Ontology ;
+  rdfs:label "Crystal Blueprint Integration with HAM Compliance and Doctrine of 8" ;
+  rdfs:comment "Integration ontology ensuring HAM compliance for Hops 1,3,5 and Doctrine of 8 performance budgeting across all crystal blueprint components." ;
+  owl:imports 
+    <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/mission-blueprint> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/fabricated-execution-plan> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry> ;
+  owl:versionInfo "5.0.0" ;
+  cbi:hamCompliant "true"^^xsd:boolean ;
+  cbi:doctrineOfEightEnforced "true"^^xsd:boolean ;
+  cbi:supportedHops "1,3,5"^^xsd:string .
+
+#################################################################
+# Task Crystal Generation with Performance Budgets
+#################################################################
+
+cbi:TaskCrystalGenerator a owl:Class ;
+  rdfs:label "Task Crystal Generator" ;
+  rdfs:comment "Component responsible for generating task crystals with embedded performance budgets and HAM compliance." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:generatesCrystal ;
+    owl:allValuesFrom pcl:TaskCrystal
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:enforcesDoctrine8 ;
+    owl:hasValue "true"^^xsd:boolean
+  ] .
+
+cbi:CrystalGenerationProcess a owl:Class ;
+  rdfs:label "Crystal Generation Process" ;
+  rdfs:comment "Process for generating task crystals from mission blueprint specifications." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:hasGenerationPhase ;
+    owl:cardinality "5"^^xsd:nonNegativeInteger
+  ] .
+
+cbi:GenerationPhase a owl:Class ;
+  rdfs:label "Generation Phase" ;
+  rdfs:comment "Phase in the crystal generation process." ;
+  owl:oneOf ( 
+    cbi:Analyze cbi:Pattern_Select cbi:Budget_Allocate 
+    cbi:HAM_Bind cbi:Crystal_Fabricate 
+  ) .
+
+cbi:Analyze a cbi:GenerationPhase ;
+  rdfs:label "Analyze Mission Blueprint" ;
+  cbi:phaseOrder "1"^^xsd:integer ;
+  cbi:maxTicksAllowed "2"^^xsd:integer .
+
+cbi:Pattern_Select a cbi:GenerationPhase ;
+  rdfs:label "Select Workflow Patterns" ;
+  cbi:phaseOrder "2"^^xsd:integer ;
+  cbi:maxTicksAllowed "1"^^xsd:integer .
+
+cbi:Budget_Allocate a cbi:GenerationPhase ;
+  rdfs:label "Allocate Performance Budget" ;
+  cbi:phaseOrder "3"^^xsd:integer ;
+  cbi:maxTicksAllowed "2"^^xsd:integer .
+
+cbi:HAM_Bind a cbi:GenerationPhase ;
+  rdfs:label "Bind HAM Hops" ;
+  cbi:phaseOrder "4"^^xsd:integer ;
+  cbi:maxTicksAllowed "1"^^xsd:integer .
+
+cbi:Crystal_Fabricate a cbi:GenerationPhase ;
+  rdfs:label "Fabricate Task Crystal" ;
+  cbi:phaseOrder "5"^^xsd:integer ;
+  cbi:maxTicksAllowed "2"^^xsd:integer .
+
+#################################################################
+# HAM Compliance Framework
+#################################################################
+
+cbi:HAMComplianceFramework a owl:Class ;
+  rdfs:label "HAM Compliance Framework" ;
+  rdfs:comment "Framework ensuring Hardware Abstraction Model compliance for Hops 1, 3, and 5." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:validatesHop ;
+    owl:allValuesFrom pcl:HAMHop
+  ] .
+
+cbi:HAMValidation a owl:Class ;
+  rdfs:label "HAM Validation" ;
+  rdfs:comment "Validation process ensuring crystal structures comply with HAM requirements." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:hasValidationResult ;
+    owl:allValuesFrom cbi:ValidationResult
+  ] .
+
+cbi:ValidationResult a owl:Class ;
+  rdfs:label "Validation Result" ;
+  rdfs:comment "Result of HAM compliance validation." ;
+  owl:oneOf ( cbi:Compliant cbi:NonCompliant cbi:RequiresOptimization ) .
+
+cbi:Compliant a cbi:ValidationResult ;
+  rdfs:label "Compliant" ;
+  cbi:resultDescription "Crystal structure meets HAM compliance requirements" .
+
+cbi:NonCompliant a cbi:ValidationResult ;
+  rdfs:label "Non-Compliant" ;
+  cbi:resultDescription "Crystal structure violates HAM compliance requirements" .
+
+cbi:RequiresOptimization a cbi:ValidationResult ;
+  rdfs:label "Requires Optimization" ;
+  cbi:resultDescription "Crystal structure needs optimization to meet HAM compliance" .
+
+# HAM Hop Specific Validation Rules
+cbi:Hop1ValidationRule a owl:Class ;
+  rdfs:label "Hop 1 Validation Rule" ;
+  rdfs:comment "Validation rules specific to L1 cache (Hop 1) compliance." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:maxLatencyTicks ;
+    owl:hasValue "1"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:maxSizeBytes ;
+    owl:hasValue "32768"^^xsd:integer
+  ] .
+
+cbi:Hop3ValidationRule a owl:Class ;
+  rdfs:label "Hop 3 Validation Rule" ;
+  rdfs:comment "Validation rules specific to L3 cache (Hop 3) compliance." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:maxLatencyTicks ;
+    owl:hasValue "12"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:maxSizeBytes ;
+    owl:hasValue "8388608"^^xsd:integer
+  ] .
+
+cbi:Hop5ValidationRule a owl:Class ;
+  rdfs:label "Hop 5 Validation Rule" ;
+  rdfs:comment "Validation rules specific to main memory (Hop 5) compliance." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:maxLatencyTicks ;
+    owl:hasValue "300"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:maxSizeBytes ;
+    owl:hasValue "17179869184"^^xsd:integer
+  ] .
+
+#################################################################
+# Doctrine of 8 Performance Budgeting
+#################################################################
+
+cbi:DoctrineOfEightFramework a owl:Class ;
+  rdfs:label "Doctrine of 8 Framework" ;
+  rdfs:comment "Performance budgeting framework enforcing maximum 8-tick execution constraints across all operations." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:enforcesMaxTicks ;
+    owl:hasValue "8"^^xsd:integer
+  ] .
+
+cbi:PerformanceBudgetAllocation a owl:Class ;
+  rdfs:label "Performance Budget Allocation" ;
+  rdfs:comment "Allocation of performance budget ticks to crystal components." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:totalBudget ;
+    owl:maxInclusive "8"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:hasBudgetComponent ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+cbi:BudgetComponent a owl:Class ;
+  rdfs:label "Budget Component" ;
+  rdfs:comment "Individual component of performance budget allocation." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:allocatedTicks ;
+    owl:maxInclusive "8"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:hasComponentType ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+cbi:ComponentType a owl:Class ;
+  rdfs:label "Component Type" ;
+  rdfs:comment "Type of budget component." ;
+  owl:oneOf ( 
+    cbi:Computation cbi:MemoryAccess cbi:Coordination 
+    cbi:Validation cbi:StateTransition 
+  ) .
+
+cbi:Computation a cbi:ComponentType ;
+  rdfs:label "Computation" ;
+  cbi:typicalAllocation "4"^^xsd:integer ;
+  cbi:priority "high"^^xsd:string .
+
+cbi:MemoryAccess a cbi:ComponentType ;
+  rdfs:label "Memory Access" ;
+  cbi:typicalAllocation "2"^^xsd:integer ;
+  cbi:priority "medium"^^xsd:string .
+
+cbi:Coordination a cbi:ComponentType ;
+  rdfs:label "Coordination" ;
+  cbi:typicalAllocation "1"^^xsd:integer ;
+  cbi:priority "low"^^xsd:string .
+
+cbi:Validation a cbi:ComponentType ;
+  rdfs:label "Validation" ;
+  cbi:typicalAllocation "1"^^xsd:integer ;
+  cbi:priority "medium"^^xsd:string .
+
+cbi:StateTransition a cbi:ComponentType ;
+  rdfs:label "State Transition" ;
+  cbi:typicalAllocation "1"^^xsd:integer ;
+  cbi:priority "high"^^xsd:string .
+
+#################################################################
+# Crystal Blueprint Integration Patterns
+#################################################################
+
+cbi:IntegrationPattern a owl:Class ;
+  rdfs:label "Integration Pattern" ;
+  rdfs:comment "Pattern for integrating crystal blueprints with HAM compliance and performance budgeting." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:integrates ;
+    owl:minCardinality "2"^^xsd:nonNegativeInteger
+  ] .
+
+cbi:MBP_PCL_Integration a cbi:IntegrationPattern ;
+  rdfs:label "Mission Blueprint to Polycrystal Lattice Integration" ;
+  cbi:integrationDescription "Pattern for transforming mission blueprints into polycrystal lattices" ;
+  cbi:hamComplianceRequired "true"^^xsd:boolean .
+
+cbi:PCL_PB_Integration a cbi:IntegrationPattern ;
+  rdfs:label "Polycrystal Lattice to Execution Plan Integration" ;
+  cbi:integrationDescription "Pattern for compiling polycrystal lattices into execution plans" ;
+  cbi:doctrineOfEightRequired "true"^^xsd:boolean .
+
+cbi:WPR_Integration a cbi:IntegrationPattern ;
+  rdfs:label "Workflow Pattern Registry Integration" ;
+  cbi:integrationDescription "Pattern for integrating workflow patterns across all blueprint levels" ;
+  cbi:patternSelectionCriteria "performance,compliance,capability"^^xsd:string .
+
+#################################################################
+# Quality Assurance and Validation
+#################################################################
+
+cbi:QualityAssuranceFramework a owl:Class ;
+  rdfs:label "Quality Assurance Framework" ;
+  rdfs:comment "Framework ensuring quality and compliance of generated crystal blueprints." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:hasValidationGate ;
+    owl:minCardinality "3"^^xsd:nonNegativeInteger
+  ] .
+
+cbi:ValidationGate a owl:Class ;
+  rdfs:label "Validation Gate" ;
+  rdfs:comment "Quality gate that must be passed during crystal generation." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cbi:hasValidationCriteria ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+cbi:HAMComplianceGate a cbi:ValidationGate ;
+  rdfs:label "HAM Compliance Gate" ;
+  cbi:gateDescription "Validates HAM compliance for Hops 1,3,5" ;
+  cbi:mandatory "true"^^xsd:boolean .
+
+cbi:PerformanceBudgetGate a cbi:ValidationGate ;
+  rdfs:label "Performance Budget Gate" ;
+  cbi:gateDescription "Validates Doctrine of 8 performance budgeting" ;
+  cbi:mandatory "true"^^xsd:boolean .
+
+cbi:PatternConsistencyGate a cbi:ValidationGate ;
+  rdfs:label "Pattern Consistency Gate" ;
+  cbi:gateDescription "Validates workflow pattern consistency and capability mapping" ;
+  cbi:mandatory "true"^^xsd:boolean .
+
+#################################################################
+# Object Properties
+#################################################################
+
+cbi:generatesCrystal a owl:ObjectProperty ;
+  rdfs:label "generates crystal" ;
+  rdfs:domain cbi:TaskCrystalGenerator ;
+  rdfs:range pcl:TaskCrystal .
+
+cbi:hasGenerationPhase a owl:ObjectProperty ;
+  rdfs:label "has generation phase" ;
+  rdfs:domain cbi:CrystalGenerationProcess ;
+  rdfs:range cbi:GenerationPhase .
+
+cbi:validatesHop a owl:ObjectProperty ;
+  rdfs:label "validates hop" ;
+  rdfs:domain cbi:HAMComplianceFramework ;
+  rdfs:range pcl:HAMHop .
+
+cbi:hasValidationResult a owl:ObjectProperty ;
+  rdfs:label "has validation result" ;
+  rdfs:domain cbi:HAMValidation ;
+  rdfs:range cbi:ValidationResult .
+
+cbi:hasBudgetComponent a owl:ObjectProperty ;
+  rdfs:label "has budget component" ;
+  rdfs:domain cbi:PerformanceBudgetAllocation ;
+  rdfs:range cbi:BudgetComponent .
+
+cbi:hasComponentType a owl:ObjectProperty ;
+  rdfs:label "has component type" ;
+  rdfs:domain cbi:BudgetComponent ;
+  rdfs:range cbi:ComponentType .
+
+cbi:integrates a owl:ObjectProperty ;
+  rdfs:label "integrates" ;
+  rdfs:domain cbi:IntegrationPattern ;
+  rdfs:range owl:Thing .
+
+cbi:hasValidationGate a owl:ObjectProperty ;
+  rdfs:label "has validation gate" ;
+  rdfs:domain cbi:QualityAssuranceFramework ;
+  rdfs:range cbi:ValidationGate .
+
+cbi:hasValidationCriteria a owl:ObjectProperty ;
+  rdfs:label "has validation criteria" ;
+  rdfs:domain cbi:ValidationGate ;
+  rdfs:range owl:Thing .
+
+#################################################################
+# Data Properties
+#################################################################
+
+cbi:hamCompliant a owl:DatatypeProperty ;
+  rdfs:label "HAM compliant" ;
+  rdfs:range xsd:boolean .
+
+cbi:doctrineOfEightEnforced a owl:DatatypeProperty ;
+  rdfs:label "Doctrine of 8 enforced" ;
+  rdfs:range xsd:boolean .
+
+cbi:supportedHops a owl:DatatypeProperty ;
+  rdfs:label "supported hops" ;
+  rdfs:range xsd:string .
+
+cbi:enforcesDoctrine8 a owl:DatatypeProperty ;
+  rdfs:label "enforces Doctrine of 8" ;
+  rdfs:range xsd:boolean .
+
+cbi:phaseOrder a owl:DatatypeProperty ;
+  rdfs:label "phase order" ;
+  rdfs:range xsd:integer .
+
+cbi:maxTicksAllowed a owl:DatatypeProperty ;
+  rdfs:label "max ticks allowed" ;
+  rdfs:range xsd:integer .
+
+cbi:resultDescription a owl:DatatypeProperty ;
+  rdfs:label "result description" ;
+  rdfs:range xsd:string .
+
+cbi:maxLatencyTicks a owl:DatatypeProperty ;
+  rdfs:label "max latency ticks" ;
+  rdfs:range xsd:integer .
+
+cbi:maxSizeBytes a owl:DatatypeProperty ;
+  rdfs:label "max size bytes" ;
+  rdfs:range xsd:integer .
+
+cbi:enforcesMaxTicks a owl:DatatypeProperty ;
+  rdfs:label "enforces max ticks" ;
+  rdfs:range xsd:integer .
+
+cbi:totalBudget a owl:DatatypeProperty ;
+  rdfs:label "total budget" ;
+  rdfs:range xsd:integer .
+
+cbi:allocatedTicks a owl:DatatypeProperty ;
+  rdfs:label "allocated ticks" ;
+  rdfs:range xsd:integer .
+
+cbi:typicalAllocation a owl:DatatypeProperty ;
+  rdfs:label "typical allocation" ;
+  rdfs:range xsd:integer .
+
+cbi:priority a owl:DatatypeProperty ;
+  rdfs:label "priority" ;
+  rdfs:range xsd:string .
+
+cbi:integrationDescription a owl:DatatypeProperty ;
+  rdfs:label "integration description" ;
+  rdfs:range xsd:string .
+
+cbi:hamComplianceRequired a owl:DatatypeProperty ;
+  rdfs:label "HAM compliance required" ;
+  rdfs:range xsd:boolean .
+
+cbi:doctrineOfEightRequired a owl:DatatypeProperty ;
+  rdfs:label "Doctrine of 8 required" ;
+  rdfs:range xsd:boolean .
+
+cbi:patternSelectionCriteria a owl:DatatypeProperty ;
+  rdfs:label "pattern selection criteria" ;
+  rdfs:range xsd:string .
+
+cbi:gateDescription a owl:DatatypeProperty ;
+  rdfs:label "gate description" ;
+  rdfs:range xsd:string .
+
+cbi:mandatory a owl:DatatypeProperty ;
+  rdfs:label "mandatory" ;
+  rdfs:range xsd:boolean .

@@ -1,0 +1,325 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+
+# ============================================================================
+# Feature: ggen v6 - RDF-First Code Generation System
+# ============================================================================
+
+:ggen-v6-system a sk:Feature ;
+    sk:featureBranch "013-ggen-v6-rdf-system" ;
+    sk:featureName "ggen v6: RDF-First Code Generation System" ;
+    sk:created "2025-12-20"^^xsd:date ;
+    sk:status "Planning" ;
+    sk:userInput "ggen v6: RDF-First Code Generation System - Transforms Turtle specifications into code via deterministic transformation pipelines" ;
+    sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005 ;
+    sk:hasFunctionalRequirement :fr-001, :fr-002, :fr-003, :fr-004, :fr-005, :fr-006, :fr-007, :fr-008 ;
+    sk:hasSuccessCriterion :sc-001, :sc-002, :sc-003, :sc-004, :sc-005 ;
+    sk:hasEntity :entity-001, :entity-002, :entity-003, :entity-004, :entity-005, :entity-006 ;
+    sk:hasEdgeCase :edge-001, :edge-002, :edge-003, :edge-004 ;
+    sk:hasAssumption :assume-001, :assume-002, :assume-003, :assume-004 .
+
+# ============================================================================
+# User Stories (Prioritized - System Level)
+# ============================================================================
+
+# User Story 1 - Machine-Readable Specifications (P1 - Foundation)
+# 80/20 Analysis: CORE 20% - MVP Phase 1 (CAP-001, CAP-002)
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Developer writes specifications as RDF/Turtle ontologies" ;
+    sk:priority "P1" ;
+    sk:implementationPhase "MVP-Phase-1" ;
+    sk:eightyTwentyCategory "Core-20-Percent" ;
+    sk:estimatedEffort "4 days (2 for CAP-001 TTL parsing + 2 for CAP-002 SPARQL)" ;
+    sk:description "As a software developer, I want to write my feature specifications as RDF/Turtle ontologies instead of prose documents, so that my specs are machine-readable, queryable, and can directly drive code generation without manual interpretation." ;
+    sk:priorityRationale "Foundation of RDF-first methodology. Without machine-readable specs, there's no input for automated code generation. This eliminates the interpretation gap between specification and implementation that causes drift." ;
+    sk:independentTest "Create a user story specification in TTL format with required properties (title, description, acceptance criteria). Parse it with RDF library, execute SPARQL query to extract data, and verify all fields are accessible programmatically without natural language processing." ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "a feature specification written in Turtle/RDF format with user stories, requirements, and entities" ;
+    sk:when "developer loads the TTL file into RDF graph" ;
+    sk:then "all specification data is accessible via SPARQL queries without ambiguity or interpretation" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "a spec with priority constraints defined in SHACL shapes (priority MUST be 'P1', 'P2', or 'P3')" ;
+    sk:when "developer validates spec against SHACL shapes" ;
+    sk:then "invalid priority values are rejected with clear error messages before code generation" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "a specification ontology with complex relationships (user story → requirements → entities)" ;
+    sk:when "developer queries the graph for 'all requirements related to user story US-001'" ;
+    sk:then "SPARQL query returns complete, accurate relationship traversal without manual parsing" .
+
+# User Story 2 - Deterministic Transformation Pipeline (P1 - Core Engine)
+# 80/20 Analysis: CORE 20% - MVP Phase 1 (CAP-003, CAP-004)
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "System transforms RDF specs into code via deterministic five-stage pipeline" ;
+    sk:priority "P1" ;
+    sk:implementationPhase "MVP-Phase-1" ;
+    sk:eightyTwentyCategory "Core-20-Percent" ;
+    sk:estimatedEffort "2 days (1 for CAP-003 Tera rendering + 1 for CAP-004 determinism)" ;
+    sk:description "As a software developer, I want the system to transform my RDF specifications into generated code through a deterministic, repeatable five-stage pipeline (μ₁→μ₂→μ₃→μ₄→μ₅), so that the same specification always produces identical output regardless of when or where generation occurs." ;
+    sk:priorityRationale "Core engine capability. Determinism is essential for version control, reproducibility, and trust. Non-deterministic generation would cause constant git diff noise and make code review impossible. This is the constitutional equation: code = μ(spec.ttl)" ;
+    sk:independentTest "Run transformation pipeline twice on identical TTL input and compare outputs byte-for-byte. Hash both outputs and verify hashes match exactly. Run on different machines/times and verify determinism across environments." ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002, :us-002-as-003 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "a TTL specification and Tera template" ;
+    sk:when "developer runs 'ggen sync' twice without changing inputs" ;
+    sk:then "both generated outputs are byte-for-byte identical (SHA256 hashes match)" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "the same TTL spec on two different machines with different OSes and timestamps" ;
+    sk:when "both run 'ggen sync' with identical ggen.toml configuration" ;
+    sk:then "generated code files are identical across all environments" .
+
+:us-002-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "a spec that has been modified and then reverted to original state" ;
+    sk:when "developer regenerates code after revert" ;
+    sk:then "generated code matches the original output exactly (verified via git diff shows zero changes)" .
+
+# User Story 3 - Template-Driven Code Generation (P1 - Customization)
+# 80/20 Analysis: CORE 20% - MVP Phase 1 (CAP-005)
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "Developer defines Tera templates that transform SPARQL results into code" ;
+    sk:priority "P1" ;
+    sk:implementationPhase "MVP-Phase-1" ;
+    sk:eightyTwentyCategory "Core-20-Percent" ;
+    sk:estimatedEffort "2 days (CAP-005 ggen sync command + CLI integration)" ;
+    sk:description "As a software developer, I want to define Tera templates that receive SPARQL query results and render them into code for any programming language or framework, so that I can customize code generation for my specific tech stack without modifying the core engine." ;
+    sk:priorityRationale "Critical for adoption - developers need to generate code in THEIR languages (Rust, Python, TypeScript, etc.), not just markdown. Templates decouple specification format from output format, enabling infinite customization." ;
+    sk:independentTest "Create SPARQL query extracting user stories from TTL spec. Create Tera template that renders results as Rust struct definitions. Run generation and verify Rust code compiles and contains expected struct fields from spec." ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "a Tera template that renders user stories as Python dataclasses and SPARQL query extracting story data" ;
+    sk:when "developer runs generation with this template and query" ;
+    sk:then "output is valid Python code with @dataclass decorators containing all story fields from RDF spec" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "a template with conditional logic (if priority == 'P1' then add @critical decorator)" ;
+    sk:when "generation runs on spec with mixed priorities" ;
+    sk:then "only P1 items receive @critical decorator, proving template logic executes correctly on SPARQL results" .
+
+# User Story 4 - Idempotent Transformations (P2 - Git Friendliness)
+# 80/20 Analysis: DEFERRED 80% - Phase 2 (DEF-003)
+:us-004 a sk:UserStory ;
+    sk:storyIndex 4 ;
+    sk:title "System ensures idempotent transformations (μ∘μ = μ)" ;
+    sk:priority "P2" ;
+    sk:implementationPhase "Phase-2-Deferred" ;
+    sk:eightyTwentyCategory "Deferred-80-Percent" ;
+    sk:deferRationale "Determinism (CAP-004) ensures same output; idempotence is git noise reduction. Can regenerate all files initially, add optimization later when developers complain about git diffs." ;
+    sk:workaround "Always regenerate all files, ignore git noise initially" ;
+    sk:implementWhen "When developers complain about unnecessary git diffs in code review" ;
+    sk:description "As a software developer, I want transformations to be idempotent (running generation multiple times on unchanged input produces zero file changes), so that git status stays clean and code review focuses on actual specification changes, not regeneration noise." ;
+    sk:priorityRationale "Essential for workflow quality. Non-idempotent generation causes constant churn in version control, making git diff useless and code review painful. While determinism ensures same output, idempotence ensures NO OUTPUT when there's no change." ;
+    sk:independentTest "Generate code, commit to git, run 'ggen sync' again without changing spec, and verify 'git status' shows zero modified files. Repeat 100 times and verify git stays clean." ;
+    sk:hasAcceptanceScenario :us-004-as-001, :us-004-as-002 .
+
+:us-004-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "generated code already exists and matches current spec" ;
+    sk:when "developer runs 'ggen sync' again" ;
+    sk:then "no files are modified (git status shows 'nothing to commit, working tree clean')" .
+
+:us-004-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "spec modified then reverted to original content" ;
+    sk:when "developer regenerates code" ;
+    sk:then "generated files match git HEAD exactly (git diff outputs nothing)" .
+
+# User Story 5 - Cryptographic Provenance (P2 - Verification)
+# 80/20 Analysis: DEFERRED 80% - Phase 2 (DEF-002)
+:us-005 a sk:UserStory ;
+    sk:storyIndex 5 ;
+    sk:title "System provides cryptographic receipts proving generated code derives from spec" ;
+    sk:priority "P2" ;
+    sk:implementationPhase "Phase-2-Deferred" ;
+    sk:eightyTwentyCategory "Deferred-80-Percent" ;
+    sk:deferRationale "Provenance is valuable but not required to generate code. Can use git commit hashes for basic traceability initially." ;
+    sk:workaround "Use git commit hashes for provenance tracking, git log shows spec → code relationship" ;
+    sk:implementWhen "When compliance/audit requirements demand cryptographic proof of transformation" ;
+    sk:description "As a software developer, I want the system to generate cryptographic receipts (SHA256 hashes) that prove the relationship between my RDF specification and generated code, so that I can verify code authenticity and trace it back to exact spec version that produced it." ;
+    sk:priorityRationale "Trust and auditability. In regulated industries or security-critical systems, being able to cryptographically prove 'this code came from this spec via this transformation' is essential for compliance and security audits." ;
+    sk:independentTest "Generate code, examine receipt file containing SHA256 hashes of inputs and outputs. Modify spec slightly, regenerate, verify receipt changes. Revert spec, verify receipt matches original." ;
+    sk:hasAcceptanceScenario :us-005-as-001, :us-005-as-002 .
+
+:us-005-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "code generated from spec with receipt created" ;
+    sk:when "developer reviews .ggen/receipts/ directory" ;
+    sk:then "receipt contains SHA256 hash of spec.ttl, template, and generated output with timestamp" .
+
+:us-005-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "generated code and receipt from unknown source" ;
+    sk:when "developer runs verification command with receipt" ;
+    sk:then "system confirms or rejects that code matches receipt hashes, proving provenance" .
+
+# ============================================================================
+# Functional Requirements (System Capabilities)
+# ============================================================================
+
+:fr-001 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-001" ;
+    sk:description "System SHALL parse Turtle/RDF specifications and load them into an RDF graph for querying" ;
+    sk:category "RDF Processing" .
+
+:fr-002 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-002" ;
+    sk:description "System SHALL validate RDF specifications against SHACL shape constraints before transformation" ;
+    sk:category "Validation" .
+
+:fr-003 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-003" ;
+    sk:description "System SHALL execute SPARQL queries against RDF graph to extract specification data in structured format" ;
+    sk:category "Query Execution" .
+
+:fr-004 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-004" ;
+    sk:description "System SHALL render Tera templates with SPARQL query results as context variables to produce generated code" ;
+    sk:category "Template Rendering" .
+
+:fr-005 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-005" ;
+    sk:description "System SHALL ensure deterministic output (same inputs → same output) via canonical serialization and deterministic ordering" ;
+    sk:category "Determinism" .
+
+:fr-006 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-006" ;
+    sk:description "System SHALL support configuration via ggen.toml defining sources, queries, templates, and outputs as [[generation]] arrays" ;
+    sk:category "Configuration" .
+
+:fr-007 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-007" ;
+    sk:description "System SHALL generate cryptographic receipts (SHA256 hashes) linking input specs to output code with transformation metadata" ;
+    sk:category "Provenance" .
+
+:fr-008 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-008" ;
+    sk:description "System SHALL provide 'ggen sync' command that reads ggen.toml and executes all configured generation pipelines in dependency order" ;
+    sk:category "CLI Interface" .
+
+# ============================================================================
+# Success Criteria (Measurable, Technology-Agnostic)
+# ============================================================================
+
+:sc-001 a sk:SuccessCriterion ;
+    sk:criterionId "SC-001" ;
+    sk:description "100% deterministic transformations (byte-for-byte identical outputs for identical inputs across all environments)" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "determinism-rate" ;
+    sk:target "100% (verified via SHA256 hash comparison)" .
+
+:sc-002 a sk:SuccessCriterion ;
+    sk:criterionId "SC-002" ;
+    sk:description "100% idempotent transformations (zero file changes when regenerating from unchanged spec)" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "idempotence-rate" ;
+    sk:target "100% (verified via git status after regeneration)" .
+
+:sc-003 a sk:SuccessCriterion ;
+    sk:criterionId "SC-003" ;
+    sk:description "Transformation pipeline completes in under 10 seconds for specifications containing 10,000 RDF triples" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "transformation-time" ;
+    sk:target "< 10 seconds for 10K triples" .
+
+:sc-004 a sk:SuccessCriterion ;
+    sk:criterionId "SC-004" ;
+    sk:description "Zero drift between specifications and generated code (all code is regenerable from spec with no manual changes)" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "drift-rate" ;
+    sk:target "0% (all code files marked as generated, no manual edits)" .
+
+:sc-005 a sk:SuccessCriterion ;
+    sk:criterionId "SC-005" ;
+    sk:description "Cryptographic receipts enable verification of code provenance for 100% of generated files" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "receipt-coverage" ;
+    sk:target "100% of generated files have verifiable receipts" .
+
+# ============================================================================
+# Key Entities (System Domain Model)
+# ============================================================================
+
+:entity-001 a sk:Entity ;
+    sk:entityName "Specification" ;
+    sk:definition "Turtle/RDF ontology file containing feature specifications, user stories, requirements, and domain entities" ;
+    sk:keyAttributes "file_path, rdf_triples (count), shacl_valid (boolean), sha256_hash" .
+
+:entity-002 a sk:Entity ;
+    sk:entityName "TransformationPipeline" ;
+    sk:definition "Five-stage pipeline that transforms RDF specs into code: μ₁(Normalization) → μ₂(Extraction/SPARQL) → μ₃(Emission/Tera) → μ₄(Canonicalization) → μ₅(Receipt)" ;
+    sk:keyAttributes "stage_count (5), input_hash, output_hash, duration_ms, deterministic (boolean)" .
+
+:entity-003 a sk:Entity ;
+    sk:entityName "SparqlQuery" ;
+    sk:definition "SPARQL query that extracts structured data from RDF specification graph" ;
+    sk:keyAttributes "query_text, result_variables (list), result_rows (list of bindings)" .
+
+:entity-004 a sk:Entity ;
+    sk:entityName "TeraTemplate" ;
+    sk:definition "Tera template that renders SPARQL query results into generated code or documentation" ;
+    sk:keyAttributes "template_path, context_variables (from SPARQL), output_format (rust, python, markdown, etc.)" .
+
+:entity-005 a sk:Entity ;
+    sk:entityName "GenerationConfig" ;
+    sk:definition "Configuration in ggen.toml defining source specs, queries, templates, and output paths for generation pipeline" ;
+    sk:keyAttributes "sources (TTL files), query, template, output, format" .
+
+:entity-006 a sk:Entity ;
+    sk:entityName "CryptographicReceipt" ;
+    sk:definition "SHA256 hash-based record proving generated code derives from specific spec version via specific transformation" ;
+    sk:keyAttributes "spec_hash, template_hash, output_hash, timestamp, transformation_version" .
+
+# ============================================================================
+# Edge Cases
+# ============================================================================
+
+:edge-001 a sk:EdgeCase ;
+    sk:scenario "RDF specification contains circular references or infinite graph traversals" ;
+    sk:expectedBehavior "SPARQL query engine detects cycles and either limits traversal depth or reports error rather than hanging indefinitely" .
+
+:edge-002 a sk:EdgeCase ;
+    sk:scenario "Tera template attempts to render extremely large result set (millions of rows) causing memory exhaustion" ;
+    sk:expectedBehavior "System uses streaming rendering or pagination to handle large result sets without crashing, or reports clear memory limit error" .
+
+:edge-003 a sk:EdgeCase ;
+    sk:scenario "Multiple [[generation]] entries in ggen.toml have conflicting output paths" ;
+    sk:expectedBehavior "System detects output path conflicts during validation phase and reports error with conflicting entries before generation starts" .
+
+:edge-004 a sk:EdgeCase ;
+    sk:scenario "Developer modifies generated code manually after generation" ;
+    sk:expectedBehavior "Next 'ggen sync' overwrites manual changes and warns about detected modifications (via hash mismatch), or refuses to regenerate until manual changes are resolved" .
+
+# ============================================================================
+# Assumptions
+# ============================================================================
+
+:assume-001 a sk:Assumption ;
+    sk:description "Specifications are written in valid Turtle/RDF syntax (not N3, JSON-LD, or other RDF serializations in MVP)" .
+
+:assume-002 a sk:Assumption ;
+    sk:description "SPARQL queries conform to SPARQL 1.1 specification without proprietary extensions" .
+
+:assume-003 a sk:Assumption ;
+    sk:description "Tera templates use standard Tera syntax without custom filters or functions (beyond built-in Tera features)" .
+
+:assume-004 a sk:Assumption ;
+    sk:description "Generation occurs offline/locally without network access required for template rendering or spec loading" .

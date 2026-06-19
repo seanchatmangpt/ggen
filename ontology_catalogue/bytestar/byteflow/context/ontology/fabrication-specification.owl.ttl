@@ -1,0 +1,37 @@
+@prefix : <https://bytestar.org/ontology/byteflow/fabrication-specification#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteflow/fabrication-specification>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow AOT Fabrication Specification" ;
+  rdfs:comment "Defines the AOT compilation pipeline, transforming a MissionCrystal into a PolycrystalLattice. This is the 'how' of the ecosystem." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.0.0" .
+
+:FabricationProcess a owl:Class ;
+    rdfs:label "AOT Fabrication Process" ;
+    rdfs:comment "The sequence of steps ByteFlow's AOT compiler takes to create an executable plan from an authorized mission." .
+
+:hasInput a owl:ObjectProperty ;
+    rdfs:domain :FabricationProcess ;
+    rdfs:range bcore:MissionCrystal .
+
+:hasOutput a owl:ObjectProperty ;
+    rdfs:domain :FabricationProcess ;
+    rdfs:range bcore:PolycrystalLattice .
+
+:hasStep a owl:ObjectProperty ;
+    rdfs:domain :FabricationProcess ;
+    rdfs:range :FabricationStep .
+
+:FabricationStep a owl:Class .
+:DeconstructMission a :FabricationStep ; rdfs:label "1. Deconstruct Mission" .
+:SelectPattern a :FabricationStep ; rdfs:label "2. Select Workflow Pattern" .
+:GenerateIngressEnvelopes a :FabricationStep ; rdfs:label "3. Generate Ingress Envelopes" .
+:GenerateAOTTables a :FabricationStep ; rdfs:label "4. Generate AOT Tables" .
+:SignLattice a :FabricationStep ; rdfs:label "5. Sign Polycrystal Lattice" .
+
+:FabricationProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasInput ; owl:allValuesFrom bcore:MissionCrystal ] .
+:FabricationProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :hasOutput ; owl:allValuesFrom bcore:PolycrystalLattice ] .

@@ -1,0 +1,652 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix tcps: <http://erlmcp.org/ontology/tcps#> .
+@prefix tcps-core: <http://erlmcp.org/ontology/tcps/core#> .
+
+<http://erlmcp.org/ontology/tcps/core>
+    a owl:Ontology ;
+    dcterms:title "Toyota Code Production System - Core Ontology"@en ;
+    dcterms:description """
+        Core ontology for the Toyota Code Production System (TCPS).
+        Defines fundamental concepts for manufacturing software as products:
+        SKUs (marketplace offerings), WorkOrders (pull-based demand),
+        ProductionStages (compile, test, release, publish), Receipts (evidence),
+        and Andon events (quality alerts).
+    """@en ;
+    dcterms:created "2026-01-26"^^xsd:date ;
+    dcterms:creator "TCPS Development Team"@en ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:seeAlso <http://erlmcp.org/ontology/tcps/quality> ,
+                 <http://erlmcp.org/ontology/tcps/flow> .
+
+###############################################################################
+# SKU - Stock Keeping Unit (Marketplace Offerings as Products)
+###############################################################################
+
+tcps-core:SKU
+    a owl:Class ;
+    rdfs:label "Stock Keeping Unit"@en ;
+    rdfs:comment """
+        A Stock Keeping Unit (SKU) represents a distinct marketplace offering
+        or product in the TCPS system. Each SKU is a deployable, versioned
+        software artifact (e.g., MCP server, library, CLI tool) that can be
+        ordered, produced, and delivered to customers.
+
+        SKUs have inventory levels, production specifications, and quality
+        requirements. They are the fundamental units of production in TCPS.
+    """@en ;
+    skos:example """
+        erlmcp:mcp-server:v1.0.0 - Erlang MCP Server package
+        erlmcp:cli:v2.1.3 - Command-line interface tool
+        erlmcp:lib-core:v0.5.0 - Core library component
+    """@en .
+
+tcps-core:skuIdentifier
+    a owl:DatatypeProperty ;
+    rdfs:label "SKU identifier"@en ;
+    rdfs:comment "Unique identifier for the SKU (e.g., product code, package name)"@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:string .
+
+tcps-core:skuVersion
+    a owl:DatatypeProperty ;
+    rdfs:label "SKU version"@en ;
+    rdfs:comment "Semantic version of the SKU following semver specification"@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:string .
+
+tcps-core:skuDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "SKU description"@en ;
+    rdfs:comment "Human-readable description of the SKU's functionality and purpose"@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:string .
+
+tcps-core:inventoryLevel
+    a owl:DatatypeProperty ;
+    rdfs:label "inventory level"@en ;
+    rdfs:comment """
+        Current inventory count of ready-to-ship SKU instances.
+        In TCPS, this represents built, tested, and verified artifacts
+        available for immediate deployment.
+    """@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-core:reorderPoint
+    a owl:DatatypeProperty ;
+    rdfs:label "reorder point"@en ;
+    rdfs:comment """
+        Minimum inventory level that triggers a production WorkOrder.
+        When inventory falls below this threshold, the pull system
+        automatically signals for replenishment.
+    """@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-core:targetInventory
+    a owl:DatatypeProperty ;
+    rdfs:label "target inventory"@en ;
+    rdfs:comment """
+        Optimal inventory level for just-in-time production.
+        Represents the balance between availability and waste reduction.
+    """@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-core:leadTime
+    a owl:DatatypeProperty ;
+    rdfs:label "lead time"@en ;
+    rdfs:comment """
+        Expected duration (in minutes) from WorkOrder creation to
+        completed, verified SKU instance ready for delivery.
+        Used for capacity planning and customer commitments.
+    """@en ;
+    rdfs:domain tcps-core:SKU ;
+    rdfs:range xsd:decimal .
+
+###############################################################################
+# WorkOrder - Pull-Based Demand Signal
+###############################################################################
+
+tcps-core:WorkOrder
+    a owl:Class ;
+    rdfs:label "Work Order"@en ;
+    rdfs:comment """
+        A WorkOrder represents a pull-based demand signal in the TCPS system.
+        Unlike push-based production, WorkOrders are created only when:
+        1. Customer demand exists (marketplace order)
+        2. Inventory falls below reorder point (pull replenishment)
+        3. Scheduled delivery is approaching (takt time alignment)
+
+        Each WorkOrder specifies the SKU, quantity, priority, and required
+        completion time. WorkOrders flow through ProductionStages and
+        generate Receipts as evidence of completion.
+    """@en ;
+    skos:example """
+        WO-2026-001: Produce 5 units of erlmcp:mcp-server:v1.0.0
+        Priority: HIGH, Due: 2026-01-27T10:00:00Z
+        Customer: marketplace-customer-123
+    """@en .
+
+tcps-core:workOrderId
+    a owl:DatatypeProperty ;
+    rdfs:label "work order ID"@en ;
+    rdfs:comment "Unique identifier for the WorkOrder"@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:string .
+
+tcps-core:produceSKU
+    a owl:ObjectProperty ;
+    rdfs:label "produces SKU"@en ;
+    rdfs:comment "The SKU that this WorkOrder will produce"@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range tcps-core:SKU .
+
+tcps-core:quantity
+    a owl:DatatypeProperty ;
+    rdfs:label "quantity"@en ;
+    rdfs:comment "Number of SKU instances to produce in this WorkOrder"@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:positiveInteger .
+
+tcps-core:priority
+    a owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:comment """
+        WorkOrder priority level: HIGH, MEDIUM, LOW.
+        Used for sequencing when multiple WorkOrders compete for capacity.
+    """@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:string .
+
+tcps-core:createdAt
+    a owl:DatatypeProperty ;
+    rdfs:label "created at"@en ;
+    rdfs:comment "Timestamp when the WorkOrder was created"@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+tcps-core:dueBy
+    a owl:DatatypeProperty ;
+    rdfs:label "due by"@en ;
+    rdfs:comment """
+        Required completion timestamp for this WorkOrder.
+        Used for takt time calculations and capacity planning.
+    """@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+tcps-core:status
+    a owl:DatatypeProperty ;
+    rdfs:label "status"@en ;
+    rdfs:comment """
+        Current status of the WorkOrder:
+        - PENDING: Waiting to start
+        - IN_PROGRESS: Actively being worked
+        - BLOCKED: Waiting for dependency or issue resolution
+        - COMPLETED: All stages finished, receipts generated
+        - CANCELLED: WorkOrder was cancelled before completion
+    """@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:string .
+
+tcps-core:customerId
+    a owl:DatatypeProperty ;
+    rdfs:label "customer ID"@en ;
+    rdfs:comment "Identifier of the customer or system that requested this WorkOrder"@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range xsd:string .
+
+tcps-core:currentStage
+    a owl:ObjectProperty ;
+    rdfs:label "current stage"@en ;
+    rdfs:comment "The ProductionStage where this WorkOrder is currently being processed"@en ;
+    rdfs:domain tcps-core:WorkOrder ;
+    rdfs:range tcps-core:ProductionStage .
+
+###############################################################################
+# ProductionStage - Manufacturing Pipeline Steps
+###############################################################################
+
+tcps-core:ProductionStage
+    a owl:Class ;
+    rdfs:label "Production Stage"@en ;
+    rdfs:comment """
+        A ProductionStage represents a distinct step in the software
+        manufacturing pipeline. TCPS defines four core stages:
+
+        1. COMPILE: Build artifacts from source code
+        2. TEST: Execute automated test suites and quality checks
+        3. RELEASE: Create versioned, signed release artifacts
+        4. PUBLISH: Deploy to marketplace or distribution channels
+
+        Each stage has capacity limits (WIP), quality gates, and generates
+        Receipts as evidence of successful completion. Stages operate as
+        pull systems - work is pulled from upstream only when downstream
+        has capacity.
+    """@en .
+
+tcps-core:stageName
+    a owl:DatatypeProperty ;
+    rdfs:label "stage name"@en ;
+    rdfs:comment "Name of the production stage (COMPILE, TEST, RELEASE, PUBLISH)"@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range xsd:string .
+
+tcps-core:stageDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "stage description"@en ;
+    rdfs:comment "Detailed description of what happens in this stage"@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range xsd:string .
+
+tcps-core:wipLimit
+    a owl:DatatypeProperty ;
+    rdfs:label "WIP limit"@en ;
+    rdfs:comment """
+        Work-In-Progress limit for this stage. Maximum number of WorkOrders
+        that can be actively processed simultaneously. Enforces flow and
+        prevents overload.
+    """@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-core:currentWIP
+    a owl:DatatypeProperty ;
+    rdfs:label "current WIP"@en ;
+    rdfs:comment "Current number of WorkOrders being processed in this stage"@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range xsd:nonNegativeInteger .
+
+tcps-core:averageCycleTime
+    a owl:DatatypeProperty ;
+    rdfs:label "average cycle time"@en ;
+    rdfs:comment """
+        Average duration (in minutes) for a WorkOrder to complete this stage.
+        Used for capacity planning and flow optimization.
+    """@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range xsd:decimal .
+
+tcps-core:nextStage
+    a owl:ObjectProperty ;
+    rdfs:label "next stage"@en ;
+    rdfs:comment "The downstream ProductionStage that follows this one"@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-core:previousStage
+    a owl:ObjectProperty ;
+    rdfs:label "previous stage"@en ;
+    rdfs:comment "The upstream ProductionStage that precedes this one"@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-core:requiresQualityGate
+    a owl:ObjectProperty ;
+    rdfs:label "requires quality gate"@en ;
+    rdfs:comment "References quality gate criteria that must pass before exiting this stage"@en ;
+    rdfs:domain tcps-core:ProductionStage ;
+    rdfs:range owl:Thing .
+
+###############################################################################
+# Specific Production Stages (Individuals)
+###############################################################################
+
+tcps-core:CompileStage
+    a tcps-core:ProductionStage ;
+    tcps-core:stageName "COMPILE"^^xsd:string ;
+    tcps-core:stageDescription """
+        Compile stage transforms source code into executable artifacts.
+        Activities include:
+        - Source code compilation (erlc, rebar3)
+        - Dependency resolution and vendoring
+        - Static analysis and type checking
+        - Build artifact generation
+
+        Quality gates: Zero compilation errors, dependency conflicts resolved.
+    """@en ;
+    rdfs:label "Compile Stage"@en .
+
+tcps-core:TestStage
+    a tcps-core:ProductionStage ;
+    tcps-core:stageName "TEST"^^xsd:string ;
+    tcps-core:stageDescription """
+        Test stage executes comprehensive quality validation.
+        Activities include:
+        - Unit tests (EUnit, Common Test)
+        - Integration tests
+        - Property-based tests (PropEr)
+        - Security scanning
+        - Code coverage analysis (minimum 80%)
+
+        Quality gates: All tests pass, coverage thresholds met, no security issues.
+    """@en ;
+    rdfs:label "Test Stage"@en ;
+    tcps-core:previousStage tcps-core:CompileStage .
+
+tcps-core:ReleaseStage
+    a tcps-core:ProductionStage ;
+    tcps-core:stageName "RELEASE"^^xsd:string ;
+    tcps-core:stageDescription """
+        Release stage creates versioned, signed artifacts ready for distribution.
+        Activities include:
+        - Version tagging (semantic versioning)
+        - Artifact signing (cryptographic signatures)
+        - Release notes generation
+        - Documentation packaging
+        - SBOM (Software Bill of Materials) generation
+
+        Quality gates: Valid semantic version, signed artifacts, complete documentation.
+    """@en ;
+    rdfs:label "Release Stage"@en ;
+    tcps-core:previousStage tcps-core:TestStage .
+
+tcps-core:PublishStage
+    a tcps-core:ProductionStage ;
+    tcps-core:stageName "PUBLISH"^^xsd:string ;
+    tcps-core:stageDescription """
+        Publish stage deploys artifacts to distribution channels.
+        Activities include:
+        - Upload to package registry (Hex.pm, npm, etc.)
+        - Container image publishing (Docker Hub, GHCR)
+        - Marketplace listing updates
+        - CDN distribution
+        - Customer notification
+
+        Quality gates: Successful upload, registry validation, availability check.
+    """@en ;
+    rdfs:label "Publish Stage"@en ;
+    tcps-core:previousStage tcps-core:ReleaseStage .
+
+# Link stages together
+tcps-core:CompileStage tcps-core:nextStage tcps-core:TestStage .
+tcps-core:TestStage tcps-core:nextStage tcps-core:ReleaseStage .
+tcps-core:ReleaseStage tcps-core:nextStage tcps-core:PublishStage .
+
+###############################################################################
+# Receipt - Evidence and Proof of Completion
+###############################################################################
+
+tcps-core:Receipt
+    a owl:Class ;
+    rdfs:label "Receipt"@en ;
+    rdfs:comment """
+        A Receipt is immutable evidence that a WorkOrder successfully completed
+        a ProductionStage. Receipts provide traceability, auditability, and
+        proof of quality compliance.
+
+        Each Receipt contains:
+        - WorkOrder reference
+        - ProductionStage reference
+        - Timestamp of completion
+        - Evidence artifacts (test reports, build logs, signatures)
+        - Quality metrics (coverage, pass rates, timing)
+        - Operator/system that performed the work
+
+        Receipts are cryptographically signed and stored in immutable logs
+        for compliance and audit trails.
+    """@en ;
+    skos:example """
+        Receipt-WO001-COMPILE:
+          WorkOrder: WO-2026-001
+          Stage: COMPILE
+          Completed: 2026-01-26T14:32:15Z
+          Evidence: build.log, artifact-sha256
+          Status: PASSED
+    """@en .
+
+tcps-core:receiptId
+    a owl:DatatypeProperty ;
+    rdfs:label "receipt ID"@en ;
+    rdfs:comment "Unique identifier for this Receipt"@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:string .
+
+tcps-core:forWorkOrder
+    a owl:ObjectProperty ;
+    rdfs:label "for work order"@en ;
+    rdfs:comment "Reference to the WorkOrder that this Receipt documents"@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range tcps-core:WorkOrder .
+
+tcps-core:atStage
+    a owl:ObjectProperty ;
+    rdfs:label "at stage"@en ;
+    rdfs:comment "The ProductionStage where this work was completed"@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-core:completedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "completed at"@en ;
+    rdfs:comment "Timestamp when the stage was successfully completed"@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:dateTime .
+
+tcps-core:evidenceArtifact
+    a owl:DatatypeProperty ;
+    rdfs:label "evidence artifact"@en ;
+    rdfs:comment """
+        URI or reference to evidence artifact (logs, reports, signatures).
+        Multiple artifacts can be attached to a single Receipt.
+    """@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:anyURI .
+
+tcps-core:qualityStatus
+    a owl:DatatypeProperty ;
+    rdfs:label "quality status"@en ;
+    rdfs:comment """
+        Quality outcome: PASSED, FAILED, WARNING.
+        Only PASSED receipts allow WorkOrder to proceed to next stage.
+    """@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:string .
+
+tcps-core:operatorId
+    a owl:DatatypeProperty ;
+    rdfs:label "operator ID"@en ;
+    rdfs:comment """
+        Identifier of the human operator or automated system that performed
+        the work. Used for accountability and skill tracking.
+    """@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:string .
+
+tcps-core:metrics
+    a owl:DatatypeProperty ;
+    rdfs:label "metrics"@en ;
+    rdfs:comment """
+        JSON or structured data containing stage-specific metrics:
+        - Test coverage percentage
+        - Number of tests passed/failed
+        - Build duration
+        - Artifact size
+        - Quality score
+    """@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:string .
+
+tcps-core:signature
+    a owl:DatatypeProperty ;
+    rdfs:label "cryptographic signature"@en ;
+    rdfs:comment """
+        Cryptographic signature of the Receipt for immutability and
+        non-repudiation. Ensures receipt cannot be tampered with.
+    """@en ;
+    rdfs:domain tcps-core:Receipt ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# Andon - Quality Alert and Stop-the-Line Events
+###############################################################################
+
+tcps-core:AndonEvent
+    a owl:Class ;
+    rdfs:label "Andon Event"@en ;
+    rdfs:comment """
+        An AndonEvent represents a quality alert or stop-the-line signal in TCPS.
+        Inspired by Toyota's Andon cord, these events immediately halt production
+        when quality issues are detected, preventing defects from propagating.
+
+        Andon events can be triggered by:
+        - Test failures (automated detection)
+        - Security vulnerabilities (scanner alerts)
+        - Performance degradation (benchmark failures)
+        - Manual operator pull (human judgment)
+        - Policy violations (compliance checks)
+
+        When an Andon event is raised:
+        1. Production of affected WorkOrders stops immediately
+        2. Team is notified (escalation protocols)
+        3. Root cause analysis begins
+        4. Countermeasures are implemented
+        5. Production resumes only after issue is resolved
+
+        Andon events are logged and analyzed for continuous improvement.
+    """@en ;
+    skos:example """
+        Andon-2026-015:
+          Severity: CRITICAL
+          Stage: TEST
+          WorkOrder: WO-2026-001
+          Reason: Test coverage dropped below 80% threshold
+          Action: PRODUCTION_STOPPED
+          Timestamp: 2026-01-26T15:45:00Z
+    """@en .
+
+tcps-core:andonId
+    a owl:DatatypeProperty ;
+    rdfs:label "andon ID"@en ;
+    rdfs:comment "Unique identifier for this Andon event"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:severity
+    a owl:DatatypeProperty ;
+    rdfs:label "severity"@en ;
+    rdfs:comment """
+        Severity level of the Andon event:
+        - CRITICAL: Production halt, immediate attention required
+        - HIGH: Quality issue, expedited resolution needed
+        - MEDIUM: Warning condition, monitor closely
+        - LOW: Informational, improvement opportunity
+    """@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:triggeredAt
+    a owl:DatatypeProperty ;
+    rdfs:label "triggered at"@en ;
+    rdfs:comment "Timestamp when the Andon event was triggered"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:dateTime .
+
+tcps-core:affectsWorkOrder
+    a owl:ObjectProperty ;
+    rdfs:label "affects work order"@en ;
+    rdfs:comment "The WorkOrder(s) impacted by this Andon event"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range tcps-core:WorkOrder .
+
+tcps-core:affectsStage
+    a owl:ObjectProperty ;
+    rdfs:label "affects stage"@en ;
+    rdfs:comment "The ProductionStage where the issue was detected"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range tcps-core:ProductionStage .
+
+tcps-core:reason
+    a owl:DatatypeProperty ;
+    rdfs:label "reason"@en ;
+    rdfs:comment "Detailed description of why the Andon event was triggered"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:detectedBy
+    a owl:DatatypeProperty ;
+    rdfs:label "detected by"@en ;
+    rdfs:comment """
+        Identifier of the system or operator that detected the issue:
+        - AUTOMATED: Quality gate, scanner, monitor
+        - HUMAN: Manual operator intervention
+    """@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:actionTaken
+    a owl:DatatypeProperty ;
+    rdfs:label "action taken"@en ;
+    rdfs:comment """
+        Immediate action taken in response to Andon:
+        - PRODUCTION_STOPPED: All affected WorkOrders halted
+        - QUARANTINE: Affected artifacts isolated
+        - NOTIFY_TEAM: Escalation to responsible team
+        - ROLLBACK: Revert to last known good state
+    """@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:resolvedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "resolved at"@en ;
+    rdfs:comment "Timestamp when the Andon event was resolved (null if still active)"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:dateTime .
+
+tcps-core:rootCause
+    a owl:DatatypeProperty ;
+    rdfs:label "root cause"@en ;
+    rdfs:comment """
+        Root cause analysis result (Five Whys methodology).
+        Documented after issue resolution for learning.
+    """@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:countermeasure
+    a owl:DatatypeProperty ;
+    rdfs:label "countermeasure"@en ;
+    rdfs:comment """
+        Corrective action taken to prevent recurrence.
+        May include process changes, tooling updates, or training.
+    """@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:string .
+
+tcps-core:isResolved
+    a owl:DatatypeProperty ;
+    rdfs:label "is resolved"@en ;
+    rdfs:comment "Boolean flag indicating if the Andon event has been resolved"@en ;
+    rdfs:domain tcps-core:AndonEvent ;
+    rdfs:range xsd:boolean .
+
+###############################################################################
+# Andon Severity Levels (Individuals)
+###############################################################################
+
+tcps-core:CriticalSeverity
+    a owl:NamedIndividual ;
+    rdfs:label "Critical Severity"@en ;
+    rdfs:comment "Production halt required, immediate attention"@en .
+
+tcps-core:HighSeverity
+    a owl:NamedIndividual ;
+    rdfs:label "High Severity"@en ;
+    rdfs:comment "Quality issue requiring expedited resolution"@en .
+
+tcps-core:MediumSeverity
+    a owl:NamedIndividual ;
+    rdfs:label "Medium Severity"@en ;
+    rdfs:comment "Warning condition requiring close monitoring"@en .
+
+tcps-core:LowSeverity
+    a owl:NamedIndividual ;
+    rdfs:label "Low Severity"@en ;
+    rdfs:comment "Informational, improvement opportunity"@en .

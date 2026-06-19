@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Object Count MaxCount Validation Use Case
+# Email domain uniqueness constraints (maxCount validation)
+# Test Case 11: Object Count MaxCount (COUNT O,P <= k)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates that shared email domains appear at most N times
+
+ex:user1 ex:email "alice@acme.com" .
+ex:user2 ex:email "bob@acme.com" .
+ex:user3 ex:email "charlie@acme.com" .
+ex:user4 ex:email "dave@acme.com" .
+ex:user5 ex:email "eve@techcorp.com" .
+ex:user6 ex:email "frank@techcorp.com" .
+ex:user7 ex:email "grace@startup.io" .
+ex:user8 ex:email "henry@startup.io" .
+

@@ -1,0 +1,83 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/workflow/invalid-resources#> .
+
+# =============================================================================
+# INVALID WORKFLOW - VIOLATES Q5 (RESOURCE BOUNDS)
+# =============================================================================
+#
+# This workflow INTENTIONALLY violates Q5:
+# ❌ Parallel task without MaxConcurrency limit
+# ❌ Discriminator join without threshold
+#
+# Expected SHACL violations:
+# - Q5-VIOLATION: Parallel task must declare concurrency limit
+# - Q5-VIOLATION: Discriminator join must declare quorum threshold
+#
+# =============================================================================
+
+:InvalidResourcesWorkflow a yawl:WorkflowSpecification ;
+    yawl:id "invalid-resources-001" ;
+    yawl:versionNumber "1.0.0" ;
+    rdfs:label "Invalid: Missing Resource Bounds" ;
+    yawl:hasInputCondition :start ;
+    yawl:hasOutputCondition :end ;
+    yawl:hasTask :unboundedParallel, :discriminatorJoin ;
+    yawl:hasCondition :start, :end .
+
+:start a yawl:Condition ;
+    yawl:flowsInto :flow1 .
+
+:end a yawl:Condition .
+
+# ❌ VIOLATION: Parallel task without concurrency limit (Q5)
+:unboundedParallel a yawl:Task ;
+    rdfs:label "Unbounded Parallel Task" ;
+    yawl-exec:executionMode yawl-exec:Parallel ;
+    yawl-exec:runtimeBehavior <http://example.org/services/parallel> ;
+    yawl-exec:timeoutPolicy yawl-exec:TimeoutRetry ;
+    yawl:expectedDuration "PT0.05S"^^xsd:duration ;
+
+    # ❌ VIOLATION: No MaxConcurrency declared
+    # Should have: yawl-exec:MaxConcurrency 4 ;
+
+    yawl:hasSplitType yawl:AND ;
+    yawl:hasJoinType yawl:XOR ;
+    yawl:flowsInto :flowA, :flowB, :flowC .
+
+# ❌ VIOLATION: Discriminator join without threshold (Q5)
+:discriminatorJoin a yawl:Task ;
+    rdfs:label "Discriminator Without Threshold" ;
+    yawl-exec:executionMode yawl-exec:Synchronous ;
+    yawl-exec:runtimeBehavior <http://example.org/services/joiner> ;
+    yawl:expectedDuration "PT0.000000002S"^^xsd:duration ;
+
+    # Uses discriminator join
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:Discriminator ;
+
+    # ❌ VIOLATION: No quorum threshold declared
+    # Should have: yawl:discriminatorThreshold 2 ;
+
+    yawl:flowsInto :flow2 .
+
+:flow1 a yawl:Flow ; yawl:nextElementRef :unboundedParallel .
+:flowA a yawl:Flow ; yawl:nextElementRef :discriminatorJoin .
+:flowB a yawl:Flow ; yawl:nextElementRef :discriminatorJoin .
+:flowC a yawl:Flow ; yawl:nextElementRef :discriminatorJoin .
+:flow2 a yawl:Flow ; yawl:nextElementRef :end .
+
+# =============================================================================
+# EXPECTED VALIDATION RESULTS
+# =============================================================================
+#
+# ❌ Q5-VIOLATION: Parallel task missing MaxConcurrency
+# ❌ Q5-VIOLATION: Discriminator join missing quorum threshold
+#
+# Expected: FAILURE (exit code 1) with violations
+#
+# This demonstrates Q5: Resource Bounds enforcement.
+# All resource consumption must be explicitly bounded.
+#
+# =============================================================================

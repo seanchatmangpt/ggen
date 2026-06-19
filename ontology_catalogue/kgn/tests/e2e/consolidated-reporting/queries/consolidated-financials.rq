@@ -1,0 +1,74 @@
+PREFIX fin: <https://kgen.dev/ontologies/finance#>
+PREFIX org: <https://kgen.dev/ontologies/organization#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+  # Final Consolidated P&L Values
+  ?consolidatedRevenue
+  ?consolidatedCogs
+  (?consolidatedRevenue - ?consolidatedCogs) AS ?grossProfit
+  ?consolidatedOpex
+  (?grossProfit - ?consolidatedOpex) AS ?netIncome
+
+  # EBITDA Calculation (add back non-cash expenses)
+  (?netIncome + ?interest + ?tax + ?depreciation + ?amortization) AS ?ebitda
+
+  # Debt Covenant Check (EBITDA >= 200000)
+  (IF(?netIncome + ?interest + ?tax + ?depreciation + ?amortization >= 200000, true, false) AS ?covenantCheck)
+
+  # Elimination values for report narrative
+  ?intercoRevenueElimination
+  ?intercoCogsElimination
+WHERE {
+  # FX Rate: 1 EUR = 1.10 USD
+  BIND(1.10 AS ?fxRate)
+
+  # Stage 1: Calculate raw totals by account type and currency
+  {
+    SELECT
+      (SUM(?revenueUsd) + SUM(?revenueEur) * ?fxRate) AS ?grossRevenue
+      (ABS(SUM(?cogsUsd)) + ABS(SUM(?cogsEur)) * ?fxRate) AS ?totalCogs
+      (ABS(SUM(?opexUsd)) + ABS(SUM(?opexEur)) * ?fxRate) AS ?totalOpex
+      (ABS(SUM(?interestUsd))) AS ?interest
+      (ABS(SUM(?taxUsd))) AS ?tax
+      (ABS(SUM(?depreciationEur)) * ?fxRate) AS ?depreciation
+      (ABS(SUM(?amortizationEur)) * ?fxRate) AS ?amortization
+      (SUM(?intercoRevenueUsd)) AS ?intercoRevenueElimination
+      (ABS(SUM(?intercoCogsEur)) * ?fxRate) AS ?intercoCogsElimination
+    WHERE {
+      ?tx a fin:Transaction ;
+          fin:hasAmount ?amount ;
+          fin:hasCurrency ?currency ;
+          fin:isIntercompany ?isInterco ;
+          fin:hasAccount ?account .
+
+      # External Revenue buckets (positive amounts)
+      BIND(IF(?account = fin:SalesRevenue && ?isInterco = false && ?currency = "USD", ?amount, 0) AS ?revenueUsd)
+      BIND(IF(?account = fin:SalesRevenue && ?isInterco = false && ?currency = "EUR", ?amount, 0) AS ?revenueEur)
+
+      # External COGS buckets (negative amounts, will be made positive by ABS)
+      BIND(IF(?account = fin:CostOfGoodsSold && ?isInterco = false && ?currency = "USD", ?amount, 0) AS ?cogsUsd)
+      BIND(IF(?account = fin:CostOfGoodsSold && ?isInterco = false && ?currency = "EUR", ?amount, 0) AS ?cogsEur)
+
+      # Operating expenses (negative amounts, will be made positive by ABS)
+      BIND(IF(?account = fin:OperatingExpenses && ?currency = "USD", ?amount, 0) AS ?opexUsd)
+      BIND(IF(?account = fin:OperatingExpenses && ?currency = "EUR", ?amount, 0) AS ?opexEur)
+
+      # Other expenses (negative amounts, will be made positive by ABS)
+      BIND(IF(?account = fin:InterestExpense && ?currency = "USD", ?amount, 0) AS ?interestUsd)
+      BIND(IF(?account = fin:TaxExpense && ?currency = "USD", ?amount, 0) AS ?taxUsd)
+      BIND(IF(?account = fin:Depreciation && ?currency = "EUR", ?amount, 0) AS ?depreciationEur)
+      BIND(IF(?account = fin:Amortization && ?currency = "EUR", ?amount, 0) AS ?amortizationEur)
+
+      # Intercompany eliminations (positive amounts to eliminate)
+      BIND(IF(?account = fin:SalesRevenue && ?isInterco = true && ?currency = "USD", ?amount, 0) AS ?intercoRevenueUsd)
+      BIND(IF(?account = fin:IntercompanyCOGS && ?isInterco = true && ?currency = "EUR", ?amount, 0) AS ?intercoCogsEur)
+    }
+    GROUP BY ?fxRate
+  }
+
+  # Stage 2: Apply eliminations for final consolidated numbers
+  BIND(?grossRevenue - ?intercoRevenueElimination AS ?consolidatedRevenue)
+  BIND(?totalCogs - ?intercoCogsElimination AS ?consolidatedCogs)
+  BIND(?totalOpex AS ?consolidatedOpex)
+}

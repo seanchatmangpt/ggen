@@ -1,0 +1,410 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ui: <http://ui.example.org/> .
+@prefix design: <http://design-system.example.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# SHACL Shapes for Component Library Validation
+
+# Component Shape - Core validation for UI components
+ui:ComponentShape
+    a sh:NodeShape ;
+    sh:targetClass ui:Component ;
+    sh:property [
+        sh:path dct:title ;
+        sh:name "Component Title" ;
+        sh:description "Display name of the component" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+        sh:message "Component title is required and must be between 1-50 characters"
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:name "Component Description" ;
+        sh:description "Detailed description of the component" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 500 ;
+        sh:message "Component description is required and must be between 10-500 characters"
+    ] ;
+    sh:property [
+        sh:path ui:category ;
+        sh:name "Component Category" ;
+        sh:description "Category classification for the component" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Form Controls" "Layout" "Data Display" "Feedback" "Navigation" "Overlay" "Display" ) ;
+        sh:message "Component must belong to a valid category"
+    ] ;
+    sh:property [
+        sh:path ui:testCoverage ;
+        sh:name "Test Coverage" ;
+        sh:description "Test coverage percentage for the component" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d{1,3}%$" ;
+        sh:message "Test coverage must be a percentage (e.g., '85%')"
+    ] ;
+    sh:property [
+        sh:path ui:accessibility ;
+        sh:name "Accessibility Compliance" ;
+        sh:description "Accessibility compliance information" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "Accessibility compliance information should be provided"
+    ] .
+
+# Component Props Shape - Validation for component properties
+ui:ComponentPropShape
+    a sh:NodeShape ;
+    sh:targetNode ui:props ;
+    sh:property [
+        sh:path ui:propName ;
+        sh:name "Property Name" ;
+        sh:description "Name of the component property" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9]*$" ;
+        sh:message "Property name must start with a letter and contain only alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path ui:propType ;
+        sh:name "Property Type" ;
+        sh:description "Data type of the property" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "string" "number" "boolean" "function" "object" "array" ) ;
+        sh:message "Property type must be one of: string, number, boolean, function, object, array"
+    ] ;
+    sh:property [
+        sh:path ui:propRequired ;
+        sh:name "Property Required" ;
+        sh:description "Whether the property is required" ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Property required flag is mandatory"
+    ] ;
+    sh:property [
+        sh:path ui:propDescription ;
+        sh:name "Property Description" ;
+        sh:description "Description of what the property does" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 200 ;
+        sh:message "Property description is required and must be between 5-200 characters"
+    ] .
+
+# Design System Shape - Validation for the overall design system
+design:DesignSystemShape
+    a sh:NodeShape ;
+    sh:targetClass design:DesignSystem ;
+    sh:property [
+        sh:path dct:title ;
+        sh:name "Design System Title" ;
+        sh:description "Name of the design system" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Design system title is required"
+    ] ;
+    sh:property [
+        sh:path dct:version ;
+        sh:name "Version" ;
+        sh:description "Semantic version of the design system" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$" ;
+        sh:message "Version must follow semantic versioning format (e.g., 1.2.3 or 1.2.3-beta.1)"
+    ] ;
+    sh:property [
+        sh:path design:framework ;
+        sh:name "Framework" ;
+        sh:description "UI framework used by the design system" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "React" "Vue" "Angular" "Svelte" "Web Components" ) ;
+        sh:message "Framework must be one of the supported options"
+    ] ;
+    sh:property [
+        sh:path design:language ;
+        sh:name "Programming Language" ;
+        sh:description "Primary programming language" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "TypeScript" "JavaScript" "Dart" ) ;
+        sh:message "Programming language must be specified"
+    ] .
+
+# Design Token Shape - Validation for design tokens
+design:TokenSetShape
+    a sh:NodeShape ;
+    sh:targetClass design:TokenSet ;
+    sh:property [
+        sh:path design:category ;
+        sh:name "Token Category" ;
+        sh:description "Category of design tokens" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Colors" "Spacing" "Typography" "Shadows" "Borders" "Breakpoints" ) ;
+        sh:message "Token category must be one of the predefined categories"
+    ] ;
+    sh:property [
+        sh:path design:tokens ;
+        sh:name "Design Tokens" ;
+        sh:description "Collection of design tokens" ;
+        sh:minCount 1 ;
+        sh:message "Token set must contain at least one token"
+    ] .
+
+# Individual Design Token Shape
+design:TokenShape
+    a sh:NodeShape ;
+    sh:targetNode design:tokens ;
+    sh:property [
+        sh:path design:tokenName ;
+        sh:name "Token Name" ;
+        sh:description "Name identifier for the token" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9-]*$" ;
+        sh:message "Token name must start with a letter and can contain letters, numbers, and hyphens"
+    ] ;
+    sh:property [
+        sh:path design:tokenValue ;
+        sh:name "Token Value" ;
+        sh:description "Value of the design token" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Token value is required"
+    ] ;
+    sh:property [
+        sh:path design:tokenType ;
+        sh:name "Token Type" ;
+        sh:description "Type of the design token" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "color" "dimension" "fontFamily" "fontWeight" "duration" "cubicBezier" ) ;
+        sh:message "Token type must be one of the predefined types"
+    ] .
+
+# Component Category Shape - Validation for component categories
+ui:ComponentCategoryShape
+    a sh:NodeShape ;
+    sh:targetClass ui:ComponentCategory ;
+    sh:property [
+        sh:path dct:title ;
+        sh:name "Category Title" ;
+        sh:description "Display name of the category" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+        sh:message "Category title is required"
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:name "Category Description" ;
+        sh:description "Description of the component category" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 200 ;
+        sh:message "Category description is required and must be between 10-200 characters"
+    ] ;
+    sh:property [
+        sh:path ui:components ;
+        sh:name "Category Components" ;
+        sh:description "Components belonging to this category" ;
+        sh:class ui:Component ;
+        sh:minCount 1 ;
+        sh:message "Category must contain at least one component"
+    ] .
+
+# Complex Validation Rules with SPARQL
+
+# Ensure component variants are consistent
+ui:ComponentVariantConsistency
+    a sh:NodeShape ;
+    sh:targetClass ui:Component ;
+    sh:sparql [
+        sh:message "Component variants must be consistent with design system standards" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ui" ;
+                sh:namespace "http://ui.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ui:variants ?variants .
+                FILTER (
+                    !CONTAINS(?variants, "default") && 
+                    !CONTAINS(?variants, "primary") && 
+                    !CONTAINS(?variants, "secondary")
+                )
+            }
+        """
+    ] .
+
+# Validate component size consistency
+ui:ComponentSizeConsistency
+    a sh:NodeShape ;
+    sh:targetClass ui:Component ;
+    sh:sparql [
+        sh:message "Component sizes must follow design system scale" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ui" ;
+                sh:namespace "http://ui.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ui:sizes ?sizes .
+                FILTER (
+                    CONTAINS(?sizes, "tiny") ||
+                    CONTAINS(?sizes, "huge") ||
+                    CONTAINS(?sizes, "gigantic")
+                )
+            }
+        """
+    ] .
+
+# Ensure components have required accessibility information
+ui:AccessibilityRequirement
+    a sh:NodeShape ;
+    sh:targetClass ui:Component ;
+    sh:sparql [
+        sh:message "Interactive components must have accessibility compliance information" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ui" ;
+                sh:namespace "http://ui.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ui:category ?category .
+                FILTER (?category IN ("Form Controls", "Navigation"))
+                FILTER NOT EXISTS { $this ui:accessibility ?accessibility }
+            }
+        """
+    ] .
+
+# Validate test coverage requirements
+ui:TestCoverageRequirement
+    a sh:NodeShape ;
+    sh:targetClass ui:Component ;
+    sh:sparql [
+        sh:message "Components must have at least 80% test coverage" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ui" ;
+                sh:namespace "http://ui.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ui:testCoverage ?coverage .
+                BIND(xsd:integer(REPLACE(?coverage, "%", "")) AS ?coverageInt)
+                FILTER (?coverageInt < 80)
+            }
+        """
+    ] .
+
+# Ensure dependency consistency
+ui:DependencyConsistency
+    a sh:NodeShape ;
+    sh:targetClass ui:Component ;
+    sh:sparql [
+        sh:message "Component dependencies must reference valid components in the library" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "ui" ;
+                sh:namespace "http://ui.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ui:dependencies ?dependency .
+                FILTER (?dependency != "none")
+                FILTER NOT EXISTS { ?dependency a ui:Component }
+            }
+        """
+    ] .
+
+# Color Token Validation
+design:ColorTokenValidation
+    a sh:NodeShape ;
+    sh:targetNode design:tokens ;
+    sh:sparql [
+        sh:message "Color tokens must have valid hex, rgb, or named color values" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "design" ;
+                sh:namespace "http://design-system.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this design:tokenType "color" ;
+                      design:tokenValue ?value .
+                FILTER (
+                    !REGEX(?value, "^#[0-9A-Fa-f]{6}$") &&
+                    !REGEX(?value, "^rgb\\([0-9]{1,3},\\s*[0-9]{1,3},\\s*[0-9]{1,3}\\)$") &&
+                    !REGEX(?value, "^[a-zA-Z-]+$")
+                )
+            }
+        """
+    ] .
+
+# Dimension Token Validation
+design:DimensionTokenValidation
+    a sh:NodeShape ;
+    sh:targetNode design:tokens ;
+    sh:sparql [
+        sh:message "Dimension tokens must have valid CSS units" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "design" ;
+                sh:namespace "http://design-system.example.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this design:tokenType "dimension" ;
+                      design:tokenValue ?value .
+                FILTER (!REGEX(?value, "^[0-9]+(\\.[0-9]+)?(px|rem|em|vh|vw|%)$"))
+            }
+        """
+    ] .

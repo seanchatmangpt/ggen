@@ -1,0 +1,73 @@
+# Testing determinism - same content with different triple ordering
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+
+# Path Parameter (moved to top)
+ex:userId rdf:type ex:PathParameter ;
+    rdfs:label "User ID" ;
+    ex:hasType "string" .
+
+# Entity Definition
+ex:User rdf:type ex:Entity ;
+    rdfs:label "User" ;
+    rdfs:comment "User entity with validation properties" .
+
+# REST API Service
+ex:UserService rdf:type ex:RESTService ;
+    ex:hasBaseURL "http://localhost:3000" ;
+    ex:hasVersion "1.0.0" ;
+    rdfs:label "User Management API" ;
+    rdfs:comment "A REST service for managing user entities" .
+
+# Endpoints (reordered)
+ex:DeleteUser rdf:type ex:Endpoint ;
+    rdfs:label "Delete User" ;
+    ex:hasMethod "DELETE" ;
+    ex:hasPath "/users/{id}" ;
+    ex:hasPathParameter ex:userId ;
+    ex:hasStatusCode "204" .
+
+ex:UpdateUser rdf:type ex:Endpoint ;
+    rdfs:label "Update User" ;
+    ex:hasMethod "PUT" ;
+    ex:hasPath "/users/{id}" ;
+    ex:hasPathParameter ex:userId ;
+    ex:hasRequestBody "true" ;
+    ex:hasStatusCode "200" .
+
+ex:CreateUser rdf:type ex:Endpoint ;
+    rdfs:label "Create User" ;
+    ex:hasMethod "POST" ;
+    ex:hasPath "/users" ;
+    ex:hasRequestBody "true" ;
+    ex:hasStatusCode "201" .
+
+ex:GetUser rdf:type ex:Endpoint ;
+    rdfs:label "Get User" ;
+    ex:hasMethod "GET" ;
+    ex:hasPath "/users/{id}" ;
+    ex:hasPathParameter ex:userId ;
+    ex:hasStatusCode "200" .
+
+# Properties (reordered)
+ex:age rdf:type ex:Property ;
+    rdfs:label "Age" ;
+    ex:hasType "number" ;
+    ex:isRequired "false" ;
+    ex:hasMinValue "0" ;
+    ex:hasMaxValue "150" .
+
+ex:email rdf:type ex:Property ;
+    rdfs:label "Email Address" ;
+    ex:hasType "string" ;
+    ex:isRequired "true" ;
+    ex:hasPattern "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" .
+
+ex:name rdf:type ex:Property ;
+    rdfs:label "User Name" ;
+    ex:hasType "string" ;
+    ex:isRequired "true" ;
+    ex:hasMinLength "2" ;
+    ex:hasMaxLength "100" .

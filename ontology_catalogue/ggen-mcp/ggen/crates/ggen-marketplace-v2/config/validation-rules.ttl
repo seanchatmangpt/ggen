@@ -1,0 +1,381 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix : <http://ggen.dev/validation#> .
+
+# Package Validation Rules using SHACL
+
+# Rule 1: Package must have a name
+:PackageNameShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path dc:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:pattern "^[a-z0-9][a-z0-9-]*$" ;
+        sh:message "Package name must be lowercase alphanumeric with hyphens, 1-255 chars" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 2: Package must have a description
+:PackageDescriptionShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path dc:description ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:maxLength 5000 ;
+        sh:message "Package must have description between 10-5000 characters" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 3: Package must have at least one version
+:PackageVersionShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path ggen:hasVersion ;
+        sh:minCount 1 ;
+        sh:class ggen:PackageVersion ;
+        sh:message "Package must have at least one version" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 4: Package must have a license
+:PackageLicenseShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path dc:license ;
+        sh:minCount 1 ;
+        sh:message "Package must specify a license" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 5: Package must have at least one author
+:PackageAuthorShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path foaf:maker ;
+        sh:minCount 1 ;
+        sh:class ggen:Author ;
+        sh:message "Package must have at least one author" ;
+    ] ;
+    sh:severity sh:Warning .
+
+# Rule 6: Package must have a repository URL
+:PackageRepositoryShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path ggen:repository ;
+        sh:minCount 1 ;
+        sh:datatype xsd:anyURI ;
+        sh:pattern "^https?://" ;
+        sh:message "Package must have a valid repository URL" ;
+    ] ;
+    sh:severity sh:Warning .
+
+# Rule 7: Version number must be valid semver
+:VersionNumberShape a sh:NodeShape ;
+    sh:targetClass ggen:PackageVersion ;
+    sh:property [
+        sh:path ggen:versionNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$" ;
+        sh:message "Version must be valid semver (e.g., 1.2.3, 1.0.0-beta.1)" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 8: Version must have publication date
+:VersionPublicationShape a sh:NodeShape ;
+    sh:targetClass ggen:PackageVersion ;
+    sh:property [
+        sh:path dc:created ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Version must have a publication date" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 9: Deprecated and yanked must be boolean
+:VersionDeprecatedShape a sh:NodeShape ;
+    sh:targetClass ggen:PackageVersion ;
+    sh:property [
+        sh:path ggen:deprecated ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] ;
+    sh:property [
+        sh:path ggen:yanked ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] .
+
+# Rule 10: Dependency must reference a valid package
+:DependencyPackageShape a sh:NodeShape ;
+    sh:targetClass ggen:Dependency ;
+    sh:property [
+        sh:path ggen:dependsOn ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class ggen:Package ;
+        sh:message "Dependency must reference a valid package" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 11: Dependency must have version constraint
+:DependencyVersionShape a sh:NodeShape ;
+    sh:targetClass ggen:Dependency ;
+    sh:property [
+        sh:path ggen:dependencyVersion ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[~^]?\\d+\\.\\d+\\.\\d+|\\*|>=?\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Dependency version must be valid constraint (e.g., ^1.0.0, ~2.1.0, >=3.0.0)" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 12: Dependency type must be valid
+:DependencyTypeShape a sh:NodeShape ;
+    sh:targetClass ggen:Dependency ;
+    sh:property [
+        sh:path ggen:dependencyType ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "runtime" "dev" "peer" "optional" "build" ) ;
+        sh:message "Dependency type must be: runtime, dev, peer, optional, or build" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 13: Author must have a name
+:AuthorNameShape a sh:NodeShape ;
+    sh:targetClass ggen:Author ;
+    sh:property [
+        sh:path foaf:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Author must have a name" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 14: Author email must be valid
+:AuthorEmailShape a sh:NodeShape ;
+    sh:targetClass ggen:Author ;
+    sh:property [
+        sh:path foaf:mbox ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Author email must be valid email address" ;
+    ] ;
+    sh:severity sh:Warning .
+
+# Rule 15: Installation status must be valid
+:InstallationStatusShape a sh:NodeShape ;
+    sh:targetClass ggen:InstallationState ;
+    sh:property [
+        sh:path ggen:installationStatus ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "installed" "installing" "failed" "removed" "updating" ) ;
+        sh:message "Installation status must be valid state" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 16: Validation status must be valid
+:ValidationStatusShape a sh:NodeShape ;
+    sh:targetClass ggen:ValidationResult ;
+    sh:property [
+        sh:path ggen:validationStatus ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "valid" "invalid" "warning" "pending" ) ;
+        sh:message "Validation status must be: valid, invalid, warning, or pending" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 17: Download count must be non-negative
+:DownloadCountShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path ggen:downloadCount ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Download count must be non-negative integer" ;
+    ] .
+
+# Rule 18: Rating must be between 0 and 5
+:RatingShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:property [
+        sh:path ggen:rating ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 5.0 ;
+        sh:message "Rating must be between 0.0 and 5.0" ;
+    ] .
+
+# Rule 19: Signature must have algorithm
+:SignatureAlgorithmShape a sh:NodeShape ;
+    sh:targetClass ggen:SignatureRecord ;
+    sh:property [
+        sh:path ggen:signatureAlgorithm ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "Ed25519" "RSA-SHA256" "ECDSA-SHA256" ) ;
+        sh:message "Signature algorithm must be Ed25519, RSA-SHA256, or ECDSA-SHA256" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 20: Signature must have public key
+:SignaturePublicKeyShape a sh:NodeShape ;
+    sh:targetClass ggen:SignatureRecord ;
+    sh:property [
+        sh:path ggen:publicKey ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 32 ;
+        sh:message "Signature must have a public key" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 21: No circular dependencies
+:CircularDependencyShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:sparql [
+        sh:select """
+            PREFIX ggen: <http://ggen.dev/ontology#>
+            SELECT $this
+            WHERE {
+                $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn+ $this .
+            }
+        """ ;
+        sh:message "Package has circular dependency" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 22: Template must have content
+:TemplateContentShape a sh:NodeShape ;
+    sh:targetClass ggen:Template ;
+    sh:property [
+        sh:path ggen:templateContent ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Template must have content" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 23: Category must have label
+:CategoryLabelShape a sh:NodeShape ;
+    sh:targetClass ggen:Category ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Category must have a label" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 24: Tag must have value
+:TagValueShape a sh:NodeShape ;
+    sh:targetClass ggen:Tag ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z0-9-]+$" ;
+        sh:minLength 2 ;
+        sh:maxLength 50 ;
+        sh:message "Tag must be lowercase alphanumeric with hyphens, 2-50 chars" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Custom validation rules for marketplace-specific constraints
+
+# Rule 25: Package name uniqueness (business rule)
+:UniquePackageNameShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:sparql [
+        sh:select """
+            PREFIX dc: <http://purl.org/dc/terms/>
+            PREFIX ggen: <http://ggen.dev/ontology#>
+            SELECT $this (COUNT(?other) AS ?count)
+            WHERE {
+                $this dc:title ?name .
+                ?other a ggen:Package ;
+                       dc:title ?name .
+                FILTER($this != ?other)
+            }
+            HAVING (?count > 0)
+        """ ;
+        sh:message "Package name must be unique" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 26: Version uniqueness per package
+:UniqueVersionShape a sh:NodeShape ;
+    sh:targetClass ggen:PackageVersion ;
+    sh:sparql [
+        sh:select """
+            PREFIX ggen: <http://ggen.dev/ontology#>
+            SELECT $this (COUNT(?other) AS ?count)
+            WHERE {
+                ?pkg ggen:hasVersion $this, ?other .
+                $this ggen:versionNumber ?ver .
+                ?other ggen:versionNumber ?ver .
+                FILTER($this != ?other)
+            }
+            HAVING (?count > 0)
+        """ ;
+        sh:message "Version number must be unique within package" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 27: Yanked versions cannot be installed
+:YankedVersionShape a sh:NodeShape ;
+    sh:targetClass ggen:InstallationState ;
+    sh:sparql [
+        sh:select """
+            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this ggen:forPackage ?pkg ;
+                      ggen:versionNumber ?ver .
+                ?pkg ggen:hasVersion ?versionNode .
+                ?versionNode ggen:versionNumber ?ver ;
+                             ggen:yanked "true"^^xsd:boolean .
+            }
+        """ ;
+        sh:message "Cannot install yanked version" ;
+    ] ;
+    sh:severity sh:Violation .
+
+# Rule 28: Max dependency depth
+:DependencyDepthShape a sh:NodeShape ;
+    sh:targetClass ggen:Package ;
+    sh:sparql [
+        sh:select """
+            PREFIX ggen: <http://ggen.dev/ontology#>
+            SELECT $this
+            WHERE {
+                $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
+                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
+                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
+                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
+                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep .
+            }
+        """ ;
+        sh:message "Dependency depth exceeds maximum of 5 levels" ;
+    ] ;
+    sh:severity sh:Warning .

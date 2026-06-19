@@ -47,3 +47,6 @@ languages = ["rust", "typescript", "python"]
 valuation_methods = ["fifo", "lifo", "weighted-average", "specific-identification"]
 tracking_features = ["lot-batch", "serial-number", "expiration", "barcode", "rfid"]
 location_types = ["warehouse", "distribution-center", "retail-store", "zone", "bin"]
+
+[marketplace]
+production_ready = false

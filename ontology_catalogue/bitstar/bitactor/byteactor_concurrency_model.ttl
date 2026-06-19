@@ -1,0 +1,594 @@
+@prefix :      <http://bitbizeco.dev/ontology/v1/byteactor_concurrency#> .
+@prefix byte:  <http://bitbizeco.dev/ontology/v1/byteactor#> .
+@prefix conc:  <http://bitbizeco.dev/ontology/v1/concurrency#> .
+@prefix mem:   <http://bitbizeco.dev/ontology/v1/memory#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/byteactor_concurrency>
+  a conc:Ontology ;
+  rdfs:label "ByteActor Concurrency Model Specification" ;
+  rdfs:comment "Complete specification of lock-free concurrency patterns, atomic operations, and synchronization mechanisms" ;
+  owl:versionInfo "1.0" .
+
+#################################################################
+#
+# CONCURRENCY PRIMITIVE CLASSES
+#
+#################################################################
+
+conc:LockFreeDataStructure a owl:Class ;
+  rdfs:label "Lock-Free Data Structure" ;
+  rdfs:comment "Data structure using only atomic operations for synchronization" .
+
+conc:AtomicOperation a owl:Class ;
+  rdfs:label "Atomic Operation" ;
+  rdfs:comment "Indivisible operation on shared memory" .
+
+conc:MemoryOrdering a owl:Class ;
+  rdfs:label "Memory Ordering Constraint" ;
+  rdfs:comment "Specification of memory operation ordering requirements" .
+
+conc:WorkStealingAlgorithm a owl:Class ;
+  rdfs:label "Work Stealing Algorithm" ;
+  rdfs:comment "Load balancing algorithm for idle core work redistribution" .
+
+conc:CoreAffinity a owl:Class ;
+  rdfs:label "Core Affinity Specification" ;
+  rdfs:comment "CPU core binding and NUMA locality requirements" .
+
+# Concurrency Properties
+conc:algorithmType     a owl:DatatypeProperty .
+conc:memoryOrdering    a owl:DatatypeProperty .
+conc:atomicOperation   a owl:DatatypeProperty .
+conc:waitFree          a owl:DatatypeProperty .
+conc:lockFree          a owl:DatatypeProperty .
+conc:progressGuarantee a owl:DatatypeProperty .
+
+#################################################################
+#
+# LOCK-FREE RING BUFFER SPECIFICATION
+#
+#################################################################
+
+:SPSCRingBuffer a conc:LockFreeDataStructure ;
+  rdfs:label "Single Producer Single Consumer Ring Buffer" ;
+  rdfs:comment "Lock-free ring buffer for signal queuing with atomic head/tail pointers" ;
+  conc:algorithmType "SPSC (Single Producer Single Consumer)" ;
+  conc:waitFree false ;
+  conc:lockFree true ;
+  conc:progressGuarantee "Wait-free for producer, lock-free for consumer" ;
+  conc:implementation :SPSCImplementation ;
+  conc:validation :SPSCValidation ;
+  conc:performance :SPSCPerformance .
+
+:SPSCImplementation a conc:Implementation ;
+  rdfs:label "SPSC Ring Buffer Implementation" ;
+  conc:dataStructure """
+typedef struct __attribute__((cache_aligned)) {
+    signal_t* buffer;                 // Ring buffer array
+    uint32_t size;                    // Buffer size (power of 2)
+    uint32_t mask;                    // Size - 1 for efficient modulo
+    
+    // Producer variables (cache line aligned)
+    __attribute__((aligned(64)))
+    volatile uint32_t head;           // Producer head pointer
+    
+    // Consumer variables (separate cache line)
+    __attribute__((aligned(64)))  
+    volatile uint32_t tail;           // Consumer tail pointer
+} spsc_ring_t;
+""" ;
+  conc:enqueueOperation """
+bool spsc_enqueue(spsc_ring_t* ring, const signal_t* signal) {
+    uint32_t head = ring->head;
+    uint32_t next_head = (head + 1) & ring->mask;
+    
+    // Check if full (producer responsibility)
+    if (next_head == __atomic_load_n(&ring->tail, __ATOMIC_ACQUIRE)) {
+        return false;  // Ring full
+    }
+    
+    // Copy signal data
+    ring->buffer[head] = *signal;
+    
+    // Publish the new head (release semantics)
+    __atomic_store_n(&ring->head, next_head, __ATOMIC_RELEASE);
+    
+    return true;
+}
+""" ;
+  conc:dequeueOperation """
+bool spsc_dequeue(spsc_ring_t* ring, signal_t* signal) {
+    uint32_t tail = ring->tail;
+    
+    // Check if empty (consumer responsibility)
+    if (tail == __atomic_load_n(&ring->head, __ATOMIC_ACQUIRE)) {
+        return false;  // Ring empty
+    }
+    
+    // Copy signal data
+    *signal = ring->buffer[tail];
+    
+    // Advance tail (release semantics)
+    __atomic_store_n(&ring->tail, (tail + 1) & ring->mask, __ATOMIC_RELEASE);
+    
+    return true;
+}
+""" .
+
+:SPSCValidation a conc:ValidationSpec ;
+  rdfs:label "SPSC Ring Buffer Validation" ;
+  conc:properties [
+    conc:property "FIFO ordering preserved" ;
+    conc:testMethod "Sequential enqueue/dequeue with sequence numbers" ;
+    conc:invariant "dequeue_order == enqueue_order"
+  ], [
+    conc:property "No data corruption" ;
+    conc:testMethod "Checksum validation on all signals" ;
+    conc:invariant "checksum_in == checksum_out"
+  ], [
+    conc:property "ABA problem prevention" ;
+    conc:testMethod "Stress test with recycled pointers" ;
+    conc:invariant "No false availability detection"
+  ] .
+
+:SPSCPerformance a conc:PerformanceSpec ;
+  rdfs:label "SPSC Performance Characteristics" ;
+  conc:enqueueLatency "< 10ns (P99)" ;
+  conc:dequeueLatency "< 10ns (P99)" ;
+  conc:throughput "100M operations/sec" ;
+  conc:cacheLineAlignment true ;
+  conc:falseSharing false .
+
+#################################################################
+#
+# ATOMIC OPERATION SPECIFICATIONS
+#
+#################################################################
+
+:AtomicPointerUpdate a conc:AtomicOperation ;
+  rdfs:label "Atomic Pointer Update Operations" ;
+  conc:operation "__atomic_store_n" ;
+  conc:memoryOrdering "__ATOMIC_RELEASE" ;
+  conc:usage "Ring buffer head/tail pointer updates" ;
+  conc:latency "1-2 CPU cycles" ;
+  conc:implementation """
+// Release semantics for publishing new head/tail
+__atomic_store_n(&ring->head, new_head, __ATOMIC_RELEASE);
+__atomic_store_n(&ring->tail, new_tail, __ATOMIC_RELEASE);
+""" .
+
+:AtomicPointerLoad a conc:AtomicOperation ;
+  rdfs:label "Atomic Pointer Load Operations" ;
+  conc:operation "__atomic_load_n" ;
+  conc:memoryOrdering "__ATOMIC_ACQUIRE" ;
+  conc:usage "Ring buffer head/tail pointer reading" ;
+  conc:latency "1 CPU cycle" ;
+  conc:implementation """
+// Acquire semantics for reading head/tail
+uint32_t head = __atomic_load_n(&ring->head, __ATOMIC_ACQUIRE);
+uint32_t tail = __atomic_load_n(&ring->tail, __ATOMIC_ACQUIRE);
+""" .
+
+:AtomicCounterIncrement a conc:AtomicOperation ;
+  rdfs:label "Atomic Counter Operations" ;
+  conc:operation "__atomic_add_fetch" ;
+  conc:memoryOrdering "__ATOMIC_RELAXED" ;
+  conc:usage "Telemetry counters, statistics" ;
+  conc:latency "1-2 CPU cycles" ;
+  conc:implementation """
+// Relaxed ordering for non-critical counters
+__atomic_add_fetch(&actor->signal_count, 1, __ATOMIC_RELAXED);
+__atomic_add_fetch(&actor->tick_count, 1, __ATOMIC_RELAXED);
+""" .
+
+#################################################################
+#
+# MEMORY ORDERING MODEL
+#
+#################################################################
+
+:MemoryOrderingModel a conc:MemoryOrdering ;
+  rdfs:label "ByteActor Memory Ordering Specification" ;
+  conc:ordering [
+    conc:operation "Ring buffer publish" ;
+    conc:semantics "__ATOMIC_RELEASE" ;
+    conc:purpose "Ensure data is visible before pointer update" ;
+    conc:pairedWith "Ring buffer consume (__ATOMIC_ACQUIRE)"
+  ], [
+    conc:operation "Ring buffer consume" ;
+    conc:semantics "__ATOMIC_ACQUIRE" ;
+    conc:purpose "Ensure pointer read happens before data access" ;
+    conc:pairedWith "Ring buffer publish (__ATOMIC_RELEASE)"
+  ], [
+    conc:operation "Telemetry updates" ;
+    conc:semantics "__ATOMIC_RELAXED" ;
+    conc:purpose "Statistics updates without ordering constraints" ;
+    conc:performance "Minimal overhead"
+  ] ;
+  conc:validation """
+// Memory ordering validation using memory_order_consume pattern
+void validate_memory_ordering() {
+    // Producer: Release semantics
+    signal_data = new_signal;  // Store data first
+    __atomic_store_n(&head, new_head, __ATOMIC_RELEASE);  // Then publish
+    
+    // Consumer: Acquire semantics  
+    uint32_t current_head = __atomic_load_n(&head, __ATOMIC_ACQUIRE);  // Read pointer first
+    signal_t sig = buffer[tail];  // Then access data
+}
+""" .
+
+#################################################################
+#
+# WORK-STEALING ALGORITHM SPECIFICATION
+#
+#################################################################
+
+:ChaseLevsWorkStealing a conc:WorkStealingAlgorithm ;
+  rdfs:label "Chase-Lev Work-Stealing Deque" ;
+  rdfs:comment "Double-ended queue for work-stealing with single-consumer optimization" ;
+  conc:algorithmType "Chase-Lev dynamic circular work-stealing deque" ;
+  conc:dataStructure :WorkStealingDeque ;
+  conc:stealingPolicy :RandomizedVictimSelection ;
+  conc:backoffStrategy :ExponentialBackoff ;
+  conc:implementation :WorkStealingImplementation .
+
+:WorkStealingDeque a conc:DataStructure ;
+  rdfs:label "Work-Stealing Deque Structure" ;
+  conc:definition """
+typedef struct __attribute__((cache_aligned)) {
+    // Owner variables (local access only)
+    __attribute__((aligned(64)))
+    volatile uint64_t bottom;         // Bottom index (owner only)
+    
+    // Shared variables (thieves access)
+    __attribute__((aligned(64)))
+    volatile uint64_t top;            // Top index (atomic access)
+    
+    // Array of work items
+    __attribute__((aligned(64)))
+    signal_t* array;                  // Work array
+    uint32_t size_mask;               // Array size - 1
+} work_stealing_deque_t;
+""" ;
+  conc:ownership "bottom: owner exclusive, top: shared atomic, array: shared read" .
+
+:RandomizedVictimSelection a conc:StealingPolicy ;
+  rdfs:label "Randomized Victim Selection" ;
+  conc:algorithm "Linear congruential generator for victim selection" ;
+  conc:implementation """
+static inline uint32_t select_victim(uint32_t stealer_id, uint32_t num_cores) {
+    // Fast PRNG for victim selection
+    static __thread uint32_t seed = 1;
+    seed = seed * 1664525 + 1013904223;  // LCG parameters
+    return (seed % (num_cores - 1)) + (seed % (num_cores - 1) >= stealer_id);
+}
+""" ;
+  conc:properties "Uniform distribution, no self-selection, minimal overhead" .
+
+:ExponentialBackoff a conc:BackoffStrategy ;
+  rdfs:label "Exponential Backoff for Steal Contention" ;
+  conc:algorithm "Exponential delay with randomized jitter" ;
+  conc:maxBackoff "1024 cycles" ;
+  conc:implementation """
+static inline void steal_backoff(uint32_t attempt) {
+    if (attempt > 0) {
+        uint32_t delay = (1 << (attempt - 1)) + (rand() % 32);
+        delay = delay > 1024 ? 1024 : delay;  // Cap at 1024 cycles
+        
+        // CPU pause for delay cycles
+        for (uint32_t i = 0; i < delay; i++) {
+            __builtin_ia32_pause();  // x86 pause instruction
+        }
+    }
+}
+""" .
+
+:WorkStealingImplementation a conc:Implementation ;
+  rdfs:label "Work-Stealing Core Implementation" ;
+  conc:popBottom """
+signal_t* pop_bottom(work_stealing_deque_t* deque) {
+    uint64_t bottom = deque->bottom - 1;
+    __atomic_store_n(&deque->bottom, bottom, __ATOMIC_RELAXED);
+    
+    uint64_t top = __atomic_load_n(&deque->top, __ATOMIC_ACQUIRE);
+    
+    if (top <= bottom) {
+        // Non-empty queue
+        signal_t* signal = &deque->array[bottom & deque->size_mask];
+        
+        if (top == bottom) {
+            // Last element - race with thieves
+            if (!__atomic_compare_exchange_n(&deque->top, &top, top + 1, 
+                                           false, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED)) {
+                // Lost race - restore bottom
+                __atomic_store_n(&deque->bottom, bottom + 1, __ATOMIC_RELAXED);
+                return NULL;
+            }
+            __atomic_store_n(&deque->bottom, bottom + 1, __ATOMIC_RELAXED);
+        }
+        return signal;
+    } else {
+        // Empty queue
+        __atomic_store_n(&deque->bottom, bottom + 1, __ATOMIC_RELAXED);
+        return NULL;
+    }
+}
+""" ;
+  conc:steal """
+signal_t* steal(work_stealing_deque_t* deque) {
+    uint64_t top = __atomic_load_n(&deque->top, __ATOMIC_ACQUIRE);
+    uint64_t bottom = __atomic_load_n(&deque->bottom, __ATOMIC_ACQUIRE);
+    
+    if (top < bottom) {
+        // Non-empty queue
+        signal_t* signal = &deque->array[top & deque->size_mask];
+        
+        // Try to steal
+        if (__atomic_compare_exchange_n(&deque->top, &top, top + 1,
+                                      false, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED)) {
+            return signal;  // Successful steal
+        }
+    }
+    return NULL;  // Failed steal or empty queue
+}
+""" .
+
+#################################################################
+#
+# CORE AFFINITY AND NUMA SPECIFICATIONS
+#
+#################################################################
+
+:CoreAffinityModel a conc:CoreAffinity ;
+  rdfs:label "ByteActor Core Affinity Specification" ;
+  conc:bindingStrategy "One BitActor engine per physical core" ;
+  conc:numa "Prefer local NUMA node allocation" ;
+  conc:coreIsolation true ;
+  conc:interruptAffinity "Isolate cores from system interrupts" ;
+  conc:implementation """
+// Core affinity setup
+int setup_core_affinity(uint32_t core_id) {
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(core_id, &cpuset);
+    
+    // Bind current thread to specific core
+    if (pthread_setaffinity_np(pthread_self(), sizeof(cpuset), &cpuset) != 0) {
+        return -1;
+    }
+    
+    // Set NUMA memory policy for local allocation
+    struct bitmask* numa_mask = numa_allocate_nodemask();
+    numa_bitmask_setbit(numa_mask, numa_node_of_cpu(core_id));
+    numa_set_membind(numa_mask);
+    numa_free_nodemask(numa_mask);
+    
+    return 0;
+}
+""" ;
+  conc:validation """
+// Validate core affinity
+void validate_core_affinity() {
+    cpu_set_t cpuset;
+    pthread_getaffinity_np(pthread_self(), sizeof(cpuset), &cpuset);
+    
+    int core_count = CPU_COUNT(&cpuset);
+    assert(core_count == 1);  // Must be bound to exactly one core
+    
+    // Validate NUMA locality
+    void* test_mem = numa_alloc_local(4096);
+    int node = numa_move_pages(0, 1, &test_mem, NULL, &status, 0);
+    assert(node == numa_node_of_cpu(sched_getcpu()));
+    numa_free(test_mem, 4096);
+}
+""" .
+
+#################################################################
+#
+# MEMORY CONSISTENCY MODEL
+#
+#################################################################
+
+:MemoryConsistencyModel a conc:MemoryOrdering ;
+  rdfs:label "ByteActor Memory Consistency Model" ;
+  conc:model "Acquire-Release with Relaxed for non-critical operations" ;
+  conc:guidelines [
+    conc:guideline "Use ACQUIRE-RELEASE for ring buffer synchronization" ;
+    conc:rationale "Establishes happens-before relationship for producer-consumer" ;
+    conc:code "__atomic_store_n(&head, new_head, __ATOMIC_RELEASE)"
+  ], [
+    conc:guideline "Use RELAXED for telemetry and statistics" ;
+    conc:rationale "Performance counters don't require strict ordering" ;
+    conc:code "__atomic_add_fetch(&counter, 1, __ATOMIC_RELAXED)"
+  ], [
+    conc:guideline "Use SEQ_CST only for work-stealing CAS" ;
+    conc:rationale "Strong consistency required for theft operations" ;
+    conc:code "__atomic_compare_exchange_n(..., __ATOMIC_SEQ_CST, __ATOMIC_RELAXED)"
+  ], [
+    conc:guideline "Avoid volatile except for debugging" ;
+    conc:rationale "Atomic operations provide necessary guarantees" ;
+    conc:exception "Debug builds may use volatile for inspection"
+  ] .
+
+#################################################################
+#
+# FALSE SHARING ELIMINATION
+#
+#################################################################
+
+:FalseSharingPrevention a conc:OptimizationSpec ;
+  rdfs:label "False Sharing Elimination Strategy" ;
+  conc:cacheLine 64 ;
+  conc:alignment "All shared variables 64-byte aligned" ;
+  conc:separation "Producer/consumer variables in separate cache lines" ;
+  conc:implementation """
+// Separate cache lines for producer/consumer
+struct spsc_ring {
+    // Producer-only data (cache line 1)
+    __attribute__((aligned(64)))
+    volatile uint32_t head;
+    uint32_t producer_local[15];  // Pad to 64 bytes
+    
+    // Consumer-only data (cache line 2)  
+    __attribute__((aligned(64)))
+    volatile uint32_t tail;
+    uint32_t consumer_local[15];  // Pad to 64 bytes
+    
+    // Shared read-only data (cache line 3+)
+    __attribute__((aligned(64)))
+    signal_t* buffer;
+    uint32_t size;
+    uint32_t mask;
+};
+""" ;
+  conc:validation """
+// Compile-time validation of cache line separation
+_Static_assert(offsetof(spsc_ring_t, head) % 64 == 0, "Head not cache aligned");
+_Static_assert(offsetof(spsc_ring_t, tail) % 64 == 0, "Tail not cache aligned");
+_Static_assert(offsetof(spsc_ring_t, buffer) % 64 == 0, "Buffer not cache aligned");
+""" .
+
+#################################################################
+#
+# SIMD CONCURRENCY PATTERNS
+#
+#################################################################
+
+:SIMDConcurrency a conc:OptimizationSpec ;
+  rdfs:label "SIMD Concurrency Optimization" ;
+  conc:vectorWidth "256-bit (AVX2) / 128-bit (NEON)" ;
+  conc:parallelism "Data parallel processing within single core" ;
+  conc:implementation """
+// SIMD batch processing for signal validation
+void simd_batch_validate(signal_t* signals, uint32_t count, bool* results) {
+    const uint32_t simd_width = 8;  // 8 signals per 256-bit vector
+    uint32_t simd_count = count / simd_width;
+    
+    for (uint32_t i = 0; i < simd_count; i++) {
+        // Load 8 signal kind fields
+        __m256i kinds = _mm256_load_si256((__m256i*)&signals[i * simd_width]);
+        
+        // Parallel validation using SIMD
+        __m256i valid_mask = _mm256_cmpeq_epi32(kinds, _mm256_set1_epi32(VALID_SIGNAL));
+        
+        // Store results
+        uint32_t result_mask = _mm256_movemask_ps(_mm256_castsi256_ps(valid_mask));
+        for (uint32_t j = 0; j < simd_width; j++) {
+            results[i * simd_width + j] = (result_mask >> j) & 1;
+        }
+    }
+    
+    // Handle remainder
+    for (uint32_t i = simd_count * simd_width; i < count; i++) {
+        results[i] = (signals[i].kind == VALID_SIGNAL);
+    }
+}
+""" ;
+  conc:performance "8x speedup for batch validation operations" .
+
+#################################################################
+#
+# DETERMINISTIC EXECUTION MODEL
+#
+#################################################################
+
+:DeterministicExecution a conc:ExecutionModel ;
+  rdfs:label "Deterministic Execution Specification" ;
+  conc:guarantee "Bounded execution time" ;
+  conc:worstCase "8 CPU ticks maximum" ;
+  conc:averageCase "6 CPU ticks typical" ;
+  conc:bestCase "4 CPU ticks minimum" ;
+  conc:enforcement [
+    conc:mechanism "Tick budget tracking" ;
+    conc:implementation "RDTSC cycle counting with budget enforcement" ;
+    conc:action "Terminate execution if budget exceeded"
+  ], [
+    conc:mechanism "Branch elimination" ;
+    conc:implementation "Function pointer dispatch, conditional moves" ;
+    conc:benefit "Predictable instruction pipeline behavior"
+  ], [
+    conc:mechanism "Memory prefetching" ;
+    conc:implementation "Compiler builtin prefetch hints" ;
+    conc:pattern "__builtin_prefetch(ptr, rw_flag, temporal_locality)"
+  ] ;
+  conc:validation """
+// Tick budget enforcement
+void execute_with_budget(bitactor_t* ba, uint32_t budget) {
+    uint64_t start_ticks = __rdtsc();
+    
+    // Execute with tick monitoring
+    bitactor_tick(ba);
+    
+    uint64_t elapsed_ticks = __rdtsc() - start_ticks;
+    assert(elapsed_ticks <= budget);  // Budget violation check
+    
+    // Update worst-case statistics
+    if (elapsed_ticks > ba->max_execution_ticks) {
+        ba->max_execution_ticks = elapsed_ticks;
+    }
+}
+""" .
+
+#################################################################
+#
+# CONCURRENCY TESTING SPECIFICATIONS
+#
+#################################################################
+
+:ConcurrencyTestSuite a conc:TestSpecification ;
+  rdfs:label "ByteActor Concurrency Test Suite" ;
+  conc:testCategories [
+    conc:category "Race Condition Detection" ;
+    conc:tests "TSan (Thread Sanitizer), Helgrind, custom race detectors" ;
+    conc:coverage "All shared memory accesses"
+  ], [
+    conc:category "Lock-Freedom Validation" ;
+    conc:tests "Progress validation, starvation detection" ;
+    conc:method "Statistical analysis of operation completion"
+  ], [
+    conc:category "Memory Ordering Validation" ;
+    conc:tests "Litmus tests, memory ordering violations" ;
+    conc:tools "RelC11, CDSChecker"
+  ], [
+    conc:category "Performance Under Contention" ;
+    conc:tests "High contention scenarios, worst-case analysis" ;
+    conc:measurement "Latency distribution under maximum load"
+  ] ;
+  conc:continuousIntegration true ;
+  conc:performanceRegression "Fail build if performance degrades > 5%" .
+
+#################################################################
+#
+# FAULT TOLERANCE SPECIFICATIONS
+#
+#################################################################
+
+:FaultToleranceModel a conc:FaultTolerance ;
+  rdfs:label "ByteActor Fault Tolerance Specification" ;
+  conc:faultTypes [
+    conc:fault "Process crash" ;
+    conc:detection "Supervision tree monitoring" ;
+    conc:recovery "Automatic process restart with clean state" ;
+    conc:recoveryTime "< 100ms"
+  ], [
+    conc:fault "Memory corruption" ;
+    conc:detection "BLAKE3 hash validation" ;
+    conc:recovery "Discard corrupted data, log incident" ;
+    conc:impact "Single signal loss acceptable"
+  ], [
+    conc:fault "Ring buffer overflow" ;
+    conc:detection "Ring full condition check" ;
+    conc:recovery "Back-pressure to sender, overflow logging" ;
+    conc:prevention "Proper ring sizing based on traffic patterns"
+  ], [
+    conc:fault "Dispatch table corruption" ;
+    conc:detection "Function pointer validation" ;
+    conc:recovery "Reload dispatch table from AOT artifacts" ;
+    conc:recoveryTime "< 1ms"
+  ] ;
+  conc:errorHandling "Fail-fast with comprehensive logging" ;
+  conc:gracefulDegradation "Reduce throughput but maintain availability" .

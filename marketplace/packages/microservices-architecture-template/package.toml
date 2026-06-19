@@ -91,3 +91,6 @@ rest_api = true
 grpc = true
 message_queue = true
 event_streaming = true
+
+[marketplace]
+production_ready = false

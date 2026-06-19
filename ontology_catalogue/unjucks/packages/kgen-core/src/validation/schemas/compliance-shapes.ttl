@@ -1,0 +1,411 @@
+# KGEN Compliance Validation Shapes
+# Comprehensive SHACL shapes for regulatory compliance validation
+
+@prefix kgen: <http://kgen.dev/validation/> .
+@prefix gdpr: <http://example.org/gdpr/> .
+@prefix hipaa: <http://example.org/hipaa/> .
+@prefix sox: <http://example.org/sox/> .
+@prefix iso: <http://example.org/iso27001/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# GDPR (General Data Protection Regulation) Shapes
+# =============================================================================
+
+gdpr:DataProcessingShape a sh:NodeShape ;
+    rdfs:label "GDPR Data Processing Validation" ;
+    rdfs:comment "Validates data processing activities under GDPR requirements" ;
+    sh:targetClass gdpr:DataProcessing ;
+    sh:property [
+        sh:path gdpr:hasLegalBasis ;
+        sh:minCount 1 ;
+        sh:in ( gdpr:consent gdpr:contract gdpr:legalObligation 
+                gdpr:vitalInterests gdpr:publicTask gdpr:legitimateInterests ) ;
+        sh:message "Data processing must have a valid legal basis under GDPR Article 6" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:hasDataSubject ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:message "Data processing must identify data subjects (GDPR Article 4)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:purpose ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Purpose of processing must be specified (GDPR Article 5)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:retentionPeriod ;
+        sh:datatype xsd:duration ;
+        sh:maxCount 1 ;
+        sh:message "Data retention period should be specified (GDPR Article 5)" ;
+        sh:severity sh:Warning ;
+    ] ;
+    sh:property [
+        sh:path gdpr:dataMinimization ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Data minimization principle must be applied (GDPR Article 5)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+gdpr:ConsentShape a sh:NodeShape ;
+    rdfs:label "GDPR Consent Validation" ;
+    rdfs:comment "Validates consent records under GDPR requirements" ;
+    sh:targetClass gdpr:Consent ;
+    sh:property [
+        sh:path gdpr:consentGiven ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Consent status must be explicitly recorded (GDPR Article 7)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:consentDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Consent date must be recorded (GDPR Article 7)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:withdrawable ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Consent must be withdrawable (GDPR Article 7)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:specific ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Consent must be specific (GDPR Article 7)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:informed ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Consent must be informed (GDPR Article 7)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+gdpr:DataBreachShape a sh:NodeShape ;
+    rdfs:label "GDPR Data Breach Notification" ;
+    rdfs:comment "Validates data breach notification requirements" ;
+    sh:targetClass gdpr:DataBreach ;
+    sh:property [
+        sh:path gdpr:notificationDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:message "Data breach must be notified within 72 hours (GDPR Article 33)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path gdpr:riskAssessment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Risk assessment must be documented (GDPR Article 33)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# HIPAA (Health Insurance Portability and Accountability Act) Shapes
+# =============================================================================
+
+hipaa:ProtectedHealthInfoShape a sh:NodeShape ;
+    rdfs:label "HIPAA PHI Protection Validation" ;
+    rdfs:comment "Validates Protected Health Information under HIPAA requirements" ;
+    sh:targetClass hipaa:ProtectedHealthInfo ;
+    sh:property [
+        sh:path hipaa:hasEncryption ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "PHI must be encrypted at rest and in transit (HIPAA Security Rule)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:accessControl ;
+        sh:class hipaa:AccessControl ;
+        sh:minCount 1 ;
+        sh:message "PHI must have access controls (HIPAA Security Rule)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:auditLog ;
+        sh:class hipaa:AuditLog ;
+        sh:minCount 1 ;
+        sh:message "PHI access must be logged (HIPAA Security Rule)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:minimumNecessary ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Minimum necessary standard must be applied (HIPAA Privacy Rule)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+hipaa:AccessControlShape a sh:NodeShape ;
+    rdfs:label "HIPAA Access Control Validation" ;
+    rdfs:comment "Validates access control mechanisms for PHI" ;
+    sh:targetClass hipaa:AccessControl ;
+    sh:property [
+        sh:path hipaa:authorizedPersonnel ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:message "Access must be limited to authorized personnel" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:roleBasedAccess ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Role-based access control should be implemented" ;
+        sh:severity sh:Warning ;
+    ] .
+
+hipaa:AuditLogShape a sh:NodeShape ;
+    rdfs:label "HIPAA Audit Log Validation" ;
+    rdfs:comment "Validates audit logging for PHI access" ;
+    sh:targetClass hipaa:AuditLog ;
+    sh:property [
+        sh:path hipaa:accessTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Access time must be recorded" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:accessedBy ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Person accessing PHI must be identified" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:purpose ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Purpose of PHI access must be documented" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path hipaa:immutable ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Audit logs must be immutable" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# SOX (Sarbanes-Oxley Act) Shapes
+# =============================================================================
+
+sox:FinancialRecordShape a sh:NodeShape ;
+    rdfs:label "SOX Financial Record Validation" ;
+    rdfs:comment "Validates financial records under SOX requirements" ;
+    sh:targetClass sox:FinancialRecord ;
+    sh:property [
+        sh:path sox:hasDigitalSignature ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Financial records must be digitally signed (SOX Section 302)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:retentionYears ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 7 ;
+        sh:message "Financial records must be retained for at least 7 years (SOX Section 802)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:auditTrail ;
+        sh:class sox:AuditTrail ;
+        sh:minCount 1 ;
+        sh:message "Financial records must have complete audit trail (SOX Section 404)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:internalControl ;
+        sh:class sox:InternalControl ;
+        sh:minCount 1 ;
+        sh:message "Internal controls must be documented (SOX Section 404)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+sox:AuditTrailShape a sh:NodeShape ;
+    rdfs:label "SOX Audit Trail Validation" ;
+    rdfs:comment "Validates audit trails for financial records" ;
+    sh:targetClass sox:AuditTrail ;
+    sh:property [
+        sh:path sox:createdBy ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit trail must identify creator" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:createdDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit trail must record creation date" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:immutable ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Audit trails must be immutable" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:approved ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Financial records must be approved" ;
+        sh:severity sh:Violation ;
+    ] .
+
+sox:InternalControlShape a sh:NodeShape ;
+    rdfs:label "SOX Internal Control Validation" ;
+    rdfs:comment "Validates internal controls for financial reporting" ;
+    sh:targetClass sox:InternalControl ;
+    sh:property [
+        sh:path sox:controlType ;
+        sh:in ( sox:preventive sox:detective sox:corrective ) ;
+        sh:minCount 1 ;
+        sh:message "Internal control type must be specified" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:effectiveness ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Internal controls must be effective" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path sox:tested ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        sh:message "Internal controls must be tested" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# ISO 27001 Information Security Management Shapes
+# =============================================================================
+
+iso:InformationAssetShape a sh:NodeShape ;
+    rdfs:label "ISO 27001 Information Asset Validation" ;
+    rdfs:comment "Validates information assets under ISO 27001 requirements" ;
+    sh:targetClass iso:InformationAsset ;
+    sh:property [
+        sh:path iso:classification ;
+        sh:in ( iso:public iso:internal iso:confidential iso:restricted ) ;
+        sh:minCount 1 ;
+        sh:message "Information assets must be classified (ISO 27001 A.8.2.1)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path iso:owner ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Information assets must have an owner (ISO 27001 A.8.1.2)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path iso:riskAssessment ;
+        sh:class iso:RiskAssessment ;
+        sh:minCount 1 ;
+        sh:message "Risk assessment must be performed (ISO 27001 A.12.6.1)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+iso:AccessControlShape a sh:NodeShape ;
+    rdfs:label "ISO 27001 Access Control Validation" ;
+    rdfs:comment "Validates access control measures" ;
+    sh:targetClass iso:AccessControl ;
+    sh:property [
+        sh:path iso:accessPolicy ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Access control policy must be defined (ISO 27001 A.9.1.1)" ;
+        sh:severity sh:Violation ;
+    ] ;
+    sh:property [
+        sh:path iso:privilegedAccess ;
+        sh:datatype xsd:boolean ;
+        sh:message "Privileged access must be controlled (ISO 27001 A.9.2.3)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# KGEN Validation Framework Shapes
+# =============================================================================
+
+kgen:ValidationResultShape a sh:NodeShape ;
+    rdfs:label "KGEN Validation Result" ;
+    rdfs:comment "Validates the structure of validation results" ;
+    sh:targetClass kgen:ValidationResult ;
+    sh:property [
+        sh:path kgen:validationId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Validation result must have unique ID" ;
+    ] ;
+    sh:property [
+        sh:path kgen:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Validation result must have timestamp" ;
+    ] ;
+    sh:property [
+        sh:path kgen:conforms ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Validation result must indicate conformance" ;
+    ] .
+
+kgen:ComplianceFrameworkShape a sh:NodeShape ;
+    rdfs:label "KGEN Compliance Framework" ;
+    rdfs:comment "Validates compliance framework configuration" ;
+    sh:targetClass kgen:ComplianceFramework ;
+    sh:property [
+        sh:path kgen:frameworkName ;
+        sh:in ( "GDPR" "HIPAA" "SOX" "ISO27001" "CCPA" "PCI-DSS" ) ;
+        sh:minCount 1 ;
+        sh:message "Must specify supported compliance framework" ;
+    ] ;
+    sh:property [
+        sh:path kgen:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Framework version must be specified" ;
+    ] ;
+    sh:property [
+        sh:path kgen:enabled ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:message "Framework enablement status must be specified" ;
+    ] .

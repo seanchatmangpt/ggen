@@ -1,0 +1,85 @@
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix ex: <http://example.org/> .
+
+# Scrum at Scale Ontology
+ex:Sprint rdf:type owl:Class ;
+    rdfs:label "Sprint" ;
+    rdfs:comment "A time-boxed iteration in Scrum" .
+
+ex:Developer rdf:type owl:Class ;
+    rdfs:label "Developer" ;
+    rdfs:comment "A software developer" .
+
+ex:Story rdf:type owl:Class ;
+    rdfs:label "Story" ;
+    rdfs:comment "A user story" .
+
+ex:Impediment rdf:type owl:Class ;
+    rdfs:label "Impediment" ;
+    rdfs:comment "A blocker or impediment" .
+
+# Properties
+ex:sprintName rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Sprint ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:sprintGoal rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Sprint ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:startDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Sprint ;
+    rdfs:range xsd:date ;
+    owl:cardinality 1 .
+
+ex:endDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Sprint ;
+    rdfs:range xsd:date ;
+    owl:cardinality 1 .
+
+ex:developerName rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Developer ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:developerEmail rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Developer ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:storyTitle rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Story ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:storyPoints rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Story ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+ex:storyStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Story ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:impedimentTitle rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Impediment ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+ex:impedimentAge rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Impediment ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+ex:impedimentSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Impediment ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .

@@ -1,0 +1,213 @@
+@prefix aegis: <http://cns.io/aegis/fabric#> .
+@prefix cns: <http://cns.io/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sec: <http://cns.io/security#> .
+@prefix perf: <http://cns.io/performance#> .
+@prefix deploy: <http://cns.io/deployment#> .
+@prefix gossip: <http://cns.io/gossip#> .
+
+# CNS Aegis Fabric Ontology
+# This is the authoritative source for the entire system architecture
+
+aegis:AegisFabric a owl:Class ;
+    rdfs:label "CNS Aegis Fabric" ;
+    rdfs:comment "A distributed, self-healing, and provably secure mesh for enterprise threat detection and response" ;
+    aegis:version "1.0.0" ;
+    aegis:gitCommit "40ea62d" ;
+    aegis:validated "2025-07-22" .
+
+# Core Components
+aegis:BitActor a owl:Class ;
+    rdfs:subClassOf aegis:AegisFabric ;
+    rdfs:label "BitActor Enforcement Point" ;
+    aegis:sourceFile "bitactor/src/bitactor_production.c" ;
+    aegis:compilationMode "AOT" ;
+    perf:latencyNanoseconds 42 ;
+    perf:throughputOpsPerSec 10000000 ;
+    sec:memoryProtection "NX_DEP" ;
+    sec:stackProtection "CANARY" ;
+    sec:aslrEnabled true .
+
+aegis:ProtectionModule a owl:Class ;
+    rdfs:subClassOf aegis:BitActor ;
+    rdfs:label "Containerized Protection Module" ;
+    aegis:sourceFile "src/protection/enhanced_protection.c" ;
+    aegis:dockerFile "Dockerfile.protection" ;
+    sec:isolationLevel "CONTAINER" ;
+    sec:capabilitiesDrop ["ALL"] ;
+    sec:readOnlyRootFS true ;
+    sec:runAsNonRoot true .
+
+aegis:ServiceMesh a owl:Class ;
+    rdfs:subClassOf aegis:AegisFabric ;
+    rdfs:label "Erlang/OTP Service Mesh" ;
+    aegis:sourceFile "bitactor_otp/src/bitactor_k8s_service_mesh.erl" ;
+    aegis:supervisorFile "bitactor_otp/src/bitactor_sup.erl" ;
+    aegis:faultTolerance "ONE_FOR_ONE" ;
+    aegis:maxRestarts 10 ;
+    aegis:maxTime 60 .
+
+# Threat Gossip Protocol Configuration
+gossip:ThreatGossipProtocol a owl:Class ;
+    rdfs:subClassOf aegis:ServiceMesh ;
+    rdfs:label "High-Speed Threat Signature Gossip Protocol" ;
+    gossip:fanOut 3 ;
+    gossip:maxHops 5 ;
+    gossip:convergenceTimeMs 100 ;
+    gossip:messageFormat "BINARY" ;
+    gossip:compressionAlgorithm "LZ4" ;
+    gossip:encryptionAlgorithm "AES256_GCM" ;
+    gossip:integrityCheck "SHA256_HMAC" .
+
+# Security Rules Configuration
+sec:ThreatSignature a owl:Class ;
+    rdfs:label "Threat Signature Definition" ;
+    sec:compilerSource "owl_compiler.py" ;
+    sec:ruleSource "cybersecurity_core.ttl" ;
+    sec:bytecodeFormat "WASM" ;
+    sec:updateMechanism "HOT_RELOAD" .
+
+# Deployment Configuration
+deploy:KubernetesDeployment a owl:Class ;
+    rdfs:subClassOf aegis:AegisFabric ;
+    rdfs:label "Kubernetes Deployment Configuration" ;
+    deploy:terraformDir "terraform/" ;
+    deploy:helmChartDir "k8s/" ;
+    deploy:namespace "aegis-fabric" ;
+    deploy:replicaCount 5 ;
+    deploy:antiAffinity "REQUIRED" ;
+    deploy:podDisruptionBudget 2 .
+
+deploy:NetworkPolicy a owl:Class ;
+    rdfs:subClassOf deploy:KubernetesDeployment ;
+    rdfs:label "Network Security Policy" ;
+    deploy:ingressPolicy "DENY_ALL" ;
+    deploy:egressPolicy "ALLOW_GOSSIP_ONLY" ;
+    deploy:gossipPort 4369 ;
+    deploy:metricsPort 9090 .
+
+# Performance Requirements
+perf:PerformanceRequirements a owl:Class ;
+    rdfs:label "System Performance Requirements" ;
+    perf:maxLatencyMicroseconds 100 ;
+    perf:minThroughputOpsPerSec 1000000 ;
+    perf:maxCpuUtilizationPercent 80 ;
+    perf:maxMemoryMB 2048 ;
+    perf:gcPauseMaxMs 10 .
+
+# Validation Configuration
+aegis:ValidationGauntlet a owl:Class ;
+    rdfs:label "End-to-End Validation Suite" ;
+    aegis:primaryValidator "adversarial_k8s_security_validator.py" ;
+    aegis:penetrationTester "adversarial_penetration_tester.py" ;
+    aegis:serviceMeshTester "k8s_service_mesh_adversarial_test.py" ;
+    aegis:chaosEngine "adversarial_chaos_engine.py" ;
+    aegis:requiredPassRate 100.0 .
+
+# Instance Definitions
+aegis:ProductionFabric a aegis:AegisFabric ;
+    rdfs:label "Production Aegis Fabric Instance" ;
+    aegis:hasComponent [
+        a aegis:BitActor ;
+        aegis:instanceCount 5 ;
+        aegis:cpuRequest "500m" ;
+        aegis:cpuLimit "2000m" ;
+        aegis:memoryRequest "512Mi" ;
+        aegis:memoryLimit "2048Mi"
+    ] ;
+    aegis:hasComponent [
+        a gossip:ThreatGossipProtocol ;
+        gossip:seedNodes ["bitactor-0", "bitactor-1", "bitactor-2"] ;
+        gossip:clusterName "aegis-production"
+    ] ;
+    aegis:hasDeployment [
+        a deploy:KubernetesDeployment ;
+        deploy:environment "production" ;
+        deploy:region "us-west-2" ;
+        deploy:availabilityZones ["us-west-2a", "us-west-2b", "us-west-2c"]
+    ] ;
+    aegis:hasValidation [
+        a aegis:ValidationGauntlet ;
+        aegis:continuousValidation true ;
+        aegis:validationInterval "1h"
+    ] .
+
+# Security Policies
+sec:SecurityPolicy a owl:Class ;
+    rdfs:label "Aegis Fabric Security Policy" ;
+    sec:encryption [
+        sec:atRest "AES256" ;
+        sec:inTransit "TLS1.3" ;
+        sec:keyRotationDays 30
+    ] ;
+    sec:authentication [
+        sec:method "mTLS" ;
+        sec:certificateAuthority "internal-ca" ;
+        sec:certificateValidityDays 90
+    ] ;
+    sec:authorization [
+        sec:model "RBAC" ;
+        sec:defaultDeny true ;
+        sec:auditLogging true
+    ] .
+
+# Monitoring and Observability
+aegis:Observability a owl:Class ;
+    rdfs:label "Observability Configuration" ;
+    aegis:metrics [
+        aegis:provider "Prometheus" ;
+        aegis:scrapeInterval "15s" ;
+        aegis:retention "30d"
+    ] ;
+    aegis:tracing [
+        aegis:provider "Jaeger" ;
+        aegis:samplingRate 0.1 ;
+        aegis:spanRetention "7d"
+    ] ;
+    aegis:logging [
+        aegis:format "JSON" ;
+        aegis:level "INFO" ;
+        aegis:destination "stdout" ;
+        aegis:structuredFields true
+    ] .
+
+# Threat Response Actions
+aegis:ThreatResponse a owl:Class ;
+    rdfs:label "Automated Threat Response Actions" ;
+    aegis:blockAction [
+        aegis:type "NETWORK_BLOCK" ;
+        aegis:duration "300s" ;
+        aegis:escalation "ALERT_SOC"
+    ] ;
+    aegis:isolateAction [
+        aegis:type "POD_ISOLATION" ;
+        aegis:networkPolicy "DENY_ALL" ;
+        aegis:preserveForensics true
+    ] ;
+    aegis:mitigateAction [
+        aegis:type "RATE_LIMIT" ;
+        aegis:threshold 100 ;
+        aegis:window "60s"
+    ] .
+
+# Operational Procedures
+aegis:Operations a owl:Class ;
+    rdfs:label "Operational Procedures" ;
+    aegis:deployment [
+        aegis:strategy "BLUE_GREEN" ;
+        aegis:canaryPercent 10 ;
+        aegis:rollbackOnError true
+    ] ;
+    aegis:backup [
+        aegis:frequency "DAILY" ;
+        aegis:retention "30d" ;
+        aegis:encryption true
+    ] ;
+    aegis:disasterRecovery [
+        aegis:rpo "1h" ;
+        aegis:rto "4h" ;
+        aegis:drSite "us-east-1"
+    ] .

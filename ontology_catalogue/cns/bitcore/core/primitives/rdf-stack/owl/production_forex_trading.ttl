@@ -1,0 +1,300 @@
+@prefix : <http://cns.io/forex#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Production-Ready Forex Trading Ontology
+# Optimized for BitActor 8-tick semantic processing
+# Generated from 80/20 optimization analysis
+# Ready for 50x leverage trading at nanosecond scale
+
+<http://cns.io/forex/production> a owl:Ontology ;
+    dcterms:title "CNS Production Forex Trading Ontology" ;
+    dcterms:description "Complete semantic model for production Forex trading with BitActor integration" ;
+    dcterms:creator "CNS Semantic BitActor System" ;
+    dcterms:date "2025-07-23"^^xsd:date ;
+    owl:versionInfo "1.0.0-production" ;
+    dcterms:license "Internal CNS Use Only" .
+
+# Core Trading Classes
+:ForexTrader a owl:Class ;
+    rdfs:label "Forex Trader" ;
+    rdfs:comment "Entity authorized to execute Forex trades" ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :hasCapabilities ;
+        owl:someValuesFrom :TradingCapability
+    ] .
+
+:TradingCapability a owl:Class ;
+    rdfs:label "Trading Capability" ;
+    rdfs:comment "Specific trading permission or ability" .
+
+:MarketAccess a owl:Class ;
+    rdfs:subClassOf :TradingCapability ;
+    rdfs:label "Market Access" ;
+    rdfs:comment "Permission to access specific markets" .
+
+:RiskProfile a owl:Class ;
+    rdfs:label "Risk Profile" ;
+    rdfs:comment "Risk assessment and limitations for trader" .
+
+:ComplianceStatus a owl:Class ;
+    rdfs:label "Compliance Status" ;
+    rdfs:comment "Regulatory compliance verification" .
+
+:Position a owl:Class ;
+    rdfs:label "Trading Position" ;
+    rdfs:comment "Current or proposed trading position" .
+
+:CurrencyPair a owl:Class ;
+    rdfs:label "Currency Pair" ;
+    rdfs:comment "Forex currency pair (e.g., EUR/USD)" .
+
+:NewsEvent a owl:Class ;
+    rdfs:label "News Event" ;
+    rdfs:comment "Market-moving news event" .
+
+# Core Properties (optimized for 8-tick processing)
+:hasCapabilities a owl:ObjectProperty ;
+    rdfs:domain :ForexTrader ;
+    rdfs:range :TradingCapability ;
+    rdfs:label "has capabilities" .
+
+:hasAccess a owl:ObjectProperty ;
+    rdfs:domain :ForexTrader ;
+    rdfs:range :MarketAccess ;
+    rdfs:label "has access" .
+
+:hasRisk a owl:ObjectProperty ;
+    rdfs:domain :ForexTrader ;
+    rdfs:range :RiskProfile ;
+    rdfs:label "has risk" .
+
+:hasCompliance a owl:ObjectProperty ;
+    rdfs:domain :ForexTrader ;
+    rdfs:range :ComplianceStatus ;
+    rdfs:label "has compliance" .
+
+:hasPosition a owl:ObjectProperty ;
+    rdfs:domain :ForexTrader ;
+    rdfs:range :Position ;
+    rdfs:label "has position" .
+
+:hasLeverage a owl:DatatypeProperty ;
+    rdfs:domain :Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has leverage" .
+
+:hasSize a owl:DatatypeProperty ;
+    rdfs:domain :Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has size" .
+
+:hasPrice a owl:DatatypeProperty ;
+    rdfs:domain :Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has price" .
+
+:forPair a owl:ObjectProperty ;
+    rdfs:domain :Position ;
+    rdfs:range :CurrencyPair ;
+    rdfs:label "for pair" .
+
+:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has timestamp" .
+
+:hasImpact a owl:ObjectProperty ;
+    rdfs:domain :NewsEvent ;
+    rdfs:range :MarketImpact ;
+    rdfs:label "has impact" .
+
+# Market Impact Classification
+:MarketImpact a owl:Class ;
+    rdfs:label "Market Impact" .
+
+:HighImpact a owl:Class ;
+    rdfs:subClassOf :MarketImpact ;
+    rdfs:label "High Impact" .
+
+:MediumImpact a owl:Class ;
+    rdfs:subClassOf :MarketImpact ;
+    rdfs:label "Medium Impact" .
+
+:LowImpact a owl:Class ;
+    rdfs:subClassOf :MarketImpact ;
+    rdfs:label "Low Impact" .
+
+# Status Enumerations
+:Active a owl:NamedIndividual ;
+    rdfs:label "Active" .
+
+:Inactive a owl:NamedIndividual ;
+    rdfs:label "Inactive" .
+
+:Verified a owl:NamedIndividual ;
+    rdfs:label "Verified" .
+
+:Pending a owl:NamedIndividual ;
+    rdfs:label "Pending" .
+
+:Approved a owl:NamedIndividual ;
+    rdfs:label "Approved" .
+
+:Rejected a owl:NamedIndividual ;
+    rdfs:label "Rejected" .
+
+# Major Currency Pairs
+:EURUSD a :CurrencyPair ;
+    rdfs:label "EUR/USD" ;
+    :hasLiquidity :HighLiquidity .
+
+:GBPUSD a :CurrencyPair ;
+    rdfs:label "GBP/USD" ;
+    :hasLiquidity :HighLiquidity .
+
+:USDJPY a :CurrencyPair ;
+    rdfs:label "USD/JPY" ;
+    :hasLiquidity :HighLiquidity .
+
+:USDCHF a :CurrencyPair ;
+    rdfs:label "USD/CHF" ;
+    :hasLiquidity :MediumLiquidity .
+
+# Liquidity Classifications
+:LiquidityLevel a owl:Class ;
+    rdfs:label "Liquidity Level" .
+
+:HighLiquidity a :LiquidityLevel ;
+    rdfs:label "High Liquidity" .
+
+:MediumLiquidity a :LiquidityLevel ;
+    rdfs:label "Medium Liquidity" .
+
+:LowLiquidity a :LiquidityLevel ;
+    rdfs:label "Low Liquidity" .
+
+:hasLiquidity a owl:ObjectProperty ;
+    rdfs:domain :CurrencyPair ;
+    rdfs:range :LiquidityLevel ;
+    rdfs:label "has liquidity" .
+
+# Production Trader Instance (for testing)
+:ProductionTrader a :ForexTrader ;
+    rdfs:label "Production Forex Trader" ;
+    :hasCapabilities :FullMarketAccess ;
+    :hasAccess :ForexMarketAccess ;
+    :hasRisk :StandardRiskProfile ;
+    :hasCompliance :VerifiedCompliance .
+
+:FullMarketAccess a :TradingCapability ;
+    rdfs:label "Full Market Access" .
+
+:ForexMarketAccess a :MarketAccess ;
+    rdfs:label "Forex Market Access" ;
+    :status :Active .
+
+:StandardRiskProfile a :RiskProfile ;
+    rdfs:label "Standard Risk Profile" ;
+    :maxLeverage "50"^^xsd:decimal ;
+    :maxPositionSize "1000000"^^xsd:decimal .
+
+:VerifiedCompliance a :ComplianceStatus ;
+    rdfs:label "Verified Compliance" ;
+    :status :Verified ;
+    :jurisdiction "US" .
+
+# Common News Events
+:ECBMeeting a :NewsEvent ;
+    rdfs:label "ECB Meeting" ;
+    :hasImpact :HighImpact ;
+    :affectsPair :EURUSD .
+
+:NFPRelease a :NewsEvent ;
+    rdfs:label "Non-Farm Payrolls Release" ;
+    :hasImpact :HighImpact ;
+    :affectsPair :EURUSD , :GBPUSD .
+
+:FOMCMeeting a :NewsEvent ;
+    rdfs:label "FOMC Meeting" ;
+    :hasImpact :HighImpact ;
+    :affectsPair :EURUSD , :GBPUSD , :USDJPY .
+
+:affectsPair a owl:ObjectProperty ;
+    rdfs:domain :NewsEvent ;
+    rdfs:range :CurrencyPair ;
+    rdfs:label "affects pair" .
+
+# BitActor Integration Properties
+:processingTicks a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:label "processing ticks" ;
+    rdfs:comment "Number of BitActor ticks required for processing" .
+
+:validationHash a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "validation hash" ;
+    rdfs:comment "Pre-compiled validation hash for 8-tick processing" .
+
+# Assign processing requirements
+:MarketAccess :processingTicks "1"^^xsd:integer .
+:RiskProfile :processingTicks "2"^^xsd:integer .
+:ComplianceStatus :processingTicks "1"^^xsd:integer .
+:Position :processingTicks "3"^^xsd:integer .
+:NewsEvent :processingTicks "1"^^xsd:integer .
+
+# Performance Constraints (from 80/20 analysis)
+[] a owl:Restriction ;
+    owl:onProperty :hasLeverage ;
+    owl:hasValue "50"^^xsd:decimal ;
+    rdfs:comment "Maximum leverage constraint for production trading" .
+
+[] a owl:Restriction ;
+    owl:onProperty :processingTicks ;
+    owl:maxInclusive "8"^^xsd:integer ;
+    rdfs:comment "Maximum processing ticks constraint for BitActor compatibility" .
+
+# SHACL Constraints for Production Validation
+:ForexTradingShape a shacl:NodeShape ;
+    shacl:targetClass :ForexTrader ;
+    shacl:property [
+        shacl:path :hasAccess ;
+        shacl:minCount 1 ;
+        shacl:class :MarketAccess ;
+        shacl:message "Forex trader must have market access"
+    ] ;
+    shacl:property [
+        shacl:path :hasRisk ;
+        shacl:minCount 1 ;
+        shacl:class :RiskProfile ;
+        shacl:message "Forex trader must have risk profile"
+    ] ;
+    shacl:property [
+        shacl:path :hasCompliance ;
+        shacl:minCount 1 ;
+        shacl:class :ComplianceStatus ;
+        shacl:message "Forex trader must have compliance status"
+    ] .
+
+:PositionShape a shacl:NodeShape ;
+    shacl:targetClass :Position ;
+    shacl:property [
+        shacl:path :hasLeverage ;
+        shacl:maxInclusive "50"^^xsd:decimal ;
+        shacl:message "Position leverage cannot exceed 50x"
+    ] ;
+    shacl:property [
+        shacl:path :hasSize ;
+        shacl:minExclusive "0"^^xsd:decimal ;
+        shacl:message "Position size must be positive"
+    ] ;
+    shacl:property [
+        shacl:path :hasPrice ;
+        shacl:minExclusive "0"^^xsd:decimal ;
+        shacl:message "Position price must be positive"
+    ] .

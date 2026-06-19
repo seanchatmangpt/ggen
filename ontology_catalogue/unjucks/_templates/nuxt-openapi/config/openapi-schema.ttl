@@ -1,0 +1,472 @@
+---
+to: "{{ outputDir }}/schemas/openapi.ttl"
+inject: false
+skipIf: "!generateRDFSchema"
+---
+# RDF Schema for OpenAPI Specification Metadata
+# This schema defines the structure for OpenAPI data in Turtle format
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix openapi: <http://openapi.org/spec#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# OpenAPI Specification Ontology
+openapi:Specification a owl:Class ;
+    rdfs:label "OpenAPI Specification" ;
+    rdfs:comment "Root class for OpenAPI specification documents" .
+
+openapi:version a owl:DatatypeProperty ;
+    rdfs:domain openapi:Specification ;
+    rdfs:range xsd:string ;
+    rdfs:label "OpenAPI Version" .
+
+openapi:info a owl:ObjectProperty ;
+    rdfs:domain openapi:Specification ;
+    rdfs:range openapi:Info .
+
+openapi:servers a owl:ObjectProperty ;
+    rdfs:domain openapi:Specification ;
+    rdfs:range openapi:Server .
+
+openapi:paths a owl:ObjectProperty ;
+    rdfs:domain openapi:Specification ;
+    rdfs:range openapi:PathItem .
+
+openapi:components a owl:ObjectProperty ;
+    rdfs:domain openapi:Specification ;
+    rdfs:range openapi:Components .
+
+# Info Object
+openapi:Info a owl:Class ;
+    rdfs:label "API Information" .
+
+openapi:title a owl:DatatypeProperty ;
+    rdfs:domain openapi:Info ;
+    rdfs:range xsd:string .
+
+openapi:description a owl:DatatypeProperty ;
+    rdfs:domain openapi:Info ;
+    rdfs:range xsd:string .
+
+openapi:termsOfService a owl:DatatypeProperty ;
+    rdfs:domain openapi:Info ;
+    rdfs:range xsd:anyURI .
+
+openapi:contact a owl:ObjectProperty ;
+    rdfs:domain openapi:Info ;
+    rdfs:range openapi:Contact .
+
+openapi:license a owl:ObjectProperty ;
+    rdfs:domain openapi:Info ;
+    rdfs:range openapi:License .
+
+openapi:apiVersion a owl:DatatypeProperty ;
+    rdfs:domain openapi:Info ;
+    rdfs:range xsd:string .
+
+# Server Object
+openapi:Server a owl:Class ;
+    rdfs:label "API Server" .
+
+openapi:url a owl:DatatypeProperty ;
+    rdfs:domain openapi:Server ;
+    rdfs:range xsd:anyURI .
+
+openapi:serverDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:Server ;
+    rdfs:range xsd:string .
+
+# Path Item Object
+openapi:PathItem a owl:Class ;
+    rdfs:label "Path Item" .
+
+openapi:pathPattern a owl:DatatypeProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range xsd:string .
+
+openapi:summary a owl:DatatypeProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range xsd:string .
+
+openapi:pathDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range xsd:string .
+
+# Operation Object
+openapi:Operation a owl:Class ;
+    rdfs:label "API Operation" .
+
+openapi:operationId a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string .
+
+openapi:tags a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string .
+
+openapi:operationSummary a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string .
+
+openapi:operationDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string .
+
+openapi:deprecated a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:boolean .
+
+# HTTP Methods as properties
+openapi:get a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+openapi:post a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+openapi:put a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+openapi:delete a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+openapi:patch a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+openapi:head a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+openapi:options a owl:ObjectProperty ;
+    rdfs:domain openapi:PathItem ;
+    rdfs:range openapi:Operation ;
+    rdfs:subPropertyOf http:methodName .
+
+# Parameter Object
+openapi:Parameter a owl:Class ;
+    rdfs:label "Operation Parameter" .
+
+openapi:parameterName a owl:DatatypeProperty ;
+    rdfs:domain openapi:Parameter ;
+    rdfs:range xsd:string .
+
+openapi:in a owl:DatatypeProperty ;
+    rdfs:domain openapi:Parameter ;
+    rdfs:range xsd:string .
+
+openapi:parameterDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:Parameter ;
+    rdfs:range xsd:string .
+
+openapi:required a owl:DatatypeProperty ;
+    rdfs:domain openapi:Parameter ;
+    rdfs:range xsd:boolean .
+
+openapi:schema a owl:ObjectProperty ;
+    rdfs:domain openapi:Parameter ;
+    rdfs:range openapi:Schema .
+
+openapi:example a owl:DatatypeProperty ;
+    rdfs:domain openapi:Parameter .
+
+# Request Body Object
+openapi:RequestBody a owl:Class ;
+    rdfs:label "Request Body" .
+
+openapi:requestBodyDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:RequestBody ;
+    rdfs:range xsd:string .
+
+openapi:requestRequired a owl:DatatypeProperty ;
+    rdfs:domain openapi:RequestBody ;
+    rdfs:range xsd:boolean .
+
+openapi:content a owl:ObjectProperty ;
+    rdfs:domain openapi:RequestBody ;
+    rdfs:range openapi:MediaType .
+
+# Response Object
+openapi:Response a owl:Class ;
+    rdfs:label "API Response" .
+
+openapi:responseDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:Response ;
+    rdfs:range xsd:string .
+
+openapi:headers a owl:ObjectProperty ;
+    rdfs:domain openapi:Response ;
+    rdfs:range openapi:Header .
+
+openapi:responseContent a owl:ObjectProperty ;
+    rdfs:domain openapi:Response ;
+    rdfs:range openapi:MediaType .
+
+# Media Type Object
+openapi:MediaType a owl:Class ;
+    rdfs:label "Media Type" .
+
+openapi:mediaTypeSchema a owl:ObjectProperty ;
+    rdfs:domain openapi:MediaType ;
+    rdfs:range openapi:Schema .
+
+openapi:mediaTypeExample a owl:DatatypeProperty ;
+    rdfs:domain openapi:MediaType .
+
+# Schema Object
+openapi:Schema a owl:Class ;
+    rdfs:label "Data Schema" .
+
+openapi:type a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:string .
+
+openapi:format a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:string .
+
+openapi:properties a owl:ObjectProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range openapi:Property .
+
+openapi:items a owl:ObjectProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range openapi:Schema .
+
+openapi:enum a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema .
+
+openapi:minimum a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:decimal .
+
+openapi:maximum a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:decimal .
+
+openapi:minLength a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:integer .
+
+openapi:maxLength a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:integer .
+
+openapi:pattern a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:string .
+
+openapi:nullable a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:boolean .
+
+# Property Object  
+openapi:Property a owl:Class ;
+    rdfs:label "Schema Property" .
+
+openapi:propertyName a owl:DatatypeProperty ;
+    rdfs:domain openapi:Property ;
+    rdfs:range xsd:string .
+
+openapi:propertySchema a owl:ObjectProperty ;
+    rdfs:domain openapi:Property ;
+    rdfs:range openapi:Schema .
+
+# Security Scheme Object
+openapi:SecurityScheme a owl:Class ;
+    rdfs:label "Security Scheme" .
+
+openapi:securityType a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:string .
+
+openapi:securityDescription a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:string .
+
+openapi:name a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:string .
+
+openapi:securityIn a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:string .
+
+openapi:scheme a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:string .
+
+openapi:bearerFormat a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:string .
+
+openapi:flows a owl:ObjectProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range openapi:OAuthFlows .
+
+openapi:openIdConnectUrl a owl:DatatypeProperty ;
+    rdfs:domain openapi:SecurityScheme ;
+    rdfs:range xsd:anyURI .
+
+# OAuth Flows Object
+openapi:OAuthFlows a owl:Class ;
+    rdfs:label "OAuth Flows" .
+
+openapi:implicit a owl:ObjectProperty ;
+    rdfs:domain openapi:OAuthFlows ;
+    rdfs:range openapi:OAuthFlow .
+
+openapi:password a owl:ObjectProperty ;
+    rdfs:domain openapi:OAuthFlows ;
+    rdfs:range openapi:OAuthFlow .
+
+openapi:clientCredentials a owl:ObjectProperty ;
+    rdfs:domain openapi:OAuthFlows ;
+    rdfs:range openapi:OAuthFlow .
+
+openapi:authorizationCode a owl:ObjectProperty ;
+    rdfs:domain openapi:OAuthFlows ;
+    rdfs:range openapi:OAuthFlow .
+
+# OAuth Flow Object
+openapi:OAuthFlow a owl:Class ;
+    rdfs:label "OAuth Flow" .
+
+openapi:authorizationUrl a owl:DatatypeProperty ;
+    rdfs:domain openapi:OAuthFlow ;
+    rdfs:range xsd:anyURI .
+
+openapi:tokenUrl a owl:DatatypeProperty ;
+    rdfs:domain openapi:OAuthFlow ;
+    rdfs:range xsd:anyURI .
+
+openapi:refreshUrl a owl:DatatypeProperty ;
+    rdfs:domain openapi:OAuthFlow ;
+    rdfs:range xsd:anyURI .
+
+openapi:scopes a owl:DatatypeProperty ;
+    rdfs:domain openapi:OAuthFlow ;
+    rdfs:range xsd:string .
+
+# Components Object
+openapi:Components a owl:Class ;
+    rdfs:label "Reusable Components" .
+
+openapi:schemas a owl:ObjectProperty ;
+    rdfs:domain openapi:Components ;
+    rdfs:range openapi:Schema .
+
+openapi:responses a owl:ObjectProperty ;
+    rdfs:domain openapi:Components ;
+    rdfs:range openapi:Response .
+
+openapi:parameters a owl:ObjectProperty ;
+    rdfs:domain openapi:Components ;
+    rdfs:range openapi:Parameter .
+
+openapi:requestBodies a owl:ObjectProperty ;
+    rdfs:domain openapi:Components ;
+    rdfs:range openapi:RequestBody .
+
+openapi:securitySchemes a owl:ObjectProperty ;
+    rdfs:domain openapi:Components ;
+    rdfs:range openapi:SecurityScheme .
+
+# Contact and License Objects
+openapi:Contact a owl:Class ;
+    rdfs:label "Contact Information" .
+
+openapi:License a owl:Class ;
+    rdfs:label "License Information" .
+
+openapi:Header a owl:Class ;
+    rdfs:label "Header Parameter" .
+
+# Additional properties for Nuxt integration
+openapi:nuxtComposableName a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Generated Nuxt composable name" .
+
+openapi:nuxtRoutePath a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Nuxt server API route path" .
+
+openapi:nuxtMiddleware a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Required Nuxt middleware" .
+
+openapi:generatePage a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to generate a test page" .
+
+# Template generation metadata
+openapi:templateVersion a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version of the template used for generation" .
+
+openapi:generatedAt a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the code was generated" .
+
+openapi:generatorConfig a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Configuration used during generation" .
+
+# Code generation annotations
+openapi:tsType a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:string ;
+    rdfs:comment "TypeScript type mapping" .
+
+openapi:validationRule a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Validation rule for the schema" .
+
+openapi:defaultValue a owl:DatatypeProperty ;
+    rdfs:domain openapi:Schema ;
+    rdfs:comment "Default value for the property" .
+
+# Performance and caching hints
+openapi:cacheable a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the operation results can be cached" .
+
+openapi:cacheMaxAge a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum cache age in seconds" .
+
+openapi:rateLimit a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Rate limit for the operation" .
+
+# Streaming and real-time features
+openapi:supportsStreaming a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the operation supports streaming responses" .
+
+openapi:supportsWebSocket a owl:DatatypeProperty ;
+    rdfs:domain openapi:Operation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether the operation has WebSocket support" .

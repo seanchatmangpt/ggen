@@ -1,0 +1,230 @@
+# =============================================================================
+# erlmcp Multi-Tenant Isolation Ontology
+# =============================================================================
+# Defines tenant-based resource isolation
+#
+# Features:
+#   - Tenant identification and authentication
+#   - Resource quota per tenant
+#   - Tenant-level rate limiting
+#   - Data isolation
+#   - Tenant configuration
+# =============================================================================
+
+@prefix mt: <http://erlmcp.org/schema/multitenant/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+mt:MultiTenantManager a rdfs:Class ;
+    rdfs:label "Multi-Tenant Manager" ;
+    rdfs:comment "Manages tenant isolation" ;
+    rdfs:subClassOf otp:GenServer .
+
+mt:Tenant a rdfs:Class ;
+    rdfs:label "Tenant" ;
+    rdfs:comment "Tenant configuration" .
+
+mt:TenantQuota a rdfs:Class ;
+    rdfs:label "Tenant Quota" ;
+    rdfs:comment "Resource limits per tenant" .
+
+mt:TenantContext a rdfs:Class ;
+    rdfs:label "Tenant Context" ;
+    rdfs:comment "Runtime tenant context" .
+
+mt:TenantRateLimit a rdfs:Class ;
+    rdfs:label "Tenant Rate Limit" ;
+    rdfs:comment "Rate limits per tenant" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+mt:tenantId a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "tenant ID" .
+
+mt:tenantName a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "tenant name" .
+
+mt:tenantStatus a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "tenant status (active|suspended|deleted)" .
+
+mt:hasQuota a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:TenantQuota ;
+    rdfs:label "has quota" .
+
+mt:hasRateLimit a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:TenantRateLimit ;
+    rdfs:label "has rate limit" .
+
+mt:maxConcurrentRequests a rdf:Property ;
+    rdfs:domain mt:TenantQuota ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max concurrent requests" .
+
+mt:maxConnections a rdf:Property ;
+    rdfs:domain mt:TenantQuota ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max connections" .
+
+mt:maxStorageMb a rdf:Property ;
+    rdfs:domain mt:TenantQuota ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max storage MB" .
+
+mt:maxTools a rdf:Property ;
+    rdfs:domain mt:TenantQuota ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max tools" .
+
+mt:maxResources a rdf:Property ;
+    rdfs:domain mt:TenantQuota ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max resources" .
+
+mt:maxPrompts a rdf:Property ;
+    rdfs:domain mt:TenantQuota ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max prompts" .
+
+mt:requestsPerMinute a rdf:Property ;
+    rdfs:domain mt:TenantRateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "requests per minute" .
+
+mt:requestsPerHour a rdf:Property ;
+    rdfs:domain mt:TenantRateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "requests per hour" .
+
+mt:tokensPerDay a rdf:Property ;
+    rdfs:domain mt:TenantRateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "tokens per day" .
+
+mt:burstSize a rdf:Property ;
+    rdfs:domain mt:TenantRateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "burst size" .
+
+mt:tenantApiKey a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "tenant API key" .
+
+mt:tenantDataPrefix a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "tenant data prefix" .
+
+mt:isolationLevel a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "isolation level (strict|moderate|shared)" .
+
+mt:createdAt a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" .
+
+mt:suspendedAt a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "suspended at" .
+
+mt:configuration a rdf:Property ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string ;
+    rdfs:label "tenant configuration (JSON)" .
+
+# -----------------------------------------------------------------------------
+# Tenant Status Values
+# -----------------------------------------------------------------------------
+
+mt:Active a rdfs:Class ;
+    rdfs:label "Active" ;
+    rdfs:comment "Tenant is active" .
+
+mt:Suspended a rdfs:Class ;
+    rdfs:label "Suspended" ;
+    rdfs:comment "Tenant is suspended" .
+
+mt:Deleted a rdfs:Class ;
+    rdfs:label "Deleted" ;
+    rdfs:comment "Tenant is deleted" .
+
+mt:Trial a rdfs:Class ;
+    rdfs:label "Trial" ;
+    rdfs:comment "Trial tenant" .
+
+mt:Premium a rdfs:Class ;
+    rdfs:label "Premium" ;
+    rdfs:comment "Premium tenant" .
+
+mt:Enterprise a rdfs:Class ;
+    rdfs:label "Enterprise" ;
+    rdfs:comment "Enterprise tenant" .
+
+# -----------------------------------------------------------------------------
+# Default Quotas
+# -----------------------------------------------------------------------------
+
+mt:TrialQuota a mt:TenantQuota ;
+    mt:maxConcurrentRequests 5 ;
+    mt:maxConnections 10 ;
+    mt:maxStorageMb 100 ;
+    mt:maxTools 10 ;
+    mt:maxResources 50 ;
+    mt:maxPrompts 20 .
+
+mt:StandardQuota a mt:TenantQuota ;
+    mt:maxConcurrentRequests 20 ;
+    mt:maxConnections 50 ;
+    mt:maxStorageMb 1000 ;
+    mt:maxTools 100 ;
+    mt:maxResources 500 ;
+    mt:maxPrompts 200 .
+
+mt:EnterpriseQuota a mt:TenantQuota ;
+    mt:maxConcurrentRequests 100 ;
+    mt:maxConnections 500 ;
+    mt:maxStorageMb 10000 ;
+    mt:maxTools 1000 ;
+    mt:maxResources 5000 ;
+    mt:maxPrompts 2000 .
+
+# -----------------------------------------------------------------------------
+# Default Rate Limits
+# -----------------------------------------------------------------------------
+
+mt:TrialRateLimit a mt:TenantRateLimit ;
+    mt:requestsPerMinute 10 ;
+    mt:requestsPerHour 100 ;
+    mt:tokensPerDay 10000 ;
+    mt:burstSize 5 .
+
+mt:StandardRateLimit a mt:TenantRateLimit ;
+    mt:requestsPerMinute 100 ;
+    mt:requestsPerHour 1000 ;
+    mt:tokensPerDay 100000 ;
+    mt:burstSize 20 .
+
+mt:EnterpriseRateLimit a mt:TenantRateLimit ;
+    mt:requestsPerMinute 1000 ;
+    mt:requestsPerHour 10000 ;
+    mt:tokensPerDay 1000000 ;
+    mt:burstSize 100 .

@@ -1,0 +1,51 @@
+@prefix adms: <http://www.w3.org/ns/adms#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dctype: <http://purl.org/dc/dcmitype/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sdo: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xhv: <http://www.w3.org/1999/xhtml/vocab#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.w3.org/ns/dcat>
+  a owl:Ontology ;
+  dcterms:title "The data catalog vocabulary"@en ;
+  dcterms:description "DCAT is an RDF vocabulary designed to facilitate interoperability between data catalogs published on the Web."@en ;
+  vann:preferredNamespacePrefix "dcat" ;
+  vann:preferredNamespaceUri "http://www.w3.org/ns/dcat#" .
+
+dcat:Catalog
+  a rdfs:Class ;
+  a owl:Class ;
+  rdfs:label "Catalog"@en ;
+  rdfs:subClassOf dcat:Dataset ;
+  skos:definition "A curated collection of metadata about resources."@en .
+
+dcat:Dataset
+  a rdfs:Class ;
+  a owl:Class ;
+  rdfs:label "Dataset"@en ;
+  rdfs:subClassOf dcat:Resource ;
+  skos:definition "A collection of data, published or curated by a single source, and available for access or download in one or more representations."@en .
+
+dcat:Distribution
+  a rdfs:Class ;
+  a owl:Class ;
+  rdfs:label "Distribution"@en ;
+  skos:definition "A specific representation of a dataset."@en .
+
+dcat:Resource
+  a owl:Class ;
+  a rdfs:Class ;
+  rdfs:label "Catalogued resource"@en ;
+  skos:definition "Resource published or curated by a single agent."@en .

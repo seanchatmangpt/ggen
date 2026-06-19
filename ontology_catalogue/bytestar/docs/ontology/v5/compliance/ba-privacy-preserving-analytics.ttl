@@ -1,0 +1,782 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix bappa: <http://bytestar.org/ontology/privacy-preserving-analytics/> .
+@prefix bapa: <http://bytestar.org/ontology/privacy-automation/> .
+@prefix badp: <http://bytestar.org/ontology/differential-privacy/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# =============================================================================
+# ByteStar Privacy-Preserving Analytics Framework
+# Version: 5.0.0 - Phase 5
+# =============================================================================
+
+<http://bytestar.org/ontology/privacy-preserving-analytics> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/privacy-preserving-analytics/5.0.0> ;
+    dct:title "ByteStar Privacy-Preserving Analytics Framework" ;
+    dct:description "Comprehensive privacy-preserving analytics framework with differential privacy, homomorphic encryption, secure multiparty computation, federated analytics, and crystal operations support for ByteStar systems" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-23"^^xsd:date ;
+    dct:modified "2025-01-23"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/privacy-automation>,
+                <http://bytestar.org/ontology/differential-privacy>,
+                <http://bytestar.org/ontology/security> .
+
+# =============================================================================
+# PRIVACY-PRESERVING ANALYTICS CORE FRAMEWORK
+# =============================================================================
+
+## Core Analytics Framework
+bappa:PrivacyPreservingAnalytics a owl:Class ;
+    rdfs:label "Privacy-Preserving Analytics" ;
+    rdfs:comment "Comprehensive analytics framework with built-in privacy guarantees" ;
+    rdfs:subClassOf ba:AnalyticsFramework ;
+    bappa:privacyTechniques "differential_privacy,homomorphic_encryption,secure_multiparty_computation,federated_learning" ;
+    bappa:utilityPreservation "> 95%" ;
+    bappa:privacyGuarantees "mathematically_provable" ;
+    bappa:scalability "high" ;
+    ba:performanceRequirement "< 100ms query latency" .
+
+bappa:PrivacyPreservingEngine a owl:Class ;
+    rdfs:label "Privacy-Preserving Engine" ;
+    rdfs:comment "Core engine for privacy-preserving analytics operations" ;
+    rdfs:subClassOf ba:AnalyticsEngine ;
+    bappa:engineType "batch,stream,interactive,federated" ;
+    bappa:privacyMechanisms "noise_addition,encryption,secure_aggregation" ;
+    bappa:queryOptimization true ;
+    bappa:adaptivePrivacy true ;
+    ba:engineLatency "< 50ms" .
+
+bappa:PrivacyBudgetManager a owl:Class ;
+    rdfs:label "Privacy Budget Manager" ;
+    rdfs:comment "Manager for privacy budget allocation across analytics queries" ;
+    rdfs:subClassOf badp:PrivacyBudgetManager ;
+    bappa:budgetAllocation "query_based,time_based,user_based" ;
+    bappa:adaptiveAllocation true ;
+    bappa:globalBudgetTracking true ;
+    bappa:budgetOptimization "utility_maximization" .
+
+bappa:UtilityOptimizer a owl:Class ;
+    rdfs:label "Utility Optimizer" ;
+    rdfs:comment "Optimizer balancing privacy and utility in analytics" ;
+    rdfs:subClassOf ba:Optimizer ;
+    bappa:optimizationObjective "accuracy,precision,recall,f1_score" ;
+    bappa:privacyConstraints "epsilon,delta,k_anonymity" ;
+    bappa:paretoOptimal true ;
+    bappa:multiObjectiveOptimization true ;
+    ba:optimizationLatency "< 20ms" .
+
+# =============================================================================
+# DIFFERENTIAL PRIVACY ANALYTICS
+# =============================================================================
+
+bappa:DifferentialPrivateAnalytics a owl:Class ;
+    rdfs:label "Differential Private Analytics" ;
+    rdfs:comment "Analytics with differential privacy guarantees" ;
+    rdfs:subClassOf bappa:PrivacyPreservingAnalytics ;
+    bappa:dpMechanisms "laplace,gaussian,exponential" ;
+    bappa:compositionHandling "optimal" ;
+    bappa:adaptiveQueries true ;
+    bappa:privacyAccounting "advanced" ;
+    bappa:utilityMetrics "accuracy,bias,variance" .
+
+bappa:DPQueryEngine a owl:Class ;
+    rdfs:label "DP Query Engine" ;
+    rdfs:comment "Query engine with differential privacy mechanisms" ;
+    rdfs:subClassOf bappa:PrivacyPreservingEngine ;
+    bappa:queryTypes "count,sum,mean,histogram,contingency_table" ;
+    bappa:noiseMechanisms "laplace,gaussian,geometric,exponential" ;
+    bappa:sensitivityCalculation "automatic,manual,adaptive" ;
+    bappa:postProcessing true ;
+    ba:queryLatency "< 10ms" .
+
+bappa:AdaptiveDPEngine a owl:Class ;
+    rdfs:label "Adaptive DP Engine" ;
+    rdfs:comment "Adaptive differential privacy engine with dynamic parameter tuning" ;
+    rdfs:subClassOf bappa:DifferentialPrivateAnalytics ;
+    bappa:adaptiveParameters "epsilon,delta,sensitivity" ;
+    bappa:contextualAdaptation true ;
+    bappa:utilityFeedback true ;
+    bappa:onlineLearning true ;
+    bappa:adaptationLatency "< 5ms" .
+
+bappa:LocalDifferentialPrivacy a owl:Class ;
+    rdfs:label "Local Differential Privacy" ;
+    rdfs:comment "Local differential privacy for client-side privacy protection" ;
+    rdfs:subClassOf bappa:DifferentialPrivateAnalytics ;
+    bappa:clientSideNoise true ;
+    bappa:trustModel "untrusted_aggregator" ;
+    bappa:protocols "RAPPOR,OUE,HADAMARD" ;
+    bappa:frequencyEstimation true ;
+    bappa:heavyHitters true .
+
+bappa:CentralDifferentialPrivacy a owl:Class ;
+    rdfs:label "Central Differential Privacy" ;
+    rdfs:comment "Central differential privacy with trusted curator model" ;
+    rdfs:subClassOf bappa:DifferentialPrivateAnalytics ;
+    bappa:curatorTrusted true ;
+    bappa:globalSensitivity true ;
+    bappa:betterUtility true ;
+    bappa:centralizedNoise true ;
+    bappa:queryComplexity "polynomial" .
+
+# =============================================================================
+# HOMOMORPHIC ENCRYPTION ANALYTICS
+# =============================================================================
+
+bappa:HomomorphicAnalyticsEngine a owl:Class ;
+    rdfs:label "Homomorphic Analytics Engine" ;
+    rdfs:comment "Analytics on encrypted data using homomorphic encryption" ;
+    rdfs:subClassOf bappa:PrivacyPreservingAnalytics ;
+    bappa:encryptionSchemes "CKKS,BFV,BGV,TFHE" ;
+    bappa:homomorphicOperations "addition,multiplication,comparison,function_evaluation" ;
+    bappa:bootstrapping true ;
+    bappa:circuitOptimization true ;
+    ba:computationLatency "< 1000ms" .
+
+bappa:FullyHomomorphicEncryption a owl:Class ;
+    rdfs:label "Fully Homomorphic Encryption" ;
+    rdfs:comment "FHE system supporting arbitrary computations on encrypted data" ;
+    rdfs:subClassOf bappa:HomomorphicAnalyticsEngine ;
+    bappa:encryptionScheme "CKKS,BFV,TFHE" ;
+    bappa:bootstrappingSupport true ;
+    bappa:circuitDepth "unlimited" ;
+    bappa:noiseGrowth "controlled" ;
+    bappa:parallelization true .
+
+bappa:PartiallyHomomorphicEncryption a owl:Class ;
+    rdfs:label "Partially Homomorphic Encryption" ;
+    rdfs:comment "PHE system supporting limited operations on encrypted data" ;
+    rdfs:subClassOf bappa:HomomorphicAnalyticsEngine ;
+    bappa:supportedOperations "addition,multiplication" ;
+    bappa:efficiencyAdvantage true ;
+    bappa:limitedDepth true ;
+    bappa:specificUseCases "linear_regression,voting,aggregation" .
+
+bappa:HECircuitDesigner a owl:Class ;
+    rdfs:label "HE Circuit Designer" ;
+    rdfs:comment "Designer for homomorphic encryption circuits" ;
+    rdfs:subClassOf ba:CircuitDesigner ;
+    bappa:circuitOptimization "depth,size,bootstrapping" ;
+    bappa:automaticDesign true ;
+    bappa:circuitLibrary true ;
+    bappa:parametrization "dynamic" ;
+    bappa:performanceEstimation true .
+
+bappa:HEKeyManager a owl:Class ;
+    rdfs:label "HE Key Manager" ;
+    rdfs:comment "Key management system for homomorphic encryption" ;
+    rdfs:subClassOf ba:KeyManager ;
+    bappa:keyTypes "public,private,evaluation,bootstrapping" ;
+    bappa:keyRotation true ;
+    bappa:keyDistribution "secure" ;
+    bappa:keyRecovery true ;
+    bappa:multiPartyKeys true .
+
+# =============================================================================
+# SECURE MULTIPARTY COMPUTATION
+# =============================================================================
+
+bappa:SecureMultipartyComputation a owl:Class ;
+    rdfs:label "Secure Multiparty Computation" ;
+    rdfs:comment "Multi-party analytics without revealing individual inputs" ;
+    rdfs:subClassOf bappa:PrivacyPreservingAnalytics ;
+    bappa:protocolSecurity "semi_honest,malicious,covert" ;
+    bappa:communicationRounds "constant,logarithmic,polynomial" ;
+    bappa:scalability "high" ;
+    bappa:verifiability true ;
+    bappa:faultTolerance true .
+
+bappa:SMCProtocolEngine a owl:Class ;
+    rdfs:label "SMC Protocol Engine" ;
+    rdfs:comment "Engine executing secure multiparty computation protocols" ;
+    rdfs:subClassOf bappa:PrivacyPreservingEngine ;
+    bappa:protocols "GMW,BGW,SPDZ,Shamir" ;
+    bappa:secretSharing "additive,Shamir,replicated" ;
+    bappa:circuitEvaluation true ;
+    bappa:preprocessing true ;
+    ba:protocolLatency "< 500ms" .
+
+bappa:SecretSharingScheme a owl:Class ;
+    rdfs:label "Secret Sharing Scheme" ;
+    rdfs:comment "Scheme for sharing secrets among multiple parties" ;
+    rdfs:subClassOf ba:CryptographicScheme ;
+    bappa:sharingType "additive,polynomial,linear" ;
+    bappa:threshold xsd:nonNegativeInteger ;
+    bappa:verifiability true ;
+    bappa:efficiency "high" ;
+    bappa:reconstruction "efficient" .
+
+bappa:PrivateSetIntersection a owl:Class ;
+    rdfs:label "Private Set Intersection" ;
+    rdfs:comment "Protocol for computing set intersection without revealing sets" ;
+    rdfs:subClassOf bappa:SecureMultipartyComputation ;
+    bappa:psiVariants "PSI,PSI-CA,PSI-SUM" ;
+    bappa:cryptographicPrimitives "OT,OPE,OKVS" ;
+    bappa:scalability "millions_of_elements" ;
+    bappa:unbalancedSets true ;
+    bappa:multiParty true .
+
+bappa:PrivateInformationRetrieval a owl:Class ;
+    rdfs:label "Private Information Retrieval" ;
+    rdfs:comment "Protocol for privately retrieving information from database" ;
+    rdfs:subClassOf bappa:SecureMultipartyComputation ;
+    bappa:pirType "computational,information_theoretic" ;
+    bappa:singleServer "computational_PIR" ;
+    bappa:multipleServers "information_theoretic_PIR" ;
+    bappa:preprocessing true ;
+    bappa:batchQueries true .
+
+# =============================================================================
+# FEDERATED ANALYTICS
+# =============================================================================
+
+bappa:FederatedAnalytics a owl:Class ;
+    rdfs:label "Federated Analytics" ;
+    rdfs:comment "Decentralized analytics preserving data locality" ;
+    rdfs:subClassOf bappa:PrivacyPreservingAnalytics ;
+    bappa:aggregationMethod "secure_aggregation,federated_averaging" ;
+    bappa:participantPrivacy true ;
+    bappa:modelPrivacy true ;
+    bappa:communicationEfficiency "high" ;
+    bappa:byzantineTolerance true .
+
+bappa:FederatedLearningEngine a owl:Class ;
+    rdfs:label "Federated Learning Engine" ;
+    rdfs:comment "Engine for federated machine learning" ;
+    rdfs:subClassOf bappa:FederatedAnalytics ;
+    bappa:learningAlgorithms "SGD,Adam,FedAvg,FedProx" ;
+    bappa:modelUpdates "gradients,parameters,embeddings" ;
+    bappa:clientSelection "random,importance_based" ;
+    bappa:personalization true ;
+    bappa:convergenceGuarantees true .
+
+bappa:SecureAggregation a owl:Class ;
+    rdfs:label "Secure Aggregation" ;
+    rdfs:comment "Secure aggregation of contributions from multiple parties" ;
+    rdfs:subClassOf bappa:FederatedAnalytics ;
+    bappa:aggregationFunctions "sum,mean,weighted_average" ;
+    bappa:dropoutResilience true ;
+    bappa:maliciousParticipants "detection_prevention" ;
+    bappa:communicationRounds "minimal" ;
+    bappa:scalability "thousands_of_participants" .
+
+bappa:FederatedQueryProcessor a owl:Class ;
+    rdfs:label "Federated Query Processor" ;
+    rdfs:comment "Processor for federated SQL queries with privacy preservation" ;
+    rdfs:subClassOf bappa:FederatedAnalytics ;
+    bappa:queryLanguage "SQL,SPARQL,GraphQL" ;
+    bappa:queryOptimization true ;
+    bappa:distributedExecution true ;
+    bappa:resultAggregation "secure" ;
+    bappa:schemaFederation true .
+
+bappa:CrossSiloFederation a owl:Class ;
+    rdfs:label "Cross-Silo Federation" ;
+    rdfs:comment "Federation across organizational silos with privacy preservation" ;
+    rdfs:subClassOf bappa:FederatedAnalytics ;
+    bappa:organizationalBarriers "preserved" ;
+    bappa:dataGovernance "federated" ;
+    bappa:trustFramework "multi_party" ;
+    bappa:contractualAgreements true ;
+    bappa:auditability true .
+
+# =============================================================================
+# SYNTHETIC DATA GENERATION
+# =============================================================================
+
+bappa:SyntheticDataGenerator a owl:Class ;
+    rdfs:label "Synthetic Data Generator" ;
+    rdfs:comment "Generator for privacy-preserving synthetic data" ;
+    rdfs:subClassOf ba:DataGenerator ;
+    bappa:generationMethods "GAN,VAE,copula,marginal" ;
+    bappa:privacyMechanisms "differential_privacy,k_anonymity" ;
+    bappa:utilityMetrics "distribution_similarity,downstream_accuracy" ;
+    bappa:statisticalFidelity "> 90%" ;
+    bappa:privacyGuarantees "formal" .
+
+bappa:DifferentiallyPrivateSynthesis a owl:Class ;
+    rdfs:label "Differentially Private Synthesis" ;
+    rdfs:comment "Synthetic data generation with differential privacy guarantees" ;
+    rdfs:subClassOf bappa:SyntheticDataGenerator ;
+    bappa:synthesisMethods "histogram,marginal,deep_learning" ;
+    bappa:privacyBudgetConsumption "minimal" ;
+    bappa:utilityPreservation "high" ;
+    bappa:compositionSupport true ;
+    bappa:continuousRelease true .
+
+bappa:GANBasedSynthesis a owl:Class ;
+    rdfs:label "GAN-Based Synthesis" ;
+    rdfs:comment "Generative Adversarial Networks for synthetic data generation" ;
+    rdfs:subClassOf bappa:SyntheticDataGenerator ;
+    bappa:ganVariants "WGAN,CTGAN,PATEGAN,DP-GAN" ;
+    bappa:privacyMechanisms "gradient_perturbation,output_perturbation" ;
+    bappa:qualityMetrics "fidelity,diversity,privacy" ;
+    bappa:trainingStability true ;
+    bappa:mode_collapse_prevention true .
+
+bappa:TabularSynthesis a owl:Class ;
+    rdfs:label "Tabular Synthesis" ;
+    rdfs:comment "Specialized synthesis for tabular data with privacy" ;
+    rdfs:subClassOf bappa:SyntheticDataGenerator ;
+    bappa:dataTypes "numerical,categorical,mixed" ;
+    bappa:correlationPreservation true ;
+    bappa:constraintSatisfaction true ;
+    bappa:conditionalGeneration true ;
+    bappa:incrementalGeneration true .
+
+# =============================================================================
+# PRIVACY-PRESERVING MACHINE LEARNING
+# =============================================================================
+
+bappa:PrivacyPreservingML a owl:Class ;
+    rdfs:label "Privacy-Preserving Machine Learning" ;
+    rdfs:comment "Machine learning with built-in privacy guarantees" ;
+    rdfs:subClassOf bappa:PrivacyPreservingAnalytics ;
+    bappa:mlTasks "classification,regression,clustering,dimensionality_reduction" ;
+    bappa:privacyTechniques "differential_privacy,homomorphic_encryption,secure_computation" ;
+    bappa:modelPrivacy "training,inference,architecture" ;
+    bappa:dataPrivacy "input,output,intermediate" .
+
+bappa:DifferentiallyPrivateML a owl:Class ;
+    rdfs:label "Differentially Private ML" ;
+    rdfs:comment "Machine learning with differential privacy guarantees" ;
+    rdfs:subClassOf bappa:PrivacyPreservingML ;
+    bappa:dpMechanisms "gradient_perturbation,output_perturbation,objective_perturbation" ;
+    bappa:optimizers "DP_SGD,DP_Adam,DP_RMSprop" ;
+    bappa:privacyAccounting "moments_accountant,RDP" ;
+    bappa:utilityAnalysis true ;
+    bappa:hyperparameterTuning "private" .
+
+bappa:SecureMLInference a owl:Class ;
+    rdfs:label "Secure ML Inference" ;
+    rdfs:comment "Secure inference on machine learning models" ;
+    rdfs:subClassOf bappa:PrivacyPreservingML ;
+    bappa:inferencePrivacy "input,model,output" ;
+    bappa:cryptographicTechniques "homomorphic_encryption,garbled_circuits,secret_sharing" ;
+    bappa:modelTypes "neural_networks,decision_trees,linear_models" ;
+    bappa:interactiveProtocols true ;
+    bappa:batchInference true .
+
+bappa:PrivateModelTraining a owl:Class ;
+    rdfs:label "Private Model Training" ;
+    rdfs:comment "Training machine learning models with privacy constraints" ;
+    rdfs:subClassOf bappa:PrivacyPreservingML ;
+    bappa:trainingPrivacy "data,computation,communication" ;
+    bappa:distributedTraining true ;
+    bappa:verticalFederation true ;
+    bappa:horizontalFederation true ;
+    bappa:modelAggregation "secure" .
+
+# =============================================================================
+# CRYSTAL OPERATIONS PRIVACY ANALYTICS
+# =============================================================================
+
+bappa:CrystalPrivacyAnalytics a owl:Class ;
+    rdfs:label "Crystal Privacy Analytics" ;
+    rdfs:comment "Privacy-preserving analytics specialized for crystal operations" ;
+    rdfs:subClassOf bappa:PrivacyPreservingAnalytics ;
+    bappa:crystalAnalytics true ;
+    bappa:quantumPrivacy true ;
+    bappa:crystallineProperties "coherence,entanglement,superposition" ;
+    bappa:quantumNoiseMechanisms "decoherence,amplitude_damping" ;
+    bappa:quantumComposition true .
+
+bappa:QuantumDifferentialPrivacy a owl:Class ;
+    rdfs:label "Quantum Differential Privacy" ;
+    rdfs:comment "Differential privacy extended to quantum computing contexts" ;
+    rdfs:subClassOf bappa:CrystalPrivacyAnalytics ;
+    bappa:quantumMechanisms "quantum_noise,measurement_perturbation" ;
+    bappa:quantumSensitivity "trace_distance,fidelity" ;
+    bappa:quantumComposition "quantum_advanced" ;
+    bappa:quantumUtility "fidelity_preservation,entanglement_preservation" .
+
+bappa:CrystalDataAnalyzer a owl:Class ;
+    rdfs:label "Crystal Data Analyzer" ;
+    rdfs:comment "Analyzer for crystal data with quantum privacy preservation" ;
+    rdfs:subClassOf bappa:CrystalPrivacyAnalytics ;
+    bappa:crystalDataTypes "quantum_states,measurement_outcomes,circuit_parameters" ;
+    bappa:quantumStatistics true ;
+    bappa:phaseSensitivity true ;
+    bappa:coherenceAnalysis true ;
+    bappa:entanglementMeasures true .
+
+bappa:QuantumHomomorphicAnalytics a owl:Class ;
+    rdfs:label "Quantum Homomorphic Analytics" ;
+    rdfs:comment "Homomorphic analytics for quantum and crystal data" ;
+    rdfs:subClassOf bappa:CrystalPrivacyAnalytics ;
+    bappa:quantumHomomorphism true ;
+    bappa:quantumCircuitEvaluation true ;
+    bappa:quantumNoiseResilience true ;
+    bappa:quantumErrorCorrection true ;
+    bappa:topologicalProtection true .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+## Privacy Properties
+bappa:privacyLevel a owl:DatatypeProperty ;
+    rdfs:label "privacy level" ;
+    rdfs:comment "Level of privacy protection (0-1)" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:PrivacyPreservingAnalytics .
+
+bappa:utilityPreservation a owl:DatatypeProperty ;
+    rdfs:label "utility preservation" ;
+    rdfs:comment "Percentage of utility preserved after privacy protection" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:PrivacyPreservingAnalytics .
+
+bappa:privacyBudgetConsumption a owl:DatatypeProperty ;
+    rdfs:label "privacy budget consumption" ;
+    rdfs:comment "Amount of privacy budget consumed" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:DifferentialPrivateAnalytics .
+
+bappa:noiseLevel a owl:DatatypeProperty ;
+    rdfs:label "noise level" ;
+    rdfs:comment "Level of noise added for privacy" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:DPQueryEngine .
+
+## Performance Properties
+bappa:queryLatency a owl:DatatypeProperty ;
+    rdfs:label "query latency" ;
+    rdfs:comment "Time required for query execution in milliseconds" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain bappa:PrivacyPreservingEngine .
+
+bappa:throughputRate a owl:DatatypeProperty ;
+    rdfs:label "throughput rate" ;
+    rdfs:comment "Number of queries processed per second" ;
+    rdfs:range xsd:decimal ;
+    rdfs:domain bappa:PrivacyPreservingEngine .
+
+bappa:scalabilityFactor a owl:DatatypeProperty ;
+    rdfs:label "scalability factor" ;
+    rdfs:comment "Scalability factor for increasing data/participants" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:PrivacyPreservingAnalytics .
+
+bappa:communicationRounds a owl:DatatypeProperty ;
+    rdfs:label "communication rounds" ;
+    rdfs:comment "Number of communication rounds required" ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:domain bappa:SecureMultipartyComputation .
+
+## Accuracy Properties
+bappa:accuracyLoss a owl:DatatypeProperty ;
+    rdfs:label "accuracy loss" ;
+    rdfs:comment "Loss in accuracy due to privacy protection" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:PrivacyPreservingAnalytics .
+
+bappa:statisticalFidelity a owl:DatatypeProperty ;
+    rdfs:label "statistical fidelity" ;
+    rdfs:comment "Fidelity of statistical properties preservation" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:SyntheticDataGenerator .
+
+bappa:correlationPreservation a owl:DatatypeProperty ;
+    rdfs:label "correlation preservation" ;
+    rdfs:comment "Level of correlation preservation in synthetic data" ;
+    rdfs:range xsd:double ;
+    rdfs:domain bappa:TabularSynthesis .
+
+## Cryptographic Properties
+bappa:encryptionDepth a owl:DatatypeProperty ;
+    rdfs:label "encryption depth" ;
+    rdfs:comment "Maximum circuit depth for homomorphic operations" ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:domain bappa:HomomorphicAnalyticsEngine .
+
+bappa:keySize a owl:DatatypeProperty ;
+    rdfs:label "key size" ;
+    rdfs:comment "Size of cryptographic keys in bits" ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:domain bappa:HEKeyManager .
+
+bappa:securityLevel a owl:DatatypeProperty ;
+    rdfs:label "security level" ;
+    rdfs:comment "Security level in bits" ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:domain bappa:SecureMultipartyComputation .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+## Privacy Mechanism Relationships
+bappa:protectedBy a owl:ObjectProperty ;
+    rdfs:label "protected by" ;
+    rdfs:comment "Data protected by privacy mechanism" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bappa:PrivacyPreservingAnalytics .
+
+bappa:analyzedBy a owl:ObjectProperty ;
+    rdfs:label "analyzed by" ;
+    rdfs:comment "Data analyzed by privacy-preserving system" ;
+    rdfs:domain ba:Dataset ;
+    rdfs:range bappa:PrivacyPreservingEngine .
+
+bappa:optimizedBy a owl:ObjectProperty ;
+    rdfs:label "optimized by" ;
+    rdfs:comment "Privacy-utility tradeoff optimized by optimizer" ;
+    rdfs:domain bappa:PrivacyPreservingAnalytics ;
+    rdfs:range bappa:UtilityOptimizer .
+
+## Budget Management Relationships
+bappa:consumes a owl:ObjectProperty ;
+    rdfs:label "consumes" ;
+    rdfs:comment "Query consuming privacy budget" ;
+    rdfs:domain ba:Query ;
+    rdfs:range bappa:PrivacyBudgetManager .
+
+bappa:allocates a owl:ObjectProperty ;
+    rdfs:label "allocates" ;
+    rdfs:comment "Budget manager allocating budget to query" ;
+    rdfs:domain bappa:PrivacyBudgetManager ;
+    rdfs:range ba:Query .
+
+## Federated Relationships
+bappa:participatesIn a owl:ObjectProperty ;
+    rdfs:label "participates in" ;
+    rdfs:comment "Party participating in federated analytics" ;
+    rdfs:domain foaf:Agent ;
+    rdfs:range bappa:FederatedAnalytics .
+
+bappa:aggregates a owl:ObjectProperty ;
+    rdfs:label "aggregates" ;
+    rdfs:comment "Secure aggregation of contributions" ;
+    rdfs:domain bappa:SecureAggregation ;
+    rdfs:range ba:Data .
+
+bappa:federates a owl:ObjectProperty ;
+    rdfs:label "federates" ;
+    rdfs:comment "System participating in federation" ;
+    rdfs:domain ba:System ;
+    rdfs:range bappa:FederatedAnalytics .
+
+## Synthetic Data Relationships
+bappa:generatedBy a owl:ObjectProperty ;
+    rdfs:label "generated by" ;
+    rdfs:comment "Synthetic data generated by generator" ;
+    rdfs:domain ba:SyntheticData ;
+    rdfs:range bappa:SyntheticDataGenerator .
+
+bappa:synthesizes a owl:ObjectProperty ;
+    rdfs:label "synthesizes" ;
+    rdfs:comment "Generator creating synthetic version of data" ;
+    rdfs:domain bappa:SyntheticDataGenerator ;
+    rdfs:range ba:Dataset .
+
+## Homomorphic Relationships
+bappa:encryptedBy a owl:ObjectProperty ;
+    rdfs:label "encrypted by" ;
+    rdfs:comment "Data encrypted by homomorphic encryption" ;
+    rdfs:domain ba:Data ;
+    rdfs:range bappa:HomomorphicAnalyticsEngine .
+
+bappa:homomorphicallyComputes a owl:ObjectProperty ;
+    rdfs:label "homomorphically computes" ;
+    rdfs:comment "Engine performing homomorphic computation" ;
+    rdfs:domain bappa:HomomorphicAnalyticsEngine ;
+    rdfs:range ba:Computation .
+
+## Crystal Analytics Relationships
+bappa:quantumAnalyzed a owl:ObjectProperty ;
+    rdfs:label "quantum analyzed" ;
+    rdfs:comment "Quantum data analyzed with privacy preservation" ;
+    rdfs:domain ba:QuantumData ;
+    rdfs:range bappa:QuantumDifferentialPrivacy .
+
+bappa:crystalProtected a owl:ObjectProperty ;
+    rdfs:label "crystal protected" ;
+    rdfs:comment "Crystal operation protected by privacy mechanism" ;
+    rdfs:domain ba:CrystalOperation ;
+    rdfs:range bappa:CrystalPrivacyAnalytics .
+
+# =============================================================================
+# SHACL VALIDATION SHAPES
+# =============================================================================
+
+bappa:PrivacyAnalyticsShape a sh:NodeShape ;
+    sh:targetClass bappa:PrivacyPreservingAnalytics ;
+    sh:property [
+        sh:path bappa:utilityPreservation ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 95.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Utility preservation must be >95%" ;
+    ] ;
+    sh:property [
+        sh:path bappa:queryLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Query latency must be under 100ms" ;
+    ] .
+
+bappa:DifferentialPrivacyShape a sh:NodeShape ;
+    sh:targetClass bappa:DifferentialPrivateAnalytics ;
+    sh:property [
+        sh:path bappa:privacyBudgetConsumption ;
+        sh:datatype xsd:double ;
+        sh:minExclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Privacy budget consumption must be reasonable" ;
+    ] .
+
+bappa:HomomorphicShape a sh:NodeShape ;
+    sh:targetClass bappa:HomomorphicAnalyticsEngine ;
+    sh:property [
+        sh:path bappa:encryptionDepth ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 1 ;
+        sh:message "Encryption depth must be positive" ;
+    ] .
+
+bappa:SyntheticDataShape a sh:NodeShape ;
+    sh:targetClass bappa:SyntheticDataGenerator ;
+    sh:property [
+        sh:path bappa:statisticalFidelity ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 90.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Statistical fidelity must be >90%" ;
+    ] .
+
+bappa:FederatedShape a sh:NodeShape ;
+    sh:targetClass bappa:FederatedAnalytics ;
+    sh:property [
+        sh:path bappa:communicationRounds ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxInclusive 10 ;
+        sh:message "Communication rounds should be minimal" ;
+    ] .
+
+# =============================================================================
+# PRIVACY-PRESERVING ANALYTICS INSTANCES
+# =============================================================================
+
+# Main Privacy-Preserving Analytics System
+bappa:ByteStarPrivacyAnalytics a bappa:PrivacyPreservingAnalytics ;
+    rdfs:label "ByteStar Privacy-Preserving Analytics System" ;
+    rdfs:comment "Primary privacy-preserving analytics system for ByteStar" ;
+    bappa:privacyTechniques "differential_privacy,homomorphic_encryption,secure_multiparty_computation" ;
+    bappa:utilityPreservation 97.5 ;
+    bappa:privacyGuarantees "mathematically_provable" .
+
+# Differential Privacy Engine
+bappa:MainDPEngine a bappa:DifferentialPrivateAnalytics ;
+    rdfs:label "Main Differential Privacy Engine" ;
+    rdfs:comment "Primary differential privacy analytics engine" ;
+    bappa:dpMechanisms "laplace,gaussian,exponential" ;
+    bappa:compositionHandling "optimal" ;
+    bappa:privacyBudgetConsumption 2.0 .
+
+# Homomorphic Analytics
+bappa:CKKSAnalyticsEngine a bappa:FullyHomomorphicEncryption ;
+    rdfs:label "CKKS Analytics Engine" ;
+    rdfs:comment "CKKS-based homomorphic analytics engine" ;
+    bappa:encryptionScheme "CKKS" ;
+    bappa:bootstrappingSupport true ;
+    bappa:encryptionDepth 20 .
+
+# Federated Learning System
+bappa:FederatedMLSystem a bappa:FederatedLearningEngine ;
+    rdfs:label "Federated ML System" ;
+    rdfs:comment "Federated machine learning system with privacy" ;
+    bappa:learningAlgorithms "FedAvg,FedProx" ;
+    bappa:communicationRounds 3 ;
+    bappa:participantPrivacy true .
+
+# Secure Multiparty System
+bappa:SMCAnalyticsEngine a bappa:SecureMultipartyComputation ;
+    rdfs:label "SMC Analytics Engine" ;
+    rdfs:comment "Secure multiparty computation analytics engine" ;
+    bappa:protocols "SPDZ,BGW" ;
+    bappa:protocolSecurity "malicious" ;
+    bappa:communicationRounds 5 .
+
+# Synthetic Data Generator
+bappa:DPSyntheticGenerator a bappa:DifferentiallyPrivateSynthesis ;
+    rdfs:label "DP Synthetic Data Generator" ;
+    rdfs:comment "Differentially private synthetic data generator" ;
+    bappa:synthesisMethods "histogram,marginal" ;
+    bappa:statisticalFidelity 95.0 ;
+    bappa:privacyBudgetConsumption 1.0 .
+
+# Crystal Privacy Analytics
+bappa:CrystalQuantumAnalytics a bappa:CrystalPrivacyAnalytics ;
+    rdfs:label "Crystal Quantum Privacy Analytics" ;
+    rdfs:comment "Privacy-preserving analytics for crystal operations" ;
+    bappa:crystalAnalytics true ;
+    bappa:quantumPrivacy true ;
+    bappa:crystallineProperties "coherence,entanglement" .
+
+# =============================================================================
+# PRIVACY-PRESERVING ANALYTICS METRICS
+# =============================================================================
+
+bappa:PrivacyUtilityTradeoff a ba:QualityMetric ;
+    rdfs:label "Privacy-Utility Tradeoff" ;
+    rdfs:comment "Balance between privacy protection and utility preservation" ;
+    ba:targetValue 0.95 ;
+    ba:unit "ratio" ;
+    ba:calculationMethod "utility_preserved / privacy_cost" .
+
+bappa:AnalyticsPrivacyGuarantee a ba:SecurityMetric ;
+    rdfs:label "Analytics Privacy Guarantee" ;
+    rdfs:comment "Strength of privacy guarantees in analytics" ;
+    ba:targetValue 99.9 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "verified_guarantees / total_operations * 100" .
+
+bappa:QueryResponseTime a ba:PerformanceMetric ;
+    rdfs:label "Query Response Time" ;
+    rdfs:comment "Average response time for privacy-preserving queries" ;
+    ba:targetValue 100.0 ;
+    ba:unit "milliseconds" ;
+    ba:calculationMethod "total_query_time / query_count" .
+
+bappa:SyntheticDataQuality a ba:QualityMetric ;
+    rdfs:label "Synthetic Data Quality" ;
+    rdfs:comment "Quality of generated synthetic data" ;
+    ba:targetValue 95.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "statistical_similarity_score * 100" .
+
+bappa:FederatedConvergenceRate a ba:EfficiencyMetric ;
+    rdfs:label "Federated Convergence Rate" ;
+    rdfs:comment "Rate of convergence in federated learning" ;
+    ba:targetValue 90.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "converged_models / total_training_runs * 100" .
+
+# =============================================================================
+# INTEGRATION WITH EXISTING FRAMEWORKS
+# =============================================================================
+
+# Link to Privacy Automation
+bapa:PrivacyPreservingAnalytics bappa:implementedBy bappa:PrivacyPreservingAnalytics .
+bapa:ComplianceAutomationFramework bappa:enhancedBy bappa:CrystalPrivacyAnalytics .
+
+# Link to Differential Privacy
+badp:PrivacyMechanism bappa:appliedIn bappa:DifferentialPrivateAnalytics .
+badp:PrivacyBudgetManager bappa:specializedTo bappa:PrivacyBudgetManager .
+
+# Link to Core Ontology
+ba:AnalyticsFramework bappa:privacyEnhanced bappa:PrivacyPreservingAnalytics .
+ba:QueryEngine bappa:privacyAware bappa:DPQueryEngine .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

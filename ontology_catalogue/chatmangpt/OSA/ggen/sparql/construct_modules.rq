@@ -1,0 +1,24 @@
+# SPARQL CONSTRUCT Query: Generate SPR modules.json from workspace.ttl
+# Fortune 5 Layer 4: Correlation
+# Signal Theory: S=(code,spec,inform,sparql,query)
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX osa: <https://chatmangpt.com/workspace#>
+PREFIX module: <https://chatmangpt.com/workspace#module/>
+
+CONSTRUCT {
+  ?module_uri a osa:Module ;
+    rdfs:label ?name ;
+    osa:type ?type ;
+    osa:file ?file ;
+    osa:line ?line .
+}
+WHERE {
+  ?module_uri a osa:Module ;
+    rdfs:label ?name ;
+    osa:type ?type ;
+    osa:file ?file ;
+    osa:line ?line .
+}
+ORDER BY ?name

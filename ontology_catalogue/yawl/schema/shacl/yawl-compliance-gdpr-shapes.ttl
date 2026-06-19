@@ -1,0 +1,392 @@
+# SHACL Shapes for GDPR Compliance (General Data Protection Regulation)
+# These shapes define YAWL workflow requirements for personal data handling
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawl#> .
+@prefix gdpr: <http://www.yawlfoundation.org/gdpr#> .
+
+# Base shapes
+gdpr:ComplianceShape a sh:NodeShape ;
+    rdfs:label "GDPR Compliance Shape" ;
+    rdfs:comment "Base shape for GDPR compliance requirements" ;
+    sh:severity sh:Violation ;
+    sh:message "GDPR compliance violation detected" ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# Personal Data Process Shape
+gdpr:PersonalDataProcessShape a sh:NodeShape ;
+    rdfs:label "Personal Data Process" ;
+    rdfs:comment "YAWL process that handles personal data" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Violation ;
+    sh:message "Personal data process must comply with GDPR requirements" ;
+    sh:property [
+        sh:path yawl:hasTask ;
+        sh:node gdpr:PersonalDataTaskShape ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Personal data process must contain at least one personal data task" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasLawfulBasis ;
+        sh:node gdpr:LawfulBasisShape ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Personal data processing必须有合法依据" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDataProtectionImpact ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Data Protection Impact Assessment required for high-risk processing" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDocumentation ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Personal data process should have documentation" ;
+    ] .
+
+# Personal Data Task Shape
+gdpr:PersonalDataTaskShape a sh:NodeShape ;
+    rdfs:label "Personal Data Task" ;
+    rdfs:comment "Task that processes personal data" ;
+    sh:targetClass yawl:Task ;
+    sh:severity sh:Violation ;
+    sh:message "Personal data task must comply with GDPR requirements" ;
+    sh:property [
+        sh:path yawl:processesPersonalData ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Task must declare personal data processing" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDataProtection ;
+        sh:node gdpr:DataProtectionMeasureShape ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Personal data processing必须有数据保护措施" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDataMinimization ;
+        hasValue true ;
+        severity sh:Warning ;
+        message "Personal data processing should minimize data" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasPurposeLimit ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Purpose of processing must be specified and limited" ;
+    ] .
+
+# Lawful Basis Shape
+gdpr:LawfulBasisShape a sh:NodeShape ;
+    rdfs:label "Lawful Basis" ;
+    rdfs:comment "Lawful basis for personal data processing" ;
+    sh:severity sh:Violation ;
+    sh:property [
+        sh:path yawl:lawfulBasis ;
+$1sh:in ("consent", "contract", "legal", "vital", "public", "legitimate") ;
+        severity sh:Violation ;
+        message "Lawful basis must be one of: consent, contract, legal, vital, public, legitimate" ;
+    ] ;
+    sh:property [
+        sh:path yawl:lawfulBasisDocumentation ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Lawful basis must be documented" ;
+    ] ;
+    sh:property [
+        sh:path yawl:lawfulBasisRetention ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Retention period for lawful basis should be specified" ;
+    ] .
+
+# Data Protection Measure Shape
+gdpr:DataProtectionMeasureShape a sh:NodeShape ;
+    rdfs:label "Data Protection Measure" ;
+    rdfs:comment "Data protection measures for personal data" ;
+    sh:severity sh:Violation ;
+    sh:property [
+        sh:path yawl:protectionType ;
+$1sh:in ("technical", "organizational", "administrative") ;
+        severity sh:Violation ;
+        message "Protection measure must be technical, organizational, or administrative" ;
+    ] ;
+    sh:property [
+        sh:path yawl:protectionLevel ;
+        hasValue "appropriate" ;
+        severity sh:Violation ;
+        message "Protection measures must be appropriate" ;
+    ] ;
+    sh:property [
+        sh:path yawl:protectionImplementation ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Protection measures must be implemented" ;
+    ] .
+
+# Consent Management Shape
+gdpr:ConsentManagementShape a sh:NodeShape ;
+    rdfs:label "Consent Management" ;
+    rdfs:comment "Consent management requirements" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Violation ;
+    sh:message "Processes relying on consent must have proper consent management" ;
+    sh:property [
+        sh:path yawl:hasConsent ;
+        sh:node gdpr:ConsentDetailShape ;
+        severity sh:Violation ;
+        message "Consent details required" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasConsentWithdrawal ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Consent withdrawal mechanism required" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasConsentLogging ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Consent logging required" ;
+    ] .
+
+# Consent Detail Shape
+gdpr:ConsentDetailShape a sh:NodeShape ;
+    rdfs:label "Consent Details" ;
+    rdfs:comment "Detailed consent requirements" ;
+    sh:severity sh:Violation ;
+    sh:property [
+        sh:path yawl:consentType ;
+$1sh:in ("explicit", "implicit", "optin", "optout") ;
+        severity sh:Violation ;
+        message "Consent type must be explicit, implicit, optin, or optout" ;
+    ] ;
+    sh:property [
+        sh:path yawl:consentInformation ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Consent information must be provided" ;
+    ] ;
+    sh:property [
+        sh:path yawl:consentRecord ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Consent records must be maintained" ;
+    ] ;
+    sh:property [
+        sh:path yawl:consentValidity ;
+        minInclusive 1 ;
+        severity sh:Warning ;
+        message "Consent validity period should be specified" ;
+    ] .
+
+# Data Subject Rights Shape
+gdpr:DataSubjectRightsShape a sh:NodeShape ;
+    rdfs:label "Data Subject Rights" ;
+    rdfs:comment "Data subject rights support" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Warning ;
+    sh:message "Processes should support data subject rights" ;
+    sh:property [
+        sh:path yawl:hasRight ;
+        sh:node gdpr:RightDetailShape ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Data subject rights should be supported" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasRightProcedure ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Procedures for data subject rights should be defined" ;
+    ] .
+
+# Right Detail Shape
+gdpr:RightDetailShape a sh:NodeShape ;
+    rdfs:label "Right Details" ;
+    rdfs:comment "Individual data subject right requirements" ;
+    sh:severity sh:Warning ;
+    sh:property [
+        sh:path yawl:rightType ;
+$1sh:in ("access", "rectification", "erasure", "restriction", "portability", "object", "notautomated") ;
+        severity sh:Warning ;
+        message "Right type must be one of GDPR data subject rights" ;
+    ] ;
+    sh:property [
+        sh:path yawl:rightImplementation ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Right implementation should be defined" ;
+    ] ;
+    sh:property [
+        sh:path yawl:rightTimeline ;
+        minInclusive 1 ;
+        severity sh:Warning ;
+        message "Response timeline should be specified" ;
+    ] .
+
+# Data Breach Notification Shape
+gdpr:DataBreachShape a sh:NodeShape ;
+    rdfs:label "Data Breach" ;
+    rdfs:comment "Data breach notification requirements" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Violation ;
+    sh:message "Processes must support data breach notification" ;
+    sh:property [
+        sh:path yawl:hasBreachDetection ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Breach detection required" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasBreachNotification ;
+        sh:node gdpr:BreachNotificationShape ;
+        severity sh:Violation ;
+        message "Breach notification procedures required" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasBreachContainment ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Breach containment required" ;
+    ] .
+
+# Breach Notification Shape
+gdpr:BreachNotificationShape a sh:NodeShape ;
+    rdfs:label "Breach Notification" ;
+    rdfs:comment "Breach notification requirements" ;
+    sh:severity sh:Violation ;
+    sh:property [
+        sh:path yawl:notificationAuthority ;
+        minInclusive 72 ;
+        severity sh:Violation ;
+        message "Notification to authorities within 72 hours" ;
+    ] ;
+    sh:property [
+        sh:path yawl:notificationAffected ;
+        minInclusive 72 ;
+        severity sh:Violation ;
+        message "Notification to affected individuals within 72 hours (unless high risk)" ;
+    ] ;
+    sh:property [
+        sh:path yawl:notificationContent ;
+        minCount 1 ;
+        severity sh:Violation ;
+        message "Notification content must be specified" ;
+    ] .
+
+# Data Protection Officer Shape
+gdpr:DataProtectionOfficerShape a sh:NodeShape ;
+    rdfs:label "Data Protection Officer" ;
+    rdfs:comment "Data Protection Officer requirements" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Warning ;
+    sh:message "Processes with high-risk processing should have a Data Protection Officer" ;
+    sh:property [
+        sh:path yawl:hasDPO ;
+        hasValue true ;
+        severity sh:Warning ;
+        message "Data Protection Officer required for high-risk processing" ;
+    ] ;
+    sh:property [
+        sh:path yawl:dpoContact ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "DPO contact information should be provided" ;
+    ] ;
+    sh:property [
+        sh:path yawl:dpoAuthority ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "DPO authority should be defined" ;
+    ] .
+
+# International Data Transfers Shape
+gdpr:InternationalTransferShape a sh:NodeShape ;
+    rdfs:label "International Data Transfers" ;
+    rdfs:comment "International data transfer requirements" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Violation ;
+    sh:message "International data transfers must comply with GDPR" ;
+    sh:property [
+        sh:path yawl:hasInternationalTransfer ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "International transfer safeguards required" ;
+    ] ;
+    sh:property [
+        sh:path yawl:transferMechanism ;
+$1sh:in ("adequacy", "appropriate", "exceptions") ;
+        severity sh:Violation ;
+        message "Transfer mechanism must be adequacy, appropriate safeguards, or exceptions" ;
+    ] ;
+    sh:property [
+        sh:path yawl:transferContract ;
+        hasValue true ;
+        severity sh:Violation ;
+        message "Standard contractual clauses required" ;
+    ] ;
+    sh:property [
+        sh:path yawl:transferImpact ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Transfer impact assessment should be conducted" ;
+    ] .
+
+# Record of Processing Activities Shape
+gdpr:RecordProcessingShape a sh:NodeShape ;
+    rdfs:label "Record of Processing" ;
+    rdfs:comment "Record of processing activities requirements" ;
+    sh:targetClass yawl:Specification ;
+    sh:severity sh:Warning ;
+    sh:message "Records of processing activities should be maintained" ;
+    sh:property [
+        sh:path yawl:hasRecord ;
+        sh:node gdpr:RecordDetailShape ;
+        severity sh:Warning ;
+        message "Processing records should be maintained" ;
+    ] ;
+    sh:property [
+        sh:path yawl:retentionPeriod ;
+        minInclusive 1 ;
+        severity sh:Warning ;
+        message "Retention period should be specified" ;
+    ] ;
+    sh:property [
+        sh:path yawl:accessibility ;
+        hasValue "controlled" ;
+        severity sh:Warning ;
+        message "Records should be accessible to supervisory authorities" ;
+    ] .
+
+# Record Detail Shape
+gdpr:RecordDetailShape a sh:NodeShape ;
+    rdfs:label "Record Details" ;
+    rdfs:comment "Detailed record requirements" ;
+    sh:severity sh:Warning ;
+    sh:property [
+        sh:path yawl:recordType ;
+$1sh:in ("purpose", "categories", "recipients", "retention", "security") ;
+        severity sh:Warning ;
+        message "Record type must be one of the required categories" ;
+    ] ;
+    sh:property [
+        sh:path yawl:recordFormat ;
+        minCount 1 ;
+        severity sh:Warning ;
+        message "Record format should be specified" ;
+    ] ;
+    sh:property [
+        sh:path yawl:reviewFrequency ;
+        minInclusive 1 ;
+        severity sh:Warning ;
+        message "Review frequency should be specified" ;
+    ] .

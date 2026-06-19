@@ -1,0 +1,12 @@
+PREFIX cicd: <https://cargo-cicd.rs/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?event_name ?activity ?emitted_by ?validated WHERE {
+    ?event a cicd:EvidenceEvent ;
+        rdfs:label ?event_name ;
+        cicd:xesActivity ?activity ;
+        cicd:emittedBy ?verb ;
+        cicd:validated ?validated .
+    ?verb rdfs:label ?emitted_by .
+}
+ORDER BY ?emitted_by

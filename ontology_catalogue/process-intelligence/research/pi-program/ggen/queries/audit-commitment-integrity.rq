@@ -1,0 +1,13 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# AUDIT: Verify authorization commitments from ALIVE_CLAIM to downstream projects
+# Returns authorized downstream projects (empty = no downstream work authorized yet)
+SELECT ?checkpoint ?authorizedProject ?projectLabel
+WHERE {
+  ?checkpoint a pi:ALIVE_CLAIM ;
+              pi:authorizedDownstream ?authorizedProject .
+  ?authorizedProject rdfs:label ?projectLabel .
+}
+ORDER BY ?checkpoint

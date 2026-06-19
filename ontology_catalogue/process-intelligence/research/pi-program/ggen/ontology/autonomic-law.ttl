@@ -1,0 +1,169 @@
+# Autonomic Knowledge Actuation (AKA) Law Ontology
+# Authority: Autonomic Knowledge Actuation v1.0
+# Encodes: MAPE-K Loop Structure, Elastic vs Compliance Transitions
+
+@prefix aka: <http://process-intelligence.local/autonomic/> .
+@prefix mape: <http://process-intelligence.local/mape-k/> .
+@prefix br: <http://process-intelligence.local/blue-river/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# MAPE-K Loop Components
+mape:MAPEKLoop a owl:Class ;
+  rdfs:label "MAPE-K Loop" ;
+  rdfs:comment "Monitor, Analyze, Plan, Execute, Knowledge feedback loop" .
+
+mape:Monitor a owl:Class ;
+  rdfs:subClassOf mape:MAPEKLoop ;
+  rdfs:label "Monitor" ;
+  rdfs:comment "Real-time event stream ingestion (XES/OCEL 2.0) and trace alignment" .
+
+mape:Analyze a owl:Class ;
+  rdfs:subClassOf mape:MAPEKLoop ;
+  rdfs:label "Analyze" ;
+  rdfs:comment "Compliance deviation evaluation, bottleneck analysis, debt computation" .
+
+mape:Plan a owl:Class ;
+  rdfs:subClassOf mape:MAPEKLoop ;
+  rdfs:label "Plan" ;
+  rdfs:comment "Design-time compilation of Petri nets and declarative temporal rules" .
+
+mape:Execute a owl:Class ;
+  rdfs:subClassOf mape:MAPEKLoop ;
+  rdfs:label "Execute" ;
+  rdfs:comment "Enact modifications via autonomous repairs or HSM-signed model updates" .
+
+mape:Knowledge a owl:Class ;
+  rdfs:subClassOf mape:MAPEKLoop ;
+  rdfs:label "Knowledge" ;
+  rdfs:comment "Immutable artifacts store: process trees, alignment traces, receipts" .
+
+# Transition Partition
+aka:AutonomicPolicy a owl:Class ;
+  rdfs:label "Autonomic Policy" ;
+  rdfs:comment "Policy for MAPE-K driven self-adaptation" .
+
+aka:ElasticTransition a owl:Class ;
+  rdfs:subClassOf aka:AutonomicPolicy ;
+  rdfs:label "Elastic Transition" ;
+  rdfs:comment "Autonomous local repair and scaling (T_elastic)" ;
+  aka:requiresGovToken false .
+
+aka:ComplianceTransition a owl:Class ;
+  rdfs:subClassOf aka:AutonomicPolicy ;
+  rdfs:label "Compliance Transition" ;
+  rdfs:comment "Policy mutation and structural replacement (T_compliance)" ;
+  aka:requiresGovToken true .
+
+# Elastic Transition Subtypes
+aka:LocalRepair a aka:ElasticTransition ;
+  rdfs:label "Local Repair" ;
+  rdfs:comment "Single S-component modification maintaining boundary preservation" .
+
+aka:ScalingTuning a aka:ElasticTransition ;
+  rdfs:label "Scaling & Tuning" ;
+  rdfs:comment "Queue capacity, resource scaling, logging adjustments" .
+
+# Compliance Transition Subtypes
+aka:PolicyMutation a aka:ComplianceTransition ;
+  rdfs:label "Policy Mutation" ;
+  rdfs:comment "Modify global LTL safety policies (Phi_Gov)" .
+
+aka:StructuralReplacement a aka:ComplianceTransition ;
+  rdfs:label "Structural Replacement" ;
+  rdfs:comment "Global model hot-swap (W → W')" .
+
+aka:LifecyclePromotion a aka:ComplianceTransition ;
+  rdfs:label "Lifecycle Promotion" ;
+  rdfs:comment "Move models to active status or decommission" .
+
+aka:ComplianceOverride a aka:ComplianceTransition ;
+  rdfs:label "Compliance Override" ;
+  rdfs:comment "Override conformance violations (e.g., f_align < 0.85)" .
+
+# Properties
+aka:requiresGovToken a owl:DatatypeProperty ;
+  rdfs:label "requires government token" ;
+  rdfs:domain aka:AutonomicPolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True if transition requires HSM-signed GovToken" .
+
+aka:targetComponent a rdf:Property ;
+  rdfs:label "target component" ;
+  rdfs:domain aka:AutonomicPolicy ;
+  rdfs:comment "The S-component or global system targeted by transition" .
+
+aka:preservesInterface a owl:DatatypeProperty ;
+  rdfs:label "preserves interface" ;
+  rdfs:domain aka:ElasticTransition ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True if external interface projection is invariant" .
+
+aka:preservesCompliance a owl:DatatypeProperty ;
+  rdfs:label "preserves compliance" ;
+  rdfs:domain aka:ElasticTransition ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True if LTL compliance invariants (Phi_Gov) are preserved" .
+
+# Typestate Enforcement
+aka:TypestateCompilation a owl:Class ;
+  rdfs:label "Typestate Compilation" ;
+  rdfs:comment "WASM VM type-level verification of transitions" .
+
+aka:TypeStateElastic a aka:TypestateCompilation ;
+  rdfs:label "Typestate: Elastic" ;
+  rdfs:comment "State(s1, π) → T_elastic → Option(State(s2, π'))" .
+
+aka:TypeStateCompliance a aka:TypestateCompilation ;
+  rdfs:label "Typestate: Compliance" ;
+  rdfs:comment "State(s1, π) → T_compliance → GovToken(π_Gov) → Option(State(s2, π'))" .
+
+# Sandbox and Resource Limits
+aka:SandboxIsolation a owl:Class ;
+  rdfs:label "Sandbox Isolation" ;
+  rdfs:comment "WebAssembly VM with gas metering and call stack bounds" .
+
+aka:GasMeter a aka:SandboxIsolation ;
+  rdfs:label "Instruction Gas Meter" ;
+  rdfs:comment "CPU cycle counter bounded at 10M (0xFB01 on overflow)" ;
+  aka:maxCycles 10000000 .
+
+aka:RecursionGuard a aka:SandboxIsolation ;
+  rdfs:label "Recursion Guard" ;
+  rdfs:comment "Call stack depth bounded at 100 frames (0xFB05 on exceed)" ;
+  aka:maxStackDepth 100 .
+
+aka:MemoryShredding a aka:SandboxIsolation ;
+  rdfs:label "Oblivion Protocol (Memory Shredding)" ;
+  rdfs:comment "ChaCha20 3-pass cryptographic overwrite on execution end" .
+
+# Properties for sandbox
+aka:maxCycles a owl:DatatypeProperty ;
+  rdfs:label "maximum cycles" ;
+  rdfs:range xsd:integer .
+
+aka:maxStackDepth a owl:DatatypeProperty ;
+  rdfs:label "maximum stack depth" ;
+  rdfs:range xsd:integer .
+
+# LTL Compliance Templates
+aka:DeclareConstraint a owl:Class ;
+  rdfs:label "Declare Constraint" ;
+  rdfs:comment "LTL_f temporal constraint over process activities" .
+
+aka:ResponseConstraint a aka:DeclareConstraint ;
+  rdfs:label "Response(A, B)" ;
+  rdfs:comment "If A occurs, B must eventually occur" ;
+  aka:ltlfFormula "Box(A implies Diamond B)" .
+
+aka:PrecedenceConstraint a aka:DeclareConstraint ;
+  rdfs:label "Precedence(A, B)" ;
+  rdfs:comment "B cannot occur unless A occurred before" ;
+  aka:ltlfFormula "not B Weak-Until A or Globally not B" .
+
+aka:ltlfFormula a rdf:Property ;
+  rdfs:label "LTL_f formula" ;
+  rdfs:domain aka:DeclareConstraint ;
+  rdfs:range rdfs:Literal .

@@ -1,0 +1,267 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://open-ontologies.org/bible-o-star>
+  a owl:Ontology ;
+  rdfs:label "Bible O* Ontology" ;
+  rdfs:comment "A public-source canonical Bible reference spine ontology package for semantic addressing." ;
+  dcterms:title "Bible O* Canon Address Ontology" ;
+  dcterms:created "2026-06-02"^^xsd:date ;
+  dcterms:license <https://creativecommons.org/licenses/by/4.0/> .
+
+# --- Classes ---
+
+bos:ScriptureWork a owl:Class ;
+  rdfs:label "Scripture Work" ;
+  rdfs:comment "A specific textual witness or edition of the holy scriptures (e.g. Westminster Leningrad Codex, OSIS XML Work)." .
+
+bos:Book a owl:Class ;
+  rdfs:label "Bible Book" ;
+  rdfs:comment "One of the canonical books of the Bible. Uses OSIS three-letter abbreviations (e.g. Gen, Exod, Neh)." .
+
+bos:Chapter a owl:Class ;
+  rdfs:label "Bible Chapter" ;
+  rdfs:comment "A canonical chapter within a scripture book." .
+
+bos:Verse a owl:Class ;
+  rdfs:label "Bible Verse" ;
+  rdfs:comment "A canonical verse within a chapter." .
+
+bos:Passage a owl:Class ;
+  rdfs:label "Bible Passage" ;
+  rdfs:comment "A range of verses or a cohesive textual unit spanning one or more contiguous verses." .
+
+bos:Pericope a owl:Class ;
+  rdfs:subClassOf bos:Passage ;
+  rdfs:label "Pericope" ;
+  rdfs:comment "A discrete, coherent narrative or teaching unit within the text (e.g. a parable or discourse). Structure independently modeled; pericope-as-unit concept informed by the Composite Gospel Index RDF pattern (SemanticBible, CC BY-NC-SA 2.0)." ;
+  rdfs:isDefinedBy <https://open-ontologies.org/bible-o-star> ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> .
+
+bos:GospelPassage a owl:Class ;
+  rdfs:subClassOf bos:Pericope ;
+  rdfs:label "Gospel Passage" ;
+  rdfs:comment "A pericope drawn from one of the four canonical Gospel accounts (Matthew, Mark, Luke, John). A single pericope event may have multiple GospelPassage instances, one per Gospel source." ;
+  rdfs:isDefinedBy <https://open-ontologies.org/bible-o-star> ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> .
+
+bos:ParallelPassage a owl:Class ;
+  rdfs:subClassOf bos:Passage ;
+  rdfs:label "Parallel Passage" ;
+  rdfs:comment "A passage that presents the same narrative event or teaching as another passage in a different Gospel account. Parallelism is a factual structural observation, not a doctrinal claim." ;
+  rdfs:isDefinedBy <https://open-ontologies.org/bible-o-star> ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> .
+
+bos:Person a owl:Class ;
+  rdfs:label "Person" ;
+  rdfs:comment "A human or divine agent identified in the canonical text." .
+
+bos:PeopleGroup a owl:Class ;
+  rdfs:label "People Group" ;
+  rdfs:comment "A nation, tribe, city cohort, or collective named group identified in the text." .
+
+bos:Place a owl:Class ;
+  rdfs:label "Place" ;
+  rdfs:comment "A geographical location, city, or building identified in the canonical text." .
+
+# --- Properties ---
+
+bos:hasBook a owl:ObjectProperty ;
+  rdfs:label "has book" ;
+  rdfs:domain bos:ScriptureWork ;
+  rdfs:range bos:Book ;
+  rdfs:comment "Relates a ScriptureWork to one of its canonical Book instances." .
+
+bos:hasChapter a owl:ObjectProperty ;
+  rdfs:label "has chapter" ;
+  rdfs:domain bos:Book ;
+  rdfs:range bos:Chapter ;
+  rdfs:comment "Relates a Book to one of its Chapter instances." .
+
+bos:hasVerse a owl:ObjectProperty ;
+  rdfs:label "has verse" ;
+  rdfs:domain bos:Chapter ;
+  rdfs:range bos:Verse ;
+  rdfs:comment "Relates a Chapter to one of its Verse instances." .
+
+bos:hasPassage a owl:ObjectProperty ;
+  rdfs:label "has passage" ;
+  rdfs:domain bos:ScriptureWork ;
+  rdfs:range bos:Passage ;
+  rdfs:comment "Relates a ScriptureWork to a named Passage." .
+
+bos:hasCanonicalReference a owl:DatatypeProperty ;
+  rdfs:label "has canonical reference" ;
+  rdfs:comment "The OSIS-formatted reference string (e.g. 'Gen.1.1', 'Neh.3.1-Neh.3.32')." ;
+  rdfs:range xsd:string .
+
+bos:hasSource a owl:ObjectProperty ;
+  rdfs:label "has source" ;
+  rdfs:comment "Links an instance to its scriptural source work or reference." .
+
+bos:hasCrossReference a owl:ObjectProperty ;
+  rdfs:label "has cross reference" ;
+  rdfs:comment "Evidence-level cross-reference link between scripture passages. Not a doctrinal relation." ;
+  rdfs:range bos:Passage .
+
+bos:mentionsPerson a owl:ObjectProperty ;
+  rdfs:label "mentions person" ;
+  rdfs:range bos:Person ;
+  rdfs:comment "Asserts that a passage, verse, or structural unit mentions a specific Person." .
+
+bos:mentionsPlace a owl:ObjectProperty ;
+  rdfs:label "mentions place" ;
+  rdfs:range bos:Place ;
+  rdfs:comment "Asserts that a passage, verse, or structural unit mentions a specific Place." .
+
+bos:hasParallelPassage a owl:ObjectProperty ;
+  rdfs:label "has parallel passage" ;
+  rdfs:domain bos:GospelPassage ;
+  rdfs:range bos:ParallelPassage ;
+  rdfs:comment "Links a GospelPassage to a ParallelPassage in another Gospel account that records the same event or teaching. Structural observation only." ;
+  rdfs:isDefinedBy <https://open-ontologies.org/bible-o-star> ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> .
+
+bos:assignedToGate a owl:ObjectProperty ;
+  rdfs:label "assigned to gate" ;
+  rdfs:comment "Assigns a Pericope or study unit to a named gate in the Nehemiah 3 wall circuit, for lectionary or curriculum sequencing." ;
+  rdfs:isDefinedBy <https://open-ontologies.org/bible-o-star> .
+
+bos:pericopeIndex a owl:DatatypeProperty ;
+  rdfs:label "pericope index" ;
+  rdfs:domain bos:Pericope ;
+  rdfs:range xsd:positiveInteger ;
+  rdfs:comment "Numeric sequence index for this pericope within its ordering scheme (e.g. CGI pericope #235)." ;
+  rdfs:isDefinedBy <https://open-ontologies.org/bible-o-star> ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> .
+
+# --- Nehemiah 3 Domain Classes ---
+
+bos:Gate a owl:Class ;
+  rdfs:label "Gate" ;
+  rdfs:comment "A named gate in the Nehemiah 3 wall circuit, serving as an assignment anchor for builders and wall sections." .
+
+bos:WallSection a owl:Class ;
+  rdfs:label "Wall Section" ;
+  rdfs:comment "A discrete section of the Jerusalem wall assigned to specific builders in Nehemiah 3." .
+
+bos:Builder a owl:Class ;
+  rdfs:label "Builder" ;
+  rdfs:comment "A named individual or group assigned to build a section of the Jerusalem wall (Nehemiah 3)." .
+
+bos:InspectionReceipt a owl:Class ;
+  rdfs:label "Inspection Receipt" ;
+  rdfs:comment "A proof-of-inspection record attesting to the state of a wall section or gate, with a verdict (ALIVE, PARTIAL, BLOCKED)." .
+
+bos:Receipt a owl:Class ;
+  rdfs:label "Receipt" ;
+  rdfs:comment "A provenance record attesting to a completed action or evidence trail. Base class for inspection and other receipts." .
+
+bos:Verdict a owl:Class ;
+  rdfs:label "Verdict" ;
+  rdfs:comment "An enumerated outcome value for an inspection: ALIVE, PARTIAL, or BLOCKED." .
+
+bos:FalseReport a owl:Class ;
+  rdfs:label "False Report" ;
+  rdfs:comment "An adversarial or fabricated communication intended to obstruct or discredit the building work (cf. Neh.6.5-8)." .
+
+bos:CourierRecord a owl:Class ;
+  rdfs:label "Courier Record" ;
+  rdfs:comment "A record of a message received, classified, and routed through the inspection gate. May refuse poisoned payload." .
+
+bos:Mocker a owl:Class ;
+  rdfs:label "Mocker" ;
+  rdfs:comment "An adversarial agent who delivers mockery or false feedback against the building work (cf. Neh.4.1-3)." .
+
+bos:MockerFeedback a owl:Class ;
+  rdfs:label "Mocker Feedback" ;
+  rdfs:comment "A unit of adversarial mockery or hostile critique delivered against the wall-building project (Neh.4.2-3)." .
+
+bos:MusterLedgerRecord a owl:Class ;
+  rdfs:label "Muster Ledger Record" ;
+  rdfs:comment "An accountability census entry recording a named builder's assignment to a gate and wall section (Nehemiah 3)." .
+
+bos:MusterRegistry a owl:Class ;
+  rdfs:label "Muster Registry" ;
+  rdfs:comment "The full accountability registry of wall builders. Not a census of population — a census of obligation (Neh.3.1-32)." .
+
+bos:UsuryAudit a owl:Class ;
+  rdfs:label "Usury Audit" ;
+  rdfs:comment "An audit record of usury extraction and its correction, documenting the economic injustice addressed in Neh.5.1-13." .
+
+bos:UsuryLedgerRecord a owl:Class ;
+  rdfs:label "Usury Ledger Record" ;
+  rdfs:comment "A ledger entry recording a usury infraction and its resolution under Nehemiah's governance (Neh.5.1-13)." .
+
+# --- Nehemiah 3 Domain Properties ---
+
+bos:hasBuilder a owl:ObjectProperty ;
+  rdfs:label "has builder" ;
+  rdfs:range bos:Builder ;
+  rdfs:comment "Relates a wall section or record to its assigned builder(s). No rdfs:domain is asserted: wall sections AND ledger records (Muster, Usury) carry builders, and they share no common superclass — an over-narrow domain would inject spurious WallSection type inferences. SHACL shapes carry the real per-class constraints." .
+
+bos:hasWallSection a owl:ObjectProperty ;
+  rdfs:label "has wall section" ;
+  rdfs:domain bos:Gate ;
+  rdfs:range bos:WallSection ;
+  rdfs:comment "Relates a Gate to its associated WallSection." .
+
+bos:hasReceipt a owl:ObjectProperty ;
+  rdfs:label "has receipt" ;
+  rdfs:range bos:Receipt ;
+  rdfs:comment "Links a wall section, record, or artifact to its proof receipt." .
+
+bos:hasVerdict a owl:ObjectProperty ;
+  rdfs:label "has verdict" ;
+  rdfs:range bos:Verdict ;
+  rdfs:comment "Relates an inspection receipt or record to its outcome verdict." .
+
+bos:hasMusterRecord a owl:ObjectProperty ;
+  rdfs:label "has muster record" ;
+  rdfs:range bos:MusterRegistry ;
+  rdfs:comment "Links a muster ledger entry to its parent muster registry." .
+
+bos:hasUsuryAudit a owl:ObjectProperty ;
+  rdfs:label "has usury audit" ;
+  rdfs:range bos:UsuryAudit ;
+  rdfs:comment "Links a usury ledger record to its audit finding." .
+
+bos:buildsWallSection a owl:ObjectProperty ;
+  rdfs:label "builds wall section" ;
+  rdfs:domain bos:Builder ;
+  rdfs:range bos:WallSection ;
+  rdfs:comment "Asserts that a builder is responsible for constructing a specific wall section." .
+
+bos:classifiesPayload a owl:ObjectProperty ;
+  rdfs:label "classifies payload" ;
+  rdfs:comment "Relates a courier record to the payload (e.g. FalseReport) it has classified." .
+
+bos:routesToGate a owl:ObjectProperty ;
+  rdfs:label "routes to gate" ;
+  rdfs:range bos:Gate ;
+  rdfs:comment "Routes a courier record or feedback item to the designated inspection gate." .
+
+bos:refusesPoison a owl:DatatypeProperty ;
+  rdfs:label "refuses poison" ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Boolean flag: true if the courier record or audit has explicitly refused a poisoned/false payload." .
+
+bos:hasTimestamp a owl:DatatypeProperty ;
+  rdfs:label "has timestamp" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "A temporal marker (date, epoch, or reference date string) for an inspection receipt or record." .
+
+bos:hasPayloadText a owl:DatatypeProperty ;
+  rdfs:label "has payload text" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The literal text content of a payload (e.g. courier message, false report)." .
+
+bos:hasCanonicalNehRef a owl:DatatypeProperty ;
+  rdfs:label "has canonical Neh reference" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "OSIS-formatted canonical reference specifically within the Book of Nehemiah (e.g. 'Neh.3.1')." .

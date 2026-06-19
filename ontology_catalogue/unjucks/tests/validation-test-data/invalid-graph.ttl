@@ -1,0 +1,15 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# This file has intentional syntax errors for testing
+
+ex:Person1 a ex:Person ;
+  rdfs:label "John Doe" ;
+  ex:age "thirty" ;  # Invalid age datatype
+  ex:email <mailto:invalid-email> .
+
+ex:Person2 
+  # Missing predicate here - syntax error
+  "Jane Smith"^^xsd:string .
+
+ex:BadTriple ex:predicate ex:object ex:extraObject .  # Too many objects

@@ -1,0 +1,512 @@
+@prefix : <http://demo.ontoforge.com/ecommerce/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# E-commerce Ontology Demo - Comprehensive Real-world Classes
+
+# Core Business Entities
+:User a owl:Class ;
+  rdfs:label "User" ;
+  rdfs:comment "System user with account and profile information" .
+
+:Customer a owl:Class ;
+  rdfs:subClassOf :User ;
+  rdfs:label "Customer" ;
+  rdfs:comment "Customer who can place orders and make purchases" .
+
+:Administrator a owl:Class ;
+  rdfs:subClassOf :User ;
+  rdfs:label "Administrator" ;
+  rdfs:comment "System administrator with management privileges" .
+
+:Product a owl:Class ;
+  rdfs:label "Product" ;
+  rdfs:comment "Product available for sale in the e-commerce system" .
+
+:Category a owl:Class ;
+  rdfs:label "Category" ;
+  rdfs:comment "Product category for organization and filtering" .
+
+:Order a owl:Class ;
+  rdfs:label "Order" ;
+  rdfs:comment "Customer order containing multiple order items" .
+
+:OrderItem a owl:Class ;
+  rdfs:label "Order Item" ;
+  rdfs:comment "Individual item within an order with quantity and pricing" .
+
+:ShoppingCart a owl:Class ;
+  rdfs:label "Shopping Cart" ;
+  rdfs:comment "Temporary collection of items before checkout" .
+
+:CartItem a owl:Class ;
+  rdfs:label "Cart Item" ;
+  rdfs:comment "Individual item in shopping cart with quantity" .
+
+:Payment a owl:Class ;
+  rdfs:label "Payment" ;
+  rdfs:comment "Payment transaction for an order" .
+
+:Address a owl:Class ;
+  rdfs:label "Address" ;
+  rdfs:comment "Shipping or billing address" .
+
+:Review a owl:Class ;
+  rdfs:label "Review" ;
+  rdfs:comment "Customer review and rating for a product" .
+
+:Inventory a owl:Class ;
+  rdfs:label "Inventory" ;
+  rdfs:comment "Product inventory tracking stock levels" .
+
+:Coupon a owl:Class ;
+  rdfs:label "Coupon" ;
+  rdfs:comment "Discount coupon with usage rules" .
+
+:Shipment a owl:Class ;
+  rdfs:label "Shipment" ;
+  rdfs:comment "Order shipment with tracking information" .
+
+# User Properties
+:firstName a rdf:Property ;
+  rdfs:label "First Name" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:lastName a rdf:Property ;
+  rdfs:label "Last Name" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:email a rdf:Property ;
+  rdfs:label "Email" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:username a rdf:Property ;
+  rdfs:label "Username" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:phoneNumber a rdf:Property ;
+  rdfs:label "Phone Number" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:string .
+
+:dateOfBirth a rdf:Property ;
+  rdfs:label "Date of Birth" ;
+  rdfs:domain :Customer ;
+  rdfs:range xsd:date .
+
+:isActive a rdf:Property ;
+  rdfs:label "Is Active" ;
+  rdfs:domain :User ;
+  rdfs:range xsd:boolean .
+
+:loyaltyPoints a rdf:Property ;
+  rdfs:label "Loyalty Points" ;
+  rdfs:domain :Customer ;
+  rdfs:range xsd:integer .
+
+# Product Properties
+:productName a rdf:Property ;
+  rdfs:label "Product Name" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:string .
+
+:description a rdf:Property ;
+  rdfs:label "Description" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:string .
+
+:price a rdf:Property ;
+  rdfs:label "Price" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:decimal .
+
+:salePrice a rdf:Property ;
+  rdfs:label "Sale Price" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:decimal .
+
+:sku a rdf:Property ;
+  rdfs:label "SKU" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:string .
+
+:weight a rdf:Property ;
+  rdfs:label "Weight" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:decimal .
+
+:dimensions a rdf:Property ;
+  rdfs:label "Dimensions" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:string .
+
+:isPublished a rdf:Property ;
+  rdfs:label "Is Published" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:boolean .
+
+:isFeatured a rdf:Property ;
+  rdfs:label "Is Featured" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:boolean .
+
+:averageRating a rdf:Property ;
+  rdfs:label "Average Rating" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:decimal .
+
+:reviewCount a rdf:Property ;
+  rdfs:label "Review Count" ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:integer .
+
+# Category Properties
+:categoryName a rdf:Property ;
+  rdfs:label "Category Name" ;
+  rdfs:domain :Category ;
+  rdfs:range xsd:string .
+
+:categorySlug a rdf:Property ;
+  rdfs:label "Category Slug" ;
+  rdfs:domain :Category ;
+  rdfs:range xsd:string .
+
+:categoryDescription a rdf:Property ;
+  rdfs:label "Category Description" ;
+  rdfs:domain :Category ;
+  rdfs:range xsd:string .
+
+:sortOrder a rdf:Property ;
+  rdfs:label "Sort Order" ;
+  rdfs:domain :Category ;
+  rdfs:range xsd:integer .
+
+# Order Properties
+:orderNumber a rdf:Property ;
+  rdfs:label "Order Number" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:string .
+
+:orderStatus a rdf:Property ;
+  rdfs:label "Order Status" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:string .
+
+:orderDate a rdf:Property ;
+  rdfs:label "Order Date" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:dateTime .
+
+:totalAmount a rdf:Property ;
+  rdfs:label "Total Amount" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:decimal .
+
+:taxAmount a rdf:Property ;
+  rdfs:label "Tax Amount" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:decimal .
+
+:shippingCost a rdf:Property ;
+  rdfs:label "Shipping Cost" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:decimal .
+
+:discountAmount a rdf:Property ;
+  rdfs:label "Discount Amount" ;
+  rdfs:domain :Order ;
+  rdfs:range xsd:decimal .
+
+# OrderItem Properties
+:quantity a rdf:Property ;
+  rdfs:label "Quantity" ;
+  rdfs:domain :OrderItem ;
+  rdfs:range xsd:integer .
+
+:unitPrice a rdf:Property ;
+  rdfs:label "Unit Price" ;
+  rdfs:domain :OrderItem ;
+  rdfs:range xsd:decimal .
+
+:lineTotal a rdf:Property ;
+  rdfs:label "Line Total" ;
+  rdfs:domain :OrderItem ;
+  rdfs:range xsd:decimal .
+
+# Review Properties
+:rating a rdf:Property ;
+  rdfs:label "Rating" ;
+  rdfs:domain :Review ;
+  rdfs:range xsd:integer .
+
+:reviewTitle a rdf:Property ;
+  rdfs:label "Review Title" ;
+  rdfs:domain :Review ;
+  rdfs:range xsd:string .
+
+:reviewText a rdf:Property ;
+  rdfs:label "Review Text" ;
+  rdfs:domain :Review ;
+  rdfs:range xsd:string .
+
+:reviewDate a rdf:Property ;
+  rdfs:label "Review Date" ;
+  rdfs:domain :Review ;
+  rdfs:range xsd:dateTime .
+
+:isVerified a rdf:Property ;
+  rdfs:label "Is Verified" ;
+  rdfs:domain :Review ;
+  rdfs:range xsd:boolean .
+
+# Address Properties
+:streetAddress a rdf:Property ;
+  rdfs:label "Street Address" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:city a rdf:Property ;
+  rdfs:label "City" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:state a rdf:Property ;
+  rdfs:label "State" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:postalCode a rdf:Property ;
+  rdfs:label "Postal Code" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:country a rdf:Property ;
+  rdfs:label "Country" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+:addressType a rdf:Property ;
+  rdfs:label "Address Type" ;
+  rdfs:domain :Address ;
+  rdfs:range xsd:string .
+
+# Payment Properties
+:paymentMethod a rdf:Property ;
+  rdfs:label "Payment Method" ;
+  rdfs:domain :Payment ;
+  rdfs:range xsd:string .
+
+:paymentStatus a rdf:Property ;
+  rdfs:label "Payment Status" ;
+  rdfs:domain :Payment ;
+  rdfs:range xsd:string .
+
+:paymentDate a rdf:Property ;
+  rdfs:label "Payment Date" ;
+  rdfs:domain :Payment ;
+  rdfs:range xsd:dateTime .
+
+:transactionId a rdf:Property ;
+  rdfs:label "Transaction ID" ;
+  rdfs:domain :Payment ;
+  rdfs:range xsd:string .
+
+:amountPaid a rdf:Property ;
+  rdfs:label "Amount Paid" ;
+  rdfs:domain :Payment ;
+  rdfs:range xsd:decimal .
+
+# Inventory Properties
+:stockQuantity a rdf:Property ;
+  rdfs:label "Stock Quantity" ;
+  rdfs:domain :Inventory ;
+  rdfs:range xsd:integer .
+
+:reservedQuantity a rdf:Property ;
+  rdfs:label "Reserved Quantity" ;
+  rdfs:domain :Inventory ;
+  rdfs:range xsd:integer .
+
+:reorderPoint a rdf:Property ;
+  rdfs:label "Reorder Point" ;
+  rdfs:domain :Inventory ;
+  rdfs:range xsd:integer .
+
+:lastRestocked a rdf:Property ;
+  rdfs:label "Last Restocked" ;
+  rdfs:domain :Inventory ;
+  rdfs:range xsd:dateTime .
+
+# Coupon Properties
+:couponCode a rdf:Property ;
+  rdfs:label "Coupon Code" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:string .
+
+:discountType a rdf:Property ;
+  rdfs:label "Discount Type" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:string .
+
+:discountValue a rdf:Property ;
+  rdfs:label "Discount Value" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:decimal .
+
+:minOrderAmount a rdf:Property ;
+  rdfs:label "Minimum Order Amount" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:decimal .
+
+:expirationDate a rdf:Property ;
+  rdfs:label "Expiration Date" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:date .
+
+:usageLimit a rdf:Property ;
+  rdfs:label "Usage Limit" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:integer .
+
+:usageCount a rdf:Property ;
+  rdfs:label "Usage Count" ;
+  rdfs:domain :Coupon ;
+  rdfs:range xsd:integer .
+
+# Shipment Properties
+:trackingNumber a rdf:Property ;
+  rdfs:label "Tracking Number" ;
+  rdfs:domain :Shipment ;
+  rdfs:range xsd:string .
+
+:carrier a rdf:Property ;
+  rdfs:label "Carrier" ;
+  rdfs:domain :Shipment ;
+  rdfs:range xsd:string .
+
+:shipmentStatus a rdf:Property ;
+  rdfs:label "Shipment Status" ;
+  rdfs:domain :Shipment ;
+  rdfs:range xsd:string .
+
+:shippedDate a rdf:Property ;
+  rdfs:label "Shipped Date" ;
+  rdfs:domain :Shipment ;
+  rdfs:range xsd:dateTime .
+
+:deliveryDate a rdf:Property ;
+  rdfs:label "Delivery Date" ;
+  rdfs:domain :Shipment ;
+  rdfs:range xsd:dateTime .
+
+:estimatedDelivery a rdf:Property ;
+  rdfs:label "Estimated Delivery" ;
+  rdfs:domain :Shipment ;
+  rdfs:range xsd:dateTime .
+
+# Timestamp properties for all entities
+:createdAt a rdf:Property ;
+  rdfs:label "Created At" ;
+  rdfs:range xsd:dateTime .
+
+:updatedAt a rdf:Property ;
+  rdfs:label "Updated At" ;
+  rdfs:range xsd:dateTime .
+
+# Object Properties (Relationships)
+:belongsToCategory a rdf:Property ;
+  rdfs:label "Belongs to Category" ;
+  rdfs:domain :Product ;
+  rdfs:range :Category .
+
+:hasParentCategory a rdf:Property ;
+  rdfs:label "Has Parent Category" ;
+  rdfs:domain :Category ;
+  rdfs:range :Category .
+
+:placedBy a rdf:Property ;
+  rdfs:label "Placed By" ;
+  rdfs:domain :Order ;
+  rdfs:range :Customer .
+
+:containsItem a rdf:Property ;
+  rdfs:label "Contains Item" ;
+  rdfs:domain :Order ;
+  rdfs:range :OrderItem .
+
+:itemProduct a rdf:Property ;
+  rdfs:label "Item Product" ;
+  rdfs:domain :OrderItem ;
+  rdfs:range :Product .
+
+:belongsToOrder a rdf:Property ;
+  rdfs:label "Belongs to Order" ;
+  rdfs:domain :OrderItem ;
+  rdfs:range :Order .
+
+:reviewedBy a rdf:Property ;
+  rdfs:label "Reviewed By" ;
+  rdfs:domain :Review ;
+  rdfs:range :Customer .
+
+:reviewsProduct a rdf:Property ;
+  rdfs:label "Reviews Product" ;
+  rdfs:domain :Review ;
+  rdfs:range :Product .
+
+:hasAddress a rdf:Property ;
+  rdfs:label "Has Address" ;
+  rdfs:domain :User ;
+  rdfs:range :Address .
+
+:shippingAddress a rdf:Property ;
+  rdfs:label "Shipping Address" ;
+  rdfs:domain :Order ;
+  rdfs:range :Address .
+
+:billingAddress a rdf:Property ;
+  rdfs:label "Billing Address" ;
+  rdfs:domain :Order ;
+  rdfs:range :Address .
+
+:paymentForOrder a rdf:Property ;
+  rdfs:label "Payment for Order" ;
+  rdfs:domain :Payment ;
+  rdfs:range :Order .
+
+:hasInventory a rdf:Property ;
+  rdfs:label "Has Inventory" ;
+  rdfs:domain :Product ;
+  rdfs:range :Inventory .
+
+:appliedCoupon a rdf:Property ;
+  rdfs:label "Applied Coupon" ;
+  rdfs:domain :Order ;
+  rdfs:range :Coupon .
+
+:shipmentForOrder a rdf:Property ;
+  rdfs:label "Shipment for Order" ;
+  rdfs:domain :Shipment ;
+  rdfs:range :Order .
+
+:ownsCart a rdf:Property ;
+  rdfs:label "Owns Cart" ;
+  rdfs:domain :Customer ;
+  rdfs:range :ShoppingCart .
+
+:cartContains a rdf:Property ;
+  rdfs:label "Cart Contains" ;
+  rdfs:domain :ShoppingCart ;
+  rdfs:range :CartItem .
+
+:cartItemProduct a rdf:Property ;
+  rdfs:label "Cart Item Product" ;
+  rdfs:domain :CartItem ;
+  rdfs:range :Product .

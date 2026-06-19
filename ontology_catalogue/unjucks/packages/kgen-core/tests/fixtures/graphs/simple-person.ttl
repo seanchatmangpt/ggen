@@ -1,0 +1,22 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:person1 a foaf:Person ;
+  foaf:name "John Doe" ;
+  foaf:age "30"^^xsd:integer ;
+  foaf:email "john.doe@example.com" ;
+  schema:jobTitle "Software Engineer" ;
+  schema:worksFor ex:company1 .
+
+ex:company1 a schema:Organization ;
+  schema:name "TechCorp Inc" ;
+  schema:address [
+    a schema:PostalAddress ;
+    schema:streetAddress "123 Tech Street" ;
+    schema:addressLocality "San Francisco" ;
+    schema:addressRegion "CA" ;
+    schema:postalCode "94105" ;
+    schema:addressCountry "US"
+  ] .

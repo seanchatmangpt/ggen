@@ -1,0 +1,574 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix iiot: <http://cns.ai/ontology/industrial-iot#> .
+
+# SHACL Constraints for Industrial IoT System Validation
+# Critical manufacturing rules enforced at sub-millisecond speeds
+# BitActor integration for ultra-fast process optimization
+
+#####################################################################
+# Manufacturing Asset Constraints
+#####################################################################
+
+iiot:ManufacturingAssetShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:ManufacturingAsset ;
+    sh:property [
+        sh:path iiot:assetID ;
+        sh:datatype xsd:string ;
+        sh:minLength 4 ;
+        sh:maxLength 32 ;
+        sh:pattern "^[A-Z0-9_-]{4,32}$" ;
+        sh:name "Asset ID validation" ;
+        sh:description "Asset ID must be 4-32 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path iiot:criticality ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Criticality validation" ;
+        sh:description "Asset criticality must be rated 1-10"
+    ] ;
+    sh:property [
+        sh:path iiot:operationalStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "running" "idle" "maintenance" "stopped" "fault" "startup" "shutdown" ) ;
+        sh:name "Operational status validation" ;
+        sh:description "Operational status must be from approved list"
+    ] ;
+    sh:property [
+        sh:path iiot:assetType ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "Asset type requirement" ;
+        sh:description "All assets must have a defined type"
+    ] .
+
+#####################################################################
+# Machine Performance Constraints
+#####################################################################
+
+iiot:MachineShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:Machine ;
+    sh:property [
+        sh:path iiot:utilizationRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "Utilization rate validation" ;
+        sh:description "Machine utilization must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:availabilityRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "Availability rate validation" ;
+        sh:description "Machine availability must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:performanceRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "Performance rate validation" ;
+        sh:description "Machine performance must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:oeeScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "OEE score validation" ;
+        sh:description "Overall Equipment Effectiveness must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:mtbf ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.0 ;
+        sh:maxInclusive 87600.0 ; # 10 years max
+        sh:name "MTBF validation" ;
+        sh:description "Mean Time Between Failures must be positive and reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:mttr ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 168.0 ; # 1 week max
+        sh:name "MTTR validation" ;
+        sh:description "Mean Time To Repair must be positive and reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:operatingHours ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 876000.0 ; # 100 years theoretical max
+        sh:name "Operating hours validation" ;
+        sh:description "Operating hours must be non-negative and reasonable"
+    ] .
+
+#####################################################################
+# Sensor Constraints - Ultra-fast validation
+#####################################################################
+
+iiot:SensorShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:Sensor ;
+    sh:property [
+        sh:path iiot:sensorID ;
+        sh:datatype xsd:string ;
+        sh:minLength 4 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Sensor ID validation" ;
+        sh:description "Sensor ID must be 4-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path iiot:samplingRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 100000.0 ; # 100 kHz max
+        sh:name "Sampling rate validation" ;
+        sh:description "Sampling rate must be between 0.1 Hz and 100 kHz"
+    ] ;
+    sh:property [
+        sh:path iiot:accuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.001 ;
+        sh:maxInclusive 50.0 ;
+        sh:name "Measurement accuracy validation" ;
+        sh:description "Measurement accuracy must be between 0.001% and 50%"
+    ] ;
+    sh:property [
+        sh:path iiot:measurementTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Measurement timestamp requirement" ;
+        sh:description "All sensor measurements must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path iiot:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000000.0 ; # 1ms maximum latency
+        sh:name "Processing latency constraint" ;
+        sh:description "Sensor processing must complete within 1ms"
+    ] ;
+    sh:property [
+        sh:path iiot:ticksUsed ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ; # BitActor 8-tick guarantee
+        sh:name "CPU ticks constraint" ;
+        sh:description "Sensor processing must use ≤8 CPU ticks"
+    ] .
+
+iiot:TemperatureSensorShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:TemperatureSensor ;
+    sh:property [
+        sh:path iiot:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -273.15 ; # Absolute zero
+        sh:maxInclusive 3000.0 ; # Industrial furnace max
+        sh:name "Temperature measurement validation" ;
+        sh:description "Temperature must be above absolute zero and reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:alarmThresholdHigh ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -200.0 ;
+        sh:maxInclusive 2000.0 ;
+        sh:name "High temperature alarm validation" ;
+        sh:description "High temperature alarm must be reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:alarmThresholdLow ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -273.0 ;
+        sh:maxInclusive 1000.0 ;
+        sh:name "Low temperature alarm validation" ;
+        sh:description "Low temperature alarm must be reasonable"
+    ] .
+
+iiot:PressureSensorShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:PressureSensor ;
+    sh:property [
+        sh:path iiot:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ; # Absolute pressure
+        sh:maxInclusive 1000.0 ; # 1000 bar max for industrial
+        sh:name "Pressure measurement validation" ;
+        sh:description "Pressure must be non-negative and reasonable"
+    ] .
+
+iiot:VibrationSensorShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:VibrationSensor ;
+    sh:property [
+        sh:path iiot:measurementValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1000.0 ; # 1000 m/s² max acceleration
+        sh:name "Vibration measurement validation" ;
+        sh:description "Vibration measurement must be non-negative and reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:samplingRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 100.0 ; # Minimum for vibration analysis
+        sh:maxInclusive 50000.0 ; # 50 kHz for high-frequency analysis
+        sh:name "Vibration sampling rate validation" ;
+        sh:description "Vibration sensors require high sampling rates"
+    ] .
+
+#####################################################################
+# Process Constraints
+#####################################################################
+
+iiot:ManufacturingProcessShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:ManufacturingProcess ;
+    sh:property [
+        sh:path iiot:processID ;
+        sh:datatype xsd:string ;
+        sh:minLength 4 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Process ID validation" ;
+        sh:description "Process ID must be 4-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path iiot:cycleTime ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ; # 100ms minimum cycle time
+        sh:maxInclusive 86400.0 ; # 24 hours maximum
+        sh:name "Cycle time validation" ;
+        sh:description "Process cycle time must be between 0.1s and 24 hours"
+    ] ;
+    sh:property [
+        sh:path iiot:throughput ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ;
+        sh:maxInclusive 10000.0 ; # 10k units/hour max
+        sh:name "Throughput validation" ;
+        sh:description "Process throughput must be positive and reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:efficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "Process efficiency validation" ;
+        sh:description "Process efficiency must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:yieldRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "Yield rate validation" ;
+        sh:description "Process yield rate must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:setupTime ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1440.0 ; # 24 hours max setup
+        sh:name "Setup time validation" ;
+        sh:description "Process setup time must be non-negative and reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:energyConsumption ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10000.0 ; # 10 MWh max per process
+        sh:name "Energy consumption validation" ;
+        sh:description "Energy consumption must be non-negative and reasonable"
+    ] .
+
+#####################################################################
+# Quality Constraints
+#####################################################################
+
+iiot:QualityMeasurementShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:QualityMeasurement ;
+    sh:property [
+        sh:path iiot:qualityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:name "Quality score validation" ;
+        sh:description "Quality score must be between 0.0 and 10.0"
+    ] ;
+    sh:property [
+        sh:path iiot:defectRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:name "Defect rate validation" ;
+        sh:description "Defect rate must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path iiot:inspectionResult ;
+        sh:datatype xsd:string ;
+        sh:in ( "pass" "fail" "rework" "pending" "rejected" ) ;
+        sh:name "Inspection result validation" ;
+        sh:description "Inspection result must be from approved list"
+    ] .
+
+iiot:StatisticalProcessControlShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:StatisticalProcessControl ;
+    sh:property [
+        sh:path iiot:cpkValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 5.0 ; # Theoretical maximum for normal processes
+        sh:name "Cpk value validation" ;
+        sh:description "Process capability index must be between 0.0 and 5.0"
+    ] .
+
+#####################################################################
+# Control System Constraints - Performance requirements
+#####################################################################
+
+iiot:ControlSystemShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:ControlSystem ;
+    sh:property [
+        sh:path iiot:realTimeOptimization ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ; # Real-time optimization required
+        sh:name "Real-time optimization requirement" ;
+        sh:description "Control systems must have real-time optimization enabled"
+    ] ;
+    sh:property [
+        sh:path iiot:controlAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 90.0 ; # Minimum 90% accuracy
+        sh:maxInclusive 100.0 ;
+        sh:name "Control accuracy validation" ;
+        sh:description "Control accuracy must be ≥90%"
+    ] ;
+    sh:property [
+        sh:path iiot:responseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 100.0 ; # 100ms maximum response
+        sh:name "Response time constraint" ;
+        sh:description "Control system response time must be ≤100ms"
+    ] .
+
+iiot:PLCShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:PLC ;
+    sh:property [
+        sh:path iiot:responseTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 10.0 ; # 10ms maximum for PLC
+        sh:name "PLC response time" ;
+        sh:description "PLC response time must be ≤10ms for real-time control"
+    ] .
+
+#####################################################################
+# Maintenance Constraints
+#####################################################################
+
+iiot:MaintenanceEventShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:MaintenanceEvent ;
+    sh:property [
+        sh:path iiot:maintenanceType ;
+        sh:datatype xsd:string ;
+        sh:in ( "preventive" "predictive" "corrective" "emergency" "calibration" "inspection" ) ;
+        sh:name "Maintenance type validation" ;
+        sh:description "Maintenance type must be from approved list"
+    ] ;
+    sh:property [
+        sh:path iiot:maintenanceDuration ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ; # 6 minutes minimum
+        sh:maxInclusive 720.0 ; # 30 days maximum
+        sh:name "Maintenance duration validation" ;
+        sh:description "Maintenance duration must be reasonable"
+    ] ;
+    sh:property [
+        sh:path iiot:maintenanceCost ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1000000.0 ; # $1M max reasonable cost
+        sh:name "Maintenance cost validation" ;
+        sh:description "Maintenance cost must be non-negative and reasonable"
+    ] .
+
+iiot:FailureShape rdf:type sh:NodeShape ;
+    sh:targetClass iiot:Failure ;
+    sh:property [
+        sh:path iiot:failureProbability ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Failure probability validation" ;
+        sh:description "Failure probability must be between 0.0 and 1.0"
+    ] .
+
+#####################################################################
+# BitActor Performance Constraints
+#####################################################################
+
+iiot:BitActorPerformanceShape rdf:type sh:NodeShape ;
+    sh:targetNode iiot:ManufacturingAsset ;
+    sh:property [
+        sh:path iiot:bitactorID ;
+        sh:datatype xsd:string ;
+        sh:pattern "^bitactor_iiot_[0-9a-f]{8}$" ;
+        sh:name "BitActor ID format" ;
+        sh:description "BitActor ID must follow format 'bitactor_iiot_########'"
+    ] ;
+    sh:sparql [
+        sh:message "Sensor measurements must complete within 8 CPU ticks" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?sensor iiot:monitors $this .
+                ?sensor iiot:ticksUsed ?ticks .
+                FILTER (?ticks > 8)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Critical processes must have sub-millisecond processing" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this iiot:criticality ?criticality .
+                ?sensor iiot:monitors $this .
+                ?sensor iiot:processingLatency ?latency .
+                FILTER (?criticality >= 8 && ?latency > 1000000)
+            }
+        """
+    ] .
+
+#####################################################################
+# Process Optimization Rules
+#####################################################################
+
+iiot:ProcessOptimizationShape rdf:type sh:NodeShape ;
+    sh:targetNode iiot:Machine ;
+    sh:sparql [
+        sh:message "High-criticality machines with low OEE require immediate attention" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this iiot:criticality ?criticality .
+                $this iiot:oeeScore ?oee .
+                FILTER (?criticality >= 8 && ?oee < 75.0)
+                FILTER NOT EXISTS { 
+                    ?maintenance a iiot:MaintenanceEvent .
+                    ?maintenance iiot:requiresMaintenance $this .
+                    ?maintenance iiot:scheduledDate ?date .
+                    FILTER (?date > NOW())
+                }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Machines with high failure probability require predictive maintenance" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                ?failure a iiot:Failure .
+                ?failure iiot:affects $this .
+                ?failure iiot:failureProbability ?prob .
+                $this iiot:remainingUsefulLife ?rul .
+                FILTER (?prob >= 0.7 || ?rul < 168.0)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Process efficiency degradation triggers optimization" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this iiot:executes ?process .
+                ?process iiot:efficiency ?currentEff .
+                ?process iiot:yieldRate ?currentYield .
+                # Efficiency below 85% or yield below 95% triggers optimization
+                FILTER (?currentEff < 85.0 || ?currentYield < 95.0)
+            }
+        """
+    ] .
+
+#####################################################################
+# Quality Control Rules
+#####################################################################
+
+iiot:QualityControlShape rdf:type sh:NodeShape ;
+    sh:targetNode iiot:Product ;
+    sh:sparql [
+        sh:message "Products with high defect rates require immediate process review" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this iiot:hasQualityMeasurement ?quality .
+                ?quality iiot:defectRate ?defectRate .
+                ?quality iiot:qualityScore ?score .
+                # Defect rate > 5% or quality score < 7.0 requires review
+                FILTER (?defectRate > 5.0 || ?score < 7.0)
+            }
+        """
+    ] .
+
+#####################################################################
+# Energy Efficiency Rules
+#####################################################################
+
+iiot:EnergyEfficiencyShape rdf:type sh:NodeShape ;
+    sh:targetNode iiot:ManufacturingProcess ;
+    sh:sparql [
+        sh:message "Energy-intensive processes require efficiency optimization" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "iiot" ;
+                sh:namespace "http://cns.ai/ontology/industrial-iot#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this iiot:energyConsumption ?energy .
+                $this iiot:throughput ?throughput .
+                # Energy per unit calculation
+                BIND(?energy / ?throughput AS ?energyPerUnit)
+                # Energy per unit > 5 kWh triggers optimization
+                FILTER (?energyPerUnit > 5.0)
+            }
+        """
+    ] .

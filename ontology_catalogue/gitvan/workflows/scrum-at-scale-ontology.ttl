@@ -1,0 +1,117 @@
+@prefix : <https://bytestar.org/ontology/ethos/canon/scrum-at-scale#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gov: <https://bytestar.org/ontology/byteethos/governance-specification#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex: <http://example.org/> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix op: <https://gitvan.dev/op#> .
+
+<https://bytestar.org/ontology/ethos/canon/scrum-at-scale>
+  a owl:Ontology, gov:GovernanceCanon ;
+  rdfs:label "Scrum at Scale Canon" ;
+  rdfs:comment "A formal, executable ontology for the Scrum at Scale framework, designed to be enforced by ByteEthos. It defines the roles, events, and artifacts for coordinating multiple agile teams in a deterministic fabric." ;
+  gov:enforcementLevel "mandatory" ;
+  gov:riskTier "moderate" .
+
+### Core Roles (as Identity Crystal Archetypes)
+
+:ScrumMaster a owl:Class ;
+  rdfs:label "Scrum Master" ;
+  rdfs:comment "An Identity Crystal archetype responsible for ensuring the team adheres to the canon's processes and for removing impediments." .
+
+:ProductOwner a owl:Class ;
+  rdfs:label "Product Owner" ;
+  rdfs:comment "An Identity Crystal archetype responsible for maximizing the value of the product resulting from the work of the team. Manages the Product Backlog." .
+
+:TeamMember a owl:Class ;
+  rdfs:label "Team Member" ;
+  rdfs:comment "An Identity Crystal archetype representing a member of a cross-functional development team." .
+
+:ChiefProductOwner a owl:Class ;
+  rdfs:subClassOf :ProductOwner ;
+  rdfs:label "Chief Product Owner" ;
+  rdfs:comment "Coordinates multiple Product Owners in a Scrum of Scrums." .
+
+:ScrumOfScrumsMaster a owl:Class ;
+  rdfs:subClassOf :ScrumMaster ;
+  rdfs:label "Scrum of Scrums Master" ;
+  rdfs:comment "Facilitates the Scrum of Scrums and resolves impediments at the multi-team level." .
+
+### Core Events (as Workflow Patterns)
+
+:Sprint a owl:Class ;
+  rdfs:label "Sprint" ;
+  rdfs:comment "A time-boxed event (typically 1-4 weeks) during which a 'Done', usable, and potentially releasable product Increment is created. This is a P10_Arbitrary_Cycles pattern." .
+
+:SprintPlanning a owl:Class ;
+  rdfs:label "Sprint Planning" ;
+  rdfs:comment "An event to plan the work to be performed in the Sprint." .
+
+:DailyScrum a owl:Class ;
+  rdfs:label "Daily Scrum" ;
+  rdfs:comment "A 15-minute time-boxed event for the team to synchronize activities and create a plan for the next 24 hours." .
+
+:SprintReview a owl:Class ;
+  rdfs:label "Sprint Review" ;
+  rdfs:comment "An event held at the end of the Sprint to inspect the Increment and adapt the Product Backlog if needed." .
+
+:SprintRetrospective a owl:Class ;
+  rdfs:label "Sprint Retrospective" ;
+  rdfs:comment "An event to plan ways to increase quality and effectiveness." .
+
+:ScrumOfScrums a owl:Class ;
+  rdfs:label "Scrum of Scrums" ;
+  rdfs:comment "An event for multiple teams to coordinate their work, analogous to a Daily Scrum for the scaled-out team." .
+
+### Core Artifacts (as Sealed Data Objects)
+
+:ProductBacklog a owl:Class ;
+  rdfs:label "Product Backlog" ;
+  rdfs:comment "An emergent, ordered list of what is needed to improve the product. It is the single source of work undertaken by the Scrum Team." .
+
+:SprintBacklog a owl:Class ;
+  rdfs:label "Sprint Backlog" ;
+  rdfs:comment "The set of Product Backlog items selected for the Sprint, plus a plan for delivering the product Increment." .
+
+:Increment a owl:Class ;
+  rdfs:label "Increment" ;
+  rdfs:comment "A concrete stepping stone toward the Product Goal. Each Increment is an additive, verifiable, and PQC-sealed artifact." .
+
+:ProductBacklogItem a owl:Class ;
+  rdfs:label "Product Backlog Item" .
+
+### Properties and Relationships
+
+:hasRole rdf:type owl:ObjectProperty .
+:participatesIn rdf:type owl:ObjectProperty .
+:manages rdf:type owl:ObjectProperty .
+:containsItem rdf:type owl:ObjectProperty .
+:hasSprintGoal rdf:type owl:DatatypeProperty ; rdfs:range xsd:string .
+:hasDuration rdf:type owl:DatatypeProperty ; rdfs:range xsd:duration .
+
+# --- Axioms to enforce the Scrum at Scale rules ---
+
+# A Sprint must have a duration of 1 to 4 weeks.
+:Sprint rdfs:subClassOf [ 
+  a owl:Restriction ;
+  owl:onProperty :hasDuration ;
+  owl:allValuesFrom [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:duration ;
+    owl:withRestrictions ( 
+      [ xsd:minInclusive "P1W"^^xsd:duration ]
+      [ xsd:maxInclusive "P4W"^^xsd:duration ]
+    )
+  ]
+] .
+
+# Every Increment must be verifiable and sealed.
+:Increment rdfs:subClassOf [
+  a owl:Restriction ;
+  owl:onProperty <https://bytestar.org/ontology/bytestar-core#hasPQCProof> ;
+  owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+

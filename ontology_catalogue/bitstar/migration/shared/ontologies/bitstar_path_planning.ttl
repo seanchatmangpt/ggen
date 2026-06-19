@@ -1,0 +1,281 @@
+@prefix bitstar: <https://bitstar.dev/ontology/pathplanning#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix core:    <https://core.bitstar.dev/ontology/core#> .
+
+# =============================================================================
+# BitStar Path Planning Ontology
+# 8-Space Compliant Asymptotically Optimal Sampling-Based Planning
+# =============================================================================
+
+# Core Classes
+bitstar:PathPlanner a rdfs:Class ;
+    rdfs:label "Path Planner" ;
+    rdfs:comment "8-space compliant asymptotically optimal path planner" ;
+    rdfs:subClassOf core:Module .
+
+bitstar:Node a rdfs:Class ;
+    rdfs:label "Planning Node" ;
+    rdfs:comment "State space node in planning tree" .
+
+bitstar:Edge a rdfs:Class ;
+    rdfs:label "Planning Edge" ;
+    rdfs:comment "Connection between nodes with cost" .
+
+bitstar:SearchSpace a rdfs:Class ;
+    rdfs:label "Search Space" ;
+    rdfs:comment "Continuous or discrete planning domain" .
+
+bitstar:Solution a rdfs:Class ;
+    rdfs:label "Path Solution" ;
+    rdfs:comment "Optimal or sub-optimal path from start to goal" .
+
+# Monte Carlo Components
+bitstar:MCTSSolver a rdfs:Class ;
+    rdfs:label "MCTS Solver" ;
+    rdfs:comment "Monte Carlo Tree Search integration" ;
+    rdfs:subClassOf bitstar:PathPlanner .
+
+bitstar:UCTSelection a rdfs:Class ;
+    rdfs:label "UCT Selection Policy" ;
+    rdfs:comment "Upper Confidence bound for Trees" .
+
+# Properties - Node Attributes
+bitstar:hasPosition a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "Node position in state space" .
+
+bitstar:hasCostToCome a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Cost from start to node (g value)" .
+
+bitstar:hasCostToGo a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Heuristic cost to goal (h value)" .
+
+bitstar:isInTree a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Node membership in search tree" .
+
+bitstar:hasParent a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range bitstar:Node ;
+    rdfs:comment "Parent node in search tree" .
+
+# Properties - Edge Attributes
+bitstar:connectsFrom a rdf:Property ;
+    rdfs:domain bitstar:Edge ;
+    rdfs:range bitstar:Node ;
+    rdfs:comment "Source node of edge" .
+
+bitstar:connectsTo a rdf:Property ;
+    rdfs:domain bitstar:Edge ;
+    rdfs:range bitstar:Node ;
+    rdfs:comment "Target node of edge" .
+
+bitstar:hasEdgeCost a rdf:Property ;
+    rdfs:domain bitstar:Edge ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Cost of traversing edge" .
+
+# Properties - Solver Configuration
+bitstar:hasMaxNodes a rdf:Property ;
+    rdfs:domain bitstar:PathPlanner ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum nodes in fixed pool (8-space constraint)" .
+
+bitstar:hasBatchSize a rdf:Property ;
+    rdfs:domain bitstar:PathPlanner ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Sample batch size per iteration" .
+
+bitstar:hasTickLimit a rdf:Property ;
+    rdfs:domain bitstar:PathPlanner ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "8-tick maximum per operation" .
+
+# Properties - MCTS Specific
+bitstar:hasVisitCount a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "MCTS node visit count" .
+
+bitstar:hasTotalReward a rdf:Property ;
+    rdfs:domain bitstar:Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "MCTS accumulated reward" .
+
+bitstar:hasUCTConstant a rdf:Property ;
+    rdfs:domain bitstar:UCTSelection ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Exploration-exploitation balance parameter" .
+
+# SHACL Constraints for 8-Space Compliance
+bitstar:NodePoolConstraint a sh:NodeShape ;
+    sh:targetClass bitstar:PathPlanner ;
+    sh:property [
+        sh:path bitstar:hasMaxNodes ;
+        sh:maxInclusive 256 ;
+        sh:minInclusive 8 ;
+        sh:message "Node pool must be 8-256 for 8-space compliance"
+    ] .
+
+bitstar:TickConstraint a sh:NodeShape ;
+    sh:targetClass bitstar:PathPlanner ;
+    sh:property [
+        sh:path bitstar:hasTickLimit ;
+        sh:equals 8 ;
+        sh:message "Operations must complete in ≤8 ticks"
+    ] .
+
+bitstar:BatchConstraint a sh:NodeShape ;
+    sh:targetClass bitstar:PathPlanner ;
+    sh:property [
+        sh:path bitstar:hasBatchSize ;
+        sh:maxInclusive 8 ;
+        sh:minInclusive 1 ;
+        sh:message "Batch size must be 1-8 for tick compliance"
+    ] .
+
+# Solver Instances
+bitstar:BitStarSolver a bitstar:PathPlanner ;
+    rdfs:label "BitStar 8-Space Solver" ;
+    bitstar:hasMaxNodes 256 ;
+    bitstar:hasBatchSize 8 ;
+    bitstar:hasTickLimit 8 ;
+    core:hasCapability "asymptotic-optimality" ;
+    core:hasCapability "anytime-planning" ;
+    core:hasCapability "batch-sampling" .
+
+bitstar:MCTSBitStar a bitstar:MCTSSolver ;
+    rdfs:label "MCTS-Enhanced BitStar" ;
+    bitstar:hasMaxNodes 128 ;
+    bitstar:hasBatchSize 8 ;
+    bitstar:hasTickLimit 8 ;
+    bitstar:hasUCTConstant 1.414 ;
+    core:hasCapability "monte-carlo-sampling" ;
+    core:hasCapability "online-planning" .
+
+# Performance Metrics
+bitstar:PerformanceMetric a rdfs:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Measurable planning performance indicator" .
+
+bitstar:hasSolutionCost a rdf:Property ;
+    rdfs:domain bitstar:Solution ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Total cost of solution path" .
+
+bitstar:hasConvergenceTime a rdf:Property ;
+    rdfs:domain bitstar:Solution ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Time to first solution" .
+
+bitstar:hasOptimalityGap a rdf:Property ;
+    rdfs:domain bitstar:Solution ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Gap to theoretical optimal solution" .
+
+# Integration Points
+bitstar:ErlangCoordinator a rdfs:Class ;
+    rdfs:label "Erlang Coordinator" ;
+    rdfs:comment "Distributed planning coordination layer" ;
+    rdfs:subClassOf core:Module .
+
+bitstar:hasWorkerCount a rdf:Property ;
+    rdfs:domain bitstar:ErlangCoordinator ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of parallel worker processes" .
+
+bitstar:CSolverPort a rdfs:Class ;
+    rdfs:label "C Solver Port" ;
+    rdfs:comment "Native C solver integration via Erlang port" .
+
+# Problem Domain
+bitstar:PlanningProblem a rdfs:Class ;
+    rdfs:label "Planning Problem" ;
+    rdfs:comment "Complete problem specification" .
+
+bitstar:hasStartState a rdf:Property ;
+    rdfs:domain bitstar:PlanningProblem ;
+    rdfs:range bitstar:Node ;
+    rdfs:comment "Initial state" .
+
+bitstar:hasGoalState a rdf:Property ;
+    rdfs:domain bitstar:PlanningProblem ;
+    rdfs:range bitstar:Node ;
+    rdfs:comment "Target state" .
+
+bitstar:hasObstacles a rdf:Property ;
+    rdfs:domain bitstar:PlanningProblem ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "Obstacle representation" .
+
+bitstar:hasDimension a rdf:Property ;
+    rdfs:domain bitstar:SearchSpace ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Dimensionality of planning space" .
+
+# Algorithm Phases
+bitstar:AlgorithmPhase a rdfs:Class ;
+    rdfs:label "Algorithm Phase" ;
+    rdfs:comment "Distinct phase in BitStar execution" .
+
+bitstar:SamplingPhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Sampling Phase" ;
+    rdfs:comment "Generate new samples in free space" .
+
+bitstar:PruningPhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Pruning Phase" ;
+    rdfs:comment "Remove suboptimal nodes from tree" .
+
+bitstar:RewirePhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Rewire Phase" ;
+    rdfs:comment "Optimize tree connections" .
+
+bitstar:SelectionPhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Selection Phase" ;
+    rdfs:comment "MCTS node selection" .
+
+bitstar:ExpansionPhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Expansion Phase" ;
+    rdfs:comment "Add new nodes to tree" .
+
+bitstar:RolloutPhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Rollout Phase" ;
+    rdfs:comment "MCTS simulation phase" .
+
+bitstar:BackpropagationPhase a bitstar:AlgorithmPhase ;
+    rdfs:label "Backpropagation Phase" ;
+    rdfs:comment "Update node statistics" .
+
+# 8-Space Compliance Verification
+bitstar:ComplianceVerification a rdfs:Class ;
+    rdfs:label "8-Space Compliance" ;
+    rdfs:comment "Verification of 8-space constraints" .
+
+bitstar:verifiedCompliant a rdf:Property ;
+    rdfs:domain bitstar:PathPlanner ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Solver verified as 8-space compliant" .
+
+bitstar:tickCompliance a rdf:Property ;
+    rdfs:domain bitstar:ComplianceVerification ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "All operations complete in ≤8 ticks" .
+
+bitstar:memoryCompliance a rdf:Property ;
+    rdfs:domain bitstar:ComplianceVerification ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Fixed memory allocation only" .
+
+bitstar:alignmentCompliance a rdf:Property ;
+    rdfs:domain bitstar:ComplianceVerification ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "8-byte memory alignment" .

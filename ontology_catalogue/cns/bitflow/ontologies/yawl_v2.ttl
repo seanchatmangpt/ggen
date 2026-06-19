@@ -1,0 +1,329 @@
+@prefix : <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix perf: <http://bitflow.ai/ontology/performance#> .
+
+# ========================================
+# YAWL Comprehensive Ontology v2.0 for Bitflow
+# ========================================
+
+<http://bitflow.ai/ontology/yawl/v2> a owl:Ontology ;
+    rdfs:label "YAWL Comprehensive Ontology v2.0 for Bitflow" ;
+    rdfs:comment "Complete YAWL workflow patterns with performance extensions for Bitflow engine" ;
+    owl:versionInfo "2.0" ;
+    rdfs:seeAlso <https://www.yawlfoundation.org/> .
+
+# ========================================
+# Core Workflow Classes
+# ========================================
+
+:WorkflowSpecification a owl:Class ;
+    rdfs:label "Workflow Specification" ;
+    rdfs:comment "A complete workflow definition including all tasks, conditions, and flows" .
+
+:WorkflowCase a owl:Class ;
+    rdfs:label "Workflow Case" ;
+    rdfs:comment "An instance of a workflow specification being executed" .
+
+:Task a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "An atomic unit of work in a workflow" .
+
+:Condition a owl:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment "A place/state in the workflow (Petri net marking)" .
+
+:Flow a owl:Class ;
+    rdfs:label "Flow" ;
+    rdfs:comment "A directed edge connecting tasks and conditions" .
+
+:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "An organizational role that can perform tasks" .
+
+:Resource a owl:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "A specific agent/system that can execute tasks" .
+
+# ========================================
+# Task Types (43 Workflow Patterns)
+# ========================================
+
+:AtomicTask a owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:label "Atomic Task" ;
+    rdfs:comment "A task that cannot be decomposed further" .
+
+:CompositeTask a owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:label "Composite Task" ;
+    rdfs:comment "A task that contains a sub-workflow" .
+
+:MultipleInstanceTask a owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:label "Multiple Instance Task" ;
+    rdfs:comment "A task that spawns multiple instances" .
+
+# ========================================
+# Control Flow Properties
+# ========================================
+
+:flowsTo a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( :Task :Condition ) ] ;
+    rdfs:range [ a owl:Class ; owl:unionOf ( :Task :Condition ) ] ;
+    rdfs:label "flows to" ;
+    rdfs:comment "Indicates control flow from source to target" .
+
+:hasInputCondition a owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Condition ;
+    rdfs:label "has input condition" .
+
+:hasOutputCondition a owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Condition ;
+    rdfs:label "has output condition" .
+
+# ========================================
+# Split and Join Types
+# ========================================
+
+:hasSplitType a owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :SplitType ;
+    rdfs:label "has split type" .
+
+:hasJoinType a owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :JoinType ;
+    rdfs:label "has join type" .
+
+:SplitType a owl:Class ;
+    rdfs:label "Split Type" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :AND :XOR :OR ) ] .
+
+:JoinType a owl:Class ;
+    rdfs:label "Join Type" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :AND :XOR :OR ) ] .
+
+:AND a :SplitType, :JoinType ;
+    rdfs:label "AND split/join" .
+
+:XOR a :SplitType, :JoinType ;
+    rdfs:label "XOR split/join" .
+
+:OR a :SplitType, :JoinType ;
+    rdfs:label "OR split/join" .
+
+# ========================================
+# Performance Extensions for Bitflow
+# ========================================
+
+:maxExecutionTicks a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maximum execution ticks" ;
+    rdfs:comment "Maximum CPU ticks allowed for task execution (≤8 for Bitflow)" .
+
+:priority a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:label "priority" ;
+    rdfs:comment "Task execution priority (0-255)" .
+
+:scratchPoolSize a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:label "scratch pool size" ;
+    rdfs:comment "Size of pre-allocated scratch memory in bytes" .
+
+:useSIMD a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "use SIMD" ;
+    rdfs:comment "Whether task can use SIMD instructions" .
+
+# ========================================
+# Advanced Workflow Patterns
+# ========================================
+
+:hasDeadline a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:duration ;
+    rdfs:label "has deadline" .
+
+:hasTimeout a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:duration ;
+    rdfs:label "has timeout" .
+
+:maxRetries a owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maximum retries" .
+
+:isOfferedTo a owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Role ;
+    rdfs:label "is offered to" .
+
+:cancels a owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :CancellationRegion ;
+    rdfs:label "cancels" .
+
+:CancellationRegion a owl:Class ;
+    rdfs:label "Cancellation Region" ;
+    rdfs:comment "A set of tasks that can be cancelled together" .
+
+# ========================================
+# Audit and Telemetry
+# ========================================
+
+:AuditEvent a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "A recorded execution event for telemetry" .
+
+:hasAuditTrail a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( :Task :WorkflowCase ) ] ;
+    rdfs:range :AuditEvent ;
+    rdfs:label "has audit trail" .
+
+:executionTicks a owl:DatatypeProperty ;
+    rdfs:domain :AuditEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "execution ticks" ;
+    rdfs:comment "Actual CPU ticks consumed" .
+
+:blake3Hash a owl:DatatypeProperty ;
+    rdfs:domain :AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "Blake3 hash" ;
+    rdfs:comment "Cryptographic hash of event data" .
+
+# ========================================
+# SHACL Constraints
+# ========================================
+
+:TaskShape a sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:property [
+        sh:path :hasJoinType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every task must have exactly one join type"
+    ] ;
+    sh:property [
+        sh:path :hasSplitType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every task must have exactly one split type"
+    ] ;
+    sh:property [
+        sh:path :maxExecutionTicks ;
+        sh:maxInclusive 8 ;
+        sh:message "Tasks must complete within 8 CPU ticks"
+    ] ;
+    sh:property [
+        sh:path :priority ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Priority must be between 0 and 255"
+    ] .
+
+:FlowShape a sh:NodeShape ;
+    sh:targetClass :Flow ;
+    sh:property [
+        sh:path :flowsTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every flow must have exactly one target"
+    ] .
+
+:WorkflowSpecificationShape a sh:NodeShape ;
+    sh:targetClass :WorkflowSpecification ;
+    sh:property [
+        sh:path :hasInputCondition ;
+        sh:minCount 1 ;
+        sh:message "Workflow must have at least one input condition"
+    ] ;
+    sh:property [
+        sh:path :hasOutputCondition ;
+        sh:minCount 1 ;
+        sh:message "Workflow must have at least one output condition"
+    ] .
+
+# ========================================
+# Example: Enterprise Loan Process
+# ========================================
+
+:EnterpriseLoanProcess a :WorkflowSpecification ;
+    rdfs:label "Enterprise Loan Process" ;
+    :hasInputCondition :StartCondition ;
+    :hasOutputCondition :EndCondition .
+
+:StartCondition a :Condition ;
+    rdfs:label "Start" ;
+    :flowsTo :ReceiveApplication .
+
+:ReceiveApplication a :AtomicTask ;
+    rdfs:label "Receive Application" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :AND ;
+    :maxExecutionTicks 4 ;
+    :priority 100 ;
+    :isOfferedTo :ClerkRole ;
+    :flowsTo :CheckCompleteness, :CheckCredit .
+
+:CheckCompleteness a :AtomicTask ;
+    rdfs:label "Check Completeness" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :maxExecutionTicks 6 ;
+    :flowsTo :CompleteCondition, :IncompleteCondition .
+
+:CheckCredit a :AtomicTask ;
+    rdfs:label "Check Credit" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :maxExecutionTicks 8 ;
+    :useSIMD true ;
+    :flowsTo :CreditOKCondition, :CreditBadCondition .
+
+:RiskAssessment a :MultipleInstanceTask ;
+    rdfs:label "Risk Assessment" ;
+    :hasJoinType :AND ;
+    :hasSplitType :AND ;
+    :maxExecutionTicks 8 ;
+    :maxInstances 10 ;
+    :isOfferedTo :RiskAnalystRole .
+
+:ApprovalDecision a :AtomicTask ;
+    rdfs:label "Approval Decision" ;
+    :hasJoinType :OR ;  # Complex OR-join
+    :hasSplitType :XOR ;
+    :maxExecutionTicks 5 ;
+    :priority 200 ;
+    :hasDeadline "PT24H"^^xsd:duration ;
+    :isOfferedTo :ManagerRole .
+
+:EndCondition a :Condition ;
+    rdfs:label "End" .
+
+# Roles
+:ClerkRole a :Role ;
+    rdfs:label "Loan Clerk" .
+
+:RiskAnalystRole a :Role ;
+    rdfs:label "Risk Analyst" .
+
+:ManagerRole a :Role ;
+    rdfs:label "Loan Manager" .

@@ -1,0 +1,409 @@
+@prefix bx:   <http://byteactor.org/crystal#> .
+@prefix ba:   <http://byteactor.org/ontology#> .
+@prefix bf:   <http://byteflow.org/ontology#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+#################################################################
+# BYTEACTOR CRYSTAL ONTOLOGY - POST-HUMAN COMPUTATION
+#################################################################
+
+<http://byteactor.org/crystal>
+  a owl:Ontology ;
+  rdfs:label "ByteActor Crystal Ontology" ;
+  rdfs:comment "8-actor cube geometry with position semantics, cryptographic sealing, and quantum workflow superposition" ;
+  owl:versionInfo "2.0.0-quantum" ;
+  rdfs:seeAlso "https://github.com/bitstar/bitactor" .
+
+#################################################################
+# CORE CRYSTAL CLASSES
+#################################################################
+
+bx:Crystal     a owl:Class ; 
+  rdfs:label "ByteFlow Crystal" ;
+  rdfs:comment "Exactly 8 actors arranged in cube geometry (64-byte executable unit)" .
+
+bx:Actor       a owl:Class ; 
+  rdfs:label "ByteActor" ;
+  rdfs:comment "8-byte executable cell with geometric position and cryptographic seal" .
+
+bx:Channel     a owl:Class ; 
+  rdfs:label "Crystal Channel" ;
+  rdfs:comment "Signal flow edge between actors (cube edge)" .
+
+bx:Facet       a owl:Class ; 
+  rdfs:label "Crystal Facet" ;
+  rdfs:comment "Interface plane for inter-crystal docking (cube face)" .
+
+bx:Seal        a owl:Class ; 
+  rdfs:label "Cryptographic Seal" ;
+  rdfs:comment "BLAKE3 integrity verification for actors and crystals" .
+
+bx:Cluster     a owl:Class ; 
+  rdfs:label "Polycrystal Cluster" ;
+  rdfs:comment "Multiple crystals docked via facet interfaces" .
+
+bx:Beat        a owl:Class ; 
+  rdfs:label "Temporal Beat" ;
+  rdfs:comment "8-tick execution rhythm for crystal resonance" .
+
+bx:Position    a owl:Class ;
+  rdfs:label "Cube Position" ;
+  rdfs:comment "3D coordinate with semantic role assignment" .
+
+#################################################################
+# POSITION SEMANTICS (CUBE ROLE MAPPING)
+#################################################################
+
+# The 8 canonical workflow roles by cube vertex position
+bx:Initiator     a bx:Position ; bx:coord "(0,0,0)" ; rdfs:label "Origin/Initiator" ;
+  rdfs:comment "Workflow starter, trigger, requester" .
+
+bx:Provider      a bx:Position ; bx:coord "(1,0,0)" ; rdfs:label "East/Provider" ;
+  rdfs:comment "Resource supplier, data source, input channel" .
+
+bx:Validator     a bx:Position ; bx:coord "(0,1,0)" ; rdfs:label "North/Validator" ;
+  rdfs:comment "Condition checker, rule enforcer, quality gate" .
+
+bx:Timer         a bx:Position ; bx:coord "(0,0,1)" ; rdfs:label "Up/Timer" ;
+  rdfs:comment "Temporal controller, deadline manager, clock" .
+
+bx:Transformer   a bx:Position ; bx:coord "(1,1,0)" ; rdfs:label "Northeast/Transformer" ;
+  rdfs:comment "Data processor, converter, computation engine" .
+
+bx:Dispatcher    a bx:Position ; bx:coord "(1,0,1)" ; rdfs:label "Southeast/Dispatcher" ;
+  rdfs:comment "Signal router, message sender, output channel" .
+
+bx:Recorder      a bx:Position ; bx:coord "(0,1,1)" ; rdfs:label "Northwest/Recorder" ;
+  rdfs:comment "State persister, logger, audit trail" .
+
+bx:Finalizer     a bx:Position ; bx:coord "(1,1,1)" ; rdfs:label "Apex/Finalizer" ;
+  rdfs:comment "Workflow closer, result sealer, completion manager" .
+
+#################################################################
+# GEOMETRIC PROPERTIES
+#################################################################
+
+bx:vertexX a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedByte ;
+  rdfs:comment "X coordinate in cube (0 or 1)" .
+
+bx:vertexY a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedByte ;
+  rdfs:comment "Y coordinate in cube (0 or 1)" .
+
+bx:vertexZ a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedByte ;
+  rdfs:comment "Z coordinate in cube (0 or 1)" .
+
+bx:hasPosition a owl:ObjectProperty ; rdfs:domain bx:Actor ; rdfs:range bx:Position ;
+  rdfs:comment "Semantic role determined by geometric position" .
+
+#################################################################
+# CRYSTAL TOPOLOGY
+#################################################################
+
+bx:hasActor     a owl:ObjectProperty ; rdfs:domain bx:Crystal ; rdfs:range bx:Actor .
+bx:hasChannel   a owl:ObjectProperty ; rdfs:domain bx:Crystal ; rdfs:range bx:Channel .
+bx:hasFacet     a owl:ObjectProperty ; rdfs:domain bx:Crystal ; rdfs:range bx:Facet .
+bx:hasCluster   a owl:ObjectProperty ; rdfs:domain bx:Cluster ; rdfs:range bx:Crystal .
+
+bx:from         a owl:ObjectProperty ; rdfs:domain bx:Channel ; rdfs:range bx:Actor .
+bx:to           a owl:ObjectProperty ; rdfs:domain bx:Channel ; rdfs:range bx:Actor .
+
+# Inter-crystal docking
+bx:docksTo      a owl:ObjectProperty ; rdfs:domain bx:Facet ; rdfs:range bx:Facet ;
+  rdfs:comment "Polycrystal interface binding" .
+
+#################################################################
+# EXECUTION & DATA
+#################################################################
+
+bx:register64   a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedLong ;
+  rdfs:comment "Primary 8-byte payload (state, counter, timestamp, ID)" .
+
+bx:ref64        a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedLong ;
+  rdfs:comment "Optional 8-byte reference pointer to external data" .
+
+bx:priority     a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedByte .
+bx:tickLimit    a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:unsignedByte .
+bx:beat         a owl:ObjectProperty   ; rdfs:domain bx:Crystal ; rdfs:range bx:Beat .
+
+#################################################################
+# CRYPTOGRAPHIC SEALING
+#################################################################
+
+bx:sealedBy     a owl:ObjectProperty ; rdfs:domain bx:Actor, bx:Crystal ; rdfs:range bx:Seal .
+bx:hash64       a owl:DatatypeProperty ; rdfs:domain bx:Seal ; rdfs:range xsd:unsignedLong ;
+  rdfs:comment "BLAKE3 hash fragment for integrity verification" .
+
+bx:salt32       a owl:DatatypeProperty ; rdfs:domain bx:Seal ; rdfs:range xsd:unsignedInt ;
+  rdfs:comment "Cryptographic salt for seal uniqueness" .
+
+bx:atomicSeal   a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:boolean ;
+  rdfs:comment "Per-actor integrity seal enabled" .
+
+bx:holisticSeal a owl:DatatypeProperty ; rdfs:domain bx:Crystal ; rdfs:range xsd:boolean ;
+  rdfs:comment "Per-crystal integrity seal enabled" .
+
+#################################################################
+# QUANTUM WORKFLOW PROPERTIES
+#################################################################
+
+bx:superposition a owl:ObjectProperty ; rdfs:domain bx:Actor ; rdfs:range bx:Actor ;
+  rdfs:comment "Quantum entanglement between actor states" .
+
+bx:meaningLayer  a owl:DatatypeProperty ; rdfs:domain bx:Actor ; rdfs:range xsd:string ;
+  rdfs:comment "Semantic layer overlay on geometric position" .
+
+bx:resonanceFreq a owl:DatatypeProperty ; rdfs:domain bx:Crystal ; rdfs:range xsd:double ;
+  rdfs:comment "Natural oscillation frequency of crystal execution" .
+
+#################################################################
+# PATTERN & COMPILATION HOOKS
+#################################################################
+
+bx:implementsPattern a owl:ObjectProperty ; rdfs:domain bx:Crystal ; rdfs:range bf:Pattern .
+bx:compiledAs        a owl:ObjectProperty ; rdfs:domain bx:Crystal ; rdfs:range ba:AOTUnit .
+bx:erlangNode        a owl:DatatypeProperty ; rdfs:domain bx:Crystal ; rdfs:range xsd:string ;
+  rdfs:comment "Erlang/OTP node hosting this crystal" .
+
+bx:placementStrategy a owl:DatatypeProperty ; rdfs:domain bx:Crystal ; rdfs:range xsd:string ;
+  rdfs:comment "Erlang placement algorithm (affinity, load, locality)" .
+
+#################################################################
+# CUBE FACETS (6 faces for docking)
+#################################################################
+
+bx:FacePlusX  a bx:Facet ; rdfs:label "+X Face" ; bx:normal "(1,0,0)" .
+bx:FaceMinusX a bx:Facet ; rdfs:label "-X Face" ; bx:normal "(-1,0,0)" .
+bx:FacePlusY  a bx:Facet ; rdfs:label "+Y Face" ; bx:normal "(0,1,0)" .
+bx:FaceMinusY a bx:Facet ; rdfs:label "-Y Face" ; bx:normal "(0,-1,0)" .
+bx:FacePlusZ  a bx:Facet ; rdfs:label "+Z Face" ; bx:normal "(0,0,1)" .
+bx:FaceMinusZ a bx:Facet ; rdfs:label "-Z Face" ; bx:normal "(0,0,-1)" .
+
+bx:normal a owl:DatatypeProperty ; rdfs:domain bx:Facet ; rdfs:range xsd:string .
+
+#################################################################
+# SHACL VALIDATION (CRYSTAL INTEGRITY)
+#################################################################
+
+bx:CrystalShape a sh:NodeShape ;
+  sh:targetClass bx:Crystal ;
+  sh:property [
+    sh:path bx:hasActor ; sh:minCount 8 ; sh:maxCount 8 ;
+    sh:message "Crystal must have exactly 8 actors (cube vertices)"
+  ] ,
+  [
+    sh:path bx:hasFacet ; sh:minCount 6 ; sh:maxCount 6 ;
+    sh:message "Crystal must have exactly 6 facets (cube faces)"
+  ] ,
+  [
+    sh:path bx:beat ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "Crystal must have exactly one temporal beat"
+  ] .
+
+bx:ActorShape a sh:NodeShape ;
+  sh:targetClass bx:Actor ;
+  sh:property [
+    sh:path bx:vertexX ; sh:datatype xsd:unsignedByte ; sh:minInclusive 0 ; sh:maxInclusive 1
+  ] ,
+  [
+    sh:path bx:vertexY ; sh:datatype xsd:unsignedByte ; sh:minInclusive 0 ; sh:maxInclusive 1  
+  ] ,
+  [
+    sh:path bx:vertexZ ; sh:datatype xsd:unsignedByte ; sh:minInclusive 0 ; sh:maxInclusive 1
+  ] ,
+  [
+    sh:path bx:register64 ; sh:datatype xsd:unsignedLong ; sh:minCount 1 ; sh:maxCount 1
+  ] ,
+  [
+    sh:path bx:tickLimit ; sh:datatype xsd:unsignedByte ; sh:maxInclusive 8 ;
+    sh:message "Actor tick limit cannot exceed 8 (ByteActor constraint)"
+  ] ,
+  [
+    sh:path bx:hasPosition ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:message "Actor must have exactly one position (cube vertex role)"
+  ] .
+
+#################################################################
+# EXAMPLE: LOAN APPROVAL CRYSTAL
+#################################################################
+
+# Standard 8-tick beat
+bx:Beat8 a bx:Beat ; 
+  rdfs:label "8-tick execution rhythm" ;
+  bx:tickCount 8 ;
+  bx:frequency 125000000.0 .  # 125 MHz base frequency
+
+# Example workflow pattern
+bf:ParallelSplitJoin a bf:Pattern ; 
+  rdfs:label "Parallel Split with Synchronization Join" .
+
+# AOT compilation target
+_:loanAOT a ba:AOTUnit ;
+  ba:targetArch "x86_64" ;
+  ba:optimizationLevel "O3" ;
+  ba:vectorized true .
+
+# The Crystal: Loan Approval Workflow
+bx:LoanApprovalCrystal a bx:Crystal ;
+  rdfs:label "Loan Approval ByteFlow Crystal" ;
+  rdfs:comment "8-actor cube implementing loan approval with credit check, risk assessment, and approval routing" ;
+  bx:beat bx:Beat8 ;
+  bx:implementsPattern bf:ParallelSplitJoin ;
+  bx:compiledAs _:loanAOT ;
+  bx:erlangNode "worker_node_1@cluster" ;
+  bx:placementStrategy "cpu_affinity" .
+
+# Crystal facets (cube faces)
+bx:LoanApprovalCrystal bx:hasFacet bx:FacePlusX, bx:FaceMinusX, bx:FacePlusY, 
+                                   bx:FaceMinusY, bx:FacePlusZ, bx:FaceMinusZ .
+
+# The 8 actors with position semantics
+bx:LoanInitiator a bx:Actor ;
+  bx:vertexX 0 ; bx:vertexY 0 ; bx:vertexZ 0 ;
+  bx:hasPosition bx:Initiator ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Loan Request Initiator (0,0,0)" .
+
+bx:CreditProvider a bx:Actor ;
+  bx:vertexX 1 ; bx:vertexY 0 ; bx:vertexZ 0 ;
+  bx:hasPosition bx:Provider ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Credit Data Provider (1,0,0)" .
+
+bx:RiskValidator a bx:Actor ;
+  bx:vertexX 0 ; bx:vertexY 1 ; bx:vertexZ 0 ;
+  bx:hasPosition bx:Validator ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Risk Assessment Validator (0,1,0)" .
+
+bx:ProcessTimer a bx:Actor ;
+  bx:vertexX 0 ; bx:vertexY 0 ; bx:vertexZ 1 ;
+  bx:hasPosition bx:Timer ;
+  bx:register64 300000000000 ; # 5-minute timeout in nanoseconds
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Processing Timer (0,0,1)" .
+
+bx:ScoreTransformer a bx:Actor ;
+  bx:vertexX 1 ; bx:vertexY 1 ; bx:vertexZ 0 ;
+  bx:hasPosition bx:Transformer ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Credit Score Transformer (1,1,0)" .
+
+bx:ApprovalDispatcher a bx:Actor ;
+  bx:vertexX 1 ; bx:vertexY 0 ; bx:vertexZ 1 ;
+  bx:hasPosition bx:Dispatcher ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Approval Decision Dispatcher (1,0,1)" .
+
+bx:AuditRecorder a bx:Actor ;
+  bx:vertexX 0 ; bx:vertexY 1 ; bx:vertexZ 1 ;
+  bx:hasPosition bx:Recorder ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Compliance Audit Recorder (0,1,1)" .
+
+bx:LoanFinalizer a bx:Actor ;
+  bx:vertexX 1 ; bx:vertexY 1 ; bx:vertexZ 1 ;
+  bx:hasPosition bx:Finalizer ;
+  bx:register64 0 ;
+  bx:tickLimit 8 ;
+  bx:atomicSeal true ;
+  rdfs:label "Loan Decision Finalizer (1,1,1)" .
+
+# Crystal membership
+bx:LoanApprovalCrystal bx:hasActor bx:LoanInitiator, bx:CreditProvider, bx:RiskValidator, bx:ProcessTimer,
+                                   bx:ScoreTransformer, bx:ApprovalDispatcher, bx:AuditRecorder, bx:LoanFinalizer .
+
+#################################################################
+# SIGNAL CHANNELS (CUBE EDGES)
+#################################################################
+
+bx:InitiateToProvider a bx:Channel ; bx:from bx:LoanInitiator ; bx:to bx:CreditProvider ;
+  rdfs:label "Request → Data Source" .
+
+bx:InitiateToValidator a bx:Channel ; bx:from bx:LoanInitiator ; bx:to bx:RiskValidator ;
+  rdfs:label "Request → Risk Check" .
+
+bx:InitiateToTimer a bx:Channel ; bx:from bx:LoanInitiator ; bx:to bx:ProcessTimer ;
+  rdfs:label "Request → Timeout Start" .
+
+bx:ProviderToTransformer a bx:Channel ; bx:from bx:CreditProvider ; bx:to bx:ScoreTransformer ;
+  rdfs:label "Data → Processing" .
+
+bx:ValidatorToTransformer a bx:Channel ; bx:from bx:RiskValidator ; bx:to bx:ScoreTransformer ;
+  rdfs:label "Validation → Processing" .
+
+bx:TransformerToDispatcher a bx:Channel ; bx:from bx:ScoreTransformer ; bx:to bx:ApprovalDispatcher ;
+  rdfs:label "Processing → Routing" .
+
+bx:TransformerToRecorder a bx:Channel ; bx:from bx:ScoreTransformer ; bx:to bx:AuditRecorder ;
+  rdfs:label "Processing → Audit" .
+
+bx:DispatcherToFinalizer a bx:Channel ; bx:from bx:ApprovalDispatcher ; bx:to bx:LoanFinalizer ;
+  rdfs:label "Routing → Completion" .
+
+bx:RecorderToFinalizer a bx:Channel ; bx:from bx:AuditRecorder ; bx:to bx:LoanFinalizer ;
+  rdfs:label "Audit → Completion" .
+
+bx:TimerToFinalizer a bx:Channel ; bx:from bx:ProcessTimer ; bx:to bx:LoanFinalizer ;
+  rdfs:label "Timeout → Completion" .
+
+# Channel membership
+bx:LoanApprovalCrystal bx:hasChannel bx:InitiateToProvider, bx:InitiateToValidator, bx:InitiateToTimer,
+                                     bx:ProviderToTransformer, bx:ValidatorToTransformer, 
+                                     bx:TransformerToDispatcher, bx:TransformerToRecorder,
+                                     bx:DispatcherToFinalizer, bx:RecorderToFinalizer, bx:TimerToFinalizer .
+
+#################################################################
+# CRYPTOGRAPHIC SEALS
+#################################################################
+
+bx:CrystalSeal a bx:Seal ;
+  bx:hash64 0xA1B2C3D4E5F60718 ;
+  bx:salt32 0x77AA11FF ;
+  rdfs:label "Loan Crystal Holistic Seal" .
+
+bx:InitiatorSeal a bx:Seal ;
+  bx:hash64 0x0102030405060708 ;
+  bx:salt32 0x00000001 .
+
+bx:ProviderSeal a bx:Seal ;
+  bx:hash64 0x0203040506070809 ;
+  bx:salt32 0x00000002 .
+
+# Apply seals
+bx:LoanApprovalCrystal bx:sealedBy bx:CrystalSeal ; bx:holisticSeal true .
+bx:LoanInitiator bx:sealedBy bx:InitiatorSeal .
+bx:CreditProvider bx:sealedBy bx:ProviderSeal .
+
+#################################################################
+# COMPILATION METADATA
+#################################################################
+
+bx:tickCount a owl:DatatypeProperty ; rdfs:domain bx:Beat ; rdfs:range xsd:unsignedByte .
+bx:frequency a owl:DatatypeProperty ; rdfs:domain bx:Beat ; rdfs:range xsd:double .
+
+# Forward declarations for BitActor integration
+ba:AOTUnit a owl:Class ; rdfs:label "Ahead-of-Time Compiled Unit" .
+bf:Pattern a owl:Class ; rdfs:label "Workflow Pattern (YAWL/BPMN)" .
+
+# Migration path
+bx:migratedFrom a owl:ObjectProperty ; rdfs:domain bx:Crystal ; rdfs:range ba:BitActorInstance ;
+  rdfs:comment "Original BitActor instance this crystal replaced" .
+
+ba:BitActorInstance a owl:Class ; rdfs:label "Legacy BitActor Instance" .

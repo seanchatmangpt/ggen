@@ -1,0 +1,296 @@
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix pqcs: &lt;http://bytestar.ai/ontology/pqc-scheduler#&gt; .
+@prefix dc: &lt;http://purl.org/dc/elements/1.1/&gt; .
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .
+
+# PQC Scheduler Ontology for Fortune 5 Compliance
+# Comprehensive model for Post-Quantum Cryptography Scheduler components
+
+pqcs: a owl:Ontology ;
+    dc:title "PQC Scheduler Ontology for Fortune 5 Compliance" ;
+    dc:description "Complete ontological model for PQC Scheduler system validation" ;
+    dc:creator "ULTRATHINK Compliance Auditor" ;
+    dc:created "2025-08-22"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ===== TOP-LEVEL CLASSES =====
+
+pqcs:PQCScheduler a owl:Class ;
+    rdfs:label "PQC Scheduler" ;
+    rdfs:comment "Main scheduler component for post-quantum cryptography operations" .
+
+pqcs:ComplianceArtifact a owl:Class ;
+    rdfs:label "Compliance Artifact" ;
+    rdfs:comment "Base class for all compliance-related artifacts" .
+
+pqcs:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Performance measurement for scheduler operations" .
+
+pqcs:SecurityConfiguration a owl:Class ;
+    rdfs:label "Security Configuration" ;
+    rdfs:comment "Security settings and parameters" .
+
+pqcs:HardwareConfiguration a owl:Class ;
+    rdfs:label "Hardware Configuration" ;
+    rdfs:comment "Hardware setup and resource allocation" .
+
+# ===== PQC SCHEDULER COMPONENTS =====
+
+pqcs:SchedulerCore a owl:Class ;
+    rdfs:subClassOf pqcs:PQCScheduler ;
+    rdfs:label "Scheduler Core" ;
+    rdfs:comment "Core scheduling engine with real-time capabilities" .
+
+pqcs:TaskQueue a owl:Class ;
+    rdfs:subClassOf pqcs:PQCScheduler ;
+    rdfs:label "Task Queue" ;
+    rdfs:comment "Priority queue for PQC operations" .
+
+pqcs:ResourceManager a owl:Class ;
+    rdfs:subClassOf pqcs:PQCScheduler ;
+    rdfs:label "Resource Manager" ;
+    rdfs:comment "Manages CPU cores, cache, and memory resources" .
+
+pqcs:LatencyMonitor a owl:Class ;
+    rdfs:subClassOf pqcs:PQCScheduler ;
+    rdfs:label "Latency Monitor" ;
+    rdfs:comment "Real-time latency monitoring and SLA enforcement" .
+
+# ===== PERFORMANCE METRICS =====
+
+pqcs:P99Latency a owl:Class ;
+    rdfs:subClassOf pqcs:PerformanceMetric ;
+    rdfs:label "P99 Latency" ;
+    rdfs:comment "99th percentile latency measurement" .
+
+pqcs:Throughput a owl:Class ;
+    rdfs:subClassOf pqcs:PerformanceMetric ;
+    rdfs:label "Throughput" ;
+    rdfs:comment "Operations per second measurement" .
+
+pqcs:DeadlineMissRate a owl:Class ;
+    rdfs:subClassOf pqcs:PerformanceMetric ;
+    rdfs:label "Deadline Miss Rate" ;
+    rdfs:comment "Percentage of tasks missing deadlines" .
+
+pqcs:CPUUtilization a owl:Class ;
+    rdfs:subClassOf pqcs:PerformanceMetric ;
+    rdfs:label "CPU Utilization" ;
+    rdfs:comment "CPU usage percentage per core" .
+
+pqcs:CacheHitRate a owl:Class ;
+    rdfs:subClassOf pqcs:PerformanceMetric ;
+    rdfs:label "Cache Hit Rate" ;
+    rdfs:comment "L1/L2/L3 cache hit ratio" .
+
+# ===== SECURITY CONFIGURATION =====
+
+pqcs:ConstantTimeExecution a owl:Class ;
+    rdfs:subClassOf pqcs:SecurityConfiguration ;
+    rdfs:label "Constant Time Execution" ;
+    rdfs:comment "Ensures operations run in constant time" .
+
+pqcs:SideChannelProtection a owl:Class ;
+    rdfs:subClassOf pqcs:SecurityConfiguration ;
+    rdfs:label "Side Channel Protection" ;
+    rdfs:comment "Protection against timing and power analysis" .
+
+pqcs:MemoryIsolation a owl:Class ;
+    rdfs:subClassOf pqcs:SecurityConfiguration ;
+    rdfs:label "Memory Isolation" ;
+    rdfs:comment "Memory partitioning and protection" .
+
+pqcs:CachePartitioning a owl:Class ;
+    rdfs:subClassOf pqcs:SecurityConfiguration ;
+    rdfs:label "Cache Partitioning" ;
+    rdfs:comment "Intel RDT cache partitioning configuration" .
+
+# ===== HARDWARE CONFIGURATION =====
+
+pqcs:IntelRDTConfiguration a owl:Class ;
+    rdfs:subClassOf pqcs:HardwareConfiguration ;
+    rdfs:label "Intel RDT Configuration" ;
+    rdfs:comment "Intel Resource Director Technology settings" .
+
+pqcs:CPUCoreAllocation a owl:Class ;
+    rdfs:subClassOf pqcs:HardwareConfiguration ;
+    rdfs:label "CPU Core Allocation" ;
+    rdfs:comment "Dedicated CPU core assignment" .
+
+pqcs:RTKernelConfiguration a owl:Class ;
+    rdfs:subClassOf pqcs:HardwareConfiguration ;
+    rdfs:label "RT Kernel Configuration" ;
+    rdfs:comment "Real-time kernel settings" .
+
+pqcs:IsolatedCPUConfiguration a owl:Class ;
+    rdfs:subClassOf pqcs:HardwareConfiguration ;
+    rdfs:label "Isolated CPU Configuration" ;
+    rdfs:comment "isolcpus kernel parameter configuration" .
+
+# ===== COMPLIANCE ARTIFACTS =====
+
+pqcs:ComplianceCertificate a owl:Class ;
+    rdfs:subClassOf pqcs:ComplianceArtifact ;
+    rdfs:label "Compliance Certificate" ;
+    rdfs:comment "Digital certificate proving compliance" .
+
+pqcs:AuditLog a owl:Class ;
+    rdfs:subClassOf pqcs:ComplianceArtifact ;
+    rdfs:label "Audit Log" ;
+    rdfs:comment "Immutable log of system operations" .
+
+pqcs:ValidationReport a owl:Class ;
+    rdfs:subClassOf pqcs:ComplianceArtifact ;
+    rdfs:label "Validation Report" ;
+    rdfs:comment "SHACL validation results" .
+
+pqcs:EvidencePackage a owl:Class ;
+    rdfs:subClassOf pqcs:ComplianceArtifact ;
+    rdfs:label "Evidence Package" ;
+    rdfs:comment "Collection of audit evidence" .
+
+# ===== OBJECT PROPERTIES =====
+
+pqcs:hasPerformanceMetric a owl:ObjectProperty ;
+    rdfs:domain pqcs:PQCScheduler ;
+    rdfs:range pqcs:PerformanceMetric ;
+    rdfs:label "has performance metric" ;
+    rdfs:comment "Links scheduler to its performance metrics" .
+
+pqcs:hasSecurityConfiguration a owl:ObjectProperty ;
+    rdfs:domain pqcs:PQCScheduler ;
+    rdfs:range pqcs:SecurityConfiguration ;
+    rdfs:label "has security configuration" ;
+    rdfs:comment "Links scheduler to its security settings" .
+
+pqcs:hasHardwareConfiguration a owl:ObjectProperty ;
+    rdfs:domain pqcs:PQCScheduler ;
+    rdfs:range pqcs:HardwareConfiguration ;
+    rdfs:label "has hardware configuration" ;
+    rdfs:comment "Links scheduler to its hardware setup" .
+
+pqcs:generatesArtifact a owl:ObjectProperty ;
+    rdfs:domain pqcs:PQCScheduler ;
+    rdfs:range pqcs:ComplianceArtifact ;
+    rdfs:label "generates artifact" ;
+    rdfs:comment "Links scheduler to compliance artifacts it generates" .
+
+pqcs:validates a owl:ObjectProperty ;
+    rdfs:domain pqcs:ValidationReport ;
+    rdfs:range pqcs:PQCScheduler ;
+    rdfs:label "validates" ;
+    rdfs:comment "Links validation report to validated component" .
+
+# ===== DATA PROPERTIES =====
+
+pqcs:latencyValue a owl:DatatypeProperty ;
+    rdfs:domain pqcs:P99Latency ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "latency value" ;
+    rdfs:comment "Latency measurement in microseconds" .
+
+pqcs:throughputValue a owl:DatatypeProperty ;
+    rdfs:domain pqcs:Throughput ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "throughput value" ;
+    rdfs:comment "Operations per second" .
+
+pqcs:deadlineMissRateValue a owl:DatatypeProperty ;
+    rdfs:domain pqcs:DeadlineMissRate ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "deadline miss rate value" ;
+    rdfs:comment "Percentage of missed deadlines" .
+
+pqcs:coreCount a owl:DatatypeProperty ;
+    rdfs:domain pqcs:CPUCoreAllocation ;
+    rdfs:range xsd:integer ;
+    rdfs:label "core count" ;
+    rdfs:comment "Number of allocated CPU cores" .
+
+pqcs:isolatedCores a owl:DatatypeProperty ;
+    rdfs:domain pqcs:IsolatedCPUConfiguration ;
+    rdfs:range xsd:string ;
+    rdfs:label "isolated cores" ;
+    rdfs:comment "List of isolated CPU cores" .
+
+pqcs:rdtClass a owl:DatatypeProperty ;
+    rdfs:domain pqcs:IntelRDTConfiguration ;
+    rdfs:range xsd:string ;
+    rdfs:label "RDT class" ;
+    rdfs:comment "Intel RDT class identifier" .
+
+pqcs:cacheWays a owl:DatatypeProperty ;
+    rdfs:domain pqcs:CachePartitioning ;
+    rdfs:range xsd:integer ;
+    rdfs:label "cache ways" ;
+    rdfs:comment "Number of cache ways allocated" .
+
+pqcs:isConstantTime a owl:DatatypeProperty ;
+    rdfs:domain pqcs:ConstantTimeExecution ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is constant time" ;
+    rdfs:comment "Whether execution is constant time" .
+
+pqcs:certificateHash a owl:DatatypeProperty ;
+    rdfs:domain pqcs:ComplianceCertificate ;
+    rdfs:range xsd:string ;
+    rdfs:label "certificate hash" ;
+    rdfs:comment "SHA-256 hash of certificate" .
+
+pqcs:timestamp a owl:DatatypeProperty ;
+    rdfs:domain pqcs:AuditLog ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "Timestamp of audit event" .
+
+pqcs:isValid a owl:DatatypeProperty ;
+    rdfs:domain pqcs:ValidationReport ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is valid" ;
+    rdfs:comment "Whether validation passed" .
+
+# ===== CARDINALITY CONSTRAINTS =====
+
+pqcs:PQCScheduler rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pqcs:hasPerformanceMetric ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+pqcs:PQCScheduler rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pqcs:hasSecurityConfiguration ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+pqcs:PQCScheduler rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pqcs:hasHardwareConfiguration ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# ===== FORTUNE 5 COMPLIANCE REQUIREMENTS =====
+
+pqcs:Fortune5Compliant a owl:Class ;
+    rdfs:label "Fortune 5 Compliant" ;
+    rdfs:comment "Marker class for Fortune 5 compliant configurations" .
+
+pqcs:PQCScheduler rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pqcs:hasPerformanceMetric ;
+    owl:someValuesFrom [
+        a owl:Class ;
+        owl:intersectionOf (
+            pqcs:P99Latency
+            [
+                a owl:Restriction ;
+                owl:onProperty pqcs:latencyValue ;
+                owl:maxInclusive "100.0"^^xsd:decimal
+            ]
+        )
+    ]
+] .

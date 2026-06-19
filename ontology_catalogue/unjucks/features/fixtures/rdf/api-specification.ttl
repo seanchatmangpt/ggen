@@ -1,0 +1,303 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix api: <http://api.example.org/> .
+@prefix schema: <http://schema.org/> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix ex: <http://example.org/> .
+
+# API Specification RDF Graph
+api:userAPI a hydra:ApiDocumentation ;
+    hydra:title "User Management API" ;
+    hydra:description "RESTful API for managing users and authentication" ;
+    dct:version "2.1.0" ;
+    hydra:entrypoint <https://api.example.org/> ;
+    hydra:supportedClass api:User, api:Organization, api:Session .
+
+# User Resource
+api:User a hydra:Class ;
+    hydra:title "User" ;
+    hydra:description "Represents a user in the system" ;
+    hydra:supportedProperty [
+        hydra:property api:id ;
+        hydra:title "User ID" ;
+        hydra:description "Unique identifier for the user" ;
+        hydra:required true ;
+        hydra:readonly true
+    ], [
+        hydra:property api:email ;
+        hydra:title "Email Address" ;
+        hydra:description "User's email address" ;
+        hydra:required true ;
+        schema:format "email"
+    ], [
+        hydra:property api:name ;
+        hydra:title "Full Name" ;
+        hydra:description "User's full name" ;
+        hydra:required true ;
+        schema:minLength 2 ;
+        schema:maxLength 100
+    ], [
+        hydra:property api:role ;
+        hydra:title "User Role" ;
+        hydra:description "User's role in the system" ;
+        hydra:required false ;
+        schema:enum "admin", "user", "moderator"
+    ], [
+        hydra:property api:createdAt ;
+        hydra:title "Created At" ;
+        hydra:description "Timestamp when user was created" ;
+        hydra:required true ;
+        hydra:readonly true ;
+        schema:format "date-time"
+    ], [
+        hydra:property api:organization ;
+        hydra:title "Organization" ;
+        hydra:description "User's organization" ;
+        hydra:required false ;
+        schema:rangeIncludes api:Organization
+    ] .
+
+# Organization Resource
+api:Organization a hydra:Class ;
+    hydra:title "Organization" ;
+    hydra:description "Represents an organization" ;
+    hydra:supportedProperty [
+        hydra:property api:id ;
+        hydra:title "Organization ID" ;
+        hydra:description "Unique identifier for the organization" ;
+        hydra:required true ;
+        hydra:readonly true
+    ], [
+        hydra:property api:name ;
+        hydra:title "Organization Name" ;
+        hydra:description "Name of the organization" ;
+        hydra:required true ;
+        schema:minLength 1 ;
+        schema:maxLength 200
+    ], [
+        hydra:property api:domain ;
+        hydra:title "Domain" ;
+        hydra:description "Organization's domain name" ;
+        hydra:required false ;
+        schema:format "hostname"
+    ], [
+        hydra:property api:members ;
+        hydra:title "Members" ;
+        hydra:description "Users who are members of this organization" ;
+        hydra:required false ;
+        schema:rangeIncludes api:User
+    ] .
+
+# Session Resource
+api:Session a hydra:Class ;
+    hydra:title "Session" ;
+    hydra:description "Represents a user session" ;
+    hydra:supportedProperty [
+        hydra:property api:token ;
+        hydra:title "Session Token" ;
+        hydra:description "JWT token for the session" ;
+        hydra:required true ;
+        hydra:readonly true
+    ], [
+        hydra:property api:user ;
+        hydra:title "User" ;
+        hydra:description "User associated with this session" ;
+        hydra:required true ;
+        schema:rangeIncludes api:User
+    ], [
+        hydra:property api:expiresAt ;
+        hydra:title "Expires At" ;
+        hydra:description "When the session expires" ;
+        hydra:required true ;
+        schema:format "date-time"
+    ] .
+
+# API Endpoints
+api:getUsersEndpoint a hydra:Operation ;
+    hydra:method "GET" ;
+    hydra:title "Get Users" ;
+    hydra:description "Retrieve a list of users" ;
+    hydra:expects hydra:Resource ;
+    hydra:returns hydra:Collection ;
+    hydra:possibleStatus [
+        hydra:statusCode 200 ;
+        hydra:title "Success" ;
+        hydra:description "Users retrieved successfully"
+    ], [
+        hydra:statusCode 401 ;
+        hydra:title "Unauthorized" ;
+        hydra:description "Authentication required"
+    ] .
+
+api:createUserEndpoint a hydra:Operation ;
+    hydra:method "POST" ;
+    hydra:title "Create User" ;
+    hydra:description "Create a new user" ;
+    hydra:expects api:User ;
+    hydra:returns api:User ;
+    hydra:possibleStatus [
+        hydra:statusCode 201 ;
+        hydra:title "Created" ;
+        hydra:description "User created successfully"
+    ], [
+        hydra:statusCode 400 ;
+        hydra:title "Bad Request" ;
+        hydra:description "Invalid user data"
+    ], [
+        hydra:statusCode 409 ;
+        hydra:title "Conflict" ;
+        hydra:description "User already exists"
+    ] .
+
+api:getUserEndpoint a hydra:Operation ;
+    hydra:method "GET" ;
+    hydra:title "Get User" ;
+    hydra:description "Retrieve a specific user by ID" ;
+    hydra:expects hydra:Resource ;
+    hydra:returns api:User ;
+    hydra:possibleStatus [
+        hydra:statusCode 200 ;
+        hydra:title "Success" ;
+        hydra:description "User retrieved successfully"
+    ], [
+        hydra:statusCode 404 ;
+        hydra:title "Not Found" ;
+        hydra:description "User not found"
+    ] .
+
+api:updateUserEndpoint a hydra:Operation ;
+    hydra:method "PUT" ;
+    hydra:title "Update User" ;
+    hydra:description "Update an existing user" ;
+    hydra:expects api:User ;
+    hydra:returns api:User ;
+    hydra:possibleStatus [
+        hydra:statusCode 200 ;
+        hydra:title "Success" ;
+        hydra:description "User updated successfully"
+    ], [
+        hydra:statusCode 400 ;
+        hydra:title "Bad Request" ;
+        hydra:description "Invalid user data"
+    ], [
+        hydra:statusCode 404 ;
+        hydra:title "Not Found" ;
+        hydra:description "User not found"
+    ] .
+
+api:deleteUserEndpoint a hydra:Operation ;
+    hydra:method "DELETE" ;
+    hydra:title "Delete User" ;
+    hydra:description "Delete a user" ;
+    hydra:expects hydra:Resource ;
+    hydra:returns hydra:Resource ;
+    hydra:possibleStatus [
+        hydra:statusCode 204 ;
+        hydra:title "No Content" ;
+        hydra:description "User deleted successfully"
+    ], [
+        hydra:statusCode 404 ;
+        hydra:title "Not Found" ;
+        hydra:description "User not found"
+    ] .
+
+# Authentication Endpoints
+api:loginEndpoint a hydra:Operation ;
+    hydra:method "POST" ;
+    hydra:title "Login" ;
+    hydra:description "Authenticate user and create session" ;
+    hydra:expects api:LoginRequest ;
+    hydra:returns api:Session ;
+    hydra:possibleStatus [
+        hydra:statusCode 200 ;
+        hydra:title "Success" ;
+        hydra:description "Login successful"
+    ], [
+        hydra:statusCode 401 ;
+        hydra:title "Unauthorized" ;
+        hydra:description "Invalid credentials"
+    ] .
+
+api:logoutEndpoint a hydra:Operation ;
+    hydra:method "POST" ;
+    hydra:title "Logout" ;
+    hydra:description "Invalidate user session" ;
+    hydra:expects hydra:Resource ;
+    hydra:returns hydra:Resource ;
+    hydra:possibleStatus [
+        hydra:statusCode 200 ;
+        hydra:title "Success" ;
+        hydra:description "Logout successful"
+    ] .
+
+# Request/Response Types
+api:LoginRequest a hydra:Class ;
+    hydra:title "Login Request" ;
+    hydra:description "Request payload for login" ;
+    hydra:supportedProperty [
+        hydra:property api:email ;
+        hydra:title "Email" ;
+        hydra:required true
+    ], [
+        hydra:property api:password ;
+        hydra:title "Password" ;
+        hydra:required true
+    ] .
+
+# URL Templates and Routing
+api:usersCollection hydra:template "/api/users{?page,limit,sort}" ;
+    hydra:mapping [
+        hydra:variable "page" ;
+        hydra:property api:page ;
+        hydra:required false
+    ], [
+        hydra:variable "limit" ;
+        hydra:property api:limit ;
+        hydra:required false
+    ], [
+        hydra:variable "sort" ;
+        hydra:property api:sort ;
+        hydra:required false
+    ] .
+
+api:userResource hydra:template "/api/users/{id}" ;
+    hydra:mapping [
+        hydra:variable "id" ;
+        hydra:property api:id ;
+        hydra:required true
+    ] .
+
+# Rate Limiting Information
+api:rateLimitPolicy a schema:Thing ;
+    schema:name "API Rate Limiting" ;
+    schema:description "Rate limiting policy for API endpoints" ;
+    api:requestsPerMinute 100 ;
+    api:requestsPerHour 5000 ;
+    api:burstLimit 10 .
+
+# Security Requirements
+api:securityScheme a schema:Thing ;
+    schema:name "Bearer Token Authentication" ;
+    schema:description "JWT Bearer token authentication" ;
+    api:type "http" ;
+    api:scheme "bearer" ;
+    api:bearerFormat "JWT" .
+
+# Error Response Schema
+api:ErrorResponse a hydra:Class ;
+    hydra:title "Error Response" ;
+    hydra:description "Standard error response format" ;
+    hydra:supportedProperty [
+        hydra:property api:code ;
+        hydra:title "Error Code" ;
+        hydra:required true
+    ], [
+        hydra:property api:message ;
+        hydra:title "Error Message" ;
+        hydra:required true
+    ], [
+        hydra:property api:details ;
+        hydra:title "Error Details" ;
+        hydra:required false
+    ] .

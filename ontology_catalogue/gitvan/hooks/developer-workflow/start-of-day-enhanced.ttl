@@ -1,0 +1,166 @@
+@prefix dev: <https://gitvan.dev/developer#> .
+@prefix scrum: <https://gitvan.dev/scrum#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enhanced Start of Day Hook with Daily Report Generation
+dev:start-of-day-enhanced-hook rdf:type gh:Hook ;
+    gv:title "Start of Day - Daily Report Generation" ;
+    gh:hasPredicate dev:start-of-day-enhanced-predicate ;
+    gh:orderedPipelines dev:start-of-day-enhanced-pipeline .
+
+# Enhanced Predicate: Multiple detection triggers
+dev:start-of-day-enhanced-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX dev: <https://gitvan.dev/developer#>
+        PREFIX scrum: <https://gitvan.dev/scrum#>
+        PREFIX time: <http://www.w3.org/2006/time#>
+        
+        ASK WHERE {
+            {
+                # Trigger 1: Time-based (9:00 AM)
+                ?developer rdf:type dev:Developer ;
+                           dev:workStatus "starting" .
+                ?currentTime time:inXSDDateTime ?now .
+                FILTER (HOURS(?now) >= 9 && HOURS(?now) < 10)
+            } UNION {
+                # Trigger 2: IDE startup detection
+                ?developer rdf:type dev:Developer ;
+                           dev:ideStartup true ;
+                           dev:lastActivity ?lastActivity .
+                FILTER (?lastActivity < (NOW() - "P12H"^^xsd:duration))
+            } UNION {
+                # Trigger 3: Calendar event
+                ?developer rdf:type dev:Developer ;
+                           dev:calendarEvent ?event .
+                ?event dev:eventType "start-work" ;
+                       dev:eventTime ?eventTime .
+                FILTER (?eventTime <= NOW())
+            } UNION {
+                # Trigger 4: Manual trigger
+                ?developer rdf:type dev:Developer ;
+                           dev:manualStartTrigger true .
+            }
+            
+            # Must have active sprint
+            ?developer dev:currentSprint ?sprint .
+            ?sprint scrum:status "active" .
+        }
+    """ ;
+    gh:description "Triggers when developer starts work day through multiple detection methods" .
+
+# Enhanced Pipeline with Daily Report Generation
+dev:start-of-day-enhanced-pipeline rdf:type op:Pipeline ;
+    op:steps dev:detect-start-context, dev:load-sprint-data, dev:analyze-backlog, dev:generate-daily-report, dev:deliver-report .
+
+# Step 1: Detect Start Context
+dev:detect-start-context rdf:type gv:ShellStep ;
+    gv:command "echo 'Detecting start of day context...'" ;
+    gv:description "Detect how developer started their day" .
+
+# Step 2: Load Sprint Data
+dev:load-sprint-data rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/sprint-data" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "load-sprint-data",
+            "developer": "{{ developer.id }}",
+            "sprint": "{{ sprint.id }}",
+            "include": ["backlog", "progress", "team", "risks", "dependencies"]
+        }
+    """ ;
+    gv:description "Load comprehensive sprint data for daily planning" ;
+    gv:dependsOn dev:detect-start-context .
+
+# Step 3: Analyze Backlog
+dev:analyze-backlog rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/backlog-analysis" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "analyze-backlog",
+            "developer": "{{ developer.id }}",
+            "sprint": "{{ sprint.id }}",
+            "analysis": {
+                "priorities": true,
+                "dependencies": true,
+                "blockers": true,
+                "timeEstimates": true,
+                "riskAssessment": true
+            }
+        }
+    """ ;
+    gv:description "Analyze sprint backlog for daily planning" ;
+    gv:dependsOn dev:load-sprint-data .
+
+# Step 4: Generate Daily Report
+dev:generate-daily-report rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/daily-report" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "generate-daily-report",
+            "developer": "{{ developer.id }}",
+            "sprint": "{{ sprint.id }}",
+            "reportType": "start-of-day",
+            "sections": {
+                "sprintOverview": true,
+                "assignedItems": true,
+                "blockedItems": true,
+                "dailyScrumPrep": true,
+                "recommendations": true,
+                "timeManagement": true,
+                "teamContext": true
+            },
+            "personalization": {
+                "workStyle": "{{ developer.workStyle }}",
+                "preferences": "{{ developer.preferences }}",
+                "focusAreas": "{{ developer.focusAreas }}"
+            }
+        }
+    """ ;
+    gv:description "Generate personalized daily report" ;
+    gv:dependsOn dev:analyze-backlog .
+
+# Step 5: Deliver Report
+dev:deliver-report rdf:type gv:HttpStep ;
+    gv:httpUrl "https://api.scrum.com/report-delivery" ;
+    gv:httpMethod "POST" ;
+    gv:headers '{"Content-Type": "application/json"}' ;
+    gv:body """
+        {
+            "action": "deliver-report",
+            "developer": "{{ developer.id }}",
+            "reportId": "{{ report.id }}",
+            "channels": [
+                {
+                    "type": "email",
+                    "address": "{{ developer.email }}",
+                    "subject": "Daily Sprint Report - {{ sprint.name }}"
+                },
+                {
+                    "type": "dashboard",
+                    "url": "https://gitvan.dev/dashboard/daily-report/{{ report.id }}"
+                },
+                {
+                    "type": "slack",
+                    "channel": "#daily-reports",
+                    "message": "Daily report ready for {{ developer.name }}"
+                },
+                {
+                    "type": "ide",
+                    "extension": "gitvan-daily-report",
+                    "popup": true
+                }
+            ]
+        }
+    """ ;
+    gv:description "Deliver daily report through multiple channels" ;
+    gv:dependsOn dev:generate-daily-report .
+

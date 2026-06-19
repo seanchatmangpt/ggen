@@ -1,0 +1,49 @@
+@prefix : <http://healthcare.example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Patient validation
+:PatientShape a sh:NodeShape ;
+    sh:targetClass :Patient ;
+    sh:property [
+        sh:path :patientId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^P[0-9]{3}$" ;
+        sh:message "Patient must have ID in format P###"
+    ] ;
+    sh:property [
+        sh:path :age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:message "Age must be between 0 and 150"
+    ] .
+
+# Treatment safety validation
+:TreatmentSafetyShape a sh:NodeShape ;
+    sh:targetClass :Patient ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Patient prescribed contraindicated medication" ;
+        sh:select """
+            PREFIX : <http://healthcare.example.org/>
+            SELECT $this ?treatment ?condition
+            WHERE {
+                $this :prescribedTreatment ?treatment ;
+                      :hasCondition ?condition .
+                ?treatment :contraindicated ?condition .
+            }
+        """
+    ] .
+
+# Medication validation
+:MedicationShape a sh:NodeShape ;
+    sh:targetClass :Medication ;
+    sh:property [
+        sh:path :dosage ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Medication must have dosage instructions"
+    ] .

@@ -1,0 +1,337 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix kgen: <https://kgen.io/ontology#> .
+
+# Modified version for testing semantic diff functionality
+# Changes: added new employees, modified salaries, removed Tokyo office
+
+# Organizations and People
+ex:TechCorp rdf:type foaf:Organization ;
+    foaf:name "TechCorp Industries"@en ;
+    foaf:name "TechCorp Industrias"@es ;
+    rdfs:label "Global Technology Corporation" ;
+    foaf:homepage <http://techcorp.example.com> ;
+    ex:founded "1995-03-15"^^xsd:date ;
+    ex:employees 18000 ;  # CHANGED: increased from 15000
+    ex:revenue "3.2E9"^^xsd:decimal ;  # CHANGED: increased from 2.5E9
+    ex:hasOffice ex:Office_NYC, ex:Office_London, ex:Office_Berlin .  # CHANGED: Tokyo -> Berlin
+
+ex:Office_NYC rdf:type ex:Office ;
+    rdfs:label "New York Office" ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "123 Tech Avenue" ;
+        ex:city "New York" ;
+        ex:state "NY" ;
+        ex:country "USA" ;
+        ex:zipCode "10001"
+    ] ;
+    ex:employeeCount 6000 ;  # CHANGED: increased from 5000
+    ex:primaryLanguage "en" .
+
+ex:Office_London rdf:type ex:Office ;
+    rdfs:label "London Office" ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "456 Innovation Street" ;
+        ex:city "London" ;
+        ex:country "UK" ;
+        ex:postCode "SW1A 1AA"
+    ] ;
+    ex:employeeCount 4000 ;  # CHANGED: increased from 3000
+    ex:primaryLanguage "en-GB" .
+
+# NEW: Berlin office replaces Tokyo
+ex:Office_Berlin rdf:type ex:Office ;
+    rdfs:label "Berlin Office"@en ;
+    rdfs:label "Berliner Büro"@de ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "789 Technologie Straße" ;
+        ex:city "Berlin" ;
+        ex:country "Germany"
+    ] ;
+    ex:employeeCount 3500 ;
+    ex:primaryLanguage "de" .
+
+# Key Personnel - some modified, some new
+ex:JohnSmith rdf:type foaf:Person ;
+    foaf:name "John Smith" ;
+    foaf:givenName "John" ;
+    foaf:familyName "Smith" ;
+    foaf:mbox <mailto:john.smith@techcorp.example.com> ;
+    ex:employeeId "EMP001" ;
+    ex:position "Chief Technology Officer" ;
+    ex:worksAt ex:Office_NYC ;
+    ex:salary "280000.00"^^xsd:decimal ;  # CHANGED: increased from 250000.00
+    ex:hireDate "2010-01-15"^^xsd:date ;
+    ex:hasSkill ex:Skill_AI, ex:Skill_ML, ex:Skill_Leadership, ex:Skill_Blockchain ;  # ADDED: Blockchain skill
+    foaf:knows ex:AliceJohnson, ex:BobWilson, ex:CarolDavis ;  # ADDED: CarolDavis
+    ex:manages ex:TeamAlpha, ex:TeamBeta, ex:TeamGamma .  # ADDED: TeamGamma
+
+ex:AliceJohnson rdf:type foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:givenName "Alice" ;
+    foaf:familyName "Johnson" ;
+    foaf:mbox <mailto:alice.johnson@techcorp.example.com> ;
+    ex:employeeId "EMP002" ;
+    ex:position "Principal Software Engineer" ;  # CHANGED: Senior -> Principal
+    ex:worksAt ex:Office_London ;
+    ex:salary "140000.00"^^xsd:decimal ;  # CHANGED: increased from 120000.00
+    ex:hireDate "2015-06-01"^^xsd:date ;
+    ex:hasSkill ex:Skill_Python, ex:Skill_JavaScript, ex:Skill_Docker, ex:Skill_Kubernetes ;  # ADDED: Kubernetes
+    foaf:knows ex:JohnSmith, ex:BobWilson, ex:CarolDavis ;  # ADDED: CarolDavis
+    ex:memberOf ex:TeamAlpha .
+
+ex:BobWilson rdf:type foaf:Person ;
+    foaf:name "Bob Wilson" ;
+    foaf:givenName "Bob" ;
+    foaf:familyName "Wilson" ;
+    foaf:mbox <mailto:bob.wilson@techcorp.example.com> ;
+    ex:employeeId "EMP003" ;
+    ex:position "Senior Data Scientist" ;  # CHANGED: Data Scientist -> Senior Data Scientist
+    ex:worksAt ex:Office_Berlin ;  # CHANGED: Tokyo -> Berlin
+    ex:salary "150000.00"^^xsd:decimal ;  # CHANGED: increased from 135000.00
+    ex:hireDate "2018-03-20"^^xsd:date ;
+    ex:hasSkill ex:Skill_Python, ex:Skill_R, ex:Skill_Statistics, ex:Skill_DeepLearning ;  # ADDED: DeepLearning
+    foaf:knows ex:JohnSmith, ex:AliceJohnson, ex:CarolDavis ;  # ADDED: CarolDavis
+    ex:memberOf ex:TeamBeta .
+
+# NEW: Additional employee
+ex:CarolDavis rdf:type foaf:Person ;
+    foaf:name "Carol Davis" ;
+    foaf:givenName "Carol" ;
+    foaf:familyName "Davis" ;
+    foaf:mbox <mailto:carol.davis@techcorp.example.com> ;
+    ex:employeeId "EMP004" ;
+    ex:position "DevOps Engineer" ;
+    ex:worksAt ex:Office_Berlin ;
+    ex:salary "125000.00"^^xsd:decimal ;
+    ex:hireDate "2021-09-01"^^xsd:date ;
+    ex:hasSkill ex:Skill_Docker, ex:Skill_Kubernetes, ex:Skill_AWS ;
+    foaf:knows ex:JohnSmith, ex:AliceJohnson, ex:BobWilson ;
+    ex:memberOf ex:TeamGamma .
+
+# Teams - some modified, one new
+ex:TeamAlpha rdf:type ex:Team ;
+    rdfs:label "Alpha Development Team" ;
+    ex:teamLead ex:JohnSmith ;
+    ex:focusArea "Artificial Intelligence" ;
+    ex:budget "6000000.00"^^xsd:decimal ;  # CHANGED: increased from 5000000.00
+    ex:workingOnProject ex:Project_KGEN, ex:Project_CloudAI ;
+    ex:hasMember ex:AliceJohnson .
+
+ex:TeamBeta rdf:type ex:Team ;
+    rdfs:label "Beta Research Team" ;
+    ex:teamLead ex:JohnSmith ;
+    ex:focusArea "Machine Learning Research" ;
+    ex:budget "4000000.00"^^xsd:decimal ;  # CHANGED: increased from 3500000.00
+    ex:workingOnProject ex:Project_DeepAnalytics ;
+    ex:hasMember ex:BobWilson .
+
+# NEW: Additional team
+ex:TeamGamma rdf:type ex:Team ;
+    rdfs:label "Gamma Infrastructure Team" ;
+    ex:teamLead ex:JohnSmith ;
+    ex:focusArea "DevOps and Infrastructure" ;
+    ex:budget "2500000.00"^^xsd:decimal ;
+    ex:workingOnProject ex:Project_CloudInfra ;
+    ex:hasMember ex:CarolDavis .
+
+# Projects - some modified, one new
+ex:Project_KGEN rdf:type ex:Project ;
+    dc:title "KGEN - Knowledge Graph Engine" ;
+    dc:description "Advanced knowledge graph processing and generation system"@en ;
+    dc:description "Sistema avanzado de procesamiento y generación de grafos de conocimiento"@es ;
+    ex:startDate "2022-01-01"^^xsd:date ;
+    ex:endDate "2024-12-31"^^xsd:date ;
+    ex:status "active" ;
+    ex:priority "critical" ;  # CHANGED: high -> critical
+    ex:budget "2500000.00"^^xsd:decimal ;  # CHANGED: increased from 2000000.00
+    ex:usedTechnology ex:Tech_RDF, ex:Tech_SPARQL, ex:Tech_JavaScript, ex:Tech_TypeScript ;  # ADDED: TypeScript
+    kgen:semanticComplexity "high" ;
+    kgen:performanceTarget "120ms" ;  # CHANGED: improved from 150ms
+    kgen:indexingCapability "semantic" .
+
+ex:Project_CloudAI rdf:type ex:Project ;
+    dc:title "Cloud AI Platform" ;
+    dc:description "Scalable AI services in the cloud" ;
+    ex:startDate "2023-06-01"^^xsd:date ;
+    ex:status "development" ;  # CHANGED: planning -> development
+    ex:priority "high" ;  # CHANGED: medium -> high
+    ex:budget "2000000.00"^^xsd:decimal ;  # CHANGED: increased from 1500000.00
+    ex:usedTechnology ex:Tech_Python, ex:Tech_Docker, ex:Tech_Kubernetes .
+
+ex:Project_DeepAnalytics rdf:type ex:Project ;
+    dc:title "Deep Analytics Engine" ;
+    dc:description "Advanced data analytics using deep learning" ;
+    ex:startDate "2023-09-01"^^xsd:date ;
+    ex:status "development" ;
+    ex:priority "high" ;
+    ex:budget "2200000.00"^^xsd:decimal ;  # CHANGED: increased from 1800000.00
+    ex:usedTechnology ex:Tech_Python, ex:Tech_TensorFlow, ex:Tech_R .
+
+# NEW: Additional project
+ex:Project_CloudInfra rdf:type ex:Project ;
+    dc:title "Cloud Infrastructure Modernization" ;
+    dc:description "Modernizing cloud infrastructure for scalability" ;
+    ex:startDate "2024-01-01"^^xsd:date ;
+    ex:status "planning" ;
+    ex:priority "medium" ;
+    ex:budget "1200000.00"^^xsd:decimal ;
+    ex:usedTechnology ex:Tech_Docker, ex:Tech_Kubernetes, ex:Tech_AWS .
+
+# Skills - some new ones added
+ex:Skill_AI rdf:type ex:Skill ;
+    rdfs:label "Artificial Intelligence" ;
+    ex:category "technology" ;
+    ex:complexity "high" ;
+    ex:demandLevel "very-high" .
+
+ex:Skill_ML rdf:type ex:Skill ;
+    rdfs:label "Machine Learning" ;
+    ex:category "technology" ;
+    ex:complexity "high" ;
+    ex:demandLevel "very-high" ;
+    ex:relatedSkill ex:Skill_AI, ex:Skill_Statistics .
+
+ex:Skill_Python rdf:type ex:Skill ;
+    rdfs:label "Python Programming" ;
+    ex:category "programming" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+ex:Skill_JavaScript rdf:type ex:Skill ;
+    rdfs:label "JavaScript Programming" ;
+    ex:category "programming" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+ex:Skill_R rdf:type ex:Skill ;
+    rdfs:label "R Statistical Computing" ;
+    ex:category "programming" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "medium" .
+
+ex:Skill_Statistics rdf:type ex:Skill ;
+    rdfs:label "Statistical Analysis" ;
+    ex:category "analytics" ;
+    ex:complexity "high" ;
+    ex:demandLevel "high" .
+
+ex:Skill_Leadership rdf:type ex:Skill ;
+    rdfs:label "Leadership & Management" ;
+    ex:category "management" ;
+    ex:complexity "high" ;
+    ex:demandLevel "high" .
+
+ex:Skill_Docker rdf:type ex:Skill ;
+    rdfs:label "Docker Containerization" ;
+    ex:category "devops" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+ex:Skill_Kubernetes rdf:type ex:Skill ;
+    rdfs:label "Kubernetes Orchestration" ;
+    ex:category "devops" ;
+    ex:complexity "high" ;
+    ex:demandLevel "very-high" .
+
+# NEW: Additional skills
+ex:Skill_Blockchain rdf:type ex:Skill ;
+    rdfs:label "Blockchain Technology" ;
+    ex:category "technology" ;
+    ex:complexity "high" ;
+    ex:demandLevel "growing" .
+
+ex:Skill_DeepLearning rdf:type ex:Skill ;
+    rdfs:label "Deep Learning" ;
+    ex:category "technology" ;
+    ex:complexity "very-high" ;
+    ex:demandLevel "very-high" ;
+    ex:relatedSkill ex:Skill_ML, ex:Skill_AI .
+
+ex:Skill_AWS rdf:type ex:Skill ;
+    rdfs:label "Amazon Web Services" ;
+    ex:category "cloud" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+# Technologies - some new ones
+ex:Tech_RDF rdf:type ex:Technology ;
+    rdfs:label "Resource Description Framework" ;
+    ex:category "semantic-web" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "growing" .
+
+ex:Tech_SPARQL rdf:type ex:Technology ;
+    rdfs:label "SPARQL Query Language" ;
+    ex:category "semantic-web" ;
+    ex:maturityLevel "stable" ;
+    ex:relatedTech ex:Tech_RDF .
+
+ex:Tech_JavaScript rdf:type ex:Technology ;
+    rdfs:label "JavaScript" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "very-high" .
+
+# NEW: TypeScript technology
+ex:Tech_TypeScript rdf:type ex:Technology ;
+    rdfs:label "TypeScript" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" ;
+    ex:relatedTech ex:Tech_JavaScript .
+
+ex:Tech_Python rdf:type ex:Technology ;
+    rdfs:label "Python" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "very-high" .
+
+ex:Tech_Docker rdf:type ex:Technology ;
+    rdfs:label "Docker" ;
+    ex:category "containerization" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" .
+
+ex:Tech_Kubernetes rdf:type ex:Technology ;
+    rdfs:label "Kubernetes" ;
+    ex:category "orchestration" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" .
+
+ex:Tech_TensorFlow rdf:type ex:Technology ;
+    rdfs:label "TensorFlow" ;
+    ex:category "machine-learning" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" .
+
+ex:Tech_R rdf:type ex:Technology ;
+    rdfs:label "R Statistical Computing" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "medium" .
+
+# NEW: AWS technology
+ex:Tech_AWS rdf:type ex:Technology ;
+    rdfs:label "Amazon Web Services" ;
+    ex:category "cloud-platform" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "very-high" .
+
+# Test completeness marker
+ex:ModifiedTestDataset rdf:type kgen:TestDataset ;
+    rdfs:label "Modified Complex RDF Test Dataset for Semantic Diff Testing" ;
+    kgen:version "1.1.0" ;  # CHANGED: version bump
+    kgen:tripleCount 250 ;  # CHANGED: increased from ~200
+    kgen:complexityLevel "high" ;
+    kgen:features "multilingual, blank-nodes, complex-datatypes, relationships, time-series, modifications" ;
+    kgen:generatedAt "2024-01-15T14:00:00Z"^^xsd:dateTime ;  # CHANGED: later timestamp
+    kgen:purpose "Testing semantic graph diffing with structural changes" ;
+    kgen:modificationType "additions, deletions, modifications" .

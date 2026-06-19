@@ -60,9 +60,8 @@ fn create_tera() -> Tera {
 fn read_template(path: &str) -> String {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let full_path = manifest_dir.join("../../").join(path);
-    fs::read_to_string(&full_path).unwrap_or_else(|e| {
-        panic!("Failed to read template at {}: {}", full_path.display(), e)
-    })
+    fs::read_to_string(&full_path)
+        .unwrap_or_else(|e| panic!("Failed to read template at {}: {}", full_path.display(), e))
 }
 
 /// Helper to create a Tera context with default variables
@@ -72,14 +71,14 @@ fn create_context() -> Context {
     ctx.insert("server_version", "0.1.0");
     ctx.insert("handler_name", "TestMcpHandler");
     ctx.insert("description", "Test server");
-    
+
     let empty_tools: Vec<serde_json::Value> = vec![];
     ctx.insert("tools", &empty_tools);
     let empty_resources: Vec<serde_json::Value> = vec![];
     ctx.insert("resources", &empty_resources);
     let empty_prompts: Vec<serde_json::Value> = vec![];
     ctx.insert("prompts", &empty_prompts);
-    
+
     ctx.insert("use_zai", &false);
     ctx.insert("use_a2a", &false);
     ctx.insert("timestamp", "");

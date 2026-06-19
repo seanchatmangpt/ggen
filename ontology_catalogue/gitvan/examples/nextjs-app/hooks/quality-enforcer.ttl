@@ -1,0 +1,104 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+@prefix qa: <http://example.org/quality#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Quality Enforcer Hook
+# Enforce code quality gates with automated testing and metrics validation
+
+gh:QualityEnforcer a gh:Hook ;
+  gh:name "Quality Enforcer" ;
+  gh:description "Enforce code quality with automated testing, linting, and metrics validation" ;
+  gh:priority 9 ;
+  gh:autoExecute true ;
+
+  gh:trigger [
+    a git:PushEvent
+  ] ;
+
+  gh:condition [
+    a gh:AlwaysTrue
+  ] ;
+
+  gh:action [
+    a gh:CompositeAction ;
+    gh:steps [
+      rdf:_1 [
+        a qa:RunTests ;
+        gh:runners [ "jest" ; "pytest" ; "cargo test" ] ;
+        gh:parallel true ;
+        gh:timeout "300s" ;
+        gh:minCoverage 80
+      ] ;
+      rdf:_2 [
+        a qa:RunLinting ;
+        gh:tools [ "eslint" ; "pylint" ; "clippy" ] ;
+        gh:strict true ;
+        gh:autoFix true
+      ] ;
+      rdf:_3 [
+        a qa:TypeChecking ;
+        gh:tools [ "typescript" ; "mypy" ] ;
+        gh:strict true
+      ] ;
+      rdf:_4 [
+        a qa:CheckComplexity ;
+        gh:thresholds [
+          gh:cyclomaticComplexity 10 ;
+          gh:cognitiveComplexity 15 ;
+          gh:lineLength 120 ;
+          gh:functionLength 50
+        ]
+      ] ;
+      rdf:_5 [
+        a qa:ComputeMetrics ;
+        gh:metrics [
+          "cyclomatic_complexity" ;
+          "cognitive_complexity" ;
+          "maintainability_index" ;
+          "technical_debt_ratio" ;
+          "code_duplication"
+        ] ;
+        gh:store "metrics"
+      ] ;
+      rdf:_6 [
+        a qa:CheckThresholds ;
+        gh:thresholds [
+          gh:testCoverage ">= 80" ;
+          gh:maintainability ">= 70" ;
+          gh:debtRatio "< 5%" ;
+          gh:duplication "< 3%"
+        ] ;
+        gh:enforcementLevel "strict"
+      ] ;
+      rdf:_7 [
+        a qa:GenerateReport ;
+        gh:format "html" ;
+        gh:store "reports" ;
+        gh:upload [
+          gh:service "code-dashboard" ;
+          gh:endpoint "https://dashboard.example.com/upload"
+        ]
+      ] ;
+      rdf:_8 [
+        a qa:BlockIfFails ;
+        gh:criteria [
+          "test_failure" ;
+          "lint_error" ;
+          "coverage_threshold" ;
+          "complexity_threshold"
+        ] ;
+        gh:message "Quality gates failed. Fix issues before merging."
+      ] ;
+      rdf:_9 [
+        a qa:NotifyTeam ;
+        gh:status "all" ;
+        gh:channels [ "slack" ; "github-pr" ] ;
+        gh:details [
+          gh:coverage true ;
+          gh:metrics true ;
+          gh:trends true
+        ]
+      ]
+    ]
+  ] .

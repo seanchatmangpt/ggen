@@ -1,0 +1,187 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jpat:  <https://jgen.dev/ontology/java/patterns#> .
+@prefix eip:   <https://jgen.dev/ontology/java/messaging#> .
+@prefix jproj: <https://jgen.dev/ontology/java/project#> .
+
+# =============================================================================
+# Java Project Specification Ontology
+# Define entire Java projects in Turtle for generation
+# =============================================================================
+
+jproj:Ontology a owl:Ontology ;
+    rdfs:label "Java Project Specification" ;
+    rdfs:comment "Ontology for specifying complete Java projects in Turtle, including modules, patterns, and dependencies" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://jgen.dev/ontology/java/patterns#> ;
+    owl:imports <https://jgen.dev/ontology/java/messaging#> .
+
+# =============================================================================
+# Project Structure Classes
+# =============================================================================
+
+jproj:Project a owl:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A complete Java project with modules, dependencies, and patterns" .
+
+jproj:Module a owl:Class ;
+    rdfs:label "Module" ;
+    rdfs:comment "A Java module (JPMS) within a project" .
+
+jproj:Dependency a owl:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "An external library dependency" .
+
+jproj:Package a owl:Class ;
+    rdfs:label "Package" ;
+    rdfs:comment "A Java package within a module" .
+
+jproj:MessageFlow a owl:Class ;
+    rdfs:label "Message Flow" ;
+    rdfs:comment "A defined flow of messages between patterns" .
+
+# =============================================================================
+# Project Properties
+# =============================================================================
+
+jproj:hasName a owl:DatatypeProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range xsd:string ;
+    rdfs:label "project name" .
+
+jproj:hasGroupId a owl:DatatypeProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range xsd:string ;
+    rdfs:label "Maven groupId" .
+
+jproj:hasArtifactId a owl:DatatypeProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range xsd:string ;
+    rdfs:label "Maven artifactId" .
+
+jproj:hasVersion a owl:DatatypeProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range xsd:string ;
+    rdfs:label "project version" .
+
+jproj:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range xsd:string ;
+    rdfs:label "project description" .
+
+jproj:hasJavaVersion a owl:DatatypeProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range xsd:integer ;
+    rdfs:label "target Java version" .
+
+jproj:hasModule a owl:ObjectProperty ;
+    rdfs:domain jproj:Project ;
+    rdfs:range jproj:Module ;
+    rdfs:label "has module" .
+
+# =============================================================================
+# Module Properties
+# =============================================================================
+
+jproj:hasPackageName a owl:DatatypeProperty ;
+    rdfs:domain jproj:Module ;
+    rdfs:range xsd:string ;
+    rdfs:label "base package name" .
+
+jproj:usesPattern a owl:ObjectProperty ;
+    rdfs:domain jproj:Module ;
+    rdfs:range jpat:Pattern ;
+    rdfs:label "uses pattern" .
+
+jproj:hasDependency a owl:ObjectProperty ;
+    rdfs:domain jproj:Module ;
+    rdfs:range jproj:Dependency ;
+    rdfs:label "has dependency" .
+
+jproj:exportsPackage a owl:DatatypeProperty ;
+    rdfs:domain jproj:Module ;
+    rdfs:range xsd:string ;
+    rdfs:label "exports package" .
+
+jproj:requiresModule a owl:DatatypeProperty ;
+    rdfs:domain jproj:Module ;
+    rdfs:range xsd:string ;
+    rdfs:label "requires module" .
+
+# =============================================================================
+# Dependency Properties
+# =============================================================================
+
+jproj:dependencyGroupId a owl:DatatypeProperty ;
+    rdfs:domain jproj:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "dependency groupId" .
+
+jproj:dependencyArtifactId a owl:DatatypeProperty ;
+    rdfs:domain jproj:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "dependency artifactId" .
+
+jproj:dependencyVersion a owl:DatatypeProperty ;
+    rdfs:domain jproj:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "dependency version" .
+
+jproj:dependencyScope a owl:DatatypeProperty ;
+    rdfs:domain jproj:Dependency ;
+    rdfs:range xsd:string ;
+    rdfs:label "dependency scope (compile, test, provided, runtime)" .
+
+# =============================================================================
+# Message Flow Properties
+# =============================================================================
+
+jproj:flowSource a owl:ObjectProperty ;
+    rdfs:domain jproj:MessageFlow ;
+    rdfs:range eip:MessagingPattern ;
+    rdfs:label "flow source pattern" .
+
+jproj:flowTarget a owl:ObjectProperty ;
+    rdfs:domain jproj:MessageFlow ;
+    rdfs:range eip:MessagingPattern ;
+    rdfs:label "flow target pattern" .
+
+jproj:flowMessageType a owl:DatatypeProperty ;
+    rdfs:domain jproj:MessageFlow ;
+    rdfs:range xsd:string ;
+    rdfs:label "message type flowing between patterns" .
+
+# =============================================================================
+# Standard Dependencies
+# =============================================================================
+
+jproj:JUnit5 a jproj:Dependency ;
+    rdfs:label "JUnit 5" ;
+    jproj:dependencyGroupId "org.junit.jupiter" ;
+    jproj:dependencyArtifactId "junit-jupiter" ;
+    jproj:dependencyVersion "5.10.0" ;
+    jproj:dependencyScope "test" .
+
+jproj:AssertJ a jproj:Dependency ;
+    rdfs:label "AssertJ" ;
+    jproj:dependencyGroupId "org.assertj" ;
+    jproj:dependencyArtifactId "assertj-core" ;
+    jproj:dependencyVersion "3.25.0" ;
+    jproj:dependencyScope "test" .
+
+jproj:Awaitility a jproj:Dependency ;
+    rdfs:label "Awaitility" ;
+    jproj:dependencyGroupId "org.awaitility" ;
+    jproj:dependencyArtifactId "awaitility" ;
+    jproj:dependencyVersion "4.2.0" ;
+    jproj:dependencyScope "test" .
+
+jproj:Jqwik a jproj:Dependency ;
+    rdfs:label "jqwik" ;
+    jproj:dependencyGroupId "net.jqwik" ;
+    jproj:dependencyArtifactId "jqwik" ;
+    jproj:dependencyVersion "1.8.0" ;
+    jproj:dependencyScope "test" .

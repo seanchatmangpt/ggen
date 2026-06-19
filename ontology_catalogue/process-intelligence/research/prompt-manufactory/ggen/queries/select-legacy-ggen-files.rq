@@ -1,0 +1,14 @@
+PREFIX pm:   <https://pi-research.dev/ontology/prompt-manufactory#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+# Select legacy .ggen files for classification ledger
+# Used by invalid-ggen-classification-ledger.md.tera
+
+SELECT ?filename ?classification ?reason
+WHERE {
+  ?file a pm:LegacyGgenFile ;
+    pm:filename ?filename ;
+    pm:classification ?classification ;
+    pm:reason ?reason .
+}
+ORDER BY ?filename

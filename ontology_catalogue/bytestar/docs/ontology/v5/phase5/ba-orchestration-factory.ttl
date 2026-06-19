@@ -1,0 +1,1263 @@
+@prefix ba: <http://byteactor.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Orchestration Factory Ontology
+# This ontology defines comprehensive workflow automation and orchestration patterns
+# for the ByteActor system, providing automated workflow generation, management,
+# and execution capabilities with self-healing and adaptive features.
+
+<http://byteactor.org/ontology/orchestration-factory> a owl:Ontology ;
+    rdfs:label "ByteActor Orchestration Factory Ontology"@en ;
+    rdfs:comment "Defines workflow automation and complex orchestration patterns for automated workflow generation, management, and execution."@en ;
+    owl:versionIRI <http://byteactor.org/ontology/v5/orchestration-factory> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:created "2025-01-20"^^xsd:date ;
+    dcterms:creator "ByteActor Ontology Team" ;
+    owl:imports <http://byteactor.org/ontology/v5/core> .
+
+#################################################################
+# Orchestration Factory Core Classes
+#################################################################
+
+ba:OrchestrationFactory a owl:Class ;
+    rdfs:label "Orchestration Factory"@en ;
+    rdfs:comment "The central automation engine that creates, manages, and executes complex multi-component workflows with self-healing and adaptive capabilities."@en ;
+    rdfs:subClassOf ba:ByteActorComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasWorkflowGenerator ;
+        owl:someValuesFrom ba:WorkflowGenerator
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasOrchestrationEngine ;
+        owl:someValuesFrom ba:OrchestrationEngine
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasResourceOrchestrator ;
+        owl:someValuesFrom ba:ResourceOrchestrator
+    ] .
+
+ba:WorkflowGenerator a owl:Class ;
+    rdfs:label "Workflow Generator"@en ;
+    rdfs:comment "Component responsible for automated workflow generation based on patterns and requirements."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:implementsPattern ;
+        owl:someValuesFrom ba:WorkflowPattern
+    ] .
+
+ba:OrchestrationEngine a owl:Class ;
+    rdfs:label "Orchestration Engine"@en ;
+    rdfs:comment "Core engine that executes and manages orchestration workflows with dynamic adaptation."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:executesWorkflow ;
+        owl:someValuesFrom ba:Workflow
+    ] .
+
+ba:ResourceOrchestrator a owl:Class ;
+    rdfs:label "Resource Orchestrator"@en ;
+    rdfs:comment "Component that manages resource allocation and capacity planning for orchestration."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:managesResource ;
+        owl:someValuesFrom ba:OrchestrationResource
+    ] .
+
+ba:OrchestrationComponent a owl:Class ;
+    rdfs:label "Orchestration Component"@en ;
+    rdfs:comment "Base class for all orchestration-related components."@en ;
+    rdfs:subClassOf ba:ByteActorComponent .
+
+#################################################################
+# Workflow Pattern Classes
+#################################################################
+
+ba:WorkflowPattern a owl:Class ;
+    rdfs:label "Workflow Pattern"@en ;
+    rdfs:comment "Abstract base class for different workflow execution patterns."@en ;
+    rdfs:subClassOf ba:Pattern .
+
+ba:SequentialPattern a owl:Class ;
+    rdfs:label "Sequential Pattern"@en ;
+    rdfs:comment "Workflow pattern where tasks execute in sequential order with dependencies."@en ;
+    rdfs:subClassOf ba:WorkflowPattern .
+
+ba:ParallelPattern a owl:Class ;
+    rdfs:label "Parallel Pattern"@en ;
+    rdfs:comment "Workflow pattern where independent tasks execute concurrently."@en ;
+    rdfs:subClassOf ba:WorkflowPattern .
+
+ba:ConditionalPattern a owl:Class ;
+    rdfs:label "Conditional Pattern"@en ;
+    rdfs:comment "Workflow pattern with branching logic based on conditions and decisions."@en ;
+    rdfs:subClassOf ba:WorkflowPattern ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasCondition ;
+        owl:someValuesFrom ba:WorkflowCondition
+    ] .
+
+ba:EventDrivenPattern a owl:Class ;
+    rdfs:label "Event-Driven Pattern"@en ;
+    rdfs:comment "Workflow pattern triggered by events with reactive behavior."@en ;
+    rdfs:subClassOf ba:WorkflowPattern ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:triggeredByEvent ;
+        owl:someValuesFrom ba:WorkflowEvent
+    ] .
+
+ba:PipelinePattern a owl:Class ;
+    rdfs:label "Pipeline Pattern"@en ;
+    rdfs:comment "Multi-stage workflow pattern with data flow between stages."@en ;
+    rdfs:subClassOf ba:WorkflowPattern ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasPipelineStage ;
+        owl:someValuesFrom ba:PipelineStage
+    ] .
+
+ba:MapReducePattern a owl:Class ;
+    rdfs:label "Map-Reduce Pattern"@en ;
+    rdfs:comment "Distributed processing pattern for large-scale data operations."@en ;
+    rdfs:subClassOf ba:WorkflowPattern .
+
+ba:ScatterGatherPattern a owl:Class ;
+    rdfs:label "Scatter-Gather Pattern"@en ;
+    rdfs:comment "Pattern that distributes work to multiple actors and aggregates results."@en ;
+    rdfs:subClassOf ba:WorkflowPattern .
+
+#################################################################
+# Workflow Execution Classes
+#################################################################
+
+ba:Workflow a owl:Class ;
+    rdfs:label "Workflow"@en ;
+    rdfs:comment "A defined sequence of tasks, operations, or processes that are orchestrated to achieve a specific goal."@en ;
+    rdfs:subClassOf ba:OrchestrationArtifact ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasWorkflowTask ;
+        owl:someValuesFrom ba:WorkflowTask
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:followsPattern ;
+        owl:someValuesFrom ba:WorkflowPattern
+    ] .
+
+ba:WorkflowTemplate a owl:Class ;
+    rdfs:label "Workflow Template"@en ;
+    rdfs:comment "Reusable workflow definition that can be instantiated with specific parameters."@en ;
+    rdfs:subClassOf ba:Workflow .
+
+ba:AdaptiveWorkflow a owl:Class ;
+    rdfs:label "Adaptive Workflow"@en ;
+    rdfs:comment "Workflow that can dynamically modify its execution based on runtime conditions."@en ;
+    rdfs:subClassOf ba:Workflow ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasAdaptationRule ;
+        owl:someValuesFrom ba:AdaptationRule
+    ] .
+
+ba:SelfHealingWorkflow a owl:Class ;
+    rdfs:label "Self-Healing Workflow"@en ;
+    rdfs:comment "Workflow with built-in fault tolerance and automatic recovery mechanisms."@en ;
+    rdfs:subClassOf ba:AdaptiveWorkflow ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasRecoveryMechanism ;
+        owl:someValuesFrom ba:RecoveryMechanism
+    ] .
+
+ba:WorkflowTask a owl:Class ;
+    rdfs:label "Workflow Task"@en ;
+    rdfs:comment "Individual task or operation within a workflow."@en ;
+    rdfs:subClassOf ba:OrchestrationArtifact ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasExecutionContext ;
+        owl:someValuesFrom ba:ExecutionContext
+    ] .
+
+ba:CompoundTask a owl:Class ;
+    rdfs:label "Compound Task"@en ;
+    rdfs:comment "Task composed of multiple sub-tasks with its own orchestration logic."@en ;
+    rdfs:subClassOf ba:WorkflowTask ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasSubTask ;
+        owl:someValuesFrom ba:WorkflowTask
+    ] .
+
+ba:PipelineStage a owl:Class ;
+    rdfs:label "Pipeline Stage"@en ;
+    rdfs:comment "Individual stage in a pipeline workflow with specific processing logic."@en ;
+    rdfs:subClassOf ba:WorkflowTask ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasDataFlow ;
+        owl:someValuesFrom ba:DataFlow
+    ] .
+
+#################################################################
+# Orchestration Resource Classes
+#################################################################
+
+ba:OrchestrationResource a owl:Class ;
+    rdfs:label "Orchestration Resource"@en ;
+    rdfs:comment "Resources managed by the orchestration system including compute, storage, and network."@en ;
+    rdfs:subClassOf ba:Resource .
+
+ba:ComputeResource a owl:Class ;
+    rdfs:label "Compute Resource"@en ;
+    rdfs:comment "CPU and processing resources available for workflow execution."@en ;
+    rdfs:subClassOf ba:OrchestrationResource .
+
+ba:StorageResource a owl:Class ;
+    rdfs:label "Storage Resource"@en ;
+    rdfs:comment "Storage resources for workflow data and intermediate results."@en ;
+    rdfs:subClassOf ba:OrchestrationResource .
+
+ba:NetworkResource a owl:Class ;
+    rdfs:label "Network Resource"@en ;
+    rdfs:comment "Network bandwidth and connectivity resources for distributed workflows."@en ;
+    rdfs:subClassOf ba:OrchestrationResource .
+
+ba:ServiceResource a owl:Class ;
+    rdfs:label "Service Resource"@en ;
+    rdfs:comment "External services and APIs available to workflows."@en ;
+    rdfs:subClassOf ba:OrchestrationResource .
+
+ba:ActorResource a owl:Class ;
+    rdfs:label "Actor Resource"@en ;
+    rdfs:comment "ByteActor instances available for workflow task execution."@en ;
+    rdfs:subClassOf ba:OrchestrationResource .
+
+#################################################################
+# Service Orchestration Classes
+#################################################################
+
+ba:ServiceOrchestrator a owl:Class ;
+    rdfs:label "Service Orchestrator"@en ;
+    rdfs:comment "Component that coordinates microservices and distributed services."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:orchestratesService ;
+        owl:someValuesFrom ba:MicroService
+    ] .
+
+ba:MicroService a owl:Class ;
+    rdfs:label "Micro Service"@en ;
+    rdfs:comment "Independently deployable service component in a distributed architecture."@en ;
+    rdfs:subClassOf ba:Service ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasServiceContract ;
+        owl:someValuesFrom ba:ServiceContract
+    ] .
+
+ba:ServiceContract a owl:Class ;
+    rdfs:label "Service Contract"@en ;
+    rdfs:comment "Formal specification of service interface and behavior."@en ;
+    rdfs:subClassOf ba:Contract .
+
+ba:ServiceChoreography a owl:Class ;
+    rdfs:label "Service Choreography"@en ;
+    rdfs:comment "Decentralized coordination pattern where services collaborate peer-to-peer."@en ;
+    rdfs:subClassOf ba:OrchestrationPattern .
+
+ba:ServiceOrchestration a owl:Class ;
+    rdfs:label "Service Orchestration"@en ;
+    rdfs:comment "Centralized coordination pattern with a master orchestrator."@en ;
+    rdfs:subClassOf ba:OrchestrationPattern .
+
+#################################################################
+# Event-Driven Orchestration Classes
+#################################################################
+
+ba:EventDrivenOrchestrator a owl:Class ;
+    rdfs:label "Event-Driven Orchestrator"@en ;
+    rdfs:comment "Orchestrator that manages event-driven workflows with reactive patterns."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:handlesEvent ;
+        owl:someValuesFrom ba:WorkflowEvent
+    ] .
+
+ba:WorkflowEvent a owl:Class ;
+    rdfs:label "Workflow Event"@en ;
+    rdfs:comment "Event that can trigger or influence workflow execution."@en ;
+    rdfs:subClassOf ba:Event ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasEventPayload ;
+        owl:someValuesFrom ba:EventPayload
+    ] .
+
+ba:EventPayload a owl:Class ;
+    rdfs:label "Event Payload"@en ;
+    rdfs:comment "Data carried by a workflow event."@en ;
+    rdfs:subClassOf ba:Data .
+
+ba:ReactivePattern a owl:Class ;
+    rdfs:label "Reactive Pattern"@en ;
+    rdfs:comment "Pattern for reactive programming in event-driven orchestration."@en ;
+    rdfs:subClassOf ba:EventDrivenPattern .
+
+ba:EventStream a owl:Class ;
+    rdfs:label "Event Stream"@en ;
+    rdfs:comment "Continuous flow of events processed by reactive workflows."@en ;
+    rdfs:subClassOf ba:DataStream .
+
+ba:EventProcessor a owl:Class ;
+    rdfs:label "Event Processor"@en ;
+    rdfs:comment "Component that processes events in reactive workflows."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent .
+
+#################################################################
+# Data Flow and Pipeline Classes
+#################################################################
+
+ba:DataFlow a owl:Class ;
+    rdfs:label "Data Flow"@en ;
+    rdfs:comment "Movement and transformation of data through workflow stages."@en ;
+    rdfs:subClassOf ba:Flow .
+
+ba:DataPipeline a owl:Class ;
+    rdfs:label "Data Pipeline"@en ;
+    rdfs:comment "Series of data processing steps with defined transformations."@en ;
+    rdfs:subClassOf ba:Pipeline ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasDataTransformation ;
+        owl:someValuesFrom ba:DataTransformation
+    ] .
+
+ba:DataTransformation a owl:Class ;
+    rdfs:label "Data Transformation"@en ;
+    rdfs:comment "Operation that transforms data from one format or structure to another."@en ;
+    rdfs:subClassOf ba:Transformation .
+
+ba:StreamProcessor a owl:Class ;
+    rdfs:label "Stream Processor"@en ;
+    rdfs:comment "Component that processes continuous data streams."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent .
+
+ba:BatchProcessor a owl:Class ;
+    rdfs:label "Batch Processor"@en ;
+    rdfs:comment "Component that processes data in batches."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent .
+
+#################################################################
+# Fault Tolerance and Recovery Classes
+#################################################################
+
+ba:FaultTolerantOrchestrator a owl:Class ;
+    rdfs:label "Fault Tolerant Orchestrator"@en ;
+    rdfs:comment "Orchestrator with built-in fault tolerance and recovery capabilities."@en ;
+    rdfs:subClassOf ba:OrchestrationEngine ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:implementsRecovery ;
+        owl:someValuesFrom ba:RecoveryStrategy
+    ] .
+
+ba:RecoveryMechanism a owl:Class ;
+    rdfs:label "Recovery Mechanism"@en ;
+    rdfs:comment "Specific mechanism for recovering from failures in workflows."@en ;
+    rdfs:subClassOf ba:Mechanism .
+
+ba:RecoveryStrategy a owl:Class ;
+    rdfs:label "Recovery Strategy"@en ;
+    rdfs:comment "High-level strategy for handling failures and recovery."@en ;
+    rdfs:subClassOf ba:Strategy .
+
+ba:RetryMechanism a owl:Class ;
+    rdfs:label "Retry Mechanism"@en ;
+    rdfs:comment "Mechanism that retries failed operations with backoff strategies."@en ;
+    rdfs:subClassOf ba:RecoveryMechanism .
+
+ba:CircuitBreaker a owl:Class ;
+    rdfs:label "Circuit Breaker"@en ;
+    rdfs:comment "Pattern that prevents cascading failures by stopping calls to failing services."@en ;
+    rdfs:subClassOf ba:RecoveryMechanism .
+
+ba:Checkpoint a owl:Class ;
+    rdfs:label "Checkpoint"@en ;
+    rdfs:comment "Saved state that allows workflow recovery from a specific point."@en ;
+    rdfs:subClassOf ba:StateSnapshot .
+
+ba:CompensatingAction a owl:Class ;
+    rdfs:label "Compensating Action"@en ;
+    rdfs:comment "Action that undoes the effects of a previous operation for rollback."@en ;
+    rdfs:subClassOf ba:Action .
+
+#################################################################
+# Monitoring and Performance Classes
+#################################################################
+
+ba:OrchestrationMonitor a owl:Class ;
+    rdfs:label "Orchestration Monitor"@en ;
+    rdfs:comment "Component that monitors orchestration performance and health."@en ;
+    rdfs:subClassOf ba:Monitor ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:monitorsMetric ;
+        owl:someValuesFrom ba:OrchestrationMetric
+    ] .
+
+ba:OrchestrationMetric a owl:Class ;
+    rdfs:label "Orchestration Metric"@en ;
+    rdfs:comment "Measurement of orchestration system performance or behavior."@en ;
+    rdfs:subClassOf ba:Metric .
+
+ba:WorkflowMetric a owl:Class ;
+    rdfs:label "Workflow Metric"@en ;
+    rdfs:comment "Metrics specific to workflow execution and performance."@en ;
+    rdfs:subClassOf ba:OrchestrationMetric .
+
+ba:ThroughputMetric a owl:Class ;
+    rdfs:label "Throughput Metric"@en ;
+    rdfs:comment "Metric measuring the rate of workflow or task completion."@en ;
+    rdfs:subClassOf ba:WorkflowMetric .
+
+ba:LatencyMetric a owl:Class ;
+    rdfs:label "Latency Metric"@en ;
+    rdfs:comment "Metric measuring the time taken for workflow or task execution."@en ;
+    rdfs:subClassOf ba:WorkflowMetric .
+
+ba:ResourceUtilizationMetric a owl:Class ;
+    rdfs:label "Resource Utilization Metric"@en ;
+    rdfs:comment "Metric measuring how efficiently resources are being used."@en ;
+    rdfs:subClassOf ba:OrchestrationMetric .
+
+ba:PerformanceOptimizer a owl:Class ;
+    rdfs:label "Performance Optimizer"@en ;
+    rdfs:comment "Component that optimizes orchestration performance based on metrics."@en ;
+    rdfs:subClassOf ba:Optimizer .
+
+#################################################################
+# Orchestration as Code Classes
+#################################################################
+
+ba:OrchestrationCode a owl:Class ;
+    rdfs:label "Orchestration Code"@en ;
+    rdfs:comment "Code-based definition of orchestration workflows and patterns."@en ;
+    rdfs:subClassOf ba:Code .
+
+ba:WorkflowDefinition a owl:Class ;
+    rdfs:label "Workflow Definition"@en ;
+    rdfs:comment "Formal specification of a workflow in code or configuration."@en ;
+    rdfs:subClassOf ba:Definition .
+
+ba:OrchestrationScript a owl:Class ;
+    rdfs:label "Orchestration Script"@en ;
+    rdfs:comment "Executable script that defines orchestration behavior."@en ;
+    rdfs:subClassOf ba:Script .
+
+ba:WorkflowRepository a owl:Class ;
+    rdfs:label "Workflow Repository"@en ;
+    rdfs:comment "Repository for storing and versioning workflow definitions."@en ;
+    rdfs:subClassOf ba:Repository .
+
+ba:VersionedWorkflow a owl:Class ;
+    rdfs:label "Versioned Workflow"@en ;
+    rdfs:comment "Workflow with version control and change tracking."@en ;
+    rdfs:subClassOf ba:Workflow ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:hasVersion ;
+        owl:someValuesFrom ba:Version
+    ] .
+
+#################################################################
+# Adaptation and Learning Classes
+#################################################################
+
+ba:AdaptationEngine a owl:Class ;
+    rdfs:label "Adaptation Engine"@en ;
+    rdfs:comment "Engine that enables dynamic adaptation of orchestration behavior."@en ;
+    rdfs:subClassOf ba:OrchestrationComponent .
+
+ba:AdaptationRule a owl:Class ;
+    rdfs:label "Adaptation Rule"@en ;
+    rdfs:comment "Rule that defines when and how orchestration should adapt."@en ;
+    rdfs:subClassOf ba:Rule .
+
+ba:WorkflowCondition a owl:Class ;
+    rdfs:label "Workflow Condition"@en ;
+    rdfs:comment "Condition that influences workflow execution flow."@en ;
+    rdfs:subClassOf ba:Condition .
+
+ba:OrchestrationPolicy a owl:Class ;
+    rdfs:label "Orchestration Policy"@en ;
+    rdfs:comment "Policy that governs orchestration behavior and decisions."@en ;
+    rdfs:subClassOf ba:Policy .
+
+ba:LearningOrchestrator a owl:Class ;
+    rdfs:label "Learning Orchestrator"@en ;
+    rdfs:comment "Orchestrator that learns from execution patterns to improve performance."@en ;
+    rdfs:subClassOf ba:AdaptationEngine .
+
+#################################################################
+# Integration Classes
+#################################################################
+
+ba:ByteFlowIntegration a owl:Class ;
+    rdfs:label "ByteFlow Integration"@en ;
+    rdfs:comment "Integration component that connects orchestration with ByteFlow execution engine."@en ;
+    rdfs:subClassOf ba:Integration ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty ba:integratesWith ;
+        owl:hasValue ba:ByteFlow
+    ] .
+
+ba:OrchestrationBridge a owl:Class ;
+    rdfs:label "Orchestration Bridge"@en ;
+    rdfs:comment "Component that bridges orchestration with external systems."@en ;
+    rdfs:subClassOf ba:Bridge .
+
+ba:APIGateway a owl:Class ;
+    rdfs:label "API Gateway"@en ;
+    rdfs:comment "Gateway that manages API access and routing for orchestrated services."@en ;
+    rdfs:subClassOf ba:Gateway .
+
+#################################################################
+# Artifact and Execution Context Classes
+#################################################################
+
+ba:OrchestrationArtifact a owl:Class ;
+    rdfs:label "Orchestration Artifact"@en ;
+    rdfs:comment "Base class for all artifacts produced or managed by orchestration."@en ;
+    rdfs:subClassOf ba:Artifact .
+
+ba:ExecutionContext a owl:Class ;
+    rdfs:label "Execution Context"@en ;
+    rdfs:comment "Context information for workflow task execution."@en ;
+    rdfs:subClassOf ba:Context .
+
+ba:OrchestrationSession a owl:Class ;
+    rdfs:label "Orchestration Session"@en ;
+    rdfs:comment "Session that manages the lifecycle of orchestration execution."@en ;
+    rdfs:subClassOf ba:Session .
+
+ba:WorkflowInstance a owl:Class ;
+    rdfs:label "Workflow Instance"@en ;
+    rdfs:comment "Running instance of a workflow definition."@en ;
+    rdfs:subClassOf ba:Instance .
+
+#################################################################
+# Object Properties
+#################################################################
+
+ba:hasWorkflowGenerator a owl:ObjectProperty ;
+    rdfs:label "has workflow generator"@en ;
+    rdfs:comment "Associates an orchestration factory with its workflow generator."@en ;
+    rdfs:domain ba:OrchestrationFactory ;
+    rdfs:range ba:WorkflowGenerator .
+
+ba:hasOrchestrationEngine a owl:ObjectProperty ;
+    rdfs:label "has orchestration engine"@en ;
+    rdfs:comment "Associates an orchestration factory with its execution engine."@en ;
+    rdfs:domain ba:OrchestrationFactory ;
+    rdfs:range ba:OrchestrationEngine .
+
+ba:hasResourceOrchestrator a owl:ObjectProperty ;
+    rdfs:label "has resource orchestrator"@en ;
+    rdfs:comment "Associates an orchestration factory with its resource orchestrator."@en ;
+    rdfs:domain ba:OrchestrationFactory ;
+    rdfs:range ba:ResourceOrchestrator .
+
+ba:implementsPattern a owl:ObjectProperty ;
+    rdfs:label "implements pattern"@en ;
+    rdfs:comment "Associates a component with the orchestration pattern it implements."@en ;
+    rdfs:domain ba:OrchestrationComponent ;
+    rdfs:range ba:WorkflowPattern .
+
+ba:executesWorkflow a owl:ObjectProperty ;
+    rdfs:label "executes workflow"@en ;
+    rdfs:comment "Associates an orchestration engine with the workflows it executes."@en ;
+    rdfs:domain ba:OrchestrationEngine ;
+    rdfs:range ba:Workflow .
+
+ba:managesResource a owl:ObjectProperty ;
+    rdfs:label "manages resource"@en ;
+    rdfs:comment "Associates a resource orchestrator with the resources it manages."@en ;
+    rdfs:domain ba:ResourceOrchestrator ;
+    rdfs:range ba:OrchestrationResource .
+
+ba:hasWorkflowTask a owl:ObjectProperty ;
+    rdfs:label "has workflow task"@en ;
+    rdfs:comment "Associates a workflow with its constituent tasks."@en ;
+    rdfs:domain ba:Workflow ;
+    rdfs:range ba:WorkflowTask .
+
+ba:followsPattern a owl:ObjectProperty ;
+    rdfs:label "follows pattern"@en ;
+    rdfs:comment "Associates a workflow with the pattern it follows."@en ;
+    rdfs:domain ba:Workflow ;
+    rdfs:range ba:WorkflowPattern .
+
+ba:hasCondition a owl:ObjectProperty ;
+    rdfs:label "has condition"@en ;
+    rdfs:comment "Associates a conditional pattern with its conditions."@en ;
+    rdfs:domain ba:ConditionalPattern ;
+    rdfs:range ba:WorkflowCondition .
+
+ba:triggeredByEvent a owl:ObjectProperty ;
+    rdfs:label "triggered by event"@en ;
+    rdfs:comment "Associates an event-driven pattern with triggering events."@en ;
+    rdfs:domain ba:EventDrivenPattern ;
+    rdfs:range ba:WorkflowEvent .
+
+ba:hasPipelineStage a owl:ObjectProperty ;
+    rdfs:label "has pipeline stage"@en ;
+    rdfs:comment "Associates a pipeline pattern with its stages."@en ;
+    rdfs:domain ba:PipelinePattern ;
+    rdfs:range ba:PipelineStage .
+
+ba:hasAdaptationRule a owl:ObjectProperty ;
+    rdfs:label "has adaptation rule"@en ;
+    rdfs:comment "Associates an adaptive workflow with its adaptation rules."@en ;
+    rdfs:domain ba:AdaptiveWorkflow ;
+    rdfs:range ba:AdaptationRule .
+
+ba:hasRecoveryMechanism a owl:ObjectProperty ;
+    rdfs:label "has recovery mechanism"@en ;
+    rdfs:comment "Associates a self-healing workflow with its recovery mechanisms."@en ;
+    rdfs:domain ba:SelfHealingWorkflow ;
+    rdfs:range ba:RecoveryMechanism .
+
+ba:hasExecutionContext a owl:ObjectProperty ;
+    rdfs:label "has execution context"@en ;
+    rdfs:comment "Associates a workflow task with its execution context."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range ba:ExecutionContext .
+
+ba:hasSubTask a owl:ObjectProperty ;
+    rdfs:label "has sub-task"@en ;
+    rdfs:comment "Associates a compound task with its sub-tasks."@en ;
+    rdfs:domain ba:CompoundTask ;
+    rdfs:range ba:WorkflowTask .
+
+ba:hasDataFlow a owl:ObjectProperty ;
+    rdfs:label "has data flow"@en ;
+    rdfs:comment "Associates a pipeline stage with its data flow."@en ;
+    rdfs:domain ba:PipelineStage ;
+    rdfs:range ba:DataFlow .
+
+ba:orchestratesService a owl:ObjectProperty ;
+    rdfs:label "orchestrates service"@en ;
+    rdfs:comment "Associates a service orchestrator with the services it orchestrates."@en ;
+    rdfs:domain ba:ServiceOrchestrator ;
+    rdfs:range ba:MicroService .
+
+ba:hasServiceContract a owl:ObjectProperty ;
+    rdfs:label "has service contract"@en ;
+    rdfs:comment "Associates a microservice with its service contract."@en ;
+    rdfs:domain ba:MicroService ;
+    rdfs:range ba:ServiceContract .
+
+ba:handlesEvent a owl:ObjectProperty ;
+    rdfs:label "handles event"@en ;
+    rdfs:comment "Associates an event-driven orchestrator with events it handles."@en ;
+    rdfs:domain ba:EventDrivenOrchestrator ;
+    rdfs:range ba:WorkflowEvent .
+
+ba:hasEventPayload a owl:ObjectProperty ;
+    rdfs:label "has event payload"@en ;
+    rdfs:comment "Associates a workflow event with its payload."@en ;
+    rdfs:domain ba:WorkflowEvent ;
+    rdfs:range ba:EventPayload .
+
+ba:hasDataTransformation a owl:ObjectProperty ;
+    rdfs:label "has data transformation"@en ;
+    rdfs:comment "Associates a data pipeline with its transformations."@en ;
+    rdfs:domain ba:DataPipeline ;
+    rdfs:range ba:DataTransformation .
+
+ba:implementsRecovery a owl:ObjectProperty ;
+    rdfs:label "implements recovery"@en ;
+    rdfs:comment "Associates a fault-tolerant orchestrator with its recovery strategy."@en ;
+    rdfs:domain ba:FaultTolerantOrchestrator ;
+    rdfs:range ba:RecoveryStrategy .
+
+ba:monitorsMetric a owl:ObjectProperty ;
+    rdfs:label "monitors metric"@en ;
+    rdfs:comment "Associates an orchestration monitor with the metrics it monitors."@en ;
+    rdfs:domain ba:OrchestrationMonitor ;
+    rdfs:range ba:OrchestrationMetric .
+
+ba:hasVersion a owl:ObjectProperty ;
+    rdfs:label "has version"@en ;
+    rdfs:comment "Associates a versioned workflow with its version information."@en ;
+    rdfs:domain ba:VersionedWorkflow ;
+    rdfs:range ba:Version .
+
+ba:integratesWith a owl:ObjectProperty ;
+    rdfs:label "integrates with"@en ;
+    rdfs:comment "Associates an integration component with the system it integrates with."@en ;
+    rdfs:domain ba:Integration ;
+    rdfs:range owl:Thing .
+
+ba:hasWorkflowDependency a owl:ObjectProperty ;
+    rdfs:label "has workflow dependency"@en ;
+    rdfs:comment "Associates a workflow task with its dependencies."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range ba:WorkflowTask .
+
+ba:precedesTask a owl:ObjectProperty ;
+    rdfs:label "precedes task"@en ;
+    rdfs:comment "Indicates that one workflow task must complete before another."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range ba:WorkflowTask .
+
+ba:parallelWith a owl:ObjectProperty ;
+    rdfs:label "parallel with"@en ;
+    rdfs:comment "Indicates that workflow tasks can execute in parallel."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range ba:WorkflowTask ;
+    a owl:SymmetricProperty .
+
+#################################################################
+# Data Properties
+#################################################################
+
+ba:orchestrationFactoryId a owl:DatatypeProperty ;
+    rdfs:label "orchestration factory ID"@en ;
+    rdfs:comment "Unique identifier for the orchestration factory."@en ;
+    rdfs:domain ba:OrchestrationFactory ;
+    rdfs:range xsd:string .
+
+ba:workflowId a owl:DatatypeProperty ;
+    rdfs:label "workflow ID"@en ;
+    rdfs:comment "Unique identifier for a workflow."@en ;
+    rdfs:domain ba:Workflow ;
+    rdfs:range xsd:string .
+
+ba:taskId a owl:DatatypeProperty ;
+    rdfs:label "task ID"@en ;
+    rdfs:comment "Unique identifier for a workflow task."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range xsd:string .
+
+ba:executionOrder a owl:DatatypeProperty ;
+    rdfs:label "execution order"@en ;
+    rdfs:comment "Order of execution for workflow tasks."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range xsd:int .
+
+ba:priority a owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:comment "Priority level for workflow or task execution."@en ;
+    rdfs:domain ba:OrchestrationArtifact ;
+    rdfs:range xsd:int .
+
+ba:maxRetries a owl:DatatypeProperty ;
+    rdfs:label "max retries"@en ;
+    rdfs:comment "Maximum number of retry attempts for a task."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range xsd:int .
+
+ba:timeoutDuration a owl:DatatypeProperty ;
+    rdfs:label "timeout duration"@en ;
+    rdfs:comment "Maximum duration for task or workflow execution."@en ;
+    rdfs:domain ba:OrchestrationArtifact ;
+    rdfs:range xsd:duration .
+
+ba:resourceRequirement a owl:DatatypeProperty ;
+    rdfs:label "resource requirement"@en ;
+    rdfs:comment "Resource requirements for workflow execution."@en ;
+    rdfs:domain ba:WorkflowTask ;
+    rdfs:range xsd:string .
+
+ba:executionStatus a owl:DatatypeProperty ;
+    rdfs:label "execution status"@en ;
+    rdfs:comment "Current execution status of workflow or task."@en ;
+    rdfs:domain ba:OrchestrationArtifact ;
+    rdfs:range xsd:string .
+
+ba:throughputRate a owl:DatatypeProperty ;
+    rdfs:label "throughput rate"@en ;
+    rdfs:comment "Rate of throughput for orchestration operations."@en ;
+    rdfs:domain ba:ThroughputMetric ;
+    rdfs:range xsd:double .
+
+ba:latencyValue a owl:DatatypeProperty ;
+    rdfs:label "latency value"@en ;
+    rdfs:comment "Latency measurement value."@en ;
+    rdfs:domain ba:LatencyMetric ;
+    rdfs:range xsd:duration .
+
+ba:utilizationPercentage a owl:DatatypeProperty ;
+    rdfs:label "utilization percentage"@en ;
+    rdfs:comment "Resource utilization as a percentage."@en ;
+    rdfs:domain ba:ResourceUtilizationMetric ;
+    rdfs:range xsd:double .
+
+ba:adaptationThreshold a owl:DatatypeProperty ;
+    rdfs:label "adaptation threshold"@en ;
+    rdfs:comment "Threshold value that triggers adaptation behavior."@en ;
+    rdfs:domain ba:AdaptationRule ;
+    rdfs:range xsd:double .
+
+ba:recoveryTime a owl:DatatypeProperty ;
+    rdfs:label "recovery time"@en ;
+    rdfs:comment "Time taken for recovery from failure."@en ;
+    rdfs:domain ba:RecoveryMechanism ;
+    rdfs:range xsd:duration .
+
+ba:versionNumber a owl:DatatypeProperty ;
+    rdfs:label "version number"@en ;
+    rdfs:comment "Version number for versioned artifacts."@en ;
+    rdfs:domain ba:Version ;
+    rdfs:range xsd:string .
+
+ba:patternComplexity a owl:DatatypeProperty ;
+    rdfs:label "pattern complexity"@en ;
+    rdfs:comment "Complexity rating of a workflow pattern."@en ;
+    rdfs:domain ba:WorkflowPattern ;
+    rdfs:range xsd:int .
+
+ba:scalabilityFactor a owl:DatatypeProperty ;
+    rdfs:label "scalability factor"@en ;
+    rdfs:comment "Factor indicating how well the orchestration scales."@en ;
+    rdfs:domain ba:OrchestrationEngine ;
+    rdfs:range xsd:double .
+
+#################################################################
+# SHACL Validation Shapes
+#################################################################
+
+ba:OrchestrationFactoryShape a sh:NodeShape ;
+    sh:targetClass ba:OrchestrationFactory ;
+    sh:property [
+        sh:path ba:orchestrationFactoryId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^orch-factory-[a-zA-Z0-9\\-]+$" ;
+        sh:message "Orchestration factory must have a unique ID with pattern 'orch-factory-*'"
+    ] ;
+    sh:property [
+        sh:path ba:hasWorkflowGenerator ;
+        sh:class ba:WorkflowGenerator ;
+        sh:minCount 1 ;
+        sh:message "Orchestration factory must have at least one workflow generator"
+    ] ;
+    sh:property [
+        sh:path ba:hasOrchestrationEngine ;
+        sh:class ba:OrchestrationEngine ;
+        sh:minCount 1 ;
+        sh:message "Orchestration factory must have at least one orchestration engine"
+    ] ;
+    sh:property [
+        sh:path ba:hasResourceOrchestrator ;
+        sh:class ba:ResourceOrchestrator ;
+        sh:minCount 1 ;
+        sh:message "Orchestration factory must have at least one resource orchestrator"
+    ] .
+
+ba:WorkflowShape a sh:NodeShape ;
+    sh:targetClass ba:Workflow ;
+    sh:property [
+        sh:path ba:workflowId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^wf-[a-zA-Z0-9\\-]+$" ;
+        sh:message "Workflow must have a unique ID with pattern 'wf-*'"
+    ] ;
+    sh:property [
+        sh:path ba:hasWorkflowTask ;
+        sh:class ba:WorkflowTask ;
+        sh:minCount 1 ;
+        sh:message "Workflow must have at least one task"
+    ] ;
+    sh:property [
+        sh:path ba:followsPattern ;
+        sh:class ba:WorkflowPattern ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Workflow must follow exactly one pattern"
+    ] ;
+    sh:property [
+        sh:path ba:priority ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Workflow priority must be between 1 and 10"
+    ] .
+
+ba:WorkflowTaskShape a sh:NodeShape ;
+    sh:targetClass ba:WorkflowTask ;
+    sh:property [
+        sh:path ba:taskId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^task-[a-zA-Z0-9\\-]+$" ;
+        sh:message "Workflow task must have a unique ID with pattern 'task-*'"
+    ] ;
+    sh:property [
+        sh:path ba:executionOrder ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 1 ;
+        sh:message "Execution order must be a positive integer"
+    ] ;
+    sh:property [
+        sh:path ba:maxRetries ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Max retries must be between 0 and 10"
+    ] ;
+    sh:property [
+        sh:path ba:timeoutDuration ;
+        sh:datatype xsd:duration ;
+        sh:message "Timeout duration must be specified as XML duration"
+    ] .
+
+ba:SelfHealingWorkflowShape a sh:NodeShape ;
+    sh:targetClass ba:SelfHealingWorkflow ;
+    sh:property [
+        sh:path ba:hasRecoveryMechanism ;
+        sh:class ba:RecoveryMechanism ;
+        sh:minCount 1 ;
+        sh:message "Self-healing workflow must have at least one recovery mechanism"
+    ] ;
+    sh:property [
+        sh:path ba:hasAdaptationRule ;
+        sh:class ba:AdaptationRule ;
+        sh:minCount 1 ;
+        sh:message "Self-healing workflow must have at least one adaptation rule"
+    ] .
+
+ba:MicroServiceShape a sh:NodeShape ;
+    sh:targetClass ba:MicroService ;
+    sh:property [
+        sh:path ba:hasServiceContract ;
+        sh:class ba:ServiceContract ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Microservice must have exactly one service contract"
+    ] .
+
+ba:AdaptationRuleShape a sh:NodeShape ;
+    sh:targetClass ba:AdaptationRule ;
+    sh:property [
+        sh:path ba:adaptationThreshold ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Adaptation threshold must be between 0.0 and 1.0"
+    ] .
+
+ba:ThroughputMetricShape a sh:NodeShape ;
+    sh:targetClass ba:ThroughputMetric ;
+    sh:property [
+        sh:path ba:throughputRate ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Throughput rate must be non-negative"
+    ] .
+
+ba:ResourceUtilizationMetricShape a sh:NodeShape ;
+    sh:targetClass ba:ResourceUtilizationMetric ;
+    sh:property [
+        sh:path ba:utilizationPercentage ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Utilization percentage must be between 0.0 and 100.0"
+    ] .
+
+ba:VersionedWorkflowShape a sh:NodeShape ;
+    sh:targetClass ba:VersionedWorkflow ;
+    sh:property [
+        sh:path ba:hasVersion ;
+        sh:class ba:Version ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Versioned workflow must have exactly one version"
+    ] .
+
+ba:WorkflowPatternShape a sh:NodeShape ;
+    sh:targetClass ba:WorkflowPattern ;
+    sh:property [
+        sh:path ba:patternComplexity ;
+        sh:datatype xsd:int ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "Pattern complexity must be between 1 and 5"
+    ] .
+
+#################################################################
+# Axioms and Rules
+#################################################################
+
+# Workflow execution order consistency
+ba:WorkflowTaskOrderingAxiom a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty ba:precedesTask ;
+        owl:someValuesFrom [
+            a owl:Restriction ;
+            owl:onProperty ba:executionOrder ;
+            owl:someValuesFrom xsd:int
+        ]
+    ] ;
+    rdfs:comment "Tasks with precedence relationships must have consistent execution orders" .
+
+# Adaptive workflow self-consistency
+ba:AdaptiveWorkflowConsistency a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            ba:AdaptiveWorkflow
+            [
+                a owl:Restriction ;
+                owl:onProperty ba:hasAdaptationRule ;
+                owl:minCardinality 1
+            ]
+        )
+    ] ;
+    rdfs:comment "Adaptive workflows must have adaptation rules" .
+
+# Resource orchestration capacity constraint
+ba:ResourceCapacityConstraint a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty ba:managesResource ;
+        owl:allValuesFrom [
+            a owl:Restriction ;
+            owl:onProperty ba:utilizationPercentage ;
+            owl:maxInclusive 100.0
+        ]
+    ] ;
+    rdfs:comment "Resource orchestrators cannot exceed 100% utilization" .
+
+# Service orchestration contract requirement
+ba:ServiceContractRequirement a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            ba:MicroService
+            [
+                a owl:Restriction ;
+                owl:onProperty ba:hasServiceContract ;
+                owl:cardinality 1
+            ]
+        )
+    ] ;
+    rdfs:comment "All microservices must have exactly one service contract" .
+
+# Fault tolerance mechanism requirement
+ba:FaultToleranceRequirement a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            ba:SelfHealingWorkflow
+            [
+                a owl:Restriction ;
+                owl:onProperty ba:hasRecoveryMechanism ;
+                owl:minCardinality 1
+            ]
+        )
+    ] ;
+    rdfs:comment "Self-healing workflows must have recovery mechanisms" .
+
+# Pipeline stage data flow consistency
+ba:PipelineDataFlowConsistency a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            ba:PipelineStage
+            [
+                a owl:Restriction ;
+                owl:onProperty ba:hasDataFlow ;
+                owl:someValuesFrom ba:DataFlow
+            ]
+        )
+    ] ;
+    rdfs:comment "Pipeline stages must have defined data flows" .
+
+# Event-driven pattern reactivity
+ba:EventDrivenReactivity a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            ba:EventDrivenPattern
+            [
+                a owl:Restriction ;
+                owl:onProperty ba:triggeredByEvent ;
+                owl:minCardinality 1
+            ]
+        )
+    ] ;
+    rdfs:comment "Event-driven patterns must be triggered by events" .
+
+#################################################################
+# Orchestration Factory Instances and Examples
+#################################################################
+
+ba:MainOrchestrationFactory a ba:OrchestrationFactory ;
+    ba:orchestrationFactoryId "orch-factory-main-001" ;
+    ba:hasWorkflowGenerator ba:DefaultWorkflowGenerator ;
+    ba:hasOrchestrationEngine ba:MainOrchestrationEngine ;
+    ba:hasResourceOrchestrator ba:GlobalResourceOrchestrator ;
+    rdfs:label "Main Orchestration Factory" ;
+    rdfs:comment "Primary orchestration factory for ByteActor system workflows" .
+
+ba:DefaultWorkflowGenerator a ba:WorkflowGenerator ;
+    ba:implementsPattern ba:DefaultSequentialPattern, ba:DefaultParallelPattern ;
+    rdfs:label "Default Workflow Generator" ;
+    rdfs:comment "Default generator for common workflow patterns" .
+
+ba:MainOrchestrationEngine a ba:OrchestrationEngine ;
+    ba:executesWorkflow ba:ExampleDataProcessingWorkflow ;
+    ba:scalabilityFactor 8.5 ;
+    rdfs:label "Main Orchestration Engine" ;
+    rdfs:comment "Primary engine for workflow execution" .
+
+ba:GlobalResourceOrchestrator a ba:ResourceOrchestrator ;
+    ba:managesResource ba:ExampleComputeResource, ba:ExampleStorageResource ;
+    rdfs:label "Global Resource Orchestrator" ;
+    rdfs:comment "Global orchestrator for system resources" .
+
+ba:DefaultSequentialPattern a ba:SequentialPattern ;
+    ba:patternComplexity 2 ;
+    rdfs:label "Default Sequential Pattern" ;
+    rdfs:comment "Standard sequential execution pattern" .
+
+ba:DefaultParallelPattern a ba:ParallelPattern ;
+    ba:patternComplexity 3 ;
+    rdfs:label "Default Parallel Pattern" ;
+    rdfs:comment "Standard parallel execution pattern" .
+
+ba:ExampleDataProcessingWorkflow a ba:SelfHealingWorkflow ;
+    ba:workflowId "wf-data-processing-001" ;
+    ba:priority 5 ;
+    ba:followsPattern ba:ExamplePipelinePattern ;
+    ba:hasWorkflowTask ba:DataIngestionTask, ba:DataTransformTask, ba:DataOutputTask ;
+    ba:hasAdaptationRule ba:DataVolumeAdaptationRule ;
+    ba:hasRecoveryMechanism ba:DataProcessingRetryMechanism ;
+    rdfs:label "Data Processing Workflow" ;
+    rdfs:comment "Example workflow for data processing with self-healing capabilities" .
+
+ba:ExamplePipelinePattern a ba:PipelinePattern ;
+    ba:patternComplexity 4 ;
+    ba:hasPipelineStage ba:IngestionStage, ba:TransformStage, ba:OutputStage ;
+    rdfs:label "Data Pipeline Pattern" ;
+    rdfs:comment "Pipeline pattern for data processing" .
+
+ba:DataIngestionTask a ba:WorkflowTask ;
+    ba:taskId "task-data-ingestion-001" ;
+    ba:executionOrder 1 ;
+    ba:maxRetries 3 ;
+    ba:timeoutDuration "PT30M"^^xsd:duration ;
+    ba:precedesTask ba:DataTransformTask ;
+    rdfs:label "Data Ingestion Task" ;
+    rdfs:comment "Task for ingesting data from sources" .
+
+ba:DataTransformTask a ba:CompoundTask ;
+    ba:taskId "task-data-transform-001" ;
+    ba:executionOrder 2 ;
+    ba:maxRetries 2 ;
+    ba:timeoutDuration "PT60M"^^xsd:duration ;
+    ba:hasSubTask ba:DataValidationSubTask, ba:DataCleaningSubTask ;
+    ba:precedesTask ba:DataOutputTask ;
+    rdfs:label "Data Transform Task" ;
+    rdfs:comment "Compound task for data transformation" .
+
+ba:DataOutputTask a ba:WorkflowTask ;
+    ba:taskId "task-data-output-001" ;
+    ba:executionOrder 3 ;
+    ba:maxRetries 1 ;
+    ba:timeoutDuration "PT15M"^^xsd:duration ;
+    rdfs:label "Data Output Task" ;
+    rdfs:comment "Task for outputting processed data" .
+
+ba:DataValidationSubTask a ba:WorkflowTask ;
+    ba:taskId "task-data-validation-001" ;
+    ba:executionOrder 1 ;
+    ba:maxRetries 1 ;
+    ba:timeoutDuration "PT10M"^^xsd:duration ;
+    ba:parallelWith ba:DataCleaningSubTask ;
+    rdfs:label "Data Validation Sub-Task" ;
+    rdfs:comment "Sub-task for validating data quality" .
+
+ba:DataCleaningSubTask a ba:WorkflowTask ;
+    ba:taskId "task-data-cleaning-001" ;
+    ba:executionOrder 1 ;
+    ba:maxRetries 2 ;
+    ba:timeoutDuration "PT20M"^^xsd:duration ;
+    rdfs:label "Data Cleaning Sub-Task" ;
+    rdfs:comment "Sub-task for cleaning data" .
+
+ba:DataVolumeAdaptationRule a ba:AdaptationRule ;
+    ba:adaptationThreshold 0.8 ;
+    rdfs:label "Data Volume Adaptation Rule" ;
+    rdfs:comment "Rule for adapting to high data volumes" .
+
+ba:DataProcessingRetryMechanism a ba:RetryMechanism ;
+    ba:recoveryTime "PT5M"^^xsd:duration ;
+    rdfs:label "Data Processing Retry Mechanism" ;
+    rdfs:comment "Retry mechanism for data processing failures" .
+
+ba:ExampleComputeResource a ba:ComputeResource ;
+    ba:utilizationPercentage 75.0 ;
+    rdfs:label "Example Compute Resource" ;
+    rdfs:comment "Example compute resource for workflow execution" .
+
+ba:ExampleStorageResource a ba:StorageResource ;
+    ba:utilizationPercentage 60.0 ;
+    rdfs:label "Example Storage Resource" ;
+    rdfs:comment "Example storage resource for workflow data" .
+
+ba:IngestionStage a ba:PipelineStage ;
+    ba:hasDataFlow ba:IngestionDataFlow ;
+    rdfs:label "Ingestion Stage" ;
+    rdfs:comment "Pipeline stage for data ingestion" .
+
+ba:TransformStage a ba:PipelineStage ;
+    ba:hasDataFlow ba:TransformDataFlow ;
+    rdfs:label "Transform Stage" ;
+    rdfs:comment "Pipeline stage for data transformation" .
+
+ba:OutputStage a ba:PipelineStage ;
+    ba:hasDataFlow ba:OutputDataFlow ;
+    rdfs:label "Output Stage" ;
+    rdfs:comment "Pipeline stage for data output" .
+
+ba:IngestionDataFlow a ba:DataFlow ;
+    rdfs:label "Ingestion Data Flow" ;
+    rdfs:comment "Data flow for ingestion stage" .
+
+ba:TransformDataFlow a ba:DataFlow ;
+    rdfs:label "Transform Data Flow" ;
+    rdfs:comment "Data flow for transformation stage" .
+
+ba:OutputDataFlow a ba:DataFlow ;
+    rdfs:label "Output Data Flow" ;
+    rdfs:comment "Data flow for output stage" .

@@ -1,0 +1,863 @@
+@prefix : <http://bytestar.org/ontology/security/hsm-tee#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix sp: <http://bytestar.org/ontology/security-policy#> .
+@prefix pqcval: <http://bytestar.org/ontology/security/pqc-validation#> .
+@prefix sidech: <http://bytestar.org/ontology/security/sidechannel#> .
+@prefix constime: <http://bytestar.org/ontology/security/constant-time#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix crypto: <https://w3id.org/security#> .
+@prefix nist: <https://csrc.nist.gov/schema#> .
+@prefix pkcs: <https://www.rsa.com/en-us/company/standards/pkcs> .
+
+<http://bytestar.org/ontology/security/hsm-tee> rdf:type owl:Ontology ;
+    dct:title "ByteStar HSM/TEE Integration Validation Framework"@en ;
+    dct:description """Comprehensive framework for Hardware Security Module (HSM) and Trusted Execution 
+    Environment (TEE) integration validation with post-quantum cryptographic support and attestation.
+    
+    This ontology establishes:
+    1. HSM integration validation protocols with FIPS 140-3 compliance
+    2. TEE integration frameworks for Intel SGX, ARM TrustZone, and RISC-V
+    3. Hardware attestation and remote verification capabilities
+    4. Secure key management and cryptographic operation validation
+    5. Tamper-resistance and physical security validation
+    6. Post-quantum cryptographic algorithm support in hardware
+    7. Performance-constrained secure operations (≤8 tick constraint)
+    8. Zero-tick rejection for security violations
+    9. Cross-platform hardware security abstraction
+    10. Secure boot and trusted platform module integration
+    11. Hardware-based random number generation validation
+    12. Secure memory encryption and protection mechanisms
+    
+    Supported HSM Standards and Interfaces:
+    - PKCS#11 (Cryptoki) interface specification
+    - FIPS 140-3 security levels 1-4 validation
+    - Common Criteria EAL 1-7 certification support
+    - TPM 2.0 trusted platform module integration
+    - GlobalPlatform TEE specifications
+    - ARM TrustZone secure world isolation
+    - Intel SGX enclave creation and management
+    - AMD Memory Guard secure memory encryption
+    - RISC-V Keystone trusted execution environment
+    - OpenTitan open-source hardware root of trust
+    
+    Advanced Security Features:
+    - Hardware-based key generation and storage
+    - Secure cryptographic operation execution
+    - Physical tamper detection and response
+    - Side-channel attack resistance validation
+    - Fault injection attack prevention
+    - Secure firmware update mechanisms
+    - Hardware-backed attestation protocols
+    - Cryptographic algorithm agility support
+    - Real-time security monitoring and response
+    - Integration with quantum-resistant algorithms
+    
+    The framework ensures:
+    - Maximum security through hardware isolation
+    - High performance through hardware acceleration
+    - Compliance with international security standards
+    - Interoperability across different hardware platforms
+    - Future-proof post-quantum cryptographic support"""@en ;
+    dct:creator "ByteStar Hardware Security Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-security"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/hsm-tee-integration> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ,
+                <http://bytestar.org/ontology/security-policy> ,
+                <http://bytestar.org/ontology/security/pqc-validation> ,
+                <http://bytestar.org/ontology/security/sidechannel> ,
+                <http://bytestar.org/ontology/security/constant-time> .
+
+#################################################################
+#    Core HSM/TEE Integration Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareSecurityFramework
+:HardwareSecurityFramework rdf:type owl:Class ;
+                            rdfs:subClassOf sp:SecurityArchitecture ;
+                            rdfs:label "Hardware Security Framework"@en ;
+                            rdfs:comment """Comprehensive framework for integrating hardware security
+                            modules and trusted execution environments with ByteStar crystals."""@en ;
+                            :supportsHSM "true"^^xsd:boolean ;
+                            :supportsTEE "true"^^xsd:boolean ;
+                            :hasSecurityLevel :Level4Plus ;
+                            :operatesWithinConstraint doe:EightTickConstraint ;
+                            :providesHardwareIsolation "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareSecurityModule
+:HardwareSecurityModule rdf:type owl:Class ;
+                         rdfs:subClassOf :HardwareSecurityFramework ;
+                         rdfs:label "Hardware Security Module"@en ;
+                         rdfs:comment """Dedicated cryptographic device designed to protect and manage
+                         digital keys and perform cryptographic operations."""@en ;
+                         :hasSecurityLevel :FIPS140_3_Level4 , :CommonCriteria_EAL6 ;
+                         :supportsTamperResistance "true"^^xsd:boolean ;
+                         :supportsTamperEvidence "true"^^xsd:boolean ;
+                         :providesPhysicalSecurity "true"^^xsd:boolean ;
+                         :hasInterface :PKCS11 , :CryptoAPI , :JCE .
+
+###  http://bytestar.org/ontology/security/hsm-tee#TrustedExecutionEnvironment
+:TrustedExecutionEnvironment rdf:type owl:Class ;
+                             rdfs:subClassOf :HardwareSecurityFramework ;
+                             rdfs:label "Trusted Execution Environment"@en ;
+                             rdfs:comment """Secure area within a processor that runs code in isolation
+                             from the rest of the system with integrity and confidentiality guarantees."""@en ;
+                             :providesIsolation "true"^^xsd:boolean ;
+                             :supportsAttestation "true"^^xsd:boolean ;
+                             :hasMemoryEncryption "true"^^xsd:boolean ;
+                             :hasSecureStorage "true"^^xsd:boolean ;
+                             :hasIntegrityProtection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#HSMValidator
+:HSMValidator rdf:type owl:Class ;
+              rdfs:subClassOf pqcval:HSMIntegrationValidator ;
+              rdfs:label "HSM Validator"@en ;
+              rdfs:comment """Validator that ensures proper integration and operation
+              of hardware security modules with ByteStar crystals."""@en ;
+              :validatesIntegration :HardwareSecurityModule ;
+              :ensuresCompliance :FIPS140_3 , :CommonCriteria ;
+              :validatesCryptographicOperations "true"^^xsd:boolean ;
+              :validatesKeyManagement "true"^^xsd:boolean ;
+              :validatesTamperResistance "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#TEEValidator
+:TEEValidator rdf:type owl:Class ;
+              rdfs:subClassOf pqcval:TEEIntegrationValidator ;
+              rdfs:label "TEE Validator"@en ;
+              rdfs:comment """Validator that ensures proper integration and operation
+              of trusted execution environments with ByteStar crystals."""@en ;
+              :validatesIntegration :TrustedExecutionEnvironment ;
+              :ensuresIsolation "true"^^xsd:boolean ;
+              :validatesAttestation "true"^^xsd:boolean ;
+              :validatesMemoryProtection "true"^^xsd:boolean ;
+              :validatesSecurity "true"^^xsd:boolean .
+
+#################################################################
+#    HSM Specific Classes and Implementations
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#PKCS11HSM
+:PKCS11HSM rdf:type owl:Class ;
+           rdfs:subClassOf :HardwareSecurityModule ;
+           rdfs:label "PKCS#11 HSM"@en ;
+           rdfs:comment """Hardware Security Module that implements the PKCS#11
+           (Cryptoki) interface for cryptographic operations."""@en ;
+           :implementsInterface pkcs:PKCS11 ;
+           :supportsTokens "true"^^xsd:boolean ;
+           :supportsSlots "true"^^xsd:boolean ;
+           :supportsSessions "true"^^xsd:boolean ;
+           :hasObjectTypes :PublicKey , :PrivateKey , :SecretKey , :Certificate .
+
+###  http://bytestar.org/ontology/security/hsm-tee#FIPS140_3_HSM
+:FIPS140_3_HSM rdf:type owl:Class ;
+               rdfs:subClassOf :HardwareSecurityModule ;
+               rdfs:label "FIPS 140-3 HSM"@en ;
+               rdfs:comment """HSM certified under FIPS 140-3 standard providing
+               validated cryptographic security."""@en ;
+               :hasSecurityLevel :Level1 , :Level2 , :Level3 , :Level4 ;
+               :providesValidatedCryptography "true"^^xsd:boolean ;
+               :hasPhysicalSecurity "true"^^xsd:boolean ;
+               :supportsTamperDetection "true"^^xsd:boolean ;
+               :hasSecureOS "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#TPMModule
+:TPMModule rdf:type owl:Class ;
+           rdfs:subClassOf :HardwareSecurityModule ;
+           rdfs:label "TPM Module"@en ;
+           rdfs:comment """Trusted Platform Module providing hardware-based security
+           functions and root of trust capabilities."""@en ;
+           :implementsTPM :TPM20 ;
+           :providesRootOfTrust "true"^^xsd:boolean ;
+           :supportsPlatformAttestations "true"^^xsd:boolean ;
+           :hasSecureBoot "true"^^xsd:boolean ;
+           :hasMeasuredBoot "true"^^xsd:boolean ;
+           :supportsPCRExtension "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#CloudHSM
+:CloudHSM rdf:type owl:Class ;
+          rdfs:subClassOf :HardwareSecurityModule ;
+          rdfs:label "Cloud HSM"@en ;
+          rdfs:comment """Hardware Security Module deployed in cloud environment
+          providing scalable cryptographic services."""@en ;
+          :deployedInCloud "true"^^xsd:boolean ;
+          :supportsMultiTenancy "true"^^xsd:boolean ;
+          :hasHighAvailability "true"^^xsd:boolean ;
+          :supportsClustering "true"^^xsd:boolean ;
+          :providesAPIAccess "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#NetworkAttachedHSM
+:NetworkAttachedHSM rdf:type owl:Class ;
+                    rdfs:subClassOf :HardwareSecurityModule ;
+                    rdfs:label "Network Attached HSM"@en ;
+                    rdfs:comment """Network-accessible HSM providing centralized
+                    cryptographic services to multiple clients."""@en ;
+                    :hasNetworkInterface "true"^^xsd:boolean ;
+                    :supportsRemoteAccess "true"^^xsd:boolean ;
+                    :hasLoadBalancing "true"^^xsd:boolean ;
+                    :providesHighThroughput "true"^^xsd:boolean ;
+                    :supportsRedundancy "true"^^xsd:boolean .
+
+#################################################################
+#    TEE Specific Classes and Implementations
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#IntelSGX
+:IntelSGX rdf:type owl:Class ;
+          rdfs:subClassOf :TrustedExecutionEnvironment ;
+          rdfs:label "Intel SGX"@en ;
+          rdfs:comment """Intel Software Guard Extensions providing hardware-enforced
+          trusted execution environment with memory encryption."""@en ;
+          :hasEnclaveSupport "true"^^xsd:boolean ;
+          :providesMemoryEncryption "true"^^xsd:boolean ;
+          :supportsRemoteAttestation "true"^^xsd:boolean ;
+          :hasSealing "true"^^xsd:boolean ;
+          :hasLocalAttestation "true"^^xsd:boolean ;
+          :supportsEPID "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#ARMTrustZone
+:ARMTrustZone rdf:type owl:Class ;
+              rdfs:subClassOf :TrustedExecutionEnvironment ;
+              rdfs:label "ARM TrustZone"@en ;
+              rdfs:comment """ARM TrustZone technology providing secure and non-secure
+              world separation with hardware isolation."""@en ;
+              :hasSecureWorld "true"^^xsd:boolean ;
+              :hasNormalWorld "true"^^xsd:boolean ;
+              :providesWorldSwitching "true"^^xsd:boolean ;
+              :hasSecureMonitor "true"^^xsd:boolean ;
+              :supportsTrustedApplications "true"^^xsd:boolean ;
+              :hasSecureStorage "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#AMDMemoryGuard
+:AMDMemoryGuard rdf:type owl:Class ;
+                rdfs:subClassOf :TrustedExecutionEnvironment ;
+                rdfs:label "AMD Memory Guard"@en ;
+                rdfs:comment """AMD security technology providing memory encryption
+                and trusted execution capabilities."""@en ;
+                :hasMemoryEncryption "true"^^xsd:boolean ;
+                :supportsSEV "true"^^xsd:boolean ;
+                :supportsSEV_ES "true"^^xsd:boolean ;
+                :supportsSEV_SNP "true"^^xsd:boolean ;
+                :providesVMIsolation "true"^^xsd:boolean ;
+                :hasSecureNesting "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#RISC_V_Keystone
+:RISC_V_Keystone rdf:type owl:Class ;
+                  rdfs:subClassOf :TrustedExecutionEnvironment ;
+                  rdfs:label "RISC-V Keystone"@en ;
+                  rdfs:comment """Open-source trusted execution environment for
+                  RISC-V architecture with customizable security features."""@en ;
+                  :isOpenSource "true"^^xsd:boolean ;
+                  :hasCustomizableFeatures "true"^^xsd:boolean ;
+                  :supportsEnclaves "true"^^xsd:boolean ;
+                  :hasSecurityMonitor "true"^^xsd:boolean ;
+                  :providesMemoryIsolation "true"^^xsd:boolean ;
+                  :hasPhysicalMemoryProtection "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#OpenTitan
+:OpenTitan rdf:type owl:Class ;
+           rdfs:subClassOf :TrustedExecutionEnvironment ;
+           rdfs:label "OpenTitan"@en ;
+           rdfs:comment """Open-source silicon root of trust providing hardware
+           security foundation for system integrity."""@en ;
+           :isOpenSource "true"^^xsd:boolean ;
+           :providesRootOfTrust "true"^^xsd:boolean ;
+           :hasHardwareRNG "true"^^xsd:boolean ;
+           :supportsCryptographicAcceleration "true"^^xsd:boolean ;
+           :hasSecureBoot "true"^^xsd:boolean ;
+           :providesIdentityGeneration "true"^^xsd:boolean .
+
+#################################################################
+#    Cryptographic Operation Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareCryptographicOperation
+:HardwareCryptographicOperation rdf:type owl:Class ;
+                                rdfs:subClassOf bp:CryptographicOperation ;
+                                rdfs:label "Hardware Cryptographic Operation"@en ;
+                                rdfs:comment """Cryptographic operation performed within
+                                hardware security modules or trusted execution environments."""@en ;
+                                :executedInHardware "true"^^xsd:boolean ;
+                                :hasHardwareAcceleration "true"^^xsd:boolean ;
+                                :providesHardwareSecurity "true"^^xsd:boolean ;
+                                :operatesWithinConstraint doe:EightTickConstraint .
+
+###  http://bytestar.org/ontology/security/hsm-tee#SecureKeyGeneration
+:SecureKeyGeneration rdf:type owl:Class ;
+                     rdfs:subClassOf :HardwareCryptographicOperation ;
+                     rdfs:label "Secure Key Generation"@en ;
+                     rdfs:comment """Hardware-based key generation using true random
+                     number generators and secure key derivation functions."""@en ;
+                     :usesTrueRandomness "true"^^xsd:boolean ;
+                     :hasEntropySource :HardwareRNG ;
+                     :providesKeyWrapping "true"^^xsd:boolean ;
+                     :supportsKeyTypes :SymmetricKey , :AsymmetricKey , :PQCKey .
+
+###  http://bytestar.org/ontology/security/hsm-tee#SecureKeyStorage
+:SecureKeyStorage rdf:type owl:Class ;
+                  rdfs:subClassOf :HardwareCryptographicOperation ;
+                  rdfs:label "Secure Key Storage"@en ;
+                  rdfs:comment """Hardware-protected key storage with tamper resistance
+                  and secure key lifecycle management."""@en ;
+                  :providesSecureStorage "true"^^xsd:boolean ;
+                  :hasTamperResistance "true"^^xsd:boolean ;
+                  :supportsKeyLifecycle "true"^^xsd:boolean ;
+                  :hasAccessControl "true"^^xsd:boolean ;
+                  :providesKeyEscrow "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareSignature
+:HardwareSignature rdf:type owl:Class ;
+                    rdfs:subClassOf :HardwareCryptographicOperation ;
+                    rdfs:label "Hardware Signature"@en ;
+                    rdfs:comment """Digital signature operation performed in hardware
+                    with private key protection and constant-time execution."""@en ;
+                    :protectsPrivateKey "true"^^xsd:boolean ;
+                    :hasConstantTimeExecution "true"^^xsd:boolean ;
+                    :supportsPQCSignatures "true"^^xsd:boolean ;
+                    :providesNonRepudiation "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareEncryption
+:HardwareEncryption rdf:type owl:Class ;
+                    rdfs:subClassOf :HardwareCryptographicOperation ;
+                    rdfs:label "Hardware Encryption"@en ;
+                    rdfs:comment """Encryption operation performed in hardware with
+                    key protection and optimized performance."""@en ;
+                    :providesConfidentiality "true"^^xsd:boolean ;
+                    :hasHardwareAcceleration "true"^^xsd:boolean ;
+                    :supportsStreamCiphers "true"^^xsd:boolean ;
+                    :supportsBlockCiphers "true"^^xsd:boolean ;
+                    :supportsPQCEncryption "true"^^xsd:boolean .
+
+#################################################################
+#    Attestation and Verification Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareAttestation
+:HardwareAttestation rdf:type owl:Class ;
+                     rdfs:subClassOf sp:SecurityControl ;
+                     rdfs:label "Hardware Attestation"@en ;
+                     rdfs:comment """Process of providing cryptographic proof of
+                     hardware and software state to establish trust."""@en ;
+                     :providesProofOfAuthenticity "true"^^xsd:boolean ;
+                     :hasAttestationKey "true"^^xsd:boolean ;
+                     :supportsRemoteAttestation "true"^^xsd:boolean ;
+                     :supportsLocalAttestation "true"^^xsd:boolean ;
+                     :hasIntegrityMeasurement "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#RemoteAttestation
+:RemoteAttestation rdf:type owl:Class ;
+                   rdfs:subClassOf :HardwareAttestation ;
+                   rdfs:label "Remote Attestation"@en ;
+                   rdfs:comment """Attestation protocol that allows remote verification
+                   of hardware and software platform integrity."""@en ;
+                   :enablesRemoteVerification "true"^^xsd:boolean ;
+                   :hasAttestationReport "true"^^xsd:boolean ;
+                   :usesAttestationService "true"^^xsd:boolean ;
+                   :supportsQuoteGeneration "true"^^xsd:boolean ;
+                   :hasNonce "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#LocalAttestation
+:LocalAttestation rdf:type owl:Class ;
+                  rdfs:subClassOf :HardwareAttestation ;
+                  rdfs:label "Local Attestation"@en ;
+                  rdfs:comment """Attestation mechanism for local verification of
+                  enclave or trusted application authenticity."""@en ;
+                  :enablesLocalVerification "true"^^xsd:boolean ;
+                  :hasLocalReport "true"^^xsd:boolean ;
+                  :supportsInterEnclaveAttestation "true"^^xsd:boolean ;
+                  :providesIdentityVerification "true"^^xsd:boolean ;
+                  :hasTargetInfo "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#PlatformAttestation
+:PlatformAttestation rdf:type owl:Class ;
+                     rdfs:subClassOf :HardwareAttestation ;
+                     rdfs:label "Platform Attestation"@en ;
+                     rdfs:comment """Comprehensive attestation of entire platform
+                     including hardware, firmware, and software components."""@en ;
+                     :attestsPlatformState "true"^^xsd:boolean ;
+                     :includesFirmware "true"^^xsd:boolean ;
+                     :includesBootLoader "true"^^xsd:boolean ;
+                     :includesOS "true"^^xsd:boolean ;
+                     :hasPlatformConfigurationRegisters "true"^^xsd:boolean .
+
+#################################################################
+#    Security Policy and Compliance Classes
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#HardwareSecurityPolicy
+:HardwareSecurityPolicy rdf:type owl:Class ;
+                        rdfs:subClassOf sp:SecurityPolicy ;
+                        rdfs:label "Hardware Security Policy"@en ;
+                        rdfs:comment """Security policy governing the use and management
+                        of hardware security modules and trusted execution environments."""@en ;
+                        :definesAccessControl "true"^^xsd:boolean ;
+                        :definesKeyManagement "true"^^xsd:boolean ;
+                        :definesTamperResponse "true"^^xsd:boolean ;
+                        :definesComplianceRequirements "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#ComplianceValidation
+:ComplianceValidation rdf:type owl:Class ;
+                      rdfs:subClassOf sp:SecurityControl ;
+                      rdfs:label "Compliance Validation"@en ;
+                      rdfs:comment """Validation framework ensuring hardware security
+                      implementations comply with relevant standards and regulations."""@en ;
+                      :validatesFIPS140_3 "true"^^xsd:boolean ;
+                      :validatesCommonCriteria "true"^^xsd:boolean ;
+                      :validatesISO27001 "true"^^xsd:boolean ;
+                      :validatesSOC2 "true"^^xsd:boolean .
+
+###  http://bytestar.org/ontology/security/hsm-tee#AuditingFramework
+:AuditingFramework rdf:type owl:Class ;
+                   rdfs:subClassOf sp:DetectiveControl ;
+                   rdfs:label "Auditing Framework"@en ;
+                   rdfs:comment """Framework for auditing hardware security operations
+                   and maintaining compliance evidence."""@en ;
+                   :maintainsAuditLog "true"^^xsd:boolean ;
+                   :providesForensicCapabilities "true"^^xsd:boolean ;
+                   :hasImmutableLogs "true"^^xsd:boolean ;
+                   :supportsComplianceReporting "true"^^xsd:boolean .
+
+#################################################################
+#    Object Properties for HSM/TEE Framework
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#integrates
+:integrates rdf:type owl:ObjectProperty ;
+            rdfs:domain ba:CrystalComponent ;
+            rdfs:range :HardwareSecurityFramework ;
+            rdfs:label "integrates"@en ;
+            rdfs:comment "Indicates hardware security integration."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#validates
+:validates rdf:type owl:ObjectProperty ;
+           rdfs:domain :HSMValidator ;
+           rdfs:range :HardwareSecurityModule ;
+           rdfs:label "validates"@en ;
+           rdfs:comment "Indicates HSM validation relationship."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#attestsIntegrity
+:attestsIntegrity rdf:type owl:ObjectProperty ;
+                  rdfs:domain :HardwareAttestation ;
+                  rdfs:range ba:CrystalComponent ;
+                  rdfs:label "attests integrity"@en ;
+                  rdfs:comment "Indicates integrity attestation relationship."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#providesSecurityFor
+:providesSecurityFor rdf:type owl:ObjectProperty ;
+                     rdfs:domain :HardwareSecurityModule ;
+                     rdfs:range ba:Operation ;
+                     rdfs:label "provides security for"@en ;
+                     rdfs:comment "Indicates security provision relationship."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#executesIn
+:executesIn rdf:type owl:ObjectProperty ;
+            rdfs:domain :HardwareCryptographicOperation ;
+            rdfs:range :HardwareSecurityFramework ;
+            rdfs:label "executes in"@en ;
+            rdfs:comment "Indicates execution environment relationship."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#compliesWith
+:compliesWith rdf:type owl:ObjectProperty ;
+              rdfs:domain :HardwareSecurityModule ;
+              rdfs:range :ComplianceStandard ;
+              rdfs:label "complies with"@en ;
+              rdfs:comment "Indicates compliance relationship."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#generatesAttestation
+:generatesAttestation rdf:type owl:ObjectProperty ;
+                      rdfs:domain :TrustedExecutionEnvironment ;
+                      rdfs:range :HardwareAttestation ;
+                      rdfs:label "generates attestation"@en ;
+                      rdfs:comment "Indicates attestation generation relationship."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#protectsKey
+:protectsKey rdf:type owl:ObjectProperty ;
+             rdfs:domain :HardwareSecurityModule ;
+             rdfs:range bp:CryptographicKey ;
+             rdfs:label "protects key"@en ;
+             rdfs:comment "Indicates key protection relationship."@en .
+
+#################################################################
+#    Data Properties for HSM/TEE Framework
+#################################################################
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasSecurityLevel
+:hasSecurityLevel rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :HardwareSecurityModule ;
+                  rdfs:range xsd:string ;
+                  rdfs:label "has security level"@en ;
+                  rdfs:comment "Security level classification (FIPS 140-3 or Common Criteria)."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#supportsTamperResistance
+:supportsTamperResistance rdf:type owl:DatatypeProperty ;
+                          rdfs:domain :HardwareSecurityModule ;
+                          rdfs:range xsd:boolean ;
+                          rdfs:label "supports tamper resistance"@en ;
+                          rdfs:comment "Boolean indicating tamper resistance capability."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#providesIsolation
+:providesIsolation rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :TrustedExecutionEnvironment ;
+                   rdfs:range xsd:boolean ;
+                   rdfs:label "provides isolation"@en ;
+                   rdfs:comment "Boolean indicating isolation capability."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasMemoryEncryption
+:hasMemoryEncryption rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :TrustedExecutionEnvironment ;
+                     rdfs:range xsd:boolean ;
+                     rdfs:label "has memory encryption"@en ;
+                     rdfs:comment "Boolean indicating memory encryption capability."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#supportsAttestation
+:supportsAttestation rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :TrustedExecutionEnvironment ;
+                     rdfs:range xsd:boolean ;
+                     rdfs:label "supports attestation"@en ;
+                     rdfs:comment "Boolean indicating attestation capability."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasPerformanceTicks
+:hasPerformanceTicks rdf:type owl:DatatypeProperty ;
+                     rdfs:domain :HardwareCryptographicOperation ;
+                     rdfs:range xsd:nonNegativeInteger ;
+                     rdfs:label "has performance ticks"@en ;
+                     rdfs:comment "Number of execution ticks (must be ≤8)."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#isHardwareAccelerated
+:isHardwareAccelerated rdf:type owl:DatatypeProperty ;
+                       rdfs:domain :HardwareCryptographicOperation ;
+                       rdfs:range xsd:boolean ;
+                       rdfs:label "is hardware accelerated"@en ;
+                       rdfs:comment "Boolean indicating hardware acceleration."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasAttestationKeySize
+:hasAttestationKeySize rdf:type owl:DatatypeProperty ;
+                       rdfs:domain :HardwareAttestation ;
+                       rdfs:range xsd:nonNegativeInteger ;
+                       rdfs:label "has attestation key size"@en ;
+                       rdfs:comment "Size of attestation key in bits."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasComplianceLevel
+:hasComplianceLevel rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :ComplianceValidation ;
+                    rdfs:range xsd:string ;
+                    rdfs:label "has compliance level"@en ;
+                    rdfs:comment "Level of compliance achieved."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasThroughputOPS
+:hasThroughputOPS rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :HardwareSecurityModule ;
+                  rdfs:range xsd:nonNegativeInteger ;
+                  rdfs:label "has throughput OPS"@en ;
+                  rdfs:comment "Throughput in operations per second."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#hasLatencyMicroseconds
+:hasLatencyMicroseconds rdf:type owl:DatatypeProperty ;
+                        rdfs:domain :HardwareCryptographicOperation ;
+                        rdfs:range xsd:nonNegativeInteger ;
+                        rdfs:label "has latency microseconds"@en ;
+                        rdfs:comment "Operation latency in microseconds."@en .
+
+###  http://bytestar.org/ontology/security/hsm-tee#isQuantumResistant
+:isQuantumResistant rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :HardwareCryptographicOperation ;
+                    rdfs:range xsd:boolean ;
+                    rdfs:label "is quantum resistant"@en ;
+                    rdfs:comment "Boolean indicating quantum resistance."@en .
+
+#################################################################
+#    HSM/TEE Integration Instances
+#################################################################
+
+###  ByteStar Hardware Security Framework
+:ByteStarHardwareSecurityFramework rdf:type :HardwareSecurityFramework ;
+                                   rdfs:label "ByteStar Hardware Security Framework"@en ;
+                                   rdfs:comment "Master hardware security framework for ByteStar ecosystem."@en ;
+                                   :supportsHSM "true"^^xsd:boolean ;
+                                   :supportsTEE "true"^^xsd:boolean ;
+                                   :hasSecurityLevel "Level4Plus" ;
+                                   :operatesWithinConstraint doe:EightTickConstraint ;
+                                   :providesHardwareIsolation "true"^^xsd:boolean .
+
+###  Crystal-Specific HSM Validators
+:ByteActorHSMValidator rdf:type :HSMValidator ;
+                       rdfs:label "ByteActor HSM Validator"@en ;
+                       rdfs:comment "HSM validation for ByteActor kernel operations."@en ;
+                       :validatesIntegration :FIPS140_3_HSM ;
+                       :ensuresCompliance :FIPS140_3 , :CommonCriteria ;
+                       :validatesCryptographicOperations "true"^^xsd:boolean ;
+                       :hasSecurityLevel "Level4" .
+
+:ByteCoreHSMValidator rdf:type :HSMValidator ;
+                      rdfs:label "ByteCore HSM Validator"@en ;
+                      rdfs:comment "HSM validation for ByteCore operations."@en ;
+                      :validatesIntegration :PKCS11HSM ;
+                      :ensuresCompliance :FIPS140_3 ;
+                      :validatesCryptographicOperations "true"^^xsd:boolean ;
+                      :hasSecurityLevel "Level3" .
+
+:BytePQCHSMValidator rdf:type :HSMValidator ;
+                     rdfs:label "BytePQC HSM Validator"@en ;
+                     rdfs:comment "HSM validation for post-quantum cryptographic operations."@en ;
+                     :validatesIntegration :FIPS140_3_HSM ;
+                     :ensuresCompliance :FIPS140_3 ;
+                     :validatesCryptographicOperations "true"^^xsd:boolean ;
+                     :supportsQuantumResistant "true"^^xsd:boolean ;
+                     :hasSecurityLevel "Level4" .
+
+###  TEE Integration Instances
+:IntelSGXIntegration rdf:type :IntelSGX ;
+                     rdfs:label "Intel SGX Integration"@en ;
+                     rdfs:comment "Intel SGX integration for ByteStar crystals."@en ;
+                     :hasEnclaveSupport "true"^^xsd:boolean ;
+                     :providesMemoryEncryption "true"^^xsd:boolean ;
+                     :supportsRemoteAttestation "true"^^xsd:boolean ;
+                     :hasSealing "true"^^xsd:boolean .
+
+:ARMTrustZoneIntegration rdf:type :ARMTrustZone ;
+                         rdfs:label "ARM TrustZone Integration"@en ;
+                         rdfs:comment "ARM TrustZone integration for ByteStar crystals."@en ;
+                         :hasSecureWorld "true"^^xsd:boolean ;
+                         :hasNormalWorld "true"^^xsd:boolean ;
+                         :providesWorldSwitching "true"^^xsd:boolean ;
+                         :hasSecureMonitor "true"^^xsd:boolean .
+
+###  Hardware Cryptographic Operations
+:SecurePQCKeyGeneration rdf:type :SecureKeyGeneration ;
+                        rdfs:label "Secure PQC Key Generation"@en ;
+                        rdfs:comment "Hardware-based post-quantum key generation."@en ;
+                        :usesTrueRandomness "true"^^xsd:boolean ;
+                        :hasEntropySource :HardwareRNG ;
+                        :supportsKeyTypes :PQCKey ;
+                        :isQuantumResistant "true"^^xsd:boolean ;
+                        :hasPerformanceTicks 6 .
+
+:HardwareDilithiumSignature rdf:type :HardwareSignature ;
+                            rdfs:label "Hardware Dilithium Signature"@en ;
+                            rdfs:comment "Hardware-accelerated Dilithium signature operations."@en ;
+                            :protectsPrivateKey "true"^^xsd:boolean ;
+                            :hasConstantTimeExecution "true"^^xsd:boolean ;
+                            :supportsPQCSignatures "true"^^xsd:boolean ;
+                            :isQuantumResistant "true"^^xsd:boolean ;
+                            :hasPerformanceTicks 8 ;
+                            :hasLatencyMicroseconds 50 .
+
+:HardwareKyberKEM rdf:type :HardwareEncryption ;
+                  rdfs:label "Hardware Kyber KEM"@en ;
+                  rdfs:comment "Hardware-accelerated Kyber key encapsulation."@en ;
+                  :providesConfidentiality "true"^^xsd:boolean ;
+                  :hasHardwareAcceleration "true"^^xsd:boolean ;
+                  :supportsPQCEncryption "true"^^xsd:boolean ;
+                  :isQuantumResistant "true"^^xsd:boolean ;
+                  :hasPerformanceTicks 7 ;
+                  :hasLatencyMicroseconds 30 .
+
+###  Attestation Instances
+:ByteStarRemoteAttestation rdf:type :RemoteAttestation ;
+                           rdfs:label "ByteStar Remote Attestation"@en ;
+                           rdfs:comment "Remote attestation for ByteStar hardware platforms."@en ;
+                           :enablesRemoteVerification "true"^^xsd:boolean ;
+                           :hasAttestationReport "true"^^xsd:boolean ;
+                           :usesAttestationService "true"^^xsd:boolean ;
+                           :supportsQuoteGeneration "true"^^xsd:boolean ;
+                           :hasAttestationKeySize 256 .
+
+:PlatformIntegrityAttestation rdf:type :PlatformAttestation ;
+                              rdfs:label "Platform Integrity Attestation"@en ;
+                              rdfs:comment "Comprehensive platform integrity attestation."@en ;
+                              :attestsPlatformState "true"^^xsd:boolean ;
+                              :includesFirmware "true"^^xsd:boolean ;
+                              :includesBootLoader "true"^^xsd:boolean ;
+                              :includesOS "true"^^xsd:boolean ;
+                              :hasPlatformConfigurationRegisters "true"^^xsd:boolean .
+
+#################################################################
+#    SHACL Validation Shapes for HSM/TEE Framework
+#################################################################
+
+###  HSM Security Level Shape
+:HSMSecurityLevelShape rdf:type sh:NodeShape ;
+                       sh:targetClass :HardwareSecurityModule ;
+                       rdfs:label "HSM Security Level Shape"@en ;
+                       rdfs:comment "Validation shape for HSM security level requirements."@en ;
+                       sh:property [
+                           sh:path :hasSecurityLevel ;
+                           sh:datatype xsd:string ;
+                           sh:in ( "Level1" "Level2" "Level3" "Level4" "Level4Plus" ) ;
+                           sh:minCount 1 ;
+                           sh:message "HSM must have valid security level"@en
+                       ] ;
+                       sh:property [
+                           sh:path :supportsTamperResistance ;
+                           sh:datatype xsd:boolean ;
+                           sh:hasValue "true"^^xsd:boolean ;
+                           sh:message "Level 3+ HSMs must support tamper resistance"@en
+                       ] .
+
+###  TEE Isolation Shape
+:TEEIsolationShape rdf:type sh:NodeShape ;
+                   sh:targetClass :TrustedExecutionEnvironment ;
+                   rdfs:label "TEE Isolation Shape"@en ;
+                   rdfs:comment "Validation shape for TEE isolation requirements."@en ;
+                   sh:property [
+                       sh:path :providesIsolation ;
+                       sh:datatype xsd:boolean ;
+                       sh:hasValue "true"^^xsd:boolean ;
+                       sh:minCount 1 ;
+                       sh:message "TEE must provide isolation"@en
+                   ] ;
+                   sh:property [
+                       sh:path :hasMemoryEncryption ;
+                       sh:datatype xsd:boolean ;
+                       sh:hasValue "true"^^xsd:boolean ;
+                       sh:message "TEE should provide memory encryption"@en ;
+                       sh:severity sh:Warning
+                   ] .
+
+###  Hardware Performance Shape
+:HardwarePerformanceShape rdf:type sh:NodeShape ;
+                          sh:targetClass :HardwareCryptographicOperation ;
+                          rdfs:label "Hardware Performance Shape"@en ;
+                          rdfs:comment "Validation shape for hardware performance requirements."@en ;
+                          sh:property [
+                              sh:path :hasPerformanceTicks ;
+                              sh:datatype xsd:nonNegativeInteger ;
+                              sh:maxInclusive 8 ;
+                              sh:minCount 1 ;
+                              sh:message "Hardware operations must complete within 8 ticks"@en ;
+                              sh:severity sh:Violation
+                          ] ;
+                          sh:property [
+                              sh:path :isHardwareAccelerated ;
+                              sh:datatype xsd:boolean ;
+                              sh:hasValue "true"^^xsd:boolean ;
+                              sh:message "Operations should be hardware accelerated"@en
+                          ] .
+
+###  Quantum Resistance Shape
+:QuantumResistanceShape rdf:type sh:NodeShape ;
+                       sh:targetClass :HardwareCryptographicOperation ;
+                       rdfs:label "Quantum Resistance Shape"@en ;
+                       rdfs:comment "Validation shape for quantum resistance requirements."@en ;
+                       sh:property [
+                           sh:path :isQuantumResistant ;
+                           sh:datatype xsd:boolean ;
+                           sh:hasValue "true"^^xsd:boolean ;
+                           sh:minCount 1 ;
+                           sh:message "Cryptographic operations must be quantum resistant"@en ;
+                           sh:severity sh:Violation
+                       ] .
+
+###  Attestation Integrity Shape
+:AttestationIntegrityShape rdf:type sh:NodeShape ;
+                          sh:targetClass :HardwareAttestation ;
+                          rdfs:label "Attestation Integrity Shape"@en ;
+                          rdfs:comment "Validation shape for attestation integrity requirements."@en ;
+                          sh:property [
+                              sh:path :providesProofOfAuthenticity ;
+                              sh:datatype xsd:boolean ;
+                              sh:hasValue "true"^^xsd:boolean ;
+                              sh:minCount 1 ;
+                              sh:message "Attestation must provide proof of authenticity"@en
+                          ] ;
+                          sh:property [
+                              sh:path :hasAttestationKeySize ;
+                              sh:datatype xsd:nonNegativeInteger ;
+                              sh:minInclusive 256 ;
+                              sh:message "Attestation key must be at least 256 bits"@en
+                          ] .
+
+#################################################################
+#    Integration Axioms and Constraints
+#################################################################
+
+# Axiom: All HSMs must support tamper resistance at Level 3+
+:HardwareSecurityModule rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :supportsTamperResistance ;
+    owl:someValuesFrom xsd:boolean
+] .
+
+# Axiom: All TEEs must provide isolation
+:TrustedExecutionEnvironment rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :providesIsolation ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: All hardware cryptographic operations must be quantum resistant
+:HardwareCryptographicOperation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isQuantumResistant ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+# Axiom: Hardware operations must complete within 8 ticks
+:HardwareCryptographicOperation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasPerformanceTicks ;
+    owl:allValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:withRestrictions ( [ xsd:maxInclusive 8 ] )
+    ]
+] .
+
+# Axiom: All hardware attestation must provide proof of authenticity
+:HardwareAttestation rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :providesProofOfAuthenticity ;
+    owl:hasValue "true"^^xsd:boolean
+] .
+
+#################################################################
+#    Documentation and Metadata
+#################################################################
+
+:HSMTEEIntegrationDocumentation rdf:type owl:Class ;
+    rdfs:label "HSM/TEE Integration Documentation"@en ;
+    rdfs:comment """Documentation for the HSM/TEE integration framework
+    covering implementation guidelines, compliance requirements, and best practices."""@en ;
+    dct:creator "ByteStar Hardware Security Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasGeneratedBy :HSMTEEIntegrationDevelopment .
+
+:HSMTEEIntegrationDevelopment rdf:type prov:Activity ;
+    rdfs:label "HSM/TEE Integration Development"@en ;
+    rdfs:comment "Development activity for creating the HSM/TEE integration framework."@en ;
+    prov:startedAtTime "2025-03-01T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :ByteStarHardwareSecurityTeam .
+
+:ByteStarHardwareSecurityTeam rdf:type prov:Agent ,
+                                      foaf:Organization ;
+    rdfs:label "ByteStar Hardware Security Team"@en ;
+    foaf:name "ByteStar Hardware Security Team"@en .
+
+#################################################################
+#    End of HSM/TEE Integration Framework Ontology
+#################################################################

@@ -202,9 +202,15 @@ fn load_or_generate_keypair(
 ) -> Result<(SigningKey, VerifyingKey)> {
     use ed25519_dalek::SECRET_KEY_LENGTH;
 
-    // Read private key
-    let private_key_bytes = fs::read(private_key_path)
+    // Read private key (stored as hex-encoded string)
+    let private_key_raw = fs::read(private_key_path)
         .map_err(|e| PackReceiptError::Runtime(format!("Failed to read private key: {}", e)))?;
+    let private_key_hex = std::str::from_utf8(&private_key_raw)
+        .map_err(|_| PackReceiptError::Runtime("Private key file is not valid UTF-8".to_string()))?
+        .trim();
+    let private_key_bytes = hex::decode(private_key_hex).map_err(|e| {
+        PackReceiptError::Runtime(format!("Failed to hex-decode private key: {}", e))
+    })?;
 
     if private_key_bytes.len() != SECRET_KEY_LENGTH {
         return Err(PackReceiptError::Runtime(

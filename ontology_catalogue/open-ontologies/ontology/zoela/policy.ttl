@@ -1,0 +1,535 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix acl:     <http://www.w3.org/ns/auth/acl#> .
+
+# ============================================================================
+# ZOE LA Mobile — Permission Policy Ontology
+# ============================================================================
+# Models role-based access control via ODRL policies. Each role inherits
+# permissions from the role below it (additive, not override).
+#
+# Role hierarchy (ascending privilege):
+#   Member → Volunteer → MinistryLead → Admin
+#
+# Sensitivity ladder (ascending restriction):
+#   Public → MinistryPrivate → PastoralPrivate → YouthProtected
+#
+# ODRL mapping:
+#   Each zoe:*Policy is an odrl:Policy with:
+#     odrl:permission  — what the role CAN do
+#     odrl:prohibition — what the role CANNOT do
+#
+# Constraints on permissions use odrl:constraint to bind:
+#   - zoe:SensitivityLevel (which data tiers are visible)
+#   - zoe:assignedTo (volunteer can only see own assignments)
+# ============================================================================
+
+zoe:PolicyOntology a owl:Ontology ;
+  rdfs:label   "ZOE LA Mobile — Permission Policy Ontology"@en ;
+  rdfs:comment "ODRL-based permission policies for role-based access control in ZOE LA Mobile."@en ;
+  dcterms:creator  "Sean Chatman" ;
+  dcterms:license  <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo  "1.0.0" .
+
+# ── SensitivityLevel concept scheme ──────────────────────────────────────────
+
+zoe:SensitivityScheme a skos:ConceptScheme ;
+  rdfs:label   "Sensitivity Level Scheme"@en ;
+  rdfs:comment "Controlled vocabulary defining data sensitivity tiers for access control gating."@en ;
+  dcterms:title "ZOE LA Sensitivity Levels" .
+
+zoe:SensitivityLevel a owl:Class ;
+  rdfs:subClassOf skos:Concept ;
+  rdfs:label   "Sensitivity Level"@en ;
+  rdfs:comment "A data sensitivity tier used as an ODRL constraint operand in policy definitions."@en .
+
+zoe:Public a zoe:SensitivityLevel ;
+  skos:inScheme   zoe:SensitivityScheme ;
+  skos:prefLabel  "Public"@en ;
+  rdfs:label      "Public"@en ;
+  rdfs:comment    "Data visible to all authenticated members. Includes published events and open serve opportunities."@en ;
+  skos:notation   "public" .
+
+zoe:MinistryPrivate a zoe:SensitivityLevel ;
+  skos:inScheme   zoe:SensitivityScheme ;
+  skos:prefLabel  "Ministry Private"@en ;
+  rdfs:label      "Ministry Private"@en ;
+  rdfs:comment    "Data visible only to volunteers and above. Includes open need queues and assignment details."@en ;
+  skos:notation   "ministry_private" .
+
+zoe:PastoralPrivate a zoe:SensitivityLevel ;
+  skos:inScheme   zoe:SensitivityScheme ;
+  skos:prefLabel  "Pastoral Private"@en ;
+  rdfs:label      "Pastoral Private"@en ;
+  rdfs:comment    "Highly sensitive data visible only to ministry leads and above. Includes flagged isPrivate needs, benevolence details, and recovery support."@en ;
+  skos:notation   "pastoral_private" .
+
+zoe:YouthProtected a zoe:SensitivityLevel ;
+  skos:inScheme   zoe:SensitivityScheme ;
+  skos:prefLabel  "Youth Protected"@en ;
+  rdfs:label      "Youth Protected"@en ;
+  rdfs:comment    "Data concerning minors. Subject to safeguarding policies; visible only to cleared youth ministry staff and admin."@en ;
+  skos:notation   "youth_protected" .
+# ============================================================================
+# Solid ACL Vocabulary Declarations
+# ============================================================================
+
+acl:Authorization a owl:Class ;
+  rdfs:label "Authorization"@en ;
+  rdfs:comment "An element of access control, which associates agents and resources with access modes."@en .
+
+acl:AccessMode a owl:Class ;
+  rdfs:label "Access Mode"@en ;
+  rdfs:comment "A mode of access (e.g., Read, Write, Control, Append)."@en .
+
+acl:mode a owl:ObjectProperty ;
+  rdfs:label "access mode"@en ;
+  rdfs:comment "Links an Authorization to its allowed AccessMode."@en ;
+  rdfs:domain acl:Authorization ;
+  rdfs:range acl:AccessMode .
+
+acl:agent a owl:ObjectProperty ;
+  rdfs:label "agent"@en ;
+  rdfs:comment "Links an Authorization to the agent being authorized."@en ;
+  rdfs:domain acl:Authorization .
+
+acl:agentClass a owl:ObjectProperty ;
+  rdfs:label "agent class"@en ;
+  rdfs:comment "Links an Authorization to a class of agents (like a role) being authorized."@en ;
+  rdfs:domain acl:Authorization .
+
+acl:accessTo a owl:ObjectProperty ;
+  rdfs:label "access to"@en ;
+  rdfs:comment "Links an Authorization to the specific resource being secured."@en ;
+  rdfs:domain acl:Authorization .
+
+acl:accessToClass a owl:ObjectProperty ;
+  rdfs:label "access to class"@en ;
+  rdfs:comment "Links an Authorization to a class of resources being secured."@en ;
+  rdfs:domain acl:Authorization .
+
+acl:Read a acl:AccessMode ;
+  rdfs:label "Read"@en ;
+  rdfs:comment "The mode of access that allows reading/viewing a resource."@en .
+
+acl:Write a acl:AccessMode ;
+  rdfs:label "Write"@en ;
+  rdfs:comment "The mode of access that allows editing/modifying/writing a resource."@en .
+
+acl:Control a acl:AccessMode ;
+  rdfs:label "Control"@en ;
+  rdfs:comment "The mode of access that allows managing permissions/policies on a resource."@en .
+
+acl:Append a acl:AccessMode ;
+  rdfs:label "Append"@en ;
+  rdfs:comment "The mode of access that allows appending data to a resource."@en .
+
+# ── ODRL action vocabulary extensions ────────────────────────────────────────
+
+
+zoe:viewPublicEvents a odrl:Action ;
+  rdfs:label   "View Public Events"@en ;
+  rdfs:comment "Permission to view publicly published church events and service opportunities."@en ;
+  skos:notation "view_public_events" .
+
+zoe:submitNeed a odrl:Action ;
+  rdfs:label   "Submit Need"@en ;
+  rdfs:comment "Permission to create and submit a new service need on behalf of self or a household member."@en ;
+  skos:notation "submit_need" .
+
+zoe:joinServeOpportunity a odrl:Action ;
+  rdfs:label   "Join Serve Opportunity"@en ;
+  rdfs:comment "Permission to self-enroll in a published volunteer serve opportunity."@en ;
+  skos:notation "join_serve_opportunity" .
+
+zoe:viewOwnAssignments a odrl:Action ;
+  rdfs:label   "View Own Assignments"@en ;
+  rdfs:comment "Permission to view the caller's own assigned needs and tasks."@en ;
+  skos:notation "view_own_assignments" .
+
+zoe:checkIn a odrl:Action ;
+  rdfs:label   "Check In"@en ;
+  rdfs:comment "Permission to record a service check-in event, initiating a ServiceActivity."@en ;
+  skos:notation "check_in" .
+
+zoe:completeTask a odrl:Action ;
+  rdfs:label   "Complete Task"@en ;
+  rdfs:comment "Permission to mark an assigned follow-up task or need as completed and emit a ServiceReceipt."@en ;
+  skos:notation "complete_task" .
+
+zoe:viewOpenNeeds a odrl:Action ;
+  rdfs:label   "View Open Needs"@en ;
+  rdfs:comment "Permission to view the full open needs queue (MinistryPrivate and below)."@en ;
+  skos:notation "view_open_needs" .
+
+zoe:manageAssignments a odrl:Action ;
+  rdfs:label   "Manage Assignments"@en ;
+  rdfs:comment "Permission to assign, reassign, or escalate needs to volunteers."@en ;
+  skos:notation "manage_assignments" .
+
+zoe:viewFollowUps a odrl:Action ;
+  rdfs:label   "View Follow-Ups"@en ;
+  rdfs:comment "Permission to view all follow-up tasks across ministry area (MinistryPrivate)."@en ;
+  skos:notation "view_follow_ups" .
+
+zoe:createEditEvents a odrl:Action ;
+  rdfs:label   "Create/Edit Events"@en ;
+  rdfs:comment "Permission to create and edit church events and serve opportunities."@en ;
+  skos:notation "create_edit_events" .
+
+zoe:manageAllNeeds a odrl:Action ;
+  rdfs:label   "Manage All Needs"@en ;
+  rdfs:comment "Permission to view, edit, reassign, and close any need regardless of sensitivity level."@en ;
+  skos:notation "manage_all_needs" .
+
+zoe:viewReports a odrl:Action ;
+  rdfs:label   "View Reports"@en ;
+  rdfs:comment "Permission to view aggregate service delivery reports and metrics."@en ;
+  skos:notation "view_reports" .
+
+zoe:viewOwnProfile a odrl:Action ;
+  rdfs:label   "View Own Profile"@en ;
+  rdfs:comment "Permission for a member to read their own PersonProfile row."@en ;
+  skos:notation "view_own_profile" .
+
+zoe:manageAllProfiles a odrl:Action ;
+  rdfs:label   "Manage All Profiles"@en ;
+  rdfs:comment "Permission for admins to manage all PersonProfile rows."@en ;
+  skos:notation "manage_all_profiles" .
+
+zoe:viewOwnHousehold a odrl:Action ;
+  rdfs:label   "View Own Household"@en ;
+  rdfs:comment "Permission for a member to read their own household record."@en ;
+  skos:notation "view_own_household" .
+
+zoe:manageAllHouseholds a odrl:Action ;
+  rdfs:label   "Manage All Households"@en ;
+  rdfs:comment "Permission for admins to manage all Household rows."@en ;
+  skos:notation "manage_all_households" .
+
+zoe:viewConnectGroups a odrl:Action ;
+  rdfs:label   "View Connect Groups"@en ;
+  rdfs:comment "Permission to read Connect Group records (the small-group catalog)."@en ;
+  skos:notation "view_connect_groups" .
+
+zoe:manageConnectGroups a odrl:Action ;
+  rdfs:label   "Manage Connect Groups"@en ;
+  rdfs:comment "Permission for ministry leads and admins to manage Connect Group records."@en ;
+  skos:notation "manage_connect_groups" .
+
+zoe:viewStorehouses a odrl:Action ;
+  rdfs:label   "View Storehouses"@en ;
+  rdfs:comment "Permission to view storehouse facilities and storage units."@en ;
+  skos:notation "view_storehouses" .
+
+zoe:manageStorehouses a odrl:Action ;
+  rdfs:label   "Manage Storehouses"@en ;
+  rdfs:comment "Permission to create, update, or delete storehouse facilities and storage units."@en ;
+  skos:notation "manage_storehouses" .
+
+zoe:viewStorehouseAssets a odrl:Action ;
+  rdfs:label   "View Storehouse Assets"@en ;
+  rdfs:comment "Permission to view physical storehouse assets and inventory items."@en ;
+  skos:notation "view_storehouse_assets" .
+
+zoe:manageStorehouseAssets a odrl:Action ;
+  rdfs:label   "Manage Storehouse Assets"@en ;
+  rdfs:comment "Permission to manage storehouse assets and inventory records."@en ;
+  skos:notation "manage_storehouse_assets" .
+
+zoe:viewResources a odrl:Action ;
+  rdfs:label   "View Resources"@en ;
+  rdfs:comment "Permission to view resource taxonomy and definitions."@en ;
+  skos:notation "view_resources" .
+
+zoe:manageResources a odrl:Action ;
+  rdfs:label   "Manage Resources"@en ;
+  rdfs:comment "Permission to manage and define new resource categories and taxonomies."@en ;
+  skos:notation "manage_resources" .
+
+
+# ── Member Policy ─────────────────────────────────────────────────────────────
+
+zoe:MemberPolicy a odrl:Policy ;
+  rdfs:label   "Member Policy"@en ;
+  rdfs:comment "Baseline permissions for an authenticated church member. Read-only access to public content plus the ability to submit own needs."@en ;
+  skos:notation "member_policy" ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewPublicEvents ;
+    odrl:constraint [
+      odrl:leftOperand odrl:purpose ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand zoe:Public ;
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:submitNeed ;
+    odrl:constraint [
+      odrl:leftOperand odrl:purpose ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand odrl:ownBusiness ;
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:joinServeOpportunity ;
+    odrl:constraint [
+      odrl:leftOperand odrl:purpose ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand zoe:Public ;
+    ]
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:viewOpenNeeds ;
+    rdfs:comment "Members may not browse the open needs queue."@en
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:manageAssignments ;
+    rdfs:comment "Members may not assign or manage needs."@en
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:viewReports ;
+    rdfs:comment "Members may not access aggregate reports."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewOwnProfile ;
+    rdfs:comment "Members may read their own PersonProfile row."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewOwnHousehold ;
+    rdfs:comment "Members may read their own Household record."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewConnectGroups ;
+    rdfs:comment "Members may browse the Connect Group catalog."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission, acl:Authorization ;
+    odrl:action zoe:viewResources ;
+    acl:mode acl:Read ;
+    acl:accessToClass zoe:Resource ;
+    rdfs:comment "Members may read public resource definitions."@en
+  ] .
+
+# ── Volunteer Policy ──────────────────────────────────────────────────────────
+
+zoe:VolunteerPolicy a odrl:Policy ;
+  rdfs:label   "Volunteer Policy"@en ;
+  rdfs:comment "Permissions for an active volunteer. Inherits all Member permissions plus assignment visibility, check-in, and task completion."@en ;
+  skos:notation "volunteer_policy" ;
+  odrl:inheritFrom zoe:MemberPolicy ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewOwnAssignments ;
+    odrl:constraint [
+      odrl:leftOperand zoe:assignedTo ;
+      odrl:operator odrl:isPartOf ;
+      odrl:rightOperand odrl:subject ;
+      rdfs:comment "Volunteer may only see assignments where assignedTo matches their own identity."@en
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:checkIn ;
+    odrl:constraint [
+      odrl:leftOperand zoe:assignedTo ;
+      odrl:operator odrl:isPartOf ;
+      odrl:rightOperand odrl:subject ;
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:completeTask ;
+    odrl:constraint [
+      odrl:leftOperand zoe:assignedTo ;
+      odrl:operator odrl:isPartOf ;
+      odrl:rightOperand odrl:subject ;
+    ]
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:viewOpenNeeds ;
+    rdfs:comment "Volunteers see only their own assignments, not the full open queue."@en
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:manageAssignments ;
+    rdfs:comment "Volunteers may not assign needs to others."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission, acl:Authorization ;
+    odrl:action zoe:viewStorehouses ;
+    acl:mode acl:Read ;
+    acl:accessToClass zoe:Storehouse, zoe:StorageUnit ;
+    rdfs:comment "Volunteers may view storehouses and storage units."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission, acl:Authorization ;
+    odrl:action zoe:viewStorehouseAssets ;
+    acl:mode acl:Read ;
+    acl:accessToClass zoe:StorehouseAsset ;
+    rdfs:comment "Volunteers may view storehouse assets."@en
+  ] .
+
+# ── MinistryLead Policy ───────────────────────────────────────────────────────
+
+zoe:MinistryLeadPolicy a odrl:Policy ;
+  rdfs:label   "Ministry Lead Policy"@en ;
+  rdfs:comment "Permissions for a ministry team lead. Inherits all Volunteer permissions plus open needs queue visibility, assignment management, and follow-up oversight."@en ;
+  skos:notation "ministry_lead_policy" ;
+  odrl:inheritFrom zoe:VolunteerPolicy ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewOpenNeeds ;
+    odrl:constraint [
+      odrl:leftOperand zoe:SensitivityLevel ;
+      odrl:operator odrl:lteq ;
+      odrl:rightOperand zoe:MinistryPrivate ;
+      rdfs:comment "Ministry leads see needs up to and including MinistryPrivate tier."@en
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:manageAssignments ;
+    odrl:constraint [
+      odrl:leftOperand zoe:SensitivityLevel ;
+      odrl:operator odrl:lteq ;
+      odrl:rightOperand zoe:MinistryPrivate ;
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewFollowUps ;
+    odrl:constraint [
+      odrl:leftOperand zoe:SensitivityLevel ;
+      odrl:operator odrl:lteq ;
+      odrl:rightOperand zoe:MinistryPrivate ;
+    ]
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:manageAllNeeds ;
+    rdfs:comment "Ministry leads may not access PastoralPrivate or YouthProtected needs without Admin role."@en
+  ] ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action zoe:createEditEvents ;
+    rdfs:comment "Ministry leads may not create or edit published events."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission, acl:Authorization ;
+    odrl:action zoe:manageStorehouseAssets ;
+    acl:mode acl:Write ;
+    acl:accessToClass zoe:StorehouseAsset ;
+    rdfs:comment "Ministry leads may manage storehouse assets."@en
+  ] .
+
+# ── Admin Policy ──────────────────────────────────────────────────────────────
+
+zoe:AdminPolicy a odrl:Policy ;
+  rdfs:label   "Admin Policy"@en ;
+  rdfs:comment "Full administrative permissions. Inherits all MinistryLead permissions plus event management, unrestricted need access across all sensitivity tiers, and reporting."@en ;
+  skos:notation "admin_policy" ;
+  odrl:inheritFrom zoe:MinistryLeadPolicy ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:createEditEvents
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:manageAllNeeds ;
+    odrl:constraint [
+      odrl:leftOperand zoe:SensitivityLevel ;
+      odrl:operator odrl:lteq ;
+      odrl:rightOperand zoe:YouthProtected ;
+      rdfs:comment "Admin may access all sensitivity tiers including YouthProtected, subject to safeguarding audit."@en
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewReports
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:viewOpenNeeds ;
+    odrl:constraint [
+      odrl:leftOperand zoe:SensitivityLevel ;
+      odrl:operator odrl:lteq ;
+      odrl:rightOperand zoe:YouthProtected ;
+    ]
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:manageAllProfiles ;
+    rdfs:comment "Admins may manage all PersonProfile rows."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:manageAllHouseholds ;
+    rdfs:comment "Admins may manage all Household rows."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission ;
+    odrl:action zoe:manageConnectGroups ;
+    rdfs:comment "Admins may manage all Connect Group records."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission, acl:Authorization ;
+    odrl:action zoe:manageStorehouses ;
+    acl:mode acl:Write, acl:Control ;
+    acl:accessToClass zoe:Storehouse, zoe:StorageUnit ;
+    rdfs:comment "Admins may create, edit, or delete storehouse and storage unit records."@en
+  ] ;
+
+  odrl:permission [
+    a odrl:Permission, acl:Authorization ;
+    odrl:action zoe:manageResources ;
+    acl:mode acl:Write, acl:Control ;
+    acl:accessToClass zoe:Resource ;
+    rdfs:comment "Admins may create, edit, or delete resource definitions."@en
+  ] .

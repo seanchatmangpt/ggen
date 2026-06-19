@@ -1,0 +1,43 @@
+PREFIX bos: <http://businessos.dev/id/>
+PREFIX bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?projects_uri a <http://schema.org/Project> ;
+    <http://schema.org/identifier> ?id ;
+    <http://schema.org/name> ?name ;
+    <http://schema.org/description> ?description ;
+    <http://schema.org/projectStatus> ?status_mapped ;
+    <http://schema.org/priority> ?priority ;
+    <http://schema.org/startDate> ?start_date ;
+    <http://schema.org/endDate> ?due_date ;
+    <http://schema.org/dateCreated> ?created_at ;
+    <http://schema.org/dateModified> ?updated_at ;
+    <http://schema.org/creator> ?user_id_uri ;
+    <http://schema.org/customer> ?client_id_uri ;
+    <http://www.w3.org/ns/prov#wasGeneratedBy> ?activity_uri .
+}
+
+WHERE {
+  # Variables bound from data source
+  BIND(IRI(CONCAT("http://businessos.dev/id/projects/{id}", STR(?id))) AS ?projects_uri)
+  BIND(IF(BOUND(?user_id) && ?user_id != "",
+    IRI(CONCAT("http://businessos.dev/id/users/", STR(?user_id))),
+    UNDEF) AS ?user_id_uri)
+  BIND(IF(BOUND(?client_id) && ?client_id != "",
+    IRI(CONCAT("http://businessos.dev/id/clients/", STR(?client_id))),
+    UNDEF) AS ?client_id_uri)
+  BIND(IF(?status = "ACTIVE", IRI("http://schema.org/Active")),
+    IF(?status = "PAUSED", IRI("http://schema.org/Paused")),
+    IF(?status = "ARCHIVED", IRI("http://schema.org/Archived")),
+    IF(?status = "COMPLETED", IRI("http://schema.org/CompletedAction")),
+    ?status) AS ?status_mapped)
+  BIND(IRI(CONCAT("http://businessos.dev/activity/projects/", STR(?id))) AS ?activity_uri)
+}

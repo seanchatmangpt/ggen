@@ -1,0 +1,107 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix yawl:    <http://yawlfoundation.org/yawl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix :        <http://yawlfoundation.org/shacl/yawl#> .
+
+# Base Shape for all YAWL elements
+:YAWLElementShape a sh:NodeShape ;
+    rdfs:label "YAWL Element" ;
+    rdfs:comment "Base shape for all YAWL workflow elements" ;
+    sh:targetClass yawl:Element ;
+    sh:property [
+        sh:path yawl:hasId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 255 ;
+        sh:message "Element must have an ID" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 100 ;
+        sh:pattern "[A-Za-z][A-Za-z0-9_]*" ;
+        sh:message "Element name must start with a letter and contain only letters, numbers, and underscores" ;
+    ] .
+
+# YAWL Specification Shape
+:YAWLSpecificationShape a sh:NodeShape ;
+    rdfs:label "YAWL Specification" ;
+    rdfs:comment "Shape for YAWL workflow specifications" ;
+    sh:targetClass yawl:YAWLSpecification ;
+    sh:property [
+        sh:path yawl:hasVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[1-9]\\d*\\.[1-9]\\d*\\.[1-9]\\d*$" ;
+        sh:message "Version must be in format major.minor.patch" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasAuthor ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 100 ;
+        sh:message "Specification must have an author" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:maxLength 1000 ;
+        sh:message "Description must be less than 1000 characters" ;
+    ] ;
+    sh:property [
+        sh:path yawl:contains ;
+        sh:node :YAWLNetShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: YAWLNetShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Specification must contain exactly one YAWL net" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .
+
+# YAWL Net Shape
+:YAWLNetShape a sh:NodeShape ;
+    rdfs:label "YAWL Net" ;
+    rdfs:comment "Shape for YAWL workflow nets" ;
+    sh:targetClass yawl:YAWLNet ;
+    sh:property [
+        sh:path yawl:hasInputTask ;
+        sh:node :InputTaskShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: InputTaskShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Net must have exactly one input task" ;
+    ] ;
+    sh:property [
+        sh:path yawl:hasOutputTask ;
+        sh:node :OutputTaskShape ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:qualifiedValueShapes [: OutputTaskShape ] ;
+        sh:qualifiedValueShapeTypes sh:NodeShape ;
+        sh:message "Net must have exactly one output task" ;
+    ] ;
+    sh:property [
+        sh:path yawl:contains ;
+        sh:node :YAWLElementShape ;
+        sh:minCount 3 ;
+        sh:message "Net must contain at least 3 elements" ;
+    ] ;
+    sh:closed true ;
+    sh:ignoredProperties (rdf:type) .

@@ -1,0 +1,24 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix reg: <http://example.org/registry#> .
+@prefix invalid: <http://example.org/invalid#> .
+
+# Invalid Delta - Missing required properties
+
+# Project without status (violates policy)
+invalid:Project_NoStatus
+  a reg:Project ;
+  rdfs:label "Incomplete Project" .
+
+# Feature without belongsTo (violates policy)
+invalid:Feature_Orphan
+  a reg:Feature ;
+  rdfs:label "Orphaned Feature" ;
+  reg:priority "high" .
+
+# Feature with invalid priority
+invalid:Feature_BadPriority
+  a reg:Feature ;
+  rdfs:label "Bad Priority Feature" ;
+  reg:belongsTo invalid:Project_NoStatus ;
+  reg:priority "super-urgent"  # Not in allowed values

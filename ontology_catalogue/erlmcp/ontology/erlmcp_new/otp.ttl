@@ -1,0 +1,424 @@
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+otp:Behavior a rdfs:Class, owl:Class ;
+    rdfs:label "Behavior" ;
+    rdfs:comment "Erlang/OTP behavior interface" ;
+    otp:hasModuleName xsd:string ;
+    otp:hasCallback otp:Callback .
+
+otp:GenServer a otp:Behavior, owl:Class ;
+    rdfs:label "GenServer" ;
+    rdfs:comment "Generic server behavior" ;
+    otp:hasCallback otp:init ;
+    otp:hasCallback otp:handle_call ;
+    otp:hasCallback otp:handle_cast ;
+    otp:hasCallback otp:handle_info ;
+    otp:hasCallback otp:terminate ;
+    otp:hasCallback otp:code_change .
+
+otp:GenStateMachine a otp:Behavior, owl:Class ;
+    rdfs:label "GenStateMachine" ;
+    rdfs:comment "Generic finite state machine behavior" ;
+    otp:hasCallback otp:init ;
+    otp:hasCallback otp:handle_event ;
+    otp:hasCallback otp:terminate ;
+    otp:hasCallback otp:code_change .
+
+otp:GenEvent a otp:Behavior, owl:Class ;
+    rdfs:label "GenEvent" ;
+    rdfs:comment "Event handler behavior" ;
+    otp:hasCallback otp:init ;
+    otp:hasCallback otp:handle_event ;
+    otp:hasCallback otp:handle_sync_event ;
+    otp:hasCallback otp:handle_info ;
+    otp:hasCallback otp:terminate ;
+    otp:hasCallback otp:code_change .
+
+otp:Supervisor a otp:Behavior, owl:Class ;
+    rdfs:label "Supervisor" ;
+    rdfs:comment "Supervisor behavior for fault tolerance" ;
+    otp:hasStrategy otp:SupervisionStrategy ;
+    otp:hasIntensity xsd:integer ;
+    otp:hasPeriod xsd:integer ;
+    otp:hasChild otp:ChildSpec .
+
+otp:Application a otp:Behavior, owl:Class ;
+    rdfs:label "Application" ;
+    rdfs:comment "Application behavior for component organization" ;
+    otp:hasStart xsd:anyURI ;
+    otp:hasStop xsd:anyURI ;
+    otp:hasModule xsd:string ;
+    otp:hasKey otp:ApplicationKey .
+
+otp:SupervisorTree a otp:Behavior, owl:Class ;
+    rdfs:label "SupervisorTree" ;
+    rdfs:comment "Tree of supervisors for hierarchical supervision" ;
+    otp:hasRoot otp:Supervisor ;
+    otp:hasChild otp:Supervisor .
+
+otp:Callback a rdfs:Class, owl:Class ;
+    rdfs:label "Callback" ;
+    rdfs:comment "OTP behavior callback function" ;
+    otp:hasArity xsd:integer ;
+    otp:hasReturnType otp:ReturnType .
+
+otp:init a otp:Callback ;
+    rdfs:label "init" ;
+    rdfs:comment "Initialize callback" ;
+    otp:hasArity 1 ;
+    otp:hasReturnType otp:init_result .
+
+otp:handle_call a otp:Callback ;
+    rdfs:label "handle_call" ;
+    rdfs:comment "Handle synchronous call" ;
+    otp:hasArity 3 ;
+    otp:hasReturnType otp:handle_call_result .
+
+otp:handle_cast a otp:Callback ;
+    rdfs:label "handle_cast" ;
+    rdfs:comment "Handle asynchronous message" ;
+    otp:hasArity 2 ;
+    otp:hasReturnType otp:handle_cast_result .
+
+otp:handle_info a otp:Callback ;
+    rdfs:label "handle_info" ;
+    rdfs:comment "Handle out-of-band message" ;
+    otp:hasArity 2 ;
+    otp:hasReturnType otp:handle_info_result .
+
+otp:terminate a otp:Callback ;
+    rdfs:label "terminate" ;
+    rdfs:comment "Terminate callback" ;
+    otp:hasArity 2 ;
+    otp:hasReturnType otp:terminate_result .
+
+otp:code_change a otp:Callback ;
+    rdfs:label "code_change" ;
+    rdfs:comment "Code change callback" ;
+    otp:hasArity 3 ;
+    otp:hasReturnType otp:code_change_result .
+
+otp:handle_event a otp:Callback ;
+    rdfs:label "handle_event" ;
+    rdfs:comment "Handle event in state machine" ;
+    otp:hasArity 3 ;
+    otp:hasReturnType otp:handle_event_result .
+
+otp:handle_sync_event a otp:Callback ;
+    rdfs:label "handle_sync_event" ;
+    rdfs:comment "Handle synchronous event" ;
+    otp:hasArity 4 ;
+    otp:hasReturnType otp:handle_sync_event_result .
+
+otp:SupervisionStrategy a rdfs:Class, owl:Class ;
+    rdfs:label "SupervisionStrategy" ;
+    rdfs:comment "Supervision restart strategy" ;
+    owl:oneOf (
+        otp:one_for_one
+        otp:one_for_all
+        otp:rest_for_one
+        otp:simple_one_for_one
+    ) .
+
+otp:one_for_one a otp:SupervisionStrategy ;
+    rdfs:label "one_for_one" ;
+    rdfs:comment "Restart only the terminated child" .
+
+otp:one_for_all a otp:SupervisionStrategy ;
+    rdfs:label "one_for_all" ;
+    rdfs:comment "Restart all children if one terminates" .
+
+otp:rest_for_one a otp:SupervisionStrategy ;
+    rdfs:label "rest_for_one" ;
+    rdfs:comment "Restart the terminated child and all children started after it" .
+
+otp:simple_one_for_one a otp:SupervisionStrategy ;
+    rdfs:label "simple_one_for_one" ;
+    rdfs:comment "Dynamically attached children, restarted independently" .
+
+otp:ChildSpec a rdfs:Class, owl:Class ;
+    rdfs:label "ChildSpec" ;
+    rdfs:comment "Child specification for supervisor" ;
+    otp:hasId xsd:anyURI ;
+    otp:hasStartFunc otp:StartFunc ;
+    otp:hasRestart otp:RestartType ;
+    otp:hasShutdown xsd:integer ;
+    otp:hasType otp:ChildType ;
+    otp:hasModules xsd:string .
+
+otp:StartFunc a rdfs:Class, owl:Class ;
+    rdfs:label "StartFunc" ;
+    rdfs:comment "Start function tuple {Module, Function, Args}" ;
+    otp:hasModule xsd:string ;
+    otp:hasFunction xsd:string ;
+    otp:hasArgs rdf:List .
+
+otp:RestartType a rdfs:Class, owl:Class ;
+    rdfs:label "RestartType" ;
+    rdfs:comment "Restart type for child" ;
+    owl:oneOf (
+        otp:permanent
+        otp:temporary
+        otp:transient
+    ) .
+
+otp:permanent a otp:RestartType ;
+    rdfs:label "permanent" ;
+    rdfs:comment "Always restart" .
+
+otp:temporary a otp:RestartType ;
+    rdfs:label "temporary" ;
+    rdfs:comment "Never restart" .
+
+otp:transient a otp:RestartType ;
+    rdfs:label "transient" ;
+    rdfs:comment "Restart only if terminates abnormally" .
+
+otp:ChildType a rdfs:Class, owl:Class ;
+    rdfs:label "ChildType" ;
+    rdfs:comment "Type of child process" ;
+    owl:oneOf (
+        otp:worker
+        otp:supervisor
+    ) .
+
+otp:worker a otp:ChildType ;
+    rdfs:label "worker" ;
+    rdfs:comment "Worker process" .
+
+otp:supervisor a otp:ChildType ;
+    rdfs:label "supervisor" ;
+    rdfs:comment "Supervisor process" .
+
+otp:ApplicationKey a rdfs:Class, owl:Class ;
+    rdfs:label "ApplicationKey" ;
+    rdfs:comment "Application key" ;
+    rdfs:subClassOf xsd:atom .
+
+otp:ReturnType a rdfs:Class, owl:Class ;
+    rdfs:label "ReturnType" ;
+    rdfs:comment "Return type specification" .
+
+otp:init_result a otp:ReturnType ;
+    rdfs:label "init_result" ;
+    rdfs:comment "{ok, State} | {ok, State, Timeout} | ignore | {stop, Reason}" .
+
+otp:handle_call_result a otp:ReturnType ;
+    rdfs:label "handle_call_result" ;
+    rdfs:comment "{reply, Reply, State} | {reply, Reply, State, Timeout} | {noreply, State} | {noreply, State, Timeout} | {stop, Reason, Reply, State} | {stop, Reason, State}" .
+
+otp:handle_cast_result a otp:ReturnType ;
+    rdfs:label "handle_cast_result" ;
+    rdfs:comment "{noreply, State} | {noreply, State, Timeout} | {stop, Reason, State}" .
+
+otp:handle_info_result a otp:ReturnType ;
+    rdfs:label "handle_info_result" ;
+    rdfs:comment "{noreply, State} | {noreply, State, Timeout} | {stop, Reason, State}" .
+
+otp:terminate_result a otp:ReturnType ;
+    rdfs:label "terminate_result" ;
+    rdfs:comment "ok" .
+
+otp:code_change_result a otp:ReturnType ;
+    rdfs:label "code_change_result" ;
+    rdfs:comment "{ok, State}" .
+
+otp:handle_event_result a otp:ReturnType ;
+    rdfs:label "handle_event_result" ;
+    rdfs:comment "{next_state, StateName, State} | {next_state, StateName, State, Timeout} | {stop, Reason, State}" .
+
+otp:handle_sync_event_result a otp:ReturnType ;
+    rdfs:label "handle_sync_event_result" ;
+    rdfs:comment "{reply, Reply, next_state, StateName, State} | {reply, Reply, next_state, StateName, State, Timeout} | {stop, Reason, Reply, State}" .
+
+otp:hasModuleName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Behavior ;
+    rdfs:range xsd:string ;
+    rdfs:label "has module name" .
+
+otp:hasCallback a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Behavior ;
+    rdfs:range otp:Callback ;
+    rdfs:label "has callback" .
+
+otp:hasStrategy a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Supervisor ;
+    rdfs:range otp:SupervisionStrategy ;
+    rdfs:label "has strategy" .
+
+otp:hasIntensity a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Supervisor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has intensity" ;
+    rdfs:comment "Maximum number of restarts" .
+
+otp:hasPeriod a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Supervisor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has period" ;
+    rdfs:comment "Time period in milliseconds" .
+
+otp:hasChild a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Supervisor ;
+    rdfs:range otp:ChildSpec ;
+    rdfs:label "has child" .
+
+otp:hasStart a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Application ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has start" ;
+    rdfs:comment "Start module:function" .
+
+otp:hasStop a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Application ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has stop" ;
+    rdfs:comment "Stop module:function" .
+
+otp:hasModule a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "has module" .
+
+otp:hasKey a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Application ;
+    rdfs:range otp:ApplicationKey ;
+    rdfs:label "has key" .
+
+otp:hasRoot a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:SupervisorTree ;
+    rdfs:range otp:Supervisor ;
+    rdfs:label "has root" .
+
+otp:hasArity a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Callback ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has arity" .
+
+otp:hasReturnType a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Callback ;
+    rdfs:range otp:ReturnType ;
+    rdfs:label "has return type" .
+
+otp:hasId a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "has ID" .
+
+otp:hasStartFunc a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range otp:StartFunc ;
+    rdfs:label "has start function" .
+
+otp:hasRestart a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range otp:RestartType ;
+    rdfs:label "has restart" .
+
+otp:hasShutdown a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has shutdown" ;
+    rdfs:comment "Shutdown timeout in milliseconds" .
+
+otp:hasType a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range otp:ChildType ;
+    rdfs:label "has type" .
+
+otp:hasModules a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:ChildSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "has modules" ;
+    rdfs:comment "List of modules for code change" .
+
+otp:hasFunction a rdf:Property, owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "has function" .
+
+otp:hasArgs a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:StartFunc ;
+    rdfs:range rdf:List ;
+    rdfs:label "has args" .
+
+otp:Process a rdfs:Class, owl:Class ;
+    rdfs:label "Process" ;
+    rdfs:comment "Erlang process" ;
+    otp:hasPid otp:Pid ;
+    otp:hasName xsd:string ;
+    otp:hasState otp:State .
+
+otp:Pid a rdfs:Class, owl:Class ;
+    rdfs:label "Pid" ;
+    rdfs:comment "Process identifier" ;
+    rdfs:subClassOf rdfs:Resource .
+
+otp:State a rdfs:Class, owl:Class ;
+    rdfs:label "State" ;
+    rdfs:comment "Process state" ;
+    owl:oneOf (
+        otp:Running
+        otp:Waiting
+        otp:Suspended
+        otp:Exiting
+        otp:GarbageCollecting
+    ) .
+
+otp:Running a otp:State ;
+    rdfs:label "Running" ;
+    rdfs:comment "Process is running" .
+
+otp:Waiting a otp:State ;
+    rdfs:label "Waiting" ;
+    rdfs:comment "Process is waiting" .
+
+otp:Suspended a otp:State ;
+    rdfs:label "Suspended" ;
+    rdfs:comment "Process is suspended" .
+
+otp:Exiting a otp:State ;
+    rdfs:label "Exiting" ;
+    rdfs:comment "Process is exiting" .
+
+otp:GarbageCollecting a otp:State ;
+    rdfs:label "GarbageCollecting" ;
+    rdfs:comment "Process is garbage collecting" .
+
+otp:hasPid a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Process ;
+    rdfs:range otp:Pid ;
+    rdfs:label "has PID" .
+
+otp:hasName a rdf:Property, owl:DatatypeProperty ;
+    rdfs:domain otp:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" .
+
+otp:hasState a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Process ;
+    rdfs:range otp:State ;
+    rdfs:label "has state" .
+
+otp:Monitor a rdfs:Class, owl:Class ;
+    rdfs:label "Monitor" ;
+    rdfs:comment "Process monitor" ;
+    otp:monitors otp:Process ;
+    otp:hasReference otp:Reference .
+
+otp:Reference a rdfs:Class, owl:Class ;
+    rdfs:label "Reference" ;
+    rdfs:comment "Monitor reference" ;
+    rdfs:subClassOf rdfs:Resource .
+
+otp:monitors a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Monitor ;
+    rdfs:range otp:Process ;
+    rdfs:label "monitors" .
+
+otp:hasReference a rdf:Property, owl:ObjectProperty ;
+    rdfs:domain otp:Monitor ;
+    rdfs:range otp:Reference ;
+    rdfs:label "has reference" .

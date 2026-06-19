@@ -1,0 +1,27 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:project a ex:SoftwareProject ;
+    rdfs:label "KGEN Core Project" ;
+    ex:version "1.0.0" ;
+    ex:description "Knowledge graph enhanced generation system" ;
+    ex:author ex:developer .
+
+ex:developer a foaf:Person ;
+    foaf:name "KGEN Developer" ;
+    foaf:email "dev@kgen.org" ;
+    ex:role "Lead Developer" .
+
+ex:component a ex:SoftwareComponent ;
+    rdfs:label "Artifact Generator" ;
+    ex:implements ex:GenerationInterface ;
+    ex:dependsOn ex:TemplateEngine ;
+    ex:produces ex:DeterministicArtifact .
+
+ex:template a ex:Template ;
+    rdfs:label "Component Template" ;
+    ex:format "nunjucks" ;
+    ex:extension ".njk" ;
+    ex:variables "name, version, description, author" .

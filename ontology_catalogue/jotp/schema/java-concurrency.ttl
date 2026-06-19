@@ -1,0 +1,157 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jconc: <https://jgen.dev/ontology/java/concurrency#> .
+
+# =============================================================================
+# Java Concurrency Ontology
+# Modern concurrency patterns for Java 21-26: virtual threads, structured
+# concurrency, scoped values
+# =============================================================================
+
+jconc:Ontology a owl:Ontology ;
+    rdfs:label "Java Concurrency Patterns" ;
+    rdfs:comment "Ontology for modern Java concurrency: virtual threads, structured concurrency, scoped values" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://jgen.dev/ontology/java#> .
+
+# =============================================================================
+# Concurrency Pattern Classification
+# =============================================================================
+
+jconc:ConcurrencyPattern a owl:Class ;
+    rdfs:label "Concurrency Pattern" .
+
+jconc:ThreadPattern a owl:Class ;
+    rdfs:subClassOf jconc:ConcurrencyPattern ;
+    rdfs:label "Thread Pattern" .
+
+jconc:StructuredConcurrencyPattern a owl:Class ;
+    rdfs:subClassOf jconc:ConcurrencyPattern ;
+    rdfs:label "Structured Concurrency Pattern" .
+
+jconc:ScopedValuePattern a owl:Class ;
+    rdfs:subClassOf jconc:ConcurrencyPattern ;
+    rdfs:label "Scoped Value Pattern" .
+
+jconc:ExecutorPattern a owl:Class ;
+    rdfs:subClassOf jconc:ConcurrencyPattern ;
+    rdfs:label "Executor Pattern" .
+
+# =============================================================================
+# Properties
+# =============================================================================
+
+jconc:hasTemplate a owl:DatatypeProperty ;
+    rdfs:domain jconc:ConcurrencyPattern ;
+    rdfs:range xsd:string .
+
+jconc:replacesLegacy a owl:DatatypeProperty ;
+    rdfs:domain jconc:ConcurrencyPattern ;
+    rdfs:range xsd:string .
+
+jconc:requiresJavaVersion a owl:ObjectProperty ;
+    rdfs:domain jconc:ConcurrencyPattern ;
+    rdfs:range java:JavaVersion .
+
+# =============================================================================
+# Virtual Thread Patterns
+# =============================================================================
+
+jconc:VirtualThreadBasic a jconc:ThreadPattern ;
+    rdfs:label "Virtual Thread (Basic)" ;
+    jconc:hasTemplate "concurrency/virtual-thread.tera" ;
+    jconc:replacesLegacy "new Thread(runnable).start(), platform thread creation" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java21> ;
+    rdfs:comment """Replaces platform threads with lightweight virtual threads.
+    Thread.ofVirtual().name('worker-', 0).start(task) instead of new Thread(task).""" .
+
+jconc:VirtualThreadExecutor a jconc:ExecutorPattern ;
+    rdfs:label "Virtual Thread Executor" ;
+    jconc:hasTemplate "concurrency/virtual-thread-executor.tera" ;
+    jconc:replacesLegacy "Executors.newFixedThreadPool(), Executors.newCachedThreadPool()" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java21> ;
+    rdfs:comment """Replaces bounded/cached thread pool executors with virtual thread per-task executor.
+    Executors.newVirtualThreadPerTaskExecutor() instead of newFixedThreadPool(N).""" .
+
+# =============================================================================
+# Structured Concurrency Patterns
+# =============================================================================
+
+jconc:StructuredTaskScopeShutdownOnFailure a jconc:StructuredConcurrencyPattern ;
+    rdfs:label "StructuredTaskScope.ShutdownOnFailure" ;
+    jconc:hasTemplate "concurrency/structured-task-scope.tera" ;
+    jconc:replacesLegacy "ExecutorService.submit() + Future.get() with manual error handling" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java26> ;
+    rdfs:comment """Fork subtasks and shut down on first failure.
+    All subtasks are cancelled if any one fails. Guarantees structured lifetime.""" .
+
+jconc:StructuredTaskScopeShutdownOnSuccess a jconc:StructuredConcurrencyPattern ;
+    rdfs:label "StructuredTaskScope.ShutdownOnSuccess" ;
+    jconc:hasTemplate "concurrency/structured-task-scope.tera" ;
+    jconc:replacesLegacy "CompletionService, ExecutorCompletionService" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java26> ;
+    rdfs:comment """Fork subtasks and return first successful result.
+    Remaining subtasks cancelled once a winner is found.""" .
+
+jconc:StructuredTaskWithTimeout a jconc:StructuredConcurrencyPattern ;
+    rdfs:label "Structured Task with Timeout" ;
+    jconc:hasTemplate "concurrency/structured-task-scope.tera" ;
+    jconc:replacesLegacy "Future.get(timeout, unit), scheduled executor timeouts" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java26> ;
+    rdfs:comment """Structured task scope with deadline via joinUntil(Instant).""" .
+
+# =============================================================================
+# Scoped Value Patterns
+# =============================================================================
+
+jconc:ScopedValueDeclaration a jconc:ScopedValuePattern ;
+    rdfs:label "ScopedValue Declaration" ;
+    jconc:hasTemplate "concurrency/scoped-value.tera" ;
+    jconc:replacesLegacy "ThreadLocal<T> with set/get/remove lifecycle" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java26> ;
+    rdfs:comment """Declare immutable context values visible within a bounded scope.
+    ScopedValue.where(KEY, value).run(() -> ...) instead of ThreadLocal set/get.""" .
+
+# =============================================================================
+# Concurrent Gatherer Pattern
+# =============================================================================
+
+jconc:ConcurrentGatherer a jconc:ConcurrencyPattern ;
+    rdfs:label "Concurrent Gatherer" ;
+    jconc:hasTemplate "concurrency/concurrent-gatherer.tera" ;
+    jconc:replacesLegacy "parallelStream(), custom ForkJoinPool submission" ;
+    jconc:requiresJavaVersion <https://jgen.dev/ontology/java/core#Java25> ;
+    rdfs:comment """Use Gatherers.mapConcurrent(maxConcurrency, fn) for controlled parallel
+    processing within a sequential stream, backed by virtual threads.""" .
+
+# =============================================================================
+# Legacy → Modern Migration Mappings
+# =============================================================================
+
+jconc:LegacyThreadCreation a jconc:ConcurrencyPattern ;
+    rdfs:label "Legacy: new Thread()" ;
+    rdfs:comment "new Thread(runnable).start() or extending Thread class" ;
+    jconc:replacesLegacy "SELF" .
+
+jconc:LegacyThreadPool a jconc:ConcurrencyPattern ;
+    rdfs:label "Legacy: Fixed/Cached Thread Pool" ;
+    rdfs:comment "Executors.newFixedThreadPool(n) or newCachedThreadPool()" ;
+    jconc:replacesLegacy "SELF" .
+
+jconc:LegacyFutureGet a jconc:ConcurrencyPattern ;
+    rdfs:label "Legacy: Future.get()" ;
+    rdfs:comment "Submit tasks to executor, collect Future<T>, call get() sequentially" ;
+    jconc:replacesLegacy "SELF" .
+
+jconc:LegacyThreadLocal a jconc:ConcurrencyPattern ;
+    rdfs:label "Legacy: ThreadLocal" ;
+    rdfs:comment "ThreadLocal<T> for per-thread mutable state" ;
+    jconc:replacesLegacy "SELF" .
+
+jconc:LegacySynchronized a jconc:ConcurrencyPattern ;
+    rdfs:label "Legacy: synchronized blocks" ;
+    rdfs:comment "synchronized keyword for mutual exclusion on platform threads" ;
+    jconc:replacesLegacy "SELF" .

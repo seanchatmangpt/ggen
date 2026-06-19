@@ -1,0 +1,26 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Valid triple
+ex:validResource a ex:SomeClass .
+
+# Invalid syntax examples for testing validation
+ex:resource1 ex:predicate1 "unterminated string literal ;
+
+# Missing predicate
+ex:resource2 ex:object2 .
+
+# Invalid IRI
+<invalid-iri-no-scheme> ex:predicate3 "some value" .
+
+# Missing trailing dot
+ex:resource3 ex:predicate3 "value"
+
+# Invalid blank node syntax
+_:blank-node- ex:predicate4 "value" .
+
+# Unclosed parentheses in collection
+ex:resource4 ex:list ( ex:item1 ex:item2 .
+
+# Invalid datatype IRI
+ex:resource5 ex:numericProp "123"^^<invalid-datatype> .

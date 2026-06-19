@@ -1,0 +1,230 @@
+# =============================================================================
+# Documentation Instance (Diataxis 2030)
+# Concrete examples of all four Diataxis quadrants for ggen-node
+# =============================================================================
+
+@prefix : <https://ggen.dev/docs/ggen-node#> .
+@prefix doc: <https://ggen.dev/ontology/documentation#> .
+@prefix ffi: <https://ggen.dev/ontology/node-ffi#> .
+@prefix code: <https://ggen.dev/bindings/ggen-core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# TUTORIAL: Getting Started
+# Learning-oriented, practical
+# =============================================================================
+
+:GettingStartedTutorial a doc:Tutorial ;
+    doc:title "Getting Started with ggen-node" ;
+    doc:description "Learn to parse RDF and generate code in 10 minutes" ;
+    doc:order 1 ;
+    doc:difficultyLevel "beginner" ;
+    doc:estimatedTime "10 minutes" ;
+    doc:targetAudience "beginner" ;
+    doc:hasPrerequisite "Node.js >= 16.0.0" ;
+    doc:hasPrerequisite "Basic JavaScript knowledge" ;
+    doc:hasPrerequisite "Text editor (VS Code recommended)" ;
+    doc:hasLearningObjective "Install and set up ggen-node" ;
+    doc:hasLearningObjective "Parse your first RDF file" ;
+    doc:hasLearningObjective "Understand the basic workflow" ;
+    doc:relatedTo code:ParseRdfFunction ;
+    doc:hasStep :Step1Install, :Step2CreateFile, :Step3Parse, :Step4Inspect .
+
+:Step1Install a doc:Step ;
+    doc:order 1 ;
+    doc:action "Install ggen-node package" ;
+    doc:codeExample "npm install ggen-node" ;
+    doc:codeLanguage "bash" ;
+    doc:explanation "This installs the native Node.js bindings for ggen" .
+
+:Step2CreateFile a doc:Step ;
+    doc:order 2 ;
+    doc:action "Create a sample RDF file" ;
+    doc:codeExample """
+# sample.ttl
+@prefix ex: <http://example.org/> .
+
+ex:Person a rdfs:Class ;
+    rdfs:label \"Person\" .
+""" ;
+    doc:codeLanguage "turtle" ;
+    doc:explanation "We'll use this simple ontology to test parsing" .
+
+:Step3Parse a doc:Step ;
+    doc:order 3 ;
+    doc:action "Parse the RDF file" ;
+    doc:codeExample """
+import { parseRdf } from 'ggen-node';
+
+const triples = await parseRdf('./sample.ttl');
+console.log(`Parsed ${triples.length} triples`);
+""" ;
+    doc:codeLanguage "javascript" ;
+    doc:explanation "parseRdf returns an array of RDF triples" .
+
+:Step4Inspect a doc:Step ;
+    doc:order 4 ;
+    doc:action "Inspect the parsed triples" ;
+    doc:codeExample """
+triples.forEach(triple => {
+  console.log(`${triple.subject} ${triple.predicate} ${triple.object}`);
+});
+""" ;
+    doc:codeLanguage "javascript" ;
+    doc:explanation "Each triple has subject, predicate, and object properties" .
+
+# =============================================================================
+# HOW-TO: Parse RDF with Error Handling
+# Problem-oriented, practical
+# =============================================================================
+
+:ParseRdfHowTo a doc:HowToGuide ;
+    doc:title "How to Parse RDF Files with Error Handling" ;
+    doc:description "Handle common parsing errors gracefully" ;
+    doc:solvesProblem "I need to parse RDF files but handle errors when files are invalid" ;
+    doc:requiresContext "You have ggen-node installed and RDF files to parse" ;
+    doc:relatedTo code:ParseRdfFunction ;
+    doc:hasStep :HowToStep1, :HowToStep2, :HowToStep3 .
+
+:HowToStep1 a doc:Step ;
+    doc:order 1 ;
+    doc:action "Wrap parseRdf in try-catch" ;
+    doc:codeExample """
+try {
+  const triples = await parseRdf('./data.ttl', { strict: true });
+  processTriples(triples);
+} catch (error) {
+  console.error('Parsing failed:', error.message);
+}
+""" ;
+    doc:codeLanguage "javascript" .
+
+:HowToStep2 a doc:Step ;
+    doc:order 2 ;
+    doc:action "Check if file exists before parsing" ;
+    doc:codeExample """
+import { existsSync } from 'fs';
+
+if (!existsSync('./data.ttl')) {
+  throw new Error('File not found');
+}
+
+const triples = await parseRdf('./data.ttl');
+""" ;
+    doc:codeLanguage "javascript" .
+
+:HowToStep3 a doc:Step ;
+    doc:order 3 ;
+    doc:action "Validate results before processing" ;
+    doc:codeExample """
+const triples = await parseRdf('./data.ttl');
+
+if (triples.length === 0) {
+  console.warn('No triples found in file');
+  return;
+}
+
+processTriples(triples);
+""" ;
+    doc:codeLanguage "javascript" .
+
+# =============================================================================
+# REFERENCE: parseRdf API
+# Information-oriented, theoretical
+# =============================================================================
+
+:ParseRdfReference a doc:Reference ;
+    doc:title "parseRdf() API Reference" ;
+    doc:description "Complete API documentation for parseRdf function" ;
+    doc:documentsFunction code:ParseRdfFunction ;
+    doc:hasSignature "parseRdf(filePath: string, options?: ParseOptions): Promise<Triple[]>" ;
+    doc:hasReturnValue "Promise that resolves to array of Triple objects" ;
+    doc:hasExample :ParseRdfExample1, :ParseRdfExample2 .
+
+:ParseRdfExample1 a doc:Example ;
+    doc:title "Basic usage" ;
+    doc:codeExample """
+import { parseRdf } from 'ggen-node';
+
+const triples = await parseRdf('./schema.ttl');
+""" ;
+    doc:codeLanguage "javascript" .
+
+:ParseRdfExample2 a doc:Example ;
+    doc:title "With options" ;
+    doc:codeExample """
+const triples = await parseRdf('./data.ttl', {
+  format: 'turtle',
+  strict: true
+});
+""" ;
+    doc:codeLanguage "javascript" .
+
+# =============================================================================
+# EXPLANATION: RDF Parsing Architecture
+# Understanding-oriented, theoretical
+# =============================================================================
+
+:RdfParsingExplanation a doc:Explanation ;
+    doc:title "Understanding RDF Parsing in ggen-node" ;
+    doc:description "How RDF parsing works and why it's designed this way" ;
+    doc:explainsConcept :RdfGraphConcept ;
+    doc:hasKeyIdea "RDF is a graph-based data model, not a tree" ;
+    doc:hasKeyIdea "Triples are the atomic unit of RDF data" ;
+    doc:hasKeyIdea "Parsing converts serialized RDF into in-memory graph" ;
+    doc:hasAnalogy "Think of RDF like a database where relationships are first-class citizens" ;
+    doc:relatedTo code:ParseRdfFunction ;
+    doc:hasDesignDecision :AsyncParsingDecision, :NativeImplementationDecision .
+
+:RdfGraphConcept a doc:Concept ;
+    rdfs:label "RDF Graph Model" ;
+    rdfs:comment "RDF represents data as a directed, labeled graph" .
+
+:AsyncParsingDecision a doc:DesignDecision ;
+    doc:decision "All parsing functions are async (return Promise)" ;
+    doc:rationale "File I/O blocks the Node.js event loop" ;
+    doc:rationale "Native Rust operations may be expensive" ;
+    doc:rationale "Enables better error handling with try-catch" ;
+    doc:tradeoff "Slightly more complex API, but better performance" .
+
+:NativeImplementationDecision a doc:DesignDecision ;
+    doc:decision "Parser implemented in Rust, not JavaScript" ;
+    doc:rationale "Rust is 10-100x faster than JavaScript for parsing" ;
+    doc:rationale "Type safety prevents runtime errors" ;
+    doc:rationale "Can reuse existing oxigraph parser" ;
+    doc:tradeoff "Requires native compilation, but much better performance" .
+
+# =============================================================================
+# TUTORIAL: Advanced - Code Generation
+# Learning-oriented, practical (intermediate level)
+# =============================================================================
+
+:CodeGenTutorial a doc:Tutorial ;
+    doc:title "Generate Code from RDF Ontologies" ;
+    doc:description "Learn to generate TypeScript types from RDF ontologies" ;
+    doc:order 2 ;
+    doc:difficultyLevel "intermediate" ;
+    doc:estimatedTime "20 minutes" ;
+    doc:hasPrerequisite "Completed 'Getting Started' tutorial" ;
+    doc:hasPrerequisite "Understanding of RDF basics" ;
+    doc:hasLearningObjective "Create a simple ontology" ;
+    doc:hasLearningObjective "Generate TypeScript interfaces" ;
+    doc:hasLearningObjective "Use generated code in your project" ;
+    doc:relatedTo code:GenerateCodeFunction .
+
+# =============================================================================
+# AI Enhancement Metadata (2030)
+# =============================================================================
+
+:GettingStartedTutorial
+    doc:aiGenerated false ;
+    doc:personalizationTags "beginner, first-time-user, quick-start" .
+
+:ParseRdfHowTo
+    doc:aiGenerated false ;
+    doc:personalizationTags "error-handling, production, reliability" .
+
+:RdfParsingExplanation
+    doc:aiGenerated true ;
+    doc:personalizationTags "architecture, design, internals, advanced" .

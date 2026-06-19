@@ -95,8 +95,7 @@ fn test_frontmatter_to_with_tera_variable_resolves_per_row() {
     let mut manifest = minimal_manifest(&temp_dir);
 
     // Write ontology
-    fs::write(temp_dir.path().join("ontology.ttl"), minimal_ontology())
-        .expect("write ontology");
+    fs::write(temp_dir.path().join("ontology.ttl"), minimal_ontology()).expect("write ontology");
 
     // Template: frontmatter declares `to:` with a Tera variable.
     // The value must be quoted in YAML so the `{{` braces don't confuse the
@@ -129,9 +128,10 @@ fn test_frontmatter_to_with_tera_variable_resolves_per_row() {
         resolved_path.exists(),
         "Expected output/widget.rs to exist (frontmatter `to:` override), but it does not.\n\
          Files in output/: {:?}",
-        fs::read_dir(temp_dir.path().join("output"))
-            .ok()
-            .map(|d| d.filter_map(|e| e.ok()).map(|e| e.file_name()).collect::<Vec<_>>())
+        fs::read_dir(temp_dir.path().join("output")).ok().map(|d| d
+            .filter_map(|e| e.ok())
+            .map(|e| e.file_name())
+            .collect::<Vec<_>>())
     );
 
     // ── ASSERT 2: manifest-declared output_file does NOT exist ───────────────
@@ -170,8 +170,7 @@ fn test_no_frontmatter_uses_manifest_output_file() {
     let temp_dir = TempDir::new().expect("TempDir");
     let mut manifest = minimal_manifest(&temp_dir);
 
-    fs::write(temp_dir.path().join("ontology.ttl"), minimal_ontology())
-        .expect("write ontology");
+    fs::write(temp_dir.path().join("ontology.ttl"), minimal_ontology()).expect("write ontology");
 
     // Plain template, no frontmatter
     let plain_template = "fn plain() {}\n";
@@ -226,8 +225,7 @@ fn test_static_frontmatter_to_overrides_output_file() {
     let temp_dir = TempDir::new().expect("TempDir");
     let mut manifest = minimal_manifest(&temp_dir);
 
-    fs::write(temp_dir.path().join("ontology.ttl"), minimal_ontology())
-        .expect("write ontology");
+    fs::write(temp_dir.path().join("ontology.ttl"), minimal_ontology()).expect("write ontology");
 
     // Frontmatter `to:` is a literal path, no Tera variable
     let template_static_front = r#"---
@@ -269,9 +267,10 @@ fn static_fn() {}
         overridden.exists(),
         "output/static_override.rs should exist; frontmatter `to:` must override manifest.\n\
          Files in output/: {:?}",
-        fs::read_dir(temp_dir.path().join("output"))
-            .ok()
-            .map(|d| d.filter_map(|e| e.ok()).map(|e| e.file_name()).collect::<Vec<_>>())
+        fs::read_dir(temp_dir.path().join("output")).ok().map(|d| d
+            .filter_map(|e| e.ok())
+            .map(|e| e.file_name())
+            .collect::<Vec<_>>())
     );
 
     assert!(
@@ -280,6 +279,12 @@ fn static_fn() {}
     );
 
     let content = fs::read_to_string(&overridden).expect("read static_override.rs");
-    assert!(!content.contains("---"), "No raw YAML block in output: {content}");
-    assert!(content.contains("fn static_fn()"), "Body rendered: {content}");
+    assert!(
+        !content.contains("---"),
+        "No raw YAML block in output: {content}"
+    );
+    assert!(
+        content.contains("fn static_fn()"),
+        "Body rendered: {content}"
+    );
 }

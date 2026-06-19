@@ -1,0 +1,6 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix prov: <https://cns.dev/provenance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+prov:Provenance a rdfs:Class ; rdfs:subClassOf core:Primitive .
+prov:hasSource a rdfs:Property ; rdfs:domain prov:Provenance ; rdfs:range rdfs:Literal .

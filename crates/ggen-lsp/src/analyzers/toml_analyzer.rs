@@ -307,9 +307,9 @@ mod tests {
         let toml = "[logging]\nlevel = \"verbose\"\n";
         let analyzer = TomlAnalyzer::new_from_content(toml).expect("analyzer");
         let diags = analyzer.diagnostics();
-        assert!(diags
-            .iter()
-            .any(|d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0023".into()))));
+        assert!(diags.iter().any(
+            |d| d.lsp.code == Some(lsp_max::lsp_types::NumberOrString::String("E0023".into()))
+        ));
     }
 
     #[test]

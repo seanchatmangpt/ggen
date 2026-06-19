@@ -1,0 +1,92 @@
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Water Gate Pericope Record — Bible O* Example
+#
+# Demonstrates: bos:Pericope with bos:hasCanonicalReference, bos:hasPassage,
+# bos:assignedToGate, bos:GospelPassage, bos:ParallelPassage,
+# bos:hasParallelPassage, bos:pericopeIndex.
+#
+# Gate assignment: bos:WaterGate — the Water Gate of the Nehemiah 3 wall
+# circuit, standing over the region of Gihon Spring and associated with
+# the public reading of the Law (Nehemiah 8:1-18).
+#
+# The pericope modeled here is the "Baptism of Jesus" — a narrative present
+# in all four Gospels, making it a canonical test case for parallel passage
+# modeling. Pericope index informed by Composite Gospel Index RDF pattern
+# (SemanticBible, CC BY-NC-SA 2.0); no CGI data copied.
+
+# --- Named Gate ---
+
+bos:WaterGate a owl:NamedIndividual ;
+  rdfs:label "Water Gate" ;
+  rdfs:comment "The Water Gate of the Nehemiah 3 wall circuit (Neh.3.26, Neh.8.1). Stands over the Gihon Spring region; site of Ezra's public Torah reading." ;
+  bos:hasCanonicalReference "Neh.3.26"^^xsd:string ;
+  bos:hasCanonicalNehRef "Neh.3.26"^^xsd:string ;
+  dcterms:created "2026-06-02"^^xsd:date .
+
+# --- Pericope Record ---
+
+bos:BaptismOfJesus a bos:Pericope ;
+  rdfs:label "Baptism of Jesus" ;
+  bos:hasCanonicalReference "Matt.3.13-Matt.3.17"^^xsd:string ;
+  bos:pericopeIndex 14 ;
+  bos:assignedToGate bos:WaterGate ;
+  rdfs:comment "The baptism of Jesus by John in the Jordan, attended by the descent of the Spirit and the voice from heaven. Assigned to the Water Gate on account of water, purification, and inauguration themes that resonate with the Gihon Spring and the Ezra Torah-reading at the same gate." ;
+  dcterms:source <https://semanticbible.com/cgi/cgi-in-rdf.html> .
+
+# --- Gospel Passages (one per source account) ---
+
+bos:BaptismMatthew a bos:GospelPassage ;
+  rdfs:label "Baptism of Jesus — Matthew" ;
+  bos:hasCanonicalReference "Matt.3.13-Matt.3.17"^^xsd:string ;
+  bos:hasSource bos:BaptismOfJesus ;
+  rdfs:comment "Matthew's account of the Baptism of Jesus (Matt 3:13-17)." .
+
+bos:BaptismMark a bos:GospelPassage ;
+  rdfs:label "Baptism of Jesus — Mark" ;
+  bos:hasCanonicalReference "Mark.1.9-Mark.1.11"^^xsd:string ;
+  bos:hasSource bos:BaptismOfJesus ;
+  rdfs:comment "Mark's account of the Baptism of Jesus (Mark 1:9-11)." .
+
+bos:BaptismLuke a bos:GospelPassage ;
+  rdfs:label "Baptism of Jesus — Luke" ;
+  bos:hasCanonicalReference "Luke.3.21-Luke.3.22"^^xsd:string ;
+  bos:hasSource bos:BaptismOfJesus ;
+  rdfs:comment "Luke's account of the Baptism of Jesus (Luke 3:21-22)." .
+
+bos:BaptismJohn a bos:GospelPassage ;
+  rdfs:label "Baptism of Jesus — John (implied)" ;
+  bos:hasCanonicalReference "John.1.29-John.1.34"^^xsd:string ;
+  bos:hasSource bos:BaptismOfJesus ;
+  rdfs:comment "John's account of the Baptist's testimony to the baptism of Jesus (John 1:29-34). John's Gospel does not describe the act directly but testifies to it." .
+
+# --- Parallel Passage Links ---
+
+bos:BaptismMarkParallel a bos:ParallelPassage ;
+  rdfs:label "Parallel: Mark to Matthew Baptism" ;
+  bos:hasCanonicalReference "Mark.1.9-Mark.1.11"^^xsd:string ;
+  rdfs:comment "Mark 1:9-11 parallels Matt 3:13-17 in the baptism narrative." .
+
+bos:BaptismMatthew bos:hasParallelPassage bos:BaptismMarkParallel .
+
+bos:BaptismLukeParallel a bos:ParallelPassage ;
+  rdfs:label "Parallel: Luke to Matthew Baptism" ;
+  bos:hasCanonicalReference "Luke.3.21-Luke.3.22"^^xsd:string ;
+  rdfs:comment "Luke 3:21-22 parallels Matt 3:13-17 in the baptism narrative." .
+
+bos:BaptismMatthew bos:hasParallelPassage bos:BaptismLukeParallel .
+
+# --- Passage record for the Nehemiah 8 Water Gate reading ---
+# (Non-Gospel example showing the gate's own canonical passage)
+
+bos:WaterGateTorah a bos:Passage ;
+  rdfs:label "Ezra reads the Torah at the Water Gate" ;
+  bos:hasCanonicalReference "Neh.8.1-Neh.8.18"^^xsd:string ;
+  bos:assignedToGate bos:WaterGate ;
+  rdfs:comment "The public reading of the Law by Ezra before the assembly at the Water Gate (Neh 8:1-18). This event gives the Water Gate its lectionary significance in the Nehemiah 3 circuit." .

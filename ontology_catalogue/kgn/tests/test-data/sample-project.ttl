@@ -1,0 +1,61 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kgen: <http://example.org/kgen#> .
+
+<http://example.org/project/sample> a kgen:Project ;
+    rdfs:label "Sample KGEN Project" ;
+    dct:title "Complete Sample Project for Testing" ;
+    dct:description "A comprehensive sample project demonstrating all KGEN features" ;
+    kgen:version "1.0.0" ;
+    kgen:author "KGEN Test Suite" ;
+    kgen:license "MIT" ;
+    kgen:hasComponent <http://example.org/component/auth>, 
+                      <http://example.org/component/api>,
+                      <http://example.org/component/ui> ;
+    kgen:hasModule <http://example.org/module/database> .
+
+<http://example.org/component/auth> a kgen:Component ;
+    rdfs:label "Authentication Component" ;
+    dct:description "Handles user authentication and authorization" ;
+    kgen:hasInterface <http://example.org/interface/AuthService> ;
+    kgen:hasMethod "login", "logout", "validateToken", "refreshToken" ;
+    kgen:hasProperty "tokenExpiry", "secretKey", "algorithm" ;
+    kgen:dependsOn <http://example.org/module/database> .
+
+<http://example.org/component/api> a kgen:Component ;
+    rdfs:label "REST API Component" ;
+    dct:description "Provides RESTful API endpoints" ;
+    kgen:hasInterface <http://example.org/interface/APIService> ;
+    kgen:hasMethod "get", "post", "put", "delete", "patch" ;
+    kgen:hasProperty "baseUrl", "timeout", "retryCount" ;
+    kgen:dependsOn <http://example.org/component/auth> .
+
+<http://example.org/component/ui> a kgen:Component ;
+    rdfs:label "User Interface Component" ;
+    dct:description "Frontend user interface components" ;
+    kgen:hasInterface <http://example.org/interface/UIService> ;
+    kgen:hasMethod "render", "update", "destroy", "handleEvent" ;
+    kgen:hasProperty "theme", "locale", "accessibility" ;
+    kgen:dependsOn <http://example.org/component/api> .
+
+<http://example.org/module/database> a kgen:Module ;
+    rdfs:label "Database Module" ;
+    dct:description "Database connection and query management" ;
+    kgen:hasProperty "connectionString", "poolSize", "timeout" ;
+    kgen:hasMethod "connect", "disconnect", "query", "transaction" .
+
+<http://example.org/interface/AuthService> a kgen:Interface ;
+    rdfs:label "Authentication Service Interface" ;
+    dct:description "Contract for authentication services" ;
+    kgen:hasOperation "authenticate", "authorize", "revoke" .
+
+<http://example.org/interface/APIService> a kgen:Interface ;
+    rdfs:label "API Service Interface" ;
+    dct:description "Contract for REST API services" ;
+    kgen:hasOperation "handleRequest", "validateInput", "formatResponse" .
+
+<http://example.org/interface/UIService> a kgen:Interface ;
+    rdfs:label "UI Service Interface" ;
+    dct:description "Contract for user interface services" ;
+    kgen:hasOperation "initialize", "render", "cleanup" .

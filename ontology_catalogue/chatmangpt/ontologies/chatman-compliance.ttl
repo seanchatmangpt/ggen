@@ -1,0 +1,877 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix chatman: <https://ontology.chatmangpt.com/core#> .
+@prefix compliance: <https://ontology.chatmangpt.com/compliance#> .
+
+###############################################################################
+# CHATMANGPT COMPLIANCE ONTOLOGY
+#
+# Open Digital Rights Language (ODRL) specification of compliance rules
+# for SOC2, GDPR, SOX, and HIPAA frameworks.
+#
+# IRI: https://ontology.chatmangpt.com/compliance
+# Module: chatman-compliance.ttl
+#
+# Converts compliance-rules.yaml to machine-readable ODRL policies.
+# Each rule becomes an odrl:Policy instance with:
+#   - Framework categorization (SOC2, GDPR, SOX, HIPAA)
+#   - Severity level (critical, high, medium, low)
+#   - Enforcement action (escalate, create_gap, notify, audit)
+#   - Constraint operators (neq, eq, lt, gt, contains, hasScope, etc.)
+###############################################################################
+
+<https://ontology.chatmangpt.com/compliance>
+  a owl:Ontology ;
+  dcterms:title "ChatmanGPT Compliance Ontology (ODRL)"@en ;
+  dcterms:description "Machine-readable ODRL 2.0 specification of SOC2, GDPR, SOX, and HIPAA compliance rules. Translates BusinessOS compliance-rules.yaml into semantic policies with constraint operators for automated enforcement."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:created "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  dcterms:creator "Sean Chatman"@en ;
+  dcterms:language "en"@en ;
+  owl:versionIRI <https://ontology.chatmangpt.com/compliance/1.0> ;
+  owl:versionInfo "1.0"^^xsd:string ;
+
+  # Tier 1 imports
+  owl:imports <http://www.w3.org/ns/odrl/2/> ;       # ODRL for policies
+  owl:imports <http://www.w3.org/2004/02/skos/core#> ;  # SKOS for framework taxonomy
+  owl:imports <https://ontology.chatmangpt.com/core> ;  # ChatmanGPT core ontology
+
+  dcterms:isPartOf <https://ontology.chatmangpt.com/> ;
+  rdfs:comment "This ontology encodes compliance rules from BusinessOS configuration in ODRL 2.0, enabling automated policy enforcement, audit trail generation, and compliance verification across SOC2, GDPR, SOX, and HIPAA frameworks."@en ;
+  .
+
+###############################################################################
+# COMPLIANCE FRAMEWORKS (SKOS CONCEPT SCHEME)
+###############################################################################
+
+compliance:ComplianceFrameworks
+  a skos:ConceptScheme ;
+  dcterms:title "Compliance Frameworks"@en ;
+  dcterms:description "Taxonomy of regulatory frameworks enforced by ChatmanGPT."@en ;
+  skos:hasTopConcept compliance:SOC2Framework ;
+  skos:hasTopConcept compliance:GDPRFramework ;
+  skos:hasTopConcept compliance:SOXFramework ;
+  skos:hasTopConcept compliance:HIPAAFramework ;
+  .
+
+compliance:SOC2Framework
+  a skos:Concept ;
+  skos:prefLabel "SOC2"@en ;
+  skos:definition "System and Organization Controls (SOC) 2 - Trust Services Criteria for security, availability, processing integrity, confidentiality, and privacy."@en ;
+  skos:scopeNote "Applied to user provisioning, availability monitoring, encryption, audit trails, system monitoring, incident response."@en ;
+  dcterms:isPartOf compliance:ComplianceFrameworks ;
+  .
+
+compliance:GDPRFramework
+  a skos:Concept ;
+  skos:prefLabel "GDPR"@en ;
+  skos:definition "General Data Protection Regulation - EU regulation for data protection and privacy for individuals within the EU."@en ;
+  skos:scopeNote "Applied to data subject rights, consent management, data processing agreements, data minimization, data residency."@en ;
+  dcterms:isPartOf compliance:ComplianceFrameworks ;
+  .
+
+compliance:SOXFramework
+  a skos:Concept ;
+  skos:prefLabel "SOX"@en ;
+  skos:definition "Sarbanes-Oxley Act - US law requiring financial data integrity, access logging, change management, configuration management."@en ;
+  skos:scopeNote "Applied to financial systems availability, access logging, configuration documentation, financial data integrity via checksums."@en ;
+  dcterms:isPartOf compliance:ComplianceFrameworks ;
+  .
+
+compliance:HIPAAFramework
+  a skos:Concept ;
+  skos:prefLabel "HIPAA"@en ;
+  skos:definition "Health Insurance Portability and Accountability Act - US law for healthcare data privacy, security, and breach notification."@en ;
+  skos:scopeNote "Applied to Protected Health Information (PHI) access controls, audit trails, encryption, breach notification."@en ;
+  dcterms:isPartOf compliance:ComplianceFrameworks ;
+  .
+
+###############################################################################
+# SEVERITY LEVELS (SKOS CONCEPT SCHEME)
+###############################################################################
+
+compliance:SeverityLevels
+  a skos:ConceptScheme ;
+  dcterms:title "Compliance Violation Severity"@en ;
+  dcterms:description "Severity classification for compliance rule violations."@en ;
+  skos:hasTopConcept compliance:CriticalSeverity ;
+  skos:hasTopConcept compliance:HighSeverity ;
+  skos:hasTopConcept compliance:MediumSeverity ;
+  skos:hasTopConcept compliance:LowSeverity ;
+  .
+
+compliance:CriticalSeverity
+  a skos:Concept ;
+  skos:prefLabel "Critical"@en ;
+  skos:definition "Violation poses immediate risk to data integrity, security, or regulatory standing. Requires immediate escalation and remediation."@en ;
+  dcterms:isPartOf compliance:SeverityLevels ;
+  .
+
+compliance:HighSeverity
+  a skos:Concept ;
+  skos:prefLabel "High"@en ;
+  skos:definition "Violation creates significant risk. Requires escalation and remediation within 24 hours."@en ;
+  dcterms:isPartOf compliance:SeverityLevels ;
+  .
+
+compliance:MediumSeverity
+  a skos:Concept ;
+  skos:prefLabel "Medium"@en ;
+  skos:definition "Violation poses moderate risk. Requires documentation and remediation within 7 days."@en ;
+  dcterms:isPartOf compliance:SeverityLevels ;
+  .
+
+compliance:LowSeverity
+  a skos:Concept ;
+  skos:prefLabel "Low"@en ;
+  skos:definition "Violation is informational or minor. Tracked for audit but not blocking."@en ;
+  dcterms:isPartOf compliance:SeverityLevels ;
+  .
+
+###############################################################################
+# ENFORCEMENT ACTIONS (SKOS CONCEPT SCHEME)
+###############################################################################
+
+compliance:EnforcementActions
+  a skos:ConceptScheme ;
+  dcterms:title "Compliance Enforcement Actions"@en ;
+  dcterms:description "Actions taken when a compliance rule violation is detected."@en ;
+  skos:hasTopConcept compliance:Escalate ;
+  skos:hasTopConcept compliance:CreateGap ;
+  skos:hasTopConcept compliance:Notify ;
+  skos:hasTopConcept compliance:Audit ;
+  .
+
+compliance:Escalate
+  a skos:Concept ;
+  skos:prefLabel "Escalate"@en ;
+  skos:definition "Immediately escalate violation to compliance officer and organizational leadership. Block affected operations until resolved."@en ;
+  dcterms:isPartOf compliance:EnforcementActions ;
+  .
+
+compliance:CreateGap
+  a skos:Concept ;
+  skos:prefLabel "Create Gap"@en ;
+  skos:definition "Document the violation as a compliance gap in the gap tracking system. Plan remediation within severity-dependent timeline."@en ;
+  dcterms:isPartOf compliance:EnforcementActions ;
+  .
+
+compliance:Notify
+  a skos:Concept ;
+  skos:prefLabel "Notify"@en ;
+  skos:definition "Send notification to relevant stakeholders (team leads, data custodians) about the violation. Allow remediation before escalation."@en ;
+  dcterms:isPartOf compliance:EnforcementActions ;
+  .
+
+compliance:Audit
+  a skos:Concept ;
+  skos:prefLabel "Audit"@en ;
+  skos:definition "Log the violation to the audit trail for historical tracking and compliance reporting. No immediate action required."@en ;
+  dcterms:isPartOf compliance:EnforcementActions ;
+  .
+
+###############################################################################
+# CONSTRAINT OPERANDS (ODRL Extensions)
+#
+# These define the left operands (subjects) that compliance constraints
+# check against. Examples: user.role, service.uptime, data.encrypted
+###############################################################################
+
+compliance:userRole
+  a odrl:LeftOperand ;
+  rdfs:label "User Role"@en ;
+  rdfs:comment "The role assigned to a user in the system (admin, operator, guest, etc.)."@en ;
+  .
+
+compliance:serviceUptime
+  a odrl:LeftOperand ;
+  rdfs:label "Service Uptime"@en ;
+  rdfs:comment "Measured service availability as percentage (0-100)."@en ;
+  .
+
+compliance:dataEncrypted
+  a odrl:LeftOperand ;
+  rdfs:label "Data Encrypted"@en ;
+  rdfs:comment "Boolean flag indicating if data is encrypted at rest (true/false)."@en ;
+  .
+
+compliance:auditEntrySignatureValid
+  a odrl:LeftOperand ;
+  rdfs:label "Audit Entry Signature Valid"@en ;
+  rdfs:comment "Boolean flag indicating if audit entry has valid cryptographic signature."@en ;
+  .
+
+compliance:dataSubjectRequestPending
+  a odrl:LeftOperand ;
+  rdfs:label "Data Subject Request Pending"@en ;
+  rdfs:comment "Boolean flag indicating if GDPR data subject request is awaiting response."@en ;
+  .
+
+compliance:daysElapsed
+  a odrl:LeftOperand ;
+  rdfs:label "Days Elapsed"@en ;
+  rdfs:comment "Number of days since a request was initiated."@en ;
+  .
+
+compliance:dataProcessingRequiresConsent
+  a odrl:LeftOperand ;
+  rdfs:label "Data Processing Requires Consent"@en ;
+  rdfs:comment "Boolean flag indicating if the processing operation requires explicit user consent."@en ;
+  .
+
+compliance:userConsentGiven
+  a odrl:LeftOperand ;
+  rdfs:label "User Consent Given"@en ;
+  rdfs:comment "Boolean flag indicating if user has provided explicit consent for data processing."@en ;
+  .
+
+compliance:processorDpaSigned
+  a odrl:LeftOperand ;
+  rdfs:label "Processor DPA Signed"@en ;
+  rdfs:comment "Boolean flag indicating if Data Processing Agreement is signed with processor."@en ;
+  .
+
+compliance:processorHandlesData
+  a odrl:LeftOperand ;
+  rdfs:label "Processor Handles Data"@en ;
+  rdfs:comment "Boolean flag indicating if processor handles personal data."@en ;
+  .
+
+compliance:dataCollectedFieldCount
+  a odrl:LeftOperand ;
+  rdfs:label "Data Collected Field Count"@en ;
+  rdfs:comment "Total number of data fields collected from user/data subject."@en ;
+  .
+
+compliance:dataNeededFieldCount
+  a odrl:LeftOperand ;
+  rdfs:label "Data Needed Field Count"@en ;
+  rdfs:comment "Number of data fields actually needed for the specified processing purpose."@en ;
+  .
+
+compliance:dataContainsPII
+  a odrl:LeftOperand ;
+  rdfs:label "Data Contains PII"@en ;
+  rdfs:comment "Boolean flag indicating if data contains personally identifiable information."@en ;
+  .
+
+compliance:dataLocation
+  a odrl:LeftOperand ;
+  rdfs:label "Data Location"@en ;
+  rdfs:comment "Geographic location of data storage (EU, US, APAC, etc.)."@en ;
+  .
+
+compliance:organizationRegion
+  a odrl:LeftOperand ;
+  rdfs:label "Organization Region"@en ;
+  rdfs:comment "Geographic region where the organization is based."@en ;
+  .
+
+compliance:changeRequiresApproval
+  a odrl:LeftOperand ;
+  rdfs:label "Change Requires Approval"@en ;
+  rdfs:comment "Boolean flag indicating if production change requires formal approval."@en ;
+  .
+
+compliance:changeApprovedBy
+  a odrl:LeftOperand ;
+  rdfs:label "Change Approved By"@en ;
+  rdfs:comment "User identifier of who approved the production change."@en ;
+  .
+
+compliance:changeMadeBy
+  a odrl:LeftOperand ;
+  rdfs:label "Change Made By"@en ;
+  rdfs:comment "User identifier of who made/deployed the production change."@en ;
+  .
+
+compliance:systemMeasuredUptime
+  a odrl:LeftOperand ;
+  rdfs:label "System Measured Uptime"@en ;
+  rdfs:comment "Measured system availability percentage (0-100)."@en ;
+  .
+
+compliance:financialDataAccessLogged
+  a odrl:LeftOperand ;
+  rdfs:label "Financial Data Access Logged"@en ;
+  rdfs:comment "Boolean flag indicating if all access to financial data is logged."@en ;
+  .
+
+compliance:auditLogRetentionDays
+  a odrl:LeftOperand ;
+  rdfs:label "Audit Log Retention Days"@en ;
+  rdfs:comment "Number of days audit logs are retained."@en ;
+  .
+
+compliance:productionChangeDocumented
+  a odrl:LeftOperand ;
+  rdfs:label "Production Change Documented"@en ;
+  rdfs:comment "Boolean flag indicating if production change is documented."@en ;
+  .
+
+compliance:financialRecordHasChecksum
+  a odrl:LeftOperand ;
+  rdfs:label "Financial Record Has Checksum"@en ;
+  rdfs:comment "Boolean flag indicating if financial record has cryptographic checksum."@en ;
+  .
+
+compliance:checksumVerified
+  a odrl:LeftOperand ;
+  rdfs:label "Checksum Verified"@en ;
+  rdfs:comment "Boolean flag indicating if record checksum was verified against stored checksum."@en ;
+  .
+
+###############################################################################
+# SOC2 COMPLIANCE POLICIES
+###############################################################################
+
+compliance:soc2-cc6-1
+  a odrl:Policy ;
+  dcterms:identifier "soc2.cc6.1"^^xsd:string ;
+  dcterms:title "Logical Access Control — Authorized Personnel Only"@en ;
+  dcterms:description "Restrict logical access to authorized personnel only. Unauthorized users must not be able to access critical systems."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:use ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:userRole ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "admin" ;
+      odrl:rightOperandReference [
+        a rdfs:Resource ;
+        rdfs:comment "Non-admin user attempting to access system."@en
+      ]
+    ]
+  ] ;
+  .
+
+compliance:soc2-cc6-2
+  a odrl:Policy ;
+  dcterms:identifier "soc2.cc6.2"^^xsd:string ;
+  dcterms:title "User Provisioning — Verification Required"@en ;
+  dcterms:description "User provisioning must include verification of identity and authorization. Guest users require explicit approval."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:HighSeverity ;
+  compliance:enforcementAction compliance:Notify ;
+  compliance:enabled true ;
+
+  odrl:obligation [
+    a odrl:Obligation ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:userRole ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "guest"
+    ]
+  ] ;
+  .
+
+compliance:soc2-a1-1
+  a odrl:Policy ;
+  dcterms:identifier "soc2.a1.1"^^xsd:string ;
+  dcterms:title "Service Availability — 99.9% Uptime"@en ;
+  dcterms:description "Service availability must consistently exceed 99.9%. Monitor uptime continuously and investigate deviations."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:HighSeverity ;
+  compliance:enforcementAction compliance:CreateGap ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:serviceUptime ;
+      odrl:operator odrl:lt ;
+      odrl:rightOperand "99.9"^^xsd:float
+    ]
+  ] ;
+  .
+
+compliance:soc2-c1-1
+  a odrl:Policy ;
+  dcterms:identifier "soc2.c1.1"^^xsd:string ;
+  dcterms:title "Data Encryption — Sensitive Data at Rest"@en ;
+  dcterms:description "All sensitive data must be encrypted at rest using cryptographically strong algorithms (AES-256 or equivalent)."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:store ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:dataEncrypted ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ]
+  ] ;
+  .
+
+compliance:soc2-i1-1
+  a odrl:Policy ;
+  dcterms:identifier "soc2.i1.1"^^xsd:string ;
+  dcterms:title "Integrity Validation — Audit Trail Signatures"@en ;
+  dcterms:description "All audit trail entries must have valid cryptographic signatures to ensure integrity and non-repudiation."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:write ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:auditEntrySignatureValid ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ]
+  ] ;
+  .
+
+compliance:soc2-cc7-1
+  a odrl:Policy ;
+  dcterms:identifier "soc2.cc7.1"^^xsd:string ;
+  dcterms:title "System Monitoring & Alerting"@en ;
+  dcterms:description "Continuous system monitoring and alerting must be enabled for all critical systems. Alerts must be timely and actionable."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:MediumSeverity ;
+  compliance:enforcementAction compliance:Audit ;
+  compliance:enabled true ;
+
+  odrl:obligation [
+    a odrl:Obligation ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:userRole ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "operator"
+    ]
+  ] ;
+  .
+
+compliance:soc2-cc7-2
+  a odrl:Policy ;
+  dcterms:identifier "soc2.cc7.2"^^xsd:string ;
+  dcterms:title "Incident Response — Procedures Documented"@en ;
+  dcterms:description "Incident response procedures must be documented and regularly tested. All incident responders must acknowledge the procedures."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOC2Framework ;
+  compliance:severity compliance:MediumSeverity ;
+  compliance:enforcementAction compliance:Audit ;
+  compliance:enabled true ;
+
+  odrl:obligation [
+    a odrl:Obligation ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:userRole ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "admin"
+    ]
+  ] ;
+  .
+
+###############################################################################
+# GDPR COMPLIANCE POLICIES
+###############################################################################
+
+compliance:gdpr-ds-1
+  a odrl:Policy ;
+  dcterms:identifier "gdpr.ds.1"^^xsd:string ;
+  dcterms:title "Data Subject Rights — Access, Rectification, Erasure (GDPR 12-21)"@en ;
+  dcterms:description "Data subject requests for access, rectification, or erasure must be fulfilled within 30 days (GDPR Articles 12-21). Failure to respond creates a critical compliance gap and potential fines up to EUR 20,000,000 or 4% of annual revenue."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:GDPRFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:dataSubjectRequestPending ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ] ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:daysElapsed ;
+      odrl:operator odrl:gt ;
+      odrl:rightOperand "30"^^xsd:integer
+    ]
+  ] ;
+  .
+
+compliance:gdpr-cm-1
+  a odrl:Policy ;
+  dcterms:identifier "gdpr.cm.1"^^xsd:string ;
+  dcterms:title "Consent Management — Explicit Consent Required (GDPR Article 7)"@en ;
+  dcterms:description "Explicit consent must be obtained BEFORE processing personal data (GDPR Article 7). Consent must be freely given, specific, informed, and unambiguous. Processing without consent violates GDPR and creates a gap."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:GDPRFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:CreateGap ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:write ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:dataProcessingRequiresConsent ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ] ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:userConsentGiven ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ]
+  ] ;
+  .
+
+compliance:gdpr-dpa-1
+  a odrl:Policy ;
+  dcterms:identifier "gdpr.dpa.1"^^xsd:string ;
+  dcterms:title "Data Processing Agreement (GDPR Article 28)"@en ;
+  dcterms:description "Signed Data Processing Agreement (DPA) must be in place with all processors and sub-processors handling personal data (GDPR Article 28). Missing DPA with any processor is a critical gap."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:GDPRFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:write ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:processorDpaSigned ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ] ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:processorHandlesData ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ]
+  ] ;
+  .
+
+compliance:gdpr-dm-1
+  a odrl:Policy ;
+  dcterms:identifier "gdpr.dm.1"^^xsd:string ;
+  dcterms:title "Data Minimization Principle (GDPR Article 5(1)(c))"@en ;
+  dcterms:description "Data collection must follow data minimization: collect only personal data actually needed for processing purpose (GDPR Article 5(1)(c)). Collecting unnecessary data creates a medium severity gap."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:GDPRFramework ;
+  compliance:severity compliance:MediumSeverity ;
+  compliance:enforcementAction compliance:CreateGap ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:dataCollectedFieldCount ;
+      odrl:operator odrl:gt ;
+      odrl:rightOperand compliance:dataNeededFieldCount
+    ]
+  ] ;
+  .
+
+compliance:gdpr-dr-1
+  a odrl:Policy ;
+  dcterms:identifier "gdpr.dr.1"^^xsd:string ;
+  dcterms:title "Data Residency — EU Data in EU (GDPR 44-49)"@en ;
+  dcterms:description "For EU-based organizations: personal data of EU residents must reside in EU data centers (GDPR Articles 44-49 on data transfers). Cross-border transfer without appropriate safeguards is a critical gap and can result in fines up to EUR 20,000,000."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:GDPRFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:store ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:dataContainsPII ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ] ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:dataLocation ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "EU"
+    ] ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:organizationRegion ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "EU"
+    ]
+  ] ;
+  .
+
+###############################################################################
+# SOX COMPLIANCE POLICIES
+###############################################################################
+
+compliance:sox-itg-1
+  a odrl:Policy ;
+  dcterms:identifier "sox.itg.1"^^xsd:string ;
+  dcterms:title "Change Management — Segregation of Duties"@en ;
+  dcterms:description "Changes to production systems cannot be both made and approved by the same person (SOX IT General Controls). Self-approved changes are a critical control violation and may result in financial restatement audits."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOXFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:write ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:changeRequiresApproval ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ] ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:changeApprovedBy ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand compliance:changeMadeBy
+    ]
+  ] ;
+  .
+
+compliance:sox-sa-1
+  a odrl:Policy ;
+  dcterms:identifier "sox.sa.1"^^xsd:string ;
+  dcterms:title "System Availability — 99.9% Uptime SLA"@en ;
+  dcterms:description "Systems processing financial data must maintain SOX-required 99.9% uptime SLA. Below this threshold constitutes a critical control failure requiring remediation."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOXFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:systemMeasuredUptime ;
+      odrl:operator odrl:lt ;
+      odrl:rightOperand "99.9"^^xsd:float
+    ]
+  ] ;
+  .
+
+compliance:sox-al-1
+  a odrl:Policy ;
+  dcterms:identifier "sox.al.1"^^xsd:string ;
+  dcterms:title "Access Logging — 7-Year Retention"@en ;
+  dcterms:description "All access to financial data must be logged and retained for minimum 7 years (2555 days per SOX record retention rules). Unlogged or insufficiently retained access is a high severity gap."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOXFramework ;
+  compliance:severity compliance:HighSeverity ;
+  compliance:enforcementAction compliance:CreateGap ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:financialDataAccessLogged ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "false"^^xsd:boolean
+    ]
+  ] ;
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:auditLogRetentionDays ;
+      odrl:operator odrl:lt ;
+      odrl:rightOperand "2555"^^xsd:integer
+    ]
+  ] ;
+  .
+
+compliance:sox-cm-1
+  a odrl:Policy ;
+  dcterms:identifier "sox.cm.1"^^xsd:string ;
+  dcterms:title "Configuration Management — Production Change Documentation"@en ;
+  dcterms:description "All changes to production systems must be documented and approved prior to deployment (SOX IT Controls). Undocumented changes are a high severity gap."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOXFramework ;
+  compliance:severity compliance:HighSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:write ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:productionChangeDocumented ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "false"^^xsd:boolean
+    ]
+  ] ;
+  .
+
+compliance:sox-fdi-1
+  a odrl:Policy ;
+  dcterms:identifier "sox.fdi.1"^^xsd:string ;
+  dcterms:title "Financial Data Integrity — Checksums/Hashes"@en ;
+  dcterms:description "Financial records must have cryptographic checksums/hashes that are verified to detect unauthorized modification (SOX data integrity). Missing or unverified checksums are critical."@en ;
+  dcterms:issued "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf compliance:SOXFramework ;
+  compliance:severity compliance:CriticalSeverity ;
+  compliance:enforcementAction compliance:Escalate ;
+  compliance:enabled true ;
+
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:write ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:financialRecordHasChecksum ;
+      odrl:operator odrl:eq ;
+      odrl:rightOperand "false"^^xsd:boolean
+    ]
+  ] ;
+  odrl:prohibition [
+    a odrl:Prohibition ;
+    odrl:action odrl:read ;
+    odrl:constraint [
+      a odrl:Constraint ;
+      odrl:leftOperand compliance:checksumVerified ;
+      odrl:operator odrl:neq ;
+      odrl:rightOperand "true"^^xsd:boolean
+    ]
+  ] ;
+  .
+
+###############################################################################
+# CONVERSION NOTES
+#
+# YAML Condition → ODRL Operator Mapping:
+#
+# "user.role != admin"
+#   → odrl:leftOperand compliance:userRole
+#     odrl:operator odrl:neq
+#     odrl:rightOperand "admin"
+#
+# "user.role == guest"
+#   → odrl:leftOperand compliance:userRole
+#     odrl:operator odrl:eq
+#     odrl:rightOperand "guest"
+#
+# "service.uptime < 99.9"
+#   → odrl:leftOperand compliance:serviceUptime
+#     odrl:operator odrl:lt
+#     odrl:rightOperand "99.9"^^xsd:float
+#
+# "data.encrypted != true"
+#   → odrl:leftOperand compliance:dataEncrypted
+#     odrl:operator odrl:neq
+#     odrl:rightOperand "true"^^xsd:boolean
+#
+# "audit_entry.signature_valid != true"
+#   → odrl:leftOperand compliance:auditEntrySignatureValid
+#     odrl:operator odrl:neq
+#     odrl:rightOperand "true"^^xsd:boolean
+#
+# "data_subject_request.pending == true AND days_elapsed > 30"
+#   → Two constraints (AND logic):
+#     Constraint 1: compliance:dataSubjectRequestPending eq true
+#     Constraint 2: compliance:daysElapsed gt 30
+#
+# "data_collected.field_count > data_needed.field_count"
+#   → odrl:leftOperand compliance:dataCollectedFieldCount
+#     odrl:operator odrl:gt
+#     odrl:rightOperand compliance:dataNeededFieldCount
+#
+# "change.approved_by == change.made_by"
+#   → odrl:leftOperand compliance:changeApprovedBy
+#     odrl:operator odrl:eq
+#     odrl:rightOperand compliance:changeMadeBy
+#
+# ODRL Operators Used:
+#   - odrl:neq (not equal, !=)
+#   - odrl:eq (equal, ==)
+#   - odrl:lt (less than, <)
+#   - odrl:gt (greater than, >)
+#   - odrl:lteq (less than or equal, <=)
+#   - odrl:gteq (greater than or equal, >=)
+#
+# ODRL Actions Used:
+#   - odrl:use (general use of resource)
+#   - odrl:read (read/access data)
+#   - odrl:write (write/modify data)
+#   - odrl:store (store/persist data)
+#
+# Enforcement Actions → ODRL Structure:
+#   - "escalate" → odrl:prohibition (block action, escalate)
+#   - "create_gap" → odrl:prohibition (block action, document gap)
+#   - "notify" → odrl:obligation (optional notification)
+#   - "audit" → odrl:obligation (log to audit trail)
+#
+# YAML Frameworks → OWL dcterms:isPartOf:
+#   - SOC2 → compliance:SOC2Framework
+#   - GDPR → compliance:GDPRFramework
+#   - SOX → compliance:SOXFramework
+#   - HIPAA → compliance:HIPAAFramework (defined but no rules yet)
+#
+# YAML Severity → SKOS Concepts:
+#   - critical → compliance:CriticalSeverity
+#   - high → compliance:HighSeverity
+#   - medium → compliance:MediumSeverity
+#   - low → compliance:LowSeverity
+#
+# YAML Action → SKOS Concepts:
+#   - escalate → compliance:Escalate
+#   - create_gap → compliance:CreateGap
+#   - notify → compliance:Notify
+#   - audit → compliance:Audit
+###############################################################################

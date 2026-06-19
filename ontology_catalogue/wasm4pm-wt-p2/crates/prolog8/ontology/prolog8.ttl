@@ -1,0 +1,106 @@
+@prefix p8: <https://prolog8.dev/onto/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Prolog8 Core Type Ontology — drives ggen sync to generate Rust types.
+
+p8:TermId a rdfs:Class ;
+    rdfs:label "TermId" ;
+    rdfs:comment "Admitted term identity. u32 with sentinel 0." ;
+    p8:rustRepr "u32" ;
+    p8:sentinel 0 .
+
+p8:PredicateId a rdfs:Class ;
+    rdfs:label "PredicateId" ;
+    rdfs:comment "Admitted predicate identity. u32." ;
+    p8:rustRepr "u32" .
+
+p8:RuleId a rdfs:Class ;
+    rdfs:label "RuleId" ;
+    rdfs:comment "Admitted rule identity. u32." ;
+    p8:rustRepr "u32" .
+
+p8:CatalogId a rdfs:Class ;
+    rdfs:label "CatalogId" ;
+    rdfs:comment "Admitted catalog identity. u32." ;
+    p8:rustRepr "u32" .
+
+p8:SourceId a rdfs:Class ;
+    rdfs:label "SourceId" ;
+    rdfs:comment "Admitted source identity. u32." ;
+    p8:rustRepr "u32" .
+
+p8:EpochId a rdfs:Class ;
+    rdfs:label "EpochId" ;
+    rdfs:comment "Epoch identity. u64 monotonic clock." ;
+    p8:rustRepr "u64" .
+
+p8:Hash a rdfs:Class ;
+    rdfs:label "Hash" ;
+    rdfs:comment "BLAKE3 hash, 32 bytes." ;
+    p8:rustRepr "[u8; 32]" .
+
+p8:Atom8 a rdfs:Class ;
+    rdfs:label "Atom8" ;
+    rdfs:comment "Predicate application with up to 8 arguments. Hot-tier execution unit." ;
+    p8:cap "arity ≤ 8" ;
+    p8:cap "args length = 8 (zero-padded)" ;
+    p8:cap "binding_mask must not bind positions ≥ arity" .
+
+p8:Rule8 a rdfs:Class ;
+    rdfs:label "Rule8" ;
+    rdfs:comment "Horn clause with up to 8 body atoms and up to 8 variables." ;
+    p8:cap "body_len ≤ 8" ;
+    p8:cap "var_count ≤ 8" ;
+    p8:cap "negation_mask only references present atoms" ;
+    p8:cap "builtin_mask only references present atoms" .
+
+p8:FactRow8 a rdfs:Class ;
+    rdfs:label "FactRow8" ;
+    rdfs:comment "Single ground fact for a predicate, up to 8 args." ;
+    p8:cap "arity ≤ 8" .
+
+p8:FactBlock8 a rdfs:Class ;
+    rdfs:label "FactBlock8" ;
+    rdfs:comment "Sorted batch of FactRow8 for one predicate, with index metadata for skip decisions." .
+
+p8:QueryAtom8 a rdfs:Class ;
+    rdfs:label "QueryAtom8" ;
+    rdfs:comment "User query: an Atom8 with output mask, proof mode, and epoch." .
+
+p8:ProofNode a rdfs:Class ;
+    rdfs:label "ProofNode" ;
+    rdfs:comment "One step in proof DAG." ;
+    p8:cap "children ≤ 8" .
+
+p8:Receipt a rdfs:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Cryptographic decision receipt with input/rule/fact/proof/output roots and decision kind." .
+
+p8:DecisionKind a rdfs:Class ;
+    rdfs:label "DecisionKind" ;
+    p8:variants "Allow Deny Escalate Unknown Invalid" .
+
+p8:ProofKind a rdfs:Class ;
+    rdfs:label "ProofKind" ;
+    p8:variants "Fact Rule Builtin Negation AntiJoin Aggregate Foreign MissingFact FailedJoin BlockedAlternative" .
+
+p8:ProofMode a rdfs:Class ;
+    rdfs:label "ProofMode" ;
+    p8:variants "PositiveOnly NegativeOnly Both Hashed" .
+
+p8:FeatureBit a rdfs:Class ;
+    rdfs:label "FeatureBit" ;
+    p8:bit_0 "facts" ;
+    p8:bit_1 "horn_rules" ;
+    p8:bit_2 "equality" ;
+    p8:bit_3 "typed_comparisons" ;
+    p8:bit_4 "stratified_negation" ;
+    p8:bit_5 "bounded_recursion" ;
+    p8:bit_6 "controlled_aggregates" ;
+    p8:bit_7 "contracted_foreign" .
+
+p8:RejectionCode a rdfs:Class ;
+    rdfs:label "RejectionCode" ;
+    p8:codes "E_ARITY_CAP_EXCEEDED E_RULE_BODY_CAP_EXCEEDED E_VARIABLE_CAP_EXCEEDED E_PROOF_FANIN_EXCEEDED E_STATE_SURFACE_EXCEEDED E_STRING_QUERY_NOT_ADMITTED E_RUNTIME_PARSE_REJECTED E_TEXTUAL_META_CALL_REJECTED E_UNINTERNED_TERM E_OPERATOR_DECLARATION_REJECTED E_UNSTRATIFIED_NEGATION E_UNBOUNDED_RECURSION E_NON_INDEXABLE_BUILTIN E_DYNAMIC_MUTATION_NOT_ADMITTED E_CUT_NOT_ADMITTED E_FOREIGN_CONTRACT_MISSING E_NONDETERMINISTIC_FOREIGN_CALL E_SIDE_EFFECT_IN_KERNEL E_REPLAY_CONTRACT_MISSING" .

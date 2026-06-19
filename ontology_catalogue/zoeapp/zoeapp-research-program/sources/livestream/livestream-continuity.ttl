@@ -1,0 +1,26 @@
+@prefix : <http://zoeapp.io/livestream#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:Healthy a :State ;
+    rdfs:label "Healthy Status" .
+
+:Degraded a :State ;
+    rdfs:label "Degraded Performance" .
+
+:Critical a :State ;
+    rdfs:label "Critical Incident" .
+
+:degrade a :Event ;
+    :from :Healthy ;
+    :to :Degraded .
+
+:escalate a :Event ;
+    :from :Degraded ;
+    :to :Critical .
+
+:resolve a :Event ;
+    :from :Degraded ;
+    :to :Healthy ;
+    :from :Critical ;
+    :to :Healthy .

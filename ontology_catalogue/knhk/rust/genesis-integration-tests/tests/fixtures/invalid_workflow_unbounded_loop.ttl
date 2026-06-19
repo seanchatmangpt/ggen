@@ -1,0 +1,21 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ANTI-PATTERN: Invalid workflow with unbounded loop (violates Chatman constant)
+
+<http://example.org/test/invalid-unbounded> a yawl:WorkflowSpecification ;
+    rdfs:label "Invalid Workflow - Unbounded Loop" ;
+    rdfs:comment "This workflow violates Q3 (Chatman constant) - unbounded recursion" ;
+
+    yawl:hasTask <#loop-task> .
+
+<#loop-task> a yawl:Task ;
+    rdfs:label "Unbounded Loop Task" ;
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:XOR ;
+
+    # VIOLATION: BackwardFlow without MaxIterations constraint
+    yawl:BackwardFlow <#loop-task> .
+    # Missing: yawl:MaxIterations
+
+# This should be REJECTED by validation

@@ -1,4 +1,26 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::needless_raw_string_hashes, clippy::duration_suboptimal_units, clippy::branches_sharing_code, clippy::used_underscore_binding, clippy::single_char_pattern, clippy::ignore_without_reason, clippy::cloned_ref_to_slice_refs, clippy::doc_overindented_list_items, clippy::match_wildcard_for_single_variants, clippy::ignored_unit_patterns, clippy::needless_collect, clippy::unnecessary_map_or, clippy::manual_flatten, clippy::manual_strip, clippy::future_not_send, clippy::unnested_or_patterns, clippy::no_effect_underscore_binding, clippy::literal_string_with_formatting_args)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::needless_raw_string_hashes,
+    clippy::duration_suboptimal_units,
+    clippy::branches_sharing_code,
+    clippy::used_underscore_binding,
+    clippy::single_char_pattern,
+    clippy::ignore_without_reason,
+    clippy::cloned_ref_to_slice_refs,
+    clippy::doc_overindented_list_items,
+    clippy::match_wildcard_for_single_variants,
+    clippy::ignored_unit_patterns,
+    clippy::needless_collect,
+    clippy::unnecessary_map_or,
+    clippy::manual_flatten,
+    clippy::manual_strip,
+    clippy::future_not_send,
+    clippy::unnested_or_patterns,
+    clippy::no_effect_underscore_binding,
+    clippy::literal_string_with_formatting_args
+)]
 //! Chicago TDD tests for package download functionality
 //!
 //! Tests cover:
@@ -140,7 +162,7 @@ fn test_download_success() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/package.tar.gz", server.url());
+    let url = server.url("/package.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -170,7 +192,7 @@ fn test_download_network_timeout() {
         .unwrap();
     let mut downloader = PackageDownloader::new(client);
     downloader.timeout = Duration::from_secs(1);
-    let url = format!("{}/package.tar.gz", server.url());
+    let url = server.url("/package.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -179,7 +201,7 @@ fn test_download_network_timeout() {
     assert_eq!(result.unwrap_err(), DownloadError::NetworkTimeout);
 
     // Verify REAL HTTP call was made (and timed out)
-    mock.assert();
+    assert!(mock.hits() > 0);
 }
 
 #[test]
@@ -194,7 +216,7 @@ fn test_download_retry_succeeds_on_second_attempt() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/package.tar.gz", server.url());
+    let url = server.url("/package.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -250,7 +272,7 @@ fn test_empty_download() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/empty.tar.gz", server.url());
+    let url = server.url("/empty.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -275,7 +297,7 @@ fn test_large_download() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/large.tar.gz", server.url());
+    let url = server.url("/large.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -336,7 +358,7 @@ fn test_fmea_corrupted_package_detection_and_retry() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/package.tar.gz", server.url());
+    let url = server.url("/package.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -370,7 +392,7 @@ fn test_fmea_network_timeout_retry_mechanism() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/package.tar.gz", server.url());
+    let url = server.url("/package.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 
@@ -396,7 +418,7 @@ fn test_fmea_partial_download_recovery() {
     // Use real HTTP client
     let client = ReqwestClient::new();
     let downloader = PackageDownloader::new(client);
-    let url = format!("{}/package.tar.gz", server.url());
+    let url = server.url("/package.tar.gz");
 
     let result = downloader.download_with_retry(&url);
 

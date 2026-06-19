@@ -1,0 +1,256 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix schema: <http://schema.org/> .
+@prefix kgen: <http://example.com/kgen/> .
+@prefix office: <http://example.com/office/> .
+@prefix financial: <http://example.com/financial/> .
+
+# Company Information
+kgen:TechCorp a org:Organization ;
+    foaf:name "TechCorp Industries" ;
+    org:hasUnit kgen:EngineeringDept, kgen:SalesDept, kgen:MarketingDept ;
+    schema:foundingDate "2015-03-01"^^xsd:date ;
+    schema:address [
+        a schema:PostalAddress ;
+        schema:addressLocality "San Francisco" ;
+        schema:addressRegion "CA" ;
+        schema:addressCountry "US"
+    ] ;
+    kgen:totalEmployees 245 ;
+    kgen:marketShare 0.12 ;
+    kgen:customerSatisfaction 0.94 .
+
+# Financial Report Data
+financial:Q4-2024-Report a kgen:FinancialReport ;
+    kgen:reportType "quarterly" ;
+    kgen:quarter "Q4" ;
+    kgen:fiscalYear 2024 ;
+    kgen:reportDate "2025-01-15"^^xsd:date ;
+    kgen:company kgen:TechCorp ;
+    kgen:hasFinancialMetric financial:Q4-Revenue, financial:Q4-NetProfit, financial:Q4-EBITDA .
+
+financial:Q4-Revenue a kgen:FinancialMetric ;
+    kgen:metricName "Revenue" ;
+    kgen:currentValue 12500000 ;
+    kgen:previousValue 9750000 ;
+    kgen:changePercentage 28.2 ;
+    kgen:currency "USD" .
+
+financial:Q4-NetProfit a kgen:FinancialMetric ;
+    kgen:metricName "Net Profit" ;
+    kgen:currentValue 3200000 ;
+    kgen:previousValue 2100000 ;
+    kgen:changePercentage 52.4 ;
+    kgen:currency "USD" .
+
+financial:Q4-EBITDA a kgen:FinancialMetric ;
+    kgen:metricName "EBITDA" ;
+    kgen:currentValue 4100000 ;
+    kgen:previousValue 2900000 ;
+    kgen:changePercentage 41.4 ;
+    kgen:currency "USD" .
+
+# Risk Factors
+financial:Risk-MarketVolatility a kgen:RiskFactor ;
+    kgen:title "Market Volatility" ;
+    kgen:description "Increased competition in the cloud services sector may impact pricing power and market share growth rates." ;
+    kgen:impact "High" ;
+    kgen:probability "Medium" .
+
+financial:Risk-TalentAcquisition a kgen:RiskFactor ;
+    kgen:title "Talent Acquisition" ;
+    kgen:description "The competitive tech talent market continues to drive up compensation costs and may affect our ability to scale rapidly." ;
+    kgen:impact "Medium" ;
+    kgen:probability "High" .
+
+# Sales Data
+kgen:Q4-2024-Sales a kgen:SalesPeriod ;
+    kgen:period "Q4-2024" ;
+    kgen:totalRevenue 8500000 ;
+    kgen:unitsSold 12450 ;
+    kgen:totalOrders 1840 ;
+    kgen:conversionRate 0.142 ;
+    kgen:hasRegionalData kgen:NorthAmerica-Sales, kgen:Europe-Sales, kgen:AsiaPacific-Sales .
+
+kgen:NorthAmerica-Sales a kgen:RegionalSales ;
+    kgen:regionName "North America" ;
+    kgen:revenue 4250000 ;
+    kgen:growthRate 22.5 ;
+    kgen:marketShare 0.385 ;
+    kgen:customerCount 720 .
+
+kgen:Europe-Sales a kgen:RegionalSales ;
+    kgen:regionName "Europe" ;
+    kgen:revenue 2890000 ;
+    kgen:growthRate 31.2 ;
+    kgen:marketShare 0.285 ;
+    kgen:customerCount 580 .
+
+kgen:AsiaPacific-Sales a kgen:RegionalSales ;
+    kgen:regionName "Asia Pacific" ;
+    kgen:revenue 1360000 ;
+    kgen:growthRate 45.7 ;
+    kgen:marketShare 0.125 ;
+    kgen:customerCount 340 .
+
+# Product Lines
+kgen:CloudInfrastructure a kgen:ProductLine ;
+    kgen:productName "Cloud Infrastructure" ;
+    kgen:revenue 3200000 ;
+    kgen:unitsSold 4800 ;
+    kgen:profitMargin 0.425 ;
+    kgen:growthRate 28.5 ;
+    kgen:targetSegment "Enterprise" .
+
+kgen:AI-ML-Platform a kgen:ProductLine ;
+    kgen:productName "AI/ML Platform" ;
+    kgen:revenue 2800000 ;
+    kgen:unitsSold 2100 ;
+    kgen:profitMargin 0.385 ;
+    kgen:growthRate 55.2 ;
+    kgen:targetSegment "Technology" .
+
+kgen:DataAnalyticsSuite a kgen:ProductLine ;
+    kgen:productName "Data Analytics Suite" ;
+    kgen:revenue 1900000 ;
+    kgen:unitsSold 3200 ;
+    kgen:profitMargin 0.315 ;
+    kgen:growthRate 18.7 ;
+    kgen:targetSegment "Mid-Market" .
+
+# Project Information
+kgen:AI-Customer-Analytics-Project a kgen:Project ;
+    kgen:projectName "AI-Powered Customer Analytics Platform" ;
+    kgen:description "Development of a comprehensive AI-powered customer analytics platform that leverages machine learning algorithms to provide real-time insights into customer behavior, predictive analytics for sales forecasting, and automated recommendation engines for personalized customer experiences." ;
+    kgen:startDate "2024-09-15"^^xsd:date ;
+    kgen:endDate "2025-04-30"^^xsd:date ;
+    kgen:currentPhase "Implementation" ;
+    kgen:completionPercentage 0.65 ;
+    kgen:hasProjectManager kgen:EmilyRodriguez ;
+    kgen:hasMilestone kgen:Milestone1, kgen:Milestone2, kgen:Milestone3 ;
+    kgen:hasBudget kgen:ProjectBudget .
+
+kgen:EmilyRodriguez a foaf:Person ;
+    foaf:name "Dr. Emily Rodriguez" ;
+    kgen:role "Product Manager" ;
+    kgen:department "Product" ;
+    kgen:skills "Product Strategy", "Agile Management", "Stakeholder Communication" .
+
+kgen:MichaelChen a foaf:Person ;
+    foaf:name "Michael Chen" ;
+    kgen:role "Technical Lead" ;
+    kgen:department "Engineering" ;
+    kgen:allocation 1.0 ;
+    kgen:skills "System Architecture", "Python", "Cloud Infrastructure", "Team Leadership" .
+
+kgen:SarahKim a foaf:Person ;
+    foaf:name "Dr. Sarah Kim" ;
+    kgen:role "Principal Data Scientist" ;
+    kgen:department "Data Science" ;
+    kgen:allocation 0.8 ;
+    kgen:skills "Machine Learning", "Statistical Modeling", "Python", "R", "MLOps" .
+
+# Project Milestones
+kgen:Milestone1 a kgen:ProjectMilestone ;
+    kgen:milestoneName "Project Kickoff & Requirements Analysis" ;
+    kgen:targetDate "2024-10-01"^^xsd:date ;
+    kgen:actualDate "2024-09-28"^^xsd:date ;
+    kgen:status "Completed" ;
+    kgen:completionRate 1.0 ;
+    kgen:owner "Product Team" ;
+    kgen:hasDeliverable "Requirements Document", "Technical Architecture", "Project Charter" .
+
+kgen:Milestone2 a kgen:ProjectMilestone ;
+    kgen:milestoneName "Data Infrastructure & Pipeline Development" ;
+    kgen:targetDate "2024-11-15"^^xsd:date ;
+    kgen:actualDate "2024-11-18"^^xsd:date ;
+    kgen:status "Completed" ;
+    kgen:completionRate 1.0 ;
+    kgen:owner "Data Engineering Team" ;
+    kgen:hasDeliverable "Data Warehouse Schema", "ETL Pipelines", "Data Quality Framework" .
+
+kgen:Milestone3 a kgen:ProjectMilestone ;
+    kgen:milestoneName "Machine Learning Model Development" ;
+    kgen:targetDate "2024-12-20"^^xsd:date ;
+    kgen:actualDate "2024-12-22"^^xsd:date ;
+    kgen:status "Completed" ;
+    kgen:completionRate 1.0 ;
+    kgen:owner "Data Science Team" ;
+    kgen:hasDeliverable "Customer Segmentation Model", "Churn Prediction Model", "Recommendation Engine" .
+
+# Project Budget
+kgen:ProjectBudget a kgen:Budget ;
+    kgen:totalBudget 1850000 ;
+    kgen:spentToDate 1125000 ;
+    kgen:remainingBudget 725000 ;
+    kgen:budgetUtilization 0.608 ;
+    kgen:currency "USD" ;
+    kgen:hasBudgetCategory kgen:PersonnelBudget, kgen:InfrastructureBudget, kgen:SoftwareBudget .
+
+kgen:PersonnelBudget a kgen:BudgetCategory ;
+    kgen:categoryName "Personnel" ;
+    kgen:budgeted 1200000 ;
+    kgen:spent 750000 ;
+    kgen:remaining 450000 ;
+    kgen:percentage 0.649 .
+
+kgen:InfrastructureBudget a kgen:BudgetCategory ;
+    kgen:categoryName "Infrastructure" ;
+    kgen:budgeted 300000 ;
+    kgen:spent 180000 ;
+    kgen:remaining 120000 ;
+    kgen:percentage 0.162 .
+
+kgen:SoftwareBudget a kgen:BudgetCategory ;
+    kgen:categoryName "Software & Licenses" ;
+    kgen:budgeted 200000 ;
+    kgen:spent 125000 ;
+    kgen:remaining 75000 ;
+    kgen:percentage 0.108 .
+
+# Project Risks
+kgen:ProjectRisk1 a kgen:ProjectRisk ;
+    kgen:riskId "R001" ;
+    kgen:title "Data Privacy Compliance Delays" ;
+    kgen:description "Complex GDPR requirements may require additional development time for proper data anonymization and consent management." ;
+    kgen:impact "High" ;
+    kgen:probability "Medium" ;
+    kgen:mitigation "Early engagement with legal team and implementation of privacy-by-design principles" ;
+    kgen:owner kgen:EmilyRodriguez ;
+    kgen:status "Active" .
+
+kgen:ProjectRisk2 a kgen:ProjectRisk ;
+    kgen:riskId "R002" ;
+    kgen:title "Third-Party API Rate Limits" ;
+    kgen:description "Dependencies on external customer data sources may impose rate limits affecting real-time capabilities." ;
+    kgen:impact "Medium" ;
+    kgen:probability "High" ;
+    kgen:mitigation "Implement caching strategy and negotiate enterprise API access agreements" ;
+    kgen:owner kgen:AlexThompson ;
+    kgen:status "Mitigated" .
+
+# Office Document Templates
+office:FinancialReportTemplate a kgen:DocumentTemplate ;
+    kgen:templateName "financial-report.docx" ;
+    kgen:templateType "DOCX" ;
+    kgen:usesData financial:Q4-2024-Report ;
+    kgen:outputFormat "Microsoft Word Document" ;
+    kgen:lastModified "2025-01-15"^^xsd:date .
+
+office:SalesDashboardTemplate a kgen:DocumentTemplate ;
+    kgen:templateName "sales-dashboard.xlsx" ;
+    kgen:templateType "XLSX" ;
+    kgen:usesData kgen:Q4-2024-Sales ;
+    kgen:outputFormat "Microsoft Excel Spreadsheet" ;
+    kgen:lastModified "2025-01-15"^^xsd:date .
+
+office:ProjectPresentationTemplate a kgen:DocumentTemplate ;
+    kgen:templateName "project-presentation.pptx" ;
+    kgen:templateType "PPTX" ;
+    kgen:usesData kgen:AI-Customer-Analytics-Project ;
+    kgen:outputFormat "Microsoft PowerPoint Presentation" ;
+    kgen:lastModified "2025-01-15"^^xsd:date .

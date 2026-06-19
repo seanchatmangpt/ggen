@@ -1,0 +1,15 @@
+
+@prefix cns: <http://cns.io/forge#> .
+@prefix aegis: <http://cns.io/aegis/fabric#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+cns:directive_1753414952 a aegis:SecurityPolicy ;
+    aegis:encryptionStandard "AES256" ;
+    aegis:complianceStandards "GDPR" ;
+    aegis:zeroTrustEnabled "true"^^xsd:boolean ;
+    cns:generatedFrom "guarantee data sovereignty with GDPR compliance" ;
+    cns:requiresComponents (
+        aegis:Fabric
+        cns:EncryptionModule
+        cns:ComplianceMonitor
+    ) .

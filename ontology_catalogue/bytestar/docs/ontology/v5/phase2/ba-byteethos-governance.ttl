@@ -1,0 +1,1387 @@
+@prefix : <http://bytestar.org/ontology/byteethos-governance#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix ztr: <http://bytestar.org/ontology/zero-tick-rejection#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix sec: <https://w3id.org/security#> .
+
+<http://bytestar.org/ontology/byteethos-governance> rdf:type owl:Ontology ;
+    dct:title "ByteEthos Governance: Comprehensive Policy Engine and Governance Framework"@en ;
+    dct:description """The foundational governance ontology that defines the policy engine and 
+    comprehensive governance framework for all ByteStar operations. This ontology establishes 
+    policy definition and enforcement mechanisms, governance rules and compliance checking, 
+    decision-making frameworks with approval processes, risk management and mitigation strategies, 
+    audit trails and compliance reporting, role-based access control (RBAC) and permissions, 
+    regulatory compliance frameworks (SOX, GDPR, HIPAA, PCI-DSS), smart contracts and automated 
+    governance, integration with zero-tick rejection for policy violations, SHACL validation for 
+    governance properties, policy lifecycle management (creation, versioning, retirement), and 
+    performance constraints under the Doctrine of 8. ByteEthos serves as the governance backbone 
+    ensuring all ByteStar operations comply with organizational policies and regulatory requirements 
+    while maintaining ultra-high performance and deterministic execution guarantees."""@en ;
+    dct:creator "ByteStar Governance Foundation"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-phase2"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/byteethos-governance> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ,
+                <http://bytestar.org/ontology/zero-tick-rejection> ;
+    # Foundational governance declarations
+    :hasGovernanceModel :ByteEthosGovernanceModel ;
+    :hasPerformanceConstraint doe:TheDoctrineOfEight ;
+    :hasEnforcementMechanism ztr:ZeroTickRejection ;
+    :hasDeterminismGuarantee det:ByteStarDeterministicExecution .
+
+#################################################################
+#    Core Governance Framework Classes
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#ByteEthosGovernanceModel
+:ByteEthosGovernanceModel rdf:type owl:Class ;
+                         rdfs:label "ByteEthos Governance Model"@en ;
+                         rdfs:comment """The comprehensive governance model that defines policy 
+                         enforcement, compliance checking, decision-making frameworks, and 
+                         regulatory compliance for the entire ByteStar ecosystem."""@en ;
+                         rdfs:subClassOf be:GovernanceFramework ;
+                         skos:definition """A comprehensive governance system providing policy 
+                         definition, enforcement, compliance monitoring, risk management, and 
+                         regulatory adherence with mathematical certainty guarantees."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyEngine
+:PolicyEngine rdf:type owl:Class ;
+             rdfs:label "Policy Engine"@en ;
+             rdfs:comment """The core enforcement system that evaluates, interprets, and 
+             enforces policies across all ByteStar operations with deterministic behavior."""@en ;
+             rdfs:subClassOf be:EnforcementMechanism ,
+                             det:DeterministicOperation ;
+             skos:definition """A rule-based system that processes policy definitions, 
+             evaluates compliance conditions, and triggers enforcement actions with 
+             mathematical certainty and Doctrine of 8 performance guarantees."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Policy
+:Policy rdf:type owl:Class ;
+       rdfs:label "Governance Policy"@en ;
+       rdfs:comment """A formal specification of rules, constraints, permissions, and 
+       obligations that govern behavior within the ByteStar ecosystem."""@en ;
+       rdfs:subClassOf be:GovernanceRule ,
+                       odrl:Policy ;
+       skos:definition """A machine-readable specification of governance requirements 
+       with formal semantics, enforcement triggers, and compliance criteria."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicySet
+:PolicySet rdf:type owl:Class ;
+          rdfs:label "Policy Set"@en ;
+          rdfs:comment """A collection of related policies that work together to 
+          govern a specific domain or operation within ByteStar."""@en ;
+          rdfs:subClassOf :Policy ;
+          skos:definition """A cohesive group of policies with dependency relationships,
+          conflict resolution mechanisms, and unified enforcement semantics."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Rule
+:Rule rdf:type owl:Class ;
+     rdfs:label "Governance Rule"@en ;
+     rdfs:comment """An atomic, executable governance directive that specifies 
+     conditions, actions, and consequences for ByteStar operations."""@en ;
+     rdfs:subClassOf be:BusinessRule ;
+     skos:definition """A formal if-then-else construct that defines conditions for 
+     evaluation, actions for compliance, and consequences for violations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Constraint
+:Constraint rdf:type owl:Class ;
+           rdfs:label "Governance Constraint"@en ;
+           rdfs:comment """A formal limitation or requirement that restricts or 
+           mandates specific behaviors in ByteStar operations."""@en ;
+           rdfs:subClassOf :Rule ;
+           skos:definition """A declarative specification of system limitations, 
+           requirements, or invariants that must be maintained across all operations."""@en .
+
+#################################################################
+#    Policy Definition and Management
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyDefinition
+:PolicyDefinition rdf:type owl:Class ;
+                 rdfs:label "Policy Definition"@en ;
+                 rdfs:comment """The formal specification process for creating governance 
+                 policies with structured syntax and semantic validation."""@en ;
+                 rdfs:subClassOf be:DefinitionProcess ;
+                 skos:definition """A structured approach to policy creation including 
+                 requirements analysis, formal specification, validation, and approval."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyTemplate
+:PolicyTemplate rdf:type owl:Class ;
+               rdfs:label "Policy Template"@en ;
+               rdfs:comment """A reusable policy pattern that can be instantiated 
+               with specific parameters for different contexts."""@en ;
+               rdfs:subClassOf :Policy ;
+               skos:definition """A parameterized policy specification that provides 
+               consistent structure and semantics across similar governance scenarios."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyLanguage
+:PolicyLanguage rdf:type owl:Class ;
+               rdfs:label "Policy Language"@en ;
+               rdfs:comment """The formal language and syntax used to express 
+               governance policies in machine-readable format."""@en ;
+               rdfs:subClassOf be:FormalLanguage ;
+               skos:definition """A domain-specific language with formal grammar, 
+               semantic model, and execution semantics for policy expression."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyValidator
+:PolicyValidator rdf:type owl:Class ;
+                rdfs:label "Policy Validator"@en ;
+                rdfs:comment """A validation system that ensures policy correctness, 
+                consistency, and compliance with governance standards."""@en ;
+                rdfs:subClassOf ba:Validator ,
+                                det:DeterministicOperation ;
+                skos:definition """An automated validation system that checks policy 
+                syntax, semantics, conflicts, and compliance with governance frameworks."""@en .
+
+#################################################################
+#    Policy Lifecycle Management
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyLifecycle
+:PolicyLifecycle rdf:type owl:Class ;
+                rdfs:label "Policy Lifecycle"@en ;
+                rdfs:comment """The complete lifecycle of a governance policy from 
+                creation through retirement, including all state transitions."""@en ;
+                rdfs:subClassOf be:LifecycleProcess ;
+                skos:definition """A managed process covering policy creation, validation,
+                activation, versioning, maintenance, deprecation, and retirement."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyCreation
+:PolicyCreation rdf:type owl:Class ;
+               rdfs:subClassOf :PolicyLifecycle ;
+               rdfs:label "Policy Creation"@en ;
+               rdfs:comment """The initial phase where new policies are designed, 
+               specified, and prepared for validation."""@en ;
+               skos:definition """The authoring phase including requirements gathering,
+               stakeholder consultation, formal specification, and initial validation."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyActivation
+:PolicyActivation rdf:type owl:Class ;
+                 rdfs:subClassOf :PolicyLifecycle ;
+                 rdfs:label "Policy Activation"@en ;
+                 rdfs:comment """The process of deploying and enabling policies 
+                 for enforcement within the ByteStar ecosystem."""@en ;
+                 skos:definition """The deployment phase including final validation,
+                 system integration, enforcement setup, and monitoring activation."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyVersioning
+:PolicyVersioning rdf:type owl:Class ;
+                 rdfs:subClassOf :PolicyLifecycle ;
+                 rdfs:label "Policy Versioning"@en ;
+                 rdfs:comment """The management of policy versions including updates, 
+                 backward compatibility, and migration strategies."""@en ;
+                 skos:definition """Version control for policies with semantic versioning,
+                 compatibility tracking, and migration path management."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyRetirement
+:PolicyRetirement rdf:type owl:Class ;
+                 rdfs:subClassOf :PolicyLifecycle ;
+                 rdfs:label "Policy Retirement"@en ;
+                 rdfs:comment """The controlled deactivation and archival of policies 
+                 that are no longer needed or have been superseded."""@en ;
+                 skos:definition """The sunset process including deactivation scheduling,
+                 impact analysis, migration support, and archival procedures."""@en .
+
+#################################################################
+#    Policy Enforcement Mechanisms
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyEnforcement
+:PolicyEnforcement rdf:type owl:Class ;
+                  rdfs:label "Policy Enforcement"@en ;
+                  rdfs:comment """The active monitoring and enforcement of policies 
+                  through automated mechanisms and human oversight."""@en ;
+                  rdfs:subClassOf be:EnforcementMechanism ;
+                  skos:definition """Real-time policy evaluation and enforcement with
+                  automated compliance checking and violation response."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#EnforcementAction
+:EnforcementAction rdf:type owl:Class ;
+                  rdfs:label "Enforcement Action"@en ;
+                  rdfs:comment """A specific action taken in response to policy 
+                  violations or compliance requirements."""@en ;
+                  rdfs:subClassOf be:GovernanceAction ;
+                  skos:definition """An automated or manual action triggered by policy
+                  evaluation including prevention, correction, or escalation."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PreventiveAction
+:PreventiveAction rdf:type owl:Class ;
+                 rdfs:subClassOf :EnforcementAction ;
+                 rdfs:label "Preventive Action"@en ;
+                 rdfs:comment """An enforcement action that prevents policy violations 
+                 before they occur through proactive measures."""@en ;
+                 skos:definition """Proactive enforcement that blocks, restricts, or
+                 modifies operations to prevent policy violations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#CorrectiveAction
+:CorrectiveAction rdf:type owl:Class ;
+                 rdfs:subClassOf :EnforcementAction ;
+                 rdfs:label "Corrective Action"@en ;
+                 rdfs:comment """An enforcement action that responds to policy violations 
+                 by correcting the non-compliant state."""@en ;
+                 skos:definition """Reactive enforcement that remedies violations through
+                 state correction, rollback, or compensating actions."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PunitiveAction
+:PunitiveAction rdf:type owl:Class ;
+               rdfs:subClassOf :EnforcementAction ;
+               rdfs:label "Punitive Action"@en ;
+               rdfs:comment """An enforcement action that applies consequences for 
+               policy violations to deter future non-compliance."""@en ;
+               skos:definition """Deterrent enforcement including penalties, restrictions,
+               audit requirements, or escalation to authorities."""@en .
+
+#################################################################
+#    Compliance Checking and Monitoring
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceChecker
+:ComplianceChecker rdf:type owl:Class ;
+                  rdfs:label "Compliance Checker"@en ;
+                  rdfs:comment """An automated system that continuously monitors 
+                  operations for compliance with governance policies."""@en ;
+                  rdfs:subClassOf ba:Monitor ,
+                                  det:DeterministicOperation ;
+                  skos:definition """A real-time monitoring system that evaluates
+                  operations against policies and detects violations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceStatus
+:ComplianceStatus rdf:type owl:Class ;
+                 rdfs:label "Compliance Status"@en ;
+                 rdfs:comment """The current state of compliance for a specific 
+                 operation, system, or process against applicable policies."""@en ;
+                 rdfs:subClassOf be:Status ;
+                 skos:definition """A structured assessment of compliance including
+                 status level, violations, risks, and recommended actions."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceReport
+:ComplianceReport rdf:type owl:Class ;
+                 rdfs:label "Compliance Report"@en ;
+                 rdfs:comment """A formal report documenting compliance status, 
+                 violations, remediation actions, and trends over time."""@en ;
+                 rdfs:subClassOf be:Report ;
+                 skos:definition """A comprehensive compliance assessment including
+                 metrics, violations, trends, and improvement recommendations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceMetric
+:ComplianceMetric rdf:type owl:Class ;
+                 rdfs:label "Compliance Metric"@en ;
+                 rdfs:comment """A quantitative measure of compliance performance 
+                 against specific policies or regulatory requirements."""@en ;
+                 rdfs:subClassOf ba:Metric ;
+                 skos:definition """A measurable indicator of compliance health including
+                 violation rates, response times, and effectiveness measures."""@en .
+
+#################################################################
+#    Decision-Making Frameworks
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#DecisionFramework
+:DecisionFramework rdf:type owl:Class ;
+                  rdfs:label "Decision Framework"@en ;
+                  rdfs:comment """A structured approach for making governance decisions 
+                  with defined criteria, processes, and approval mechanisms."""@en ;
+                  rdfs:subClassOf be:Framework ;
+                  skos:definition """A systematic decision-making process with stakeholder
+                  roles, evaluation criteria, and approval workflows."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#DecisionCriteria
+:DecisionCriteria rdf:type owl:Class ;
+                 rdfs:label "Decision Criteria"@en ;
+                 rdfs:comment """The formal criteria and weighting used to evaluate 
+                 and score governance decisions."""@en ;
+                 rdfs:subClassOf be:EvaluationCriteria ;
+                 skos:definition """Structured evaluation parameters including weights,
+                 thresholds, and scoring mechanisms for decision assessment."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ApprovalProcess
+:ApprovalProcess rdf:type owl:Class ;
+                rdfs:label "Approval Process"@en ;
+                rdfs:comment """A formal workflow for obtaining necessary approvals 
+                for governance decisions and policy changes."""@en ;
+                rdfs:subClassOf bf:WorkflowProcess ;
+                skos:definition """A structured approval workflow with stakeholder roles,
+                approval levels, and escalation procedures."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#DecisionRecord
+:DecisionRecord rdf:type owl:Class ;
+               rdfs:label "Decision Record"@en ;
+               rdfs:comment """A formal record of governance decisions including 
+               rationale, stakeholders, and implementation details."""@en ;
+               rdfs:subClassOf prov:Activity ;
+               skos:definition """An immutable record capturing decision context,
+               evaluation, rationale, and implementation tracking."""@en .
+
+#################################################################
+#    Risk Management and Mitigation
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#RiskManagement
+:RiskManagement rdf:type owl:Class ;
+               rdfs:label "Risk Management"@en ;
+               rdfs:comment """The systematic identification, assessment, and mitigation 
+               of governance and operational risks."""@en ;
+               rdfs:subClassOf be:ManagementProcess ;
+               skos:definition """A comprehensive risk management framework including
+               identification, assessment, treatment, and monitoring."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Risk
+:Risk rdf:type owl:Class ;
+     rdfs:label "Governance Risk"@en ;
+     rdfs:comment """A potential threat to governance objectives, compliance, 
+     or operational integrity within ByteStar."""@en ;
+     rdfs:subClassOf be:Risk ;
+     skos:definition """A structured risk representation including probability,
+     impact, category, and treatment strategies."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#RiskAssessment
+:RiskAssessment rdf:type owl:Class ;
+               rdfs:label "Risk Assessment"@en ;
+               rdfs:comment """The systematic evaluation of risks including likelihood, 
+               impact, and overall risk rating."""@en ;
+               rdfs:subClassOf be:Assessment ;
+               skos:definition """A quantitative and qualitative risk evaluation with
+               probability estimates, impact analysis, and risk scoring."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#MitigationStrategy
+:MitigationStrategy rdf:type owl:Class ;
+                   rdfs:label "Mitigation Strategy"@en ;
+                   rdfs:comment """A planned approach for reducing, transferring, 
+                   or accepting governance and operational risks."""@en ;
+                   rdfs:subClassOf be:Strategy ;
+                   skos:definition """A risk treatment plan including prevention,
+                   reduction, transfer, or acceptance strategies."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#RiskMonitor
+:RiskMonitor rdf:type owl:Class ;
+            rdfs:label "Risk Monitor"@en ;
+            rdfs:comment """A continuous monitoring system that tracks risk levels, 
+            triggers, and mitigation effectiveness."""@en ;
+            rdfs:subClassOf ba:Monitor ;
+            skos:definition """An automated risk monitoring system with threshold
+            detection, trend analysis, and alert mechanisms."""@en .
+
+#################################################################
+#    Audit Trails and Compliance Reporting
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#AuditTrail
+:AuditTrail rdf:type owl:Class ;
+           rdfs:label "Audit Trail"@en ;
+           rdfs:comment """An immutable record of all governance-related activities, 
+           decisions, and changes for compliance and accountability."""@en ;
+           rdfs:subClassOf prov:Bundle ;
+           skos:definition """A chronological sequence of audit records providing
+           complete traceability of governance activities."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#AuditRecord
+:AuditRecord rdf:type owl:Class ;
+            rdfs:label "Audit Record"@en ;
+            rdfs:comment """An individual entry in the audit trail documenting 
+            a specific governance event or activity."""@en ;
+            rdfs:subClassOf prov:Activity ;
+            skos:definition """An immutable record of a governance event including
+            timestamp, actor, action, and context information."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#AuditEvent
+:AuditEvent rdf:type owl:Class ;
+           rdfs:label "Audit Event"@en ;
+           rdfs:comment """A significant governance occurrence that must be 
+           recorded in the audit trail."""@en ;
+           rdfs:subClassOf be:Event ;
+           skos:definition """A governance event requiring audit documentation
+           including policy changes, violations, and enforcement actions."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceAudit
+:ComplianceAudit rdf:type owl:Class ;
+                rdfs:label "Compliance Audit"@en ;
+                rdfs:comment """A systematic examination of compliance with 
+                governance policies and regulatory requirements."""@en ;
+                rdfs:subClassOf be:Audit ;
+                skos:definition """A formal compliance assessment including scope,
+                methodology, findings, and recommendations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#AuditFinding
+:AuditFinding rdf:type owl:Class ;
+             rdfs:label "Audit Finding"@en ;
+             rdfs:comment """A specific observation, non-compliance, or recommendation 
+             identified during a compliance audit."""@en ;
+             rdfs:subClassOf be:Finding ;
+             skos:definition """An audit observation including severity, impact,
+             root cause analysis, and recommended remediation."""@en .
+
+#################################################################
+#    Role-Based Access Control (RBAC)
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#RBAC
+:RBAC rdf:type owl:Class ;
+     rdfs:label "Role-Based Access Control"@en ;
+     rdfs:comment """A security model that restricts system access based on 
+     roles assigned to individual users within ByteStar."""@en ;
+     rdfs:subClassOf be:AccessControl ;
+     skos:definition """An access control mechanism using role assignments,
+     permissions, and hierarchical structures for authorization."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Role
+:Role rdf:type owl:Class ;
+     rdfs:label "Governance Role"@en ;
+     rdfs:comment """A named collection of permissions and responsibilities 
+     within the ByteStar governance framework."""@en ;
+     rdfs:subClassOf be:Role ;
+     skos:definition """A governance role with associated permissions, responsibilities,
+     and hierarchical relationships."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Permission
+:Permission rdf:type owl:Class ;
+           rdfs:label "Governance Permission"@en ;
+           rdfs:comment """A specific authorization to perform a governance action 
+           or access a particular resource."""@en ;
+           rdfs:subClassOf be:Permission ;
+           skos:definition """A granular authorization specifying allowed actions,
+           resources, and conditions for access."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#Subject
+:Subject rdf:type owl:Class ;
+        rdfs:label "Governance Subject"@en ;
+        rdfs:comment """An entity (user, service, or system) that can be assigned 
+        roles and granted permissions within ByteStar."""@en ;
+        rdfs:subClassOf be:Actor ;
+        skos:definition """An authenticated entity with role assignments and
+        permission grants for governance operations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#AccessRequest
+:AccessRequest rdf:type owl:Class ;
+              rdfs:label "Access Request"@en ;
+              rdfs:comment """A formal request to access governance resources 
+              or perform governance actions."""@en ;
+              rdfs:subClassOf be:Request ;
+              skos:definition """A structured access request including subject,
+              resource, action, and context information."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#AccessDecision
+:AccessDecision rdf:type owl:Class ;
+               rdfs:label "Access Decision"@en ;
+               rdfs:comment """The result of evaluating an access request against 
+               RBAC policies and permissions."""@en ;
+               rdfs:subClassOf be:Decision ;
+               skos:definition """An authorization decision including result,
+               rationale, and applicable conditions."""@en .
+
+#################################################################
+#    Regulatory Compliance Frameworks
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#RegulatoryFramework
+:RegulatoryFramework rdf:type owl:Class ;
+                    rdfs:label "Regulatory Framework"@en ;
+                    rdfs:comment """A structured approach for ensuring compliance 
+                    with specific regulatory requirements and standards."""@en ;
+                    rdfs:subClassOf be:ComplianceFramework ;
+                    skos:definition """A compliance framework mapping regulatory
+                    requirements to policies, controls, and validation procedures."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#SOXCompliance
+:SOXCompliance rdf:type owl:Class ;
+              rdfs:subClassOf :RegulatoryFramework ;
+              rdfs:label "Sarbanes-Oxley Compliance"@en ;
+              rdfs:comment """Compliance framework for Sarbanes-Oxley Act requirements 
+              including financial reporting and internal controls."""@en ;
+              skos:definition """SOX compliance including internal controls over
+              financial reporting, audit requirements, and certification processes."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#GDPRCompliance
+:GDPRCompliance rdf:type owl:Class ;
+               rdfs:subClassOf :RegulatoryFramework ;
+               rdfs:label "GDPR Compliance"@en ;
+               rdfs:comment """Compliance framework for General Data Protection 
+               Regulation including data privacy and protection requirements."""@en ;
+               skos:definition """GDPR compliance including data protection principles,
+               individual rights, and breach notification requirements."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#HIPAACompliance
+:HIPAACompliance rdf:type owl:Class ;
+                rdfs:subClassOf :RegulatoryFramework ;
+                rdfs:label "HIPAA Compliance"@en ;
+                rdfs:comment """Compliance framework for Health Insurance Portability 
+                and Accountability Act including healthcare data protection."""@en ;
+                skos:definition """HIPAA compliance including protected health information,
+                security rules, and breach notification requirements."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PCIDSSCompliance
+:PCIDSSCompliance rdf:type owl:Class ;
+                 rdfs:subClassOf :RegulatoryFramework ;
+                 rdfs:label "PCI DSS Compliance"@en ;
+                 rdfs:comment """Compliance framework for Payment Card Industry Data 
+                 Security Standard including payment data protection."""@en ;
+                 skos:definition """PCI DSS compliance including cardholder data protection,
+                 secure networks, and regular security testing."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ISO27001Compliance
+:ISO27001Compliance rdf:type owl:Class ;
+                   rdfs:subClassOf :RegulatoryFramework ;
+                   rdfs:label "ISO 27001 Compliance"@en ;
+                   rdfs:comment """Compliance framework for ISO 27001 information 
+                   security management systems standard."""@en ;
+                   skos:definition """ISO 27001 compliance including information security
+                   management system, risk management, and continuous improvement."""@en .
+
+#################################################################
+#    Smart Contracts and Automated Governance
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#SmartContract
+:SmartContract rdf:type owl:Class ;
+              rdfs:label "Governance Smart Contract"@en ;
+              rdfs:comment """A self-executing contract with governance terms and 
+              conditions directly written into code."""@en ;
+              rdfs:subClassOf be:Contract ,
+                              det:DeterministicOperation ;
+              skos:definition """An automated contract with governance logic,
+              execution conditions, and immutable enforcement mechanisms."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#AutomatedGovernance
+:AutomatedGovernance rdf:type owl:Class ;
+                    rdfs:label "Automated Governance"@en ;
+                    rdfs:comment """Governance processes and decisions that are 
+                    executed automatically without human intervention."""@en ;
+                    rdfs:subClassOf be:Automation ;
+                    skos:definition """Algorithmic governance with automated decision
+                    making, policy enforcement, and compliance monitoring."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#GovernanceAlgorithm
+:GovernanceAlgorithm rdf:type owl:Class ;
+                    rdfs:label "Governance Algorithm"@en ;
+                    rdfs:comment """A deterministic algorithm that implements specific 
+                    governance logic or decision-making processes."""@en ;
+                    rdfs:subClassOf det:Algorithm ;
+                    skos:definition """A formal algorithm encoding governance rules,
+                    decision logic, and enforcement procedures."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ContractExecution
+:ContractExecution rdf:type owl:Class ;
+                  rdfs:label "Contract Execution"@en ;
+                  rdfs:comment """The automatic execution of smart contract terms 
+                  when predefined conditions are met."""@en ;
+                  rdfs:subClassOf ba:Execution ;
+                  skos:definition """Automated contract fulfillment with condition
+                  evaluation, action execution, and state transitions."""@en .
+
+#################################################################
+#    Zero-Tick Rejection Integration
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyViolationRejection
+:PolicyViolationRejection rdf:type owl:Class ;
+                         rdfs:subClassOf ztr:ZeroTickRejection ;
+                         rdfs:label "Policy Violation Rejection"@en ;
+                         rdfs:comment """Immediate rejection of operations that violate 
+                         governance policies through zero-tick enforcement."""@en ;
+                         skos:definition """Instantaneous policy enforcement that blocks
+                         or terminates non-compliant operations with zero overhead."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceGate
+:ComplianceGate rdf:type owl:Class ;
+               rdfs:label "Compliance Gate"@en ;
+               rdfs:comment """A control point that evaluates compliance before 
+               allowing operations to proceed."""@en ;
+               rdfs:subClassOf be:ControlPoint ;
+               skos:definition """A governance checkpoint that validates compliance
+               and applies zero-tick rejection for violations."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyGuard
+:PolicyGuard rdf:type owl:Class ;
+            rdfs:label "Policy Guard"@en ;
+            rdfs:comment """A protective mechanism that prevents policy violations 
+            through proactive monitoring and intervention."""@en ;
+            rdfs:subClassOf be:GuardMechanism ;
+            skos:definition """A proactive policy enforcer with real-time monitoring
+            and immediate violation prevention capabilities."""@en .
+
+#################################################################
+#    Performance Optimization under Doctrine of 8
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#GovernancePerformance
+:GovernancePerformance rdf:type owl:Class ;
+                      rdfs:label "Governance Performance"@en ;
+                      rdfs:comment """Performance characteristics of governance operations 
+                      under the Doctrine of 8 constraint system."""@en ;
+                      rdfs:subClassOf doe:PerformanceClassification ;
+                      skos:definition """Performance guarantees for governance operations
+                      with tick-based measurement and optimization strategies."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyEvaluationPerformance
+:PolicyEvaluationPerformance rdf:type owl:Class ;
+                            rdfs:subClassOf :GovernancePerformance ;
+                            rdfs:label "Policy Evaluation Performance"@en ;
+                            rdfs:comment """Performance guarantees for policy evaluation 
+                            and compliance checking operations."""@en ;
+                            skos:definition """Sub-8-tick guarantee for policy evaluation
+                            with optimization for common patterns and caching."""@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#EnforcementPerformance
+:EnforcementPerformance rdf:type owl:Class ;
+                       rdfs:subClassOf :GovernancePerformance ;
+                       rdfs:label "Enforcement Performance"@en ;
+                       rdfs:comment """Performance guarantees for policy enforcement 
+                       and corrective action execution."""@en ;
+                       skos:definition """Bounded execution time for enforcement actions
+                       with zero-tick rejection for performance violations."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#hasPolicy
+:hasPolicy rdf:type owl:ObjectProperty ;
+          rdfs:domain be:GovernanceSubject ;
+          rdfs:range :Policy ;
+          rdfs:label "has policy"@en ;
+          rdfs:comment "Associates a governance subject with applicable policies."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#enforces
+:enforces rdf:type owl:ObjectProperty ;
+         rdfs:domain :PolicyEngine ;
+         rdfs:range :Policy ;
+         rdfs:label "enforces"@en ;
+         rdfs:comment "Indicates that a policy engine enforces specific policies."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#violates
+:violates rdf:type owl:ObjectProperty ;
+         rdfs:domain ba:Operation ;
+         rdfs:range :Policy ;
+         rdfs:label "violates"@en ;
+         rdfs:comment "Indicates that an operation violates a specific policy."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#triggersEnforcement
+:triggersEnforcement rdf:type owl:ObjectProperty ;
+                    rdfs:domain :Policy ;
+                    rdfs:range :EnforcementAction ;
+                    rdfs:label "triggers enforcement"@en ;
+                    rdfs:comment "Indicates enforcement actions triggered by policy conditions."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#hasRole
+:hasRole rdf:type owl:ObjectProperty ;
+        rdfs:domain :Subject ;
+        rdfs:range :Role ;
+        rdfs:label "has role"@en ;
+        rdfs:comment "Associates a subject with governance roles."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#hasPermission
+:hasPermission rdf:type owl:ObjectProperty ;
+              rdfs:domain :Role ;
+              rdfs:range :Permission ;
+              rdfs:label "has permission"@en ;
+              rdfs:comment "Associates a role with specific permissions."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#managesRisk
+:managesRisk rdf:type owl:ObjectProperty ;
+            rdfs:domain :MitigationStrategy ;
+            rdfs:range :Risk ;
+            rdfs:label "manages risk"@en ;
+            rdfs:comment "Associates mitigation strategies with managed risks."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#hasAuditTrail
+:hasAuditTrail rdf:type owl:ObjectProperty ;
+              rdfs:domain be:GovernanceSubject ;
+              rdfs:range :AuditTrail ;
+              rdfs:label "has audit trail"@en ;
+              rdfs:comment "Associates subjects with their audit trails."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#compliesWith
+:compliesWith rdf:type owl:ObjectProperty ;
+             rdfs:domain ba:Operation ;
+             rdfs:range :RegulatoryFramework ;
+             rdfs:label "complies with"@en ;
+             rdfs:comment "Indicates compliance with regulatory frameworks."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#executesContract
+:executesContract rdf:type owl:ObjectProperty ;
+                 rdfs:domain :AutomatedGovernance ;
+                 rdfs:range :SmartContract ;
+                 rdfs:label "executes contract"@en ;
+                 rdfs:comment "Associates automated governance with executed smart contracts."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#hasComplianceStatus
+:hasComplianceStatus rdf:type owl:ObjectProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain ba:Operation ;
+                    rdfs:range :ComplianceStatus ;
+                    rdfs:label "has compliance status"@en ;
+                    rdfs:comment "Associates operations with their compliance status."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#requiresApproval
+:requiresApproval rdf:type owl:ObjectProperty ;
+                 rdfs:domain :Policy ;
+                 rdfs:range :ApprovalProcess ;
+                 rdfs:label "requires approval"@en ;
+                 rdfs:comment "Indicates policies that require approval processes."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#implementsFramework
+:implementsFramework rdf:type owl:ObjectProperty ;
+                    rdfs:domain :Policy ;
+                    rdfs:range :RegulatoryFramework ;
+                    rdfs:label "implements framework"@en ;
+                    rdfs:comment "Associates policies with implemented regulatory frameworks."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#policyId
+:policyId rdf:type owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+         rdfs:domain :Policy ;
+         rdfs:range xsd:string ;
+         rdfs:label "policy ID"@en ;
+         rdfs:comment "Unique identifier for a governance policy."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#policyVersion
+:policyVersion rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :Policy ;
+              rdfs:range xsd:string ;
+              rdfs:label "policy version"@en ;
+              rdfs:comment "Version identifier for policy management."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#effectiveDate
+:effectiveDate rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :Policy ;
+              rdfs:range xsd:dateTime ;
+              rdfs:label "effective date"@en ;
+              rdfs:comment "Date when the policy becomes effective."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#expirationDate
+:expirationDate rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+               rdfs:domain :Policy ;
+               rdfs:range xsd:dateTime ;
+               rdfs:label "expiration date"@en ;
+               rdfs:comment "Date when the policy expires."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#severity
+:severity rdf:type owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+         rdfs:domain :Policy ;
+         rdfs:range xsd:string ;
+         rdfs:label "severity"@en ;
+         rdfs:comment "Severity level of policy violations (LOW, MEDIUM, HIGH, CRITICAL)."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#complianceScore
+:complianceScore rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ComplianceStatus ;
+                rdfs:range xsd:decimal ;
+                rdfs:label "compliance score"@en ;
+                rdfs:comment "Numerical compliance score (0.0 to 1.0)."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#riskLevel
+:riskLevel rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+          rdfs:domain :Risk ;
+          rdfs:range xsd:string ;
+          rdfs:label "risk level"@en ;
+          rdfs:comment "Risk level classification (LOW, MEDIUM, HIGH, CRITICAL)."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#auditTimestamp
+:auditTimestamp rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+               rdfs:domain :AuditRecord ;
+               rdfs:range xsd:dateTime ;
+               rdfs:label "audit timestamp"@en ;
+               rdfs:comment "Timestamp when the audit record was created."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#isActive
+:isActive rdf:type owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+         rdfs:domain :Policy ;
+         rdfs:range xsd:boolean ;
+         rdfs:label "is active"@en ;
+         rdfs:comment "Indicates whether the policy is currently active."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#evaluationTime
+:evaluationTime rdf:type owl:DatatypeProperty ;
+               rdfs:domain :PolicyEngine ;
+               rdfs:range xsd:long ;
+               rdfs:label "evaluation time"@en ;
+               rdfs:comment "Time taken to evaluate policies in CPU ticks."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#maxEvaluationTicks
+:maxEvaluationTicks rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :GovernancePerformance ;
+                   rdfs:range xsd:nonNegativeInteger ;
+                   rdfs:label "max evaluation ticks"@en ;
+                   rdfs:comment "Maximum CPU ticks allowed for governance evaluation."@en .
+
+#################################################################
+#    Individuals - Standard Governance Components
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#MasterPolicyEngine
+:MasterPolicyEngine rdf:type owl:NamedIndividual ,
+                             :PolicyEngine ;
+                   rdfs:label "Master Policy Engine"@en ;
+                   rdfs:comment "The primary policy enforcement engine for ByteStar."@en ;
+                   :maxEvaluationTicks "8"^^xsd:nonNegativeInteger .
+
+###  http://bytestar.org/ontology/byteethos-governance#SystemAdministrator
+:SystemAdministrator rdf:type owl:NamedIndividual ,
+                              :Role ;
+                    rdfs:label "System Administrator"@en ;
+                    rdfs:comment "Role with full system administration privileges."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceOfficer
+:ComplianceOfficer rdf:type owl:NamedIndividual ,
+                            :Role ;
+                  rdfs:label "Compliance Officer"@en ;
+                  rdfs:comment "Role responsible for compliance monitoring and reporting."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyAdministrator
+:PolicyAdministrator rdf:type owl:NamedIndividual ,
+                              :Role ;
+                    rdfs:label "Policy Administrator"@en ;
+                    rdfs:comment "Role responsible for policy management and lifecycle."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#SecurityOfficer
+:SecurityOfficer rdf:type owl:NamedIndividual ,
+                          :Role ;
+                rdfs:label "Security Officer"@en ;
+                rdfs:comment "Role responsible for security governance and risk management."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#StandardComplianceGate
+:StandardComplianceGate rdf:type owl:NamedIndividual ,
+                                 :ComplianceGate ;
+                       rdfs:label "Standard Compliance Gate"@en ;
+                       rdfs:comment "Default compliance gate for standard operations."@en .
+
+###  http://bytestar.org/ontology/byteethos-governance#MasterAuditTrail
+:MasterAuditTrail rdf:type owl:NamedIndividual ,
+                           :AuditTrail ;
+                 rdfs:label "Master Audit Trail"@en ;
+                 rdfs:comment "Primary audit trail for all governance activities."@en .
+
+#################################################################
+#    SHACL Shapes for Validation
+#################################################################
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyShape
+:PolicyShape rdf:type sh:NodeShape ;
+            sh:targetClass :Policy ;
+            rdfs:label "Policy Shape"@en ;
+            rdfs:comment "Validates governance policy properties and constraints."@en ;
+            sh:property [
+                sh:path :policyId ;
+                sh:datatype xsd:string ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern "^POL-[A-Z0-9]{8}$" ;
+                sh:message "Policy must have unique ID in format POL-XXXXXXXX."@en
+            ] ;
+            sh:property [
+                sh:path :policyVersion ;
+                sh:datatype xsd:string ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+                sh:message "Policy must have semantic version (major.minor.patch)."@en
+            ] ;
+            sh:property [
+                sh:path :effectiveDate ;
+                sh:datatype xsd:dateTime ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:message "Policy must have effective date."@en
+            ] ;
+            sh:property [
+                sh:path :severity ;
+                sh:datatype xsd:string ;
+                sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:message "Policy must have severity level: LOW, MEDIUM, HIGH, or CRITICAL."@en
+            ] ;
+            sh:property [
+                sh:path :isActive ;
+                sh:datatype xsd:boolean ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:message "Policy must have active status."@en
+            ] .
+
+###  http://bytestar.org/ontology/byteethos-governance#PolicyEngineShape
+:PolicyEngineShape rdf:type sh:NodeShape ;
+                  sh:targetClass :PolicyEngine ;
+                  rdfs:label "Policy Engine Shape"@en ;
+                  rdfs:comment "Validates policy engine performance constraints."@en ;
+                  sh:property [
+                      sh:path :evaluationTime ;
+                      sh:datatype xsd:long ;
+                      sh:maxInclusive 8 ;
+                      sh:message "Policy evaluation must complete within 8 ticks (Doctrine of 8)."@en
+                  ] ;
+                  sh:property [
+                      sh:path :maxEvaluationTicks ;
+                      sh:datatype xsd:nonNegativeInteger ;
+                      sh:hasValue 8 ;
+                      sh:message "Policy engine must enforce 8-tick maximum."@en
+                  ] .
+
+###  http://bytestar.org/ontology/byteethos-governance#ComplianceStatusShape
+:ComplianceStatusShape rdf:type sh:NodeShape ;
+                      sh:targetClass :ComplianceStatus ;
+                      rdfs:label "Compliance Status Shape"@en ;
+                      rdfs:comment "Validates compliance status properties."@en ;
+                      sh:property [
+                          sh:path :complianceScore ;
+                          sh:datatype xsd:decimal ;
+                          sh:minInclusive 0.0 ;
+                          sh:maxInclusive 1.0 ;
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Compliance score must be between 0.0 and 1.0."@en
+                      ] .
+
+###  http://bytestar.org/ontology/byteethos-governance#RoleShape
+:RoleShape rdf:type sh:NodeShape ;
+          sh:targetClass :Role ;
+          rdfs:label "Role Shape"@en ;
+          rdfs:comment "Validates governance role properties."@en ;
+          sh:property [
+              sh:path :hasPermission ;
+              sh:class :Permission ;
+              sh:minCount 1 ;
+              sh:message "Role must have at least one permission."@en
+          ] .
+
+###  http://bytestar.org/ontology/byteethos-governance#AuditRecordShape
+:AuditRecordShape rdf:type sh:NodeShape ;
+                 sh:targetClass :AuditRecord ;
+                 rdfs:label "Audit Record Shape"@en ;
+                 rdfs:comment "Validates audit record immutability and completeness."@en ;
+                 sh:property [
+                     sh:path :auditTimestamp ;
+                     sh:datatype xsd:dateTime ;
+                     sh:minCount 1 ;
+                     sh:maxCount 1 ;
+                     sh:message "Audit record must have timestamp."@en
+                 ] ;
+                 sh:property [
+                     sh:path prov:wasAssociatedWith ;
+                     sh:minCount 1 ;
+                     sh:message "Audit record must identify responsible actor."@en
+                 ] .
+
+###  http://bytestar.org/ontology/byteethos-governance#RiskShape
+:RiskShape rdf:type sh:NodeShape ;
+          sh:targetClass :Risk ;
+          rdfs:label "Risk Shape"@en ;
+          rdfs:comment "Validates risk classification and assessment."@en ;
+          sh:property [
+              sh:path :riskLevel ;
+              sh:datatype xsd:string ;
+              sh:in ("LOW" "MEDIUM" "HIGH" "CRITICAL") ;
+              sh:minCount 1 ;
+              sh:maxCount 1 ;
+              sh:message "Risk must have level: LOW, MEDIUM, HIGH, or CRITICAL."@en
+          ] .
+
+#################################################################
+#    Axioms and Rules
+#################################################################
+
+# Axiom: All policies must be enforced by policy engines
+:Policy rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty [owl:inverseOf :enforces] ;
+    owl:someValuesFrom :PolicyEngine
+] .
+
+# Axiom: Policy violations trigger enforcement actions
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           ba:Operation
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :violates ;
+               owl:someValuesFrom :Policy
+           ]
+       )
+   ] ;
+   rdfs:subClassOf [
+       rdf:type owl:Restriction ;
+       owl:onProperty [owl:inverseOf :triggersEnforcement] ;
+       owl:someValuesFrom :EnforcementAction
+   ] .
+
+# Axiom: Active policies have effective dates in the past
+:Policy rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :isActive ;
+    owl:hasValue "true"^^xsd:boolean
+] ,
+[
+    rdf:type owl:Restriction ;
+    owl:onProperty :effectiveDate ;
+    owl:someValuesFrom [
+        rdf:type rdfs:Datatype ;
+        owl:onDatatype xsd:dateTime ;
+        owl:withRestrictions (
+            [ owl:maxInclusive "2025-08-23T23:59:59Z"^^xsd:dateTime ]
+        )
+    ]
+] .
+
+# Axiom: Subjects with roles inherit permissions
+:Subject rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasRole ;
+    owl:someValuesFrom [
+        rdf:type owl:Restriction ;
+        owl:onProperty :hasPermission ;
+        owl:someValuesFrom :Permission
+    ]
+] .
+
+# Axiom: Policy engines operate under Doctrine of 8
+:PolicyEngine rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :maxEvaluationTicks ;
+    owl:hasValue "8"^^xsd:nonNegativeInteger
+] .
+
+# Axiom: Smart contracts implement deterministic execution
+:SmartContract rdfs:subClassOf det:DeterministicOperation .
+
+# Axiom: Audit records are immutable
+:AuditRecord rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty prov:generatedAtTime ;
+    owl:cardinality 1
+] .
+
+#################################################################
+#    SPARQL Queries for Governance Management
+#################################################################
+
+# Query 1: Find active policies by severity
+:findActivePoliciesBySeverityQuery rdf:type sp:Query ;
+    rdfs:label "Find Active Policies by Severity"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/byteethos-governance#>
+    
+    SELECT ?policy ?policyId ?severity ?effectiveDate ?version WHERE {
+        ?policy a :Policy ;
+                :policyId ?policyId ;
+                :severity ?severity ;
+                :effectiveDate ?effectiveDate ;
+                :policyVersion ?version ;
+                :isActive true .
+    }
+    ORDER BY DESC(?severity) ?effectiveDate
+    """ .
+
+# Query 2: Monitor policy violations and enforcement actions
+:policyViolationMonitorQuery rdf:type sp:Query ;
+    rdfs:label "Monitor Policy Violations"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/byteethos-governance#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?operation ?policy ?severity ?enforcement ?timestamp WHERE {
+        ?operation :violates ?policy .
+        ?policy :severity ?severity ;
+                :triggersEnforcement ?enforcement .
+        OPTIONAL { ?operation prov:generatedAtTime ?timestamp }
+    }
+    ORDER BY DESC(?severity) ?timestamp
+    """ .
+
+# Query 3: Compliance status dashboard
+:complianceStatusDashboardQuery rdf:type sp:Query ;
+    rdfs:label "Compliance Status Dashboard"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/byteethos-governance#>
+    PREFIX ba: <http://bytestar.org/ontology/byteactor#>
+    
+    SELECT ?framework (COUNT(?operation) AS ?totalOps) 
+           (AVG(?score) AS ?avgScore) 
+           (MIN(?score) AS ?minScore) WHERE {
+        ?operation :hasComplianceStatus ?status ;
+                   :compliesWith ?framework .
+        ?status :complianceScore ?score .
+    }
+    GROUP BY ?framework
+    ORDER BY ?avgScore
+    """ .
+
+# Query 4: Risk assessment summary
+:riskAssessmentSummaryQuery rdf:type sp:Query ;
+    rdfs:label "Risk Assessment Summary"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/byteethos-governance#>
+    
+    SELECT ?riskLevel (COUNT(?risk) AS ?riskCount) WHERE {
+        ?risk a :Risk ;
+              :riskLevel ?riskLevel .
+    }
+    GROUP BY ?riskLevel
+    ORDER BY ?riskLevel
+    """ .
+
+# Query 5: Audit trail analysis
+:auditTrailAnalysisQuery rdf:type sp:Query ;
+    rdfs:label "Audit Trail Analysis"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/byteethos-governance#>
+    PREFIX prov: <http://www.w3.org/ns/prov#>
+    
+    SELECT ?actor (COUNT(?record) AS ?activityCount) 
+           ?latestActivity WHERE {
+        ?record a :AuditRecord ;
+                prov:wasAssociatedWith ?actor ;
+                :auditTimestamp ?timestamp .
+        {
+            SELECT ?actor (MAX(?timestamp) AS ?latestActivity) WHERE {
+                ?record prov:wasAssociatedWith ?actor ;
+                        :auditTimestamp ?timestamp .
+            }
+            GROUP BY ?actor
+        }
+    }
+    GROUP BY ?actor ?latestActivity
+    ORDER BY DESC(?activityCount)
+    """ .
+
+# Query 6: Policy performance analysis under Doctrine of 8
+:policyPerformanceAnalysisQuery rdf:type sp:Query ;
+    rdfs:label "Policy Performance Analysis"@en ;
+    sp:text """
+    PREFIX : <http://bytestar.org/ontology/byteethos-governance#>
+    PREFIX doe: <http://bytestar.org/ontology/doctrine-of-8#>
+    
+    SELECT ?engine ?evaluationTime ?violation WHERE {
+        ?engine a :PolicyEngine ;
+                :evaluationTime ?evaluationTime .
+        BIND(IF(?evaluationTime > 8, "VIOLATION", "COMPLIANT") AS ?violation)
+    }
+    ORDER BY DESC(?evaluationTime)
+    """ .
+
+#################################################################
+#    Regulatory Compliance Mappings
+#################################################################
+
+# SOX Compliance Mappings
+:SOXFinancialReporting rdf:type owl:NamedIndividual ,
+                                :Policy ;
+                       :policyId "POL-SOX00001" ;
+                       :policyVersion "1.0.0" ;
+                       :implementsFramework :SOXCompliance ;
+                       :severity "CRITICAL" ;
+                       :isActive "true"^^xsd:boolean .
+
+:SOXInternalControls rdf:type owl:NamedIndividual ,
+                              :Policy ;
+                     :policyId "POL-SOX00002" ;
+                     :policyVersion "1.0.0" ;
+                     :implementsFramework :SOXCompliance ;
+                     :severity "HIGH" ;
+                     :isActive "true"^^xsd:boolean .
+
+# GDPR Compliance Mappings
+:GDPRDataProtection rdf:type owl:NamedIndividual ,
+                             :Policy ;
+                    :policyId "POL-GDPR0001" ;
+                    :policyVersion "1.0.0" ;
+                    :implementsFramework :GDPRCompliance ;
+                    :severity "CRITICAL" ;
+                    :isActive "true"^^xsd:boolean .
+
+:GDPRConsentManagement rdf:type owl:NamedIndividual ,
+                                :Policy ;
+                       :policyId "POL-GDPR0002" ;
+                       :policyVersion "1.0.0" ;
+                       :implementsFramework :GDPRCompliance ;
+                       :severity "HIGH" ;
+                       :isActive "true"^^xsd:boolean .
+
+# HIPAA Compliance Mappings
+:HIPAADataSecurity rdf:type owl:NamedIndividual ,
+                            :Policy ;
+                   :policyId "POL-HIPAA001" ;
+                   :policyVersion "1.0.0" ;
+                   :implementsFramework :HIPAACompliance ;
+                   :severity "CRITICAL" ;
+                   :isActive "true"^^xsd:boolean .
+
+# PCI DSS Compliance Mappings
+:PCIDSSDataProtection rdf:type owl:NamedIndividual ,
+                               :Policy ;
+                      :policyId "POL-PCI00001" ;
+                      :policyVersion "1.0.0" ;
+                      :implementsFramework :PCIDSSCompliance ;
+                      :severity "CRITICAL" ;
+                      :isActive "true"^^xsd:boolean .
+
+#################################################################
+#    Smart Contract Examples
+#################################################################
+
+:DataPrivacyContract rdf:type owl:NamedIndividual ,
+                              :SmartContract ;
+                     rdfs:label "Data Privacy Smart Contract"@en ;
+                     rdfs:comment "Automated enforcement of data privacy policies."@en ;
+                     det:isDeterministic "true"^^xsd:boolean .
+
+:AccessControlContract rdf:type owl:NamedIndividual ,
+                                :SmartContract ;
+                       rdfs:label "Access Control Smart Contract"@en ;
+                       rdfs:comment "Automated RBAC enforcement contract."@en ;
+                       det:isDeterministic "true"^^xsd:boolean .
+
+:ComplianceMonitoringContract rdf:type owl:NamedIndividual ,
+                                       :SmartContract ;
+                              rdfs:label "Compliance Monitoring Smart Contract"@en ;
+                              rdfs:comment "Automated compliance monitoring and reporting."@en ;
+                              det:isDeterministic "true"^^xsd:boolean .
+
+#################################################################
+#    Documentation and Usage Guidelines
+#################################################################
+
+:GovernanceUsageGuidelines rdf:type owl:Class ;
+    rdfs:label "Governance Usage Guidelines"@en ;
+    rdfs:comment """
+    Guidelines for implementing ByteEthos governance:
+    
+    1. Policy Design:
+       - Use formal policy language for precision
+       - Define clear conditions and consequences
+       - Ensure deterministic evaluation logic
+       - Maintain semantic versioning
+    
+    2. Performance Requirements:
+       - All policy evaluation ≤ 8 ticks
+       - Zero-tick rejection for violations
+       - Cached evaluation for common patterns
+       - Optimized rule engines
+    
+    3. Compliance Framework:
+       - Map regulations to specific policies
+       - Implement automated compliance checking
+       - Maintain complete audit trails
+       - Regular compliance assessments
+    
+    4. Risk Management:
+       - Continuous risk monitoring
+       - Automated mitigation triggers
+       - Escalation procedures
+       - Impact assessment protocols
+    
+    5. Access Control:
+       - Principle of least privilege
+       - Role-based permissions
+       - Regular access reviews
+       - Automated provisioning/deprovisioning
+    
+    6. Audit Requirements:
+       - Immutable audit records
+       - Complete activity traceability
+       - Real-time monitoring
+       - Regulatory reporting
+    """@en .
+
+#################################################################
+#    Version Information and Metadata
+#################################################################
+
+: rdfs:comment """
+ByteEthos Governance Ontology Version History:
+
+v5.0.0-phase2 (2025-08-23):
+- Comprehensive policy engine and governance framework
+- Policy definition, validation, and lifecycle management
+- Real-time compliance checking and enforcement
+- Decision-making frameworks with approval processes
+- Risk management and mitigation strategies
+- Complete audit trails and compliance reporting
+- Role-based access control (RBAC) implementation
+- Regulatory compliance frameworks (SOX, GDPR, HIPAA, PCI-DSS, ISO27001)
+- Smart contracts and automated governance
+- Zero-tick rejection integration for policy violations
+- SHACL validation for all governance properties
+- Performance optimization under Doctrine of 8
+- Deterministic execution guarantees
+- Complete SPARQL monitoring and management queries
+
+This ontology establishes ByteEthos as the comprehensive governance backbone
+for the ByteStar ecosystem, providing:
+
+Key Features:
+1. Policy Engine: Formal policy definition and enforcement
+2. Compliance Framework: Multi-regulatory compliance support
+3. Access Control: Complete RBAC implementation
+4. Risk Management: Automated risk assessment and mitigation
+5. Audit System: Immutable audit trails and reporting
+6. Smart Contracts: Automated governance execution
+7. Performance Optimization: Sub-8-tick governance operations
+8. Deterministic Behavior: Mathematical certainty guarantees
+
+Regulatory Support:
+- SOX: Financial reporting and internal controls
+- GDPR: Data protection and privacy rights
+- HIPAA: Healthcare data security
+- PCI DSS: Payment data protection
+- ISO 27001: Information security management
+
+Performance Characteristics:
+- Policy evaluation: ≤8 ticks maximum
+- Zero-tick violation rejection
+- Real-time compliance monitoring
+- Automated enforcement actions
+
+Integration Points:
+- ByteCore: Kernel-level policy enforcement
+- ByteFlow: Workflow compliance checking
+- ByteActor: Actor permission validation
+- BytePQC: Cryptographic policy enforcement
+
+This ontology ensures that all ByteStar operations maintain the highest
+levels of governance, compliance, and security while preserving the
+ultra-high performance characteristics defined by the Doctrine of 8.
+"""@en .
+
+#################################################################
+#    End of ByteEthos Governance Ontology
+#################################################################

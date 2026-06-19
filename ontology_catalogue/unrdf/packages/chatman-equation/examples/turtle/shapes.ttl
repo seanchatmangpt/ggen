@@ -1,0 +1,28 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ce: <http://unrdf.org/chatman-equation#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL Shapes for Chatman Equation Ontology
+
+ce:MethodologyShape a sh:NodeShape ;
+    sh:targetClass ce:Methodology ;
+    sh:property [
+        sh:path ce:hasVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ce:hasComponent ;
+        sh:class ce:Component ;
+        sh:minCount 1 ;
+    ] .
+
+ce:ComponentShape a sh:NodeShape ;
+    sh:targetClass ce:Component ;
+    sh:property [
+        sh:path ce:hasName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

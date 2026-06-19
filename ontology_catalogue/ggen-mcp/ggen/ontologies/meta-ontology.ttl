@@ -1,0 +1,524 @@
+# Meta-Ontology (Σ²): Constitution of the Autonomous Ontology System
+# This ontology defines the structure, constraints, and evolution rules for all ontologies
+# in the ggen autonomous system. It is the single source of truth for what can change in Σ.
+
+@prefix meta: <http://ggen.ai/ontology/meta#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# 1. META-ONTOLOGY CORE CLASSES
+# ============================================================================
+
+meta:OntologyElement
+  a owl:Class ;
+  rdfs:label "Ontology Element"@en ;
+  rdfs:comment "Base class for all ontology components"@en .
+
+meta:Class
+  a owl:Class ;
+  rdfs:subClassOf meta:OntologyElement ;
+  rdfs:label "Class"@en ;
+  rdfs:comment "An ontology class definition"@en .
+
+meta:Property
+  a owl:Class ;
+  rdfs:subClassOf meta:OntologyElement ;
+  rdfs:label "Property"@en ;
+  rdfs:comment "An ontology property definition"@en .
+
+meta:Constraint
+  a owl:Class ;
+  rdfs:subClassOf meta:OntologyElement ;
+  rdfs:label "Constraint"@en ;
+  rdfs:comment "A constraint on classes or properties"@en .
+
+meta:Guard
+  a owl:Class ;
+  rdfs:subClassOf meta:Constraint ;
+  rdfs:label "Guard"@en ;
+  rdfs:comment "A safety guard that must be enforced"@en .
+
+meta:Invariant
+  a owl:Class ;
+  rdfs:subClassOf meta:Guard ;
+  rdfs:label "Invariant (Q)"@en ;
+  rdfs:comment "A hard invariant that can never be violated"@en .
+
+meta:Projection
+  a owl:Class ;
+  rdfs:subClassOf meta:OntologyElement ;
+  rdfs:label "Projection"@en ;
+  rdfs:comment "A code/API/workflow generation projection"@en .
+
+meta:Sector
+  a owl:Class ;
+  rdfs:label "Sector"@en ;
+  rdfs:comment "A domain or business sector (support, finance, papers, etc.)"@en .
+
+meta:Snapshot
+  a owl:Class ;
+  rdfs:label "Ontology Snapshot"@en ;
+  rdfs:comment "An immutable snapshot of the ontology at a point in time"@en .
+
+meta:DeltaSigma
+  a owl:Class ;
+  rdfs:label "Delta Σ"@en ;
+  rdfs:comment "A proposed change to the ontology"@en .
+
+meta:Receipt
+  a owl:Class ;
+  rdfs:label "Sigma Receipt"@en ;
+  rdfs:comment "Validation proof and audit trail for a snapshot or delta"@en .
+
+# ============================================================================
+# 2. META-ONTOLOGY PROPERTIES
+# ============================================================================
+
+# -- Core Properties --
+
+meta:hasDomain
+  a owl:ObjectProperty ;
+  rdfs:domain meta:Property ;
+  rdfs:range meta:Class ;
+  rdfs:label "has domain"@en ;
+  rdfs:comment "The class that a property applies to"@en .
+
+meta:hasRange
+  a owl:ObjectProperty ;
+  rdfs:domain meta:Property ;
+  rdfs:range [ owl:unionOf ( meta:Class [ rdf:type owl:Restriction ;
+                                           owl:onProperty rdf:type ;
+                                           owl:hasValue xsd:string
+                                         ]
+                           )
+             ] ;
+  rdfs:label "has range"@en ;
+  rdfs:comment "The class or datatype that a property value must conform to"@en .
+
+meta:hasCardinality
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Property ;
+  rdfs:range [ owl:unionOf ( xsd:int xsd:string ) ] ;
+  rdfs:label "has cardinality"@en ;
+  rdfs:comment "Cardinality constraint: e.g., '1', '0..1', '0..*', '1..*'"@en .
+
+meta:hasConstraint
+  a owl:ObjectProperty ;
+  rdfs:domain [ owl:unionOf ( meta:Class meta:Property ) ] ;
+  rdfs:range meta:Constraint ;
+  rdfs:label "has constraint"@en ;
+  rdfs:comment "A constraint that applies to this element"@en .
+
+meta:hasGuard
+  a owl:ObjectProperty ;
+  rdfs:domain [ owl:unionOf ( meta:Class meta:Property meta:Constraint ) ] ;
+  rdfs:range meta:Guard ;
+  rdfs:label "has guard"@en ;
+  rdfs:comment "A guard that must be satisfied"@en .
+
+# -- Versioning Properties --
+
+meta:version
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "version"@en ;
+  rdfs:comment "Semantic version identifier (e.g., '1.2.3')"@en .
+
+meta:parentVersion
+  a owl:ObjectProperty ;
+  rdfs:range meta:Snapshot ;
+  rdfs:label "parent version"@en ;
+  rdfs:comment "The snapshot that this snapshot was derived from"@en .
+
+meta:timestamp
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "timestamp"@en ;
+  rdfs:comment "When the snapshot/delta was created"@en .
+
+meta:backwardCompatible
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "backward compatible"@en ;
+  rdfs:comment "Whether this change maintains backward compatibility"@en .
+
+meta:snapshotId
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Snapshot ;
+  rdfs:range xsd:string ;
+  rdfs:label "snapshot ID"@en ;
+  rdfs:comment "128-bit hash identifier for a snapshot"@en .
+
+meta:hash
+  a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "hash"@en ;
+  rdfs:comment "Cryptographic hash (SHA-256 or ML-DSA signature)"@en .
+
+# -- Projection Properties --
+
+meta:implementsPattern
+  a owl:ObjectProperty ;
+  rdfs:domain meta:Projection ;
+  rdfs:range rdfs:Class ;
+  rdfs:label "implements pattern"@en ;
+  rdfs:comment "The design pattern or framework this projection generates"@en .
+
+meta:targetLanguage
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Projection ;
+  rdfs:range xsd:string ;
+  rdfs:label "target language"@en ;
+  rdfs:comment "Programming language output (Rust, Python, TypeScript, etc.)"@en .
+
+meta:deterministic
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Projection ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "deterministic"@en ;
+  rdfs:comment "Whether the projection always produces identical output for the same snapshot"@en .
+
+# -- Sector Properties --
+
+meta:belongsToSector
+  a owl:ObjectProperty ;
+  rdfs:domain meta:OntologyElement ;
+  rdfs:range meta:Sector ;
+  rdfs:label "belongs to sector"@en ;
+  rdfs:comment "The business sector or domain this element belongs to"@en .
+
+# -- Validation Properties --
+
+meta:validationResult
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Receipt ;
+  rdfs:range [ owl:unionOf ( xsd:string [ rdf:type owl:Restriction ;
+                                          owl:oneOf ( "valid" "invalid" "pending" )
+                                        ]
+                            )
+             ] ;
+  rdfs:label "validation result"@en ;
+  rdfs:comment "Result of validation: 'valid', 'invalid', or 'pending'"@en .
+
+meta:invariantsPreserved
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Receipt ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "invariants preserved"@en ;
+  rdfs:comment "Whether all hard invariants (Q) are preserved"@en .
+
+meta:failureReason
+  a owl:DatatypeProperty ;
+  rdfs:domain meta:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "failure reason"@en ;
+  rdfs:comment "Explanation of why validation failed"@en .
+
+# ============================================================================
+# 3. HARD INVARIANTS (Q) - The Constitution
+# ============================================================================
+
+meta:NoRetrocausation
+  a meta:Invariant ;
+  rdfs:label "No Retrocausation"@en ;
+  rdfs:comment "Changes to Σ cannot retroactively affect past snapshots"@en .
+
+meta:TypeSoundness
+  a meta:Invariant ;
+  rdfs:label "Type Soundness"@en ;
+  rdfs:comment "All property values must conform to their declared ranges"@en .
+
+meta:GuardSoundness
+  a meta:Invariant ;
+  rdfs:label "Guard Soundness"@en ;
+  rdfs:comment "All guards must be satisfiable and consistently defined"@en .
+
+meta:ProjectionDeterminism
+  a meta:Invariant ;
+  rdfs:label "Projection Determinism"@en ;
+  rdfs:comment "Given the same snapshot, projections must produce identical outputs"@en .
+
+meta:SLOPreservation
+  a meta:Invariant ;
+  rdfs:label "SLO Preservation"@en ;
+  rdfs:comment "Changes to Σ must not violate operator performance SLOs"@en .
+
+meta:ImmutabilityOfSnapshots
+  a meta:Invariant ;
+  rdfs:label "Immutability of Snapshots"@en ;
+  rdfs:comment "Once a snapshot is created with a given ID, it cannot be modified"@en .
+
+meta:AtomicPromotion
+  a meta:Invariant ;
+  rdfs:label "Atomic Promotion"@en ;
+  rdfs:comment "Switching from one snapshot to another must be an atomic operation"@en .
+
+# ============================================================================
+# 4. DOMAIN RULES (Σ² Constraints)
+# ============================================================================
+
+# Every class must declare the projection families that depend on it
+
+meta:ClassNeedsProjections
+  a meta:Constraint ;
+  rdfs:label "Class Needs Projections"@en ;
+  rdfs:comment "Every ontology class should be covered by at least one projection"@en ;
+  meta:errorMessage "Class has no projections"@en .
+
+# Every property must have domain, range, and cardinality
+
+meta:PropertyMustBeWellFormed
+  a meta:Constraint ;
+  rdfs:label "Property Must Be Well-Formed"@en ;
+  rdfs:comment "Every property must declare domain, range, and cardinality"@en ;
+  meta:errorMessage "Property is missing domain, range, or cardinality"@en .
+
+# Guards must not form circular dependencies
+
+meta:GuardsAreAcyclic
+  a meta:Constraint ;
+  rdfs:label "Guards Are Acyclic"@en ;
+  rdfs:comment "Guard dependencies must not form cycles"@en ;
+  meta:errorMessage "Guard dependency cycle detected"@en .
+
+# Version changes must be monotonically increasing
+
+meta:VersionMonotonicity
+  a meta:Constraint ;
+  rdfs:label "Version Monotonicity"@en ;
+  rdfs:comment "Snapshot versions must increase monotonically"@en ;
+  meta:errorMessage "Version constraint violated"@en .
+
+# ============================================================================
+# 5. DELTA CHANGE TYPES (ΔΣ² Objects)
+# ============================================================================
+
+meta:AddClass
+  a owl:Class ;
+  rdfs:subClassOf meta:DeltaSigma ;
+  rdfs:label "Add Class"@en ;
+  rdfs:comment "Propose adding a new class to the ontology"@en .
+
+meta:RemoveClass
+  a owl:Class ;
+  rdfs:subClassOf meta:DeltaSigma ;
+  rdfs:label "Remove Class"@en ;
+  rdfs:comment "Propose removing a class from the ontology"@en .
+
+meta:AddProperty
+  a owl:Class ;
+  rdfs:subClassOf meta:DeltaSigma ;
+  rdfs:label "Add Property"@en ;
+  rdfs:comment "Propose adding a new property to the ontology"@en .
+
+meta:RemoveProperty
+  a owl:Class ;
+  rdfs:subClassOf meta:DeltaSigma ;
+  rdfs:label "Remove Property"@en ;
+  rdfs:comment "Propose removing a property from the ontology"@en .
+
+meta:TightenConstraint
+  a owl:Class ;
+  rdfs:subClassOf meta:DeltaSigma ;
+  rdfs:label "Tighten Constraint"@en ;
+  rdfs:comment "Propose making a constraint stricter"@en .
+
+meta:RelaxConstraint
+  a owl:Class ;
+  rdfs:subClassOf meta:DeltaSigma ;
+  rdfs:label "Relax Constraint"@en ;
+  rdfs:comment "Propose making a constraint less strict"@en .
+
+meta:RefinementOf
+  a owl:ObjectProperty ;
+  rdfs:domain meta:DeltaSigma ;
+  rdfs:range meta:OntologyElement ;
+  rdfs:label "refinement of"@en ;
+  rdfs:comment "The ontology element this delta modifies"@en .
+
+# ============================================================================
+# 6. CORE SECTORS
+# ============================================================================
+
+meta:SupportSector
+  a meta:Sector ;
+  rdfs:label "Support"@en ;
+  rdfs:comment "Customer support and issue tracking"@en .
+
+meta:FinanceSector
+  a meta:Sector ;
+  rdfs:label "Finance"@en ;
+  rdfs:comment "Financial services and transactions"@en .
+
+meta:PapersSector
+  a meta:Sector ;
+  rdfs:label "Papers"@en ;
+  rdfs:comment "Academic and research papers"@en .
+
+meta:ObservabilitySector
+  a meta:Sector ;
+  rdfs:label "Observability"@en ;
+  rdfs:comment "Monitoring, logging, tracing, and metrics"@en .
+
+meta:AuthSector
+  a meta:Sector ;
+  rdfs:label "Authentication"@en ;
+  rdfs:comment "User authentication and authorization"@en .
+
+meta:DataSector
+  a meta:Sector ;
+  rdfs:label "Data"@en ;
+  rdfs:comment "Data pipelines, schemas, and transformations"@en .
+
+# ============================================================================
+# 7. PROJECTION FAMILIES
+# ============================================================================
+
+meta:ProjectionFamily_Models
+  a meta:Projection ;
+  rdfs:label "Π_models"@en ;
+  rdfs:comment "Generate data models (Rust, TypeScript, Python, etc.)"@en ;
+  meta:deterministic true ;
+  meta:targetLanguage "polyglot"@en .
+
+meta:ProjectionFamily_APIs
+  a meta:Projection ;
+  rdfs:label "Π_apis"@en ;
+  rdfs:comment "Generate REST/GraphQL API specifications and implementations"@en ;
+  meta:deterministic true ;
+  meta:targetLanguage "OpenAPI/GraphQL"@en .
+
+meta:ProjectionFamily_Hooks
+  a meta:Projection ;
+  rdfs:label "Π_hooks"@en ;
+  rdfs:comment "Generate KNHK hooks and operator graphs"@en ;
+  meta:deterministic true ;
+  meta:targetLanguage "YAML/Rust"@en .
+
+meta:ProjectionFamily_Papers
+  a meta:Projection ;
+  rdfs:label "Π_papers"@en ;
+  rdfs:comment "Generate academic paper templates and structures"@en ;
+  meta:deterministic true ;
+  meta:targetLanguage "LaTeX"@en .
+
+meta:ProjectionFamily_Telemetry
+  a meta:Projection ;
+  rdfs:label "Π_telemetry"@en ;
+  rdfs:comment "Generate OpenTelemetry schemas and configurations"@en ;
+  meta:deterministic true ;
+  meta:targetLanguage "JSON/YAML"@en .
+
+# ============================================================================
+# 8. SNAPSHOT SHAPE (SHACL)
+# ============================================================================
+
+meta:SnapshotShape
+  a shacl:NodeShape ;
+  shacl:targetClass meta:Snapshot ;
+  shacl:property [
+    shacl:path meta:snapshotId ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Snapshot must have exactly one ID"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:version ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Snapshot must have exactly one version"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:timestamp ;
+    shacl:datatype xsd:dateTime ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Snapshot must have exactly one timestamp"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:hash ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Snapshot must have exactly one hash"@en
+  ] .
+
+# ============================================================================
+# 9. PROPERTY SHAPE (SHACL)
+# ============================================================================
+
+meta:PropertyShape
+  a shacl:NodeShape ;
+  shacl:targetClass meta:Property ;
+  shacl:property [
+    shacl:path meta:hasDomain ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:nodeKind shacl:IRI ;
+    shacl:description "Property must have exactly one domain"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:hasRange ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Property must have exactly one range"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:hasCardinality ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Property must have exactly one cardinality"@en
+  ] .
+
+# ============================================================================
+# 10. RECEIPT SHAPE (SHACL)
+# ============================================================================
+
+meta:ReceiptShape
+  a shacl:NodeShape ;
+  shacl:targetClass meta:Receipt ;
+  shacl:property [
+    shacl:path meta:snapshotId ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must reference exactly one snapshot"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:validationResult ;
+    shacl:in ( "valid" "invalid" "pending" ) ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must have a validation result"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:invariantsPreserved ;
+    shacl:datatype xsd:boolean ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must declare whether invariants are preserved"@en
+  ] ;
+  shacl:property [
+    shacl:path meta:hash ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must be signed with a cryptographic hash"@en
+  ] .
+
+# ============================================================================
+# 11. CORE INSTANCE: Active Snapshot Marker
+# ============================================================================
+
+meta:CurrentSnapshot
+  a meta:Snapshot ;
+  rdfs:label "Current Active Snapshot"@en ;
+  rdfs:comment "The currently active snapshot used for all projections and operators"@en ;
+  meta:version "0.0.1" ;
+  meta:timestamp "2025-01-01T00:00:00Z"^^xsd:dateTime .

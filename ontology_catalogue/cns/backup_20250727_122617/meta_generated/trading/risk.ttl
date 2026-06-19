@@ -1,0 +1,23 @@
+# Risk Module
+# Part of trading ontology
+
+@prefix : <http://cns.io/trading/risk#> .
+@prefix trading: <http://cns.io/trading#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Risk Classes
+
+:RiskMetric a owl:Class ;
+    rdfs:label "Risk Metric" .
+
+:PositionLimit a owl:Class ;
+    rdfs:subClassOf :RiskMetric .
+
+:VaR a owl:Class ;
+    rdfs:subClassOf :RiskMetric ;
+    rdfs:label "Value at Risk" .
+
+:StressTest a owl:Class ;
+    rdfs:label "Stress Test Scenario" .
+

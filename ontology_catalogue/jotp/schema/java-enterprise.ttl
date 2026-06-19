@@ -1,0 +1,310 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix java:  <https://jgen.dev/ontology/java#> .
+@prefix jpat:  <https://jgen.dev/ontology/java/patterns#> .
+@prefix eip:   <https://jgen.dev/ontology/java/messaging#> .
+@prefix app:   <https://jgen.dev/ontology/java/enterprise#> .
+
+# =============================================================================
+# Java Enterprise Application Patterns Ontology
+# Joe Armstrong AGI - JOTP Enterprise Application Composer
+# =============================================================================
+
+app:Ontology a owl:Ontology ;
+    rdfs:label "Java Enterprise Application Patterns" ;
+    rdfs:comment "Ontology for composing complete enterprise applications from JOTP primitives" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://jgen.dev/ontology/java/messaging#> .
+
+# =============================================================================
+# APPLICATION PATTERNS
+# =============================================================================
+
+app:ApplicationPattern a owl:Class ;
+    rdfs:subClassOf jpat:Pattern ;
+    rdfs:label "Application Pattern" ;
+    rdfs:comment "Patterns for composing enterprise applications from services and infrastructure" .
+
+app:Application a app:ApplicationPattern ;
+    rdfs:label "Application" ;
+    jpat:hasTemplate "enterprise/application.tera" ;
+    eip:mapsToPrimitive eip:Supervisor ;
+    eip:hasComplexity 3 ;
+    jpat:hasIntent "Compose complete enterprise application with services, infrastructure, health checks, and configuration" ;
+    jpat:replacesLegacy "Spring Boot applications, Jakarta EE servers, microservice frameworks" .
+
+app:ApplicationConfig a app:ApplicationPattern ;
+    rdfs:label "Application Configuration" ;
+    jpat:hasTemplate "enterprise/application-config.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 1 ;
+    jpat:hasIntent "Centralized configuration management with type-safe access and environment variables" ;
+    jpat:replacesLegacy "Properties files, YAML configuration, Spring Environment" .
+
+# =============================================================================
+# SERVICE MESH PATTERNS
+# =============================================================================
+
+app:ServiceMeshPattern a owl:Class ;
+    rdfs:subClassOf app:ApplicationPattern ;
+    rdfs:label "Service Mesh Pattern" ;
+    rdfs:comment "Patterns for service discovery, routing, and load balancing" .
+
+app:ServiceRegistry a app:ServiceMeshPattern ;
+    rdfs:label "Service Registry" ;
+    jpat:hasTemplate "enterprise/service-registry.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Register and discover services with metadata, health tracking, and tags" ;
+    jpat:replacesLegacy "Consul, Eureka, ZooKeeper service discovery" .
+
+app:ServiceRouter a app:ServiceMeshPattern ;
+    rdfs:label "Service Router" ;
+    jpat:hasTemplate "enterprise/service-router.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Content-based and predicate-based routing to services" ;
+    jpat:replacesLegacy "Spring Cloud Gateway routes, Istio virtual services" .
+
+app:LoadBalancer a app:ServiceMeshPattern ;
+    rdfs:label "Load Balancer" ;
+    jpat:hasTemplate "enterprise/load-balancer.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 1 ;
+    jpat:hasIntent "Distribute load across service instances with various strategies" ;
+    jpat:replacesLegacy "HAProxy, NGINX upstream, AWS ALB" .
+
+app:CircuitBreaker a app:ServiceMeshPattern ;
+    rdfs:label "Circuit Breaker" ;
+    jpat:hasTemplate "enterprise/circuit-breaker.tera" ;
+    eip:mapsToPrimitive eip:Supervisor ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Fail fast when dependencies are down, prevent cascade failures" ;
+    jpat:replacesLegacy "Resilience4j, Hystrix, Polly" .
+
+# =============================================================================
+# MESSAGING INFRASTRUCTURE
+# =============================================================================
+
+app:MessagingInfrastructurePattern a owl:Class ;
+    rdfs:subClassOf app:ApplicationPattern ;
+    rdfs:label "Messaging Infrastructure Pattern" ;
+    rdfs:comment "Patterns for message buses, stores, and durable messaging" .
+
+app:MessageBus a app:MessagingInfrastructurePattern ;
+    rdfs:label "Message Bus" ;
+    jpat:hasTemplate "enterprise/message-bus.tera" ;
+    eip:mapsToPrimitive eip:EventManager ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Topic-based message distribution with wildcards and dead letter handling" ;
+    jpat:replacesLegacy "Kafka, RabbitMQ, JMS Topics" .
+
+app:MessageStore a app:MessagingInfrastructurePattern ;
+    rdfs:label "Message Store" ;
+    jpat:hasTemplate "enterprise/message-store.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Append-only log for reliable message delivery and replay" ;
+    jpat:replacesLegacy "Kafka log segments, Kinesis streams, EventStoreDB" .
+
+# =============================================================================
+# EVENT SOURCING
+# =============================================================================
+
+app:EventSourcingPattern a owl:Class ;
+    rdfs:subClassOf app:ApplicationPattern ;
+    rdfs:label "Event Sourcing Pattern" ;
+    rdfs:comment "Patterns for event-sourced aggregates and projections" .
+
+app:EventStore a app:EventSourcingPattern ;
+    rdfs:label "Event Store" ;
+    jpat:hasTemplate "enterprise/event-store.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 3 ;
+    jpat:hasIntent "Append-only event log with projections, snapshots, and subscriptions" ;
+    jpat:replacesLegacy "EventStoreDB, Axon Server, Marten" .
+
+app:Projection a app:EventSourcingPattern ;
+    rdfs:label "Projection" ;
+    jpat:hasTemplate "enterprise/projection.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Build read models from event streams" ;
+    jpat:replacesLegacy "Materialized views, CQRS read models" .
+
+app:Snapshot a app:EventSourcingPattern ;
+    rdfs:label "Snapshot" ;
+    jpat:hasTemplate "enterprise/snapshot.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Optimize replay by storing periodic aggregate state" ;
+    jpat:replacesLegacy "Aggregate snapshots, state checkpoints" .
+
+# =============================================================================
+# OBSERVABILITY
+# =============================================================================
+
+app:ObservabilityPattern a owl:Class ;
+    rdfs:subClassOf app:ApplicationPattern ;
+    rdfs:label "Observability Pattern" ;
+    rdfs:comment "Patterns for metrics, tracing, and health monitoring" .
+
+app:MetricsCollector a app:ObservabilityPattern ;
+    rdfs:label "Metrics Collector" ;
+    jpat:hasTemplate "enterprise/metrics-collector.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Collect counters, gauges, histograms, and timers" ;
+    jpat:replacesLegacy "Micrometer, Prometheus client, Dropwizard Metrics" .
+
+app:DistributedTracer a app:ObservabilityPattern ;
+    rdfs:label "Distributed Tracer" ;
+    jpat:hasTemplate "enterprise/distributed-tracer.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "W3C Trace Context compatible distributed tracing" ;
+    jpat:replacesLegacy "OpenTelemetry SDK, Jaeger client, Zipkin" .
+
+app:HealthChecker a app:ObservabilityPattern ;
+    rdfs:label "Health Checker" ;
+    jpat:hasTemplate "enterprise/health-checker.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 1 ;
+    jpat:hasIntent "Liveness, readiness, and dependency health checks" ;
+    jpat:replacesLegacy "Spring Boot Actuator, Kubernetes probes" .
+
+# =============================================================================
+# API GATEWAY
+# =============================================================================
+
+app:ApiGatewayPattern a owl:Class ;
+    rdfs:subClassOf app:ApplicationPattern ;
+    rdfs:label "API Gateway Pattern" ;
+    rdfs:comment "Patterns for API gateway, routing, and rate limiting" .
+
+app:ApiGateway a app:ApiGatewayPattern ;
+    rdfs:label "API Gateway" ;
+    jpat:hasTemplate "enterprise/api-gateway.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 3 ;
+    jpat:hasIntent "Unified entry point with routing, transformation, and authentication" ;
+    jpat:replacesLegacy "Kong, Apigee, AWS API Gateway, Spring Cloud Gateway" .
+
+app:RateLimiter a app:ApiGatewayPattern ;
+    rdfs:label "Rate Limiter" ;
+    jpat:hasTemplate "enterprise/rate-limiter.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 1 ;
+    jpat:hasIntent "Token bucket, sliding window, and fixed window rate limiting" ;
+    jpat:replacesLegacy "Resilience4j rate limiter, Bucket4j, Redis rate limiting" .
+
+app:RequestRouter a app:ApiGatewayPattern ;
+    rdfs:label "Request Router" ;
+    jpat:hasTemplate "enterprise/request-router.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Route requests to backend services" ;
+    jpat:replacesLegacy "Reverse proxy routing, service mesh routing" .
+
+app:ResponseTransformer a app:ApiGatewayPattern ;
+    rdfs:label "Response Transformer" ;
+    jpat:hasTemplate "enterprise/response-transformer.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 1 ;
+    jpat:hasIntent "Transform responses between formats" ;
+    jpat:replacesLegacy "API response transformation, protocol translation" .
+
+# =============================================================================
+# CQRS
+# =============================================================================
+
+app:CQRSPattern a owl:Class ;
+    rdfs:subClassOf app:ApplicationPattern ;
+    rdfs:label "CQRS Pattern" ;
+    rdfs:comment "Command Query Responsibility Segregation patterns" .
+
+app:CommandDispatcher a app:CQRSPattern ;
+    rdfs:label "Command Dispatcher" ;
+    jpat:hasTemplate "enterprise/command-dispatcher.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Route commands to handlers with validation and middleware" ;
+    jpat:replacesLegacy "MediatR, Axon command bus, Lagom command handling" .
+
+app:QueryDispatcher a app:CQRSPattern ;
+    rdfs:label "Query Dispatcher" ;
+    jpat:hasTemplate "enterprise/query-dispatcher.tera" ;
+    eip:mapsToPrimitive eip:Proc ;
+    eip:hasComplexity 2 ;
+    jpat:hasIntent "Execute queries against read models with optional caching" ;
+    jpat:replacesLegacy "Query handlers, GraphQL resolvers, read side services" .
+
+# =============================================================================
+# APPLICATION COMPOSITION
+# =============================================================================
+
+app:hasService a owl:ObjectProperty ;
+    rdfs:domain app:Application ;
+    rdfs:range app:Service ;
+    rdfs:label "has service" ;
+    rdfs:comment "A service component of the application" .
+
+app:hasInfrastructure a owl:ObjectProperty ;
+    rdfs:domain app:Application ;
+    rdfs:range app:Infrastructure ;
+    rdfs:label "has infrastructure" ;
+    rdfs:comment "An infrastructure component of the application" .
+
+app:hasHealthCheck a owl:ObjectProperty ;
+    rdfs:domain app:Application ;
+    rdfs:range app:HealthChecker ;
+    rdfs:label "has health check" ;
+    rdfs:comment "A health check for the application" .
+
+app:hasConfig a owl:ObjectProperty ;
+    rdfs:domain app:Application ;
+    rdfs:range app:ApplicationConfig ;
+    rdfs:label "has configuration" ;
+    rdfs:comment "Configuration for the application" .
+
+app:Service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "A business service in the application" .
+
+app:Infrastructure a owl:Class ;
+    rdfs:label "Infrastructure" ;
+    rdfs:comment "An infrastructure component (MessageBus, EventStore, etc.)" .
+
+app:hasName a owl:DatatypeProperty ;
+    rdfs:domain app:Service ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" ;
+    rdfs:comment "The service name" .
+
+app:usesPattern a owl:ObjectProperty ;
+    rdfs:domain app:Service ;
+    rdfs:range eip:MessagingPattern ;
+    rdfs:label "uses pattern" ;
+    rdfs:comment "The EIP pattern this service implements" .
+
+# =============================================================================
+# PATTERN DEPENDENCIES
+# =============================================================================
+
+app:Application eip:requiresPattern eip:SupervisionStorm .
+app:Application app:hasInfrastructure app:MessageBus .
+app:Application app:hasInfrastructure app:EventStore .
+app:Application app:hasInfrastructure app:MetricsCollector .
+
+app:ApiGateway eip:requiresPattern app:ServiceRouter .
+app:ApiGateway eip:requiresPattern app:RateLimiter .
+app:ApiGateway eip:requiresPattern app:CircuitBreaker .
+
+app:CommandDispatcher eip:requiresPattern app:EventStore .
+app:QueryDispatcher eip:requiresPattern app:Projection .
+
+app:EventStore eip:requiresPattern app:MessageStore .
+app:ServiceRouter eip:requiresPattern app:ServiceRegistry .
+app:ServiceRouter eip:requiresPattern app:LoadBalancer .

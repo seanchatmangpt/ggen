@@ -9,10 +9,35 @@ use ggen_core::registry::{
     PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata,
 };
 use predicates::prelude::*;
+use serial_test::serial;
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
 // use url::Url; // Not available in test dependencies
+
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally per binary; do not share across crates.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
 
 /// Mock registry client for testing
 struct MockRegistryClient {
@@ -284,11 +309,12 @@ fn test_cli_help_commands() {
 }
 
 #[test]
+#[serial(GGEN_REGISTRY_URL)]
 fn test_search_command_basic_usage() {
     // Set up local registry URL for testing
     let registry_path = std::env::current_dir().unwrap().join("registry");
     let registry_url = format!("file://{}/", registry_path.to_string_lossy());
-    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+    let _guard = EnvVarGuard::set("GGEN_REGISTRY_URL", &registry_url);
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("market").arg("search").arg("rust");
@@ -299,11 +325,12 @@ fn test_search_command_basic_usage() {
 }
 
 #[test]
+#[serial(GGEN_REGISTRY_URL)]
 fn test_search_command_with_filters() {
     // Set up local registry URL for testing
     let registry_path = std::env::current_dir().unwrap().join("registry");
     let registry_url = format!("file://{}/", registry_path.to_string_lossy());
-    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+    let _guard = EnvVarGuard::set("GGEN_REGISTRY_URL", &registry_url);
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("market")
@@ -487,11 +514,12 @@ fn test_cli_error_handling() {
 }
 
 #[test]
+#[serial(GGEN_REGISTRY_URL)]
 fn test_cli_output_formats() {
     // Set up local registry URL for testing
     let registry_path = std::env::current_dir().unwrap().join("registry");
     let registry_url = format!("file://{}/", registry_path.to_string_lossy());
-    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+    let _guard = EnvVarGuard::set("GGEN_REGISTRY_URL", &registry_url);
 
     // Test JSON output - now works with local mock registry
     let mut cmd = Command::cargo_bin("ggen").unwrap();

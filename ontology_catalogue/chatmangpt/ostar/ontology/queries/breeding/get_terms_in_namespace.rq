@@ -1,0 +1,24 @@
+# SPARQL SELECT query to get all terms defined in a namespace
+#
+# Args:
+#   ?namespace: The base namespace URI (with trailing # or /)
+#
+# Returns:
+#   List of term URIs in the namespace
+#
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT ?term
+WHERE {
+    # Match terms that are subjects in the namespace
+    ?term ?p ?o .
+    FILTER STRSTARTS(STR(?term), ?namespace)
+
+    # Optional: get type and label
+    OPTIONAL { ?term a ?type . }
+    OPTIONAL { ?term rdfs:label ?label . }
+}
+ORDER BY ?term

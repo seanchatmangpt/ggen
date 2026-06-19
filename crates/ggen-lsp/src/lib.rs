@@ -4,6 +4,11 @@
     clippy::panic,
     clippy::match_wildcard_for_single_variants
 )]
+// stdout is the LSP frame channel; a print!/println! here interleaves ahead of
+// the Content-Length header and corrupts framing — the exact failure mode that
+// shipped in this crate before. Make the second writer to stdout unconstructable:
+// it cannot compile. Route output through tracing (stderr) or eprintln!.
+#![deny(clippy::print_stdout)]
 
 pub mod analyzers;
 pub mod check;

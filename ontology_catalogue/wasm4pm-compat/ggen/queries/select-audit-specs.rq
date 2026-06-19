@@ -1,0 +1,102 @@
+# SPARQL Query: Select All AuditSpec Instances with Full Property Set
+# Purpose: Extract all audit specifications with their name, scope, carrier type,
+#          requirements, templates, and pass conditions for Tera template rendering.
+#          Structured to support audit documentation generation and compliance reporting.
+# Usage: ggen query select-audit-specs.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX audit:  <https://wasm4pm-compat.rs/audit#>
+
+SELECT DISTINCT
+  ?spec
+  ?specName
+  ?lawName
+  ?auditScope
+  ?scopeTarget
+  ?carrierType
+  ?witnessRequired
+  ?stateRequired
+  ?verdictType
+  ?templateName
+  ?templateKind
+  ?patternName
+  ?patternDescription
+  ?contextName
+  ?contextScope
+  ?exceptionReason
+  ?gateName
+  ?gateDescription
+  ?gateSeverity
+  ?specComment
+  ?templateComment
+  ?patternComment
+  ?contextComment
+
+WHERE {
+  # Core AuditSpec entity with all required properties
+  ?spec a audit:AuditSpec ;
+        audit:specName       ?specName ;
+        audit:lawName        ?lawName ;
+        audit:auditScope     ?auditScope ;
+        audit:scopeTarget    ?scopeTarget ;
+        audit:carrierType    ?carrierType ;
+        audit:verdictType    ?verdictType .
+
+  # Optional: human-readable comments (from rdfs:comment)
+  OPTIONAL { ?spec rdfs:comment ?specComment . }
+
+  # Optional: witness marker requirement(s)
+  # If unspecified, audit applies to all witnesses in scope
+  OPTIONAL { ?spec audit:witnessRequired ?witnessRequired . }
+
+  # Optional: evidence state requirement(s)
+  # If unspecified, audit applies to all legal states in lifecycle
+  OPTIONAL { ?spec audit:stateRequired ?stateRequired . }
+
+  # Optional: link to applicable template(s)
+  # One AuditSpec may reference multiple AuditTemplate instances covering
+  # different implementation approaches (compile-fail fixture, runtime test, etc.)
+  OPTIONAL {
+    ?spec audit:applicableTemplate ?template .
+    ?template a audit:AuditTemplate ;
+              audit:templateName ?templateName ;
+              audit:templateKind ?templateKind .
+    OPTIONAL { ?template rdfs:comment ?templateComment . }
+  }
+
+  # Optional: forbidden pattern(s) related to this spec's law
+  # Discovered by finding ForbiddenPattern instances whose forbiddenBy
+  # property references a law with the same name as this spec's lawName
+  OPTIONAL {
+    ?pattern a audit:ForbiddenPattern ;
+             audit:patternName ?patternName ;
+             audit:patternDescription ?patternDescription .
+    OPTIONAL { ?pattern rdfs:comment ?patternComment . }
+
+    # Optional: allowed context(s) that permit the forbidden pattern
+    # Each ForbiddenPattern may have multiple AllowedContext instances
+    # specifying conditions under which the pattern is permitted
+    OPTIONAL {
+      ?pattern audit:allowedIn ?context .
+      ?context a audit:AllowedContext ;
+               audit:contextName ?contextName ;
+               audit:contextScope ?contextScope ;
+               audit:exceptionReason ?exceptionReason .
+      OPTIONAL { ?context rdfs:comment ?contextComment . }
+    }
+  }
+
+  # Optional: audit gate(s) enforcing this spec's pass condition
+  # AuditGate instances define proof conditions (SPARQL ASK, fixture coverage, etc.)
+  # that must evaluate true for audit certification
+  OPTIONAL {
+    ?gate a audit:AuditGate ;
+          audit:gateName ?gateName ;
+          audit:gateDescription ?gateDescription ;
+          audit:gateSeverity ?gateSeverity .
+  }
+}
+ORDER BY ?specName ?patternName ?contextName ?gateName

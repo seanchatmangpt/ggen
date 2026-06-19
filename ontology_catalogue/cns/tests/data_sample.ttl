@@ -1,0 +1,9 @@
+@prefix ex: <http://ex.com/\> .
+@prefix sh: <http://www.w3.org/ns/shacl\#\> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema\#\> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema\#\> .
+
+ex:CustomerShape a sh:NodeShape ;
+  sh:targetClass ex:Customer ;
+  sh:property [ sh:path ex:name ; sh:datatype xsd:string ; rdfs:comment "input" ] ;
+  sh:property [ sh:path ex:score ; sh:datatype xsd:int ; rdfs:comment "output" ] .

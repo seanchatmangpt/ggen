@@ -1,0 +1,42 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix odrl:  <http://www.w3.org/ns/odrl/2/> .
+@prefix earl:  <http://www.w3.org/ns/earl#> .
+@prefix mcpp:  <https://w3id.org/mcpp#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Sample evidence graph for `mcpp ontology validate` smoke testing.
+#
+# Conforms to `schemas/shacl/mcpp-passport-shapes.ttl`:
+#   - exactly one mcpp:hasManifest
+#   - at least one prov:wasGeneratedBy (linked to prov:Activity)
+#   - at least one odrl:hasPolicy
+#   - at least one earl:Assertion
+# ──────────────────────────────────────────────────────────────────────────────
+
+_:sample-passport a mcpp:Passport ;
+    mcpp:hasManifest         _:sample-manifest ;
+    prov:wasGeneratedBy      _:sample-admission ;
+    odrl:hasPolicy           _:sample-policy ;
+    earl:Assertion           _:sample-earl ;
+    mcpp:release             "v26.5.16" ;
+    mcpp:manifest_hash       "0000000000000000000000000000000000000000000000000000000000000000" .
+
+_:sample-manifest a mcpp:Manifest ;
+    mcpp:partName            "demo" .
+
+_:sample-admission a prov:Activity, mcpp:Admission ;
+    prov:startedAtTime       "2026-05-16T00:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime         "2026-05-16T00:00:01Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith   _:sample-agent ;
+    prov:used                _:sample-manifest .
+
+_:sample-agent a prov:Agent .
+
+_:sample-policy a odrl:Set ;
+    odrl:uid                 "https://w3id.org/mcpp/policy/sample" .
+
+_:sample-earl a earl:Assertion ;
+    earl:test                "mcpp:SamplePassportTest" ;
+    earl:result              earl:passed .

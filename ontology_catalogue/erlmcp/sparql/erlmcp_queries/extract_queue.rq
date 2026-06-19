@@ -1,0 +1,37 @@
+# =============================================================================
+# SPARQL Query: Extract Message Queue Configuration
+# =============================================================================
+# Purpose: Extract queue configuration for code generation
+# =============================================================================
+
+PREFIX queue: <http://erlmcp.org/schema/queue/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?config a queue:QueueConfig ;
+        queue:maxSize ?maxSize ;
+        queue:storageBackend ?backend ;
+        queue:ackTimeoutMs ?ackTimeout ;
+        queue:retryBackoffMs ?backoff ;
+        queue:deadLetterThreshold ?threshold .
+
+    ?pool a queue:WorkerPool ;
+        queue:workerCount ?workers ;
+        queue:minWorkers ?minWorkers ;
+        queue:maxWorkers ?maxWorkers .
+}
+WHERE {
+    {
+        ?config a queue:QueueConfig .
+        OPTIONAL { ?config queue:maxSize ?maxSize . }
+        OPTIONAL { ?config queue:storageBackend ?backend . }
+        OPTIONAL { ?config queue:ackTimeoutMs ?ackTimeout . }
+        OPTIONAL { ?config queue:retryBackoffMs ?backoff . }
+        OPTIONAL { ?config queue:deadLetterThreshold ?threshold . }
+    } UNION {
+        ?pool a queue:WorkerPool .
+        OPTIONAL { ?pool queue:workerCount ?workers . }
+        OPTIONAL { ?pool queue:minWorkers ?minWorkers . }
+        OPTIONAL { ?pool queue:maxWorkers ?maxWorkers . }
+    }
+}

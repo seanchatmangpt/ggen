@@ -1,0 +1,13 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+
+# Query: installable_plugins_for_strict_enterprise
+# Returns: Plugin versions satisfying strict-enterprise policy
+# (has SHA pinning, no MCP server)
+
+SELECT ?plugin ?version WHERE {
+  ?plugin ostar:pluginName ?name ;
+          ostar:hasVersion ?version .
+  ?version ostar:version ?v ;
+           ostar:sourceSha ?sha .
+  FILTER NOT EXISTS { ?version ostar:hasMcpServer "true"^^<http://www.w3.org/2001/XMLSchema#boolean> }
+}

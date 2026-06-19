@@ -1,0 +1,401 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix gitv: <https://gitvan.dev/ontology/git#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+
+# ============================================================================
+# GitVan Git Lifecycle Ontology
+# Version: 3.2.0
+# Description: Complete RDF schema for git lifecycle events using PROV-O
+# ============================================================================
+
+# Ontology Declaration
+gitv: a owl:Ontology ;
+    dct:title "GitVan Git Lifecycle Ontology" ;
+    dct:description "Comprehensive ontology for capturing git lifecycle events and their provenance using W3C PROV-O standards" ;
+    dct:version "3.2.0" ;
+    dct:created "2025-12-03"^^xsd:date ;
+    owl:imports prov: .
+
+# ============================================================================
+# Git Event Types (as PROV Activities)
+# ============================================================================
+
+gitv:GitEvent a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Git Event" ;
+    rdfs:comment "Abstract base class for all git lifecycle events" .
+
+gitv:PreCommitEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Pre-Commit Event" ;
+    rdfs:comment "Fired before git commit is created. Can prevent commit if validation fails." .
+
+gitv:PostCommitEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Post-Commit Event" ;
+    rdfs:comment "Fired after git commit is successfully created." .
+
+gitv:PrepareCommitMsgEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Prepare Commit Message Event" ;
+    rdfs:comment "Fired to prepare or modify commit message before user edits." .
+
+gitv:CommitMsgEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Commit Message Event" ;
+    rdfs:comment "Fired after commit message is entered but before commit is created. Used for validation." .
+
+gitv:PrePushEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Pre-Push Event" ;
+    rdfs:comment "Fired before commits are pushed to remote. Can prevent push if validation fails." .
+
+gitv:PostPushEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Post-Push Event" ;
+    rdfs:comment "Fired after commits are successfully pushed to remote." .
+
+gitv:PostCheckoutEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Post-Checkout Event" ;
+    rdfs:comment "Fired after checkout operation (branch switch or file checkout)." .
+
+gitv:PostMergeEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Post-Merge Event" ;
+    rdfs:comment "Fired after successful merge operation." .
+
+gitv:PostRewriteEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Post-Rewrite Event" ;
+    rdfs:comment "Fired after commits are rewritten (rebase, amend, filter-branch)." .
+
+gitv:PostUpdateEvent a owl:Class ;
+    rdfs:subClassOf gitv:GitEvent ;
+    rdfs:label "Post-Update Event" ;
+    rdfs:comment "Server-side hook fired after refs are updated on remote." .
+
+# ============================================================================
+# Git Entities (as PROV Entities)
+# ============================================================================
+
+gitv:Commit a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Git Commit" ;
+    rdfs:comment "A git commit object representing a snapshot of the repository." .
+
+gitv:Branch a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Git Branch" ;
+    rdfs:comment "A git branch reference pointing to a commit." .
+
+gitv:Tag a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Git Tag" ;
+    rdfs:comment "A git tag reference, typically marking a release point." .
+
+gitv:WorkingTree a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Working Tree" ;
+    rdfs:comment "The working directory containing checked-out files." .
+
+gitv:StagingArea a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Staging Area (Index)" ;
+    rdfs:comment "The git index containing staged changes for next commit." .
+
+gitv:Repository a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Git Repository" ;
+    rdfs:comment "A git repository containing all objects and references." .
+
+gitv:Remote a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Git Remote" ;
+    rdfs:comment "A remote repository reference." .
+
+# ============================================================================
+# Agents (as PROV Agents)
+# ============================================================================
+
+gitv:GitUser a owl:Class ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:label "Git User" ;
+    rdfs:comment "A human user performing git operations." .
+
+gitv:AutomationAgent a owl:Class ;
+    rdfs:subClassOf prov:SoftwareAgent ;
+    rdfs:label "Automation Agent" ;
+    rdfs:comment "An automated system or CI/CD pipeline performing git operations." .
+
+# ============================================================================
+# Properties - Event Metadata
+# ============================================================================
+
+gitv:eventType a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "event type" ;
+    rdfs:comment "The type of git lifecycle event (e.g., 'pre-commit', 'post-push')." .
+
+gitv:timestamp a owl:DatatypeProperty ;
+    rdfs:subPropertyOf prov:atTime ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when the event occurred." .
+
+gitv:exitCode a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "exit code" ;
+    rdfs:comment "Process exit code (0 = success, non-zero = failure)." .
+
+gitv:duration a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "duration" ;
+    rdfs:comment "Event processing duration in milliseconds." .
+
+# ============================================================================
+# Properties - Commit Information
+# ============================================================================
+
+gitv:commitHash a owl:DatatypeProperty ;
+    rdfs:domain gitv:Commit ;
+    rdfs:range xsd:string ;
+    rdfs:label "commit hash" ;
+    rdfs:comment "SHA-1 hash of the commit object." .
+
+gitv:commitMessage a owl:DatatypeProperty ;
+    rdfs:domain gitv:Commit ;
+    rdfs:range xsd:string ;
+    rdfs:label "commit message" ;
+    rdfs:comment "Commit message describing the changes." .
+
+gitv:author a owl:ObjectProperty ;
+    rdfs:domain gitv:Commit ;
+    rdfs:range gitv:GitUser ;
+    rdfs:subPropertyOf prov:wasAttributedTo ;
+    rdfs:label "author" ;
+    rdfs:comment "The author of the commit." .
+
+gitv:committer a owl:ObjectProperty ;
+    rdfs:domain gitv:Commit ;
+    rdfs:range gitv:GitUser ;
+    rdfs:subPropertyOf prov:wasAttributedTo ;
+    rdfs:label "committer" ;
+    rdfs:comment "The person who created the commit object." .
+
+gitv:parentCommit a owl:ObjectProperty ;
+    rdfs:domain gitv:Commit ;
+    rdfs:range gitv:Commit ;
+    rdfs:subPropertyOf prov:wasDerivedFrom ;
+    rdfs:label "parent commit" ;
+    rdfs:comment "Parent commit(s) in the commit graph." .
+
+# ============================================================================
+# Properties - Branch and Reference Information
+# ============================================================================
+
+gitv:branchName a owl:DatatypeProperty ;
+    rdfs:domain gitv:Branch ;
+    rdfs:range xsd:string ;
+    rdfs:label "branch name" ;
+    rdfs:comment "Name of the git branch." .
+
+gitv:refName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "reference name" ;
+    rdfs:comment "Full git reference name (e.g., refs/heads/main)." .
+
+gitv:previousBranch a owl:ObjectProperty ;
+    rdfs:domain gitv:PostCheckoutEvent ;
+    rdfs:range gitv:Branch ;
+    rdfs:label "previous branch" ;
+    rdfs:comment "Branch before checkout operation." .
+
+gitv:currentBranch a owl:ObjectProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range gitv:Branch ;
+    rdfs:label "current branch" ;
+    rdfs:comment "Currently checked out branch." .
+
+# ============================================================================
+# Properties - File and Change Information
+# ============================================================================
+
+gitv:filesChanged a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "files changed" ;
+    rdfs:comment "Number of files modified in this event." .
+
+gitv:linesAdded a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "lines added" ;
+    rdfs:comment "Number of lines added." .
+
+gitv:linesDeleted a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "lines deleted" ;
+    rdfs:comment "Number of lines deleted." .
+
+gitv:stagedFiles a owl:DatatypeProperty ;
+    rdfs:domain gitv:PreCommitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "staged files" ;
+    rdfs:comment "JSON array of staged file paths." .
+
+# ============================================================================
+# Properties - Remote and Push Information
+# ============================================================================
+
+gitv:remoteName a owl:DatatypeProperty ;
+    rdfs:domain gitv:Remote ;
+    rdfs:range xsd:string ;
+    rdfs:label "remote name" ;
+    rdfs:comment "Name of the git remote (e.g., 'origin')." .
+
+gitv:remoteUrl a owl:DatatypeProperty ;
+    rdfs:domain gitv:Remote ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "remote URL" ;
+    rdfs:comment "URL of the remote repository." .
+
+gitv:pushedRefs a owl:DatatypeProperty ;
+    rdfs:domain gitv:PostPushEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "pushed refs" ;
+    rdfs:comment "JSON array of references that were pushed." .
+
+# ============================================================================
+# Properties - Hook Execution Context
+# ============================================================================
+
+gitv:hookTriggered a owl:ObjectProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range gh:Hook ;
+    rdfs:label "hook triggered" ;
+    rdfs:comment "Knowledge hook(s) that were triggered by this event." .
+
+gitv:workflowExecuted a owl:ObjectProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range gh:Pipeline ;
+    rdfs:label "workflow executed" ;
+    rdfs:comment "Workflow pipeline(s) executed in response to this event." .
+
+gitv:environmentVars a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "environment variables" ;
+    rdfs:comment "JSON object of environment variables during hook execution." .
+
+# ============================================================================
+# Properties - Retention and Lifecycle
+# ============================================================================
+
+gitv:retentionPolicy a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "retention policy" ;
+    rdfs:comment "Retention policy: 'detail' (90 days) or 'aggregate' (1 year)." .
+
+gitv:expiresAt a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "expires at" ;
+    rdfs:comment "Timestamp when this event record should be purged or aggregated." .
+
+gitv:aggregatedFrom a owl:ObjectProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range gitv:GitEvent ;
+    rdfs:label "aggregated from" ;
+    rdfs:comment "Links aggregate records back to original detailed events." .
+
+# ============================================================================
+# Properties - Error and Diagnostic Information
+# ============================================================================
+
+gitv:errorMessage a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "error message" ;
+    rdfs:comment "Error message if hook execution failed." .
+
+gitv:stackTrace a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "stack trace" ;
+    rdfs:comment "Stack trace for error diagnosis." .
+
+gitv:diagnosticData a owl:DatatypeProperty ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "diagnostic data" ;
+    rdfs:comment "JSON object containing diagnostic information." .
+
+# ============================================================================
+# PROV-O Integration Properties
+# ============================================================================
+
+# Events are Activities
+gitv:GitEvent rdfs:subClassOf prov:Activity .
+
+# Events are associated with agents (users, automation)
+gitv:executedBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range prov:Agent ;
+    rdfs:label "executed by" ;
+    rdfs:comment "The agent (user or automation) that executed this event." .
+
+# Events generate entities (commits, branches)
+gitv:generated a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:generated ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range prov:Entity ;
+    rdfs:label "generated" ;
+    rdfs:comment "Entity generated by this event." .
+
+# Events use entities (working tree, staging area)
+gitv:used a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range prov:Entity ;
+    rdfs:label "used" ;
+    rdfs:comment "Entity used during this event." .
+
+# Events invalidate previous entities
+gitv:invalidated a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:invalidated ;
+    rdfs:domain gitv:GitEvent ;
+    rdfs:range prov:Entity ;
+    rdfs:label "invalidated" ;
+    rdfs:comment "Entity invalidated by this event (e.g., old branch state)." .
+
+# ============================================================================
+# Example Event Instance (for documentation)
+# ============================================================================
+
+gitv:example-commit-event a gitv:PostCommitEvent ;
+    prov:atTime "2025-12-03T10:30:00Z"^^xsd:dateTime ;
+    gitv:eventType "post-commit" ;
+    gitv:exitCode 0 ;
+    gitv:duration 125.5 ;
+    gitv:commitHash "abc123def456" ;
+    gitv:commitMessage "feat: add git lifecycle hooks" ;
+    gitv:filesChanged 5 ;
+    gitv:linesAdded 250 ;
+    gitv:linesDeleted 10 ;
+    gitv:currentBranch [ a gitv:Branch ; gitv:branchName "main" ] ;
+    gitv:executedBy [ a gitv:GitUser ; prov:label "developer@example.com" ] ;
+    gitv:retentionPolicy "detail" ;
+    gitv:expiresAt "2025-03-03T10:30:00Z"^^xsd:dateTime .

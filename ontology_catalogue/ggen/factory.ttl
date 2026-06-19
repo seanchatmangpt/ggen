@@ -1,0 +1,63 @@
+@prefix a2a: <https://ggen.dev/ontology/a2a#> .
+@prefix mcp: <https://ggen.dev/ontology/mcp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<https://ggen.dev/factory/IndustrialRevolution> a a2a:Agent ;
+    a2a:agentName "IndustrialRevolution" ;
+    a2a:agentVersion "2030.0.0" ;
+    a2a:agentDescription "The production system for knowledge work." ;
+    a2a:agentUrl "https://ggen.dev/factory" .
+
+# Standard Turtle relationships
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Software> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Text> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/AgentSystems> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Process> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Governance> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/CryptoConsequence> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Compliance> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Marketplace> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Reproducibility> .
+<https://ggen.dev/factory/IndustrialRevolution> a2a:hasSkill <https://ggen.dev/factory/skill/Tooling> .
+
+<https://ggen.dev/factory/skill/Software> a a2a:Skill ;
+    rdfs:label "SoftwareSurface" ;
+    rdfs:comment "Materializes code, modules, APIs, CLIs." .
+
+<https://ggen.dev/factory/skill/Text> a a2a:Skill ;
+    rdfs:label "TextSurface" ;
+    rdfs:comment "Materializes docs, reports, runbooks, policies." .
+
+<https://ggen.dev/factory/skill/AgentSystems> a a2a:Skill ;
+    rdfs:label "AgentSystemsSurface" ;
+    rdfs:comment "Materializes prompts, roles, constitutions." .
+
+<https://ggen.dev/factory/skill/Process> a a2a:Skill ;
+    rdfs:label "ProcessSurface" ;
+    rdfs:comment "Materializes workflows, guards, escalation paths." .
+
+<https://ggen.dev/factory/skill/Governance> a a2a:Skill ;
+    rdfs:label "GovernanceSurface" ;
+    rdfs:comment "Materializes roles, rights, duties, prohibitions." .
+
+<https://ggen.dev/factory/skill/CryptoConsequence> a a2a:Skill ;
+    rdfs:label "CryptoConsequenceSurface" ;
+    rdfs:comment "Materializes seal rules, packet schemas." .
+
+<https://ggen.dev/factory/skill/Compliance> a a2a:Skill ;
+    rdfs:label "ComplianceSurface" ;
+    rdfs:comment "Materializes controls, evidence maps, audit exports." .
+
+<https://ggen.dev/factory/skill/Marketplace> a a2a:Skill ;
+    rdfs:label "MarketplaceSurface" ;
+    rdfs:comment "Materializes listings, claim units, pricing." .
+
+<https://ggen.dev/factory/skill/Reproducibility> a a2a:Skill ;
+    rdfs:label "ReproducibilitySurface" ;
+    rdfs:comment "Materializes datasets, fixtures, receipt chains." .
+
+<https://ggen.dev/factory/skill/Tooling> a a2a:Skill ;
+    rdfs:label "ToolingSurface" ;
+    rdfs:comment "Materializes LSP diagnostics, MCP tools." .

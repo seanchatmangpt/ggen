@@ -1,0 +1,336 @@
+@prefix pqc: <http://bytepqc.org/ontology/pqc#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+@prefix pqca: <http://bytepqc.org/ontology/algorithms#> .
+@prefix pqct: <http://bytepqc.org/ontology/threats#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Post-Quantum Cryptographic Security Parameters Ontology
+# Dark 80/20 Canon: Security parameters ARE the security, not measurements of it
+
+<http://bytepqc.org/ontology/security> rdf:type owl:Ontology ;
+    rdfs:label "PQC Security Parameters Ontology"@en ;
+    rdfs:comment "Self-referential ontology where security parameters embody cryptographic security itself"@en ;
+    owl:versionInfo "1.0.0" .
+
+# ==== CORE SECURITY CLASSES ====
+
+pqcs:SecurityParameter rdf:type owl:Class ;
+    rdfs:label "Security Parameter"@en ;
+    rdfs:comment "Base class for security parameters that ARE the security, not descriptions of it"@en .
+
+pqcs:SecurityLevel rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Security Level"@en ;
+    rdfs:comment "Quantified security strength that IS the resistance to attack"@en .
+
+pqcs:KeyParameter rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Key Parameter"@en ;
+    rdfs:comment "Parameters defining cryptographic key properties as living entities"@en .
+
+pqcs:ComputationalComplexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Computational Complexity"@en ;
+    rdfs:comment "Complexity measures that ARE the computational barrier"@en .
+
+# ==== NIST SECURITY LEVELS ====
+
+pqcs:NIST_Level_1 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "NIST Security Level 1"@en ;
+    rdfs:comment "Equivalent to AES-128 classical security - this IS 128-bit security"@en ;
+    pqcs:hasClassicalBitSecurity 128 ;
+    pqcs:hasQuantumBitSecurity 64 ;
+    pqcs:equivalentTo pqcs:AES_128 .
+
+pqcs:NIST_Level_2 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "NIST Security Level 2"@en ;
+    rdfs:comment "Equivalent to SHA-256 collision resistance"@en ;
+    pqcs:hasClassicalBitSecurity 128 ;
+    pqcs:hasQuantumBitSecurity 64 ;
+    pqcs:equivalentTo pqcs:SHA256_Collision .
+
+pqcs:NIST_Level_3 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "NIST Security Level 3"@en ;
+    rdfs:comment "Equivalent to AES-192 classical security - this IS 192-bit security"@en ;
+    pqcs:hasClassicalBitSecurity 192 ;
+    pqcs:hasQuantumBitSecurity 96 ;
+    pqcs:equivalentTo pqcs:AES_192 .
+
+pqcs:NIST_Level_4 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "NIST Security Level 4"@en ;
+    rdfs:comment "Equivalent to SHA-384 collision resistance"@en ;
+    pqcs:hasClassicalBitSecurity 192 ;
+    pqcs:hasQuantumBitSecurity 96 ;
+    pqcs:equivalentTo pqcs:SHA384_Collision .
+
+pqcs:NIST_Level_5 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "NIST Security Level 5"@en ;
+    rdfs:comment "Equivalent to AES-256 classical security - this IS 256-bit security"@en ;
+    pqcs:hasClassicalBitSecurity 256 ;
+    pqcs:hasQuantumBitSecurity 128 ;
+    pqcs:equivalentTo pqcs:AES_256 .
+
+# ==== CLASSICAL SECURITY BASELINES ====
+
+pqcs:AES_128 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "AES-128"@en ;
+    pqcs:hasClassicalBitSecurity 128 ;
+    pqcs:hasQuantumBitSecurity 64 .
+
+pqcs:AES_192 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "AES-192"@en ;
+    pqcs:hasClassicalBitSecurity 192 ;
+    pqcs:hasQuantumBitSecurity 96 .
+
+pqcs:AES_256 rdf:type pqcs:SecurityLevel ;
+    rdfs:label "AES-256"@en ;
+    pqcs:hasClassicalBitSecurity 256 ;
+    pqcs:hasQuantumBitSecurity 128 .
+
+pqcs:SHA256_Collision rdf:type pqcs:SecurityLevel ;
+    rdfs:label "SHA-256 Collision Resistance"@en ;
+    pqcs:hasClassicalBitSecurity 128 ;
+    pqcs:hasQuantumBitSecurity 64 .
+
+pqcs:SHA384_Collision rdf:type pqcs:SecurityLevel ;
+    rdfs:label "SHA-384 Collision Resistance"@en ;
+    pqcs:hasClassicalBitSecurity 192 ;
+    pqcs:hasQuantumBitSecurity 96 .
+
+# ==== KEY SIZE PARAMETERS ====
+
+pqcs:KeySize rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:KeyParameter ;
+    rdfs:label "Key Size"@en ;
+    rdfs:comment "Key size parameters that ARE the cryptographic strength"@en .
+
+pqcs:PublicKeySize rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:KeySize ;
+    rdfs:label "Public Key Size"@en .
+
+pqcs:SecretKeySize rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:KeySize ;
+    rdfs:label "Secret Key Size"@en .
+
+pqcs:SignatureSize rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:KeySize ;
+    rdfs:label "Signature Size"@en .
+
+pqcs:CiphertextSize rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:KeySize ;
+    rdfs:label "Ciphertext Size"@en .
+
+# ==== COMPLEXITY PARAMETERS ====
+
+pqcs:LatticeComplexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:ComputationalComplexity ;
+    rdfs:label "Lattice Problem Complexity"@en ;
+    rdfs:comment "Complexity of lattice problems that IS the cryptographic barrier"@en .
+
+pqcs:SVP_Complexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeComplexity ;
+    rdfs:label "Shortest Vector Problem Complexity"@en ;
+    rdfs:comment "SVP hardness that IS the lattice security foundation"@en .
+
+pqcs:CVP_Complexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeComplexity ;
+    rdfs:label "Closest Vector Problem Complexity"@en ;
+    rdfs:comment "CVP hardness that IS the lattice security foundation"@en .
+
+pqcs:LWE_Complexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeComplexity ;
+    rdfs:label "Learning With Errors Complexity"@en ;
+    rdfs:comment "LWE hardness that IS the Kyber security foundation"@en .
+
+pqcs:MLWE_Complexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LWE_Complexity ;
+    rdfs:label "Module Learning With Errors Complexity"@en ;
+    rdfs:comment "Module-LWE hardness specific to structured lattices"@en .
+
+pqcs:SIS_Complexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeComplexity ;
+    rdfs:label "Short Integer Solution Complexity"@en ;
+    rdfs:comment "SIS hardness that IS the Dilithium security foundation"@en .
+
+pqcs:MSIS_Complexity rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SIS_Complexity ;
+    rdfs:label "Module Short Integer Solution Complexity"@en ;
+    rdfs:comment "Module-SIS hardness specific to structured lattices"@en .
+
+# ==== IMPLEMENTATION SECURITY PARAMETERS ====
+
+pqcs:ConstantTimeRequirement rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Constant Time Requirement"@en ;
+    rdfs:comment "Constant-time execution requirement that IS side-channel resistance"@en .
+
+pqcs:MemorySecurityRequirement rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Memory Security Requirement"@en ;
+    rdfs:comment "Memory protection requirements that ARE the memory security"@en .
+
+pqcs:SideChannelResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Side Channel Resistance"@en ;
+    rdfs:comment "Resistance to side-channel attacks that IS the protection"@en .
+
+pqcs:TimingAttackResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SideChannelResistance ;
+    rdfs:label "Timing Attack Resistance"@en .
+
+pqcs:PowerAnalysisResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SideChannelResistance ;
+    rdfs:label "Power Analysis Resistance"@en .
+
+pqcs:CacheAttackResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SideChannelResistance ;
+    rdfs:label "Cache Attack Resistance"@en .
+
+# ==== QUANTUM SECURITY PARAMETERS ====
+
+pqcs:QuantumResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Quantum Resistance"@en ;
+    rdfs:comment "Resistance to quantum attacks that IS the post-quantum security"@en .
+
+pqcs:ShorsAlgorithmResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:QuantumResistance ;
+    rdfs:label "Shor's Algorithm Resistance"@en ;
+    rdfs:comment "Resistance to Shor's factoring/discrete log algorithm"@en .
+
+pqcs:GroversAlgorithmResistance rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:QuantumResistance ;
+    rdfs:label "Grover's Algorithm Resistance"@en ;
+    rdfs:comment "Resistance to Grover's search algorithm - quadratic speedup"@en .
+
+# ==== SECURITY PROPERTIES ====
+
+pqcs:hasClassicalBitSecurity rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:SecurityLevel ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has classical bit security"@en ;
+    rdfs:comment "Classical security strength in bits"@en .
+
+pqcs:hasQuantumBitSecurity rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:SecurityLevel ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has quantum bit security"@en ;
+    rdfs:comment "Post-quantum security strength in bits"@en .
+
+pqcs:equivalentTo rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcs:SecurityLevel ;
+    rdfs:range pqcs:SecurityLevel ;
+    rdfs:label "equivalent to"@en ;
+    owl:equivalentProperty owl:equivalentClass .
+
+pqcs:strongerThan rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcs:SecurityLevel ;
+    rdfs:range pqcs:SecurityLevel ;
+    rdfs:label "stronger than"@en ;
+    owl:propertyChainAxiom (pqcs:strongerThan pqcs:strongerThan) .
+
+pqcs:hasSecurityMargin rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:SecurityParameter ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has security margin"@en ;
+    rdfs:comment "Security margin as multiple of best known attack"@en .
+
+pqcs:requiresConstantTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:SecurityParameter ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires constant time"@en .
+
+pqcs:vulnerableTo rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcs:SecurityParameter ;
+    rdfs:range pqct:ThreatModel ;
+    rdfs:label "vulnerable to"@en .
+
+pqcs:resistantTo rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcs:SecurityParameter ;
+    rdfs:range pqct:ThreatModel ;
+    rdfs:label "resistant to"@en .
+
+# ==== LATTICE SPECIFIC PARAMETERS ====
+
+pqcs:LatticeParameter rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:SecurityParameter ;
+    rdfs:label "Lattice Parameter"@en .
+
+pqcs:LatticeDimension rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeParameter ;
+    rdfs:label "Lattice Dimension"@en ;
+    rdfs:comment "Dimension n of the lattice that IS the security parameter"@en .
+
+pqcs:ModulusSize rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeParameter ;
+    rdfs:label "Modulus Size"@en ;
+    rdfs:comment "Size of the modulus q that IS the arithmetic security"@en .
+
+pqcs:ErrorDistribution rdf:type owl:Class ;
+    rdfs:subClassOf pqcs:LatticeParameter ;
+    rdfs:label "Error Distribution"@en ;
+    rdfs:comment "Error distribution that IS the noise security"@en .
+
+pqcs:hasLatticeDimension rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:LatticeParameter ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has lattice dimension"@en .
+
+pqcs:hasModulus rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:LatticeParameter ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has modulus"@en .
+
+pqcs:hasErrorBound rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcs:LatticeParameter ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has error bound"@en .
+
+# ==== DARK 80/20 CANON SELF-REFERENTIAL RELATIONSHIPS ====
+
+# Security parameters ARE the security they measure
+pqcs:SecurityParameter pqcs:isSecurity pqcs:SecurityParameter .
+
+# Security levels ARE the strength they represent
+pqcs:SecurityLevel pqcs:isStrength pqcs:SecurityLevel .
+
+# Complexity IS the computational barrier
+pqcs:ComputationalComplexity pqcs:isBarrier pqcs:ComputationalComplexity .
+
+# Lattice parameters ARE the mathematical structure
+pqcs:LatticeParameter pqcs:isLattice pqcs:LatticeParameter .
+
+# Resistance IS the protection it provides
+pqcs:QuantumResistance pqcs:isProtection pqcs:QuantumResistance .
+
+# Security margins ARE the safety they represent
+pqcs:SecurityParameter pqcs:isSafety pqcs:SecurityParameter .
+
+# Self-referential properties
+pqcs:isSecurity rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is security"@en ;
+    rdfs:comment "Security parameters are their own security embodiment"@en .
+
+pqcs:isStrength rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is strength"@en .
+
+pqcs:isBarrier rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is barrier"@en .
+
+pqcs:isLattice rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is lattice"@en .
+
+pqcs:isProtection rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is protection"@en .
+
+pqcs:isSafety rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is safety"@en .
+
+# Security level ordering axioms
+pqcs:NIST_Level_5 pqcs:strongerThan pqcs:NIST_Level_4 .
+pqcs:NIST_Level_4 pqcs:strongerThan pqcs:NIST_Level_3 .
+pqcs:NIST_Level_3 pqcs:strongerThan pqcs:NIST_Level_2 .
+pqcs:NIST_Level_2 pqcs:strongerThan pqcs:NIST_Level_1 .

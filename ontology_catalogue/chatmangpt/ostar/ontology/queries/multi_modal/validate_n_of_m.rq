@@ -1,0 +1,86 @@
+# validate_n_of_m.rq -- Validate N-of-M multi-modal authorization
+#
+# For a given AuthorizationRequest, counts how many distinct channel types
+# have fresh proofs (proof timestamp + validity duration covers NOW).
+# Returns authorization decision with per-channel breakdown.
+#
+# Parameterize by replacing ?requestUri before execution.
+#
+# Public ontology terms:
+#   AuthorizationRequest -> prov:Activity
+#   AuthorizationResult -> prov:Entity
+#   Proof -> prov:Entity
+#   requiredThreshold -> dct:extent
+#   totalChannels -> dct:hasFormat
+#   requestingAgent -> prov:wasAssociatedWith
+#   requestedCapability -> prov:used
+#   channelType -> skos:related channel concept
+#   proofTimestamp -> prov:generatedAtTime
+#   validityDurationSeconds -> dct:format
+#   satisfiedChannels -> dct:description
+#   authorized -> dct:accessRights
+#   rejectionReason -> dct:abstract
+#   riskLevel -> dct:type
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+SELECT ?requestUri
+       ?requiredThreshold
+       ?totalChannels
+       ?satisfiedCount
+       (IF(?satisfiedCount >= ?requiredThreshold, true, false) AS ?authorized)
+       (GROUP_CONCAT(DISTINCT CONCAT(?passedChannel, " (fresh at ", STR(?proofTs), ")"); separator="; ") AS ?passedChannels)
+       (GROUP_CONCAT(DISTINCT CONCAT(?failedChannel, " (", ?failReason, ")"); separator="; ") AS ?failedChannels)
+       ?riskLevel
+       ?rejectionReason
+WHERE {
+  # --- The authorization request under evaluation (prov:Activity) ---
+  # Replace ?requestUri with the actual request URI before execution
+  # Example: VALUES ?requestUri { <https://chatmangpt.com/auth/request-abc123> }
+  BIND("https://chatmangpt.com/auth/request-placeholder" AS ?requestUri)
+  ?request a prov:Activity ;
+           dct:extent             ?requiredThreshold ;
+           dct:hasFormat          ?totalChannels ;
+           prov:wasAssociatedWith ?requestingAgent ;
+           prov:used              ?requestedCapability .
+
+  BIND(IRI(?requestUri) AS ?request)
+
+  # --- Optional: existing authorization result (prov:Entity) ---
+  OPTIONAL {
+    ?result a prov:Entity ;
+            dct:description ?existingSatisfied ;
+            dct:accessRights ?existingAuth ;
+            dct:abstract     ?rejectionReason ;
+            dct:type         ?riskLevel .
+  }
+
+  # --- All proofs linked to this request, one per channel type ---
+  ?proof a prov:Entity ;
+         skos:related                ?channelConcept ;
+         prov:generatedAtTime        ?proofTs ;
+         dct:format                  ?validitySec .
+  ?channelConcept skos:prefLabel ?channelType ;
+                 skos:inScheme <https://chatmangpt.com/ontologies/skos/auth-factors> .
+
+  # --- Freshness check: proof expires at proofTimestamp + validityDuration ---
+  BIND(?proofTs + xsd:dayTimeDuration(CONCAT("PT", STR(?validitySec), "S")) AS ?expiresAt)
+  BIND(NOW() AS ?now)
+
+  # --- Classify each channel as passed or failed ---
+  BIND(IF(?now <= ?expiresAt, ?channelType, "") AS ?passedChannel)
+  BIND(IF(?now > ?expiresAt,
+         CONCAT(?channelType, ":expired"),
+         "") AS ?failedChannel)
+  BIND(IF(?now > ?expiresAt, CONCAT(?channelType, ":expired"), "") AS ?failReason)
+  BIND(IF(?now <= ?expiresAt, 1, 0) AS ?isFresh)
+
+  # --- Filter to proofs relevant to this request's channels ---
+  FILTER(?channelType IN ("relational", "financial", "physical", "institutional", "cryptographic"))
+}
+GROUP BY ?requestUri ?requiredThreshold ?totalChannels ?riskLevel ?rejectionReason
+HAVING (COUNT(DISTINCT ?channelType) >= 1)
+ORDER BY DESC(?satisfiedCount)

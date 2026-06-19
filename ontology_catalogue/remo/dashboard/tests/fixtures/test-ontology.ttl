@@ -1,0 +1,484 @@
+# Test Ontology for Weaver v2 Testing
+# Simple test capability with basic entities and attributes for comprehensive testing
+
+@prefix weaver: <https://weaver.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Test Capability Definitions
+
+weaver:SimpleTestCapability
+    a weaver:Capability ;
+    weaver:name "simple-test-capability" ;
+    rdfs:comment "Simple test capability for unit testing the Weaver system" ;
+    weaver:hasEntity weaver:TestEntity ;
+    weaver:hasArtifact weaver:TestComponentArtifact, weaver:TestAPIArtifact, weaver:TestComposableArtifact ;
+    weaver:hasPolicy weaver:TestSecurityPolicy ;
+    weaver:dependsOn "authentication" .
+
+weaver:ComplexTestCapability
+    a weaver:Capability ;
+    weaver:name "complex-test-capability" ;
+    rdfs:comment "Complex test capability with multiple entities and relationships" ;
+    weaver:hasEntity weaver:TestEntity, weaver:TestProfile, weaver:TestMetrics ;
+    weaver:hasArtifact weaver:TestDashboardArtifact, weaver:TestAnalyticsArtifact ;
+    weaver:hasPolicy weaver:TestGovernancePolicy ;
+    weaver:dependsOn "authentication", "authorization", "audit-logging" .
+
+weaver:MinimalTestCapability
+    a weaver:Capability ;
+    weaver:name "minimal-test-capability" ;
+    rdfs:comment "Minimal test capability with bare minimum requirements" ;
+    weaver:hasEntity weaver:SimpleEntity ;
+    weaver:hasArtifact weaver:SimpleArtifact ;
+    weaver:hasPolicy weaver:BasicPolicy .
+
+# Test Entity Definitions
+
+weaver:TestEntity
+    a weaver:Entity ;
+    weaver:name "TestEntity" ;
+    rdfs:comment "Primary test entity with various attribute types" ;
+    weaver:hasAttribute weaver:TestId, weaver:TestName, weaver:TestDescription, weaver:TestStatus, weaver:TestCount, weaver:TestCreatedAt, weaver:TestUpdatedAt ;
+    weaver:hasRelationship weaver:HasProfile, weaver:HasMetrics, weaver:CreatedBy .
+
+weaver:TestProfile
+    a weaver:Entity ;
+    weaver:name "TestProfile" ;
+    rdfs:comment "Test profile entity for relationship testing" ;
+    weaver:hasAttribute weaver:ProfileId, weaver:ProfileName, weaver:ProfileData ;
+    weaver:hasRelationship weaver:BelongsToTest .
+
+weaver:TestMetrics
+    a weaver:Entity ;
+    weaver:name "TestMetrics" ;
+    rdfs:comment "Test metrics entity for analytics testing" ;
+    weaver:hasAttribute weaver:MetricsId, weaver:MetricValue, weaver:MetricType, weaver:MetricTimestamp ;
+    weaver:hasRelationship weaver:RelatedToTest .
+
+weaver:SimpleEntity
+    a weaver:Entity ;
+    weaver:name "SimpleEntity" ;
+    rdfs:comment "Simple entity for minimal testing" ;
+    weaver:hasAttribute weaver:SimpleId, weaver:SimpleName .
+
+# Test Attribute Definitions
+
+# Primary Key Attributes
+weaver:TestId
+    a weaver:Attribute ;
+    weaver:name "test_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    weaver:primaryKey "true" ;
+    rdfs:comment "Unique identifier for test entity" .
+
+weaver:ProfileId
+    a weaver:Attribute ;
+    weaver:name "profile_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    weaver:primaryKey "true" ;
+    rdfs:comment "Unique identifier for test profile" .
+
+weaver:MetricsId
+    a weaver:Attribute ;
+    weaver:name "metrics_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    weaver:primaryKey "true" ;
+    rdfs:comment "Unique identifier for test metrics" .
+
+weaver:SimpleId
+    a weaver:Attribute ;
+    weaver:name "simple_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    weaver:primaryKey "true" ;
+    rdfs:comment "Unique identifier for simple entity" .
+
+# String Attributes
+weaver:TestName
+    a weaver:Attribute ;
+    weaver:name "test_name" ;
+    weaver:dataType "string" ;
+    weaver:required "true" ;
+    weaver:maxLength "100" ;
+    weaver:validation "^[a-zA-Z0-9_-]+$" ;
+    rdfs:comment "Name of the test entity" .
+
+weaver:TestDescription
+    a weaver:Attribute ;
+    weaver:name "test_description" ;
+    weaver:dataType "text" ;
+    weaver:required "false" ;
+    weaver:maxLength "1000" ;
+    rdfs:comment "Optional description of the test entity" .
+
+weaver:ProfileName
+    a weaver:Attribute ;
+    weaver:name "profile_name" ;
+    weaver:dataType "string" ;
+    weaver:required "true" ;
+    weaver:maxLength "255" ;
+    rdfs:comment "Name of the test profile" .
+
+weaver:SimpleName
+    a weaver:Attribute ;
+    weaver:name "simple_name" ;
+    weaver:dataType "string" ;
+    weaver:required "true" ;
+    weaver:maxLength "50" ;
+    rdfs:comment "Name of the simple entity" .
+
+# Enum Attributes
+weaver:TestStatus
+    a weaver:Attribute ;
+    weaver:name "test_status" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "pending", "active", "completed", "failed", "archived" ;
+    weaver:required "true" ;
+    weaver:defaultValue "pending" ;
+    rdfs:comment "Current status of the test entity" .
+
+weaver:MetricType
+    a weaver:Attribute ;
+    weaver:name "metric_type" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "counter", "gauge", "histogram", "summary" ;
+    weaver:required "true" ;
+    rdfs:comment "Type of metric being measured" .
+
+# Numeric Attributes
+weaver:TestCount
+    a weaver:Attribute ;
+    weaver:name "test_count" ;
+    weaver:dataType "integer" ;
+    weaver:required "false" ;
+    weaver:minValue "0" ;
+    weaver:maxValue "1000000" ;
+    weaver:defaultValue "0" ;
+    rdfs:comment "Counter for test operations" .
+
+weaver:MetricValue
+    a weaver:Attribute ;
+    weaver:name "metric_value" ;
+    weaver:dataType "decimal" ;
+    weaver:required "true" ;
+    weaver:precision "10,2" ;
+    rdfs:comment "Numeric value of the metric" .
+
+# JSON Attributes
+weaver:ProfileData
+    a weaver:Attribute ;
+    weaver:name "profile_data" ;
+    weaver:dataType "json" ;
+    weaver:required "false" ;
+    rdfs:comment "Additional profile data in JSON format" .
+
+# Timestamp Attributes
+weaver:TestCreatedAt
+    a weaver:Attribute ;
+    weaver:name "test_created_at" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "true" ;
+    weaver:defaultValue "CURRENT_TIMESTAMP" ;
+    rdfs:comment "Timestamp when test entity was created" .
+
+weaver:TestUpdatedAt
+    a weaver:Attribute ;
+    weaver:name "test_updated_at" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "true" ;
+    weaver:defaultValue "CURRENT_TIMESTAMP" ;
+    weaver:onUpdate "CURRENT_TIMESTAMP" ;
+    rdfs:comment "Timestamp when test entity was last updated" .
+
+weaver:MetricTimestamp
+    a weaver:Attribute ;
+    weaver:name "metric_timestamp" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "true" ;
+    rdfs:comment "Timestamp when metric was recorded" .
+
+# Test Relationship Definitions
+
+weaver:HasProfile
+    a weaver:Relationship ;
+    weaver:name "has_profile" ;
+    weaver:target "TestProfile" ;
+    weaver:cardinality "1:1" ;
+    weaver:foreignKey "profile_id" ;
+    rdfs:comment "Test entity has an associated profile" .
+
+weaver:HasMetrics
+    a weaver:Relationship ;
+    weaver:name "has_metrics" ;
+    weaver:target "TestMetrics" ;
+    weaver:cardinality "1:many" ;
+    weaver:foreignKey "test_id" ;
+    rdfs:comment "Test entity has multiple associated metrics" .
+
+weaver:BelongsToTest
+    a weaver:Relationship ;
+    weaver:name "belongs_to_test" ;
+    weaver:target "TestEntity" ;
+    weaver:cardinality "many:1" ;
+    weaver:foreignKey "test_id" ;
+    rdfs:comment "Profile belongs to a test entity" .
+
+weaver:RelatedToTest
+    a weaver:Relationship ;
+    weaver:name "related_to_test" ;
+    weaver:target "TestEntity" ;
+    weaver:cardinality "many:1" ;
+    weaver:foreignKey "test_id" ;
+    rdfs:comment "Metrics are related to a test entity" .
+
+weaver:CreatedBy
+    a weaver:Relationship ;
+    weaver:name "created_by" ;
+    weaver:target "User" ;
+    weaver:cardinality "many:1" ;
+    weaver:foreignKey "created_by_user_id" ;
+    rdfs:comment "Test entity was created by a user" .
+
+# Test Artifact Definitions
+
+weaver:TestComponentArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "vue-component" ;
+    weaver:template "vue/test-component.go.tmpl" ;
+    weaver:outputPath "app/components/test/TestComponent.vue" ;
+    weaver:dependsOn "test-api" ;
+    weaver:hasVariable weaver:TestComponentNameVar, weaver:TestEntityVar .
+
+weaver:TestAPIArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "api-crud" ;
+    weaver:template "api/test-endpoint.go.tmpl" ;
+    weaver:outputPath "server/api/test.ts" ;
+    weaver:dependsOn "database-schema" ;
+    weaver:hasVariable weaver:TestEntityNameVar, weaver:TestEndpointVar .
+
+weaver:TestComposableArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "nuxt-composable" ;
+    weaver:template "composable/useTest.go.tmpl" ;
+    weaver:outputPath "app/composables/useTest.ts" ;
+    weaver:dependsOn "test-api" ;
+    weaver:hasVariable weaver:TestComposableNameVar, weaver:TestEntityVar .
+
+weaver:TestDashboardArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "vue-dashboard" ;
+    weaver:template "vue/test-dashboard.go.tmpl" ;
+    weaver:outputPath "app/components/test/TestDashboard.vue" ;
+    weaver:dependsOn "test-api", "test-metrics" ;
+    weaver:hasVariable weaver:TestDashboardNameVar, weaver:TestEntityVar .
+
+weaver:TestAnalyticsArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "analytics-service" ;
+    weaver:template "analytics/test-analytics.go.tmpl" ;
+    weaver:outputPath "server/services/testAnalytics.ts" ;
+    weaver:dependsOn "metrics-database" ;
+    weaver:hasVariable weaver:TestAnalyticsNameVar, weaver:MetricsEntityVar .
+
+weaver:SimpleArtifact
+    a weaver:Artifact ;
+    weaver:artifactType "simple-component" ;
+    weaver:template "simple/simple-template.go.tmpl" ;
+    weaver:outputPath "app/components/simple/Simple.vue" ;
+    weaver:hasVariable weaver:SimpleNameVar .
+
+# Test Variable Definitions
+
+weaver:TestComponentNameVar
+    a weaver:Variable ;
+    weaver:key "component_name" ;
+    weaver:value "TestComponent" ;
+    weaver:type "string" .
+
+weaver:TestEntityVar
+    a weaver:Variable ;
+    weaver:key "entity" ;
+    weaver:value "TestEntity" ;
+    weaver:type "string" .
+
+weaver:TestEntityNameVar
+    a weaver:Variable ;
+    weaver:key "entity_name" ;
+    weaver:value "test_entity" ;
+    weaver:type "string" .
+
+weaver:TestEndpointVar
+    a weaver:Variable ;
+    weaver:key "endpoint" ;
+    weaver:value "test" ;
+    weaver:type "string" .
+
+weaver:TestComposableNameVar
+    a weaver:Variable ;
+    weaver:key "composable_name" ;
+    weaver:value "useTest" ;
+    weaver:type "string" .
+
+weaver:TestDashboardNameVar
+    a weaver:Variable ;
+    weaver:key "dashboard_name" ;
+    weaver:value "TestDashboard" ;
+    weaver:type "string" .
+
+weaver:TestAnalyticsNameVar
+    a weaver:Variable ;
+    weaver:key "analytics_name" ;
+    weaver:value "TestAnalytics" ;
+    weaver:type "string" .
+
+weaver:MetricsEntityVar
+    a weaver:Variable ;
+    weaver:key "metrics_entity" ;
+    weaver:value "TestMetrics" ;
+    weaver:type "string" .
+
+weaver:SimpleNameVar
+    a weaver:Variable ;
+    weaver:key "simple_name" ;
+    weaver:value "Simple" ;
+    weaver:type "string" .
+
+# Test Policy Definitions
+
+weaver:TestSecurityPolicy
+    a weaver:Policy ;
+    weaver:name "TestSecurityPolicy" ;
+    weaver:policyType "security" ;
+    weaver:rules "require_authentication", "audit_all_actions", "validate_input", "sanitize_output" ;
+    weaver:scope "simple-test-capability" ;
+    rdfs:comment "Security policy for test capability" .
+
+weaver:TestGovernancePolicy
+    a weaver:Policy ;
+    weaver:name "TestGovernancePolicy" ;
+    weaver:policyType "governance" ;
+    weaver:rules "data_retention", "access_logging", "change_approval", "compliance_reporting" ;
+    weaver:scope "complex-test-capability" ;
+    rdfs:comment "Governance policy for complex test capability" .
+
+weaver:BasicPolicy
+    a weaver:Policy ;
+    weaver:name "BasicPolicy" ;
+    weaver:policyType "basic" ;
+    weaver:rules "basic_validation" ;
+    weaver:scope "minimal-test-capability" ;
+    rdfs:comment "Basic policy for minimal test capability" .
+
+# Test Extension Entities (for testing complex scenarios)
+
+weaver:TestAuditLog
+    a weaver:Entity ;
+    weaver:name "TestAuditLog" ;
+    rdfs:comment "Audit log entity for testing audit trail functionality" ;
+    weaver:hasAttribute weaver:AuditId, weaver:AuditAction, weaver:AuditTimestamp, weaver:AuditUserId, weaver:AuditEntityId ;
+    weaver:hasRelationship weaver:AuditRelatedToEntity .
+
+weaver:TestConfiguration
+    a weaver:Entity ;
+    weaver:name "TestConfiguration" ;
+    rdfs:comment "Configuration entity for testing system configuration" ;
+    weaver:hasAttribute weaver:ConfigId, weaver:ConfigKey, weaver:ConfigValue, weaver:ConfigType ;
+    weaver:hasRelationship weaver:ConfigOwnedBy .
+
+# Additional Audit Attributes
+
+weaver:AuditId
+    a weaver:Attribute ;
+    weaver:name "audit_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    weaver:primaryKey "true" ;
+    rdfs:comment "Unique identifier for audit entry" .
+
+weaver:AuditAction
+    a weaver:Attribute ;
+    weaver:name "audit_action" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "create", "read", "update", "delete", "login", "logout" ;
+    weaver:required "true" ;
+    rdfs:comment "Action that was audited" .
+
+weaver:AuditTimestamp
+    a weaver:Attribute ;
+    weaver:name "audit_timestamp" ;
+    weaver:dataType "timestamp" ;
+    weaver:required "true" ;
+    weaver:defaultValue "CURRENT_TIMESTAMP" ;
+    rdfs:comment "When the audited action occurred" .
+
+weaver:AuditUserId
+    a weaver:Attribute ;
+    weaver:name "audit_user_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "false" ;
+    rdfs:comment "User who performed the audited action" .
+
+weaver:AuditEntityId
+    a weaver:Attribute ;
+    weaver:name "audit_entity_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "false" ;
+    rdfs:comment "Entity that was affected by the audited action" .
+
+# Additional Configuration Attributes
+
+weaver:ConfigId
+    a weaver:Attribute ;
+    weaver:name "config_id" ;
+    weaver:dataType "uuid" ;
+    weaver:required "true" ;
+    weaver:primaryKey "true" ;
+    rdfs:comment "Unique identifier for configuration entry" .
+
+weaver:ConfigKey
+    a weaver:Attribute ;
+    weaver:name "config_key" ;
+    weaver:dataType "string" ;
+    weaver:required "true" ;
+    weaver:maxLength "100" ;
+    weaver:validation "^[a-zA-Z0-9._-]+$" ;
+    rdfs:comment "Configuration key name" .
+
+weaver:ConfigValue
+    a weaver:Attribute ;
+    weaver:name "config_value" ;
+    weaver:dataType "text" ;
+    weaver:required "true" ;
+    rdfs:comment "Configuration value" .
+
+weaver:ConfigType
+    a weaver:Attribute ;
+    weaver:name "config_type" ;
+    weaver:dataType "enum" ;
+    weaver:enumValues "string", "number", "boolean", "json", "array" ;
+    weaver:required "true" ;
+    rdfs:comment "Type of configuration value" .
+
+# Additional Relationships
+
+weaver:AuditRelatedToEntity
+    a weaver:Relationship ;
+    weaver:name "audit_related_to_entity" ;
+    weaver:target "TestEntity" ;
+    weaver:cardinality "many:1" ;
+    weaver:foreignKey "audit_entity_id" ;
+    rdfs:comment "Audit log entry is related to a test entity" .
+
+weaver:ConfigOwnedBy
+    a weaver:Relationship ;
+    weaver:name "config_owned_by" ;
+    weaver:target "User" ;
+    weaver:cardinality "many:1" ;
+    weaver:foreignKey "created_by_user_id" ;
+    rdfs:comment "Configuration entry is owned by a user" .

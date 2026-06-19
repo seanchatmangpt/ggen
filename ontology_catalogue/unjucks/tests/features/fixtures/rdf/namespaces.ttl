@@ -1,0 +1,39 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix myns: <http://my-namespace.example.org/2025/> .
+
+# Test namespace prefix resolution
+ex:resource1 a owl:Class ;
+    rdfs:label "Test Resource 1"@en ;
+    rdfs:comment "A test resource for namespace resolution"@en ;
+    dcterms:created "2025-01-15T00:00:00Z"^^xsd:dateTime ;
+    skos:definition "Definition using SKOS vocabulary"@en .
+
+myns:customResource a ex:resource1 ;
+    foaf:name "Custom Resource" ;
+    schema:description "A resource using Schema.org vocabulary" ;
+    dcterms:creator "Test Creator" .
+
+# Test different namespace patterns
+ex:hasProperty rdfs:domain ex:resource1 ;
+    rdfs:range xsd:string ;
+    rdfs:label "has property"@en .
+
+# Test blank nodes with namespaces
+[] a foaf:Person ;
+    foaf:name "Anonymous Person" ;
+    ex:hasProperty "some value" .
+
+# Test collections with namespaced elements
+ex:collection rdf:value ( 
+    ex:item1 
+    myns:item2 
+    schema:item3 
+) .

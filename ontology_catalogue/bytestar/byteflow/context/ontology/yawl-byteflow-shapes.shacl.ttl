@@ -1,0 +1,157 @@
+@prefix : <http://yawl.org/ontology/byteflow-shapes#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bflow: <https://bytestar.org/ontology/byteflow/patterns-specification#> .
+
+<http://yawl.org/ontology/byteflow-shapes>
+  a owl:Ontology ;
+  rdfs:label "YAWL ByteFlow Validation Shapes" ;
+  rdfs:comment "SHACL shapes for validating YAWL workflow specifications intended for processing by ByteFlow, ensuring structural integrity and conformance to ByteStar principles." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    yawl:yawl-index.owl.ttl .
+
+#################################################################
+# YAWL Workflow Specification Validation
+#################################################################
+
+:WorkflowSpecificationShape a sh:NodeShape ;
+  sh:targetClass yawl:WorkflowSpecification ;
+  sh:property [
+    sh:path yawl:hasTopLevelEWFNet ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:EWFNet ;
+    sh:message "A YAWL WorkflowSpecification must have exactly one top-level EWF-net." ;
+  ] ;
+  sh:property [
+    sh:path yawl:hasEWFNet ;
+    sh:minCount 1 ;
+    sh:message "A YAWL WorkflowSpecification must contain at least one EWF-net." ;
+  ] .
+
+#################################################################
+# EWF-Net Structural Validation
+#################################################################
+
+:EWFNetShape a sh:NodeShape ;
+  sh:targetClass yawl:EWFNet ;
+  sh:property [
+    sh:path yawl:hasInputCondition ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:Condition ;
+    sh:message "Every EWF-net must have exactly one input condition." ;
+  ] ;
+  sh:property [
+    sh:path yawl:hasOutputCondition ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:Condition ;
+    sh:message "Every EWF-net must have exactly one output condition." ;
+  ] ;
+  sh:property [
+    sh:path yawl:hasTask ;
+    sh:minCount 1 ;
+    sh:message "Every EWF-net must contain at least one task." ;
+  ] ;
+  sh:property [
+    sh:path yawl:hasFlowRelation ;
+    sh:minCount 1 ;
+    sh:message "Every EWF-net must contain at least one flow relation." ;
+  ] .
+
+#################################################################
+# Task Behavior Validation
+#################################################################
+
+:TaskBehaviorShape a sh:NodeShape ;
+  sh:targetClass yawl:Task ;
+  sh:property [
+    sh:path yawl:hasSplitBehavior ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:SplitBehavior ;
+    sh:message "Every task must have exactly one defined split behavior." ;
+  ] ;
+  sh:property [
+    sh:path yawl:hasJoinBehavior ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:JoinBehavior ;
+    sh:message "Every task must have exactly one defined join behavior." ;
+  ] .
+
+:CompositeTaskShape a sh:NodeShape ;
+  sh:targetClass yawl:CompositeTask ;
+  sh:property [
+    sh:path yawl:mapsToEWFNet ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:EWFNet ;
+    sh:message "A CompositeTask must map to exactly one sub-EWF-net." ;
+  ] .
+
+#################################################################
+# Flow Relation Validation
+#################################################################
+
+:FlowRelationShape a sh:NodeShape ;
+  sh:targetClass yawl:FlowRelation ;
+  sh:property [
+    sh:path yawl:fromNode ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:Node ;
+    sh:message "A FlowRelation must have exactly one source node." ;
+  ] ;
+  sh:property [
+    sh:path yawl:toNode ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class yawl:Node ;
+    sh:message "A FlowRelation must have exactly one destination node." ;
+  ] .
+
+#################################################################
+# ByteStar Pattern Conformance Validation
+#################################################################
+
+:ByteStarPatternMappingShape a sh:NodeShape ;
+  sh:targetClass yawl:Pattern ; # Target YAWL Pattern individuals
+  sh:property [
+    sh:path yawl:correspondsToByteStarPattern ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class bcore:Pattern ; # Ensure it maps to a ByteStar Pattern
+    sh:message "Every YAWL Pattern used in a ByteFlow-intended specification must map to exactly one canonical ByteStar Pattern." ;
+  ] .
+
+#################################################################
+# Pattern Conformance (Conceptual - requires instance data)
+#################################################################
+
+# This shape would typically be used to validate that a YAWL workflow instance
+# (or a part of it) conforms to one of the canonical patterns defined in yawl-patterns.owl.ttl.
+# This requires actual workflow instance data to be asserted against the ontology.
+# For example, a workflow instance might be asserted to 'implement' a specific pattern.
+
+:PatternConformanceShape a sh:NodeShape ;
+  sh:targetClass yawl:WorkflowSpecification ; # Or a specific workflow instance class
+  sh:comment "Conceptual shape to validate that a YAWL workflow conforms to a canonical pattern." ;
+  sh:sparql [
+    sh:message "The workflow must conform to one of the canonical YAWL patterns." ;
+    sh:select """
+      SELECT $this WHERE {
+        # This is a placeholder. Actual logic would involve complex graph traversal
+        # and comparison against the definitions of yawl:Pattern individuals.
+        # For example, checking if the structure of a sub-graph matches yawl:P1_Sequence.
+        FILTER NOT EXISTS { $this yawl:conformsToPattern ?pattern . }
+      }
+    """ ;
+  ] .

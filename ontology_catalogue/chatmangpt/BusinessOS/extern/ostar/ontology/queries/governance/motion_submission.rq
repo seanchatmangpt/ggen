@@ -1,0 +1,15 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rr: <https://chatmangpt.com/ontologies/o-star/governance:roberts-rules:>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?motion ?motionText ?mover ?seconder ?timestamp ?isUrgent
+WHERE {
+  ?motion a rr:Motion .
+  ?motion rr:motionText ?motionText .
+  ?motion rr:movedBy ?mover .
+  ?motion rr:secondedBy ?seconder .
+  ?motion prov:generatedAtTime ?timestamp .
+  OPTIONAL { ?motion rr:isUrgent ?isUrgent . }
+}
+ORDER BY DESC(?timestamp)
+LIMIT 100

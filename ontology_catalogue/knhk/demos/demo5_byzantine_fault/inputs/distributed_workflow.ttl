@@ -1,0 +1,190 @@
+@prefix wf: <http://knhk.example/workflow/> .
+@prefix yawl: <http://knhk.example/yawl/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix pbft: <http://knhk.example/pbft/> .
+
+# DEMO 5: Byzantine Fault Tolerance
+# 3-node distributed workflow with PBFT consensus
+# Node 3 will fail after Task 2 completes
+
+wf:DistributedWorkflow a yawl:Workflow ;
+    dc:title "Distributed 3-Node Workflow" ;
+    dc:description "Byzantine fault tolerant workflow using PBFT consensus" ;
+    yawl:hasStartTask wf:Task1 ;
+    yawl:isDistributed true ;
+    yawl:consensusAlgorithm pbft:PBFT ;
+    yawl:nodeCount 3 ;
+    yawl:byzantineToleranceLevel 1 ;
+    yawl:nodes (
+        wf:Node1_Coordinator
+        wf:Node2_Validator
+        wf:Node3_Backup
+    ) .
+
+# Node definitions
+wf:Node1_Coordinator a pbft:Node ;
+    dc:title "Node 1: Coordinator" ;
+    pbft:role pbft:Primary ;
+    pbft:address "node1.cluster:9001" ;
+    pbft:isFaulty false ;
+    pbft:replicaId 1 .
+
+wf:Node2_Validator a pbft:Node ;
+    dc:title "Node 2: Validator" ;
+    pbft:role pbft:Replica ;
+    pbft:address "node2.cluster:9002" ;
+    pbft:isFaulty false ;
+    pbft:replicaId 2 .
+
+wf:Node3_Backup a pbft:Node ;
+    dc:title "Node 3: Backup" ;
+    pbft:role pbft:Replica ;
+    pbft:address "node3.cluster:9003" ;
+    pbft:isFaulty false ;
+    pbft:replicaId 3 ;
+    pbft:failureSchedule [
+        pbft:failsAt 850 ;
+        pbft:failureType pbft:NetworkPartition ;
+        pbft:recoveryPoint 1000
+    ] .
+
+# Task 1: Runs on Node 1 (Coordinator)
+wf:Task1 a yawl:Task ;
+    dc:title "Task 1: Initial Processing (Node 1)" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:runsOn wf:Node1_Coordinator ;
+    yawl:estimatedDuration "PT150MS" ;
+    yawl:nextTask wf:ConsensusCheckpoint1 ;
+    yawl:outputs ([yawl:name "task1_result"]) .
+
+# Consensus Checkpoint 1: Verify agreement on Task 1 result
+wf:ConsensusCheckpoint1 a pbft:ConsensusCheckpoint ;
+    dc:title "Consensus: Task 1 Complete" ;
+    pbft:requiredReplicas 3 ;
+    pbft:consensusTimeout "PT1000MS" ;
+    yawl:nextTask wf:Task2 .
+
+# Task 2: Runs on Node 2 (Validator) - This is where Node 3 will fail
+wf:Task2 a yawl:Task ;
+    dc:title "Task 2: Processing (Node 2)" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:runsOn wf:Node2_Validator ;
+    yawl:estimatedDuration "PT200MS" ;
+    yawl:nextTask wf:ConsensusCheckpoint2 ;
+    yawl:outputs ([yawl:name "task2_result"]) .
+
+# Consensus Checkpoint 2: Consensus required
+# During this checkpoint, Node 3 will be detected as offline
+wf:ConsensusCheckpoint2 a pbft:ConsensusCheckpoint ;
+    dc:title "Consensus: Task 2 Complete (Node 3 FAILS HERE)" ;
+    pbft:initialReplicas 3 ;
+    pbft:availableAfterFailure 2 ;
+    pbft:requiredForConsensus 2 ;
+    pbft:consensusTimeout "PT1000MS" ;
+    pbft:faultDetectionTime 850 ;
+    pbft:recoveryAction pbft:AdjustConsensusThreshold ;
+    yawl:nextTask wf:Task3 .
+
+# Task 3: Runs on Node 3 replacement (failover)
+# Node 3 will be replaced by Node 3b with previous state
+wf:Task3 a yawl:Task ;
+    dc:title "Task 3: Processing (Node 3 - After Failover)" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:runsOn wf:Node3_Replacement ;
+    yawl:estimatedDuration "PT200MS" ;
+    yawl:nextTask wf:ConsensusCheckpoint3 ;
+    yawl:outputs ([yawl:name "task3_result"]) ;
+    pbft:isFailoverTask true ;
+    pbft:restoresStateFrom wf:Node3_Backup .
+
+# Node 3 Replacement
+wf:Node3_Replacement a pbft:Node ;
+    dc:title "Node 3b: Replacement (Failover)" ;
+    pbft:role pbft:Replica ;
+    pbft:address "node3b.cluster:9003" ;
+    pbft:isFaulty false ;
+    pbft:replicaId 3 ;
+    pbft:isFailover true ;
+    pbft:takesOverFrom wf:Node3_Backup ;
+    pbft:stateRestorationType pbft:ImmutableLog .
+
+# Consensus Checkpoint 3: Final consensus
+wf:ConsensusCheckpoint3 a pbft:ConsensusCheckpoint ;
+    dc:title "Consensus: Task 3 Complete" ;
+    pbft:requiredReplicas 2 ;
+    pbft:consensusTimeout "PT1000MS" ;
+    yawl:nextTask wf:Task4 .
+
+# Task 4: Final processing (runs on Node 1)
+wf:Task4 a yawl:Task ;
+    dc:title "Task 4: Final Output (Node 1)" ;
+    yawl:pattern yawl:SimpleActivity ;
+    yawl:runsOn wf:Node1_Coordinator ;
+    yawl:estimatedDuration "PT100MS" ;
+    yawl:nextTask wf:EndTask ;
+    yawl:outputs ([yawl:name "final_result"]) .
+
+wf:EndTask a yawl:EndTask ;
+    yawl:pattern yawl:TerminationTask .
+
+# PBFT Configuration
+wf:DistributedWorkflow yawl:hasPBFTConfig [
+    dc:title "PBFT Consensus Settings" ;
+    pbft:viewNumber 0 ;
+    pbft:primaryNode wf:Node1_Coordinator ;
+    pbft:timeout "PT15000MS" ;
+    pbft:roundTimeout "PT3000MS" ;
+    pbft:maxFaultyNodes 1 ;
+    pbft:consensusThreshold "2f + 1" ;
+    pbft:faultDetection [
+        pbft:mechanism pbft:Timeout ;
+        pbft:threshold "PT15000MS" ;
+        pbft:recoveryStrategy pbft:ViewChange
+    ]
+] .
+
+# Byzantine Resilience Proof
+wf:DistributedWorkflow yawl:hasResilienceProof [
+    dc:title "Byzantine Fault Tolerance Proof" ;
+    yawl:totalNodes 3 ;
+    yawl:maxFaultyNodes 1 ;
+    yawl:faultyThreshold "floor((n-1)/3)" ;
+    yawl:consensusFormula "2f + 1 = 2*1 + 1 = 3" ;
+    yawl:consensusAfterFailure "2 out of 2 remaining = 100%" ;
+    yawl:stateConsistency pbft:GuaranteedByImmutableLog ;
+    yawl:nodesNeededForConsensus "ceil(2n/3) = 2" ;
+    yawl:proof "Even with 1 node down, 2 remaining nodes (66%) can reach consensus"
+] .
+
+# Q Invariants
+wf:DistributedWorkflow yawl:hasInvariant [
+    dc:title "Q1: Consistency" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "all_nodes_agree_on_final_state" ;
+    yawl:enforcedAt "runtime"
+] ;
+yawl:hasInvariant [
+    dc:title "Q3: Chatman Constant" ;
+    yawl:invariantType "hard" ;
+    yawl:expression "forall task: latency(task) <= 8" ;
+    yawl:enforcedAt "runtime" ;
+    yawl:comment "Even with Byzantine failures and consensus overhead"
+] .
+
+# Expected failure timeline
+wf:DistributedWorkflow yawl:expectedFailureTimeline [
+    pbft:time_0ms "All 3 nodes online" ;
+    pbft:time_150ms "Task 1 completes on Node 1" ;
+    pbft:time_200ms "Consensus: 3/3 nodes agree on Task 1 result" ;
+    pbft:time_400ms "Task 2 starts on Node 2" ;
+    pbft:time_600ms "Task 2 completes on Node 2" ;
+    pbft:time_700ms "Consensus initiated: 3/3 nodes requested" ;
+    pbft:time_850ms "FAILURE: Node 3 detects network partition" ;
+    pbft:time_851ms "Node 1 & 2 detect Node 3 timeout" ;
+    pbft:time_852ms "Consensus reconfigured: 2/3 nodes needed" ;
+    pbft:time_900ms "Task 2 consensus approved (2/2 remaining nodes)" ;
+    pbft:time_950ms "Task 3 starts on Node 3 replacement" ;
+    pbft:time_1150ms "Task 3 completes on replacement" ;
+    pbft:time_1200ms "Final consensus: 2/2 nodes agree" ;
+    pbft:time_1300ms "Workflow completes successfully despite Node 3 failure"
+] .

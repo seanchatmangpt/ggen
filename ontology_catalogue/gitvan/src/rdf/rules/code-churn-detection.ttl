@@ -1,0 +1,15 @@
+# Code Churn Detection Rule
+# Detects files with high commit frequency (commits per file ratio > 10)
+# This indicates unstable or frequently-modified code
+
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# RULE: {"id": "code-churn-detection", "name": "Code Churn Detection", "description": "Detects files with high commit frequency indicating code instability", "antecedent": "?file gv:commitCount ?commits . FILTER(?commits > 10)", "consequent": "?file gv:hasHighChurn true", "priority": 100}
+
+# Example data structure
+ex:file1 gv:commitCount 15 .
+ex:file2 gv:commitCount 5 .
+ex:file3 gv:commitCount 25 .

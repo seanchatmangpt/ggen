@@ -1,0 +1,40 @@
+# @name: create_person
+# @category: org
+# @description: Create a new person entity with organizational metadata
+# @params: ?person_id, ?name, ?email, ?phone, ?department_id, ?manager_id, ?role, ?start_date
+# @returns: foaf:Person with org:holds, org:memberOf relationships
+# @version: 1.0
+# @stability: stable
+
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+CONSTRUCT {
+  ?person a foaf:Person ;
+    schema:identifier ?person_id ;
+    foaf:name ?name ;
+    foaf:mbox ?mbox ;
+    foaf:phone ?phone ;
+    schema:jobTitle ?role ;
+    schema:startDate ?start_date ;
+    org:memberOf ?department ;
+    org:reportsTo ?manager ;
+    foaf:member ?department .
+
+  ?department a org:OrganizationalUnit ;
+    schema:identifier ?department_id .
+
+  ?manager a foaf:Person ;
+    schema:identifier ?manager_id .
+}
+
+WHERE {
+  BIND(IRI(CONCAT("http://businessos.dev/id/users/", STR(?person_id))) AS ?person)
+  BIND(IRI(CONCAT("http://businessos.dev/id/depts/", STR(?department_id))) AS ?department)
+  BIND(IRI(CONCAT("http://businessos.dev/id/users/", STR(?manager_id))) AS ?manager)
+  BIND(CONCAT("mailto:", STR(?email)) AS ?mbox)
+}

@@ -1,0 +1,56 @@
+# Tier Constitutional Equivalence Query
+#
+# Computes pairwise equivalence between all deployment tiers.
+# Two tiers are equivalent iff their law vectors agree on ALL dimensions
+# where either has verified status. Unverified dimensions don't count against
+# equivalence (they're unknown, not divergent). A single violated dimension
+# breaks equivalence.
+#
+# Equivalence definition:
+#   LawVector*{tau_i} equiv LawVector*{tau_j} iff
+#     NOT EXISTS d: status(d_i) = "violated" OR status(d_j) = "violated"
+#     AND FORALL d where status is verified in either:
+#       status(d_i) = status(d_j)
+#
+# Output columns:
+#   ?tier1, ?tier2 — the tier pair (ordered tier1 < tier2 alphabetically)
+#   ?verified_match_count — dimensions where both are verified with same status
+#   ?total_verified_count — total dimensions verified across both tiers
+#   ?violation_count — dimensions where either tier has "violated" status
+#   ?total_dimensions — total dimension types compared (should be 6)
+#
+# Equivalence is derived from the counts:
+#   equivalent = (violation_count == 0) AND (verified_match_count == total_verified_count)
+
+PREFIX tier: <https://chatmangpt.com/ontologies/o-star-tier#>
+
+SELECT ?tier1 ?tier2
+       (SUM(?is_verified_match) AS ?verified_match_count)
+       (SUM(?is_either_verified) AS ?total_verified_count)
+       (SUM(?is_violation) AS ?violation_count)
+       (COUNT(DISTINCT ?dimType) AS ?total_dimensions)
+WHERE {
+  ?tier1 a tier:DeploymentTier .
+  ?tier2 a tier:DeploymentTier .
+  FILTER (?tier1 != ?tier2)
+  FILTER (STR(?tier1) < STR(?tier2))
+
+  ?tier1 tier:hasLawVector ?lv1 .
+  ?tier2 tier:hasLawVector ?lv2 .
+
+  ?lv1 tier:hasDimension ?dim1 .
+  ?dim1 tier:dimensionType ?dimType .
+
+  ?lv2 tier:hasDimension ?dim2 .
+  ?dim2 tier:dimensionType ?dimType .
+  FILTER (?dim1 != ?dim2)
+
+  ?dim1 tier:dimensionStatus ?status1 .
+  ?dim2 tier:dimensionStatus ?status2 .
+
+  BIND(IF(?status1 = ?status2 && ?status1 = "verified", 1, 0) AS ?is_verified_match)
+  BIND(IF(?status1 = "verified" || ?status2 = "verified", 1, 0) AS ?is_either_verified)
+  BIND(IF(?status1 = "violated" || ?status2 = "violated", 1, 0) AS ?is_violation)
+}
+GROUP BY ?tier1 ?tier2
+ORDER BY ?tier1 ?tier2

@@ -1,0 +1,824 @@
+@prefix a2a:   <https://ggen.io/ontology/a2a/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# A2A Protocol v0.3.0 - JSON-RPC Request/Response Instance Data
+#
+# Instance definitions for all JSON-RPC methods, request types, response types,
+# parameter types, and error types defined by the A2A specification.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# JSON-RPC 2.0 Base Types
+# -----------------------------------------------------------------------------
+
+a2a:JSONRPCMessage a a2a:JsonRpcType ;
+    rdfs:label "JSONRPCMessage" ;
+    rdfs:comment "Base interface for any JSON-RPC 2.0 request or response." ;
+    a2a:hasField a2a:JSONRPCMessage_id ,
+                 a2a:JSONRPCMessage_jsonrpc .
+
+a2a:JSONRPCMessage_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string | integer | null" ;
+    a2a:required false ;
+    rdfs:comment "An identifier established by the Client that MUST contain a String, Number. Numbers SHOULD NOT contain fractional parts." .
+
+a2a:JSONRPCMessage_jsonrpc a a2a:Field ;
+    a2a:fieldName "jsonrpc" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    a2a:constValue "2.0" ;
+    rdfs:comment "Specifies the version of the JSON-RPC protocol. MUST be exactly \"2.0\"." .
+
+a2a:JSONRPCRequest a a2a:JsonRpcType ;
+    rdfs:label "JSONRPCRequest" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Request object." ;
+    a2a:extends a2a:JSONRPCMessage ;
+    a2a:hasField a2a:JSONRPCRequest_id ,
+                 a2a:JSONRPCRequest_jsonrpc ,
+                 a2a:JSONRPCRequest_method ,
+                 a2a:JSONRPCRequest_params .
+
+a2a:JSONRPCRequest_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string | integer | null" ;
+    a2a:required false ;
+    rdfs:comment "An identifier established by the Client that MUST contain a String, Number." .
+
+a2a:JSONRPCRequest_jsonrpc a a2a:Field ;
+    a2a:fieldName "jsonrpc" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    a2a:constValue "2.0" .
+
+a2a:JSONRPCRequest_method a a2a:Field ;
+    a2a:fieldName "method" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "A String containing the name of the method to be invoked." .
+
+a2a:JSONRPCRequest_params a a2a:Field ;
+    a2a:fieldName "params" ;
+    a2a:fieldType "object" ;
+    a2a:required false ;
+    rdfs:comment "A Structured value that holds the parameter values to be used during the invocation of the method." .
+
+a2a:JSONRPCSuccessResponse a a2a:JsonRpcType ;
+    rdfs:label "JSONRPCSuccessResponse" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Success Response object." ;
+    a2a:extends a2a:JSONRPCMessage ;
+    a2a:hasField a2a:JSONRPCSuccessResponse_id ,
+                 a2a:JSONRPCSuccessResponse_jsonrpc ,
+                 a2a:JSONRPCSuccessResponse_result .
+
+a2a:JSONRPCSuccessResponse_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string | integer | null" ;
+    a2a:required true .
+
+a2a:JSONRPCSuccessResponse_jsonrpc a a2a:Field ;
+    a2a:fieldName "jsonrpc" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    a2a:constValue "2.0" .
+
+a2a:JSONRPCSuccessResponse_result a a2a:Field ;
+    a2a:fieldName "result" ;
+    a2a:fieldType "any" ;
+    a2a:required true ;
+    rdfs:comment "The result object on success." .
+
+a2a:JSONRPCErrorResponse a a2a:JsonRpcType ;
+    rdfs:label "JSONRPCErrorResponse" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Error Response object." ;
+    a2a:extends a2a:JSONRPCMessage ;
+    a2a:hasField a2a:JSONRPCErrorResponse_id ,
+                 a2a:JSONRPCErrorResponse_jsonrpc ,
+                 a2a:JSONRPCErrorResponse_error .
+
+a2a:JSONRPCErrorResponse_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string | integer | null" ;
+    a2a:required true .
+
+a2a:JSONRPCErrorResponse_jsonrpc a a2a:Field ;
+    a2a:fieldName "jsonrpc" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    a2a:constValue "2.0" .
+
+a2a:JSONRPCErrorResponse_error a a2a:Field ;
+    a2a:fieldName "error" ;
+    a2a:fieldType "JSONRPCError" ;
+    a2a:required true ;
+    rdfs:comment "The error object containing code, message, and optional data." .
+
+a2a:JSONRPCError a a2a:JsonRpcType ;
+    rdfs:label "JSONRPCError" ;
+    rdfs:comment "Represents a JSON-RPC 2.0 Error object. This is typically included in a JSONRPCErrorResponse when an error occurs." ;
+    a2a:hasField a2a:JSONRPCError_code ,
+                 a2a:JSONRPCError_message ,
+                 a2a:JSONRPCError_data .
+
+a2a:JSONRPCError_code a a2a:Field ;
+    a2a:fieldName "code" ;
+    a2a:fieldType "integer" ;
+    a2a:required true ;
+    rdfs:comment "A Number that indicates the error type that occurred." .
+
+a2a:JSONRPCError_message a a2a:Field ;
+    a2a:fieldName "message" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "A String providing a short description of the error." .
+
+a2a:JSONRPCError_data a a2a:Field ;
+    a2a:fieldName "data" ;
+    a2a:fieldType "any" ;
+    a2a:required false ;
+    rdfs:comment "A Primitive or Structured value that contains additional information about the error. This may be omitted." .
+
+# -----------------------------------------------------------------------------
+# Parameter Types
+# -----------------------------------------------------------------------------
+
+# --- MessageSendParams ---
+
+a2a:MessageSendParams a a2a:ParamsType ;
+    rdfs:label "MessageSendParams" ;
+    rdfs:comment "Sent by the client to the agent as a request. May create, continue or restart a task." ;
+    a2a:hasField a2a:MessageSendParams_message ,
+                 a2a:MessageSendParams_configuration ,
+                 a2a:MessageSendParams_metadata .
+
+a2a:MessageSendParams_message a a2a:Field ;
+    a2a:fieldName "message" ;
+    a2a:fieldType "Message" ;
+    a2a:required true ;
+    rdfs:comment "The message being sent to the server." .
+
+a2a:MessageSendParams_configuration a a2a:Field ;
+    a2a:fieldName "configuration" ;
+    a2a:fieldType "MessageSendConfiguration" ;
+    a2a:required false ;
+    rdfs:comment "Send message configuration." .
+
+a2a:MessageSendParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false ;
+    rdfs:comment "Extension metadata." .
+
+# --- MessageSendConfiguration ---
+
+a2a:MessageSendConfiguration a a2a:ParamsType ;
+    rdfs:label "MessageSendConfiguration" ;
+    rdfs:comment "Defines configuration options for a message/send or message/stream request." ;
+    a2a:hasField a2a:MessageSendConfiguration_acceptedOutputModes ,
+                 a2a:MessageSendConfiguration_pushNotificationConfig ,
+                 a2a:MessageSendConfiguration_historyLength ,
+                 a2a:MessageSendConfiguration_blocking .
+
+a2a:MessageSendConfiguration_acceptedOutputModes a a2a:Field ;
+    a2a:fieldName "acceptedOutputModes" ;
+    a2a:fieldType "string[]" ;
+    a2a:required false ;
+    rdfs:comment "A list of output MIME types the client is prepared to accept in the response." .
+
+a2a:MessageSendConfiguration_pushNotificationConfig a a2a:Field ;
+    a2a:fieldName "pushNotificationConfig" ;
+    a2a:fieldType "PushNotificationConfig" ;
+    a2a:required false ;
+    rdfs:comment "Configuration for the agent to send push notifications for updates after the initial response." .
+
+a2a:MessageSendConfiguration_historyLength a a2a:Field ;
+    a2a:fieldName "historyLength" ;
+    a2a:fieldType "integer" ;
+    a2a:required false ;
+    rdfs:comment "The number of most recent messages from the task's history to retrieve in the response." .
+
+a2a:MessageSendConfiguration_blocking a a2a:Field ;
+    a2a:fieldName "blocking" ;
+    a2a:fieldType "boolean" ;
+    a2a:required false ;
+    rdfs:comment "If true, the client will wait for the task to complete. The server may reject this if the task is long-running." .
+
+# --- TaskIdParams ---
+
+a2a:TaskIdParams a a2a:ParamsType ;
+    rdfs:label "TaskIdParams" ;
+    rdfs:comment "Parameters containing only a task ID, used for simple task operations." ;
+    a2a:hasField a2a:TaskIdParams_id ,
+                 a2a:TaskIdParams_metadata .
+
+a2a:TaskIdParams_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "Task id." .
+
+a2a:TaskIdParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false .
+
+# --- TaskQueryParams ---
+
+a2a:TaskQueryParams a a2a:ParamsType ;
+    rdfs:label "TaskQueryParams" ;
+    rdfs:comment "Parameters for querying a task, including optional history length." ;
+    a2a:hasField a2a:TaskQueryParams_id ,
+                 a2a:TaskQueryParams_historyLength ,
+                 a2a:TaskQueryParams_metadata .
+
+a2a:TaskQueryParams_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "Task id." .
+
+a2a:TaskQueryParams_historyLength a a2a:Field ;
+    a2a:fieldName "historyLength" ;
+    a2a:fieldType "integer" ;
+    a2a:required false ;
+    rdfs:comment "Number of recent messages to be retrieved." .
+
+a2a:TaskQueryParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false .
+
+# --- ListTasksParams ---
+
+a2a:ListTasksParams a a2a:ParamsType ;
+    rdfs:label "ListTasksParams" ;
+    rdfs:comment "Parameters for listing tasks with optional filtering criteria." ;
+    a2a:hasField a2a:ListTasksParams_contextId ,
+                 a2a:ListTasksParams_historyLength ,
+                 a2a:ListTasksParams_includeArtifacts ,
+                 a2a:ListTasksParams_lastUpdatedAfter ,
+                 a2a:ListTasksParams_pageSize ,
+                 a2a:ListTasksParams_pageToken ,
+                 a2a:ListTasksParams_status ,
+                 a2a:ListTasksParams_metadata .
+
+a2a:ListTasksParams_contextId a a2a:Field ;
+    a2a:fieldName "contextId" ;
+    a2a:fieldType "string" ;
+    a2a:required false ;
+    rdfs:comment "Filter tasks by context ID to get tasks from a specific conversation or session." .
+
+a2a:ListTasksParams_historyLength a a2a:Field ;
+    a2a:fieldName "historyLength" ;
+    a2a:fieldType "integer" ;
+    a2a:required false ;
+    rdfs:comment "Number of recent messages to include in each task's history. Must be non-negative. Defaults to 0 if not specified." .
+
+a2a:ListTasksParams_includeArtifacts a a2a:Field ;
+    a2a:fieldName "includeArtifacts" ;
+    a2a:fieldType "boolean" ;
+    a2a:required false ;
+    rdfs:comment "Whether to include artifacts in the returned tasks. Defaults to false to reduce payload size." .
+
+a2a:ListTasksParams_lastUpdatedAfter a a2a:Field ;
+    a2a:fieldName "lastUpdatedAfter" ;
+    a2a:fieldType "integer" ;
+    a2a:required false ;
+    rdfs:comment "Filter tasks updated after this timestamp (milliseconds since epoch)." .
+
+a2a:ListTasksParams_pageSize a a2a:Field ;
+    a2a:fieldName "pageSize" ;
+    a2a:fieldType "integer" ;
+    a2a:required false ;
+    rdfs:comment "Maximum number of tasks to return. Must be between 1 and 100. Defaults to 50 if not specified." .
+
+a2a:ListTasksParams_pageToken a a2a:Field ;
+    a2a:fieldName "pageToken" ;
+    a2a:fieldType "string" ;
+    a2a:required false ;
+    rdfs:comment "Token for pagination. Use the nextPageToken from a previous ListTasksResult response." .
+
+a2a:ListTasksParams_status a a2a:Field ;
+    a2a:fieldName "status" ;
+    a2a:fieldType "TaskState" ;
+    a2a:required false ;
+    rdfs:comment "Filter tasks by their current status state." .
+
+a2a:ListTasksParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false ;
+    rdfs:comment "Request-specific metadata." .
+
+# --- TaskPushNotificationConfig ---
+
+a2a:TaskPushNotificationConfig a a2a:ParamsType ;
+    rdfs:label "TaskPushNotificationConfig" ;
+    rdfs:comment "A container associating a push notification configuration with a specific task." ;
+    a2a:hasField a2a:TaskPushNotificationConfig_taskId ,
+                 a2a:TaskPushNotificationConfig_pushNotificationConfig .
+
+a2a:TaskPushNotificationConfig_taskId a a2a:Field ;
+    a2a:fieldName "taskId" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "The unique identifier (e.g. UUID) of the task." .
+
+a2a:TaskPushNotificationConfig_pushNotificationConfig a a2a:Field ;
+    a2a:fieldName "pushNotificationConfig" ;
+    a2a:fieldType "PushNotificationConfig" ;
+    a2a:required true ;
+    rdfs:comment "The push notification configuration for this task." .
+
+# --- GetTaskPushNotificationConfigParams ---
+
+a2a:GetTaskPushNotificationConfigParams a a2a:ParamsType ;
+    rdfs:label "GetTaskPushNotificationConfigParams" ;
+    rdfs:comment "Defines parameters for fetching a specific push notification configuration for a task." ;
+    a2a:hasField a2a:GetTaskPushNotificationConfigParams_id ,
+                 a2a:GetTaskPushNotificationConfigParams_pushNotificationConfigId ,
+                 a2a:GetTaskPushNotificationConfigParams_metadata .
+
+a2a:GetTaskPushNotificationConfigParams_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "The unique identifier (e.g. UUID) of the task." .
+
+a2a:GetTaskPushNotificationConfigParams_pushNotificationConfigId a a2a:Field ;
+    a2a:fieldName "pushNotificationConfigId" ;
+    a2a:fieldType "string" ;
+    a2a:required false ;
+    rdfs:comment "The ID of the push notification configuration to retrieve." .
+
+a2a:GetTaskPushNotificationConfigParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false ;
+    rdfs:comment "Optional metadata associated with the request." .
+
+# --- ListTaskPushNotificationConfigParams ---
+
+a2a:ListTaskPushNotificationConfigParams a a2a:ParamsType ;
+    rdfs:label "ListTaskPushNotificationConfigParams" ;
+    rdfs:comment "Defines parameters for listing all push notification configurations associated with a task." ;
+    a2a:hasField a2a:ListTaskPushNotificationConfigParams_id ,
+                 a2a:ListTaskPushNotificationConfigParams_metadata .
+
+a2a:ListTaskPushNotificationConfigParams_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "The unique identifier (e.g. UUID) of the task." .
+
+a2a:ListTaskPushNotificationConfigParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false ;
+    rdfs:comment "Optional metadata associated with the request." .
+
+# --- DeleteTaskPushNotificationConfigParams ---
+
+a2a:DeleteTaskPushNotificationConfigParams a a2a:ParamsType ;
+    rdfs:label "DeleteTaskPushNotificationConfigParams" ;
+    rdfs:comment "Defines parameters for deleting a specific push notification configuration for a task." ;
+    a2a:hasField a2a:DeleteTaskPushNotificationConfigParams_id ,
+                 a2a:DeleteTaskPushNotificationConfigParams_pushNotificationConfigId ,
+                 a2a:DeleteTaskPushNotificationConfigParams_metadata .
+
+a2a:DeleteTaskPushNotificationConfigParams_id a a2a:Field ;
+    a2a:fieldName "id" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "The unique identifier (e.g. UUID) of the task." .
+
+a2a:DeleteTaskPushNotificationConfigParams_pushNotificationConfigId a a2a:Field ;
+    a2a:fieldName "pushNotificationConfigId" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "The ID of the push notification configuration to delete." .
+
+a2a:DeleteTaskPushNotificationConfigParams_metadata a a2a:Field ;
+    a2a:fieldName "metadata" ;
+    a2a:fieldType "object" ;
+    a2a:required false ;
+    rdfs:comment "Optional metadata associated with the request." .
+
+# --- ListTasksResult ---
+
+a2a:ListTasksResult a a2a:ResultType ;
+    rdfs:label "ListTasksResult" ;
+    rdfs:comment "Result object for tasks/list method containing an array of tasks and pagination information." ;
+    a2a:hasField a2a:ListTasksResult_tasks ,
+                 a2a:ListTasksResult_nextPageToken ,
+                 a2a:ListTasksResult_pageSize ,
+                 a2a:ListTasksResult_totalSize .
+
+a2a:ListTasksResult_tasks a a2a:Field ;
+    a2a:fieldName "tasks" ;
+    a2a:fieldType "Task[]" ;
+    a2a:required true ;
+    rdfs:comment "Array of tasks matching the specified criteria." .
+
+a2a:ListTasksResult_nextPageToken a a2a:Field ;
+    a2a:fieldName "nextPageToken" ;
+    a2a:fieldType "string" ;
+    a2a:required true ;
+    rdfs:comment "Token for retrieving the next page. Empty string if no more results." .
+
+a2a:ListTasksResult_pageSize a a2a:Field ;
+    a2a:fieldName "pageSize" ;
+    a2a:fieldType "integer" ;
+    a2a:required true ;
+    rdfs:comment "Maximum number of tasks returned in this response." .
+
+a2a:ListTasksResult_totalSize a a2a:Field ;
+    a2a:fieldName "totalSize" ;
+    a2a:fieldType "integer" ;
+    a2a:required true ;
+    rdfs:comment "Total number of tasks available (before pagination)." .
+
+# -----------------------------------------------------------------------------
+# Request Types
+# -----------------------------------------------------------------------------
+
+a2a:SendMessageRequest a a2a:RequestType ;
+    rdfs:label "SendMessageRequest" ;
+    rdfs:comment "JSON-RPC request model for the 'message/send' method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "message/send" ;
+    a2a:paramsType a2a:MessageSendParams .
+
+a2a:SendStreamingMessageRequest a a2a:RequestType ;
+    rdfs:label "SendStreamingMessageRequest" ;
+    rdfs:comment "JSON-RPC request model for the 'message/stream' method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "message/stream" ;
+    a2a:paramsType a2a:MessageSendParams .
+
+a2a:GetTaskRequest a a2a:RequestType ;
+    rdfs:label "GetTaskRequest" ;
+    rdfs:comment "JSON-RPC request model for the 'tasks/get' method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/get" ;
+    a2a:paramsType a2a:TaskQueryParams .
+
+a2a:CancelTaskRequest a a2a:RequestType ;
+    rdfs:label "CancelTaskRequest" ;
+    rdfs:comment "JSON-RPC request model for the 'tasks/cancel' method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/cancel" ;
+    a2a:paramsType a2a:TaskIdParams .
+
+a2a:ListTasksRequest a a2a:RequestType ;
+    rdfs:label "ListTasksRequest" ;
+    rdfs:comment "JSON-RPC request model for the 'tasks/list' method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/list" ;
+    a2a:paramsType a2a:ListTasksParams .
+
+a2a:TaskResubscriptionRequest a a2a:RequestType ;
+    rdfs:label "TaskResubscriptionRequest" ;
+    rdfs:comment "Represents a JSON-RPC request for the tasks/resubscribe method, used to resume a streaming connection." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/resubscribe" ;
+    a2a:paramsType a2a:TaskIdParams .
+
+a2a:SetTaskPushNotificationConfigRequest a a2a:RequestType ;
+    rdfs:label "SetTaskPushNotificationConfigRequest" ;
+    rdfs:comment "JSON-RPC request model for the 'tasks/pushNotificationConfig/set' method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/pushNotificationConfig/set" ;
+    a2a:paramsType a2a:TaskPushNotificationConfig .
+
+a2a:GetTaskPushNotificationConfigRequest a a2a:RequestType ;
+    rdfs:label "GetTaskPushNotificationConfigRequest" ;
+    rdfs:comment "Represents a JSON-RPC request for the tasks/pushNotificationConfig/get method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/pushNotificationConfig/get" ;
+    a2a:paramsType a2a:GetTaskPushNotificationConfigParams .
+
+a2a:ListTaskPushNotificationConfigRequest a a2a:RequestType ;
+    rdfs:label "ListTaskPushNotificationConfigRequest" ;
+    rdfs:comment "Represents a JSON-RPC request for the tasks/pushNotificationConfig/list method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/pushNotificationConfig/list" ;
+    a2a:paramsType a2a:ListTaskPushNotificationConfigParams .
+
+a2a:DeleteTaskPushNotificationConfigRequest a a2a:RequestType ;
+    rdfs:label "DeleteTaskPushNotificationConfigRequest" ;
+    rdfs:comment "Represents a JSON-RPC request for the tasks/pushNotificationConfig/delete method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "tasks/pushNotificationConfig/delete" ;
+    a2a:paramsType a2a:DeleteTaskPushNotificationConfigParams .
+
+a2a:GetAuthenticatedExtendedCardRequest a a2a:RequestType ;
+    rdfs:label "GetAuthenticatedExtendedCardRequest" ;
+    rdfs:comment "Represents a JSON-RPC request for the agent/getAuthenticatedExtendedCard method." ;
+    a2a:extends a2a:JSONRPCRequest ;
+    a2a:methodName "agent/getAuthenticatedExtendedCard" .
+
+# -----------------------------------------------------------------------------
+# Response Types
+# -----------------------------------------------------------------------------
+
+a2a:SendMessageResponse a a2a:ResponseType ;
+    rdfs:label "SendMessageResponse" ;
+    rdfs:comment "JSON-RPC response model for the 'message/send' method." ;
+    a2a:successType a2a:SendMessageSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:SendMessageSuccessResponse a a2a:ResponseType ;
+    rdfs:label "SendMessageSuccessResponse" ;
+    rdfs:comment "JSON-RPC success response model for the 'message/send' method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "Task | Message" .
+
+a2a:SendStreamingMessageResponse a a2a:ResponseType ;
+    rdfs:label "SendStreamingMessageResponse" ;
+    rdfs:comment "JSON-RPC response model for the 'message/stream' method." ;
+    a2a:successType a2a:SendStreamingMessageSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:SendStreamingMessageSuccessResponse a a2a:ResponseType ;
+    rdfs:label "SendStreamingMessageSuccessResponse" ;
+    rdfs:comment "JSON-RPC success response model for the 'message/stream' method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "Task | Message | TaskStatusUpdateEvent | TaskArtifactUpdateEvent" .
+
+a2a:GetTaskResponse a a2a:ResponseType ;
+    rdfs:label "GetTaskResponse" ;
+    rdfs:comment "JSON-RPC response for the 'tasks/get' method." ;
+    a2a:successType a2a:GetTaskSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:GetTaskSuccessResponse a a2a:ResponseType ;
+    rdfs:label "GetTaskSuccessResponse" ;
+    rdfs:comment "JSON-RPC success response for the 'tasks/get' method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "Task" .
+
+a2a:CancelTaskResponse a a2a:ResponseType ;
+    rdfs:label "CancelTaskResponse" ;
+    rdfs:comment "JSON-RPC response for the 'tasks/cancel' method." ;
+    a2a:successType a2a:CancelTaskSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:CancelTaskSuccessResponse a a2a:ResponseType ;
+    rdfs:label "CancelTaskSuccessResponse" ;
+    rdfs:comment "JSON-RPC success response model for the 'tasks/cancel' method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "Task" .
+
+a2a:ListTasksResponse a a2a:ResponseType ;
+    rdfs:label "ListTasksResponse" ;
+    rdfs:comment "JSON-RPC response for the 'tasks/list' method." ;
+    a2a:successType a2a:ListTasksSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:ListTasksSuccessResponse a a2a:ResponseType ;
+    rdfs:label "ListTasksSuccessResponse" ;
+    rdfs:comment "JSON-RPC success response model for the 'tasks/list' method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "ListTasksResult" .
+
+a2a:SetTaskPushNotificationConfigResponse a a2a:ResponseType ;
+    rdfs:label "SetTaskPushNotificationConfigResponse" ;
+    rdfs:comment "JSON-RPC response for the 'tasks/pushNotificationConfig/set' method." ;
+    a2a:successType a2a:SetTaskPushNotificationConfigSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:SetTaskPushNotificationConfigSuccessResponse a a2a:ResponseType ;
+    rdfs:label "SetTaskPushNotificationConfigSuccessResponse" ;
+    rdfs:comment "JSON-RPC success response model for the 'tasks/pushNotificationConfig/set' method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "TaskPushNotificationConfig" .
+
+a2a:GetTaskPushNotificationConfigResponse a a2a:ResponseType ;
+    rdfs:label "GetTaskPushNotificationConfigResponse" ;
+    rdfs:comment "JSON-RPC response for the 'tasks/pushNotificationConfig/get' method." ;
+    a2a:successType a2a:GetTaskPushNotificationConfigSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:GetTaskPushNotificationConfigSuccessResponse a a2a:ResponseType ;
+    rdfs:label "GetTaskPushNotificationConfigSuccessResponse" ;
+    rdfs:comment "Represents a successful JSON-RPC response for the tasks/pushNotificationConfig/get method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "TaskPushNotificationConfig" .
+
+a2a:ListTaskPushNotificationConfigResponse a a2a:ResponseType ;
+    rdfs:label "ListTaskPushNotificationConfigResponse" ;
+    rdfs:comment "Represents a JSON-RPC response for the tasks/pushNotificationConfig/list method." ;
+    a2a:successType a2a:ListTaskPushNotificationConfigSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:ListTaskPushNotificationConfigSuccessResponse a a2a:ResponseType ;
+    rdfs:label "ListTaskPushNotificationConfigSuccessResponse" ;
+    rdfs:comment "Represents a successful JSON-RPC response for the tasks/pushNotificationConfig/list method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "TaskPushNotificationConfig[]" .
+
+a2a:DeleteTaskPushNotificationConfigResponse a a2a:ResponseType ;
+    rdfs:label "DeleteTaskPushNotificationConfigResponse" ;
+    rdfs:comment "Represents a JSON-RPC response for the tasks/pushNotificationConfig/delete method." ;
+    a2a:successType a2a:DeleteTaskPushNotificationConfigSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:DeleteTaskPushNotificationConfigSuccessResponse a a2a:ResponseType ;
+    rdfs:label "DeleteTaskPushNotificationConfigSuccessResponse" ;
+    rdfs:comment "Represents a successful JSON-RPC response for the tasks/pushNotificationConfig/delete method. Result is null on successful deletion." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "null" .
+
+a2a:GetAuthenticatedExtendedCardResponse a a2a:ResponseType ;
+    rdfs:label "GetAuthenticatedExtendedCardResponse" ;
+    rdfs:comment "Represents a JSON-RPC response for the agent/getAuthenticatedExtendedCard method." ;
+    a2a:successType a2a:GetAuthenticatedExtendedCardSuccessResponse ;
+    a2a:errorType a2a:JSONRPCErrorResponse .
+
+a2a:GetAuthenticatedExtendedCardSuccessResponse a a2a:ResponseType ;
+    rdfs:label "GetAuthenticatedExtendedCardSuccessResponse" ;
+    rdfs:comment "Represents a successful JSON-RPC response for the agent/getAuthenticatedExtendedCard method." ;
+    a2a:extends a2a:JSONRPCSuccessResponse ;
+    a2a:resultType "AgentCard" .
+
+# -----------------------------------------------------------------------------
+# Method Instances
+# -----------------------------------------------------------------------------
+
+a2a:MessageSendMethod a a2a:Method ;
+    rdfs:label "message/send" ;
+    a2a:methodName "message/send" ;
+    rdfs:comment "Send a message to an agent. May create, continue, or restart a task." ;
+    a2a:paramsType a2a:MessageSendParams ;
+    a2a:resultType "Task | Message" ;
+    a2a:requestType a2a:SendMessageRequest ;
+    a2a:responseType a2a:SendMessageResponse .
+
+a2a:MessageStreamMethod a a2a:Method ;
+    rdfs:label "message/stream" ;
+    a2a:methodName "message/stream" ;
+    rdfs:comment "Send a message to an agent and receive a streaming response with server-sent events." ;
+    a2a:paramsType a2a:MessageSendParams ;
+    a2a:resultType "Task | Message | TaskStatusUpdateEvent | TaskArtifactUpdateEvent" ;
+    a2a:requestType a2a:SendStreamingMessageRequest ;
+    a2a:responseType a2a:SendStreamingMessageResponse .
+
+a2a:TasksGetMethod a a2a:Method ;
+    rdfs:label "tasks/get" ;
+    a2a:methodName "tasks/get" ;
+    rdfs:comment "Retrieve a task by its ID, optionally including recent message history." ;
+    a2a:paramsType a2a:TaskQueryParams ;
+    a2a:resultType "Task" ;
+    a2a:requestType a2a:GetTaskRequest ;
+    a2a:responseType a2a:GetTaskResponse .
+
+a2a:TasksCancelMethod a a2a:Method ;
+    rdfs:label "tasks/cancel" ;
+    a2a:methodName "tasks/cancel" ;
+    rdfs:comment "Cancel a running task by its ID." ;
+    a2a:paramsType a2a:TaskIdParams ;
+    a2a:resultType "Task" ;
+    a2a:requestType a2a:CancelTaskRequest ;
+    a2a:responseType a2a:CancelTaskResponse .
+
+a2a:TasksListMethod a a2a:Method ;
+    rdfs:label "tasks/list" ;
+    a2a:methodName "tasks/list" ;
+    rdfs:comment "List tasks with optional filtering by context, status, and pagination." ;
+    a2a:paramsType a2a:ListTasksParams ;
+    a2a:resultType "ListTasksResult" ;
+    a2a:requestType a2a:ListTasksRequest ;
+    a2a:responseType a2a:ListTasksResponse .
+
+a2a:TasksResubscribeMethod a a2a:Method ;
+    rdfs:label "tasks/resubscribe" ;
+    a2a:methodName "tasks/resubscribe" ;
+    rdfs:comment "Resume a streaming connection for a previously created task." ;
+    a2a:paramsType a2a:TaskIdParams ;
+    a2a:resultType "Task | Message | TaskStatusUpdateEvent | TaskArtifactUpdateEvent" ;
+    a2a:requestType a2a:TaskResubscriptionRequest ;
+    a2a:responseType a2a:SendStreamingMessageResponse .
+
+a2a:TasksPushNotificationConfigSetMethod a a2a:Method ;
+    rdfs:label "tasks/pushNotificationConfig/set" ;
+    a2a:methodName "tasks/pushNotificationConfig/set" ;
+    rdfs:comment "Set or update the push notification configuration for a task." ;
+    a2a:paramsType a2a:TaskPushNotificationConfig ;
+    a2a:resultType "TaskPushNotificationConfig" ;
+    a2a:requestType a2a:SetTaskPushNotificationConfigRequest ;
+    a2a:responseType a2a:SetTaskPushNotificationConfigResponse .
+
+a2a:TasksPushNotificationConfigGetMethod a a2a:Method ;
+    rdfs:label "tasks/pushNotificationConfig/get" ;
+    a2a:methodName "tasks/pushNotificationConfig/get" ;
+    rdfs:comment "Retrieve the push notification configuration for a task." ;
+    a2a:paramsType a2a:GetTaskPushNotificationConfigParams ;
+    a2a:resultType "TaskPushNotificationConfig" ;
+    a2a:requestType a2a:GetTaskPushNotificationConfigRequest ;
+    a2a:responseType a2a:GetTaskPushNotificationConfigResponse .
+
+a2a:TasksPushNotificationConfigListMethod a a2a:Method ;
+    rdfs:label "tasks/pushNotificationConfig/list" ;
+    a2a:methodName "tasks/pushNotificationConfig/list" ;
+    rdfs:comment "List all push notification configurations associated with a task." ;
+    a2a:paramsType a2a:ListTaskPushNotificationConfigParams ;
+    a2a:resultType "TaskPushNotificationConfig[]" ;
+    a2a:requestType a2a:ListTaskPushNotificationConfigRequest ;
+    a2a:responseType a2a:ListTaskPushNotificationConfigResponse .
+
+a2a:TasksPushNotificationConfigDeleteMethod a a2a:Method ;
+    rdfs:label "tasks/pushNotificationConfig/delete" ;
+    a2a:methodName "tasks/pushNotificationConfig/delete" ;
+    rdfs:comment "Delete a specific push notification configuration for a task." ;
+    a2a:paramsType a2a:DeleteTaskPushNotificationConfigParams ;
+    a2a:resultType "null" ;
+    a2a:requestType a2a:DeleteTaskPushNotificationConfigRequest ;
+    a2a:responseType a2a:DeleteTaskPushNotificationConfigResponse .
+
+a2a:AgentGetAuthenticatedExtendedCardMethod a a2a:Method ;
+    rdfs:label "agent/getAuthenticatedExtendedCard" ;
+    a2a:methodName "agent/getAuthenticatedExtendedCard" ;
+    rdfs:comment "Retrieve the authenticated extended agent card with additional capabilities visible to authenticated clients." ;
+    a2a:resultType "AgentCard" ;
+    a2a:requestType a2a:GetAuthenticatedExtendedCardRequest ;
+    a2a:responseType a2a:GetAuthenticatedExtendedCardResponse .
+
+# -----------------------------------------------------------------------------
+# Error Type Instances
+# -----------------------------------------------------------------------------
+
+a2a:JSONParseError a a2a:ErrorType ;
+    rdfs:label "JSONParseError" ;
+    rdfs:comment "JSON-RPC error indicating invalid JSON was received by the server." ;
+    a2a:errorCode -32700 ;
+    a2a:errorMessage "Invalid JSON payload" .
+
+a2a:InvalidRequestError a a2a:ErrorType ;
+    rdfs:label "InvalidRequestError" ;
+    rdfs:comment "JSON-RPC error indicating the JSON sent is not a valid Request object." ;
+    a2a:errorCode -32600 ;
+    a2a:errorMessage "Request payload validation error" .
+
+a2a:MethodNotFoundError a a2a:ErrorType ;
+    rdfs:label "MethodNotFoundError" ;
+    rdfs:comment "JSON-RPC error indicating the method does not exist or is not available." ;
+    a2a:errorCode -32601 ;
+    a2a:errorMessage "Method not found" .
+
+a2a:InvalidParamsError a a2a:ErrorType ;
+    rdfs:label "InvalidParamsError" ;
+    rdfs:comment "JSON-RPC error indicating invalid method parameter(s)." ;
+    a2a:errorCode -32602 ;
+    a2a:errorMessage "Invalid parameters" .
+
+a2a:InternalError a a2a:ErrorType ;
+    rdfs:label "InternalError" ;
+    rdfs:comment "JSON-RPC error indicating an internal JSON-RPC error on the server." ;
+    a2a:errorCode -32603 ;
+    a2a:errorMessage "Internal error" .
+
+a2a:TaskNotFoundError a a2a:ErrorType ;
+    rdfs:label "TaskNotFoundError" ;
+    rdfs:comment "A2A specific error indicating the requested task ID was not found." ;
+    a2a:errorCode -32001 ;
+    a2a:errorMessage "Task not found" .
+
+a2a:TaskNotCancelableError a a2a:ErrorType ;
+    rdfs:label "TaskNotCancelableError" ;
+    rdfs:comment "A2A specific error indicating the task is in a state where it cannot be canceled." ;
+    a2a:errorCode -32002 ;
+    a2a:errorMessage "Task cannot be canceled" .
+
+a2a:PushNotificationNotSupportedError a a2a:ErrorType ;
+    rdfs:label "PushNotificationNotSupportedError" ;
+    rdfs:comment "A2A specific error indicating the agent does not support push notifications." ;
+    a2a:errorCode -32003 ;
+    a2a:errorMessage "Push Notification is not supported" .
+
+a2a:UnsupportedOperationError a a2a:ErrorType ;
+    rdfs:label "UnsupportedOperationError" ;
+    rdfs:comment "A2A specific error indicating the requested operation is not supported by the agent." ;
+    a2a:errorCode -32004 ;
+    a2a:errorMessage "This operation is not supported" .
+
+a2a:ContentTypeNotSupportedError a a2a:ErrorType ;
+    rdfs:label "ContentTypeNotSupportedError" ;
+    rdfs:comment "A2A specific error indicating incompatible content types between request and agent capabilities." ;
+    a2a:errorCode -32005 ;
+    a2a:errorMessage "Incompatible content types" .
+
+a2a:InvalidAgentResponseError a a2a:ErrorType ;
+    rdfs:label "InvalidAgentResponseError" ;
+    rdfs:comment "A2A specific error indicating agent returned invalid response for the current method." ;
+    a2a:errorCode -32006 ;
+    a2a:errorMessage "Invalid agent response" .
+
+a2a:AuthenticatedExtendedCardNotConfiguredError a a2a:ErrorType ;
+    rdfs:label "AuthenticatedExtendedCardNotConfiguredError" ;
+    rdfs:comment "An A2A-specific error indicating that the agent does not have an Authenticated Extended Card configured." ;
+    a2a:errorCode -32007 ;
+    a2a:errorMessage "Authenticated Extended Card is not configured" .

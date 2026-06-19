@@ -1,0 +1,683 @@
+@prefix : <http://bitflow.ai/ontology/performance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix bitflow: <http://bitflow.ai/ontology/core#> .
+@prefix patterns: <http://bitflow.ai/ontology/patterns#> .
+@prefix telemetry: <http://bitflow.ai/ontology/telemetry#> .
+@prefix sparql: <http://bitflow.ai/sparql/performance#> .
+
+# ========================================
+# BitFlow Performance and Telemetry Ontology v2.0
+# Real-time Performance Measurement and Optimization
+# ========================================
+
+<http://bitflow.ai/ontology/performance> a owl:Ontology ;
+    rdfs:label "BitFlow Performance and Telemetry Ontology v2.0" ;
+    rdfs:comment "Comprehensive performance measurement, telemetry, and optimization semantics for BitFlow workflow patterns" ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://bitflow.ai/ontology/patterns> ;
+    rdfs:seeAlso <http://bitflow.ai/> .
+
+# ========================================
+# Core Performance Classes
+# ========================================
+
+:PerformanceMetrics a owl:Class ;
+    rdfs:label "Performance Metrics" ;
+    rdfs:comment "Container for all performance measurements" ;
+    rdfs:subClassOf prov:Entity .
+
+:TelemetryFrame a owl:Class ;
+    rdfs:label "Telemetry Frame" ;
+    rdfs:comment "Individual measurement frame capturing execution data" ;
+    rdfs:subClassOf prov:Activity .
+
+:ExecutionContext a owl:Class ;
+    rdfs:label "Execution Context" ;
+    rdfs:comment "Runtime context for pattern execution" .
+
+:TickBudget a owl:Class ;
+    rdfs:label "Tick Budget" ;
+    rdfs:comment "CPU tick allocation and tracking" .
+
+:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory management" .
+
+:SIMDCapability a owl:Class ;
+    rdfs:label "SIMD Capability" ;
+    rdfs:comment "Vector instruction capabilities and usage" .
+
+# ========================================
+# Execution State Enumeration
+# ========================================
+
+:ExecutionState a owl:Class ;
+    rdfs:label "Execution State" ;
+    rdfs:comment "Possible states during pattern execution" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :Created :Enabled :Executing :Completed :Failed :Cancelled :Suspended ) ] .
+
+:Created a :ExecutionState ;
+    rdfs:label "Created" ;
+    rdfs:comment "Task instance created but not yet enabled" .
+
+:Enabled a :ExecutionState ;
+    rdfs:label "Enabled" ;
+    rdfs:comment "Task ready for execution, conditions met" .
+
+:Executing a :ExecutionState ;
+    rdfs:label "Executing" ;
+    rdfs:comment "Task currently being executed" .
+
+:Completed a :ExecutionState ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Task execution completed successfully" .
+
+:Failed a :ExecutionState ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Task execution failed with error" .
+
+:Cancelled a :ExecutionState ;
+    rdfs:label "Cancelled" ;
+    rdfs:comment "Task execution was cancelled" .
+
+:Suspended a :ExecutionState ;
+    rdfs:label "Suspended" ;
+    rdfs:comment "Task execution temporarily suspended" .
+
+# ========================================
+# Performance Measurement Properties
+# ========================================
+
+:timestamp a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:long ;
+    rdfs:label "Timestamp" ;
+    rdfs:comment "High-resolution timestamp in nanoseconds" .
+
+:taskID a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Task ID" ;
+    rdfs:comment "Unique identifier for the executing task" .
+
+:instanceID a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Instance ID" ;
+    rdfs:comment "Unique identifier for the workflow instance" .
+
+:patternID a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Pattern ID" ;
+    rdfs:comment "Zero-based pattern identifier (0-42)" .
+
+:oldState a owl:ObjectProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range :ExecutionState ;
+    rdfs:label "Old State" ;
+    rdfs:comment "Previous execution state" .
+
+:newState a owl:ObjectProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range :ExecutionState ;
+    rdfs:label "New State" ;
+    rdfs:comment "New execution state after pattern execution" .
+
+:ticksUsed a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Ticks Used" ;
+    rdfs:comment "Actual CPU ticks consumed during execution" .
+
+:ticksAllocated a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Ticks Allocated" ;
+    rdfs:comment "CPU ticks allocated for execution (≤8)" .
+
+:blake3Hash a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:string ;
+    rdfs:label "Blake3 Hash" ;
+    rdfs:comment "Cryptographic hash of execution result data" .
+
+:memoryUsed a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Memory Used" ;
+    rdfs:comment "Scratch memory consumed in bytes" .
+
+:simdUtilization a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "SIMD Utilization" ;
+    rdfs:comment "Percentage of SIMD instructions used (0.0-1.0)" .
+
+:atomicOperations a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Atomic Operations" ;
+    rdfs:comment "Number of atomic operations performed" .
+
+:branchMispredictions a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Branch Mispredictions" ;
+    rdfs:comment "Number of branch mispredictions (for non-branchless patterns)" .
+
+:cacheHitRatio a owl:DatatypeProperty ;
+    rdfs:domain :TelemetryFrame ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Cache Hit Ratio" ;
+    rdfs:comment "L1 cache hit ratio (0.0-1.0)" .
+
+# ========================================
+# Aggregated Performance Statistics
+# ========================================
+
+:PerformanceStatistics a owl:Class ;
+    rdfs:label "Performance Statistics" ;
+    rdfs:comment "Aggregated performance data over time periods" ;
+    rdfs:subClassOf prov:Entity .
+
+:executionCount a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:long ;
+    rdfs:label "Execution Count" ;
+    rdfs:comment "Total number of executions" .
+
+:averageTicksUsed a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Average Ticks Used" ;
+    rdfs:comment "Mean CPU ticks per execution" .
+
+:minTicksUsed a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Minimum Ticks Used" ;
+    rdfs:comment "Fastest execution in ticks" .
+
+:maxTicksUsed a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Ticks Used" ;
+    rdfs:comment "Slowest execution in ticks" .
+
+:standardDeviation a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Standard Deviation" ;
+    rdfs:comment "Standard deviation of execution times" .
+
+:successRate a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Success Rate" ;
+    rdfs:comment "Percentage of successful executions (0.0-1.0)" .
+
+:throughput a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Throughput" ;
+    rdfs:comment "Executions per second" .
+
+:percentile95 a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "95th Percentile" ;
+    rdfs:comment "95th percentile execution time in ticks" .
+
+:percentile99 a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceStatistics ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "99th Percentile" ;
+    rdfs:comment "99th percentile execution time in ticks" .
+
+# ========================================
+# Resource Utilization
+# ========================================
+
+:ResourceUtilization a owl:Class ;
+    rdfs:label "Resource Utilization" ;
+    rdfs:comment "System resource consumption metrics" .
+
+:cpuUtilization a owl:DatatypeProperty ;
+    rdfs:domain :ResourceUtilization ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "CPU Utilization" ;
+    rdfs:comment "CPU usage percentage (0.0-1.0)" .
+
+:memoryUtilization a owl:DatatypeProperty ;
+    rdfs:domain :ResourceUtilization ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Memory Utilization" ;
+    rdfs:comment "Memory usage percentage (0.0-1.0)" .
+
+:l1CacheUtilization a owl:DatatypeProperty ;
+    rdfs:domain :ResourceUtilization ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "L1 Cache Utilization" ;
+    rdfs:comment "L1 cache usage efficiency (0.0-1.0)" .
+
+:l2CacheUtilization a owl:DatatypeProperty ;
+    rdfs:domain :ResourceUtilization ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "L2 Cache Utilization" ;
+    rdfs:comment "L2 cache usage efficiency (0.0-1.0)" .
+
+:simdRegisterUtilization a owl:DatatypeProperty ;
+    rdfs:domain :ResourceUtilization ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "SIMD Register Utilization" ;
+    rdfs:comment "SIMD register usage efficiency (0.0-1.0)" .
+
+# ========================================
+# Performance Optimization Hints
+# ========================================
+
+:OptimizationHint a owl:Class ;
+    rdfs:label "Optimization Hint" ;
+    rdfs:comment "Performance optimization recommendation" .
+
+:OptimizationStrategy a owl:Class ;
+    rdfs:label "Optimization Strategy" ;
+    rdfs:comment "Specific optimization approach" ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:oneOf ( :VectorizeSIMD :EliminateBranches :UseAtomicOps :OptimizeCache :ReduceMemoryAccess :ParallelizeExecution ) ] .
+
+:VectorizeSIMD a :OptimizationStrategy ;
+    rdfs:label "Vectorize SIMD" ;
+    rdfs:comment "Use SIMD instructions for parallel operations" .
+
+:EliminateBranches a :OptimizationStrategy ;
+    rdfs:label "Eliminate Branches" ;
+    rdfs:comment "Use branchless programming techniques" .
+
+:UseAtomicOps a :OptimizationStrategy ;
+    rdfs:label "Use Atomic Operations" ;
+    rdfs:comment "Employ atomic operations for thread safety" .
+
+:OptimizeCache a :OptimizationStrategy ;
+    rdfs:label "Optimize Cache" ;
+    rdfs:comment "Improve cache locality and access patterns" .
+
+:ReduceMemoryAccess a :OptimizationStrategy ;
+    rdfs:label "Reduce Memory Access" ;
+    rdfs:comment "Minimize memory operations" .
+
+:ParallelizeExecution a :OptimizationStrategy ;
+    rdfs:label "Parallelize Execution" ;
+    rdfs:comment "Enable parallel execution where possible" .
+
+:hasOptimizationStrategy a owl:ObjectProperty ;
+    rdfs:domain :OptimizationHint ;
+    rdfs:range :OptimizationStrategy ;
+    rdfs:label "has optimization strategy" .
+
+:optimizationDescription a owl:DatatypeProperty ;
+    rdfs:domain :OptimizationHint ;
+    rdfs:range xsd:string ;
+    rdfs:label "Optimization Description" ;
+    rdfs:comment "Detailed description of the optimization" .
+
+:expectedSpeedup a owl:DatatypeProperty ;
+    rdfs:domain :OptimizationHint ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Expected Speedup" ;
+    rdfs:comment "Expected performance improvement factor" .
+
+:implementationComplexity a owl:DatatypeProperty ;
+    rdfs:domain :OptimizationHint ;
+    rdfs:range xsd:string ;
+    rdfs:label "Implementation Complexity" ;
+    rdfs:comment "Complexity level: Low, Medium, High" .
+
+# ========================================
+# Real-time Monitoring
+# ========================================
+
+:MonitoringAgent a owl:Class ;
+    rdfs:label "Monitoring Agent" ;
+    rdfs:comment "Real-time performance monitoring component" .
+
+:AlertThreshold a owl:Class ;
+    rdfs:label "Alert Threshold" ;
+    rdfs:comment "Performance threshold that triggers alerts" .
+
+:thresholdValue a owl:DatatypeProperty ;
+    rdfs:domain :AlertThreshold ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Threshold Value" ;
+    rdfs:comment "Numeric threshold value" .
+
+:thresholdMetric a owl:DatatypeProperty ;
+    rdfs:domain :AlertThreshold ;
+    rdfs:range xsd:string ;
+    rdfs:label "Threshold Metric" ;
+    rdfs:comment "Performance metric being monitored" .
+
+:alertSeverity a owl:DatatypeProperty ;
+    rdfs:domain :AlertThreshold ;
+    rdfs:range xsd:string ;
+    rdfs:label "Alert Severity" ;
+    rdfs:comment "Severity level: Info, Warning, Critical" .
+
+:monitoringFrequency a owl:DatatypeProperty ;
+    rdfs:domain :MonitoringAgent ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Monitoring Frequency" ;
+    rdfs:comment "How often monitoring occurs" .
+
+# ========================================
+# Benchmark and Validation
+# ========================================
+
+:BenchmarkSuite a owl:Class ;
+    rdfs:label "Benchmark Suite" ;
+    rdfs:comment "Collection of performance benchmarks" .
+
+:BenchmarkResult a owl:Class ;
+    rdfs:label "Benchmark Result" ;
+    rdfs:comment "Results from benchmark execution" .
+
+:benchmarkName a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:string ;
+    rdfs:label "Benchmark Name" ;
+    rdfs:comment "Name of the benchmark test" .
+
+:benchmarkScore a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Benchmark Score" ;
+    rdfs:comment "Numeric benchmark score" .
+
+:baselineScore a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Baseline Score" ;
+    rdfs:comment "Baseline score for comparison" .
+
+:improvementFactor a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Improvement Factor" ;
+    rdfs:comment "Performance improvement over baseline" .
+
+:benchmarkDate a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Benchmark Date" ;
+    rdfs:comment "When the benchmark was executed" .
+
+# ========================================
+# Memory Management Semantics
+# ========================================
+
+:MemoryManagement a owl:Class ;
+    rdfs:label "Memory Management" ;
+    rdfs:comment "Memory allocation and management semantics" .
+
+:ScratchSpace a owl:Class ;
+    rdfs:label "Scratch Space" ;
+    rdfs:comment "Pre-allocated working memory for patterns" .
+
+:scratchSize a owl:DatatypeProperty ;
+    rdfs:domain :ScratchSpace ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Scratch Size" ;
+    rdfs:comment "Size of scratch space in bytes (128 for BitFlow)" .
+
+:alignment a owl:DatatypeProperty ;
+    rdfs:domain :ScratchSpace ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Alignment" ;
+    rdfs:comment "Memory alignment in bytes (16 for SIMD)" .
+
+:poolSize a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Pool Size" ;
+    rdfs:comment "Total size of memory pool in bytes" .
+
+:freeBlocks a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Free Blocks" ;
+    rdfs:comment "Number of available memory blocks" .
+
+:allocatedBlocks a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Allocated Blocks" ;
+    rdfs:comment "Number of allocated memory blocks" .
+
+:fragmentationRatio a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Fragmentation Ratio" ;
+    rdfs:comment "Memory fragmentation level (0.0-1.0)" .
+
+# ========================================
+# SHACL Validation Constraints
+# ========================================
+
+:TelemetryFrameShape a sh:NodeShape ;
+    sh:targetClass :TelemetryFrame ;
+    sh:property [
+        sh:path :ticksUsed ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 8 ;
+        sh:message "Ticks used must be between 0 and 8"
+    ] ;
+    sh:property [
+        sh:path :taskID ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Task ID is required"
+    ] ;
+    sh:property [
+        sh:path :instanceID ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Instance ID is required"
+    ] ;
+    sh:property [
+        sh:path :patternID ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 42 ;
+        sh:message "Pattern ID must be between 0 and 42"
+    ] ;
+    sh:property [
+        sh:path :blake3Hash ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-f0-9]{64}$" ;
+        sh:message "Blake3 hash must be 64 hex characters"
+    ] ;
+    sh:property [
+        sh:path :simdUtilization ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "SIMD utilization must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path :cacheHitRatio ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Cache hit ratio must be between 0.0 and 1.0"
+    ] .
+
+:PerformanceStatisticsShape a sh:NodeShape ;
+    sh:targetClass :PerformanceStatistics ;
+    sh:property [
+        sh:path :successRate ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Success rate must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path :executionCount ;
+        sh:minInclusive 0 ;
+        sh:message "Execution count cannot be negative"
+    ] ;
+    sh:property [
+        sh:path :averageTicksUsed ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Average ticks must be between 0.0 and 8.0"
+    ] .
+
+# ========================================
+# SPARQL Query Templates for Performance Analysis
+# ========================================
+
+:PerformanceAnalysisQuery a sparql:QueryTemplate ;
+    rdfs:label "Performance Analysis Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/performance#>
+        PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+        
+        # Analyze performance across all patterns
+        SELECT ?patternID ?avgTicks ?maxTicks ?successRate ?throughput
+        WHERE {
+            ?stats a :PerformanceStatistics ;
+                   :patternID ?patternID ;
+                   :averageTicksUsed ?avgTicks ;
+                   :maxTicksUsed ?maxTicks ;
+                   :successRate ?successRate ;
+                   :throughput ?throughput .
+        }
+        ORDER BY DESC(?throughput)
+    """ .
+
+:OptimizationOpportunityQuery a sparql:QueryTemplate ;
+    rdfs:label "Optimization Opportunity Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/performance#>
+        PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+        
+        # Find patterns with optimization opportunities
+        SELECT ?patternID ?avgTicks ?branchMispredictions ?cacheHitRatio
+        WHERE {
+            ?frame a :TelemetryFrame ;
+                   :patternID ?patternID ;
+                   :ticksUsed ?ticks ;
+                   :branchMispredictions ?branchMispredictions ;
+                   :cacheHitRatio ?cacheHitRatio .
+            {
+                SELECT ?patternID (AVG(?ticks) AS ?avgTicks)
+                WHERE {
+                    ?frame :patternID ?patternID ;
+                           :ticksUsed ?ticks .
+                }
+                GROUP BY ?patternID
+            }
+            FILTER(?avgTicks > 4.0 || ?branchMispredictions > 0 || ?cacheHitRatio < 0.9)
+        }
+        ORDER BY DESC(?avgTicks)
+    """ .
+
+:SIMDEfficiencyQuery a sparql:QueryTemplate ;
+    rdfs:label "SIMD Efficiency Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/performance#>
+        PREFIX patterns: <http://bitflow.ai/ontology/patterns#>
+        
+        # Analyze SIMD utilization efficiency
+        SELECT ?patternID (AVG(?simdUtil) AS ?avgSIMDUtil) (COUNT(*) AS ?execCount)
+        WHERE {
+            ?frame a :TelemetryFrame ;
+                   :patternID ?patternID ;
+                   :simdUtilization ?simdUtil .
+            FILTER(?simdUtil > 0.0)
+        }
+        GROUP BY ?patternID
+        ORDER BY DESC(?avgSIMDUtil)
+    """ .
+
+:ResourceUtilizationQuery a sparql:QueryTemplate ;
+    rdfs:label "Resource Utilization Query" ;
+    sparql:queryString """
+        PREFIX : <http://bitflow.ai/ontology/performance#>
+        
+        # Monitor system resource utilization
+        SELECT ?timestamp ?cpuUtil ?memUtil ?l1CacheUtil ?simdRegUtil
+        WHERE {
+            ?util a :ResourceUtilization ;
+                  :timestamp ?timestamp ;
+                  :cpuUtilization ?cpuUtil ;
+                  :memoryUtilization ?memUtil ;
+                  :l1CacheUtilization ?l1CacheUtil ;
+                  :simdRegisterUtilization ?simdRegUtil .
+        }
+        ORDER BY DESC(?timestamp)
+        LIMIT 100
+    """ .
+
+# ========================================
+# Performance Baseline Instances
+# ========================================
+
+:BitFlowBaselinePerformance a :PerformanceStatistics ;
+    rdfs:label "BitFlow Baseline Performance" ;
+    rdfs:comment "Reference performance baseline for all patterns" ;
+    :averageTicksUsed 3.2 ;
+    :successRate 0.995 ;
+    :throughput 156250.0 ;  # 500K patterns/second / 3.2 ticks average
+    :percentile95 6.0 ;
+    :percentile99 7.0 .
+
+:OptimalSIMDConfiguration a :SIMDCapability ;
+    rdfs:label "Optimal SIMD Configuration" ;
+    rdfs:comment "Best-practice SIMD configuration for BitFlow patterns" ;
+    :simdRegisterUtilization 0.85 ;
+    :vectorWidth 128 ;       # bits
+    :supportedInstructions "SSE4.2, AVX2, NEON" .
+
+# ========================================
+# Real-time Telemetry Collection Points
+# ========================================
+
+:PreExecutionTelemetry a owl:Class ;
+    rdfs:subClassOf :TelemetryFrame ;
+    rdfs:label "Pre-execution Telemetry" ;
+    rdfs:comment "Metrics captured before pattern execution" .
+
+:PostExecutionTelemetry a owl:Class ;
+    rdfs:subClassOf :TelemetryFrame ;
+    rdfs:label "Post-execution Telemetry" ;
+    rdfs:comment "Metrics captured after pattern execution" .
+
+:ErrorTelemetry a owl:Class ;
+    rdfs:subClassOf :TelemetryFrame ;
+    rdfs:label "Error Telemetry" ;
+    rdfs:comment "Metrics captured when pattern execution fails" .
+
+:errorCode a owl:DatatypeProperty ;
+    rdfs:domain :ErrorTelemetry ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Error Code" ;
+    rdfs:comment "Numeric error code for failed execution" .
+
+:errorMessage a owl:DatatypeProperty ;
+    rdfs:domain :ErrorTelemetry ;
+    rdfs:range xsd:string ;
+    rdfs:label "Error Message" ;
+    rdfs:comment "Human-readable error description" .
+
+:stackTrace a owl:DatatypeProperty ;
+    rdfs:domain :ErrorTelemetry ;
+    rdfs:range xsd:string ;
+    rdfs:label "Stack Trace" ;
+    rdfs:comment "Call stack at time of error" .

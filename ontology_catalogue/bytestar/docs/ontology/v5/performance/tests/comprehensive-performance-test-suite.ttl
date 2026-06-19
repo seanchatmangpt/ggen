@@ -1,0 +1,551 @@
+# ByteStar Comprehensive Performance Test Suite Ontology
+# Defines comprehensive test suite for validating all crystal operations under Doctrine of 8
+# Version: 5.0.0
+# Integrates with: All performance validation ontologies
+
+@prefix cpts: <http://bytestar.org/ontologies/comprehensive-performance-test-suite#> .
+@prefix ba: <http://bytestar.org/ontologies/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontologies/doctrine-of-8#> .
+@prefix pbf: <http://bytestar.org/ontologies/performance-benchmark-framework#> .
+@prefix ctv: <http://bytestar.org/ontologies/constant-time-validation#> .
+@prefix rbe: <http://bytestar.org/ontologies/resource-bounds-enforcement#> .
+@prefix tlb: <http://bytestar.org/ontologies/throughput-latency-benchmarks#> .
+@prefix prd: <http://bytestar.org/ontologies/performance-regression-detection#> .
+@prefix pog: <http://bytestar.org/ontologies/performance-oracle-generation#> .
+@prefix rmc: <http://bytestar.org/ontologies/resource-monitoring-config#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Ontology Declaration
+cpts: a owl:Ontology ;
+    rdfs:label "Comprehensive Performance Test Suite Ontology"@en ;
+    rdfs:comment "Defines comprehensive test suite for validating all crystal operations under Doctrine of 8"@en ;
+    owl:versionInfo "5.0.0" ;
+    owl:imports ba:, doctrine:, pbf:, ctv:, rbe:, tlb:, prd:, pog:, rmc: .
+
+#################################################################
+#    Classes
+#################################################################
+
+# Core Test Suite Classes
+cpts:PerformanceTestSuite a owl:Class ;
+    rdfs:label "Performance Test Suite"@en ;
+    rdfs:comment "Comprehensive test suite for performance validation"@en ;
+    rdfs:subClassOf ba:ByteActorTestSuite .
+
+cpts:TestScenario a owl:Class ;
+    rdfs:label "Test Scenario"@en ;
+    rdfs:comment "Individual test scenario within the performance test suite"@en ;
+    rdfs:subClassOf ba:ByteActorTest .
+
+cpts:TestEnvironment a owl:Class ;
+    rdfs:label "Test Environment"@en ;
+    rdfs:comment "Controlled environment for performance testing"@en ;
+    rdfs:subClassOf ba:ByteActorEnvironment .
+
+# Crystal Operation Test Classes
+cpts:CrystalOperationTest a owl:Class ;
+    rdfs:label "Crystal Operation Test"@en ;
+    rdfs:comment "Test for specific crystal operation under Doctrine of 8"@en ;
+    rdfs:subClassOf cpts:TestScenario .
+
+cpts:TaskCrystalTest a owl:Class ;
+    rdfs:label "Task Crystal Test"@en ;
+    rdfs:comment "Performance tests for Task Crystal operations"@en ;
+    rdfs:subClassOf cpts:CrystalOperationTest .
+
+cpts:ResultCrystalTest a owl:Class ;
+    rdfs:label "Result Crystal Test"@en ;
+    rdfs:comment "Performance tests for Result Crystal operations"@en ;
+    rdfs:subClassOf cpts:CrystalOperationTest .
+
+cpts:GovernanceCrystalTest a owl:Class ;
+    rdfs:label "Governance Crystal Test"@en ;
+    rdfs:comment "Performance tests for Governance Crystal operations"@en ;
+    rdfs:subClassOf cpts:CrystalOperationTest .
+
+cpts:DataCrystalTest a owl:Class ;
+    rdfs:label "Data Crystal Test"@en ;
+    rdfs:comment "Performance tests for Data Crystal operations"@en ;
+    rdfs:subClassOf cpts:CrystalOperationTest .
+
+# Test Categories
+cpts:ConstantTimeTest a owl:Class ;
+    rdfs:label "Constant Time Test"@en ;
+    rdfs:comment "Test validating constant-time execution properties"@en ;
+    rdfs:subClassOf cpts:TestScenario ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cpts:usesValidator ;
+        owl:someValuesFrom ctv:ConstantTimeValidator
+    ] .
+
+cpts:ResourceBoundsTest a owl:Class ;
+    rdfs:label "Resource Bounds Test"@en ;
+    rdfs:comment "Test validating resource consumption bounds"@en ;
+    rdfs:subClassOf cpts:TestScenario ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cpts:usesValidator ;
+        owl:someValuesFrom rbe:ResourceBoundsValidator
+    ] .
+
+cpts:ThroughputLatencyTest a owl:Class ;
+    rdfs:label "Throughput Latency Test"@en ;
+    rdfs:comment "Test measuring throughput and latency characteristics"@en ;
+    rdfs:subClassOf cpts:TestScenario ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cpts:usesValidator ;
+        owl:someValuesFrom tlb:ThroughputLatencyValidator
+    ] .
+
+cpts:RegressionTest a owl:Class ;
+    rdfs:label "Regression Test"@en ;
+    rdfs:comment "Test detecting performance regressions"@en ;
+    rdfs:subClassOf cpts:TestScenario ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cpts:usesValidator ;
+        owl:someValuesFrom prd:RegressionDetector
+    ] .
+
+cpts:StressTest a owl:Class ;
+    rdfs:label "Stress Test"@en ;
+    rdfs:comment "Test system behavior under extreme load"@en ;
+    rdfs:subClassOf cpts:TestScenario .
+
+cpts:LoadTest a owl:Class ;
+    rdfs:label "Load Test"@en ;
+    rdfs:comment "Test system behavior under expected load patterns"@en ;
+    rdfs:subClassOf cpts:TestScenario .
+
+# Test Data and Fixtures
+cpts:TestData a owl:Class ;
+    rdfs:label "Test Data"@en ;
+    rdfs:comment "Data used for performance testing"@en ;
+    rdfs:subClassOf ba:ByteActorData .
+
+cpts:TestFixture a owl:Class ;
+    rdfs:label "Test Fixture"@en ;
+    rdfs:comment "Test fixture providing controlled test conditions"@en ;
+    rdfs:subClassOf ba:ByteActorFixture .
+
+cpts:SyntheticWorkload a owl:Class ;
+    rdfs:label "Synthetic Workload"@en ;
+    rdfs:comment "Artificially generated workload for testing"@en ;
+    rdfs:subClassOf cpts:TestData .
+
+cpts:ProductionWorkload a owl:Class ;
+    rdfs:label "Production Workload"@en ;
+    rdfs:comment "Real-world workload patterns for testing"@en ;
+    rdfs:subClassOf cpts:TestData .
+
+# Test Results and Analysis
+cpts:TestResult a owl:Class ;
+    rdfs:label "Test Result"@en ;
+    rdfs:comment "Result of performance test execution"@en ;
+    rdfs:subClassOf ba:ByteActorResult .
+
+cpts:PerformanceMetrics a owl:Class ;
+    rdfs:label "Performance Metrics"@en ;
+    rdfs:comment "Collected performance metrics from test execution"@en ;
+    rdfs:subClassOf cpts:TestResult .
+
+cpts:ComplianceReport a owl:Class ;
+    rdfs:label "Compliance Report"@en ;
+    rdfs:comment "Report on Doctrine of 8 compliance status"@en ;
+    rdfs:subClassOf cpts:TestResult .
+
+# Test Automation
+cpts:TestAutomationFramework a owl:Class ;
+    rdfs:label "Test Automation Framework"@en ;
+    rdfs:comment "Framework for automated performance test execution"@en ;
+    rdfs:subClassOf ba:ByteActorFramework .
+
+cpts:ContinuousTestRunner a owl:Class ;
+    rdfs:label "Continuous Test Runner"@en ;
+    rdfs:comment "Continuous integration test runner for performance tests"@en ;
+    rdfs:subClassOf cpts:TestAutomationFramework .
+
+cpts:TestReportGenerator a owl:Class ;
+    rdfs:label "Test Report Generator"@en ;
+    rdfs:comment "Generates comprehensive test reports"@en ;
+    rdfs:subClassOf cpts:TestAutomationFramework .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+# Test Suite Structure
+cpts:containsTestScenario a owl:ObjectProperty ;
+    rdfs:label "contains test scenario"@en ;
+    rdfs:comment "Associates test suite with test scenarios"@en ;
+    rdfs:domain cpts:PerformanceTestSuite ;
+    rdfs:range cpts:TestScenario .
+
+cpts:runsInEnvironment a owl:ObjectProperty ;
+    rdfs:label "runs in environment"@en ;
+    rdfs:comment "Associates test with execution environment"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range cpts:TestEnvironment .
+
+cpts:usesTestData a owl:ObjectProperty ;
+    rdfs:label "uses test data"@en ;
+    rdfs:comment "Associates test with test data"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range cpts:TestData .
+
+cpts:usesTestFixture a owl:ObjectProperty ;
+    rdfs:label "uses test fixture"@en ;
+    rdfs:comment "Associates test with test fixture"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range cpts:TestFixture .
+
+# Validation and Analysis
+cpts:usesValidator a owl:ObjectProperty ;
+    rdfs:label "uses validator"@en ;
+    rdfs:comment "Associates test with performance validator"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range pbf:PerformanceValidator .
+
+cpts:producesResult a owl:ObjectProperty ;
+    rdfs:label "produces result"@en ;
+    rdfs:comment "Associates test execution with result"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range cpts:TestResult .
+
+cpts:hasPerformanceMetrics a owl:ObjectProperty ;
+    rdfs:label "has performance metrics"@en ;
+    rdfs:comment "Associates result with performance metrics"@en ;
+    rdfs:domain cpts:TestResult ;
+    rdfs:range cpts:PerformanceMetrics .
+
+cpts:generatesComplianceReport a owl:ObjectProperty ;
+    rdfs:label "generates compliance report"@en ;
+    rdfs:comment "Associates test with compliance report"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range cpts:ComplianceReport .
+
+# Automation
+cpts:automatedBy a owl:ObjectProperty ;
+    rdfs:label "automated by"@en ;
+    rdfs:comment "Associates test with automation framework"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range cpts:TestAutomationFramework .
+
+cpts:executedBy a owl:ObjectProperty ;
+    rdfs:label "executed by"@en ;
+    rdfs:comment "Associates test suite with test runner"@en ;
+    rdfs:domain cpts:PerformanceTestSuite ;
+    rdfs:range cpts:ContinuousTestRunner .
+
+cpts:reportsGeneratedBy a owl:ObjectProperty ;
+    rdfs:label "reports generated by"@en ;
+    rdfs:comment "Associates results with report generator"@en ;
+    rdfs:domain cpts:TestResult ;
+    rdfs:range cpts:TestReportGenerator .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+# Test Configuration
+cpts:testTimeout a owl:DatatypeProperty ;
+    rdfs:label "test timeout"@en ;
+    rdfs:comment "Maximum execution time for test in microseconds"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range xsd:decimal .
+
+cpts:iterationCount a owl:DatatypeProperty ;
+    rdfs:label "iteration count"@en ;
+    rdfs:comment "Number of iterations for statistical significance"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cpts:warmupIterations a owl:DatatypeProperty ;
+    rdfs:label "warmup iterations"@en ;
+    rdfs:comment "Number of warmup iterations before measurement"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cpts:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "confidence level"@en ;
+    rdfs:comment "Statistical confidence level for test results (0.0-1.0)"@en ;
+    rdfs:domain cpts:TestScenario ;
+    rdfs:range xsd:decimal .
+
+# Performance Measurements
+cpts:executionTimeTicks a owl:DatatypeProperty ;
+    rdfs:label "execution time ticks"@en ;
+    rdfs:comment "Measured execution time in CPU ticks"@en ;
+    rdfs:domain cpts:PerformanceMetrics ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cpts:memoryUsageBytes a owl:DatatypeProperty ;
+    rdfs:label "memory usage bytes"@en ;
+    rdfs:comment "Measured memory usage in bytes"@en ;
+    rdfs:domain cpts:PerformanceMetrics ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cpts:throughputOperationsPerSecond a owl:DatatypeProperty ;
+    rdfs:label "throughput operations per second"@en ;
+    rdfs:comment "Measured throughput in operations per second"@en ;
+    rdfs:domain cpts:PerformanceMetrics ;
+    rdfs:range xsd:decimal .
+
+cpts:latencyMicroseconds a owl:DatatypeProperty ;
+    rdfs:label "latency microseconds"@en ;
+    rdfs:comment "Measured latency in microseconds"@en ;
+    rdfs:domain cpts:PerformanceMetrics ;
+    rdfs:range xsd:decimal .
+
+# Test Results
+cpts:testStatus a owl:DatatypeProperty ;
+    rdfs:label "test status"@en ;
+    rdfs:comment "Status of test execution (PASS, FAIL, ERROR)"@en ;
+    rdfs:domain cpts:TestResult ;
+    rdfs:range xsd:string .
+
+cpts:complianceStatus a owl:DatatypeProperty ;
+    rdfs:label "compliance status"@en ;
+    rdfs:comment "Doctrine of 8 compliance status (COMPLIANT, VIOLATION)"@en ;
+    rdfs:domain cpts:ComplianceReport ;
+    rdfs:range xsd:string .
+
+cpts:performanceScore a owl:DatatypeProperty ;
+    rdfs:label "performance score"@en ;
+    rdfs:comment "Overall performance score (0.0-1.0)"@en ;
+    rdfs:domain cpts:TestResult ;
+    rdfs:range xsd:decimal .
+
+# Test Environment Configuration
+cpts:cpuFrequency a owl:DatatypeProperty ;
+    rdfs:label "CPU frequency"@en ;
+    rdfs:comment "CPU frequency in Hz for test environment"@en ;
+    rdfs:domain cpts:TestEnvironment ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cpts:memoryCapacity a owl:DatatypeProperty ;
+    rdfs:label "memory capacity"@en ;
+    rdfs:comment "Available memory capacity in bytes"@en ;
+    rdfs:domain cpts:TestEnvironment ;
+    rdfs:range xsd:nonNegativeInteger .
+
+cpts:coreCount a owl:DatatypeProperty ;
+    rdfs:label "core count"@en ;
+    rdfs:comment "Number of CPU cores available"@en ;
+    rdfs:domain cpts:TestEnvironment ;
+    rdfs:range xsd:nonNegativeInteger .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+# Performance Test Suite Shape
+cpts:PerformanceTestSuiteShape a sh:NodeShape ;
+    sh:targetClass cpts:PerformanceTestSuite ;
+    sh:property [
+        sh:path cpts:containsTestScenario ;
+        sh:minCount 1 ;
+        sh:class cpts:TestScenario ;
+        sh:message "Performance test suite must contain at least one test scenario"
+    ] ;
+    sh:property [
+        sh:path cpts:executedBy ;
+        sh:maxCount 1 ;
+        sh:class cpts:ContinuousTestRunner ;
+        sh:message "Performance test suite can have at most one test runner"
+    ] .
+
+# Test Scenario Validation
+cpts:TestScenarioShape a sh:NodeShape ;
+    sh:targetClass cpts:TestScenario ;
+    sh:property [
+        sh:path cpts:testTimeout ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ; # 8 microseconds maximum
+        sh:message "Test timeout must not exceed 8 microseconds (Doctrine of 8)"
+    ] ;
+    sh:property [
+        sh:path cpts:iterationCount ;
+        sh:minCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 1000 ; # Minimum for statistical significance
+        sh:message "Iteration count must be at least 1000 for statistical significance"
+    ] ;
+    sh:property [
+        sh:path cpts:confidenceLevel ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.95 ;
+        sh:maxInclusive 0.999 ;
+        sh:message "Confidence level must be between 0.95 and 0.999"
+    ] .
+
+# Performance Metrics Validation
+cpts:PerformanceMetricsShape a sh:NodeShape ;
+    sh:targetClass cpts:PerformanceMetrics ;
+    sh:property [
+        sh:path cpts:executionTimeTicks ;
+        sh:minCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxInclusive 8 ;
+        sh:message "Execution time must not exceed 8 ticks (Doctrine of 8)"
+    ] ;
+    sh:property [
+        sh:path cpts:latencyMicroseconds ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Latency must not exceed 1 microsecond (8 ticks at 8GHz)"
+    ] .
+
+# Test Environment Validation
+cpts:TestEnvironmentShape a sh:NodeShape ;
+    sh:targetClass cpts:TestEnvironment ;
+    sh:property [
+        sh:path cpts:cpuFrequency ;
+        sh:minCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minInclusive 8000000000 ; # 8 GHz minimum
+        sh:message "CPU frequency must be at least 8 GHz for accurate tick measurement"
+    ] .
+
+#################################################################
+#    Axioms
+#################################################################
+
+# All performance tests must comply with Doctrine of 8
+cpts:TestScenario rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cpts:testTimeout ;
+    owl:someValuesFrom [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:decimal ;
+                        owl:withRestrictions ( [ xsd:maxInclusive 8.0 ] ) ]
+] .
+
+# Test results with compliance violations cannot have PASS status
+[ a owl:Class ;
+  owl:intersectionOf (
+    cpts:TestResult
+    [ a owl:Restriction ;
+      owl:onProperty cpts:complianceStatus ;
+      owl:hasValue "VIOLATION" ]
+  )
+] rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cpts:testStatus ;
+    owl:allValuesFrom [ a rdfs:Datatype ;
+                       owl:oneOf ( "FAIL" "ERROR" ) ]
+] .
+
+#################################################################
+#    Example Test Suite Instances
+#################################################################
+
+# Master Performance Test Suite
+cpts:MasterPerformanceTestSuite a cpts:PerformanceTestSuite ;
+    rdfs:label "Master Performance Test Suite"@en ;
+    ba:description "Comprehensive performance test suite for all crystal operations"@en ;
+    cpts:containsTestScenario cpts:TaskCrystalConstantTimeTest ;
+    cpts:containsTestScenario cpts:TaskCrystalResourceBoundsTest ;
+    cpts:containsTestScenario cpts:TaskCrystalThroughputTest ;
+    cpts:containsTestScenario cpts:ResultCrystalConstantTimeTest ;
+    cpts:containsTestScenario cpts:GovernanceCrystalConstantTimeTest ;
+    cpts:containsTestScenario cpts:DataCrystalConstantTimeTest ;
+    cpts:containsTestScenario cpts:CrystalStressTest ;
+    cpts:containsTestScenario cpts:SystemRegressionTest ;
+    cpts:executedBy cpts:ProductionTestRunner .
+
+# Task Crystal Constant Time Test
+cpts:TaskCrystalConstantTimeTest a cpts:ConstantTimeTest, cpts:TaskCrystalTest ;
+    rdfs:label "Task Crystal Constant Time Test"@en ;
+    ba:description "Validates constant-time execution for all Task Crystal operations"@en ;
+    cpts:testTimeout "8.0"^^xsd:decimal ; # 8 microseconds
+    cpts:iterationCount "10000"^^xsd:nonNegativeInteger ;
+    cpts:warmupIterations "1000"^^xsd:nonNegativeInteger ;
+    cpts:confidenceLevel "0.99"^^xsd:decimal ;
+    cpts:runsInEnvironment cpts:StandardTestEnvironment ;
+    cpts:usesTestData cpts:TaskCrystalSyntheticWorkload ;
+    cpts:usesValidator ctv:TaskCrystalConstantTimeValidator .
+
+# Task Crystal Resource Bounds Test
+cpts:TaskCrystalResourceBoundsTest a cpts:ResourceBoundsTest, cpts:TaskCrystalTest ;
+    rdfs:label "Task Crystal Resource Bounds Test"@en ;
+    ba:description "Validates resource consumption bounds for Task Crystal operations"@en ;
+    cpts:testTimeout "8.0"^^xsd:decimal ;
+    cpts:iterationCount "5000"^^xsd:nonNegativeInteger ;
+    cpts:confidenceLevel "0.95"^^xsd:decimal ;
+    cpts:runsInEnvironment cpts:StandardTestEnvironment ;
+    cpts:usesValidator rbe:TaskCrystalResourceValidator .
+
+# Task Crystal Throughput Test
+cpts:TaskCrystalThroughputTest a cpts:ThroughputLatencyTest, cpts:TaskCrystalTest ;
+    rdfs:label "Task Crystal Throughput Test"@en ;
+    ba:description "Measures throughput and latency for Task Crystal operations"@en ;
+    cpts:testTimeout "8.0"^^xsd:decimal ;
+    cpts:iterationCount "50000"^^xsd:nonNegativeInteger ;
+    cpts:confidenceLevel "0.99"^^xsd:decimal ;
+    cpts:runsInEnvironment cpts:HighPerformanceTestEnvironment ;
+    cpts:usesValidator tlb:ThroughputLatencyValidator .
+
+# Standard Test Environment
+cpts:StandardTestEnvironment a cpts:TestEnvironment ;
+    rdfs:label "Standard Test Environment"@en ;
+    ba:description "Standard testing environment with 8GHz CPU and 32GB RAM"@en ;
+    cpts:cpuFrequency "8000000000"^^xsd:nonNegativeInteger ; # 8 GHz
+    cpts:memoryCapacity "34359738368"^^xsd:nonNegativeInteger ; # 32 GB
+    cpts:coreCount "16"^^xsd:nonNegativeInteger .
+
+# High Performance Test Environment
+cpts:HighPerformanceTestEnvironment a cpts:TestEnvironment ;
+    rdfs:label "High Performance Test Environment"@en ;
+    ba:description "High-performance testing environment with maximum resources"@en ;
+    cpts:cpuFrequency "8000000000"^^xsd:nonNegativeInteger ; # 8 GHz
+    cpts:memoryCapacity "137438953472"^^xsd:nonNegativeInteger ; # 128 GB
+    cpts:coreCount "64"^^xsd:nonNegativeInteger .
+
+# Task Crystal Synthetic Workload
+cpts:TaskCrystalSyntheticWorkload a cpts:SyntheticWorkload ;
+    rdfs:label "Task Crystal Synthetic Workload"@en ;
+    ba:description "Synthetic workload for Task Crystal performance testing"@en ;
+    ba:dataSize "1024"^^xsd:nonNegativeInteger ; # 1KB test data
+    ba:workloadPattern "UNIFORM" .
+
+# Production Test Runner
+cpts:ProductionTestRunner a cpts:ContinuousTestRunner ;
+    rdfs:label "Production Test Runner"@en ;
+    ba:description "Continuous integration test runner for production environments"@en ;
+    ba:executionSchedule "CONTINUOUS" ;
+    ba:parallelExecutionEnabled true .
+
+# System Stress Test
+cpts:CrystalStressTest a cpts:StressTest ;
+    rdfs:label "Crystal Stress Test"@en ;
+    ba:description "Stress test validating system behavior under extreme load"@en ;
+    cpts:testTimeout "8.0"^^xsd:decimal ;
+    cpts:iterationCount "100000"^^xsd:nonNegativeInteger ;
+    cpts:runsInEnvironment cpts:HighPerformanceTestEnvironment ;
+    cpts:usesTestData cpts:MaximumLoadWorkload .
+
+# System Regression Test
+cpts:SystemRegressionTest a cpts:RegressionTest ;
+    rdfs:label "System Regression Test"@en ;
+    ba:description "Detects performance regressions across system updates"@en ;
+    cpts:testTimeout "8.0"^^xsd:decimal ;
+    cpts:iterationCount "20000"^^xsd:nonNegativeInteger ;
+    cpts:confidenceLevel "0.999"^^xsd:decimal ;
+    cpts:usesValidator prd:SystemRegressionDetector .
+
+# Maximum Load Workload
+cpts:MaximumLoadWorkload a cpts:SyntheticWorkload ;
+    rdfs:label "Maximum Load Workload"@en ;
+    ba:description "Maximum possible workload for stress testing"@en ;
+    ba:dataSize "1048576"^^xsd:nonNegativeInteger ; # 1MB test data
+    ba:workloadPattern "MAXIMUM_STRESS" .

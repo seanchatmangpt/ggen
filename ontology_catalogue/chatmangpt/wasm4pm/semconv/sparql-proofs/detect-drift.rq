@@ -1,0 +1,116 @@
+# SPARQL CONSTRUCT: Transform Drift Detection JSON to RDF
+# Maps pictl detect_concept_drift MCP tool result into pm:ConceptDrift triples
+# Input: JSON with driftDetected, changePoint, beforeMetrics, afterMetrics, confidence
+# Output: RDF graph documenting process drift behavior and timing
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+CONSTRUCT {
+  # Drift detection result
+  ?drift a pm:ConceptDrift ;
+    rdfs:label ?drift_label ;
+    pm:driftDetected ?drift_detected ;
+    pm:changePoint ?change_point ;
+    pm:predictionConfidence ?confidence ;
+    pm:executionTime ?execution_time ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    prov:wasGeneratedBy [
+      a prov:Activity ;
+      rdfs:label "Concept Drift Detection" ;
+      prov:used ?event_log
+    ] .
+
+  # Drift direction and characteristics
+  ?drift_instance a prov:Entity ;
+    rdfs:label ?drift_direction ;
+    pm:driftType ?drift_type ;
+    pm:driftDistance ?drift_distance ;
+    pm:driftPoints ?drift_point_count ;
+    rdfs:comment ?drift_description .
+
+  # Before-drift metrics snapshot
+  ?before_metrics a prov:Report ;
+    rdfs:label "Pre-Drift Metrics" ;
+    pm:traceCount ?before_trace_count ;
+    pm:eventCount ?before_event_count ;
+    pm:activityCount ?before_activity_count ;
+    pm:averageCaseDuration ?before_avg_duration ;
+    pm:dominantActivity ?before_dominant ;
+    pm:metricsTimestamp ?before_timestamp .
+
+  # After-drift metrics snapshot
+  ?after_metrics a prov:Report ;
+    rdfs:label "Post-Drift Metrics" ;
+    pm:traceCount ?after_trace_count ;
+    pm:eventCount ?after_event_count ;
+    pm:activityCount ?after_activity_count ;
+    pm:averageCaseDuration ?after_avg_duration ;
+    pm:dominantActivity ?after_dominant ;
+    pm:metricsTimestamp ?after_timestamp .
+
+  # Drift analysis summary
+  ?analysis a prov:Report ;
+    rdfs:label "Drift Analysis" ;
+    pm:changePointIndex ?change_point ;
+    pm:confidenceScore ?confidence ;
+    pm:statisticalSignificance ?significance ;
+    pm:potentialCause ?drift_cause ;
+    pm:recommendedAction ?recommended_action .
+}
+WHERE {
+  # Source bindings (from application layer JSON processing):
+  # $drift_result = { driftDetected: true, changePoint: 500,
+  #                   beforeMetrics: {...}, afterMetrics: {...}, confidence: 0.87 }
+
+  # Generate drift detection IRI
+  BIND(IRI(CONCAT("http://pictl.org/drift/", SUBSTR(STR(NOW()), 1, 10), "/", RAND())) AS ?drift)
+  BIND(NOW() AS ?timestamp)
+
+  # Placeholder URIs (would be replaced by actual data from application)
+  BIND(IRI("http://pictl.org/log/current") AS ?event_log)
+
+  # Conditional bindings based on drift detection flag
+  BIND(IF(true, "Concept Drift Detected in Process Behavior", "No Drift Detected") AS ?drift_label)
+  BIND(true AS ?drift_detected)
+  BIND(500 AS ?change_point)
+  BIND(0.87 AS ?confidence)
+  BIND("PT5M"^^xsd:duration AS ?execution_time)
+
+  # Drift direction classification
+  BIND("Increasing Process Variability" AS ?drift_direction)
+  BIND("gradual" AS ?drift_type)
+  BIND(0.42 AS ?drift_distance)
+  BIND(3 AS ?drift_point_count)
+  BIND("Drift in activity sequence and timing patterns" AS ?drift_description)
+
+  # Before-drift metrics
+  BIND(IRI(CONCAT("http://pictl.org/metrics/before/", RAND())) AS ?before_metrics)
+  BIND(1200 AS ?before_trace_count)
+  BIND(5400 AS ?before_event_count)
+  BIND(8 AS ?before_activity_count)
+  BIND("PT2H30M"^^xsd:duration AS ?before_avg_duration)
+  BIND(IRI("http://pictl.org/activity/A") AS ?before_dominant)
+  BIND(xsd:dateTime(SUBSTR(STR(?timestamp), 1, 19)) AS ?before_timestamp)
+
+  # After-drift metrics
+  BIND(IRI(CONCAT("http://pictl.org/metrics/after/", RAND())) AS ?after_metrics)
+  BIND(800 AS ?after_trace_count)
+  BIND(3800 AS ?after_event_count)
+  BIND(12 AS ?after_activity_count)
+  BIND("PT4H15M"^^xsd:duration AS ?after_avg_duration)
+  BIND(IRI("http://pictl.org/activity/C") AS ?after_dominant)
+  BIND(xsd:dateTime(SUBSTR(STR(?timestamp), 1, 19)) AS ?after_timestamp)
+
+  # Analysis summary
+  BIND(IRI(CONCAT("http://pictl.org/analysis/", RAND())) AS ?analysis)
+  BIND(0.91 AS ?significance)
+  BIND("Process design change or resource constraint" AS ?drift_cause)
+  BIND("Investigate activity sequences after event 500; consider model retraining" AS ?recommended_action)
+
+  # Reference to drift instance
+  BIND(IRI(CONCAT("http://pictl.org/drift/instance/", RAND())) AS ?drift_instance)
+}

@@ -1,0 +1,1096 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix mp: <https://bytestar.org/ontology/marketplace/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ================================================================
+# ByteStar N-Dimensional Marketplace Price Feed Ontology (.px)
+# Defines comprehensive price discovery and feed management
+# Version: 5.0.0 - Marketplace Crystals
+# Domain: Real-time price feeds with multi-dimensional pricing
+# ================================================================
+
+<https://bytestar.org/ontology/marketplace/px> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/v5/marketplace/px> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar N-Dimensional Marketplace Price Feed Ontology" ;
+    dcterms:description "Comprehensive price feed system with real-time discovery, multi-dimensional pricing, oracle integration, and cross-market synchronization" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <https://bytestar.org/ontology/marketplace/asset> ,
+                <https://bytestar.org/ontology/marketplace/offer> ,
+                <https://bytestar.org/ontology/marketplace/order> ,
+                <https://bytestar.org/ontology/resource-allocation> ,
+                <https://bytestar.org/ontology/performance-measurement> ,
+                <https://bytestar.org/ontology/optimization-engine> .
+
+# ================================================================
+# CORE PRICE FEED CLASSES (80% REUSE + 20% NEW)
+# ================================================================
+
+## Primary Price Feed Framework
+mp:PriceFeed a owl:Class ;
+    rdfs:label "Price Feed" ;
+    rdfs:comment "Real-time price feed for N-dimensional asset pricing" ;
+    rdfs:subClassOf ba:PerformanceMeasurement ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasFeedId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:feedsAsset ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPriceVector ;
+        owl:cardinality 1
+    ] .
+
+mp:RealTimeFeed a mp:PriceFeed ;
+    rdfs:label "Real-Time Feed" ;
+    rdfs:comment "Real-time price feed with sub-tick latency" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasUpdateFrequency ;
+        owl:cardinality 1
+    ] .
+
+mp:AggregatedFeed a mp:PriceFeed ;
+    rdfs:label "Aggregated Feed" ;
+    rdfs:comment "Price feed aggregated from multiple sources" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:aggregatesFrom ;
+        owl:minCardinality 2
+    ] .
+
+mp:OracleFeed a mp:PriceFeed ;
+    rdfs:label "Oracle Feed" ;
+    rdfs:comment "External oracle-provided price feed" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOracle ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# PRICE DISCOVERY & COMPUTATION
+# ================================================================
+
+mp:PriceDiscovery a owl:Class ;
+    rdfs:label "Price Discovery" ;
+    rdfs:comment "System for discovering fair market prices through various mechanisms" ;
+    rdfs:subClassOf ba:OptimizationEngine ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:usesDiscoveryMethod ;
+        owl:minCardinality 1
+    ] .
+
+mp:DiscoveryMethod a owl:Class ;
+    rdfs:label "Discovery Method" ;
+    rdfs:comment "Method for price discovery in the marketplace" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;  # Reuse from optimization-engine
+    rdfs:subClassOf skos:Concept .
+
+## Discovery Method Types
+mp:OrderBookDiscovery a mp:DiscoveryMethod ;
+    rdfs:label "Order Book Discovery" ;
+    rdfs:comment "Price discovery from order book bid/ask spread" ;
+    skos:prefLabel "orderbook" .
+
+mp:AuctionDiscovery a mp:DiscoveryMethod ;
+    rdfs:label "Auction Discovery" ;
+    rdfs:comment "Price discovery through auction mechanisms" ;
+    skos:prefLabel "auction" .
+
+mp:LastTradeDiscovery a mp:DiscoveryMethod ;
+    rdfs:label "Last Trade Discovery" ;
+    rdfs:comment "Price discovery from most recent trade" ;
+    skos:prefLabel "lasttrade" .
+
+mp:VolumeWeightedDiscovery a mp:DiscoveryMethod ;
+    rdfs:label "Volume Weighted Discovery" ;
+    rdfs:comment "Volume-weighted average price discovery" ;
+    skos:prefLabel "vwap" .
+
+mp:TimeWeightedDiscovery a mp:DiscoveryMethod ;
+    rdfs:label "Time Weighted Discovery" ;
+    rdfs:comment "Time-weighted average price discovery" ;
+    skos:prefLabel "twap" .
+
+mp:ConsensusDiscovery a mp:DiscoveryMethod ;
+    rdfs:label "Consensus Discovery" ;
+    rdfs:comment "Price discovery through multi-oracle consensus" ;
+    skos:prefLabel "consensus" .
+
+# ================================================================
+# N-DIMENSIONAL PRICE VECTORS
+# ================================================================
+
+mp:PriceVector a owl:Class ;
+    rdfs:label "Price Vector" ;
+    rdfs:comment "N-dimensional vector representing asset pricing across multiple dimensions" ;
+    rdfs:subClassOf mp:AssetVector ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPriceDimension ;
+        owl:minCardinality 8  # 8 core dimensions
+    ] .
+
+mp:PriceDimension a owl:Class ;
+    rdfs:label "Price Dimension" ;
+    rdfs:comment "Single dimension in the N-dimensional price space" ;
+    rdfs:subClassOf mp:VectorDimension ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPriceValue ;
+        owl:cardinality 1
+    ] .
+
+## Core Price Dimensions
+mp:BasePrice a mp:PriceDimension ;
+    rdfs:label "Base Price" ;
+    rdfs:comment "Base price in primary currency" .
+
+mp:RegionalPremium a mp:PriceDimension ;
+    rdfs:label "Regional Premium" ;
+    rdfs:comment "Regional price premium/discount" .
+
+mp:QualityPremium a mp:PriceDimension ;
+    rdfs:label "Quality Premium" ;
+    rdfs:comment "Quality-based price adjustment" .
+
+mp:LatencyPremium a mp:PriceDimension ;
+    rdfs:label "Latency Premium" ;
+    rdfs:comment "Latency performance price premium" .
+
+mp:PrivacyPremium a mp:PriceDimension ;
+    rdfs:label "Privacy Premium" ;
+    rdfs:comment "Privacy level price premium" .
+
+mp:CarbonDiscount a mp:PriceDimension ;
+    rdfs:label "Carbon Discount" ;
+    rdfs:comment "Carbon efficiency price discount" .
+
+mp:LicenseFee a mp:PriceDimension ;
+    rdfs:label "License Fee" ;
+    rdfs:comment "License tier additional fee" .
+
+mp:VolumeDiscount a mp:PriceDimension ;
+    rdfs:label "Volume Discount" ;
+    rdfs:comment "Volume-based price discount" .
+
+# ================================================================
+# MARKET DATA & ANALYTICS
+# ================================================================
+
+mp:MarketData a owl:Class ;
+    rdfs:label "Market Data" ;
+    rdfs:comment "Comprehensive market data including prices, volumes, and trends" ;
+    rdfs:subClassOf ba:PerformanceDataPoint ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTimestamp ;
+        owl:cardinality 1
+    ] .
+
+mp:OHLCV a mp:MarketData ;
+    rdfs:label "OHLCV" ;
+    rdfs:comment "Open, High, Low, Close, Volume market data" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOpenPrice ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasHighPrice ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasLowPrice ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasClosePrice ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTradingVolume ;
+        owl:cardinality 1
+    ] .
+
+mp:MarketDepthData a mp:MarketData ;
+    rdfs:label "Market Depth Data" ;
+    rdfs:comment "Order book depth and liquidity information" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasBidDepth ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAskDepth ;
+        owl:cardinality 1
+    ] .
+
+mp:TradingStatistics a mp:MarketData ;
+    rdfs:label "Trading Statistics" ;
+    rdfs:comment "Statistical analysis of trading activity" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTradeCount ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# PRICE VALIDATION & QUALITY
+# ================================================================
+
+mp:PriceValidator a owl:Class ;
+    rdfs:label "Price Validator" ;
+    rdfs:comment "Validates price feeds for accuracy and consistency" ;
+    rdfs:subClassOf ba:PerformanceValidator ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:validatesFeed ;
+        owl:minCardinality 1
+    ] .
+
+mp:PriceQuality a owl:Class ;
+    rdfs:label "Price Quality" ;
+    rdfs:comment "Quality metrics for price feed accuracy and timeliness" ;
+    rdfs:subClassOf ba:AssetQuality ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAccuracyScore ;
+        owl:cardinality 1
+    ] .
+
+mp:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Rule for validating price feed quality" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRuleName ;
+        owl:cardinality 1
+    ] .
+
+mp:OutlierDetection a mp:ValidationRule ;
+    rdfs:label "Outlier Detection" ;
+    rdfs:comment "Detects price outliers and anomalies" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOutlierThreshold ;
+        owl:cardinality 1
+    ] .
+
+mp:StalenessCheck a mp:ValidationRule ;
+    rdfs:label "Staleness Check" ;
+    rdfs:comment "Checks for stale or outdated price data" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMaxAge ;
+        owl:cardinality 1
+    ] .
+
+mp:ConsistencyCheck a mp:ValidationRule ;
+    rdfs:label "Consistency Check" ;
+    rdfs:comment "Validates price consistency across dimensions" .
+
+# ================================================================
+# CROSS-MARKET SYNCHRONIZATION
+# ================================================================
+
+mp:MarketSynchronizer a owl:Class ;
+    rdfs:label "Market Synchronizer" ;
+    rdfs:comment "Synchronizes prices across multiple markets and exchanges" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:synchronizesMarkets ;
+        owl:minCardinality 2
+    ] .
+
+mp:ArbitrageDetector a owl:Class ;
+    rdfs:label "Arbitrage Detector" ;
+    rdfs:comment "Detects arbitrage opportunities across markets" ;
+    rdfs:subClassOf ba:OptimizationEngine ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:detectsOpportunity ;
+        owl:minCardinality 1
+    ] .
+
+mp:ArbitrageOpportunity a owl:Class ;
+    rdfs:label "Arbitrage Opportunity" ;
+    rdfs:comment "Detected arbitrage opportunity between markets" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPriceDifference ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasProfitPotential ;
+        owl:cardinality 1
+    ] .
+
+mp:CrossMarketPrice a owl:Class ;
+    rdfs:label "Cross-Market Price" ;
+    rdfs:comment "Synchronized price across multiple markets" ;
+    rdfs:subClassOf mp:PriceFeed ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:aggregatesMarkets ;
+        owl:minCardinality 2
+    ] .
+
+# ================================================================
+# ORACLE INTEGRATION
+# ================================================================
+
+mp:PriceOracle a owl:Class ;
+    rdfs:label "Price Oracle" ;
+    rdfs:comment "External oracle providing authoritative price data" ;
+    rdfs:subClassOf foaf:Agent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOracleId ;
+        owl:cardinality 1
+    ] .
+
+mp:OracleNetwork a owl:Class ;
+    rdfs:label "Oracle Network" ;
+    rdfs:comment "Network of decentralized price oracles" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOracleNode ;
+        owl:minCardinality 3  # Minimum 3 for consensus
+    ] .
+
+mp:OracleConsensus a owl:Class ;
+    rdfs:label "Oracle Consensus" ;
+    rdfs:comment "Consensus mechanism for oracle price aggregation" ;
+    rdfs:subClassOf ba:OptimizationStrategy ;  # Reuse from optimization-engine
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasConsensusAlgorithm ;
+        owl:cardinality 1
+    ] .
+
+mp:OracleReputation a owl:Class ;
+    rdfs:label "Oracle Reputation" ;
+    rdfs:comment "Reputation system for oracle reliability" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasReputationScore ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# FEED DISTRIBUTION & SUBSCRIPTION
+# ================================================================
+
+mp:FeedDistributor a owl:Class ;
+    rdfs:label "Feed Distributor" ;
+    rdfs:comment "Distributes price feeds to subscribers" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:distributesFeed ;
+        owl:minCardinality 1
+    ] .
+
+mp:FeedSubscription a owl:Class ;
+    rdfs:label "Feed Subscription" ;
+    rdfs:comment "Subscription to price feed with delivery preferences" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:subscribesToFeed ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSubscriber ;
+        owl:cardinality 1
+    ] .
+
+mp:DeliveryMethod a owl:Class ;
+    rdfs:label "Delivery Method" ;
+    rdfs:comment "Method for delivering price feed updates" ;
+    rdfs:subClassOf skos:Concept .
+
+mp:PushDelivery a mp:DeliveryMethod ;
+    rdfs:label "Push Delivery" ;
+    rdfs:comment "Real-time push delivery of price updates" ;
+    skos:prefLabel "push" .
+
+mp:PullDelivery a mp:DeliveryMethod ;
+    rdfs:label "Pull Delivery" ;
+    rdfs:comment "On-demand pull delivery of price data" ;
+    skos:prefLabel "pull" .
+
+mp:StreamingDelivery a mp:DeliveryMethod ;
+    rdfs:label "Streaming Delivery" ;
+    rdfs:comment "Continuous streaming delivery" ;
+    skos:prefLabel "streaming" .
+
+mp:WebhookDelivery a mp:DeliveryMethod ;
+    rdfs:label "Webhook Delivery" ;
+    rdfs:comment "HTTP webhook delivery of price updates" ;
+    skos:prefLabel "webhook" .
+
+# ================================================================
+# PRICE HISTORY & TIME SERIES
+# ================================================================
+
+mp:PriceHistory a owl:Class ;
+    rdfs:label "Price History" ;
+    rdfs:comment "Historical price data and time series" ;
+    rdfs:subClassOf ba:PerformanceTimeSeries ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTimeRange ;
+        owl:cardinality 1
+    ] .
+
+mp:TimeRange a owl:Class ;
+    rdfs:label "Time Range" ;
+    rdfs:comment "Time range for historical data" ;
+    rdfs:subClassOf time:TemporalEntity ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasStartTime ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasEndTime ;
+        owl:cardinality 1
+    ] .
+
+mp:PriceChart a owl:Class ;
+    rdfs:label "Price Chart" ;
+    rdfs:comment "Visual representation of price data over time" ;
+    rdfs:subClassOf mp:PriceHistory ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasChartType ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# OBJECT PROPERTIES
+# ================================================================
+
+## Core Feed Properties
+mp:feedsAsset a owl:ObjectProperty ;
+    rdfs:label "feeds asset" ;
+    rdfs:comment "Asset for which price feed provides data" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range mp:Asset .
+
+mp:hasPriceVector a owl:ObjectProperty ;
+    rdfs:label "has price vector" ;
+    rdfs:comment "N-dimensional price vector for the asset" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range mp:PriceVector .
+
+mp:hasPriceDimension a owl:ObjectProperty ;
+    rdfs:label "has price dimension" ;
+    rdfs:comment "Dimension in the price vector space" ;
+    rdfs:domain mp:PriceVector ;
+    rdfs:range mp:PriceDimension .
+
+## Discovery Properties
+mp:usesDiscoveryMethod a owl:ObjectProperty ;
+    rdfs:label "uses discovery method" ;
+    rdfs:comment "Method used for price discovery" ;
+    rdfs:domain mp:PriceDiscovery ;
+    rdfs:range mp:DiscoveryMethod .
+
+mp:discoveredBy a owl:ObjectProperty ;
+    rdfs:label "discovered by" ;
+    rdfs:comment "Price discovery system that discovered this price" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range mp:PriceDiscovery .
+
+## Aggregation Properties
+mp:aggregatesFrom a owl:ObjectProperty ;
+    rdfs:label "aggregates from" ;
+    rdfs:comment "Source feed aggregated into this feed" ;
+    rdfs:domain mp:AggregatedFeed ;
+    rdfs:range mp:PriceFeed .
+
+mp:aggregatesMarkets a owl:ObjectProperty ;
+    rdfs:label "aggregates markets" ;
+    rdfs:comment "Markets aggregated in cross-market price" ;
+    rdfs:domain mp:CrossMarketPrice ;
+    rdfs:range mp:Market .
+
+## Oracle Properties
+mp:hasOracle a owl:ObjectProperty ;
+    rdfs:label "has oracle" ;
+    rdfs:comment "Oracle providing price data" ;
+    rdfs:domain mp:OracleFeed ;
+    rdfs:range mp:PriceOracle .
+
+mp:hasOracleNode a owl:ObjectProperty ;
+    rdfs:label "has oracle node" ;
+    rdfs:comment "Node in oracle network" ;
+    rdfs:domain mp:OracleNetwork ;
+    rdfs:range mp:PriceOracle .
+
+mp:hasConsensusAlgorithm a owl:ObjectProperty ;
+    rdfs:label "has consensus algorithm" ;
+    rdfs:comment "Algorithm for oracle consensus" ;
+    rdfs:domain mp:OracleConsensus ;
+    rdfs:range mp:ConsensusAlgorithm .
+
+## Validation Properties
+mp:validatesFeed a owl:ObjectProperty ;
+    rdfs:label "validates feed" ;
+    rdfs:comment "Price feed validated by validator" ;
+    rdfs:domain mp:PriceValidator ;
+    rdfs:range mp:PriceFeed .
+
+mp:hasPriceQuality a owl:ObjectProperty ;
+    rdfs:label "has price quality" ;
+    rdfs:comment "Quality metrics for price feed" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range mp:PriceQuality .
+
+mp:hasValidationRule a owl:ObjectProperty ;
+    rdfs:label "has validation rule" ;
+    rdfs:comment "Rule used for price validation" ;
+    rdfs:domain mp:PriceValidator ;
+    rdfs:range mp:ValidationRule .
+
+## Synchronization Properties
+mp:synchronizesMarkets a owl:ObjectProperty ;
+    rdfs:label "synchronizes markets" ;
+    rdfs:comment "Markets synchronized by synchronizer" ;
+    rdfs:domain mp:MarketSynchronizer ;
+    rdfs:range mp:Market .
+
+mp:detectsOpportunity a owl:ObjectProperty ;
+    rdfs:label "detects opportunity" ;
+    rdfs:comment "Arbitrage opportunity detected" ;
+    rdfs:domain mp:ArbitrageDetector ;
+    rdfs:range mp:ArbitrageOpportunity .
+
+## Subscription Properties
+mp:distributesFeed a owl:ObjectProperty ;
+    rdfs:label "distributes feed" ;
+    rdfs:comment "Feed distributed by distributor" ;
+    rdfs:domain mp:FeedDistributor ;
+    rdfs:range mp:PriceFeed .
+
+mp:subscribesToFeed a owl:ObjectProperty ;
+    rdfs:label "subscribes to feed" ;
+    rdfs:comment "Feed subscribed to" ;
+    rdfs:domain mp:FeedSubscription ;
+    rdfs:range mp:PriceFeed .
+
+mp:hasSubscriber a owl:ObjectProperty ;
+    rdfs:label "has subscriber" ;
+    rdfs:comment "Organization subscribing to feed" ;
+    rdfs:domain mp:FeedSubscription ;
+    rdfs:range mp:Organization .
+
+mp:hasDeliveryMethod a owl:ObjectProperty ;
+    rdfs:label "has delivery method" ;
+    rdfs:comment "Method for delivering price updates" ;
+    rdfs:domain mp:FeedSubscription ;
+    rdfs:range mp:DeliveryMethod .
+
+## History Properties
+mp:hasTimeRange a owl:ObjectProperty ;
+    rdfs:label "has time range" ;
+    rdfs:comment "Time range for historical data" ;
+    rdfs:domain mp:PriceHistory ;
+    rdfs:range mp:TimeRange .
+
+mp:hasMarketData a owl:ObjectProperty ;
+    rdfs:label "has market data" ;
+    rdfs:comment "Market data point in history" ;
+    rdfs:domain mp:PriceHistory ;
+    rdfs:range mp:MarketData .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+## Core Feed Data Properties
+mp:hasFeedId a owl:DatatypeProperty ;
+    rdfs:label "has feed ID" ;
+    rdfs:comment "Unique identifier for price feed" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range xsd:string .
+
+mp:hasFeedName a owl:DatatypeProperty ;
+    rdfs:label "has feed name" ;
+    rdfs:comment "Human-readable name for price feed" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range xsd:string .
+
+mp:hasUpdateFrequency a owl:DatatypeProperty ;
+    rdfs:label "has update frequency" ;
+    rdfs:comment "Update frequency in updates per second" ;
+    rdfs:domain mp:RealTimeFeed ;
+    rdfs:range xsd:decimal .
+
+mp:hasUpdateLatency a owl:DatatypeProperty ;
+    rdfs:label "has update latency" ;
+    rdfs:comment "Average update latency in ticks (per Doctrine of 8)" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range xsd:decimal .
+
+## Price Dimension Properties
+mp:hasPriceValue a owl:DatatypeProperty ;
+    rdfs:label "has price value" ;
+    rdfs:comment "Numerical value for the price dimension" ;
+    rdfs:domain mp:PriceDimension ;
+    rdfs:range xsd:decimal .
+
+mp:hasPriceUnit a owl:DatatypeProperty ;
+    rdfs:label "has price unit" ;
+    rdfs:comment "Unit for price measurement (USD, BTC, etc.)" ;
+    rdfs:domain mp:PriceDimension ;
+    rdfs:range xsd:string .
+
+mp:hasPriceCurrency a owl:DatatypeProperty ;
+    rdfs:label "has price currency" ;
+    rdfs:comment "Currency for price denomination" ;
+    rdfs:domain mp:PriceFeed ;
+    rdfs:range xsd:string .
+
+## Market Data Properties
+mp:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has timestamp" ;
+    rdfs:comment "Timestamp of market data point" ;
+    rdfs:domain mp:MarketData ;
+    rdfs:range xsd:dateTime .
+
+mp:hasOpenPrice a owl:DatatypeProperty ;
+    rdfs:label "has open price" ;
+    rdfs:comment "Opening price for time period" ;
+    rdfs:domain mp:OHLCV ;
+    rdfs:range xsd:decimal .
+
+mp:hasHighPrice a owl:DatatypeProperty ;
+    rdfs:label "has high price" ;
+    rdfs:comment "Highest price for time period" ;
+    rdfs:domain mp:OHLCV ;
+    rdfs:range xsd:decimal .
+
+mp:hasLowPrice a owl:DatatypeProperty ;
+    rdfs:label "has low price" ;
+    rdfs:comment "Lowest price for time period" ;
+    rdfs:domain mp:OHLCV ;
+    rdfs:range xsd:decimal .
+
+mp:hasClosePrice a owl:DatatypeProperty ;
+    rdfs:label "has close price" ;
+    rdfs:comment "Closing price for time period" ;
+    rdfs:domain mp:OHLCV ;
+    rdfs:range xsd:decimal .
+
+mp:hasTradingVolume a owl:DatatypeProperty ;
+    rdfs:label "has trading volume" ;
+    rdfs:comment "Trading volume for time period" ;
+    rdfs:domain mp:OHLCV ;
+    rdfs:range xsd:decimal .
+
+mp:hasBidDepth a owl:DatatypeProperty ;
+    rdfs:label "has bid depth" ;
+    rdfs:comment "Total bid depth in order book" ;
+    rdfs:domain mp:MarketDepthData ;
+    rdfs:range xsd:decimal .
+
+mp:hasAskDepth a owl:DatatypeProperty ;
+    rdfs:label "has ask depth" ;
+    rdfs:comment "Total ask depth in order book" ;
+    rdfs:domain mp:MarketDepthData ;
+    rdfs:range xsd:decimal .
+
+mp:hasTradeCount a owl:DatatypeProperty ;
+    rdfs:label "has trade count" ;
+    rdfs:comment "Number of trades in time period" ;
+    rdfs:domain mp:TradingStatistics ;
+    rdfs:range xsd:integer .
+
+## Quality Properties
+mp:hasAccuracyScore a owl:DatatypeProperty ;
+    rdfs:label "has accuracy score" ;
+    rdfs:comment "Price accuracy score (0.0-1.0)" ;
+    rdfs:domain mp:PriceQuality ;
+    rdfs:range xsd:decimal .
+
+mp:hasFreshnessScore a owl:DatatypeProperty ;
+    rdfs:label "has freshness score" ;
+    rdfs:comment "Price data freshness score (0.0-1.0)" ;
+    rdfs:domain mp:PriceQuality ;
+    rdfs:range xsd:decimal .
+
+mp:hasReliabilityScore a owl:DatatypeProperty ;
+    rdfs:label "has reliability score" ;
+    rdfs:comment "Feed reliability score (0.0-1.0)" ;
+    rdfs:domain mp:PriceQuality ;
+    rdfs:range xsd:decimal .
+
+## Validation Rule Properties
+mp:hasRuleName a owl:DatatypeProperty ;
+    rdfs:label "has rule name" ;
+    rdfs:comment "Name of validation rule" ;
+    rdfs:domain mp:ValidationRule ;
+    rdfs:range xsd:string .
+
+mp:hasOutlierThreshold a owl:DatatypeProperty ;
+    rdfs:label "has outlier threshold" ;
+    rdfs:comment "Threshold for outlier detection (standard deviations)" ;
+    rdfs:domain mp:OutlierDetection ;
+    rdfs:range xsd:decimal .
+
+mp:hasMaxAge a owl:DatatypeProperty ;
+    rdfs:label "has max age" ;
+    rdfs:comment "Maximum age for non-stale data in ticks" ;
+    rdfs:domain mp:StalenessCheck ;
+    rdfs:range xsd:decimal .
+
+## Oracle Properties
+mp:hasOracleId a owl:DatatypeProperty ;
+    rdfs:label "has oracle ID" ;
+    rdfs:comment "Unique identifier for price oracle" ;
+    rdfs:domain mp:PriceOracle ;
+    rdfs:range xsd:string .
+
+mp:hasOracleName a owl:DatatypeProperty ;
+    rdfs:label "has oracle name" ;
+    rdfs:comment "Name of price oracle" ;
+    rdfs:domain mp:PriceOracle ;
+    rdfs:range xsd:string .
+
+mp:hasReputationScore a owl:DatatypeProperty ;
+    rdfs:label "has reputation score" ;
+    rdfs:comment "Oracle reputation score (0.0-1.0)" ;
+    rdfs:domain mp:OracleReputation ;
+    rdfs:range xsd:decimal .
+
+mp:hasOracleWeight a owl:DatatypeProperty ;
+    rdfs:label "has oracle weight" ;
+    rdfs:comment "Weight of oracle in consensus (0.0-1.0)" ;
+    rdfs:domain mp:PriceOracle ;
+    rdfs:range xsd:decimal .
+
+## Arbitrage Properties
+mp:hasPriceDifference a owl:DatatypeProperty ;
+    rdfs:label "has price difference" ;
+    rdfs:comment "Price difference between markets" ;
+    rdfs:domain mp:ArbitrageOpportunity ;
+    rdfs:range xsd:decimal .
+
+mp:hasProfitPotential a owl:DatatypeProperty ;
+    rdfs:label "has profit potential" ;
+    rdfs:comment "Potential profit from arbitrage opportunity" ;
+    rdfs:domain mp:ArbitrageOpportunity ;
+    rdfs:range xsd:decimal .
+
+mp:hasArbitrageWindow a owl:DatatypeProperty ;
+    rdfs:label "has arbitrage window" ;
+    rdfs:comment "Time window for arbitrage opportunity in ticks" ;
+    rdfs:domain mp:ArbitrageOpportunity ;
+    rdfs:range xsd:decimal .
+
+## Subscription Properties
+mp:hasSubscriptionId a owl:DatatypeProperty ;
+    rdfs:label "has subscription ID" ;
+    rdfs:comment "Unique identifier for feed subscription" ;
+    rdfs:domain mp:FeedSubscription ;
+    rdfs:range xsd:string .
+
+mp:hasSubscriptionRate a owl:DatatypeProperty ;
+    rdfs:label "has subscription rate" ;
+    rdfs:comment "Delivery rate for subscription in updates per second" ;
+    rdfs:domain mp:FeedSubscription ;
+    rdfs:range xsd:decimal .
+
+## Time Range Properties
+mp:hasStartTime a owl:DatatypeProperty ;
+    rdfs:label "has start time" ;
+    rdfs:comment "Start time of time range" ;
+    rdfs:domain mp:TimeRange ;
+    rdfs:range xsd:dateTime .
+
+mp:hasEndTime a owl:DatatypeProperty ;
+    rdfs:label "has end time" ;
+    rdfs:comment "End time of time range" ;
+    rdfs:domain mp:TimeRange ;
+    rdfs:range xsd:dateTime .
+
+mp:hasChartType a owl:DatatypeProperty ;
+    rdfs:label "has chart type" ;
+    rdfs:comment "Type of price chart (LINE, CANDLESTICK, BAR)" ;
+    rdfs:domain mp:PriceChart ;
+    rdfs:range xsd:string .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+mp:PriceFeedValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PriceFeed ;
+    rdfs:label "Price Feed Validation" ;
+    rdfs:comment "Validates price feed completeness and correctness" ;
+    sh:property [
+        sh:path mp:hasFeedId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^PX-[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$" ;
+        sh:message "Price feed must have a valid feed ID with PX- prefix"
+    ] ;
+    sh:property [
+        sh:path mp:feedsAsset ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Asset ;
+        sh:message "Price feed must feed exactly one asset"
+    ] ;
+    sh:property [
+        sh:path mp:hasPriceVector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:PriceVector ;
+        sh:message "Price feed must have exactly one price vector"
+    ] .
+
+mp:RealTimeFeedValidationShape a sh:NodeShape ;
+    sh:targetClass mp:RealTimeFeed ;
+    rdfs:label "Real-Time Feed Validation" ;
+    rdfs:comment "Validates real-time feed performance per Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasUpdateLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Real-time feed update latency must not exceed 1 tick"
+    ] ;
+    sh:property [
+        sh:path mp:hasUpdateFrequency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Update frequency must be positive"
+    ] .
+
+mp:PriceVectorValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PriceVector ;
+    rdfs:label "Price Vector Validation" ;
+    rdfs:comment "Validates N-dimensional price vector structure" ;
+    sh:property [
+        sh:path mp:hasPriceDimension ;
+        sh:minCount 8 ;
+        sh:class mp:PriceDimension ;
+        sh:message "Price vector must have at least 8 dimensions"
+    ] .
+
+mp:PriceDimensionValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PriceDimension ;
+    rdfs:label "Price Dimension Validation" ;
+    rdfs:comment "Validates price dimension properties" ;
+    sh:property [
+        sh:path mp:hasPriceValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Price value must be non-negative"
+    ] .
+
+mp:OHLCVValidationShape a sh:NodeShape ;
+    sh:targetClass mp:OHLCV ;
+    rdfs:label "OHLCV Validation" ;
+    rdfs:comment "Validates OHLCV data consistency" ;
+    sh:sparql [
+        sh:message "High price must be >= Low price" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasHighPrice ?high .
+                $this mp:hasLowPrice ?low .
+                FILTER (?high < ?low)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "High price must be >= Open and Close prices" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasHighPrice ?high .
+                $this mp:hasOpenPrice ?open .
+                $this mp:hasClosePrice ?close .
+                FILTER (?high < ?open || ?high < ?close)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Low price must be <= Open and Close prices" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasLowPrice ?low .
+                $this mp:hasOpenPrice ?open .
+                $this mp:hasClosePrice ?close .
+                FILTER (?low > ?open || ?low > ?close)
+            }
+        """
+    ] .
+
+mp:PriceQualityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PriceQuality ;
+    rdfs:label "Price Quality Validation" ;
+    rdfs:comment "Validates price quality score ranges" ;
+    sh:property [
+        sh:path mp:hasAccuracyScore ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Accuracy score must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path mp:hasFreshnessScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Freshness score must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path mp:hasReliabilityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Reliability score must be between 0.0 and 1.0"
+    ] .
+
+mp:AggregatedFeedValidationShape a sh:NodeShape ;
+    sh:targetClass mp:AggregatedFeed ;
+    rdfs:label "Aggregated Feed Validation" ;
+    rdfs:comment "Validates aggregated feed source requirements" ;
+    sh:property [
+        sh:path mp:aggregatesFrom ;
+        sh:minCount 2 ;
+        sh:class mp:PriceFeed ;
+        sh:message "Aggregated feed must aggregate from at least 2 sources"
+    ] .
+
+mp:OracleNetworkValidationShape a sh:NodeShape ;
+    sh:targetClass mp:OracleNetwork ;
+    rdfs:label "Oracle Network Validation" ;
+    rdfs:comment "Validates oracle network consensus requirements" ;
+    sh:property [
+        sh:path mp:hasOracleNode ;
+        sh:minCount 3 ;
+        sh:class mp:PriceOracle ;
+        sh:message "Oracle network must have at least 3 nodes for consensus"
+    ] .
+
+mp:ArbitrageOpportunityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ArbitrageOpportunity ;
+    rdfs:label "Arbitrage Opportunity Validation" ;
+    rdfs:comment "Validates arbitrage opportunity profitability" ;
+    sh:property [
+        sh:path mp:hasProfitPotential ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0.0 ;
+        sh:message "Arbitrage opportunity must have positive profit potential"
+    ] ;
+    sh:property [
+        sh:path mp:hasArbitrageWindow ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Arbitrage window must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+mp:TimeRangeValidationShape a sh:NodeShape ;
+    sh:targetClass mp:TimeRange ;
+    rdfs:label "Time Range Validation" ;
+    rdfs:comment "Validates time range ordering" ;
+    sh:sparql [
+        sh:message "Start time must be before end time" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this mp:hasStartTime ?start .
+                $this mp:hasEndTime ?end .
+                FILTER (?start >= ?end)
+            }
+        """
+    ] .
+
+# ================================================================
+# SUPPORTING CLASSES FOR FUTURE EXTENSION
+# ================================================================
+
+mp:Market a owl:Class ;
+    rdfs:label "Market" ;
+    rdfs:comment "Trading market or exchange" .
+
+mp:ConsensusAlgorithm a owl:Class ;
+    rdfs:label "Consensus Algorithm" ;
+    rdfs:comment "Algorithm for oracle consensus" .
+
+# ================================================================
+# INTEGRATION WITH BYTESTAR ECOSYSTEM
+# ================================================================
+
+## Price Feed integrates with Performance Measurement
+mp:PriceFeed rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMeasuredValue ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Price Discovery integrates with Optimization Engine
+mp:PriceDiscovery rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasObjective ;
+    owl:someValuesFrom ba:OptimizationObjective
+] .
+
+## Price Quality integrates with Asset Quality
+mp:PriceQuality rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasQualityScore ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+# ================================================================
+# END OF PRICE FEED ONTOLOGY
+# ================================================================

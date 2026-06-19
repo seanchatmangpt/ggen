@@ -1,0 +1,20 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX gen: <https://process.intelligence/generation-rule/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# SELECT: All ggen Manifests (Generation Programs)
+# Returns all 3 generation programs with program metadata, rule counts, and operational status
+# Date: 2026-06-01
+
+SELECT ?program ?title ?description ?version ?ruleCount ?status
+WHERE {
+    ?program a pi:GenerationProgram .
+
+    OPTIONAL { ?program dcterms:title ?title }
+    OPTIONAL { ?program dcterms:description ?description }
+    OPTIONAL { ?program pi:version ?version }
+    OPTIONAL { ?program pi:ruleCount ?ruleCount }
+    OPTIONAL { ?program pi:status ?status }
+}
+ORDER BY ?program

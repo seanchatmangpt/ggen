@@ -1,0 +1,116 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix jproj: <https://jgen.dev/ontology/java/project#> .
+@prefix jpat:  <https://jgen.dev/ontology/java/patterns#> .
+@prefix eip:   <https://jgen.dev/ontology/java/messaging#> .
+@prefix ex:    <https://example.org/telemetry#> .
+
+# =============================================================================
+# Race Telemetry Service Project Specification
+# Example project demonstrating Turtle-driven Java project generation
+# =============================================================================
+
+ex:TelemetryService a jproj:Project ;
+    rdfs:label "Race Telemetry Service" ;
+    jproj:hasName "telemetry-service" ;
+    jproj:hasGroupId "org.mclaren.atlas" ;
+    jproj:hasArtifactId "telemetry-service" ;
+    jproj:hasVersion "1.0.0-SNAPSHOT" ;
+    jproj:hasJavaVersion 26 ;
+    jproj:hasDescription "McLaren Atlas SQL Race telemetry processing service with JOTP messaging patterns" ;
+    jproj:hasModule ex:TelemetryMessaging ;
+    jproj:hasModule ex:TelemetryDomain ;
+    jproj:hasModule ex:TelemetryApi .
+
+# =============================================================================
+# DOMAIN MODULE
+# =============================================================================
+
+ex:TelemetryDomain a jproj:Module ;
+    rdfs:label "Domain Module" ;
+    jproj:hasName "domain" ;
+    jproj:hasPackageName "org.mclaren.atlas.domain" ;
+    jproj:usesPattern eip:DomainTypes ;
+    jproj:usesPattern eip:CanonicalMessage ;
+    jproj:usesPattern jpat:ValueObjectRecord ;
+    jproj:usesPattern jpat:ResultRailway .
+
+# =============================================================================
+# MESSAGING MODULE
+# =============================================================================
+
+ex:TelemetryMessaging a jproj:Module ;
+    rdfs:label "Messaging Module" ;
+    jproj:hasName "messaging" ;
+    jproj:hasPackageName "org.mclaren.atlas.messaging" ;
+
+    # Foundation Patterns
+    jproj:usesPattern eip:MessageBus ;
+    jproj:usesPattern eip:DatatypeChannel ;
+    jproj:usesPattern eip:ServiceActivator ;
+    jproj:usesPattern eip:IdempotentReceiver ;
+    jproj:usesPattern eip:PublishSubscribe ;
+
+    # Routing Patterns
+    jproj:usesPattern eip:ContentBasedRouter ;
+    jproj:usesPattern eip:DeadLetterChannel ;
+    jproj:usesPattern eip:WireTap ;
+    jproj:usesPattern eip:RoutingSlip ;
+    jproj:usesPattern eip:Resequencer ;
+
+    # Orchestration Patterns
+    jproj:usesPattern eip:ProcessManager ;
+    jproj:usesPattern eip:CorrelationIdentifier ;
+    jproj:usesPattern eip:ScatterGather ;
+
+    # Resilience Patterns
+    jproj:usesPattern eip:SupervisionStorm ;
+    jproj:usesPattern eip:ControlBus ;
+
+    # Dependencies
+    jproj:hasDependency jproj:JUnit5 ;
+    jproj:hasDependency jproj:AssertJ ;
+    jproj:hasDependency jproj:Awaitility .
+
+# =============================================================================
+# API MODULE
+# =============================================================================
+
+ex:TelemetryApi a jproj:Module ;
+    rdfs:label "API Module" ;
+    jproj:hasName "api" ;
+    jproj:hasPackageName "org.mclaren.atlas.api" ;
+    jproj:usesPattern jpat:ServiceLayer ;
+    jproj:usesPattern jpat:RepositoryGeneric ;
+    jproj:hasDependency jproj:JUnit5 ;
+    jproj:hasDependency jproj:AssertJ .
+
+# =============================================================================
+# MESSAGE FLOWS
+# =============================================================================
+
+ex:TelemetryIngressFlow a jproj:MessageFlow ;
+    rdfs:label "Telemetry Ingress Flow" ;
+    jproj:flowSource eip:Resequencer ;
+    jproj:flowTarget eip:ContentBasedRouter ;
+    jproj:flowMessageType "TelemetrySample" .
+
+ex:RoutingToChannelsFlow a jproj:MessageFlow ;
+    rdfs:label "Routing to Channels" ;
+    jproj:flowSource eip:ContentBasedRouter ;
+    jproj:flowTarget eip:DatatypeChannel ;
+    jproj:flowMessageType "TelemetrySample" .
+
+ex:ErrorHandlingFlow a jproj:MessageFlow ;
+    rdfs:label "Error Handling Flow" ;
+    jproj:flowSource eip:ContentBasedRouter ;
+    jproj:flowTarget eip:DeadLetterChannel ;
+    jproj:flowMessageType "TelemetrySample" .
+
+ex:MonitoringFlow a jproj:MessageFlow ;
+    rdfs:label "Monitoring Flow" ;
+    jproj:flowSource eip:MessageBus ;
+    jproj:flowTarget eip:WireTap ;
+    jproj:flowMessageType "TelemetrySample" .

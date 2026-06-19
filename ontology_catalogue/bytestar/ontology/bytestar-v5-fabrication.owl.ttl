@@ -1,0 +1,80 @@
+@prefix : <https://bytestar.org/ontology/v5/fabrication#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix arch: <https://bytestar.org/ontology/v5/architecture#> .
+
+<https://bytestar.org/ontology/v5/fabrication>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/governance> ;
+  rdfs:label "ByteStar v5 Fabrication & Orchestration Ontology" ;
+  rdfs:comment "This ontology defines the AOT factory (ByteFlow), the canonical workflow patterns, and the ByteGen autonomic self-improvement lifecycle." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. The AOT Fabricator
+# #################################################################
+
+:AOT_Fabricator a owl:Class ;
+    rdfs:label "Ahead-of-Time Fabricator" ;
+    rdfs:comment "The core compilation engine (e.g., ttl2dspy) that transforms ontological blueprints into executable artifacts." .
+
+:FabricationProcess a owl:Class ;
+    rdfs:label "Fabrication Process" ;
+    rdfs:comment "A process that consumes an ontology and produces a physical artifact." .
+
+:usesOntology a owl:ObjectProperty ;
+    rdfs:domain :FabricationProcess ;
+    rdfs:range owl:Ontology .
+
+:producesArtifact a owl:ObjectProperty ;
+    rdfs:domain :FabricationProcess ;
+    rdfs:range core:Crystal .
+
+# #################################################################
+# II. The Canonical Workflow Patterns
+# #################################################################
+
+# The full file would contain all 43 patterns from P01 to P43.
+:P01 a core:Pattern ; rdfs:label "P01_Sequence" .
+:P02 a core:Pattern ; rdfs:label "P02_Parallel_Split" .
+:P03 a core:Pattern ; rdfs:label "P03_Synchronization" .
+:P04 a core:Pattern ; rdfs:label "P04_Exclusive_Choice" .
+:P05 a core:Pattern ; rdfs:label "P05_Simple_Merge" .
+# ... and so on for P06 through P43 ...
+:P43 a core:Pattern ; rdfs:label "P43_Case_Handling" .
+
+
+# #################################################################
+# III. The ByteGen Autonomic Engine
+# #################################################################
+
+:ByteGen a owl:Class ;
+    rdfs:label "ByteGen Autonomic Engine" ;
+    rdfs:comment "The high-level AI that drives the continuous, self-improving evolution of the ByteStar ecosystem." .
+
+:ChrysalisLifecycle a owl:Class ;
+    rdfs:label "Chrysalis Lifecycle" ;
+    rdfs:comment "The formal, four-stage, closed-loop process that models the autonomic self-improvement of the system." .
+
+:LifecycleState a owl:Class .
+
+:Analyze a :LifecycleState ; rdfs:label "1. Analyze" ; rdfs:comment "The state of analyzing live performance telemetry." .
+:Plan a :LifecycleState ; rdfs:label "2. Plan" ; rdfs:comment "The state of proposing a new, provably superior ontology." .
+:Fabricate a :LifecycleState ; rdfs:label "3. Fabricate" ; rdfs:comment "The state of forging a new PQC-sealed crystal from the approved plan." .
+:Deploy a :LifecycleState ; rdfs:label "4. Deploy" ; rdfs:comment "The state of hot-swapping the new crystal into the live fabric." .
+
+:hasLifecycleState a owl:ObjectProperty ;
+    rdfs:domain :ByteGen ;
+    rdfs:range :LifecycleState .
+
+:transitionsTo a owl:ObjectProperty ;
+    rdfs:domain :LifecycleState ;
+    rdfs:range :LifecycleState .
+
+# Axioms defining the lifecycle flow
+:Analyze rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :transitionsTo ; owl:hasValue :Plan ] .
+:Plan rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :transitionsTo ; owl:hasValue :Fabricate ] .
+:Fabricate rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :transitionsTo ; owl:hasValue :Deploy ] .
+:Deploy rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :transitionsTo ; owl:hasValue :Analyze ] .

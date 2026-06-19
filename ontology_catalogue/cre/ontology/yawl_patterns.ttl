@@ -1,0 +1,590 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <https://yawl.dev/> .
+@prefix cre: <https://cre.dev/> .
+
+# YAWL Pattern Ontology
+yawl:Pattern a owl:Class ;
+    rdfs:label "YAWL Workflow Pattern" ;
+    rdfs:comment "Base class for all YAWL workflow patterns" .
+
+# ============================================================================
+# Basic Control Flow Patterns (WCP-01 to WCP-10)
+# ============================================================================
+
+# WCP-01: Sequence
+yawl:Sequence a yawl:Pattern ;
+    rdfs:label "Sequence" ;
+    rdfs:comment "Execute tasks in strict order" ;
+    yawl:patternId "WCP-01" ;
+    yawl:category "basic_control_flow" ;
+    yawl:arity 2 ;
+    yawl:petriNetType "linear" .
+
+yawl:sequence_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Sequence ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Execute sequence pattern function" .
+
+# WCP-02: Parallel Split
+yawl:ParallelSplit a yawl:Pattern ;
+    rdfs:label "Parallel Split" ;
+    rdfs:comment "Fork to concurrent branches" ;
+    yawl:patternId "WCP-02" ;
+    yawl:category "basic_control_flow" ;
+    yawl:splitType "AND" ;
+    yawl:petriNetType "fork" .
+
+yawl:parallel_split_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ParallelSplit ;
+    rdfs:range xsd:string .
+
+# WCP-03: Synchronization
+yawl:Synchronization a yawl:Pattern ;
+    rdfs:label "Synchronization" ;
+    rdfs:comment "Join concurrent branches (AND-join)" ;
+    yawl:patternId "WCP-03" ;
+    yawl:category "basic_control_flow" ;
+    yawl:joinType "AND" ;
+    yawl:petriNetType "join" .
+
+yawl:synchronization_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Synchronization ;
+    rdfs:range xsd:string .
+
+# WCP-04: Exclusive Choice
+yawl:ExclusiveChoice a yawl:Pattern ;
+    rdfs:label "Exclusive Choice" ;
+    rdfs:comment "Select one branch (XOR-split)" ;
+    yawl:patternId "WCP-04" ;
+    yawl:category "basic_control_flow" ;
+    yawl:splitType "XOR" ;
+    yawl:petriNetType "conditional" .
+
+yawl:exclusive_choice_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ExclusiveChoice ;
+    rdfs:range xsd:string .
+
+# WCP-05: Simple Merge
+yawl:SimpleMerge a yawl:Pattern ;
+    rdfs:label "Simple Merge" ;
+    rdfs:comment "Merge without synchronization (OR-join)" ;
+    yawl:patternId "WCP-05" ;
+    yawl:category "basic_control_flow" ;
+    yawl:joinType "OR" ;
+    yawl:petriNetType "merge" .
+
+yawl:simple_merge_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:SimpleMerge ;
+    rdfs:range xsd:string .
+
+# WCP-06: Multi Choice
+yawl:MultiChoice a yawl:Pattern ;
+    rdfs:label "Multi Choice" ;
+    rdfs:comment "Select multiple branches (OR-split)" ;
+    yawl:patternId "WCP-06" ;
+    yawl:category "basic_control_flow" ;
+    yawl:splitType "OR" ;
+    yawl:petriNetType "conditional_multi" .
+
+yawl:multi_choice_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:MultiChoice ;
+    rdfs:range xsd:string .
+
+# WCP-07: Synchronizing Merge
+yawl:SynchronizingMerge a yawl:Pattern ;
+    rdfs:label "Synchronizing Merge" ;
+    rdfs:comment "AND-progress check merge" ;
+    yawl:patternId "WCP-07" ;
+    yawl:category "basic_control_flow" ;
+    yawl:joinType "AND_PROGRESS" ;
+    yawl:petriNetType "synchronizing" .
+
+yawl:synchronizing_merge_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:SynchronizingMerge ;
+    rdfs:range xsd:string .
+
+# WCP-08: Multi Merge
+yawl:MultiMerge a yawl:Pattern ;
+    rdfs:label "Multi Merge" ;
+    rdfs:comment "Collect all path completions" ;
+    yawl:patternId "WCP-08" ;
+    yawl:category "basic_control_flow" ;
+    yawl:joinType "OR_COLLECT" ;
+    yawl:petriNetType "collect" .
+
+yawl:multi_merge_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:MultiMerge ;
+    rdfs:range xsd:string .
+
+# WCP-09: Discriminator
+yawl:Discriminator a yawl:Pattern ;
+    rdfs:label "Discriminator" ;
+    rdfs:comment "First-completion trigger" ;
+    yawl:patternId "WCP-09" ;
+    yawl:category "basic_control_flow" ;
+    yawl:joinType "FIRST" ;
+    yawl:petriNetType "first_completion" .
+
+yawl:discriminator_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Discriminator ;
+    rdfs:range xsd:string .
+
+# WCP-10: Arbitration
+yawl:Arbitration a yawl:Pattern ;
+    rdfs:label "Arbitration" ;
+    rdfs:comment "N-of-M selection" ;
+    yawl:patternId "WCP-10" ;
+    yawl:category "basic_control_flow" ;
+    yawl:joinType "QUORUM" ;
+    yawl:petriNetType "quorum" .
+
+yawl:arbitration_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Arbitration ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Multiple Instance Patterns (WCP-11 to WCP-17)
+# ============================================================================
+
+yawl:MultipleInstancesPattern a owl:Class ;
+    rdfs:subClassOf yawl:Pattern ;
+    rdfs:label "Multiple Instances Pattern" .
+
+# WCP-11: Implicit Termination
+yawl:ImplicitTermination a yawl:MultipleInstancesPattern ;
+    rdfs:label "Implicit Termination" ;
+    rdfs:comment "Auto-terminate when work done" ;
+    yawl:patternId "WCP-11" ;
+    yawl:category "multiple_instances" ;
+    yawl:instanceType "implicit" .
+
+yawl:implicit_termination_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ImplicitTermination ;
+    rdfs:range xsd:string .
+
+# WCP-12: Multiple Instances No Sync
+yawl:MultipleInstancesNoSync a yawl:MultipleInstancesPattern ;
+    rdfs:label "Multiple Instances No Sync" ;
+    rdfs:comment "Fire-and-forget concurrent instances" ;
+    yawl:patternId "WCP-12" ;
+    yawl:category "multiple_instances" ;
+    yawl:synchronization "none" .
+
+yawl:multiple_instances_no_sync_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:MultipleInstancesNoSync ;
+    rdfs:range xsd:string .
+
+# WCP-13: Static Multiple Instances
+yawl:StaticMultipleInstances a yawl:MultipleInstancesPattern ;
+    rdfs:label "Static Multiple Instances" ;
+    rdfs:comment "Fixed known instance count" ;
+    yawl:patternId "WCP-13" ;
+    yawl:category "multiple_instances" ;
+    yawl:instanceCount "static" .
+
+yawl:multiple_instances_static_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:StaticMultipleInstances ;
+    rdfs:range xsd:string .
+
+# WCP-14: Runtime Multiple Instances
+yawl:RuntimeMultipleInstances a yawl:MultipleInstancesPattern ;
+    rdfs:label "Runtime Multiple Instances" ;
+    rdfs:comment "Count determined at runtime" ;
+    yawl:patternId "WCP-14" ;
+    yawl:category "multiple_instances" ;
+    yawl:instanceCount "runtime" .
+
+yawl:multiple_instances_runtime_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:RuntimeMultipleInstances ;
+    rdfs:range xsd:string .
+
+# WCP-15: Dynamic Multiple Instances
+yawl:DynamicMultipleInstances a yawl:MultipleInstancesPattern ;
+    rdfs:label "Dynamic Multiple Instances" ;
+    rdfs:comment "Unbounded creation" ;
+    yawl:patternId "WCP-15" ;
+    yawl:category "multiple_instances" ;
+    yawl:instanceCount "dynamic" .
+
+yawl:multiple_instances_dynamic_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:DynamicMultipleInstances ;
+    rdfs:range xsd:string .
+
+# WCP-16: Deferred Choice
+yawl:DeferredChoice a yawl:MultipleInstancesPattern ;
+    rdfs:label "Deferred Choice" ;
+    rdfs:comment "Runtime branch selection" ;
+    yawl:patternId "WCP-16" ;
+    yawl:category "multiple_instances" ;
+    yawl:choiceType "deferred" .
+
+yawl:deferred_choice_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:DeferredChoice ;
+    rdfs:range xsd:string .
+
+# WCP-17: Interleaved Routing
+yawl:InterleavedRouting a yawl:MultipleInstancesPattern ;
+    rdfs:label "Interleaved Routing" ;
+    rdfs:comment "Round-robin parallel execution" ;
+    yawl:patternId "WCP-17" ;
+    yawl:category "multiple_instances" ;
+    yawl:routingType "interleaved" .
+
+yawl:interleaved_routing_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:InterleavedRouting ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# State-Based Patterns (WCP-18 to WCP-20)
+# ============================================================================
+
+yawl:StateBasedPattern a owl:Class ;
+    rdfs:subClassOf yawl:Pattern ;
+    rdfs:label "State-Based Pattern" .
+
+# WCP-18: Milestone
+yawl:Milestone a yawl:StateBasedPattern ;
+    rdfs:label "Milestone" ;
+    rdfs:comment "Guard-based activity enabling" ;
+    yawl:patternId "WCP-18" ;
+    yawl:category "state_based" ;
+    yawl:guardType "milestone" .
+
+yawl:milestone_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Milestone ;
+    rdfs:range xsd:string .
+
+# WCP-19: Cancel Activity
+yawl:CancelActivity a yawl:StateBasedPattern ;
+    rdfs:label "Cancel Activity" ;
+    rdfs:comment "Activity cancellation" ;
+    yawl:patternId "WCP-19" ;
+    yawl:category "state_based" ;
+    yawl:cancellationType "activity" .
+
+yawl:cancel_activity_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:CancelActivity ;
+    rdfs:range xsd:string .
+
+# WCP-20: Cancel Case
+yawl:CancelCase a yawl:StateBasedPattern ;
+    rdfs:label "Cancel Case" ;
+    rdfs:comment "Entire case cancellation" ;
+    yawl:patternId "WCP-20" ;
+    yawl:category "state_based" ;
+    yawl:cancellationType "case" .
+
+yawl:cancel_case_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:CancelCase ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Extended Control Flow Patterns (WCP-21 to WCP-28)
+# ============================================================================
+
+yawl:ExtendedControlPattern a owl:Class ;
+    rdfs:subClassOf yawl:Pattern ;
+    rdfs:label "Extended Control Pattern" .
+
+# WCP-21: Structured Sync
+yawl:StructuredSync a yawl:ExtendedControlPattern ;
+    rdfs:label "Structured Sync" ;
+    rdfs:comment "Barrier synchronization" ;
+    yawl:patternId "WCP-21" ;
+    yawl:category "extended_control" ;
+    yawl:syncType "barrier" .
+
+yawl:structured_sync_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:StructuredSync ;
+    rdfs:range xsd:string .
+
+# WCP-22: Partial Join
+yawl:PartialJoin a yawl:ExtendedControlPattern ;
+    rdfs:label "Partial Join" ;
+    rdfs:comment "Quorum-based join" ;
+    yawl:patternId "WCP-22" ;
+    yawl:category "extended_control" ;
+    yawl:joinType "QUORUM" .
+
+yawl:partial_join_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:PartialJoin ;
+    rdfs:range xsd:string .
+
+# WCP-23: Structured Loop
+yawl:StructuredLoop a yawl:ExtendedControlPattern ;
+    rdfs:label "Structured Loop" ;
+    rdfs:comment "While/until loops" ;
+    yawl:patternId "WCP-23" ;
+    yawl:category "extended_control" ;
+    yawl:loopType "structured" .
+
+yawl:structured_loop_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:StructuredLoop ;
+    rdfs:range xsd:string .
+
+# WCP-24: Recursion
+yawl:Recursion a yawl:ExtendedControlPattern ;
+    rdfs:label "Recursion" ;
+    rdfs:comment "Recursive workflow calls" ;
+    yawl:patternId "WCP-24" ;
+    yawl:category "extended_control" ;
+    yawl:recursionType "direct" .
+
+yawl:recursion_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Recursion ;
+    rdfs:range xsd:string .
+
+# WCP-25: Interleaved Loop
+yawl:InterleavedLoop a yawl:ExtendedControlPattern ;
+    rdfs:label "Interleaved Loop" ;
+    rdfs:comment "Parallel loop bodies" ;
+    yawl:patternId "WCP-25" ;
+    yawl:category "extended_control" ;
+    yawl:loopType "interleaved" .
+
+yawl:interleaved_loop_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:InterleavedLoop ;
+    rdfs:range xsd:string .
+
+# WCP-26: Critical Section
+yawl:CriticalSection a yawl:ExtendedControlPattern ;
+    rdfs:label "Critical Section" ;
+    rdfs:comment "Mutex-protected execution" ;
+    yawl:patternId "WCP-26" ;
+    yawl:category "extended_control" ;
+    yawl:protectionType "mutex" .
+
+yawl:critical_section_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:CriticalSection ;
+    rdfs:range xsd:string .
+
+# WCP-27: Protocol Pattern
+yawl:ProtocolPattern a yawl:ExtendedControlPattern ;
+    rdfs:label "Protocol Pattern" ;
+    rdfs:comment "Request-response protocol" ;
+    yawl:patternId "WCP-27" ;
+    yawl:category "extended_control" ;
+    yawl:protocolType "request_response" .
+
+yawl:protocol_pattern_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ProtocolPattern ;
+    rdfs:range xsd:string .
+
+# WCP-28: Try-Catch
+yawl:TryCatch a yawl:ExtendedControlPattern ;
+    rdfs:label "Try-Catch" ;
+    rdfs:comment "Exception handling block" ;
+    yawl:patternId "WCP-28" ;
+    yawl:category "extended_control" ;
+    yawl:exceptionType "handler" .
+
+yawl:try_catch_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:TryCatch ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Data Flow Patterns (WDP-01 to WDP-05)
+# ============================================================================
+
+yawl:DataFlowPattern a owl:Class ;
+    rdfs:subClassOf yawl:Pattern ;
+    rdfs:label "Data Flow Pattern" .
+
+# WDP-01: Parameter Passing
+yawl:ParameterPassing a yawl:DataFlowPattern ;
+    rdfs:label "Parameter Passing" ;
+    rdfs:comment "Pass data between tasks" ;
+    yawl:patternId "WDP-01" ;
+    yawl:category "data_flow" ;
+    yawl:dataType "parameter" .
+
+yawl:param_pass_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ParameterPassing ;
+    rdfs:range xsd:string .
+
+# WDP-02: Data Transformation
+yawl:DataTransformation a yawl:DataFlowPattern ;
+    rdfs:label "Data Transformation" ;
+    rdfs:comment "Transform data formats" ;
+    yawl:patternId "WDP-02" ;
+    yawl:category "data_flow" ;
+    yawl:dataType "transform" .
+
+yawl:data_transform_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:DataTransformation ;
+    rdfs:range xsd:string .
+
+# WDP-03: Data Distribution
+yawl:DataDistribution a yawl:DataFlowPattern ;
+    rdfs:label "Data Distribution" ;
+    rdfs:comment "Distribute to multiple tasks" ;
+    yawl:patternId "WDP-03" ;
+    yawl:category "data_flow" ;
+    yawl:dataType "distribute" .
+
+yawl:data_distribute_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:DataDistribution ;
+    rdfs:range xsd:string .
+
+# WDP-04: Data Accumulation
+yawl:DataAccumulation a yawl:DataFlowPattern ;
+    rdfs:label "Data Accumulation" ;
+    rdfs:comment "Aggregate results" ;
+    yawl:patternId "WDP-04" ;
+    yawl:category "data_flow" ;
+    yawl:dataType "accumulate" .
+
+yawl:data_accumulate_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:DataAccumulation ;
+    rdfs:range xsd:string .
+
+# WDP-05: Data Visibility
+yawl:DataVisibility a yawl:DataFlowPattern ;
+    rdfs:label "Data Visibility" ;
+    rdfs:comment "Scope data access" ;
+    yawl:patternId "WDP-05" ;
+    yawl:category "data_flow" ;
+    yawl:dataType "visibility" .
+
+yawl:data_visibility_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:DataVisibility ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Resource Patterns (WRP-01 to WRP-05)
+# ============================================================================
+
+yawl:ResourcePattern a owl:Class ;
+    rdfs:subClassOf yawl:Pattern ;
+    rdfs:label "Resource Pattern" .
+
+# WRP-01: Resource Creation
+yawl:ResourceCreation a yawl:ResourcePattern ;
+    rdfs:label "Resource Creation" ;
+    rdfs:comment "Create workflow resources" ;
+    yawl:patternId "WRP-01" ;
+    yawl:category "resource" ;
+    yawl:resourceType "creation" .
+
+yawl:resource_create_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ResourceCreation ;
+    rdfs:range xsd:string .
+
+# WRP-02: Role Allocation
+yawl:RoleAllocation a yawl:ResourcePattern ;
+    rdfs:label "Role Allocation" ;
+    rdfs:comment "Allocate by role/capability" ;
+    yawl:patternId "WRP-02" ;
+    yawl:category "resource" ;
+    yawl:allocationType "role" .
+
+yawl:role_allocate_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:RoleAllocation ;
+    rdfs:range xsd:string .
+
+# WRP-03: Resource Start
+yawl:ResourceStart a yawl:ResourcePattern ;
+    rdfs:label "Resource Start" ;
+    rdfs:comment "Start resource execution" ;
+    yawl:patternId "WRP-03" ;
+    yawl:category "resource" ;
+    yawl:resourceType "start" .
+
+yawl:resource_start_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ResourceStart ;
+    rdfs:range xsd:string .
+
+# WRP-04: Role Distribution
+yawl:RoleDistribution a yawl:ResourcePattern ;
+    rdfs:label "Role Distribution" ;
+    rdfs:comment "Distribute work by roles" ;
+    yawl:patternId "WRP-04" ;
+    yawl:category "resource" ;
+    yawl:distributionType "role" .
+
+yawl:role_distribute_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:RoleDistribution ;
+    rdfs:range xsd:string .
+
+# WRP-05: Capability Allocation
+yawl:CapabilityAllocation a yawl:ResourcePattern ;
+    rdfs:label "Capability Allocation" ;
+    rdfs:comment "Allocate by capability" ;
+    yawl:patternId "WRP-05" ;
+    yawl:category "resource" ;
+    yawl:allocationType "capability" .
+
+yawl:capability_allocate_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:CapabilityAllocation ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# Exception Handling Patterns (WHP-01 to WHP-05)
+# ============================================================================
+
+yawl:ExceptionPattern a owl:Class ;
+    rdfs:subClassOf yawl:Pattern ;
+    rdfs:label "Exception Pattern" .
+
+# WHP-01: Error Handler
+yawl:ErrorHandler a yawl:ExceptionPattern ;
+    rdfs:label "Error Handler" ;
+    rdfs:comment "Catch-all error handling" ;
+    yawl:patternId "WHP-01" ;
+    yawl:category "exception_handling" ;
+    yawl:exceptionType "handler" .
+
+yawl:error_handler_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ErrorHandler ;
+    rdfs:range xsd:string .
+
+# WHP-02: Retry
+yawl:Retry a yawl:ExceptionPattern ;
+    rdfs:label "Retry" ;
+    rdfs:comment "Retry with backoff" ;
+    yawl:patternId "WHP-02" ;
+    yawl:category "exception_handling" ;
+    yawl:exceptionType "retry" .
+
+yawl:retry_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Retry ;
+    rdfs:range xsd:string .
+
+# WHP-03: Compensation
+yawl:Compensation a yawl:ExceptionPattern ;
+    rdfs:label "Compensation" ;
+    rdfs:comment "Undo on failure" ;
+    yawl:patternId "WHP-03" ;
+    yawl:category "exception_handling" ;
+    yawl:exceptionType "compensate" .
+
+yawl:compensate_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:Compensation ;
+    rdfs:range xsd:string .
+
+# WHP-04: Triggered Compensation
+yawl:TriggeredCompensation a yawl:ExceptionPattern ;
+    rdfs:label "Triggered Compensation" ;
+    rdfs:comment "Explicit compensation trigger" ;
+    yawl:patternId "WHP-04" ;
+    yawl:category "exception_handling" ;
+    yawl:exceptionType "triggered_compensate" .
+
+yawl:triggered_compensation_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:TriggeredCompensation ;
+    rdfs:range xsd:string .
+
+# WHP-05: Consecutive Compensation
+yawl:ConsecutiveCompensation a yawl:ExceptionPattern ;
+    rdfs:label "Consecutive Compensation" ;
+    rdfs:comment "Sequential undo" ;
+    yawl:patternId "WHP-05" ;
+    yawl:category "exception_handling" ;
+    yawl:exceptionType "consecutive_compensate" .
+
+yawl:consecutive_compensate_execute a owl:DatatypeProperty ;
+    rdfs:domain yawl:ConsecutiveCompensation ;
+    rdfs:range xsd:string .

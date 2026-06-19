@@ -1,0 +1,222 @@
+@prefix test: <urn:seancn.test/> .
+@prefix hook: <urn:seancn.hooks/> .
+
+######################################################################
+# HOOK TESTS
+######################################################################
+
+test:UseDebounce_InitialValue a test:TestCase ;
+  test:hook hook:useDebounce ;
+  test:asserts
+    test:returnsInitialValueImmediately ,
+    test:valueMatchesInput ;
+  test:purpose "Ensure debounced value starts as input value" .
+
+test:UseDebounce_Delay a test:TestCase ;
+  test:hook hook:useDebounce ;
+  test:asserts
+    test:valueUpdatesAfterDelay ,
+    test:intermediateChangesAreIgnored ;
+  test:queries "waitFor with fake timers" ;
+  test:purpose "Ensure value updates only after delay period" .
+
+test:UseDebounce_Cleanup a test:TestCase ;
+  test:hook hook:useDebounce ;
+  test:asserts
+    test:timeoutClearedOnUnmount ,
+    test:noUpdatesAfterUnmount ;
+  test:purpose "Ensure cleanup prevents memory leaks" .
+
+######################################################################
+
+test:UseList_Initial a test:TestCase ;
+  test:hook hook:useList ;
+  test:asserts
+    test:returnsInitialList ,
+    test:listIsEmptyByDefault ;
+  test:purpose "Ensure list initializes correctly" .
+
+test:UseList_Add a test:TestCase ;
+  test:hook hook:useList ;
+  test:asserts
+    test:addAppendsItem ,
+    test:listLengthIncreases ;
+  test:queries "add(item)" ;
+  test:purpose "Ensure add operation works" .
+
+test:UseList_Remove a test:TestCase ;
+  test:hook hook:useList ;
+  test:asserts
+    test:removeDeletesItemAtIndex ,
+    test:listLengthDecreases ,
+    test:otherItemsUnchanged ;
+  test:queries "remove(index)" ;
+  test:purpose "Ensure remove operation works" .
+
+test:UseList_Update a test:TestCase ;
+  test:hook hook:useList ;
+  test:asserts
+    test:updateReplacesItemAtIndex ,
+    test:otherItemsUnchanged ;
+  test:queries "update(index, item)" ;
+  test:purpose "Ensure update operation works" .
+
+test:UseList_SetList a test:TestCase ;
+  test:hook hook:useList ;
+  test:asserts
+    test:setListReplacesEntireList ,
+    test:listReflectsNewValue ;
+  test:queries "setList(newList)" ;
+  test:purpose "Ensure setList operation works" .
+
+######################################################################
+
+test:UseControlled_Initial a test:TestCase ;
+  test:hook hook:useControlled ;
+  test:asserts
+    test:valueMatchesInitial ,
+    test:onChangeIsFunction ;
+  test:purpose "Ensure controlled hook initializes with initial value" .
+
+test:UseControlled_OnChange a test:TestCase ;
+  test:hook hook:useControlled ;
+  test:asserts
+    test:onChangeUpdatesValue ,
+    test:valueReflectsEventTargetValue ;
+  test:queries "onChange(event)" ;
+  test:purpose "Ensure onChange handler updates value" .
+
+test:UseControlled_SetValue a test:TestCase ;
+  test:hook hook:useControlled ;
+  test:asserts
+    test:setValueUpdatesValue ,
+    test:valueReflectsSetValue ;
+  test:queries "setValue(newValue)" ;
+  test:purpose "Ensure setValue updates value directly" .
+
+######################################################################
+
+test:UseFetch_Initial a test:TestCase ;
+  test:hook hook:useFetch ;
+  test:asserts
+    test:dataIsNullInitially ,
+    test:loadingIsFalseInitially ,
+    test:errorIsNullInitially ;
+  test:purpose "Ensure fetch hook initializes with null states" .
+
+test:UseFetch_Loading a test:TestCase ;
+  test:hook hook:useFetch ;
+  test:asserts
+    test:loadingBecomesTrueDuringFetch ,
+    test:loadingBecomesFalseAfterFetch ;
+  test:queries "mock fetch" ;
+  test:purpose "Ensure loading state transitions correctly" .
+
+test:UseFetch_Success a test:TestCase ;
+  test:hook hook:useFetch ;
+  test:asserts
+    test:dataUpdatesOnSuccess ,
+    test:errorIsNullOnSuccess ,
+    test:loadingBecomesFalseOnSuccess ;
+  test:queries "mock successful fetch" ;
+  test:purpose "Ensure successful fetch updates data" .
+
+test:UseFetch_Error a test:TestCase ;
+  test:hook hook:useFetch ;
+  test:asserts
+    test:errorUpdatesOnFailure ,
+    test:dataRemainsNullOnError ,
+    test:loadingBecomesFalseOnError ;
+  test:queries "mock failed fetch" ;
+  test:purpose "Ensure error state is set on fetch failure" .
+
+test:UseFetch_Cleanup a test:TestCase ;
+  test:hook hook:useFetch ;
+  test:asserts
+    test:noStateUpdateAfterUnmount ,
+    test:fetchCancelledOnUnmount ;
+  test:purpose "Ensure cleanup prevents state updates after unmount" .
+
+test:UseFetch_UrlChange a test:TestCase ;
+  test:hook hook:useFetch ;
+  test:asserts
+    test:refetchesOnUrlChange ,
+    test:loadingResetsOnUrlChange ;
+  test:queries "change url prop" ;
+  test:purpose "Ensure hook refetches when URL changes" .
+
+######################################################################
+
+test:UseInterval_Start a test:TestCase ;
+  test:hook hook:useInterval ;
+  test:asserts
+    test:callbackCalledRepeatedly ,
+    test:intervalRunsAtSpecifiedMs ;
+  test:queries "start() with fake timers" ;
+  test:purpose "Ensure interval starts and calls callback" .
+
+test:UseInterval_Stop a test:TestCase ;
+  test:hook hook:useInterval ;
+  test:asserts
+    test:callbackStopsAfterStop ,
+    test:intervalCleared ;
+  test:queries "stop() with fake timers" ;
+  test:purpose "Ensure interval stops correctly" .
+
+test:UseInterval_Cleanup a test:TestCase ;
+  test:hook hook:useInterval ;
+  test:asserts
+    test:intervalClearedOnUnmount ,
+    test:noCallbackAfterUnmount ;
+  test:purpose "Ensure cleanup clears interval on unmount" .
+
+test:UseInterval_CallbackUpdate a test:TestCase ;
+  test:hook hook:useInterval ;
+  test:asserts
+    test:latestCallbackUsed ,
+    test:callbackRefUpdated ;
+  test:queries "change callback function" ;
+  test:purpose "Ensure callback ref updates without restarting interval" .
+
+######################################################################
+
+test:UseTabs_Initial a test:TestCase ;
+  test:hook hook:useTabs ;
+  test:asserts
+    test:activeMatchesInitial ,
+    test:activeIsZeroByDefault ;
+  test:purpose "Ensure tabs hook initializes correctly" .
+
+test:UseTabs_SetActive a test:TestCase ;
+  test:hook hook:useTabs ;
+  test:asserts
+    test:activeUpdatesOnSetActive ,
+    test:activeReflectsNewIndex ;
+  test:queries "setActive(index)" ;
+  test:purpose "Ensure setActive updates active tab index" .
+
+######################################################################
+
+test:UseThrottle_InitialValue a test:TestCase ;
+  test:hook hook:useThrottle ;
+  test:asserts
+    test:returnsInitialValueImmediately ,
+    test:valueMatchesInput ;
+  test:purpose "Ensure throttled value starts as input value" .
+
+test:UseThrottle_Throttling a test:TestCase ;
+  test:hook hook:useThrottle ;
+  test:asserts
+    test:valueUpdatesWithinDelay ,
+    test:rapidChangesAreThrottled ,
+    test:lastValueIsUsedAfterDelay ;
+  test:queries "waitFor with fake timers" ;
+  test:purpose "Ensure value updates are throttled correctly" .
+
+test:UseThrottle_Cleanup a test:TestCase ;
+  test:hook hook:useThrottle ;
+  test:asserts
+    test:timeoutClearedOnUnmount ,
+    test:noUpdatesAfterUnmount ;
+  test:purpose "Ensure cleanup prevents memory leaks" .
+

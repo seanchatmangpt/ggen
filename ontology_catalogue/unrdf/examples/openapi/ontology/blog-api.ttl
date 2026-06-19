@@ -1,0 +1,103 @@
+@prefix api: <https://example.org/blog-api/ontology#> .
+@prefix blog: <https://example.org/blog#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# === Entities ===
+
+blog:User a api:Entity ;
+    api:name "User" ;
+    rdfs:comment "Blog user account" ;
+    api:hasProperty blog:User_id, blog:User_username, blog:User_email, blog:User_bio .
+
+blog:User_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "Unique user identifier" .
+
+blog:User_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "User display name" .
+
+blog:User_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "User email address" .
+
+blog:User_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required "false" ;
+    rdfs:comment "User biography" .
+
+blog:Post a api:Entity ;
+    api:name "Post" ;
+    rdfs:comment "Blog post content" ;
+    api:hasProperty blog:Post_id, blog:Post_title, blog:Post_content, blog:Post_authorId .
+
+blog:Post_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "Unique post identifier" .
+
+blog:Post_title a api:Property ;
+    api:name "title" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "Post title" .
+
+blog:Post_content a api:Property ;
+    api:name "content" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "Post body content" .
+
+blog:Post_authorId a api:Property ;
+    api:name "authorId" ;
+    api:type "string" ;
+    api:required "true" ;
+    rdfs:comment "ID of the post author" .
+
+# === API Endpoints ===
+
+blog:User_list a api:Endpoint ;
+    api:path "/users" ;
+    api:method "GET" ;
+    api:operationId "listUsers" ;
+    api:summary "List all users" ;
+    api:responseType "User" .
+
+blog:User_create a api:Endpoint ;
+    api:path "/users" ;
+    api:method "POST" ;
+    api:operationId "createUser" ;
+    api:summary "Create a new user" ;
+    api:requestBody "CreateUserRequest" ;
+    api:responseType "User" .
+
+blog:User_get a api:Endpoint ;
+    api:path "/users/{id}" ;
+    api:method "GET" ;
+    api:operationId "getUserById" ;
+    api:summary "Get user by ID" ;
+    api:responseType "User" .
+
+blog:Post_list a api:Endpoint ;
+    api:path "/posts" ;
+    api:method "GET" ;
+    api:operationId "listPosts" ;
+    api:summary "List all posts" ;
+    api:responseType "Post" .
+
+blog:Post_create a api:Endpoint ;
+    api:path "/posts" ;
+    api:method "POST" ;
+    api:operationId "createPost" ;
+    api:summary "Create a new post" ;
+    api:requestBody "CreatePostRequest" ;
+    api:responseType "Post" .

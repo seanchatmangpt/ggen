@@ -1,0 +1,62 @@
+# ============================================================================
+# JTBD Query: Job-to-Feature Mapping
+# ============================================================================
+# Purpose: Show which features address which jobs and deliver which outcomes.
+#          Identifies gaps where jobs/outcomes have no features.
+#
+# Output: Job name, outcome, features addressing it, delivery path
+# Use: Feature coverage analysis, roadmap gaps, impact assessment
+#
+# Example Output:
+# Job                  | Outcome                    | Feature       | Status      | Gap?
+# Manage dependencies  | Fast dep resolution        | deps-add      | Complete    | No
+# Manage dependencies  | Vulnerability detection    | deps-audit    | Complete    | No
+# Configure OTEL       | Complete observability     | NULL          | NULL        | YES - NO FEATURE
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?jobName
+  ?outcomeName
+  ?outcomeMetric
+  ?outcomeTarget
+  ?featureName
+  ?featureBranch
+  ?featureStatus
+  (IF(BOUND(?feature), "No", "YES - NO FEATURE") AS ?hasGap)
+  (COUNT(DISTINCT ?feature) AS ?featureCount)
+WHERE {
+  # All jobs with outcomes
+  ?job a sk:Job ;
+       sk:jobName ?jobName .
+
+  OPTIONAL {
+    ?job sk:hasOutcome ?outcome .
+    ?outcome sk:outcomeName ?outcomeName .
+
+    OPTIONAL { ?outcome sk:outcomeMetric ?outcomeMetric }
+    OPTIONAL { ?outcome sk:outcomeTarget ?outcomeTarget }
+
+    # Features delivering this outcome
+    OPTIONAL {
+      ?feature sk:deliversOutcome ?outcome ;
+               sk:featureName ?featureName .
+
+      OPTIONAL { ?feature sk:featureBranch ?featureBranch }
+      OPTIONAL { ?feature sk:status ?featureStatus }
+    }
+  }
+
+  # Also check features addressing the job directly
+  OPTIONAL {
+    ?feature sk:addressesJob ?job ;
+             sk:featureName ?featureName .
+
+    OPTIONAL { ?feature sk:featureBranch ?featureBranch }
+    OPTIONAL { ?feature sk:status ?featureStatus }
+  }
+}
+GROUP BY ?jobName ?outcomeName ?outcomeMetric ?outcomeTarget ?featureName ?featureBranch ?featureStatus
+ORDER BY ?jobName ?outcomeName ?featureName

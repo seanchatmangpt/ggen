@@ -18,4 +18,4 @@ pub use self::core::{
 pub use self::ocel::{OcelEvent, OcelLog, OcelObject, OcelValue};
 pub use self::prov::{ProvDocument, ProvRelation};
 pub use self::rdf::RdfMembraneProjector;
-pub use self::shacl::{MembraneShaclValidator, MEMBRANE_SHACL_SHAPES};
+pub use self::shacl::MembraneShaclValidator;

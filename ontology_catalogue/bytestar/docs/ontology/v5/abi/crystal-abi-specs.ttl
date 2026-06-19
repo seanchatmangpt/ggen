@@ -1,0 +1,815 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix ba-abi: <https://bytestar.org/ontology/abi/> .
+@prefix ba-crystal: <https://bytestar.org/ontology/crystal/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ==============================================================================
+# ByteGen Crystal ABI Specifications - All Crystal Types
+# ==============================================================================
+
+ba-abi:crystal-abi-specs a owl:Ontology ;
+    dc:title "ByteGen Crystal ABI Specifications" ;
+    dc:description "Comprehensive ABI specifications and encoders/decoders for ALL crystal types in ByteStar ecosystem, leveraging existing ontologies with 80% reuse and creating 20% new schemas for SSZ/dCBOR serialization" ;
+    dc:creator "ByteStar ABI Generation Engine" ;
+    dcterms:created "2025-08-23"^^xsd:date ;
+    dcterms:modified "2025-08-23"^^xsd:date ;
+    owl:versionInfo "5.0.0" ;
+    rdfs:comment "Mathematical bijection-proven ABI system for crystal serialization under Doctrine of 8 performance constraints" ;
+    
+    # Import existing ontologies (80% reuse)
+    owl:imports <https://bytestar.org/ontology/ba-bytegen-fabrication.ttl> ,
+                <https://bytestar.org/ontology/ba-bytecore-hardware.ttl> ,
+                <https://bytestar.org/ontology/ba-ontology-validation.ttl> ,
+                <https://bytestar.org/ontology/v5/abi-definitions> .
+
+# ==============================================================================
+# Core Crystal ABI Framework (20% New)
+# ==============================================================================
+
+ba-abi:CrystalABI a owl:Class ;
+    rdfs:label "Crystal ABI" ;
+    rdfs:comment "Abstract base class for all crystal Application Binary Interface specifications" ;
+    rdfs:subClassOf ba:DeterministicOperation ;
+    skos:definition "A formal ABI specification that defines the binary layout, serialization rules, and mathematical bijection properties for crystal data structures" .
+
+ba-abi:WireABI a owl:Class ;
+    rdfs:label "Wire ABI" ;
+    rdfs:comment "Network serialization ABI for crystal transmission" ;
+    rdfs:subClassOf ba-abi:CrystalABI ;
+    skos:definition "ABI specification for network-efficient serialization of crystals with canonical byte ordering and compression" .
+
+ba-abi:StorageABI a owl:Class ;
+    rdfs:label "Storage ABI" ;
+    rdfs:comment "Persistence format ABI for crystal storage" ;
+    rdfs:subClassOf ba-abi:CrystalABI ;
+    skos:definition "ABI specification for durable storage of crystals with versioning and integrity guarantees" .
+
+ba-abi:CapabilityABI a owl:Class ;
+    rdfs:label "Capability ABI" ;
+    rdfs:comment "Access control ABI for crystal operations" ;
+    rdfs:subClassOf ba-abi:CrystalABI ;
+    skos:definition "ABI specification for capability-based access control to crystal operations and data" .
+
+ba-abi:NIFABI a owl:Class ;
+    rdfs:label "NIF ABI" ;
+    rdfs:comment "Native Implemented Function ABI for PQClean integration" ;
+    rdfs:subClassOf ba-abi:CrystalABI ;
+    skos:definition "ABI specification for interfacing with PQClean cryptographic operations through Erlang NIFs" .
+
+# ==============================================================================
+# Crystal Type Hierarchy (80% Reuse + 20% New)
+# ==============================================================================
+
+ba-crystal:Crystal a owl:Class ;
+    rdfs:label "Crystal" ;
+    rdfs:comment "Base class for all crystal data structures" ;
+    rdfs:subClassOf ba:ImmutableState .
+
+ba-crystal:TaskCrystal a owl:Class ;
+    rdfs:label "Task Crystal" ;
+    rdfs:comment "Crystal containing atomic work unit specification" ;
+    rdfs:subClassOf ba-crystal:Crystal, ba:TaskCrystal .
+
+ba-crystal:ResultCrystal a owl:Class ;
+    rdfs:label "Result Crystal" ;
+    rdfs:comment "Crystal containing execution result and witness data" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:IdentityCrystal a owl:Class ;
+    rdfs:label "Identity Crystal" ;
+    rdfs:comment "Crystal containing identity and authentication data" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:PQCCrystal a owl:Class ;
+    rdfs:label "PQC Crystal" ;
+    rdfs:comment "Crystal containing post-quantum cryptographic material" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:GovernanceCrystal a owl:Class ;
+    rdfs:label "Governance Crystal" ;
+    rdfs:comment "Crystal containing governance rules and policies" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:MemoryCrystal a owl:Class ;
+    rdfs:label "Memory Crystal" ;
+    rdfs:comment "Crystal containing memory allocation and layout data" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:ExecutionCrystal a owl:Class ;
+    rdfs:label "Execution Crystal" ;
+    rdfs:comment "Crystal containing execution context and state" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:ConsensusContext a owl:Class ;
+    rdfs:label "Consensus Crystal" ;
+    rdfs:comment "Crystal containing consensus protocol state" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:MetricsCrystal a owl:Class ;
+    rdfs:label "Metrics Crystal" ;
+    rdfs:comment "Crystal containing performance metrics and telemetry" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+ba-crystal:ArchitecturalCrystal a owl:Class ;
+    rdfs:label "Architectural Crystal" ;
+    rdfs:comment "Crystal containing architectural patterns and constraints" ;
+    rdfs:subClassOf ba-crystal:Crystal .
+
+# ==============================================================================
+# SSZ Schema Framework for Fixed Envelopes
+# ==============================================================================
+
+ba-abi:SSZSchema a owl:Class ;
+    rdfs:label "SSZ Schema" ;
+    rdfs:comment "Simple Serialize schema for fixed-size crystal envelopes" ;
+    skos:definition "Schema definition for deterministic serialization of fixed-size data structures using Simple Serialize format" .
+
+ba-abi:SSZBasicType a owl:Class ;
+    rdfs:label "SSZ Basic Type" ;
+    rdfs:comment "Basic SSZ data type (uint8, uint16, uint32, uint64, bool, bytes)" ;
+    rdfs:subClassOf ba-abi:SSZSchema .
+
+ba-abi:SSZCompositeType a owl:Class ;
+    rdfs:label "SSZ Composite Type" ;
+    rdfs:comment "Composite SSZ data type (container, list, vector)" ;
+    rdfs:subClassOf ba-abi:SSZSchema .
+
+ba-abi:SSZContainer a owl:Class ;
+    rdfs:label "SSZ Container" ;
+    rdfs:comment "SSZ container type for structured data" ;
+    rdfs:subClassOf ba-abi:SSZCompositeType .
+
+ba-abi:SSZVector a owl:Class ;
+    rdfs:label "SSZ Vector" ;
+    rdfs:comment "SSZ vector type for fixed-length arrays" ;
+    rdfs:subClassOf ba-abi:SSZCompositeType .
+
+# Task Crystal SSZ Schema (64 bytes fixed)
+ba-abi:TaskCrystalSSZ a ba-abi:SSZContainer ;
+    rdfs:label "Task Crystal SSZ Schema" ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "magic" ;
+        ba-abi:fieldType "uint16" ;
+        ba-abi:fieldOffset 0 ;
+        ba-abi:fieldDescription "Magic number for crystal type identification"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "version" ;
+        ba-abi:fieldType "uint8" ;
+        ba-abi:fieldOffset 2 ;
+        ba-abi:fieldDescription "Crystal format version"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "task_id" ;
+        ba-abi:fieldType "bytes32" ;
+        ba-abi:fieldOffset 4 ;
+        ba-abi:fieldDescription "Unique task identifier"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "priority" ;
+        ba-abi:fieldType "uint8" ;
+        ba-abi:fieldOffset 36 ;
+        ba-abi:fieldDescription "Task execution priority"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "tick_budget" ;
+        ba-abi:fieldType "uint8" ;
+        ba-abi:fieldOffset 37 ;
+        ba-abi:fieldDescription "Maximum ticks allowed under Doctrine of 8"
+    ] ;
+    ba-abi:totalSize 64 ;
+    ba-abi:alignment 64 .
+
+# Result Crystal SSZ Schema (256 bytes fixed)
+ba-abi:ResultCrystalSSZ a ba-abi:SSZContainer ;
+    rdfs:label "Result Crystal SSZ Schema" ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "header" ;
+        ba-abi:fieldType "TaskCrystalSSZ" ;
+        ba-abi:fieldOffset 0 ;
+        ba-abi:fieldDescription "Original task crystal header"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "result_code" ;
+        ba-abi:fieldType "uint32" ;
+        ba-abi:fieldOffset 64 ;
+        ba-abi:fieldDescription "Execution result status code"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "witness_data" ;
+        ba-abi:fieldType "bytes160" ;
+        ba-abi:fieldOffset 68 ;
+        ba-abi:fieldDescription "Cryptographic witness and proof data"
+    ] ;
+    ba-abi:hasSSZField [
+        ba-abi:fieldName "pqc_seal" ;
+        ba-abi:fieldType "bytes32" ;
+        ba-abi:fieldOffset 228 ;
+        ba-abi:fieldDescription "Post-quantum cryptographic seal"
+    ] ;
+    ba-abi:totalSize 256 ;
+    ba-abi:alignment 64 .
+
+# ==============================================================================
+# dCBOR Schema Framework for Variable Data
+# ==============================================================================
+
+ba-abi:dCBORSchema a owl:Class ;
+    rdfs:label "dCBOR Schema" ;
+    rdfs:comment "Deterministic Concise Binary Object Representation schema for variable-size crystal data" ;
+    skos:definition "Schema definition for canonical serialization of variable-size data structures using deterministic CBOR encoding" .
+
+ba-abi:dCBORMajorType a owl:Class ;
+    rdfs:label "dCBOR Major Type" ;
+    rdfs:comment "CBOR major type classification (0-7)" ;
+    rdfs:subClassOf ba-abi:dCBORSchema .
+
+ba-abi:dCBORUnsigned a owl:Class ;
+    rdfs:label "dCBOR Unsigned Integer" ;
+    rdfs:comment "CBOR major type 0: unsigned integer" ;
+    rdfs:subClassOf ba-abi:dCBORMajorType .
+
+ba-abi:dCBORText a owl:Class ;
+    rdfs:label "dCBOR Text String" ;
+    rdfs:comment "CBOR major type 3: UTF-8 text string" ;
+    rdfs:subClassOf ba-abi:dCBORMajorType .
+
+ba-abi:dCBORArray a owl:Class ;
+    rdfs:label "dCBOR Array" ;
+    rdfs:comment "CBOR major type 4: array of data items" ;
+    rdfs:subClassOf ba-abi:dCBORMajorType .
+
+ba-abi:dCBORMap a owl:Class ;
+    rdfs:label "dCBOR Map" ;
+    rdfs:comment "CBOR major type 5: map of key-value pairs" ;
+    rdfs:subClassOf ba-abi:dCBORMajorType .
+
+# Governance Crystal dCBOR Schema (variable size)
+ba-abi:GovernanceCrystalCBOR a ba-abi:dCBORMap ;
+    rdfs:label "Governance Crystal dCBOR Schema" ;
+    ba-abi:hasCBORField [
+        ba-abi:fieldKey "type" ;
+        ba-abi:fieldType "dCBORText" ;
+        ba-abi:fieldRequired true ;
+        ba-abi:fieldDescription "Governance crystal type identifier"
+    ] ;
+    ba-abi:hasCBORField [
+        ba-abi:fieldKey "version" ;
+        ba-abi:fieldType "dCBORUnsigned" ;
+        ba-abi:fieldRequired true ;
+        ba-abi:fieldDescription "Governance rule version"
+    ] ;
+    ba-abi:hasCBORField [
+        ba-abi:fieldKey "policies" ;
+        ba-abi:fieldType "dCBORArray" ;
+        ba-abi:fieldRequired true ;
+        ba-abi:fieldDescription "Array of governance policies"
+    ] ;
+    ba-abi:hasCBORField [
+        ba-abi:fieldKey "constraints" ;
+        ba-abi:fieldType "dCBORMap" ;
+        ba-abi:fieldRequired false ;
+        ba-abi:fieldDescription "Optional execution constraints"
+    ] ;
+    ba-abi:canonicalOrder "type,version,policies,constraints" ;
+    ba-abi:maxEncodedSize 65536 .
+
+# ==============================================================================
+# Canonical Encoding Rules
+# ==============================================================================
+
+ba-abi:CanonicalEncodingRule a owl:Class ;
+    rdfs:label "Canonical Encoding Rule" ;
+    rdfs:comment "Rule defining canonical byte representation for bijective encoding" ;
+    skos:definition "Formal rule ensuring deterministic and bijective encoding/decoding of crystal data structures" .
+
+ba-abi:EndiannessRule a ba-abi:CanonicalEncodingRule ;
+    rdfs:label "Endianness Rule" ;
+    rdfs:comment "All multi-byte integers MUST be encoded in little-endian format" ;
+    ba-abi:ruleValue "little-endian" .
+
+ba-abi:FieldOrderRule a ba-abi:CanonicalEncodingRule ;
+    rdfs:label "Field Order Rule" ;
+    rdfs:comment "Fields MUST be serialized in declaration order for SSZ, lexicographic key order for dCBOR" ;
+    ba-abi:ruleValue "declaration-order" .
+
+ba-abi:NilHandlingRule a ba-abi:CanonicalEncodingRule ;
+    rdfs:label "Nil Handling Rule" ;
+    rdfs:comment "Nil values MUST be omitted from dCBOR maps, zero-filled in SSZ containers" ;
+    ba-abi:ruleValue "omit-cbor-zero-fill-ssz" .
+
+ba-abi:PaddingRule a ba-abi:CanonicalEncodingRule ;
+    rdfs:label "Padding Rule" ;
+    rdfs:comment "All structures MUST be padded to alignment boundaries with zero bytes" ;
+    ba-abi:ruleValue "zero-padding" .
+
+# ==============================================================================
+# Wire ABI Specifications for All Crystal Types
+# ==============================================================================
+
+# Task Crystal Wire ABI
+ba-abi:TaskCrystalWireABI a ba-abi:WireABI ;
+    rdfs:label "Task Crystal Wire ABI" ;
+    ba-abi:crystalType ba-crystal:TaskCrystal ;
+    ba-abi:wireFormat "SSZ" ;
+    ba-abi:compressionScheme "zstd-level-3" ;
+    ba-abi:checksumAlgorithm "blake3" ;
+    ba-abi:maxWireSize 128 ;
+    ba-abi:schemaDefinition ba-abi:TaskCrystalSSZ ;
+    rdfs:comment "Network serialization ABI for task crystals with compression and integrity" .
+
+# Result Crystal Wire ABI
+ba-abi:ResultCrystalWireABI a ba-abi:WireABI ;
+    rdfs:label "Result Crystal Wire ABI" ;
+    ba-abi:crystalType ba-crystal:ResultCrystal ;
+    ba-abi:wireFormat "SSZ" ;
+    ba-abi:compressionScheme "none" ;
+    ba-abi:checksumAlgorithm "built-in-pqc-seal" ;
+    ba-abi:maxWireSize 256 ;
+    ba-abi:schemaDefinition ba-abi:ResultCrystalSSZ ;
+    rdfs:comment "Network serialization ABI for result crystals with PQC integrity" .
+
+# Identity Crystal Wire ABI
+ba-abi:IdentityCrystalWireABI a ba-abi:WireABI ;
+    rdfs:label "Identity Crystal Wire ABI" ;
+    ba-abi:crystalType ba-crystal:IdentityCrystal ;
+    ba-abi:wireFormat "dCBOR" ;
+    ba-abi:compressionScheme "none" ;
+    ba-abi:checksumAlgorithm "ed25519-signature" ;
+    ba-abi:maxWireSize 4096 ;
+    ba-abi:schemaDefinition ba-abi:IdentityCrystalCBOR ;
+    rdfs:comment "Network serialization ABI for identity crystals with signature integrity" .
+
+# PQC Crystal Wire ABI
+ba-abi:PQCCrystalWireABI a ba-abi:WireABI ;
+    rdfs:label "PQC Crystal Wire ABI" ;
+    ba-abi:crystalType ba-crystal:PQCCrystal ;
+    ba-abi:wireFormat "SSZ" ;
+    ba-abi:compressionScheme "none" ;
+    ba-abi:checksumAlgorithm "none" ;
+    ba-abi:maxWireSize 8192 ;
+    ba-abi:schemaDefinition ba-abi:PQCCrystalSSZ ;
+    rdfs:comment "Network serialization ABI for PQC crystals (raw cryptographic material)" .
+
+# Governance Crystal Wire ABI
+ba-abi:GovernanceCrystalWireABI a ba-abi:WireABI ;
+    rdfs:label "Governance Crystal Wire ABI" ;
+    ba-abi:crystalType ba-crystal:GovernanceCrystal ;
+    ba-abi:wireFormat "dCBOR" ;
+    ba-abi:compressionScheme "zstd-level-9" ;
+    ba-abi:checksumAlgorithm "sha3-256" ;
+    ba-abi:maxWireSize 65536 ;
+    ba-abi:schemaDefinition ba-abi:GovernanceCrystalCBOR ;
+    rdfs:comment "Network serialization ABI for governance crystals with high compression" .
+
+# ==============================================================================
+# Storage ABI Specifications for All Crystal Types
+# ==============================================================================
+
+# Task Crystal Storage ABI
+ba-abi:TaskCrystalStorageABI a ba-abi:StorageABI ;
+    rdfs:label "Task Crystal Storage ABI" ;
+    ba-abi:crystalType ba-crystal:TaskCrystal ;
+    ba-abi:storageFormat "SSZ-with-header" ;
+    ba-abi:versioningScheme "semantic-version" ;
+    ba-abi:integrityCheck "merkle-tree-root" ;
+    ba-abi:compressionScheme "lz4-hc" ;
+    ba-abi:retentionPolicy "365-days" ;
+    ba-abi:schemaDefinition ba-abi:TaskCrystalStorageSSZ ;
+    rdfs:comment "Persistent storage ABI for task crystals with versioning and integrity" .
+
+# Result Crystal Storage ABI
+ba-abi:ResultCrystalStorageABI a ba-abi:StorageABI ;
+    rdfs:label "Result Crystal Storage ABI" ;
+    ba-abi:crystalType ba-crystal:ResultCrystal ;
+    ba-abi:storageFormat "SSZ-with-witness" ;
+    ba-abi:versioningScheme "content-hash" ;
+    ba-abi:integrityCheck "pqc-signature-chain" ;
+    ba-abi:compressionScheme "none" ;
+    ba-abi:retentionPolicy "permanent" ;
+    ba-abi:schemaDefinition ba-abi:ResultCrystalStorageSSZ ;
+    rdfs:comment "Persistent storage ABI for result crystals with cryptographic provenance" .
+
+# Governance Crystal Storage ABI
+ba-abi:GovernanceCrystalStorageABI a ba-abi:StorageABI ;
+    rdfs:label "Governance Crystal Storage ABI" ;
+    ba-abi:crystalType ba-crystal:GovernanceCrystal ;
+    ba-abi:storageFormat "dCBOR-with-metadata" ;
+    ba-abi:versioningScheme "git-like-commits" ;
+    ba-abi:integrityCheck "consensus-signatures" ;
+    ba-abi:compressionScheme "brotli-max" ;
+    ba-abi:retentionPolicy "permanent-with-audit" ;
+    ba-abi:schemaDefinition ba-abi:GovernanceCrystalStorageCBOR ;
+    rdfs:comment "Persistent storage ABI for governance crystals with full audit trail" .
+
+# ==============================================================================
+# Capability ABI Specifications
+# ==============================================================================
+
+ba-abi:CrystalCapability a owl:Class ;
+    rdfs:label "Crystal Capability" ;
+    rdfs:comment "Capability token for accessing crystal operations" ;
+    rdfs:subClassOf ba:Capability .
+
+ba-abi:ReadCapability a ba-abi:CrystalCapability ;
+    rdfs:label "Read Capability" ;
+    rdfs:comment "Capability to read crystal contents" .
+
+ba-abi:WriteCapability a ba-abi:CrystalCapability ;
+    rdfs:label "Write Capability" ;
+    rdfs:comment "Capability to modify crystal contents" .
+
+ba-abi:ExecuteCapability a ba-abi:CrystalCapability ;
+    rdfs:label "Execute Capability" ;
+    rdfs:comment "Capability to execute crystal operations" .
+
+ba-abi:VerifyCapability a ba-abi:CrystalCapability ;
+    rdfs:label "Verify Capability" ;
+    rdfs:comment "Capability to verify crystal integrity" .
+
+# Task Crystal Capability ABI
+ba-abi:TaskCrystalCapabilityABI a ba-abi:CapabilityABI ;
+    rdfs:label "Task Crystal Capability ABI" ;
+    ba-abi:crystalType ba-crystal:TaskCrystal ;
+    ba-abi:requiredCapabilities ba-abi:ReadCapability, ba-abi:ExecuteCapability ;
+    ba-abi:capabilityFormat "UCAN-tokens" ;
+    ba-abi:authenticationMethod "ed25519-signature" ;
+    ba-abi:delegationSupport true ;
+    rdfs:comment "Capability-based access control for task crystal operations" .
+
+# PQC Crystal Capability ABI
+ba-abi:PQCCrystalCapabilityABI a ba-abi:CapabilityABI ;
+    rdfs:label "PQC Crystal Capability ABI" ;
+    ba-abi:crystalType ba-crystal:PQCCrystal ;
+    ba-abi:requiredCapabilities ba-abi:ReadCapability, ba-abi:VerifyCapability ;
+    ba-abi:capabilityFormat "quantum-resistant-tokens" ;
+    ba-abi:authenticationMethod "dilithium3-signature" ;
+    ba-abi:delegationSupport false ;
+    rdfs:comment "Quantum-resistant capability-based access control for PQC crystals" .
+
+# ==============================================================================
+# NIF ABI Specifications for PQClean Integration
+# ==============================================================================
+
+ba-abi:NIFFunction a owl:Class ;
+    rdfs:label "NIF Function" ;
+    rdfs:comment "Native Implemented Function for PQClean integration" ;
+    rdfs:subClassOf ba:Function .
+
+ba-abi:PQCNIFFunction a ba-abi:NIFFunction ;
+    rdfs:label "PQC NIF Function" ;
+    rdfs:comment "PQClean-specific NIF function" .
+
+# Task Crystal NIF ABI (for task execution)
+ba-abi:TaskCrystalNIFABI a ba-abi:NIFABI ;
+    rdfs:label "Task Crystal NIF ABI" ;
+    ba-abi:crystalType ba-crystal:TaskCrystal ;
+    ba-abi:nifModule "task_executor_nif" ;
+    ba-abi:nifFunctions [
+        ba-abi:functionName "execute_task" ;
+        ba-abi:argumentTypes "binary" ;
+        ba-abi:returnType "binary" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] ;
+    ba-abi:memoryManagement "erlang-managed" ;
+    ba-abi:threadSafety "reentrant" ;
+    rdfs:comment "NIF ABI for executing task crystals through native code" .
+
+# PQC Crystal NIF ABI (for cryptographic operations)
+ba-abi:PQCCrystalNIFABI a ba-abi:NIFABI ;
+    rdfs:label "PQC Crystal NIF ABI" ;
+    ba-abi:crystalType ba-crystal:PQCCrystal ;
+    ba-abi:nifModule "pqclean_nif" ;
+    ba-abi:nifFunctions [
+        ba-abi:functionName "kyber1024_keypair" ;
+        ba-abi:argumentTypes "" ;
+        ba-abi:returnType "{binary, binary}" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] , [
+        ba-abi:functionName "kyber1024_enc" ;
+        ba-abi:argumentTypes "binary, binary" ;
+        ba-abi:returnType "{binary, binary}" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] , [
+        ba-abi:functionName "kyber1024_dec" ;
+        ba-abi:argumentTypes "binary, binary" ;
+        ba-abi:returnType "binary" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] , [
+        ba-abi:functionName "dilithium3_keypair" ;
+        ba-abi:argumentTypes "" ;
+        ba-abi:returnType "{binary, binary}" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] , [
+        ba-abi:functionName "dilithium3_sign" ;
+        ba-abi:argumentTypes "binary, binary" ;
+        ba-abi:returnType "binary" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] , [
+        ba-abi:functionName "dilithium3_verify" ;
+        ba-abi:argumentTypes "binary, binary, binary" ;
+        ba-abi:returnType "boolean" ;
+        ba-abi:errorHandling "exception-tuples"
+    ] ;
+    ba-abi:memoryManagement "zero-copy" ;
+    ba-abi:threadSafety "thread-safe" ;
+    rdfs:comment "NIF ABI for PQClean cryptographic operations on PQC crystals" .
+
+# ==============================================================================
+# ABI Properties
+# ==============================================================================
+
+ba-abi:crystalType a owl:ObjectProperty ;
+    rdfs:label "crystal type" ;
+    rdfs:comment "Type of crystal this ABI specification applies to" ;
+    rdfs:domain ba-abi:CrystalABI ;
+    rdfs:range ba-crystal:Crystal .
+
+ba-abi:wireFormat a owl:DatatypeProperty ;
+    rdfs:label "wire format" ;
+    rdfs:comment "Serialization format for network transmission" ;
+    rdfs:domain ba-abi:WireABI ;
+    rdfs:range xsd:string .
+
+ba-abi:storageFormat a owl:DatatypeProperty ;
+    rdfs:label "storage format" ;
+    rdfs:comment "Serialization format for persistent storage" ;
+    rdfs:domain ba-abi:StorageABI ;
+    rdfs:range xsd:string .
+
+ba-abi:compressionScheme a owl:DatatypeProperty ;
+    rdfs:label "compression scheme" ;
+    rdfs:comment "Compression algorithm applied to serialized data" ;
+    rdfs:domain ba-abi:CrystalABI ;
+    rdfs:range xsd:string .
+
+ba-abi:checksumAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "checksum algorithm" ;
+    rdfs:comment "Algorithm for data integrity verification" ;
+    rdfs:domain ba-abi:CrystalABI ;
+    rdfs:range xsd:string .
+
+ba-abi:maxWireSize a owl:DatatypeProperty ;
+    rdfs:label "maximum wire size" ;
+    rdfs:comment "Maximum size in bytes for wire transmission" ;
+    rdfs:domain ba-abi:WireABI ;
+    rdfs:range xsd:positiveInteger .
+
+ba-abi:schemaDefinition a owl:ObjectProperty ;
+    rdfs:label "schema definition" ;
+    rdfs:comment "Reference to the schema definition" ;
+    rdfs:domain ba-abi:CrystalABI ;
+    rdfs:range ba-abi:SSZSchema .
+
+ba-abi:hasSSZField a owl:ObjectProperty ;
+    rdfs:label "has SSZ field" ;
+    rdfs:comment "SSZ container has a field" ;
+    rdfs:domain ba-abi:SSZContainer .
+
+ba-abi:hasCBORField a owl:ObjectProperty ;
+    rdfs:label "has CBOR field" ;
+    rdfs:comment "dCBOR map has a field" ;
+    rdfs:domain ba-abi:dCBORMap .
+
+ba-abi:fieldName a owl:DatatypeProperty ;
+    rdfs:label "field name" ;
+    rdfs:comment "Name of the field" ;
+    rdfs:range xsd:string .
+
+ba-abi:fieldType a owl:DatatypeProperty ;
+    rdfs:label "field type" ;
+    rdfs:comment "Data type of the field" ;
+    rdfs:range xsd:string .
+
+ba-abi:fieldOffset a owl:DatatypeProperty ;
+    rdfs:label "field offset" ;
+    rdfs:comment "Byte offset of field within structure" ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ba-abi:fieldDescription a owl:DatatypeProperty ;
+    rdfs:label "field description" ;
+    rdfs:comment "Human-readable description of field purpose" ;
+    rdfs:range xsd:string .
+
+ba-abi:totalSize a owl:DatatypeProperty ;
+    rdfs:label "total size" ;
+    rdfs:comment "Total size of structure in bytes" ;
+    rdfs:range xsd:positiveInteger .
+
+ba-abi:alignment a owl:DatatypeProperty ;
+    rdfs:label "alignment" ;
+    rdfs:comment "Memory alignment requirement in bytes" ;
+    rdfs:range xsd:positiveInteger .
+
+ba-abi:canonicalOrder a owl:DatatypeProperty ;
+    rdfs:label "canonical order" ;
+    rdfs:comment "Canonical ordering of fields for deterministic serialization" ;
+    rdfs:range xsd:string .
+
+ba-abi:maxEncodedSize a owl:DatatypeProperty ;
+    rdfs:label "maximum encoded size" ;
+    rdfs:comment "Maximum size when encoded in bytes" ;
+    rdfs:range xsd:positiveInteger .
+
+ba-abi:fieldKey a owl:DatatypeProperty ;
+    rdfs:label "field key" ;
+    rdfs:comment "Key name for CBOR map field" ;
+    rdfs:range xsd:string .
+
+ba-abi:fieldRequired a owl:DatatypeProperty ;
+    rdfs:label "field required" ;
+    rdfs:comment "Whether field is required or optional" ;
+    rdfs:range xsd:boolean .
+
+ba-abi:ruleValue a owl:DatatypeProperty ;
+    rdfs:label "rule value" ;
+    rdfs:comment "Value specification for encoding rule" ;
+    rdfs:range xsd:string .
+
+# Capability ABI Properties
+ba-abi:requiredCapabilities a owl:ObjectProperty ;
+    rdfs:label "required capabilities" ;
+    rdfs:comment "Capabilities required for crystal access" ;
+    rdfs:domain ba-abi:CapabilityABI ;
+    rdfs:range ba-abi:CrystalCapability .
+
+ba-abi:capabilityFormat a owl:DatatypeProperty ;
+    rdfs:label "capability format" ;
+    rdfs:comment "Format used for capability tokens" ;
+    rdfs:domain ba-abi:CapabilityABI ;
+    rdfs:range xsd:string .
+
+ba-abi:authenticationMethod a owl:DatatypeProperty ;
+    rdfs:label "authentication method" ;
+    rdfs:comment "Method used for authenticating capabilities" ;
+    rdfs:domain ba-abi:CapabilityABI ;
+    rdfs:range xsd:string .
+
+ba-abi:delegationSupport a owl:DatatypeProperty ;
+    rdfs:label "delegation support" ;
+    rdfs:comment "Whether capability delegation is supported" ;
+    rdfs:domain ba-abi:CapabilityABI ;
+    rdfs:range xsd:boolean .
+
+# NIF ABI Properties
+ba-abi:nifModule a owl:DatatypeProperty ;
+    rdfs:label "NIF module" ;
+    rdfs:comment "Name of the NIF module" ;
+    rdfs:domain ba-abi:NIFABI ;
+    rdfs:range xsd:string .
+
+ba-abi:nifFunctions a owl:ObjectProperty ;
+    rdfs:label "NIF functions" ;
+    rdfs:comment "Functions exposed by the NIF" ;
+    rdfs:domain ba-abi:NIFABI .
+
+ba-abi:functionName a owl:DatatypeProperty ;
+    rdfs:label "function name" ;
+    rdfs:comment "Name of the NIF function" ;
+    rdfs:range xsd:string .
+
+ba-abi:argumentTypes a owl:DatatypeProperty ;
+    rdfs:label "argument types" ;
+    rdfs:comment "Types of function arguments" ;
+    rdfs:range xsd:string .
+
+ba-abi:returnType a owl:DatatypeProperty ;
+    rdfs:label "return type" ;
+    rdfs:comment "Type of function return value" ;
+    rdfs:range xsd:string .
+
+ba-abi:errorHandling a owl:DatatypeProperty ;
+    rdfs:label "error handling" ;
+    rdfs:comment "Error handling strategy" ;
+    rdfs:range xsd:string .
+
+ba-abi:memoryManagement a owl:DatatypeProperty ;
+    rdfs:label "memory management" ;
+    rdfs:comment "Memory management strategy" ;
+    rdfs:domain ba-abi:NIFABI ;
+    rdfs:range xsd:string .
+
+ba-abi:threadSafety a owl:DatatypeProperty ;
+    rdfs:label "thread safety" ;
+    rdfs:comment "Thread safety characteristics" ;
+    rdfs:domain ba-abi:NIFABI ;
+    rdfs:range xsd:string .
+
+# Storage ABI Properties
+ba-abi:versioningScheme a owl:DatatypeProperty ;
+    rdfs:label "versioning scheme" ;
+    rdfs:comment "Scheme used for versioning stored crystals" ;
+    rdfs:domain ba-abi:StorageABI ;
+    rdfs:range xsd:string .
+
+ba-abi:integrityCheck a owl:DatatypeProperty ;
+    rdfs:label "integrity check" ;
+    rdfs:comment "Method for verifying stored data integrity" ;
+    rdfs:domain ba-abi:StorageABI ;
+    rdfs:range xsd:string .
+
+ba-abi:retentionPolicy a owl:DatatypeProperty ;
+    rdfs:label "retention policy" ;
+    rdfs:comment "Data retention policy for stored crystals" ;
+    rdfs:domain ba-abi:StorageABI ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# Mathematical Bijection Properties
+# ==============================================================================
+
+ba-abi:BijectiveMapping a owl:Class ;
+    rdfs:label "Bijective Mapping" ;
+    rdfs:comment "Mathematical bijection between crystal structures and their encoded forms" ;
+    rdfs:subClassOf ba:MathematicalCertainty ;
+    skos:definition "A bijective function that guarantees encode∘decode = identity for all valid crystal instances" .
+
+ba-abi:hasBijectiveMapping a owl:ObjectProperty ;
+    rdfs:label "has bijective mapping" ;
+    rdfs:comment "Crystal ABI has a proven bijective mapping" ;
+    rdfs:domain ba-abi:CrystalABI ;
+    rdfs:range ba-abi:BijectiveMapping .
+
+ba-abi:bijectiveProof a owl:DatatypeProperty ;
+    rdfs:label "bijective proof" ;
+    rdfs:comment "Reference to mathematical proof of bijection property" ;
+    rdfs:domain ba-abi:BijectiveMapping ;
+    rdfs:range xsd:anyURI .
+
+ba-abi:identityProperty a owl:DatatypeProperty ;
+    rdfs:label "identity property" ;
+    rdfs:comment "Mathematical statement of the identity property" ;
+    rdfs:domain ba-abi:BijectiveMapping ;
+    rdfs:range xsd:string .
+
+# ==============================================================================
+# Performance Constraints (Doctrine of 8)
+# ==============================================================================
+
+ba-abi:PerformanceConstraint a owl:Class ;
+    rdfs:label "Performance Constraint" ;
+    rdfs:comment "Performance constraint ensuring compliance with Doctrine of 8" ;
+    rdfs:subClassOf ba:PerformanceConstraint .
+
+ba-abi:DoctrineOf8Constraint a ba-abi:PerformanceConstraint ;
+    rdfs:label "Doctrine of 8 Constraint" ;
+    rdfs:comment "Constraint ensuring operations complete within 8 ticks" ;
+    ba-abi:maxTicks 8 ;
+    ba-abi:tickDurationNanoseconds 125 ;
+    ba-abi:totalMaxLatencyMicroseconds 1 .
+
+ba-abi:hasPerformanceConstraint a owl:ObjectProperty ;
+    rdfs:label "has performance constraint" ;
+    rdfs:comment "ABI specification has performance constraint" ;
+    rdfs:domain ba-abi:CrystalABI ;
+    rdfs:range ba-abi:PerformanceConstraint .
+
+ba-abi:maxTicks a owl:DatatypeProperty ;
+    rdfs:label "maximum ticks" ;
+    rdfs:comment "Maximum number of ticks allowed" ;
+    rdfs:domain ba-abi:PerformanceConstraint ;
+    rdfs:range xsd:positiveInteger .
+
+ba-abi:tickDurationNanoseconds a owl:DatatypeProperty ;
+    rdfs:label "tick duration nanoseconds" ;
+    rdfs:comment "Duration of one tick in nanoseconds" ;
+    rdfs:domain ba-abi:PerformanceConstraint ;
+    rdfs:range xsd:positiveInteger .
+
+ba-abi:totalMaxLatencyMicroseconds a owl:DatatypeProperty ;
+    rdfs:label "total maximum latency microseconds" ;
+    rdfs:comment "Total maximum latency in microseconds" ;
+    rdfs:domain ba-abi:PerformanceConstraint ;
+    rdfs:range xsd:positiveInteger .
+
+# ==============================================================================
+# Crystal ABI Instances with Performance Constraints
+# ==============================================================================
+
+# Apply Doctrine of 8 constraints to all crystal ABIs
+ba-abi:TaskCrystalWireABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:ResultCrystalWireABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:IdentityCrystalWireABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:PQCCrystalWireABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:GovernanceCrystalWireABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+
+ba-abi:TaskCrystalStorageABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:ResultCrystalStorageABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:GovernanceCrystalStorageABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+
+ba-abi:TaskCrystalCapabilityABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:PQCCrystalCapabilityABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+
+ba-abi:TaskCrystalNIFABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+ba-abi:PQCCrystalNIFABI ba-abi:hasPerformanceConstraint ba-abi:DoctrineOf8Constraint .
+
+# ==============================================================================
+# End of Crystal ABI Specifications
+# ==============================================================================

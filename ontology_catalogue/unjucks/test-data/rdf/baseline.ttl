@@ -1,0 +1,24 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Modified baseline RDF graph - semantic change
+ex:Person1 a ex:Person ;
+    ex:name "John Doe" ;
+    ex:age 32 ;    # DRIFT: Age changed from 30 to 32
+    ex:email "john@example.com" ;
+    ex:department ex:Engineering .
+
+ex:Person2 a ex:Person ;
+    ex:name "Jane Smith" ;
+    ex:age 25 ;
+    ex:email "jane@example.com" ;
+    ex:department ex:Marketing .
+
+ex:Engineering a ex:Department ;
+    ex:code "ENG" ;
+    ex:budget 1000000 .
+
+ex:Marketing a ex:Department ;
+    ex:code "MKT" ;
+    ex:budget 500000 .

@@ -1,0 +1,19 @@
+PREFIX bcore: <https://bytestar.org/ontology/bytestar-core#>
+PREFIX bflow: <https://bytestar.org/ontology/byteflow/patterns-specification#>
+
+# SPARQL query to check for congruence between the pattern declared
+# in an IngressEnvelope's Pattern Byte (PB) and the actual workflow graph.
+# This is a conceptual query representing the logic ByteFlow's AOT compiler must enforce.
+
+ASK WHERE {
+  # ?envelope a bcore:IngressEnvelope .
+  # ?envelope bcore:hasPatternByte ?pb_value .
+  #
+  # ?pattern a bcore:Pattern .
+  # ?pattern bflow:hasPatternByteValue ?pb_value .
+  #
+  # ?lattice bcore:hasMember ?envelope .
+  # ?lattice bcore:hasAssociatedGraph ?graph .
+  #
+  # FILTER (isCongruent(?graph, ?pattern))
+}

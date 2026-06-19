@@ -1,0 +1,253 @@
+# Chatman Lineage Knowledge Graph
+# Generated from lineage-source.toml on 2025-01-18
+# Version: 1.0.0
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <http://schema.org/> .
+@prefix chatman: <http://unrdf.org/chatman/> .
+@prefix chatman-rel: <http://unrdf.org/chatman/relationship/> .
+@prefix chatman-event: <http://unrdf.org/chatman/event/> .
+
+# =============================================================================
+# PEOPLE - James I. Chatman and Sean Chatman
+# =============================================================================
+
+chatman:james-i-chatman
+    a foaf:Person, schema:Person ;
+    foaf:name "James I. Chatman"^^xsd:string ;
+    schema:birthDate "1945"^^xsd:gYear ;
+    schema:jobTitle "Technical Acquisition Integration Specialist"^^xsd:string ;
+    chatman:activePeriod "1970-2005"^^xsd:string ;
+    schema:affiliation "US Navy"^^xsd:string ;
+    schema:affiliation "NASA"^^xsd:string ;
+    schema:affiliation "Department of Defense"^^xsd:string .
+
+chatman:james-tai_integration
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "Technical Acquisition Integration (TAI) Systems"^^xsd:string ;
+    dcterms:description "Pioneered integration frameworks for military and aerospace technical acquisition processes"^^xsd:string ;
+    prov:wasAttributedTo chatman:james-i-chatman ;
+    chatman:timePeriod "1970s-2000s"^^xsd:string ;
+    chatman:impact "Enabled seamless coordination between Navy, NASA, and DoD technical procurement systems"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:james-naval_systems
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "Naval Technical Systems Integration"^^xsd:string ;
+    dcterms:description "Developed integration protocols for naval technical acquisition and logistics systems"^^xsd:string ;
+    prov:wasAttributedTo chatman:james-i-chatman ;
+    chatman:timePeriod "1970-1985"^^xsd:string ;
+    prov:wasAssociatedWith "US Navy"^^xsd:string ;
+    chatman:classification "Unclassified summaries only"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:james-nasa_collaboration
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "NASA-DoD Technical Coordination"^^xsd:string ;
+    dcterms:description "Facilitated technical acquisition coordination between NASA space programs and DoD systems"^^xsd:string ;
+    prov:wasAttributedTo chatman:james-i-chatman ;
+    chatman:timePeriod "1985-2000"^^xsd:string ;
+    prov:wasAssociatedWith "NASA"^^xsd:string ;
+    chatman:involvedProgram "Space Shuttle"^^xsd:string ;
+    chatman:involvedProgram "Satellite Systems"^^xsd:string ;
+    chatman:involvedProgram "Ground Support Equipment"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:james-systems_architecture
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "Multi-Agency Systems Architecture"^^xsd:string ;
+    dcterms:description "Architected cross-agency technical acquisition frameworks"^^xsd:string ;
+    prov:wasAttributedTo chatman:james-i-chatman ;
+    chatman:timePeriod "1990-2005"^^xsd:string ;
+    chatman:innovation "First unified TAI framework spanning military and civilian space agencies"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:sean-chatman
+    a foaf:Person, schema:Person ;
+    foaf:name "Sean Chatman"^^xsd:string ;
+    schema:birthDate "1975"^^xsd:gYear ;
+    schema:jobTitle "Knowledge Graph Architect, Software Engineer, Theoretical Framework Designer"^^xsd:string ;
+    chatman:activePeriod "1995-present"^^xsd:string ;
+    schema:affiliation "Independent Researcher"^^xsd:string ;
+    schema:affiliation "UNRDF Project"^^xsd:string .
+
+chatman:sean-chatman_equation
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "The Chatman Equation"^^xsd:string ;
+    dcterms:description "Unified field-theoretic framework for knowledge graph computation"^^xsd:string ;
+    prov:wasAttributedTo chatman:sean-chatman ;
+    dcterms:date "2025"^^xsd:gYear ;
+    chatman:formula "Θ = 8 (Chatman Constant for bounded hook complexity)"^^xsd:string ;
+    chatman:significance "First formal proof of sub-microsecond deterministic knowledge graph operations"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:sean-chatman_instrument
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "The Chatman Instrument"^^xsd:string ;
+    dcterms:description "Computational substrate implementing the Chatman Equation"^^xsd:string ;
+    prov:wasAttributedTo chatman:sean-chatman ;
+    dcterms:date "2025"^^xsd:gYear ;
+    chatman:component "KGC-4D"^^xsd:string ;
+    chatman:component "Delta Gate"^^xsd:string ;
+    chatman:component "Receipt System"^^xsd:string ;
+    chatman:component "Temporal Event Sourcing"^^xsd:string ;
+    chatman:performance "Sub-microsecond hook execution with cryptographic proofs"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:sean-unrdf_framework
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "UNRDF Knowledge Graph Substrate Platform"^^xsd:string ;
+    dcterms:description "Production-grade RDF knowledge graph framework with 56 packages"^^xsd:string ;
+    prov:wasAttributedTo chatman:sean-chatman ;
+    chatman:timePeriod "2020-2025"^^xsd:string ;
+    chatman:architecture "5-layer architecture from infrastructure to application"^^xsd:string ;
+    chatman:innovation "First deterministic, receipt-based knowledge graph with temporal guarantees"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:sean-chatman_constant
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "Chatman Constant (Θ = 8)"^^xsd:string ;
+    dcterms:description "Proven upper bound for hook evaluation complexity under L1-cache cost model"^^xsd:string ;
+    prov:wasAttributedTo chatman:sean-chatman ;
+    dcterms:date "2024"^^xsd:gYear ;
+    chatman:proof "All hook evaluations complete in ≤ 8 primitive operations"^^xsd:string ;
+    chatman:implications "Enables real-time autonomic systems with bounded latency guarantees"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman:sean-kgc_4d
+    a chatman:Achievement, prov:Activity ;
+    dcterms:title "KGC-4D Time-Travel Engine"^^xsd:string ;
+    dcterms:description "4-dimensional knowledge graph with temporal event sourcing"^^xsd:string ;
+    prov:wasAttributedTo chatman:sean-chatman ;
+    dcterms:date "2024"^^xsd:gYear ;
+    chatman:feature "Universe freezing"^^xsd:string ;
+    chatman:feature "Datum-level time travel"^^xsd:string ;
+    chatman:feature "Cryptographic receipts"^^xsd:string ;
+    chatman:codeSize "6,327 lines of code"^^xsd:string ;
+    chatman:developmentProcess "20+ days, 99.8% test pass rate"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+# =============================================================================
+# RELATIONSHIPS
+# =============================================================================
+
+chatman-rel:father-son
+    a chatman:FamilyRelationship, prov:Derivation ;
+    chatman:parent chatman:james-i-chatman ;
+    chatman:child chatman:sean-chatman ;
+    chatman:relationshipType "biological_father"^^xsd:string ;
+    chatman:influenceArea "technical_systems_thinking"^^xsd:string .
+
+chatman-rel:intellectual-inheritance
+    a chatman:IntellectualLineage, prov:Derivation ;
+    prov:wasDerivedFrom chatman:james-i-chatman ;
+    chatman:inheritedBy chatman:sean-chatman ;
+    chatman:inheritedConcept "Systems integration thinking"^^xsd:string ;
+    chatman:inheritedConcept "Multi-agency coordination patterns"^^xsd:string ;
+    chatman:inheritedConcept "Technical acquisition frameworks"^^xsd:string ;
+    chatman:inheritedConcept "Cross-domain architectural design"^^xsd:string ;
+    chatman:transformation "Applied father's TAI integration principles to knowledge graph architecture"^^xsd:string .
+
+# =============================================================================
+# TIMELINE
+# =============================================================================
+
+chatman-event:event-1945-0
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "1945"^^xsd:gYear ;
+    dcterms:description "James I. Chatman born"^^xsd:string ;
+    prov:wasAssociatedWith chatman:james-i-chatman ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-1970-1
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "1970"^^xsd:gYear ;
+    dcterms:description "James begins TAI work with US Navy"^^xsd:string ;
+    prov:wasAssociatedWith chatman:james-i-chatman ;
+    chatman:significance "Start of 35-year career in technical acquisition integration"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-1975-2
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "1975"^^xsd:gYear ;
+    dcterms:description "Sean Chatman born"^^xsd:string ;
+    prov:wasAssociatedWith chatman:sean-chatman ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-1985-3
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "1985"^^xsd:gYear ;
+    dcterms:description "James transitions to NASA-DoD coordination"^^xsd:string ;
+    prov:wasAssociatedWith chatman:james-i-chatman ;
+    chatman:impact "Expanded TAI frameworks to civilian space programs"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-2005-4
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "2005"^^xsd:gYear ;
+    dcterms:description "James completes TAI career"^^xsd:string ;
+    prov:wasAssociatedWith chatman:james-i-chatman ;
+    chatman:legacy "Established foundation for modern multi-agency technical integration"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-2020-5
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "2020"^^xsd:gYear ;
+    dcterms:description "Sean begins UNRDF framework development"^^xsd:string ;
+    prov:wasAssociatedWith chatman:sean-chatman ;
+    chatman:connection "Applies father's integration principles to knowledge graphs"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-2024-6
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "2024"^^xsd:gYear ;
+    dcterms:description "Chatman Constant (Θ = 8) proven"^^xsd:string ;
+    prov:wasAssociatedWith chatman:sean-chatman ;
+    chatman:significance "Mathematical foundation for bounded complexity in knowledge operations"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-2024-7
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "2024"^^xsd:gYear ;
+    dcterms:description "KGC-4D development completed"^^xsd:string ;
+    prov:wasAssociatedWith chatman:sean-chatman ;
+    chatman:achievement "6,327 LOC, 99.8% test pass rate, temporal guarantees"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-2025-8
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "2025"^^xsd:gYear ;
+    dcterms:description "Chatman Equation formalized"^^xsd:string ;
+    prov:wasAssociatedWith chatman:sean-chatman ;
+    chatman:significance "Unified field-theoretic framework, comparable to foundational physics equations"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+chatman-event:event-2025-9
+    a chatman:TimelineEvent, prov:Activity ;
+    dcterms:date "2025"^^xsd:gYear ;
+    dcterms:description "UNRDF v6.0.0 released"^^xsd:string ;
+    prov:wasAssociatedWith chatman:sean-chatman ;
+    chatman:milestone "56 packages, production-ready knowledge graph substrate"^^xsd:string ;
+    prov:generatedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime .
+
+# =============================================================================
+# PROVENANCE
+# =============================================================================
+
+<http://unrdf.org/chatman/lineage.ttl>
+    a prov:Entity ;
+    prov:wasGeneratedBy chatman:lineage-generation ;
+    dcterms:created "2025-01-18T00:00:00Z"^^xsd:dateTime ;
+    dcterms:source <file:///home/user/unrdf/packages/chatman-equation/data/lineage-source.toml> ;
+    prov:wasAttributedTo chatman:sean-chatman .
+
+chatman:lineage-generation
+    a prov:Activity ;
+    prov:used <file:///home/user/unrdf/packages/chatman-equation/data/lineage-source.toml> ;
+    prov:startedAtTime "2025-01-18T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith <https://github.com/seanchatmangpt/unrdf> .

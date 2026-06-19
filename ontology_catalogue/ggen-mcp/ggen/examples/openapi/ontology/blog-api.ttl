@@ -1,0 +1,400 @@
+# =============================================================================
+# Blog API Ontology Instance
+# Defines a complete blog API with Users, Posts, Comments, and Tags
+# Source of truth for generating OpenAPI, TypeScript, and Zod
+# =============================================================================
+
+@prefix blog: <https://ggen.io/examples/blog#> .
+@prefix api: <https://ggen.io/ontology/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# API Specification
+# =============================================================================
+
+blog:BlogAPI a api:Specification ;
+    api:title "Blog API" ;
+    api:description "A complete blog API with users, posts, comments, and tags" ;
+    api:version "1.0.0" ;
+    api:server blog:LocalServer .
+
+blog:LocalServer a api:Server ;
+    api:url "http://localhost:3000"^^xsd:anyURI ;
+    api:description "Local development server" .
+
+# =============================================================================
+# User Entity
+# =============================================================================
+
+blog:User a api:Entity ;
+    api:name "User" ;
+    rdfs:comment "Blog user account" ;
+    api:hasProperty blog:User_id ;
+    api:hasProperty blog:User_username ;
+    api:hasProperty blog:User_email ;
+    api:hasProperty blog:User_bio ;
+    api:hasProperty blog:User_posts ;
+    api:hasEndpoint blog:User_list ;
+    api:hasEndpoint blog:User_create ;
+    api:hasEndpoint blog:User_get ;
+    api:hasEndpoint blog:User_update ;
+    api:hasEndpoint blog:User_delete ;
+    api:hasEndpoint blog:User_posts_list ;
+    api:hasRequestType blog:CreateUserRequest ;
+    api:hasRequestType blog:UpdateUserRequest .
+
+blog:User_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Unique user identifier" .
+
+blog:User_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 255 ;
+    rdfs:comment "Username" .
+
+blog:User_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "email" ;
+    rdfs:comment "Email address" ;
+    api:example "user@example.com" .
+
+blog:User_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required false ;
+    api:maxLength 500 ;
+    rdfs:comment "Optional user biography" .
+
+blog:User_posts a api:Property ;
+    api:name "posts" ;
+    api:type "reference" ;
+    api:required false ;
+    api:isArray true ;
+    api:refEntity "Post" ;
+    rdfs:comment "Posts authored by user" .
+
+# User Endpoints
+blog:User_list a api:Endpoint ;
+    api:path "/users" ;
+    api:method "GET" ;
+    api:operationId "listUsers" ;
+    api:summary "List all users" ;
+    api:responseSchema "User[]" ;
+    api:statusCode 200 .
+
+blog:User_create a api:Endpoint ;
+    api:path "/users" ;
+    api:method "POST" ;
+    api:operationId "createUser" ;
+    api:summary "Create a user" ;
+    api:requestSchema "CreateUserRequest" ;
+    api:responseSchema "User" ;
+    api:statusCode 201 .
+
+blog:User_get a api:Endpoint ;
+    api:path "/users/{id}" ;
+    api:method "GET" ;
+    api:operationId "getUser" ;
+    api:summary "Get a user by ID" ;
+    api:responseSchema "User" ;
+    api:statusCode 200 .
+
+blog:User_update a api:Endpoint ;
+    api:path "/users/{id}" ;
+    api:method "PUT" ;
+    api:operationId "updateUser" ;
+    api:summary "Update a user" ;
+    api:requestSchema "UpdateUserRequest" ;
+    api:responseSchema "User" ;
+    api:statusCode 200 .
+
+blog:User_delete a api:Endpoint ;
+    api:path "/users/{id}" ;
+    api:method "DELETE" ;
+    api:operationId "deleteUser" ;
+    api:summary "Delete a user" ;
+    api:statusCode 204 .
+
+blog:User_posts_list a api:Endpoint ;
+    api:path "/users/{id}/posts" ;
+    api:method "GET" ;
+    api:operationId "listUserPosts" ;
+    api:summary "Get user's posts" ;
+    api:responseSchema "Post[]" ;
+    api:statusCode 200 .
+
+# User Request Types
+blog:CreateUserRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty blog:CreateUser_username ;
+    api:hasProperty blog:CreateUser_email ;
+    api:hasProperty blog:CreateUser_bio .
+
+blog:CreateUser_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 255 .
+
+blog:CreateUser_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "email" .
+
+blog:CreateUser_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required false ;
+    api:maxLength 500 .
+
+blog:UpdateUserRequest a api:RequestType ;
+    api:operationType "update" ;
+    api:hasProperty blog:UpdateUser_username ;
+    api:hasProperty blog:UpdateUser_email ;
+    api:hasProperty blog:UpdateUser_bio .
+
+blog:UpdateUser_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 1 ;
+    api:maxLength 255 .
+
+blog:UpdateUser_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required false ;
+    api:format "email" .
+
+blog:UpdateUser_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required false ;
+    api:maxLength 500 .
+
+# =============================================================================
+# Post Entity
+# =============================================================================
+
+blog:Post a api:Entity ;
+    api:name "Post" ;
+    rdfs:comment "Published blog post" ;
+    api:hasProperty blog:Post_id ;
+    api:hasProperty blog:Post_title ;
+    api:hasProperty blog:Post_content ;
+    api:hasProperty blog:Post_published_at ;
+    api:hasProperty blog:Post_authorId ;
+    api:hasProperty blog:Post_comments ;
+    api:hasProperty blog:Post_tags ;
+    api:hasEndpoint blog:Post_list ;
+    api:hasEndpoint blog:Post_create ;
+    api:hasEndpoint blog:Post_get ;
+    api:hasEndpoint blog:Post_update ;
+    api:hasEndpoint blog:Post_delete ;
+    api:hasRequestType blog:CreatePostRequest ;
+    api:hasRequestType blog:UpdatePostRequest .
+
+blog:Post_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Unique post identifier" .
+
+blog:Post_title a api:Property ;
+    api:name "title" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Post title" .
+
+blog:Post_content a api:Property ;
+    api:name "content" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Post content" .
+
+blog:Post_published_at a api:Property ;
+    api:name "published_at" ;
+    api:type "datetime" ;
+    api:required true ;
+    api:format "date-time" ;
+    rdfs:comment "Publication timestamp" .
+
+blog:Post_authorId a api:Property ;
+    api:name "authorId" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "ID of post author (User)" .
+
+blog:Post_comments a api:Property ;
+    api:name "comments" ;
+    api:type "reference" ;
+    api:required false ;
+    api:isArray true ;
+    api:refEntity "Comment" ;
+    rdfs:comment "Comments on this post" .
+
+blog:Post_tags a api:Property ;
+    api:name "tags" ;
+    api:type "reference" ;
+    api:required false ;
+    api:isArray true ;
+    api:refEntity "Tag" ;
+    rdfs:comment "Tags/categories for this post" .
+
+# Post Endpoints
+blog:Post_list a api:Endpoint ;
+    api:path "/posts" ;
+    api:method "GET" ;
+    api:operationId "listPosts" ;
+    api:summary "List all posts" ;
+    api:responseSchema "Post[]" ;
+    api:statusCode 200 .
+
+blog:Post_create a api:Endpoint ;
+    api:path "/posts" ;
+    api:method "POST" ;
+    api:operationId "createPost" ;
+    api:summary "Create a post" ;
+    api:requestSchema "CreatePostRequest" ;
+    api:responseSchema "Post" ;
+    api:statusCode 201 .
+
+blog:Post_get a api:Endpoint ;
+    api:path "/posts/{id}" ;
+    api:method "GET" ;
+    api:operationId "getPost" ;
+    api:summary "Get a post by ID" ;
+    api:responseSchema "Post" ;
+    api:statusCode 200 .
+
+blog:Post_update a api:Endpoint ;
+    api:path "/posts/{id}" ;
+    api:method "PUT" ;
+    api:operationId "updatePost" ;
+    api:summary "Update a post" ;
+    api:requestSchema "UpdatePostRequest" ;
+    api:responseSchema "Post" ;
+    api:statusCode 200 .
+
+blog:Post_delete a api:Endpoint ;
+    api:path "/posts/{id}" ;
+    api:method "DELETE" ;
+    api:operationId "deletePost" ;
+    api:summary "Delete a post" ;
+    api:statusCode 204 .
+
+# Post Request Types
+blog:CreatePostRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty blog:CreatePost_title ;
+    api:hasProperty blog:CreatePost_content ;
+    api:hasProperty blog:CreatePost_authorId .
+
+blog:CreatePost_title a api:Property ;
+    api:name "title" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 500 .
+
+blog:CreatePost_content a api:Property ;
+    api:name "content" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 .
+
+blog:CreatePost_authorId a api:Property ;
+    api:name "authorId" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 .
+
+blog:UpdatePostRequest a api:RequestType ;
+    api:operationType "update" ;
+    api:hasProperty blog:UpdatePost_title ;
+    api:hasProperty blog:UpdatePost_content .
+
+blog:UpdatePost_title a api:Property ;
+    api:name "title" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 1 ;
+    api:maxLength 500 .
+
+blog:UpdatePost_content a api:Property ;
+    api:name "content" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 1 .
+
+# =============================================================================
+# Comment Entity
+# =============================================================================
+
+blog:Comment a api:Entity ;
+    api:name "Comment" ;
+    rdfs:comment "Comment on a post" ;
+    api:hasProperty blog:Comment_id ;
+    api:hasProperty blog:Comment_content ;
+    api:hasProperty blog:Comment_authorId .
+
+blog:Comment_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Unique comment identifier" .
+
+blog:Comment_content a api:Property ;
+    api:name "content" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Comment text" .
+
+blog:Comment_authorId a api:Property ;
+    api:name "authorId" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "ID of comment author (User)" .
+
+# =============================================================================
+# Tag Entity
+# =============================================================================
+
+blog:Tag a api:Entity ;
+    api:name "Tag" ;
+    rdfs:comment "Post tag/category" ;
+    api:hasProperty blog:Tag_id ;
+    api:hasProperty blog:Tag_name .
+
+blog:Tag_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Unique tag identifier" .
+
+blog:Tag_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Tag name" .

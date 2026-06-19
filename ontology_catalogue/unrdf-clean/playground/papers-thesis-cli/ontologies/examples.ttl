@@ -1,0 +1,196 @@
+@prefix pt: <http://papers-thesis.org/ontology#> .
+@prefix ex: <http://papers-thesis.org/examples#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Example Authors
+# =============================================================================
+
+ex:alice a pt:Author ;
+    pt:authorName "Alice Johnson" ;
+    pt:authorAffiliation "MIT" ;
+    pt:authorRole "primary" ;
+    pt:authorEmail "alice@mit.edu" ;
+    pt:orcid "0000-0001-2345-6789" .
+
+ex:bob a pt:Author ;
+    pt:authorName "Bob Smith" ;
+    pt:authorAffiliation "Stanford University" ;
+    pt:authorRole "co-author" ;
+    pt:authorEmail "bob@stanford.edu" .
+
+ex:drCarol a pt:Author ;
+    pt:authorName "Dr. Carol Williams" ;
+    pt:authorAffiliation "MIT" ;
+    pt:authorRole "supervisor" ;
+    pt:authorEmail "carol@mit.edu" .
+
+# =============================================================================
+# Example IMRAD Paper
+# =============================================================================
+
+ex:imrad-paper-1 a pt:IMRADPaper ;
+    pt:hasTitle "Investigating Knowledge Graphs in RDF Systems" ;
+    pt:paperFamily "imrad" ;
+    pt:hasAbstract "This paper investigates the effectiveness of knowledge graphs in modern RDF systems. We present a comprehensive study of query optimization techniques and their impact on performance." ;
+    pt:hasAuthor ex:alice, ex:bob ;
+    pt:createdAt "2025-01-15T10:30:00Z"^^xsd:dateTime ;
+    pt:hasKeyword "knowledge graphs", "RDF", "SPARQL", "optimization" ;
+    pt:venue "IEEE Conference on Knowledge Engineering" ;
+    pt:hasSection ex:imrad-paper-1-intro, ex:imrad-paper-1-methods, ex:imrad-paper-1-results, ex:imrad-paper-1-discussion .
+
+ex:imrad-paper-1-intro a pt:Section ;
+    pt:sectionHeading "Introduction" ;
+    pt:sectionOrder 1 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "Knowledge graphs have become increasingly important in modern data systems. This paper presents our investigation into their effectiveness in RDF-based environments." .
+
+ex:imrad-paper-1-methods a pt:Section ;
+    pt:sectionHeading "Methods" ;
+    pt:sectionOrder 2 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "We employed a mixed-methods approach combining quantitative benchmarking with qualitative analysis of query patterns." .
+
+ex:imrad-paper-1-results a pt:Section ;
+    pt:sectionHeading "Results" ;
+    pt:sectionOrder 3 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "Our experiments showed a 45% improvement in query performance when using optimized knowledge graph structures." .
+
+ex:imrad-paper-1-discussion a pt:Section ;
+    pt:sectionHeading "Discussion" ;
+    pt:sectionOrder 4 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "The results indicate significant potential for knowledge graph optimization in real-world applications." .
+
+# =============================================================================
+# Example DSR Paper
+# =============================================================================
+
+ex:dsr-paper-1 a pt:DSRPaper ;
+    pt:hasTitle "A Design Science Approach to Semantic Data Integration" ;
+    pt:paperFamily "dsr" ;
+    pt:hasAbstract "This paper follows the Design Science Research methodology to develop a novel approach for semantic data integration in heterogeneous systems." ;
+    pt:hasAuthor ex:bob ;
+    pt:createdAt "2025-02-01T14:00:00Z"^^xsd:dateTime ;
+    pt:hasKeyword "design science", "semantic integration", "data harmonization" ;
+    pt:venue "Information Systems Research" ;
+    pt:hasSection ex:dsr-paper-1-problem, ex:dsr-paper-1-objectives, ex:dsr-paper-1-design .
+
+ex:dsr-paper-1-problem a pt:Section ;
+    pt:sectionHeading "Problem Identification" ;
+    pt:sectionOrder 1 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "Organizations face significant challenges when integrating data from heterogeneous sources with different semantic representations." .
+
+ex:dsr-paper-1-objectives a pt:Section ;
+    pt:sectionHeading "Objectives of a Solution" ;
+    pt:sectionOrder 2 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "We aim to develop an artifact that automates semantic mapping between disparate data sources while maintaining data quality." .
+
+ex:dsr-paper-1-design a pt:Section ;
+    pt:sectionHeading "Design & Development" ;
+    pt:sectionOrder 3 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "Our artifact employs ontology alignment techniques combined with machine learning for automated semantic mapping." .
+
+# =============================================================================
+# Example Argument Paper
+# =============================================================================
+
+ex:argument-paper-1 a pt:ArgumentPaper ;
+    pt:hasTitle "The Case for Declarative Knowledge Representation" ;
+    pt:paperFamily "argument" ;
+    pt:hasAbstract "This paper argues that declarative knowledge representation using RDF and OWL provides superior maintainability and reasoning capabilities compared to imperative approaches." ;
+    pt:hasAuthor ex:alice ;
+    pt:createdAt "2025-01-20T09:15:00Z"^^xsd:dateTime ;
+    pt:hasKeyword "declarative", "knowledge representation", "RDF", "OWL" ;
+    pt:hasSection ex:arg-paper-1-thesis, ex:arg-paper-1-premises, ex:arg-paper-1-arguments .
+
+ex:arg-paper-1-thesis a pt:Section ;
+    pt:sectionHeading "Thesis Statement" ;
+    pt:sectionOrder 1 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "Declarative knowledge representation is superior to imperative approaches for enterprise knowledge management systems." .
+
+ex:arg-paper-1-premises a pt:Section ;
+    pt:sectionHeading "Premises" ;
+    pt:sectionOrder 2 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "1. Declarative systems separate what from how. 2. Separation of concerns improves maintainability. 3. Reasoning engines can derive implicit knowledge." .
+
+ex:arg-paper-1-arguments a pt:Section ;
+    pt:sectionHeading "Arguments" ;
+    pt:sectionOrder 3 ;
+    pt:sectionLevel 1 ;
+    pt:sectionContent "First, declarative representations enable automatic consistency checking. Second, they support interoperability through standardized formats. Third, they facilitate knowledge reuse across applications." .
+
+# =============================================================================
+# Example Monograph Thesis
+# =============================================================================
+
+ex:thesis-monograph-1 a pt:Monograph ;
+    pt:hasTitle "Autonomic Knowledge Systems: A Comprehensive Study" ;
+    pt:thesisType "monograph" ;
+    pt:hasAbstract "This dissertation presents a comprehensive study of autonomic knowledge systems, exploring self-managing capabilities in knowledge graph environments." ;
+    pt:hasAuthor ex:alice ;
+    pt:hasSupervisor ex:drCarol ;
+    pt:institution "Massachusetts Institute of Technology" ;
+    pt:department "Computer Science" ;
+    pt:degree "PhD" ;
+    pt:createdAt "2024-06-01T00:00:00Z"^^xsd:dateTime ;
+    pt:hasSchedule ex:thesis-1-schedule .
+
+ex:thesis-1-schedule a pt:Schedule ;
+    pt:defenseDate "2025-06-15"^^xsd:date ;
+    pt:hasMilestone ex:milestone-proposal, ex:milestone-draft, ex:milestone-defense .
+
+ex:milestone-proposal a pt:Milestone ;
+    pt:milestoneName "Thesis Proposal" ;
+    pt:milestoneDate "2024-09-01"^^xsd:date ;
+    pt:milestoneStatus "completed" .
+
+ex:milestone-draft a pt:Milestone ;
+    pt:milestoneName "Complete Draft" ;
+    pt:milestoneDate "2025-03-01"^^xsd:date ;
+    pt:milestoneStatus "in-progress" .
+
+ex:milestone-defense a pt:Milestone ;
+    pt:milestoneName "Thesis Defense" ;
+    pt:milestoneDate "2025-06-15"^^xsd:date ;
+    pt:milestoneStatus "pending" .
+
+# =============================================================================
+# Example Contribution Thesis
+# =============================================================================
+
+ex:thesis-contribution-1 a pt:ContributionThesis ;
+    pt:hasTitle "Advancing RDF Query Optimization: Three Studies" ;
+    pt:thesisType "contribution" ;
+    pt:hasAbstract "This thesis presents three contributions to RDF query optimization: (1) cardinality estimation, (2) join ordering, and (3) result caching strategies." ;
+    pt:hasAuthor ex:bob ;
+    pt:institution "Stanford University" ;
+    pt:department "Computer Science" ;
+    pt:degree "PhD" ;
+    pt:createdAt "2024-08-15T00:00:00Z"^^xsd:dateTime .
+
+# =============================================================================
+# Example Configuration
+# =============================================================================
+
+ex:config-default a pt:Configuration ;
+    pt:configKey "author.name" ;
+    pt:configValue "Unknown Author" ;
+    pt:configType "string" .
+
+ex:config-format a pt:Configuration ;
+    pt:configKey "output.format" ;
+    pt:configValue "latex" ;
+    pt:configType "string" .
+
+ex:config-verbose a pt:Configuration ;
+    pt:configKey "cli.verbose" ;
+    pt:configValue "false" ;
+    pt:configType "boolean" .

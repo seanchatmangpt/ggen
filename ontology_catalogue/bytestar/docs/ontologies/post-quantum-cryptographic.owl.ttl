@@ -1,0 +1,670 @@
+@prefix : <https://bytestar.org/ontology/post-quantum-crypto#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix bg: <https://bytestar.org/ontology/bytegen-fabrication#> .
+@prefix cl: <https://bytestar.org/ontology/crystal-lattice#> .
+
+@base <https://bytestar.org/ontology/post-quantum-crypto> .
+
+<https://bytestar.org/ontology/post-quantum-crypto> rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/post-quantum-crypto/1.0> ;
+    rdfs:label "Post-Quantum Cryptographic Framework Ontology" ;
+    rdfs:comment """
+    The Post-Quantum Cryptographic Framework Ontology defines the cryptographic
+    foundations that secure the ByteStar fabric against quantum computing threats.
+    
+    This ontology specifies quantum-resistant algorithms, key management systems,
+    and cryptographic protocols that ensure long-term security for executable
+    crystals, lattice communications, and system integrity.
+    
+    NIST-Approved Algorithms:
+    - Dilithium3: Digital signatures for crystal authentication
+    - Kyber1024: Key encapsulation for secure communications
+    - SPHINCS+: Long-term signature validity
+    - BIKE: Alternative key encapsulation mechanism
+    
+    Security Properties:
+    - Quantum Resistance: Security against Shor's and Grover's algorithms
+    - Forward Secrecy: Key compromise doesn't affect past communications
+    - Non-Repudiation: Cryptographic proof of origin and integrity
+    - Zero-Knowledge: Privacy-preserving validation protocols
+    """ ;
+    owl:imports <https://bytestar.org/ontology/bytegen-fabrication> ,
+                <https://bytestar.org/ontology/crystal-lattice> .
+
+#################################################################
+#    Core Cryptographic Algorithm Classes
+#################################################################
+
+:PostQuantumAlgorithm a owl:Class ;
+    rdfs:label "Post-Quantum Algorithm" ;
+    rdfs:comment """
+    Abstract base class for cryptographic algorithms that resist
+    attacks by quantum computers, specifically Shor's algorithm
+    for factorization and discrete logarithms.
+    """ .
+
+:DigitalSignatureAlgorithm a owl:Class ;
+    rdfs:subClassOf :PostQuantumAlgorithm ;
+    rdfs:label "Digital Signature Algorithm" ;
+    rdfs:comment """
+    Post-quantum algorithm for creating and verifying digital signatures
+    that provide authentication, integrity, and non-repudiation.
+    """ .
+
+:KeyEncapsulationMechanism a owl:Class ;
+    rdfs:subClassOf :PostQuantumAlgorithm ;
+    rdfs:label "Key Encapsulation Mechanism" ;
+    rdfs:comment """
+    Post-quantum algorithm for secure key establishment that enables
+    symmetric encryption of communications.
+    """ .
+
+:HashBasedSignature a owl:Class ;
+    rdfs:subClassOf :DigitalSignatureAlgorithm ;
+    rdfs:label "Hash-Based Signature" ;
+    rdfs:comment """
+    Digital signature based on hash function security rather than
+    number theory, providing long-term quantum resistance.
+    """ .
+
+#################################################################
+#    NIST-Approved Algorithm Implementations
+#################################################################
+
+:Dilithium3 a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :DigitalSignatureAlgorithm ;
+    rdfs:label "Dilithium3" ;
+    rdfs:comment """
+    NIST-standardized lattice-based digital signature algorithm
+    with 128-bit quantum security level. Primary signature algorithm
+    for ByteStar crystal authentication and integrity verification.
+    """ .
+
+:Kyber1024 a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :KeyEncapsulationMechanism ;
+    rdfs:label "Kyber1024" ;
+    rdfs:comment """
+    NIST-standardized lattice-based key encapsulation mechanism
+    with 256-bit quantum security level. Primary KEM for secure
+    communications between lattice nodes and system components.
+    """ .
+
+:SPHINCSPlus a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :HashBasedSignature ;
+    rdfs:label "SPHINCS+" ;
+    rdfs:comment """
+    NIST-standardized hash-based signature scheme providing
+    long-term security guarantees. Used for critical system
+    components requiring extended validity periods.
+    """ .
+
+:BIKE a owl:Class, owl:NamedIndividual ;
+    rdfs:subClassOf :KeyEncapsulationMechanism ;
+    rdfs:label "BIKE" ;
+    rdfs:comment """
+    Bit Flipping Key Encapsulation mechanism based on
+    quasi-cyclic codes. Alternative KEM for specific use cases
+    requiring different security assumptions.
+    """ .
+
+#################################################################
+#    Cryptographic Key Management Classes
+#################################################################
+
+:CryptographicKey a owl:Class ;
+    rdfs:label "Cryptographic Key" ;
+    rdfs:comment """
+    Mathematical key used in cryptographic operations,
+    with defined lifecycle, security properties, and usage constraints.
+    """ .
+
+:PublicKey a owl:Class ;
+    rdfs:subClassOf :CryptographicKey ;
+    rdfs:label "Public Key" ;
+    rdfs:comment """
+    Publicly distributed key used for signature verification
+    and encryption operations.
+    """ .
+
+:PrivateKey a owl:Class ;
+    rdfs:subClassOf :CryptographicKey ;
+    rdfs:label "Private Key" ;
+    rdfs:comment """
+    Secret key used for signature generation and decryption
+    operations. Must be protected with highest security measures.
+    """ .
+
+:SharedSecret a owl:Class ;
+    rdfs:subClassOf :CryptographicKey ;
+    rdfs:label "Shared Secret" ;
+    rdfs:comment """
+    Symmetric key derived from key encapsulation for
+    high-speed encryption of bulk data.
+    """ .
+
+:KeyPair a owl:Class ;
+    rdfs:label "Key Pair" ;
+    rdfs:comment """
+    Mathematically related public/private key pair generated
+    for asymmetric cryptographic operations.
+    """ ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            [ a owl:Restriction ; owl:onProperty :hasPublicKey ; owl:exactCardinality 1 ]
+            [ a owl:Restriction ; owl:onProperty :hasPrivateKey ; owl:exactCardinality 1 ]
+        )
+    ] .
+
+:KeyDerivationFunction a owl:Class ;
+    rdfs:label "Key Derivation Function" ;
+    rdfs:comment """
+    Cryptographic function that derives multiple keys from
+    a single shared secret or master key.
+    """ .
+
+:KeyLifecycleManager a owl:Class ;
+    rdfs:label "Key Lifecycle Manager" ;
+    rdfs:comment """
+    System that manages cryptographic key generation, distribution,
+    rotation, revocation, and secure destruction.
+    """ .
+
+#################################################################
+#    Digital Signature Classes
+#################################################################
+
+:DigitalSignature a owl:Class ;
+    rdfs:label "Digital Signature" ;
+    rdfs:comment """
+    Cryptographic construct that provides authentication,
+    integrity, and non-repudiation for signed data.
+    """ ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            [ a owl:Restriction ; owl:onProperty :signsData ; owl:someValuesFrom xsd:base64Binary ]
+            [ a owl:Restriction ; owl:onProperty :usesAlgorithm ; owl:someValuesFrom :DigitalSignatureAlgorithm ]
+            [ a owl:Restriction ; owl:onProperty :createdByKey ; owl:someValuesFrom :PrivateKey ]
+        )
+    ] .
+
+:SignatureVerification a owl:Class ;
+    rdfs:label "Signature Verification" ;
+    rdfs:comment """
+    Process of verifying digital signature authenticity
+    and data integrity using the corresponding public key.
+    """ .
+
+:SignatureChain a owl:Class ;
+    rdfs:label "Signature Chain" ;
+    rdfs:comment """
+    Chain of digital signatures providing hierarchical
+    trust and certificate validation.
+    """ .
+
+:CrystalSignature a owl:Class ;
+    rdfs:subClassOf :DigitalSignature ;
+    rdfs:label "Crystal Signature" ;
+    rdfs:comment """
+    Specialized digital signature for executable crystals
+    that includes crystal metadata and execution constraints.
+    """ .
+
+#################################################################
+#    Encryption and Key Exchange Classes
+#################################################################
+
+:EncryptionScheme a owl:Class ;
+    rdfs:label "Encryption Scheme" ;
+    rdfs:comment """
+    Cryptographic scheme for protecting data confidentiality
+    through mathematical transformation.
+    """ .
+
+:SymmetricEncryption a owl:Class ;
+    rdfs:subClassOf :EncryptionScheme ;
+    rdfs:label "Symmetric Encryption" ;
+    rdfs:comment """
+    Encryption scheme using the same key for encryption
+    and decryption operations.
+    """ .
+
+:AsymmetricEncryption a owl:Class ;
+    rdfs:subClassOf :EncryptionScheme ;
+    rdfs:label "Asymmetric Encryption" ;
+    rdfs:comment """
+    Encryption scheme using mathematically related but
+    different keys for encryption and decryption.
+    """ .
+
+:HybridEncryption a owl:Class ;
+    rdfs:subClassOf :EncryptionScheme ;
+    rdfs:label "Hybrid Encryption" ;
+    rdfs:comment """
+    Encryption scheme combining asymmetric key exchange
+    with symmetric data encryption for optimal performance.
+    """ .
+
+:KeyExchange a owl:Class ;
+    rdfs:label "Key Exchange" ;
+    rdfs:comment """
+    Cryptographic protocol for establishing shared secrets
+    between communicating parties.
+    """ .
+
+:EncapsulatedKey a owl:Class ;
+    rdfs:label "Encapsulated Key" ;
+    rdfs:comment """
+    Symmetric key protected by public key encryption
+    for secure transmission.
+    """ .
+
+#################################################################
+#    Zero-Knowledge and Privacy Classes
+#################################################################
+
+:ZeroKnowledgeProof a owl:Class ;
+    rdfs:label "Zero-Knowledge Proof" ;
+    rdfs:comment """
+    Cryptographic proof that demonstrates knowledge of
+    information without revealing the information itself.
+    """ .
+
+:ZKSNARKProof a owl:Class ;
+    rdfs:subClassOf :ZeroKnowledgeProof ;
+    rdfs:label "zk-SNARK Proof" ;
+    rdfs:comment """
+    Zero-Knowledge Succinct Non-Interactive Argument of Knowledge
+    providing privacy-preserving verification of computations.
+    """ .
+
+:ZKSTARKProof a owl:Class ;
+    rdfs:subClassOf :ZeroKnowledgeProof ;
+    rdfs:label "zk-STARK Proof" ;
+    rdfs:comment """
+    Zero-Knowledge Scalable Transparent Argument of Knowledge
+    providing quantum-resistant privacy verification.
+    """ .
+
+:PrivacyPreservingProtocol a owl:Class ;
+    rdfs:label "Privacy-Preserving Protocol" ;
+    rdfs:comment """
+    Cryptographic protocol that enables functionality
+    while protecting sensitive information.
+    """ .
+
+:SelectiveDisclosure a owl:Class ;
+    rdfs:label "Selective Disclosure" ;
+    rdfs:comment """
+    Mechanism allowing selective revelation of information
+    from cryptographically protected datasets.
+    """ .
+
+#################################################################
+#    Security Properties and Levels
+#################################################################
+
+:SecurityLevel a owl:Class ;
+    rdfs:label "Security Level" ;
+    rdfs:comment """
+    Quantitative measure of cryptographic security strength
+    expressed in equivalent symmetric key bits.
+    """ .
+
+:QuantumSecurityLevel a owl:Class ;
+    rdfs:subClassOf :SecurityLevel ;
+    rdfs:label "Quantum Security Level" ;
+    rdfs:comment """
+    Security level accounting for quantum computing attacks,
+    typically half the classical security level.
+    """ .
+
+:SecurityProperty a owl:Class ;
+    rdfs:label "Security Property" ;
+    rdfs:comment """
+    Specific security characteristic provided by
+    cryptographic algorithms and protocols.
+    """ .
+
+:QuantumResistance a owl:Class ;
+    rdfs:subClassOf :SecurityProperty ;
+    rdfs:label "Quantum Resistance" ;
+    rdfs:comment """
+    Security property indicating resistance to known
+    quantum computing attacks.
+    """ .
+
+:ForwardSecrecy a owl:Class ;
+    rdfs:subClassOf :SecurityProperty ;
+    rdfs:label "Forward Secrecy" ;
+    rdfs:comment """
+    Security property ensuring that key compromise
+    doesn't affect past communications.
+    """ .
+
+:NonRepudiation a owl:Class ;
+    rdfs:subClassOf :SecurityProperty ;
+    rdfs:label "Non-Repudiation" ;
+    rdfs:comment """
+    Security property preventing denial of authenticity
+    of signed data or performed actions.
+    """ .
+
+#################################################################
+#    Cryptographic Properties
+#################################################################
+
+:usesAlgorithm a owl:ObjectProperty ;
+    rdfs:label "uses algorithm" ;
+    rdfs:comment "Cryptographic algorithm used for the operation." .
+
+:hasPublicKey a owl:ObjectProperty ;
+    rdfs:label "has public key" ;
+    rdfs:domain :KeyPair ;
+    rdfs:range :PublicKey ;
+    a owl:FunctionalProperty .
+
+:hasPrivateKey a owl:ObjectProperty ;
+    rdfs:label "has private key" ;
+    rdfs:domain :KeyPair ;
+    rdfs:range :PrivateKey ;
+    a owl:FunctionalProperty .
+
+:signsData a owl:DatatypeProperty ;
+    rdfs:label "signs data" ;
+    rdfs:domain :DigitalSignature ;
+    rdfs:range xsd:base64Binary ;
+    rdfs:comment "Binary data being signed." .
+
+:createdByKey a owl:ObjectProperty ;
+    rdfs:label "created by key" ;
+    rdfs:domain :DigitalSignature ;
+    rdfs:range :PrivateKey ;
+    rdfs:comment "Private key used to create the signature." .
+
+:verifiedByKey a owl:ObjectProperty ;
+    rdfs:label "verified by key" ;
+    rdfs:domain :SignatureVerification ;
+    rdfs:range :PublicKey ;
+    rdfs:comment "Public key used for signature verification." .
+
+:encapsulatesKey a owl:ObjectProperty ;
+    rdfs:label "encapsulates key" ;
+    rdfs:domain :EncapsulatedKey ;
+    rdfs:range :SharedSecret ;
+    rdfs:comment "Shared secret protected by encapsulation." .
+
+:protectedByKey a owl:ObjectProperty ;
+    rdfs:label "protected by key" ;
+    rdfs:domain :EncapsulatedKey ;
+    rdfs:range :PublicKey ;
+    rdfs:comment "Public key used for encapsulation." .
+
+#################################################################
+#    Security Level Properties
+#################################################################
+
+:hasSecurityLevel a owl:ObjectProperty ;
+    rdfs:label "has security level" ;
+    rdfs:comment "Security level provided by the cryptographic construct." .
+
+:hasClassicalSecurityBits a owl:DatatypeProperty ;
+    rdfs:label "has classical security bits" ;
+    rdfs:domain :SecurityLevel ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Equivalent classical security in bits." .
+
+:hasQuantumSecurityBits a owl:DatatypeProperty ;
+    rdfs:label "has quantum security bits" ;
+    rdfs:domain :QuantumSecurityLevel ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Equivalent quantum security in bits." .
+
+:providesProperty a owl:ObjectProperty ;
+    rdfs:label "provides property" ;
+    rdfs:comment "Security property provided by the algorithm." .
+
+:hasKeySize a owl:DatatypeProperty ;
+    rdfs:label "has key size" ;
+    rdfs:domain :CryptographicKey ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Key size in bits." .
+
+:hasSignatureSize a owl:DatatypeProperty ;
+    rdfs:label "has signature size" ;
+    rdfs:domain :DigitalSignature ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Signature size in bytes." .
+
+#################################################################
+#    Key Lifecycle Properties
+#################################################################
+
+:hasGenerationTime a owl:DatatypeProperty ;
+    rdfs:label "has generation time" ;
+    rdfs:domain :CryptographicKey ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp of key generation." .
+
+:hasExpirationTime a owl:DatatypeProperty ;
+    rdfs:label "has expiration time" ;
+    rdfs:domain :CryptographicKey ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp of key expiration." .
+
+:hasValidityPeriod a owl:DatatypeProperty ;
+    rdfs:label "has validity period" ;
+    rdfs:domain :CryptographicKey ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Duration of key validity." .
+
+:managedBy a owl:ObjectProperty ;
+    rdfs:label "managed by" ;
+    rdfs:domain :CryptographicKey ;
+    rdfs:range :KeyLifecycleManager ;
+    rdfs:comment "Key lifecycle manager responsible for this key." .
+
+:isRevoked a owl:DatatypeProperty ;
+    rdfs:label "is revoked" ;
+    rdfs:domain :CryptographicKey ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Boolean indicating if key has been revoked." .
+
+#################################################################
+#    Algorithm-Specific Properties
+#################################################################
+
+:hasLatticeParameter a owl:DatatypeProperty ;
+    rdfs:label "has lattice parameter" ;
+    rdfs:domain :Dilithium3 ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Lattice dimension parameter for Dilithium3." .
+
+:hasModulus a owl:DatatypeProperty ;
+    rdfs:label "has modulus" ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Modulus parameter for lattice-based algorithms." .
+
+:hasErrorRate a owl:DatatypeProperty ;
+    rdfs:label "has error rate" ;
+    rdfs:domain :BIKE ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Error correction rate for code-based algorithms." .
+
+:hasTreeHeight a owl:DatatypeProperty ;
+    rdfs:label "has tree height" ;
+    rdfs:domain :SPHINCSPlus ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:comment "Merkle tree height for hash-based signatures." .
+
+#################################################################
+#    Crystal Integration Properties
+#################################################################
+
+:authenticatesCrystal a owl:ObjectProperty ;
+    rdfs:label "authenticates crystal" ;
+    rdfs:domain :CrystalSignature ;
+    rdfs:range bg:ExecutableCrystal ;
+    rdfs:comment "Executable crystal authenticated by this signature." .
+
+:hasIntegrityHash a owl:DatatypeProperty ;
+    rdfs:label "has integrity hash" ;
+    rdfs:domain :CrystalSignature ;
+    rdfs:range xsd:string ;
+    rdfs:comment "SHA3-512 hash for crystal integrity verification." .
+
+:securesLatticeNode a owl:ObjectProperty ;
+    rdfs:label "secures lattice node" ;
+    rdfs:comment "Lattice node protected by cryptographic mechanisms." .
+
+:establishsSecureChannel a owl:ObjectProperty ;
+    rdfs:label "establishes secure channel" ;
+    rdfs:comment "Secure communication channel established using PQC." .
+
+#################################################################
+#    Mathematical Constraints and Axioms
+#################################################################
+
+# Key Pair Uniqueness Constraint
+:KeyPair owl:hasKey ( :hasPublicKey :hasPrivateKey ) .
+
+# Security Level Ordering
+:QuantumSecurityLevel rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasQuantumSecurityBits ;
+    owl:minInclusive 128
+] .
+
+# Algorithm Security Requirements
+:Dilithium3 rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasSecurityLevel ;
+    owl:hasValue :Level3Security
+] .
+
+:Kyber1024 rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasSecurityLevel ;
+    owl:hasValue :Level5Security
+] .
+
+# Signature Size Constraints
+:Dilithium3 rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasSignatureSize ;
+    owl:hasValue 3309
+] .
+
+# Key Validity Constraint
+:CryptographicKey rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasExpirationTime ;
+    owl:minCardinality 1
+] .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+:CryptographicKeyShape a shacl:NodeShape ;
+    shacl:targetClass :CryptographicKey ;
+    shacl:property [
+        shacl:path :hasKeySize ;
+        shacl:datatype xsd:positiveInteger ;
+        shacl:minInclusive 128 ;
+        shacl:message "Key size must be at least 128 bits"
+    ] ;
+    shacl:property [
+        shacl:path :hasGenerationTime ;
+        shacl:datatype xsd:dateTime ;
+        shacl:maxCount 1 ;
+        shacl:message "Key must have generation timestamp"
+    ] .
+
+:DigitalSignatureShape a shacl:NodeShape ;
+    shacl:targetClass :DigitalSignature ;
+    shacl:property [
+        shacl:path :usesAlgorithm ;
+        shacl:class :DigitalSignatureAlgorithm ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:message "Signature must use exactly one algorithm"
+    ] ;
+    shacl:property [
+        shacl:path :createdByKey ;
+        shacl:class :PrivateKey ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:message "Signature must be created by exactly one private key"
+    ] .
+
+:SecurityLevelShape a shacl:NodeShape ;
+    shacl:targetClass :SecurityLevel ;
+    shacl:property [
+        shacl:path :hasClassicalSecurityBits ;
+        shacl:datatype xsd:positiveInteger ;
+        shacl:minInclusive 80 ;
+        shacl:message "Classical security must be at least 80 bits"
+    ] .
+
+#################################################################
+#    Individual Instances - Security Levels
+#################################################################
+
+:Level1Security a :QuantumSecurityLevel ;
+    rdfs:label "NIST Level 1 Security" ;
+    rdfs:comment "Equivalent to AES-128 quantum security." ;
+    :hasClassicalSecurityBits 256 ;
+    :hasQuantumSecurityBits 128 .
+
+:Level3Security a :QuantumSecurityLevel ;
+    rdfs:label "NIST Level 3 Security" ;
+    rdfs:comment "Equivalent to AES-192 quantum security." ;
+    :hasClassicalSecurityBits 384 ;
+    :hasQuantumSecurityBits 192 .
+
+:Level5Security a :QuantumSecurityLevel ;
+    rdfs:label "NIST Level 5 Security" ;
+    rdfs:comment "Equivalent to AES-256 quantum security." ;
+    :hasClassicalSecurityBits 512 ;
+    :hasQuantumSecurityBits 256 .
+
+# Security Properties
+:QuantumResistanceProperty a :QuantumResistance ;
+    rdfs:label "Quantum Resistance Property" ;
+    rdfs:comment "Resistance to Shor's and Grover's algorithms." .
+
+:ForwardSecrecyProperty a :ForwardSecrecy ;
+    rdfs:label "Forward Secrecy Property" ;
+    rdfs:comment "Key compromise doesn't affect past sessions." .
+
+:NonRepudiationProperty a :NonRepudiation ;
+    rdfs:label "Non-Repudiation Property" ;
+    rdfs:comment "Cryptographic proof of authenticity." .
+
+# Primary Key Lifecycle Manager
+:PrimaryKeyManager a :KeyLifecycleManager ;
+    rdfs:label "Primary Key Lifecycle Manager" ;
+    rdfs:comment "Main key management system for ByteStar fabric." .
+
+# Algorithm Instances with Properties
+:Dilithium3 :hasSecurityLevel :Level3Security ;
+           :providesProperty :QuantumResistanceProperty , :NonRepudiationProperty ;
+           :hasSignatureSize 3309 .
+
+:Kyber1024 :hasSecurityLevel :Level5Security ;
+          :providesProperty :QuantumResistanceProperty , :ForwardSecrecyProperty .
+
+:SPHINCSPlus :hasSecurityLevel :Level5Security ;
+            :providesProperty :QuantumResistanceProperty , :NonRepudiationProperty ;
+            :hasTreeHeight 64 .
+
+:BIKE :hasSecurityLevel :Level1Security ;
+      :providesProperty :QuantumResistanceProperty ;
+      :hasErrorRate 0.0000571 .

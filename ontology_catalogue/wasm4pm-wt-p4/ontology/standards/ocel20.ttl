@@ -1,0 +1,90 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix oced: <https://w3id.org/ocedo/core#> .
+@prefix aux: <https://w3id.org/ocedo/auxiliary#> .
+
+<https://w3id.org/ocedo/core> a owl:Ontology ;
+    rdfs:label "OCEL 2.0 Core Ontology" ;
+    rdfs:comment "The core ontology for Object-Centric Event Logs (OCEL 2.0)." .
+
+### Classes
+
+oced:Event a owl:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "An occurrence of an activity at a specific point in time." .
+
+oced:Object a owl:Class ;
+    rdfs:label "Object" ;
+    rdfs:comment "A uniquely identifiable entity involved in a process." .
+
+aux:EventType a owl:Class ;
+    rdfs:label "Event Type" ;
+    rdfs:comment "The category or activity name of an event." .
+
+aux:ObjectType a owl:Class ;
+    rdfs:label "Object Type" ;
+    rdfs:comment "The category or class of an object." .
+
+aux:Attribute a owl:Class ;
+    rdfs:label "Attribute" ;
+    rdfs:comment "A property associated with an event or an object." .
+
+aux:Relationship a owl:Class ;
+    rdfs:label "Relationship" ;
+    rdfs:comment "A connection between two objects (O2O) or an event and an object (E2O)." .
+
+aux:Qualifier a owl:Class ;
+    rdfs:label "Qualifier" ;
+    rdfs:comment "A semantic label for a relationship (e.g., 'actor', 'target')." .
+
+### Properties
+
+oced:timestamp a owl:DatatypeProperty ;
+    rdfs:domain oced:Event ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "The time at which the event occurred." .
+
+oced:hasType a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ; owl:unionOf (oced:Event oced:Object) ] ;
+    rdfs:range [ a owl:Class ; owl:unionOf (aux:EventType aux:ObjectType) ] ;
+    rdfs:comment "Links an event or object to its respective type." .
+
+oced:interactsWith a owl:ObjectProperty ;
+    rdfs:domain oced:Event ;
+    rdfs:range oced:Object ;
+    rdfs:comment "The basic event-to-object (E2O) relationship." .
+
+aux:hasObjectRelation a owl:ObjectProperty ;
+    rdfs:domain oced:Object ;
+    rdfs:range oced:Object ;
+    rdfs:comment "An object-to-object (O2O) relationship." .
+
+aux:hasQualifier a owl:ObjectProperty ;
+    rdfs:domain aux:Relationship ;
+    rdfs:range aux:Qualifier ;
+    rdfs:comment "Assigns a qualifier to a relationship." .
+
+aux:changedAt a owl:DatatypeProperty ;
+    rdfs:domain aux:Attribute ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "The timestamp for dynamic object attribute changes." .
+
+### Reified Relationships (for Qualifiers)
+
+aux:EventObject a owl:Class ;
+    rdfs:subClassOf aux:Relationship ;
+    rdfs:label "Event-Object Relationship" .
+
+aux:ObjectObject a owl:Class ;
+    rdfs:subClassOf aux:Relationship ;
+    rdfs:label "Object-Object Relationship" .
+
+aux:sourceEvent a owl:ObjectProperty ;
+    rdfs:domain aux:EventObject ;
+    rdfs:range oced:Event .
+
+aux:targetObject a owl:ObjectProperty ;
+    rdfs:domain aux:Relationship ;
+    rdfs:range oced:Object .

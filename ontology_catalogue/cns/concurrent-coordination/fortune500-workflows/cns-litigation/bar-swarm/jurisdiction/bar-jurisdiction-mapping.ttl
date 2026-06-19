@@ -1,0 +1,401 @@
+@prefix jurisdiction: <http://cns-litigation.org/jurisdiction#> .
+@prefix bar: <http://cns-litigation.org/bar#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix legal: <http://cns-litigation.org/legal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Bar Jurisdiction Mapping Ontology
+# Comprehensive mapping of bar disciplinary jurisdictions
+
+jurisdiction:BarJurisdictionOntology a owl:Ontology ;
+    rdfs:label "Bar Jurisdiction Mapping System" ;
+    rdfs:comment "Comprehensive mapping of bar disciplinary jurisdictions and authorities" ;
+    owl:versionInfo "2.0" ;
+    owl:created "2025-07-29T22:42:00Z" .
+
+# Top-Level Jurisdiction Classes
+jurisdiction:Jurisdiction a owl:Class ;
+    rdfs:label "Legal Jurisdiction" ;
+    rdfs:comment "Geographic or administrative area with legal authority" .
+
+jurisdiction:StateJurisdiction a owl:Class ;
+    rdfs:subClassOf jurisdiction:Jurisdiction ;
+    rdfs:label "State Jurisdiction" ;
+    rdfs:comment "State-level bar disciplinary jurisdiction" .
+
+jurisdiction:FederalJurisdiction a owl:Class ;
+    rdfs:subClassOf jurisdiction:Jurisdiction ;
+    rdfs:label "Federal Jurisdiction" ;
+    rdfs:comment "Federal bar disciplinary jurisdiction" .
+
+jurisdiction:LocalJurisdiction a owl:Class ;
+    rdfs:subClassOf jurisdiction:Jurisdiction ;
+    rdfs:label "Local Jurisdiction" ;
+    rdfs:comment "Local or municipal bar disciplinary jurisdiction" .
+
+jurisdiction:SpecialtyJurisdiction a owl:Class ;
+    rdfs:subClassOf jurisdiction:Jurisdiction ;
+    rdfs:label "Specialty Bar Jurisdiction" ;
+    rdfs:comment "Specialized practice area bar jurisdiction" .
+
+# State Bar Jurisdictions
+jurisdiction:California a jurisdiction:StateJurisdiction ;
+    rdfs:label "State Bar of California" ;
+    jurisdiction:stateCode "CA" ;
+    jurisdiction:barWebsite "https://www.calbar.ca.gov" ;
+    jurisdiction:disciplinaryBoard "State Bar Court" ;
+    jurisdiction:rulesReference "California Rules of Professional Conduct" ;
+    jurisdiction:filingFee "500.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "4 years" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-415-538-2000" ;
+        foaf:mbox "mailto:complaints@calbar.ca.gov" ;
+        jurisdiction:address "180 Howard Street, San Francisco, CA 94105"
+    ] ;
+    geo:lat "37.7749"^^xsd:float ;
+    geo:long "-122.4194"^^xsd:float .
+
+jurisdiction:NewYork a jurisdiction:StateJurisdiction ;
+    rdfs:label "New York State Bar Association" ;
+    jurisdiction:stateCode "NY" ;
+    jurisdiction:barWebsite "https://www.nycourts.gov/attorneys/" ;
+    jurisdiction:disciplinaryBoard "Appellate Division Disciplinary Committee" ;
+    jurisdiction:rulesReference "New York Rules of Professional Conduct" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "7 years" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-518-474-8618" ;
+        foaf:mbox "mailto:attygrievance@nycourts.gov" ;
+        jurisdiction:address "Office of Court Administration, 25 Beaver Street, New York, NY 10004"
+    ] ;
+    geo:lat "40.7128"^^xsd:float ;
+    geo:long "-74.0060"^^xsd:float .
+
+jurisdiction:Texas a jurisdiction:StateJurisdiction ;
+    rdfs:label "State Bar of Texas" ;
+    jurisdiction:stateCode "TX" ;
+    jurisdiction:barWebsite "https://www.texasbar.com" ;
+    jurisdiction:disciplinaryBoard "Commission for Lawyer Discipline" ;
+    jurisdiction:rulesReference "Texas Disciplinary Rules of Professional Conduct" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "4 years" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-512-427-1350" ;
+        foaf:mbox "mailto:grievance@texasbar.com" ;
+        jurisdiction:address "1414 Colorado Street, Austin, TX 78701"
+    ] ;
+    geo:lat "30.2672"^^xsd:float ;
+    geo:long "-97.7431"^^xsd:float .
+
+jurisdiction:Florida a jurisdiction:StateJurisdiction ;
+    rdfs:label "The Florida Bar" ;
+    jurisdiction:stateCode "FL" ;
+    jurisdiction:barWebsite "https://www.floridabar.org" ;
+    jurisdiction:disciplinaryBoard "Florida Bar Professional Regulation Department" ;
+    jurisdiction:rulesReference "Rules Regulating The Florida Bar" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "6 years" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-850-561-5845" ;
+        foaf:mbox "mailto:ethics@floridabar.org" ;
+        jurisdiction:address "651 E Jefferson Street, Tallahassee, FL 32399"
+    ] ;
+    geo:lat "30.4518"^^xsd:float ;
+    geo:long "-84.2807"^^xsd:float .
+
+jurisdiction:Illinois a jurisdiction:StateJurisdiction ;
+    rdfs:label "Illinois State Bar Association" ;
+    jurisdiction:stateCode "IL" ;
+    jurisdiction:barWebsite "https://www.illinoiscourts.gov/courts/attorney-registration-disciplinary-commission/" ;
+    jurisdiction:disciplinaryBoard "Attorney Registration and Disciplinary Commission" ;
+    jurisdiction:rulesReference "Illinois Rules of Professional Conduct" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "3 years" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-312-565-2600" ;
+        foaf:mbox "mailto:intake@iardc.org" ;
+        jurisdiction:address "130 E Randolph Drive, Suite 1500, Chicago, IL 60601"
+    ] ;
+    geo:lat "41.8781"^^xsd:float ;
+    geo:long "-87.6298"^^xsd:float .
+
+jurisdiction:Nevada a jurisdiction:StateJurisdiction ;
+    rdfs:label "State Bar of Nevada" ;
+    jurisdiction:stateCode "NV" ;
+    jurisdiction:barWebsite "https://www.nvbar.org" ;
+    jurisdiction:disciplinaryBoard "Southern Nevada Disciplinary Board" ;
+    jurisdiction:rulesReference "Nevada Rules of Professional Conduct" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "4 years" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-702-382-2200" ;
+        foaf:mbox "mailto:ethics@nvbar.org" ;
+        jurisdiction:address "9456 Double R Boulevard, Reno, NV 89521"
+    ] ;
+    geo:lat "39.5296"^^xsd:float ;
+    geo:long "-119.8138"^^xsd:float .
+
+# Federal Jurisdictions
+jurisdiction:USDistrictCourt a jurisdiction:FederalJurisdiction ;
+    rdfs:label "US District Court Bar" ;
+    jurisdiction:federalCircuit "All Circuits" ;
+    jurisdiction:barWebsite "https://www.uscourts.gov" ;
+    jurisdiction:disciplinaryBoard "Local District Court Rules" ;
+    jurisdiction:rulesReference "Federal Rules of Professional Conduct" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "No statutory limit" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-202-502-1500" ;
+        foaf:mbox "mailto:webmaster@ao.uscourts.gov" ;
+        jurisdiction:address "Administrative Office of the US Courts, Washington, DC 20544"
+    ] .
+
+jurisdiction:USSupremeCourt a jurisdiction:FederalJurisdiction ;
+    rdfs:label "Supreme Court Bar" ;
+    jurisdiction:federalCircuit "Supreme Court" ;
+    jurisdiction:barWebsite "https://www.supremecourt.gov" ;
+    jurisdiction:disciplinaryBoard "Supreme Court Rules" ;
+    jurisdiction:rulesReference "Supreme Court Rules" ;
+    jurisdiction:filingFee "200.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "No statutory limit" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-202-479-3000" ;
+        jurisdiction:address "1 First Street NE, Washington, DC 20543"
+    ] .
+
+# Specialty Jurisdictions
+jurisdiction:PatentBar a jurisdiction:SpecialtyJurisdiction ;
+    rdfs:label "US Patent and Trademark Office Bar" ;
+    jurisdiction:specialtyArea "Intellectual Property" ;
+    jurisdiction:barWebsite "https://www.uspto.gov/learning-and-resources/patent-and-trademark-practitioners" ;
+    jurisdiction:disciplinaryBoard "USPTO Office of Enrollment and Discipline" ;
+    jurisdiction:rulesReference "37 CFR Part 11" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "No statutory limit" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-571-272-4097" ;
+        foaf:mbox "mailto:OEDmail@uspto.gov" ;
+        jurisdiction:address "600 Dulany Street, Alexandria, VA 22314"
+    ] .
+
+jurisdiction:TaxCourt a jurisdiction:SpecialtyJurisdiction ;
+    rdfs:label "US Tax Court Bar" ;
+    jurisdiction:specialtyArea "Tax Law" ;
+    jurisdiction:barWebsite "https://www.ustaxcourt.gov" ;
+    jurisdiction:disciplinaryBoard "Tax Court Rules" ;
+    jurisdiction:rulesReference "Tax Court Rules of Practice and Procedure" ;
+    jurisdiction:filingFee "30.00"^^xsd:decimal ;
+    jurisdiction:currency "USD" ;
+    jurisdiction:timeLimit "No statutory limit" ;
+    jurisdiction:contactInfo [
+        foaf:phone "+1-202-521-0700" ;
+        jurisdiction:address "400 Second Street NW, Washington, DC 20217"
+    ] .
+
+# Disciplinary Board Classes
+jurisdiction:DisciplinaryBoard a owl:Class ;
+    rdfs:label "Bar Disciplinary Board" ;
+    rdfs:comment "Administrative body handling attorney discipline" .
+
+jurisdiction:StateDisciplinaryBoard a owl:Class ;
+    rdfs:subClassOf jurisdiction:DisciplinaryBoard ;
+    rdfs:label "State Disciplinary Board" .
+
+jurisdiction:FederalDisciplinaryBoard a owl:Class ;
+    rdfs:subClassOf jurisdiction:DisciplinaryBoard ;
+    rdfs:label "Federal Disciplinary Board" .
+
+# Filing Requirements
+jurisdiction:FilingRequirement a owl:Class ;
+    rdfs:label "Filing Requirement" ;
+    rdfs:comment "Requirements for filing disciplinary complaints" .
+
+jurisdiction:CaliforniaFilingReqs a jurisdiction:FilingRequirement ;
+    jurisdiction:appliesToJurisdiction jurisdiction:California ;
+    jurisdiction:requiredDocuments (
+        "State Bar Complaint Form"
+        "Supporting Documentation"
+        "Verification Under Oath"
+    ) ;
+    jurisdiction:filingDeadline "4 years from discovery" ;
+    jurisdiction:filingFee "500.00"^^xsd:decimal ;
+    jurisdiction:serviceRequirements "Certified mail to respondent" .
+
+jurisdiction:NewYorkFilingReqs a jurisdiction:FilingRequirement ;
+    jurisdiction:appliesToJurisdiction jurisdiction:NewYork ;
+    jurisdiction:requiredDocuments (
+        "Written Complaint"
+        "Supporting Evidence"
+        "Signed Verification"
+    ) ;
+    jurisdiction:filingDeadline "7 years from occurrence" ;
+    jurisdiction:filingFee "0.00"^^xsd:decimal ;
+    jurisdiction:serviceRequirements "Personal or certified mail service" .
+
+# Procedural Rules
+jurisdiction:ProcedralRule a owl:Class ;
+    rdfs:label "Disciplinary Procedural Rule" ;
+    rdfs:comment "Rules governing disciplinary proceedings" .
+
+jurisdiction:DiscoveryRule a jurisdiction:ProcedralRule ;
+    rdfs:label "Discovery in Disciplinary Proceedings" ;
+    jurisdiction:discoveryScope "Limited to relevant misconduct" ;
+    jurisdiction:depositionsAllowed true ;
+    jurisdiction:interrogatoriesLimit 30 ;
+    jurisdiction:documentRequestsAllowed true .
+
+jurisdiction:EvidenceRule a jurisdiction:ProcedralRule ;
+    rdfs:label "Evidence Rules in Disciplinary Proceedings" ;
+    jurisdiction:evidenceStandard "Clear and convincing evidence" ;
+    jurisdiction:hearsayAllowed "Limited exceptions" ;
+    jurisdiction:privilegesApply true .
+
+# Multi-Jurisdiction Coordination
+jurisdiction:MultiJurisdictionCase a owl:Class ;
+    rdfs:label "Multi-Jurisdiction Disciplinary Case" ;
+    rdfs:comment "Case involving multiple bar jurisdictions" .
+
+jurisdiction:JurisdictionCoordination a owl:Class ;
+    rdfs:label "Jurisdiction Coordination Protocol" ;
+    rdfs:comment "Protocols for coordinating multi-jurisdiction cases" .
+
+jurisdiction:ReciprocalDiscipline a jurisdiction:JurisdictionCoordination ;
+    rdfs:label "Reciprocal Discipline Agreement" ;
+    jurisdiction:participatingJurisdictions (
+        jurisdiction:California
+        jurisdiction:NewYork
+        jurisdiction:Texas
+        jurisdiction:Florida
+        jurisdiction:Illinois
+    ) ;
+    jurisdiction:automaticRecognition true ;
+    jurisdiction:notificationRequired true ;
+    jurisdiction:timeFrame "30 days" .
+
+# Properties for Jurisdiction Mapping
+jurisdiction:stateCode a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:StateJurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:barWebsite a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range xsd:anyURI .
+
+jurisdiction:disciplinaryBoard a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:rulesReference a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:filingFee a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range xsd:decimal .
+
+jurisdiction:currency a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:timeLimit a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:contactInfo a owl:ObjectProperty ;
+    rdfs:domain jurisdiction:Jurisdiction ;
+    rdfs:range foaf:Organization .
+
+jurisdiction:federalCircuit a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:FederalJurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:specialtyArea a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:SpecialtyJurisdiction ;
+    rdfs:range xsd:string .
+
+jurisdiction:appliesToJurisdiction a owl:ObjectProperty ;
+    rdfs:domain jurisdiction:FilingRequirement ;
+    rdfs:range jurisdiction:Jurisdiction .
+
+jurisdiction:requiredDocuments a owl:DataProperty ;
+    rdfs:domain jurisdiction:FilingRequirement ;
+    rdfs:range xsd:string .
+
+jurisdiction:filingDeadline a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:FilingRequirement ;
+    rdfs:range xsd:string .
+
+jurisdiction:serviceRequirements a owl:DatatypeProperty ;
+    rdfs:domain jurisdiction:FilingRequirement ;
+    rdfs:range xsd:string .
+
+# Jurisdiction Selection Algorithm
+jurisdiction:JurisdictionSelector a owl:Class ;
+    rdfs:label "Jurisdiction Selection Algorithm" ;
+    rdfs:comment "Algorithm for selecting appropriate jurisdictions for complaints" .
+
+jurisdiction:PrimaryJurisdictionRule a jurisdiction:JurisdictionSelector ;
+    rdfs:label "Primary Jurisdiction Selection Rule" ;
+    jurisdiction:selectionCriteria [
+        jurisdiction:criterion "attorney_license_state" ;
+        jurisdiction:weight 0.4
+    ] , [
+        jurisdiction:criterion "misconduct_location" ;
+        jurisdiction:weight 0.3
+    ] , [
+        jurisdiction:criterion "client_residence" ;
+        jurisdiction:weight 0.2
+    ] , [
+        jurisdiction:criterion "matter_jurisdiction" ;
+        jurisdiction:weight 0.1
+    ] .
+
+jurisdiction:SecondaryJurisdictionRule a jurisdiction:JurisdictionSelector ;
+    rdfs:label "Secondary Jurisdiction Selection Rule" ;
+    jurisdiction:selectionCriteria [
+        jurisdiction:criterion "federal_practice_area" ;
+        jurisdiction:weight 0.5
+    ] , [
+        jurisdiction:criterion "specialty_certification" ;
+        jurisdiction:weight 0.3
+    ] , [
+        jurisdiction:criterion "multi_state_practice" ;
+        jurisdiction:weight 0.2
+    ] .
+
+# Jurisdiction Statistics
+jurisdiction:JurisdictionStatistics a owl:Class ;
+    rdfs:label "Jurisdiction Disciplinary Statistics" ;
+    jurisdiction:californiaStats [
+        jurisdiction:totalComplaints "15420" ;
+        jurisdiction:substantiatedComplaints "3847" ;
+        jurisdiction:substantiationRate "24.9%" ;
+        jurisdiction:averageProcessingTime "18 months" ;
+        jurisdiction:mostCommonViolation "Trust account violations"
+    ] ;
+    jurisdiction:newYorkStats [
+        jurisdiction:totalComplaints "8934" ;
+        jurisdiction:substantiatedComplaints "2156" ;
+        jurisdiction:substantiationRate "24.1%" ;
+        jurisdiction:averageProcessingTime "14 months" ;
+        jurisdiction:mostCommonViolation "Lack of diligence"
+    ] ;
+    jurisdiction:nationalAverages [
+        jurisdiction:substantiationRate "23.7%" ;
+        jurisdiction:averageProcessingTime "16 months" ;
+        jurisdiction:disbarmentRate "2.1%" ;
+        jurisdiction:suspensionRate "8.4%"
+    ] .

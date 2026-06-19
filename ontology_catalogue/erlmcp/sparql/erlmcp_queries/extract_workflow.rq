@@ -1,0 +1,43 @@
+# =============================================================================
+# SPARQL Query: Extract Workflow Definitions
+# =============================================================================
+# Purpose: Extract workflow and step definitions for code generation
+# =============================================================================
+
+PREFIX wf: <http://erlmcp.org/schema/workflow/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?workflow a wf:Workflow ;
+        wf:hasStep ?step .
+
+    ?step a wf:Step ;
+        wf:stepId ?stepId ;
+        wf:toolName ?toolName ;
+        wf:toolArguments ?arguments ;
+        wf:hasTransition ?transition ;
+        wf:maxRetries ?maxRetries ;
+        wf:timeoutSec ?timeout .
+
+    ?transition a wf:Transition ;
+        wf:fromStep ?fromStep ;
+        wf:toStep ?toStep ;
+        wf:condition ?condition .
+}
+WHERE {
+    ?workflow a wf:Workflow ;
+        wf:hasStep ?step .
+
+    ?step wf:stepId ?stepId .
+
+    OPTIONAL { ?step a wf:ToolStep ; wf:toolName ?toolName . }
+    OPTIONAL { ?step wf:toolArguments ?arguments . }
+    OPTIONAL {
+        ?step wf:hasTransition ?transition .
+        ?transition wf:toStep ?toStep .
+        OPTIONAL { ?transition wf:condition ?condition . }
+        BIND(?step as ?fromStep)
+    }
+    OPTIONAL { ?step wf:maxRetries ?maxRetries . }
+    OPTIONAL { ?step wf:timeoutSec ?timeout . }
+}

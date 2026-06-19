@@ -1,0 +1,13 @@
+@prefix :        <https://bytestar.org/ontology/bytecore/abi/tables#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore:   <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/abi/tables>
+  a owl:Ontology ;
+  rdfs:label "ByteCore AOT Table ABI" ;
+  rdfs:comment "The base ABI for read-only, AOT-fabricated tables like MPHF, LOUDS, etc." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.2.0" .
+
+:AOTTableABI a owl:Class ; rdfs:subClassOf bcore:ABI .

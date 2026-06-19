@@ -1,0 +1,124 @@
+@prefix api: <http://example.org/api/> .
+@prefix schema: <http://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# API Service Definition
+api:UserService a api:RESTService ;
+  rdfs:label "User Service" ;
+  api:hasEndpoint api:createUser, api:getUser, api:updateUser, api:deleteUser ;
+  api:hasBaseURL "https://api.example.com/v1" ;
+  api:hasVersion "1.0.0" ;
+  schema:description "RESTful service for user management" .
+
+# User Entity Model
+api:User a api:Entity ;
+  rdfs:label "User" ;
+  api:hasProperty api:userId, api:userName, api:userEmail, api:userAge ;
+  api:hasValidation api:userValidation .
+
+# User Properties
+api:userId a api:Property ;
+  rdfs:label "User ID" ;
+  api:hasType "string" ;
+  api:isRequired "true"^^xsd:boolean ;
+  api:isReadOnly "true"^^xsd:boolean ;
+  schema:description "Unique identifier for the user" .
+
+api:userName a api:Property ;
+  rdfs:label "User Name" ;
+  api:hasType "string" ;
+  api:isRequired "true"^^xsd:boolean ;
+  api:hasMinLength "2"^^xsd:integer ;
+  api:hasMaxLength "50"^^xsd:integer ;
+  schema:description "Display name for the user" .
+
+api:userEmail a api:Property ;
+  rdfs:label "User Email" ;
+  api:hasType "string" ;
+  api:isRequired "true"^^xsd:boolean ;
+  api:hasPattern "^[^\s@]+@[^\s@]+\.[^\s@]+$" ;
+  schema:description "Email address of the user" .
+
+api:userAge a api:Property ;
+  rdfs:label "User Age" ;
+  api:hasType "integer" ;
+  api:isRequired "false"^^xsd:boolean ;
+  api:hasMinValue "13"^^xsd:integer ;
+  api:hasMaxValue "120"^^xsd:integer ;
+  schema:description "Age of the user in years" .
+
+# API Endpoints
+api:createUser a api:Endpoint ;
+  rdfs:label "Create User" ;
+  api:hasMethod "POST" ;
+  api:hasPath "/users" ;
+  api:hasRequestBody api:User ;
+  api:hasResponse api:createUserResponse ;
+  schema:description "Create a new user account" .
+
+api:getUser a api:Endpoint ;
+  rdfs:label "Get User" ;
+  api:hasMethod "GET" ;
+  api:hasPath "/users/{id}" ;
+  api:hasPathParameter api:userIdParam ;
+  api:hasResponse api:getUserResponse ;
+  schema:description "Retrieve user information by ID" .
+
+api:updateUser a api:Endpoint ;
+  rdfs:label "Update User" ;
+  api:hasMethod "PUT" ;
+  api:hasPath "/users/{id}" ;
+  api:hasPathParameter api:userIdParam ;
+  api:hasRequestBody api:User ;
+  api:hasResponse api:updateUserResponse ;
+  schema:description "Update an existing user" .
+
+api:deleteUser a api:Endpoint ;
+  rdfs:label "Delete User" ;
+  api:hasMethod "DELETE" ;
+  api:hasPath "/users/{id}" ;
+  api:hasPathParameter api:userIdParam ;
+  api:hasResponse api:deleteUserResponse ;
+  schema:description "Delete a user account" .
+
+# Parameters
+api:userIdParam a api:PathParameter ;
+  rdfs:label "User ID Parameter" ;
+  api:hasName "id" ;
+  api:hasType "string" ;
+  api:isRequired "true"^^xsd:boolean ;
+  schema:description "The unique identifier of the user" .
+
+# Responses
+api:createUserResponse a api:Response ;
+  rdfs:label "Create User Response" ;
+  api:hasStatusCode "201"^^xsd:integer ;
+  api:hasBody api:User ;
+  schema:description "Successfully created user" .
+
+api:getUserResponse a api:Response ;
+  rdfs:label "Get User Response" ;
+  api:hasStatusCode "200"^^xsd:integer ;
+  api:hasBody api:User ;
+  schema:description "User information retrieved successfully" .
+
+api:updateUserResponse a api:Response ;
+  rdfs:label "Update User Response" ;
+  api:hasStatusCode "200"^^xsd:integer ;
+  api:hasBody api:User ;
+  schema:description "User updated successfully" .
+
+api:deleteUserResponse a api:Response ;
+  rdfs:label "Delete User Response" ;
+  api:hasStatusCode "204"^^xsd:integer ;
+  schema:description "User deleted successfully" .
+
+# Validation Rules
+api:userValidation a api:ValidationRule ;
+  rdfs:label "User Validation" ;
+  api:hasRule "email must be unique" ;
+  api:hasRule "username must be unique" ;
+  api:hasRule "age must be positive if provided" ;
+  schema:description "Business validation rules for user entity" .

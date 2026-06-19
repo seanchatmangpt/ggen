@@ -1,0 +1,165 @@
+@prefix wf: <http://bitstar.ai/workflow#> .
+@prefix yawl: <http://www.yawlfoundation.org/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# YAWL Workflow Ontology for Legal Filing System
+# Defines automated workflows for court filing processes
+
+# Workflow Classes
+wf:Workflow rdf:type rdfs:Class ;
+    rdfs:label "Legal Filing Workflow" ;
+    rdfs:comment "Automated workflow for legal document filing" .
+
+wf:Task rdf:type rdfs:Class ;
+    rdfs:label "Workflow Task" ;
+    rdfs:comment "Individual task within a workflow sequence" .
+
+wf:AutomationTask rdf:type rdfs:Class ;
+    rdfs:subClassOf wf:Task ;
+    rdfs:label "Automated Task" ;
+    rdfs:comment "Task that can be automated by AI agents" .
+
+wf:HumanTask rdf:type rdfs:Class ;
+    rdfs:subClassOf wf:Task ;
+    rdfs:label "Human Task" ;
+    rdfs:comment "Task requiring human intervention" .
+
+# Properties
+wf:sequence rdf:type rdf:Property ;
+    rdfs:domain wf:Workflow ;
+    rdfs:range rdf:List ;
+    rdfs:label "Task Sequence" .
+
+wf:requires rdf:type rdf:Property ;
+    rdfs:domain wf:Task ;
+    rdfs:range wf:Task ;
+    rdfs:label "Requires Task" .
+
+wf:timeout rdf:type rdf:Property ;
+    rdfs:domain wf:Task ;
+    rdfs:range xsd:duration ;
+    rdfs:label "Task Timeout" .
+
+wf:retryCount rdf:type rdf:Property ;
+    rdfs:domain wf:Task ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Retry Count" .
+
+wf:priority rdf:type rdf:Property ;
+    rdfs:domain wf:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task Priority" .
+
+# Nevada Filing Workflow
+wf:FileNevada rdf:type wf:Workflow ;
+    rdfs:label "Nevada Court Filing Workflow" ;
+    wf:sequence ( 
+        wf:GenDocs 
+        wf:Login2FA 
+        wf:Upload 
+        wf:Pay 
+        wf:Submit 
+        wf:DownloadReceipts 
+        wf:OrderService 
+    ) ;
+    rdfs:comment "Complete workflow for filing legal documents in Nevada courts" .
+
+# Workflow Tasks
+wf:GenDocs rdf:type wf:AutomationTask ;
+    rdfs:label "Generate Documents" ;
+    wf:timeout "PT30M"^^xsd:duration ;
+    wf:retryCount "3"^^xsd:integer ;
+    wf:priority "HIGH" ;
+    rdfs:comment "Generate legal pleadings and supporting documents" .
+
+wf:Login2FA rdf:type wf:HumanTask ;
+    rdfs:label "Two-Factor Authentication Login" ;
+    wf:requires wf:GenDocs ;
+    wf:timeout "PT10M"^^xsd:duration ;
+    wf:retryCount "5"^^xsd:integer ;
+    wf:priority "HIGH" ;
+    rdfs:comment "Login to e-filing portal with 2FA verification" .
+
+wf:Upload rdf:type wf:AutomationTask ;
+    rdfs:label "Upload Documents" ;
+    wf:requires wf:Login2FA ;
+    wf:timeout "PT15M"^^xsd:duration ;
+    wf:retryCount "3"^^xsd:integer ;
+    wf:priority "HIGH" ;
+    rdfs:comment "Upload generated documents to court portal" .
+
+wf:Pay rdf:type wf:AutomationTask ;
+    rdfs:label "Process Payment" ;
+    wf:requires wf:Upload ;
+    wf:timeout "PT5M"^^xsd:duration ;
+    wf:retryCount "2"^^xsd:integer ;
+    wf:priority "HIGH" ;
+    rdfs:comment "Process filing fees and court costs" .
+
+wf:Submit rdf:type wf:AutomationTask ;
+    rdfs:label "Submit Filing" ;
+    wf:requires wf:Pay ;
+    wf:timeout "PT10M"^^xsd:duration ;
+    wf:retryCount "2"^^xsd:integer ;
+    wf:priority "CRITICAL" ;
+    rdfs:comment "Submit complete filing to court system" .
+
+wf:DownloadReceipts rdf:type wf:AutomationTask ;
+    rdfs:label "Download Filing Receipts" ;
+    wf:requires wf:Submit ;
+    wf:timeout "PT5M"^^xsd:duration ;
+    wf:retryCount "3"^^xsd:integer ;
+    wf:priority "MEDIUM" ;
+    rdfs:comment "Download confirmation receipts and case numbers" .
+
+wf:OrderService rdf:type wf:AutomationTask ;
+    rdfs:label "Order Process Service" ;
+    wf:requires wf:DownloadReceipts ;
+    wf:timeout "PT10M"^^xsd:duration ;
+    wf:retryCount "2"^^xsd:integer ;
+    wf:priority "MEDIUM" ;
+    rdfs:comment "Order process service for defendants" .
+
+# Multi-Jurisdictional Workflow
+wf:FileMultiJurisdiction rdf:type wf:Workflow ;
+    rdfs:label "Multi-Jurisdictional Filing Workflow" ;
+    wf:sequence ( 
+        wf:AnalyzeVenues 
+        wf:GenDocsMulti 
+        wf:ParallelFilings 
+        wf:ConsolidateResults 
+    ) ;
+    rdfs:comment "Workflow for filing in multiple jurisdictions simultaneously" .
+
+wf:AnalyzeVenues rdf:type wf:AutomationTask ;
+    rdfs:label "Analyze Filing Venues" ;
+    wf:timeout "PT20M"^^xsd:duration ;
+    wf:retryCount "2"^^xsd:integer ;
+    wf:priority "HIGH" ;
+    rdfs:comment "Analyze optimal venues for multi-jurisdictional filing" .
+
+wf:GenDocsMulti rdf:type wf:AutomationTask ;
+    rdfs:label "Generate Multi-Jurisdiction Documents" ;
+    wf:requires wf:AnalyzeVenues ;
+    wf:timeout "PT45M"^^xsd:duration ;
+    wf:retryCount "3"^^xsd:integer ;
+    wf:priority "HIGH" ;
+    rdfs:comment "Generate jurisdiction-specific pleadings" .
+
+wf:ParallelFilings rdf:type wf:AutomationTask ;
+    rdfs:label "Execute Parallel Filings" ;
+    wf:requires wf:GenDocsMulti ;
+    wf:timeout "PT60M"^^xsd:duration ;
+    wf:retryCount "2"^^xsd:integer ;
+    wf:priority "CRITICAL" ;
+    rdfs:comment "File simultaneously across multiple courts" .
+
+wf:ConsolidateResults rdf:type wf:AutomationTask ;
+    rdfs:label "Consolidate Filing Results" ;
+    wf:requires wf:ParallelFilings ;
+    wf:timeout "PT15M"^^xsd:duration ;
+    wf:retryCount "2"^^xsd:integer ;
+    wf:priority "MEDIUM" ;
+    rdfs:comment "Consolidate all filing receipts and case numbers" .

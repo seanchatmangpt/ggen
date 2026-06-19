@@ -1,0 +1,82 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://rflow.io/ontology/yawl-core#> .
+@prefix job: <http://rflow.io/ontology/job-model#> .
+@prefix ex: <http://example.org/workflow#> .
+
+# Parallel Split and Synchronization Workflow
+# A -> (B || C) -> D
+
+ex:workflow2 a job:WorkflowJob ;
+    job:hasJobId "wf-002" ;
+    job:hasJobName "Parallel Split Workflow" ;
+    job:hasState job:Pending .
+
+ex:activityA a job:ActivityJob ;
+    job:hasJobId "act-A2" ;
+    job:hasJobName "Initial Activity" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow2 ;
+    job:hasState job:Pending ;
+    job:hasPriority 1 .
+
+ex:parallelSplit a job:ActivityJob ;
+    job:hasJobId "split-001" ;
+    job:hasJobName "Parallel Split" ;
+    job:implementsPattern yawl:andSplit ;
+    job:belongsToWorkflow ex:workflow2 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:activityA .
+
+ex:activityB a job:ActivityJob ;
+    job:hasJobId "act-B2" ;
+    job:hasJobName "Parallel Activity B" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow2 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:parallelSplit ;
+    job:requiresCPU 2.0 ;
+    job:requiresMemory 1024 .
+
+ex:activityC a job:ActivityJob ;
+    job:hasJobId "act-C2" ;
+    job:hasJobName "Parallel Activity C" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow2 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:parallelSplit ;
+    job:requiresCPU 1.5 ;
+    job:requiresMemory 512 .
+
+ex:synchronization a job:ActivityJob ;
+    job:hasJobId "sync-001" ;
+    job:hasJobName "Synchronization" ;
+    job:implementsPattern yawl:andJoin ;
+    job:belongsToWorkflow ex:workflow2 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:activityB ;
+    job:dependsOn ex:activityC .
+
+ex:activityD a job:ActivityJob ;
+    job:hasJobId "act-D2" ;
+    job:hasJobName "Final Activity" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow2 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:synchronization .
+
+# Pattern relationships
+ex:parallelSplit yawl:enablesPattern ex:activityB ;
+    yawl:enablesPattern ex:activityC .
+
+ex:synchronization yawl:synchronizesWith ex:activityB ;
+    yawl:synchronizesWith ex:activityC .
+
+# Validation assertions
+ex:activityA yawl:isAcyclic true .
+ex:parallelSplit yawl:isAcyclic true .
+ex:activityB yawl:isAcyclic true .
+ex:activityC yawl:isAcyclic true .
+ex:synchronization yawl:isAcyclic true .
+ex:activityD yawl:isAcyclic true .

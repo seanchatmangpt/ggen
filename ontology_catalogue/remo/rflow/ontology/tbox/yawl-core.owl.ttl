@@ -1,0 +1,451 @@
+@prefix yawl: <http://rflow.dev/ontology/yawl-core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+@base <http://rflow.dev/ontology/yawl-core> .
+
+# Ontology metadata
+<> rdf:type owl:Ontology ;
+   dc:title "YAWL Core Ontology" ;
+   dc:description "Core ontology for YAWL (Yet Another Workflow Language) patterns and workflow constructs" ;
+   dc:creator "rflow Team" ;
+   dc:created "2025-08-28T00:00:00Z"^^xsd:dateTime ;
+   dc:modified "2025-08-28T00:00:00Z"^^xsd:dateTime ;
+   owl:versionInfo "1.0.0" ;
+   dc:license "MIT" .
+
+#################################################################
+# Core Classes
+#################################################################
+
+# Abstract workflow element
+yawl:Element rdf:type owl:Class ;
+   rdfs:label "Workflow Element" ;
+   rdfs:comment "Abstract base class for all workflow elements" .
+
+# Pattern types (43 YAWL patterns)
+yawl:Pattern rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Element ;
+   rdfs:label "Workflow Pattern" ;
+   rdfs:comment "A reusable workflow pattern following YAWL specification" .
+
+# Basic Control Flow Patterns (1-20)
+yawl:Sequence rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Sequence" ;
+   rdfs:comment "Sequence pattern - one activity is enabled after completion of another activity" .
+
+yawl:ParallelSplit rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Parallel Split (AND-split)" ;
+   rdfs:comment "Divergence of a branch into two or more parallel branches" .
+
+yawl:Synchronization rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Synchronization (AND-join)" ;
+   rdfs:comment "Convergence of two or more branches into a single subsequent branch" .
+
+yawl:ExclusiveChoice rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Exclusive Choice (XOR-split)" ;
+   rdfs:comment "Divergence of a branch into one of several possible branches" .
+
+yawl:SimpleMerge rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Simple Merge (XOR-join)" ;
+   rdfs:comment "Convergence of two or more branches into a single subsequent branch" .
+
+yawl:MultiChoice rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Multi-Choice (OR-split)" ;
+   rdfs:comment "Divergence of a branch into one or more branches" .
+
+yawl:SynchronizingMerge rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Synchronizing Merge (OR-join)" ;
+   rdfs:comment "Convergence of one or more branches into a single subsequent branch" .
+
+yawl:MultiMerge rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Multi-Merge" ;
+   rdfs:comment "Convergence of two or more branches into a single subsequent branch without synchronization" .
+
+yawl:Discriminator rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Discriminator" ;
+   rdfs:comment "Convergence of two or more branches into a single subsequent branch, triggered by first branch" .
+
+yawl:ArbitraryTask rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Arbitrary Task" ;
+   rdfs:comment "A point in the workflow where one activity is selected arbitrarily" .
+
+# Multiple Instance Patterns (12-15)
+yawl:MultipleInstancesWithoutSynchronization rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Multiple Instances without Synchronization" ;
+   rdfs:comment "Multiple instances of an activity are created without requiring synchronization" .
+
+yawl:MultipleInstancesWithAPrioriDesignTimeKnowledge rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Multiple Instances with A Priori Design Time Knowledge" ;
+   rdfs:comment "Multiple instances of an activity are created, number known at design time" .
+
+yawl:MultipleInstancesWithAPrioriRuntimeKnowledge rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Multiple Instances with A Priori Runtime Knowledge" ;
+   rdfs:comment "Multiple instances of an activity are created, number determined at runtime" .
+
+yawl:MultipleInstancesWithoutAPrioriRuntimeKnowledge rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Multiple Instances without A Priori Runtime Knowledge" ;
+   rdfs:comment "Multiple instances of an activity are created, number not predetermined" .
+
+# State-based Patterns (16-18)
+yawl:DeferredChoice rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Deferred Choice" ;
+   rdfs:comment "A point in the workflow where one of several branches is chosen based on the environment" .
+
+yawl:InterleavedParallelRouting rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Interleaved Parallel Routing" ;
+   rdfs:comment "Set of activities that can be executed in any order, but not concurrently" .
+
+yawl:Milestone rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Milestone" ;
+   rdfs:comment "An activity is enabled until a certain milestone has been reached" .
+
+# Cancellation Patterns (19-20)
+yawl:CancelTask rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Cancel Task" ;
+   rdfs:comment "An enabled task is disabled and will not be executed" .
+
+yawl:CancelCase rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Pattern ;
+   rdfs:label "Cancel Case" ;
+   rdfs:comment "A complete case (i.e., workflow instance) is removed" .
+
+#################################################################
+# Activity and Task Classes
+#################################################################
+
+yawl:Activity rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Element ;
+   rdfs:label "Activity" ;
+   rdfs:comment "A unit of work that forms one logical step within a workflow" .
+
+yawl:AtomicActivity rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Activity ;
+   rdfs:label "Atomic Activity" ;
+   rdfs:comment "An activity that cannot be broken down into smaller parts" .
+
+yawl:CompositeActivity rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Activity ;
+   rdfs:label "Composite Activity" ;
+   rdfs:comment "An activity that consists of multiple sub-activities" .
+
+yawl:Task rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Activity ;
+   rdfs:label "Task" ;
+   rdfs:comment "A specific instance of work to be performed" .
+
+# Task types
+yawl:AutomaticTask rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Task ;
+   rdfs:label "Automatic Task" ;
+   rdfs:comment "A task that is executed automatically by the system" .
+
+yawl:ManualTask rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Task ;
+   rdfs:label "Manual Task" ;
+   rdfs:comment "A task that requires human intervention" .
+
+yawl:ServiceTask rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Task ;
+   rdfs:label "Service Task" ;
+   rdfs:comment "A task that invokes an external service" .
+
+#################################################################
+# Control Flow Elements
+#################################################################
+
+yawl:Condition rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Element ;
+   rdfs:label "Condition" ;
+   rdfs:comment "A state in the workflow that can be either true or false" .
+
+yawl:StartCondition rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Condition ;
+   rdfs:label "Start Condition" ;
+   rdfs:comment "The initial condition of a workflow" .
+
+yawl:EndCondition rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Condition ;
+   rdfs:label "End Condition" ;
+   rdfs:comment "A terminal condition of a workflow" .
+
+yawl:Gateway rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Element ;
+   rdfs:label "Gateway" ;
+   rdfs:comment "A routing construct used to control the divergence and convergence of sequence flow" .
+
+yawl:ExclusiveGateway rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Gateway ;
+   rdfs:label "Exclusive Gateway (XOR)" ;
+   rdfs:comment "A decision point where one path is chosen based on conditions" .
+
+yawl:ParallelGateway rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Gateway ;
+   rdfs:label "Parallel Gateway (AND)" ;
+   rdfs:comment "A fork or join point for parallel flows" .
+
+yawl:InclusiveGateway rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Gateway ;
+   rdfs:label "Inclusive Gateway (OR)" ;
+   rdfs:comment "A decision point where one or more paths can be chosen" .
+
+#################################################################
+# Workflow Structure
+#################################################################
+
+yawl:Workflow rdf:type owl:Class ;
+   rdfs:label "Workflow" ;
+   rdfs:comment "A complete workflow definition containing activities and flow" .
+
+yawl:WorkflowSpecification rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Workflow ;
+   rdfs:label "Workflow Specification" ;
+   rdfs:comment "The formal definition of a workflow" .
+
+yawl:Net rdf:type owl:Class ;
+   rdfs:label "Net" ;
+   rdfs:comment "A workflow net (Petri net with workflow constraints)" .
+
+yawl:Flow rdf:type owl:Class ;
+   rdfs:label "Flow" ;
+   rdfs:comment "A directed connection between workflow elements" .
+
+#################################################################
+# Events and Triggers
+#################################################################
+
+yawl:Event rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Element ;
+   rdfs:label "Event" ;
+   rdfs:comment "Something that happens during the course of a workflow" .
+
+yawl:StartEvent rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Event ;
+   rdfs:label "Start Event" ;
+   rdfs:comment "An event that triggers the start of a workflow" .
+
+yawl:EndEvent rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Event ;
+   rdfs:label "End Event" ;
+   rdfs:comment "An event that indicates the end of a workflow" .
+
+yawl:Timer rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Event ;
+   rdfs:label "Timer" ;
+   rdfs:comment "A time-based event trigger" .
+
+yawl:Signal rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Event ;
+   rdfs:label "Signal" ;
+   rdfs:comment "An external signal event" .
+
+yawl:Message rdf:type owl:Class ;
+   rdfs:subClassOf yawl:Event ;
+   rdfs:label "Message" ;
+   rdfs:comment "A message-based event" .
+
+#################################################################
+# Properties
+#################################################################
+
+# Element identification
+yawl:hasId rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range xsd:string ;
+   rdfs:label "has identifier" .
+
+yawl:hasName rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range xsd:string ;
+   rdfs:label "has name" .
+
+yawl:hasDescription rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range xsd:string ;
+   rdfs:label "has description" .
+
+# Flow relationships
+yawl:hasInputFlow rdf:type owl:ObjectProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range yawl:Flow ;
+   rdfs:label "has input flow" .
+
+yawl:hasOutputFlow rdf:type owl:ObjectProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range yawl:Flow ;
+   rdfs:label "has output flow" .
+
+yawl:flowsTo rdf:type owl:ObjectProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range yawl:Element ;
+   rdfs:label "flows to" .
+
+yawl:flowsFrom rdf:type owl:ObjectProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range yawl:Element ;
+   rdfs:label "flows from" .
+
+# Containment relationships
+yawl:contains rdf:type owl:ObjectProperty ;
+   rdfs:domain yawl:CompositeActivity ;
+   rdfs:range yawl:Element ;
+   rdfs:label "contains" .
+
+yawl:belongsTo rdf:type owl:ObjectProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range yawl:Workflow ;
+   rdfs:label "belongs to" .
+
+# Pattern-specific properties
+yawl:hasCondition rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Gateway ;
+   rdfs:range xsd:string ;
+   rdfs:label "has condition" .
+
+yawl:hasMultipleInstanceType rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Activity ;
+   rdfs:range xsd:string ;
+   rdfs:label "has multiple instance type" .
+
+yawl:hasCardinality rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Activity ;
+   rdfs:range xsd:integer ;
+   rdfs:label "has cardinality" .
+
+# Timer properties
+yawl:hasDuration rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Timer ;
+   rdfs:range xsd:duration ;
+   rdfs:label "has duration" .
+
+yawl:hasDeadline rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Timer ;
+   rdfs:range xsd:dateTime ;
+   rdfs:label "has deadline" .
+
+# Signal properties
+yawl:hasSignalType rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Signal ;
+   rdfs:range xsd:string ;
+   rdfs:label "has signal type" .
+
+# State properties
+yawl:hasState rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range xsd:string ;
+   rdfs:label "has state" .
+
+yawl:isEnabled rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Element ;
+   rdfs:range xsd:boolean ;
+   rdfs:label "is enabled" .
+
+yawl:isExecuting rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Activity ;
+   rdfs:range xsd:boolean ;
+   rdfs:label "is executing" .
+
+yawl:isCompleted rdf:type owl:DatatypeProperty ;
+   rdfs:domain yawl:Activity ;
+   rdfs:range xsd:boolean ;
+   rdfs:label "is completed" .
+
+#################################################################
+# Pattern Support Classification
+#################################################################
+
+# MVP Supported Patterns
+yawl:MVPSupported rdf:type owl:Class ;
+   rdfs:label "MVP Supported Pattern" ;
+   rdfs:comment "Pattern supported in MVP with runtime implementation" .
+
+# Require Rule Engine
+yawl:RequiresRule rdf:type owl:Class ;
+   rdfs:label "Requires Rule Engine" ;
+   rdfs:comment "Pattern that requires rule engine for full implementation" .
+
+# Pattern support classification
+yawl:Sequence rdfs:subClassOf yawl:MVPSupported .
+yawl:ExclusiveChoice rdfs:subClassOf yawl:MVPSupported .
+yawl:SimpleMerge rdfs:subClassOf yawl:MVPSupported .
+yawl:ParallelSplit rdfs:subClassOf yawl:MVPSupported .
+yawl:Synchronization rdfs:subClassOf yawl:MVPSupported .
+yawl:Timer rdfs:subClassOf yawl:MVPSupported .
+yawl:Signal rdfs:subClassOf yawl:MVPSupported .
+yawl:AtomicActivity rdfs:subClassOf yawl:MVPSupported .
+yawl:StartEvent rdfs:subClassOf yawl:MVPSupported .
+yawl:EndEvent rdfs:subClassOf yawl:MVPSupported .
+yawl:MultipleInstancesWithAPrioriDesignTimeKnowledge rdfs:subClassOf yawl:MVPSupported .
+
+# Mark complex patterns as requiring rule engine
+yawl:MultiChoice rdfs:subClassOf yawl:RequiresRule .
+yawl:SynchronizingMerge rdfs:subClassOf yawl:RequiresRule .
+yawl:DeferredChoice rdfs:subClassOf yawl:RequiresRule .
+yawl:InterleavedParallelRouting rdfs:subClassOf yawl:RequiresRule .
+yawl:Milestone rdfs:subClassOf yawl:RequiresRule .
+yawl:CancelTask rdfs:subClassOf yawl:RequiresRule .
+yawl:CancelCase rdfs:subClassOf yawl:RequiresRule .
+
+#################################################################
+# Axioms and Constraints
+#################################################################
+
+# Every workflow must have at least one start and one end
+[] rdf:type owl:Axiom ;
+   owl:annotatedSource yawl:Workflow ;
+   owl:annotatedProperty rdfs:subClassOf ;
+   owl:annotatedTarget [
+      rdf:type owl:Restriction ;
+      owl:onProperty yawl:contains ;
+      owl:someValuesFrom yawl:StartEvent
+   ] .
+
+[] rdf:type owl:Axiom ;
+   owl:annotatedSource yawl:Workflow ;
+   owl:annotatedProperty rdfs:subClassOf ;
+   owl:annotatedTarget [
+      rdf:type owl:Restriction ;
+      owl:onProperty yawl:contains ;
+      owl:someValuesFrom yawl:EndEvent
+   ] .
+
+# Flow connections must be between elements
+yawl:Flow rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty yawl:flowsFrom ;
+   owl:cardinality 1
+] .
+
+yawl:Flow rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty yawl:flowsTo ;
+   owl:cardinality 1
+] .
+
+# Activities must have unique identifiers within a workflow
+yawl:Activity rdfs:subClassOf [
+   rdf:type owl:Restriction ;
+   owl:onProperty yawl:hasId ;
+   owl:cardinality 1
+] .

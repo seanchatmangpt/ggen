@@ -1,0 +1,496 @@
+@prefix hqp: <https://hive-queen.ai/ontology/privacy#> .
+@prefix hq: <https://hive-queen.ai/ontology/core#> .
+@prefix hqs: <https://hive-queen.ai/ontology/security#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gdpr: <http://purl.org/adaptcentre/openscience/ontologies/gdprtext#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# ==========================================
+# HIVE QUEEN Privacy Ontology
+# Defines privacy policies and GDPR compliance
+# ==========================================
+
+<https://hive-queen.ai/ontology/privacy#>
+  a owl:Ontology ;
+  dct:title "HIVE QUEEN Privacy Ontology" ;
+  dct:description "Privacy policies and GDPR compliance definitions" ;
+  dct:version "1.0.0" ;
+  dct:created "2025-09-03"^^xsd:date ;
+  owl:imports <https://hive-queen.ai/ontology/core#> ;
+  owl:imports <https://hive-queen.ai/ontology/security#> ;
+  owl:versionIRI <https://hive-queen.ai/ontology/privacy/1.0.0#> .
+
+# ==========================================
+# Privacy Classes
+# ==========================================
+
+hqp:PrivacyPolicy
+  a owl:Class ;
+  rdfs:label "Privacy Policy" ;
+  rdfs:comment "A privacy policy governing data handling" ;
+  rdfs:subClassOf dpv:Policy .
+
+hqp:PersonalData
+  a owl:Class ;
+  rdfs:label "Personal Data" ;
+  rdfs:comment "Data relating to an identified or identifiable natural person" ;
+  rdfs:subClassOf hq:Resource, dpv:PersonalData .
+
+hqp:SensitiveData
+  a owl:Class ;
+  rdfs:label "Sensitive Data" ;
+  rdfs:comment "Special categories of personal data requiring enhanced protection" ;
+  rdfs:subClassOf hqp:PersonalData, dpv:SensitivePersonalData .
+
+hqp:DataSubject
+  a owl:Class ;
+  rdfs:label "Data Subject" ;
+  rdfs:comment "An identified or identifiable natural person" ;
+  rdfs:subClassOf dpv:DataSubject .
+
+hqp:DataController
+  a owl:Class ;
+  rdfs:label "Data Controller" ;
+  rdfs:comment "Entity that determines purposes and means of processing" ;
+  rdfs:subClassOf dpv:DataController .
+
+hqp:DataProcessor
+  a owl:Class ;
+  rdfs:label "Data Processor" ;
+  rdfs:comment "Entity that processes personal data on behalf of controller" ;
+  rdfs:subClassOf dpv:DataProcessor .
+
+hqp:ProcessingActivity
+  a owl:Class ;
+  rdfs:label "Processing Activity" ;
+  rdfs:comment "Activity involving processing of personal data" ;
+  rdfs:subClassOf prov:Activity, dpv:Processing .
+
+hqp:LegalBasis
+  a owl:Class ;
+  rdfs:label "Legal Basis" ;
+  rdfs:comment "Legal basis for processing personal data" ;
+  rdfs:subClassOf dpv:LegalBasis .
+
+hqp:Consent
+  a owl:Class ;
+  rdfs:label "Consent" ;
+  rdfs:comment "Freely given, specific, informed consent" ;
+  rdfs:subClassOf hqp:LegalBasis, dpv:Consent .
+
+hqp:DataProtectionImpactAssessment
+  a owl:Class ;
+  rdfs:label "Data Protection Impact Assessment" ;
+  rdfs:comment "DPIA as required by GDPR Article 35" ;
+  rdfs:subClassOf prov:Activity .
+
+hqp:PrivacyNotice
+  a owl:Class ;
+  rdfs:label "Privacy Notice" ;
+  rdfs:comment "Notice provided to data subjects about processing" .
+
+hqp:DataBreachNotification
+  a owl:Class ;
+  rdfs:label "Data Breach Notification" ;
+  rdfs:comment "Notification of personal data breach" ;
+  rdfs:subClassOf hqs:SecurityIncident .
+
+# ==========================================
+# GDPR Rights Classes
+# ==========================================
+
+hqp:DataSubjectRights
+  a owl:Class ;
+  rdfs:label "Data Subject Rights" ;
+  rdfs:comment "Rights granted to data subjects under GDPR" .
+
+hqp:RightOfAccess
+  a owl:Class ;
+  rdfs:label "Right of Access" ;
+  rdfs:comment "GDPR Article 15 - Right of access by the data subject" ;
+  rdfs:subClassOf hqp:DataSubjectRights .
+
+hqp:RightToRectification
+  a owl:Class ;
+  rdfs:label "Right to Rectification" ;
+  rdfs:comment "GDPR Article 16 - Right to rectification" ;
+  rdfs:subClassOf hqp:DataSubjectRights .
+
+hqp:RightToErasure
+  a owl:Class ;
+  rdfs:label "Right to Erasure" ;
+  rdfs:comment "GDPR Article 17 - Right to erasure ('right to be forgotten')" ;
+  rdfs:subClassOf hqp:DataSubjectRights .
+
+hqp:RightToRestrictProcessing
+  a owl:Class ;
+  rdfs:label "Right to Restrict Processing" ;
+  rdfs:comment "GDPR Article 18 - Right to restriction of processing" ;
+  rdfs:subClassOf hqp:DataSubjectRights .
+
+hqp:RightToDataPortability
+  a owl:Class ;
+  rdfs:label "Right to Data Portability" ;
+  rdfs:comment "GDPR Article 20 - Right to data portability" ;
+  rdfs:subClassOf hqp:DataSubjectRights .
+
+hqp:RightToObject
+  a owl:Class ;
+  rdfs:label "Right to Object" ;
+  rdfs:comment "GDPR Article 21 - Right to object" ;
+  rdfs:subClassOf hqp:DataSubjectRights .
+
+hqp:RightsRequest
+  a owl:Class ;
+  rdfs:label "Rights Request" ;
+  rdfs:comment "Request from data subject to exercise their rights" ;
+  rdfs:subClassOf prov:Activity .
+
+# ==========================================
+# Processing Purpose Classes
+# ==========================================
+
+hqp:ProcessingPurpose
+  a owl:Class ;
+  rdfs:label "Processing Purpose" ;
+  rdfs:comment "Purpose for which personal data is processed" ;
+  rdfs:subClassOf dpv:Purpose .
+
+hqp:ServiceProvision
+  a owl:Class ;
+  rdfs:label "Service Provision" ;
+  rdfs:comment "Processing for providing services to data subject" ;
+  rdfs:subClassOf hqp:ProcessingPurpose .
+
+hqp:SystemImprovement
+  a owl:Class ;
+  rdfs:label "System Improvement" ;
+  rdfs:comment "Processing for improving system functionality" ;
+  rdfs:subClassOf hqp:ProcessingPurpose .
+
+hqp:SecurityMonitoring
+  a owl:Class ;
+  rdfs:label "Security Monitoring" ;
+  rdfs:comment "Processing for security and fraud prevention" ;
+  rdfs:subClassOf hqp:ProcessingPurpose .
+
+hqp:Analytics
+  a owl:Class ;
+  rdfs:label "Analytics" ;
+  rdfs:comment "Processing for analytics and insights" ;
+  rdfs:subClassOf hqp:ProcessingPurpose .
+
+# ==========================================
+# Privacy Properties
+# ==========================================
+
+hqp:hasPrivacyPolicy
+  a owl:ObjectProperty ;
+  rdfs:label "has privacy policy" ;
+  rdfs:comment "Associates an entity with a privacy policy" ;
+  rdfs:range hqp:PrivacyPolicy .
+
+hqp:processesPersonalData
+  a owl:ObjectProperty ;
+  rdfs:label "processes personal data" ;
+  rdfs:comment "Associates processing activity with personal data" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range hqp:PersonalData .
+
+hqp:hasDataController
+  a owl:ObjectProperty ;
+  rdfs:label "has data controller" ;
+  rdfs:comment "Associates personal data with its controller" ;
+  rdfs:domain hqp:PersonalData ;
+  rdfs:range hqp:DataController .
+
+hqp:hasDataProcessor
+  a owl:ObjectProperty ;
+  rdfs:label "has data processor" ;
+  rdfs:comment "Associates processing with data processor" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range hqp:DataProcessor .
+
+hqp:concernsDataSubject
+  a owl:ObjectProperty ;
+  rdfs:label "concerns data subject" ;
+  rdfs:comment "Associates personal data with data subject" ;
+  rdfs:domain hqp:PersonalData ;
+  rdfs:range hqp:DataSubject .
+
+hqp:hasLegalBasis
+  a owl:ObjectProperty ;
+  rdfs:label "has legal basis" ;
+  rdfs:comment "Associates processing with legal basis" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range hqp:LegalBasis .
+
+hqp:hasProcessingPurpose
+  a owl:ObjectProperty ;
+  rdfs:label "has processing purpose" ;
+  rdfs:comment "Associates processing with its purpose" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range hqp:ProcessingPurpose .
+
+hqp:hasConsent
+  a owl:ObjectProperty ;
+  rdfs:label "has consent" ;
+  rdfs:comment "Associates data subject with consent" ;
+  rdfs:domain hqp:DataSubject ;
+  rdfs:range hqp:Consent .
+
+hqp:exercisesRight
+  a owl:ObjectProperty ;
+  rdfs:label "exercises right" ;
+  rdfs:comment "Associates data subject with exercised rights" ;
+  rdfs:domain hqp:DataSubject ;
+  rdfs:range hqp:DataSubjectRights .
+
+hqp:hasRightsRequest
+  a owl:ObjectProperty ;
+  rdfs:label "has rights request" ;
+  rdfs:comment "Associates data subject with rights request" ;
+  rdfs:domain hqp:DataSubject ;
+  rdfs:range hqp:RightsRequest .
+
+hqp:requiresDPIA
+  a owl:ObjectProperty ;
+  rdfs:label "requires DPIA" ;
+  rdfs:comment "Associates processing with required DPIA" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range hqp:DataProtectionImpactAssessment .
+
+hqp:hasPrivacyNotice
+  a owl:ObjectProperty ;
+  rdfs:label "has privacy notice" ;
+  rdfs:comment "Associates processing with privacy notice" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range hqp:PrivacyNotice .
+
+# ==========================================
+# Privacy Data Properties
+# ==========================================
+
+hqp:consentGiven
+  a owl:DatatypeProperty ;
+  rdfs:label "consent given" ;
+  rdfs:comment "Whether consent has been given" ;
+  rdfs:domain hqp:Consent ;
+  rdfs:range xsd:boolean .
+
+hqp:consentDate
+  a owl:DatatypeProperty ;
+  rdfs:label "consent date" ;
+  rdfs:comment "Date when consent was given" ;
+  rdfs:domain hqp:Consent ;
+  rdfs:range xsd:dateTime .
+
+hqp:consentWithdrawn
+  a owl:DatatypeProperty ;
+  rdfs:label "consent withdrawn" ;
+  rdfs:comment "Whether consent has been withdrawn" ;
+  rdfs:domain hqp:Consent ;
+  rdfs:range xsd:boolean .
+
+hqp:withdrawalDate
+  a owl:DatatypeProperty ;
+  rdfs:label "withdrawal date" ;
+  rdfs:comment "Date when consent was withdrawn" ;
+  rdfs:domain hqp:Consent ;
+  rdfs:range xsd:dateTime .
+
+hqp:retentionPeriod
+  a owl:DatatypeProperty ;
+  rdfs:label "retention period" ;
+  rdfs:comment "Period for which data is retained" ;
+  rdfs:domain hqp:PersonalData ;
+  rdfs:range xsd:duration .
+
+hqp:anonymized
+  a owl:DatatypeProperty ;
+  rdfs:label "anonymized" ;
+  rdfs:comment "Whether data has been anonymized" ;
+  rdfs:domain hqp:PersonalData ;
+  rdfs:range xsd:boolean .
+
+hqp:pseudonymized
+  a owl:DatatypeProperty ;
+  rdfs:label "pseudonymized" ;
+  rdfs:comment "Whether data has been pseudonymized" ;
+  rdfs:domain hqp:PersonalData ;
+  rdfs:range xsd:boolean .
+
+hqp:encrypted
+  a owl:DatatypeProperty ;
+  rdfs:label "encrypted" ;
+  rdfs:comment "Whether data is encrypted" ;
+  rdfs:domain hqp:PersonalData ;
+  rdfs:range xsd:boolean .
+
+hqp:requestDate
+  a owl:DatatypeProperty ;
+  rdfs:label "request date" ;
+  rdfs:comment "Date when rights request was made" ;
+  rdfs:domain hqp:RightsRequest ;
+  rdfs:range xsd:dateTime .
+
+hqp:responseDate
+  a owl:DatatypeProperty ;
+  rdfs:label "response date" ;
+  rdfs:comment "Date when rights request was responded to" ;
+  rdfs:domain hqp:RightsRequest ;
+  rdfs:range xsd:dateTime .
+
+hqp:requestStatus
+  a owl:DatatypeProperty ;
+  rdfs:label "request status" ;
+  rdfs:comment "Status of rights request" ;
+  rdfs:domain hqp:RightsRequest ;
+  rdfs:range xsd:string .
+
+hqp:breachNotificationDate
+  a owl:DatatypeProperty ;
+  rdfs:label "breach notification date" ;
+  rdfs:comment "Date when breach was notified" ;
+  rdfs:domain hqp:DataBreachNotification ;
+  rdfs:range xsd:dateTime .
+
+hqp:affectedRecords
+  a owl:DatatypeProperty ;
+  rdfs:label "affected records" ;
+  rdfs:comment "Number of records affected by breach" ;
+  rdfs:domain hqp:DataBreachNotification ;
+  rdfs:range xsd:int .
+
+hqp:dpiaRequired
+  a owl:DatatypeProperty ;
+  rdfs:label "DPIA required" ;
+  rdfs:comment "Whether DPIA is required for this processing" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range xsd:boolean .
+
+hqp:highRisk
+  a owl:DatatypeProperty ;
+  rdfs:label "high risk" ;
+  rdfs:comment "Whether processing is high risk" ;
+  rdfs:domain hqp:ProcessingActivity ;
+  rdfs:range xsd:boolean .
+
+# ==========================================
+# Legal Basis Enumeration
+# ==========================================
+
+hqp:consent_basis
+  a hqp:LegalBasis ;
+  rdfs:label "Consent" ;
+  rdfs:comment "GDPR Article 6(1)(a) - Consent" .
+
+hqp:contract_basis
+  a hqp:LegalBasis ;
+  rdfs:label "Contract" ;
+  rdfs:comment "GDPR Article 6(1)(b) - Contract" .
+
+hqp:legal_obligation_basis
+  a hqp:LegalBasis ;
+  rdfs:label "Legal Obligation" ;
+  rdfs:comment "GDPR Article 6(1)(c) - Legal obligation" .
+
+hqp:vital_interests_basis
+  a hqp:LegalBasis ;
+  rdfs:label "Vital Interests" ;
+  rdfs:comment "GDPR Article 6(1)(d) - Vital interests" .
+
+hqp:public_task_basis
+  a hqp:LegalBasis ;
+  rdfs:label "Public Task" ;
+  rdfs:comment "GDPR Article 6(1)(e) - Public task" .
+
+hqp:legitimate_interests_basis
+  a hqp:LegalBasis ;
+  rdfs:label "Legitimate Interests" ;
+  rdfs:comment "GDPR Article 6(1)(f) - Legitimate interests" .
+
+# ==========================================
+# Predefined Privacy Policies
+# ==========================================
+
+hqp:DefaultPrivacyPolicy
+  a hqp:PrivacyPolicy ;
+  rdfs:label "Default Privacy Policy" ;
+  rdfs:comment "Default privacy policy for HIVE QUEEN system" ;
+  hqp:hasLegalBasis hqp:legitimate_interests_basis ;
+  hqp:retentionPeriod "P2Y"^^xsd:duration .
+
+hqp:AgentPrivacyPolicy
+  a hqp:PrivacyPolicy ;
+  rdfs:label "Agent Privacy Policy" ;
+  rdfs:comment "Privacy policy for agent operations" ;
+  hqp:hasProcessingPurpose hqp:ServiceProvision ;
+  hqp:hasLegalBasis hqp:legitimate_interests_basis .
+
+hqp:AnalyticsPrivacyPolicy
+  a hqp:PrivacyPolicy ;
+  rdfs:label "Analytics Privacy Policy" ;
+  rdfs:comment "Privacy policy for analytics processing" ;
+  hqp:hasProcessingPurpose hqp:Analytics ;
+  hqp:hasLegalBasis hqp:consent_basis ;
+  hqp:anonymized true .
+
+# ==========================================
+# Privacy Constraints
+# ==========================================
+
+# All personal data must have a data controller
+[]
+  a owl:Restriction ;
+  owl:onProperty hqp:hasDataController ;
+  owl:minCardinality 1 ;
+  rdfs:subClassOf hqp:PersonalData .
+
+# All processing activities must have legal basis
+[]
+  a owl:Restriction ;
+  owl:onProperty hqp:hasLegalBasis ;
+  owl:minCardinality 1 ;
+  rdfs:subClassOf hqp:ProcessingActivity .
+
+# All processing activities must have a purpose
+[]
+  a owl:Restriction ;
+  owl:onProperty hqp:hasProcessingPurpose ;
+  owl:minCardinality 1 ;
+  rdfs:subClassOf hqp:ProcessingActivity .
+
+# Sensitive data must have explicit consent or other valid basis
+[]
+  a owl:Restriction ;
+  owl:onProperty hqp:hasLegalBasis ;
+  owl:someValuesFrom [
+    a owl:Class ;
+    owl:unionOf (hqp:consent_basis hqp:legal_obligation_basis hqp:vital_interests_basis)
+  ] ;
+  rdfs:subClassOf hqp:SensitiveData .
+
+# Rights requests must be responded to within 30 days
+# (This would be enforced programmatically)
+
+# ==========================================
+# Privacy Rules (SWRL-style)
+# ==========================================
+
+# If processing sensitive data, require explicit consent
+# hqp:SensitiveData(?data) ∧ hqp:processesPersonalData(?activity, ?data) → hqp:hasLegalBasis(?activity, hqp:consent_basis)
+
+# If high risk processing, require DPIA
+# hqp:highRisk(?activity, true) → hqp:requiresDPIA(?activity, ?dpia)
+
+# If consent withdrawn, stop processing
+# hqp:consentWithdrawn(?consent, true) → hqp:stopProcessing(?activity)
+
+# Automatic anonymization after retention period
+# hqp:retentionPeriod(?data, ?period) ∧ hqp:pastRetentionPeriod(?data, ?period) → hqp:anonymized(?data, true)

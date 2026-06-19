@@ -1,0 +1,59 @@
+
+@prefix cns: <http://cns-forge.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Ontology declaration
+cns:UltrathinkOntology rdf:type owl:Ontology ;
+    rdfs:label "Ultrathink BitActor Ontology" ;
+    rdfs:comment "Artificial Hyper Intelligence swarm ontology for ultra-high frequency trading" ;
+    owl:versionInfo "1.0" .
+
+# Core AI Agents
+cns:BitActor rdf:type owl:Class ;
+    rdfs:label "BitActor" ;
+    rdfs:comment "Autonomous AI trading agent with TTL-bounded execution" .
+
+cns:IntelligenceNode rdf:type owl:Class ;
+    rdfs:label "Intelligence Node" ;
+    rdfs:comment "Hyper-intelligent processing node in the swarm" .
+
+cns:CoordinationReactor rdf:type owl:Class ;
+    rdfs:label "Coordination Reactor" ;
+    rdfs:comment "Ash.Reactor workflow for swarm coordination" .
+
+cns:Signal rdf:type owl:Class ;
+    rdfs:label "Trading Signal" ;
+    rdfs:comment "Market signal with embedded intelligence" .
+
+cns:EmergentBehavior rdf:type owl:Class ;
+    rdfs:label "Emergent Behavior" ;
+    rdfs:comment "Intelligent behavior emerging from swarm interaction" .
+
+# Swarm Intelligence Properties
+cns:coordinates rdf:type owl:ObjectProperty ;
+    rdfs:domain cns:CoordinationReactor ;
+    rdfs:range cns:BitActor ;
+    rdfs:label "coordinates agents" .
+
+cns:processes rdf:type owl:ObjectProperty ;
+    rdfs:domain cns:BitActor ;
+    rdfs:range cns:Signal ;
+    rdfs:label "processes signals" .
+
+cns:exhibits rdf:type owl:ObjectProperty ;
+    rdfs:domain cns:IntelligenceNode ;
+    rdfs:range cns:EmergentBehavior ;
+    rdfs:label "exhibits behavior" .
+
+cns:communicates rdf:type owl:ObjectProperty ;
+    rdfs:domain cns:BitActor ;
+    rdfs:range cns:BitActor ;
+    rdfs:label "communicates with" .
+
+# TTL Constraints for Hyper Performance
+cns:BitActor cns:ttlBudget "3"^^xsd:integer .
+cns:CoordinationReactor cns:ttlBudget "5"^^xsd:integer .
+cns:IntelligenceNode cns:ttlBudget "8"^^xsd:integer .

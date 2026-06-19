@@ -1,0 +1,587 @@
+@prefix chatman: <http://chatmangpt.ai/> .
+@prefix comp: <http://chatmangpt.ai/compliance/> .
+@prefix framework: <http://chatmangpt.ai/compliance/framework/> .
+@prefix control: <http://chatmangpt.ai/compliance/control/> .
+@prefix evidence: <http://chatmangpt.ai/compliance/evidence/> .
+@prefix policy: <http://chatmangpt.ai/compliance/policy/> .
+@prefix audit: <http://chatmangpt.ai/compliance/audit/> .
+@prefix soc2: <http://chatmangpt.ai/compliance/framework/soc2/> .
+@prefix hipaa: <http://chatmangpt.ai/compliance/framework/hipaa/> .
+@prefix gdpr: <http://chatmangpt.ai/compliance/framework/gdpr/> .
+@prefix sox: <http://chatmangpt.ai/compliance/framework/sox/> .
+@prefix cis: <http://chatmangpt.ai/compliance/control/cis/> .
+@prefix nist: <http://chatmangpt.ai/compliance/control/nist/> .
+@prefix iso27001: <http://chatmangpt.ai/compliance/control/iso27001/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ============================================================================
+# COMPLIANCE ONTOLOGY ROOT
+# ============================================================================
+
+comp:ComplianceFramework a owl:Class ;
+  rdfs:label "Compliance Framework" ;
+  rdfs:comment "A formal compliance standard (SOC2, HIPAA, GDPR, SOX)" ;
+  rdfs:subClassOf owl:Thing .
+
+comp:ComplianceControl a owl:Class ;
+  rdfs:label "Compliance Control" ;
+  rdfs:comment "A specific control requirement within a framework" ;
+  rdfs:subClassOf owl:Thing .
+
+comp:ControlCatalog a owl:Class ;
+  rdfs:label "Control Catalog" ;
+  rdfs:comment "A collection of controls from a standard (CIS, NIST, ISO 27001)" ;
+  rdfs:subClassOf owl:Thing .
+
+comp:Evidence a owl:Class ;
+  rdfs:label "Compliance Evidence" ;
+  rdfs:comment "Artifact proving control compliance (test result, audit log, certificate)" ;
+  rdfs:subClassOf prov:Entity .
+
+comp:Assessment a owl:Class ;
+  rdfs:label "Compliance Assessment" ;
+  rdfs:comment "Evaluation of control compliance status" ;
+  rdfs:subClassOf owl:Thing .
+
+comp:Gap a owl:Class ;
+  rdfs:label "Compliance Gap" ;
+  rdfs:comment "Control requirement not met; requires remediation" ;
+  rdfs:subClassOf owl:Thing .
+
+comp:Remediation a owl:Class ;
+  rdfs:label "Remediation Action" ;
+  rdfs:comment "Action taken to close a compliance gap" ;
+  rdfs:subClassOf prov:Activity .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+comp:hasFramework a owl:ObjectProperty ;
+  rdfs:label "has compliance framework" ;
+  rdfs:domain comp:ComplianceControl ;
+  rdfs:range comp:ComplianceFramework .
+
+comp:hasControl a owl:ObjectProperty ;
+  rdfs:label "has compliance control" ;
+  rdfs:domain comp:ComplianceFramework ;
+  rdfs:range comp:ComplianceControl .
+
+comp:frameworkCode a owl:DatatypeProperty ;
+  rdfs:label "framework code" ;
+  rdfs:comment "Standard identifier (SOC2, HIPAA, GDPR, SOX)" ;
+  rdfs:domain comp:ComplianceFramework ;
+  rdfs:range xsd:string .
+
+comp:controlId a owl:DatatypeProperty ;
+  rdfs:label "control identifier" ;
+  rdfs:comment "Unique control code (e.g., CC.6.1, PHI-001)" ;
+  rdfs:domain comp:ComplianceControl ;
+  rdfs:range xsd:string .
+
+comp:controlTitle a owl:DatatypeProperty ;
+  rdfs:label "control title" ;
+  rdfs:domain comp:ComplianceControl ;
+  rdfs:range xsd:string .
+
+comp:controlDescription a owl:DatatypeProperty ;
+  rdfs:label "control description" ;
+  rdfs:domain comp:ComplianceControl ;
+  rdfs:range xsd:string .
+
+comp:complianceStatus a owl:DatatypeProperty ;
+  rdfs:label "compliance status" ;
+  rdfs:comment "One of: COMPLIANT, NON_COMPLIANT, IN_REMEDIATION, PENDING" ;
+  rdfs:domain comp:Assessment ;
+  rdfs:range xsd:string .
+
+comp:gapSeverity a owl:DatatypeProperty ;
+  rdfs:label "gap severity" ;
+  rdfs:comment "One of: CRITICAL, HIGH, MEDIUM, LOW" ;
+  rdfs:domain comp:Gap ;
+  rdfs:range xsd:string .
+
+comp:remediationSLA a owl:DatatypeProperty ;
+  rdfs:label "remediation SLA days" ;
+  rdfs:comment "Days until remediation must be complete" ;
+  rdfs:domain comp:Gap ;
+  rdfs:range xsd:integer .
+
+comp:evidenceScore a owl:DatatypeProperty ;
+  rdfs:label "evidence score" ;
+  rdfs:comment "Confidence level of compliance evidence (0.0-1.0)" ;
+  rdfs:domain comp:Evidence ;
+  rdfs:range xsd:float .
+
+comp:hasEvidence a owl:ObjectProperty ;
+  rdfs:label "has evidence" ;
+  rdfs:domain comp:Assessment ;
+  rdfs:range comp:Evidence .
+
+comp:relatedControl a owl:ObjectProperty ;
+  rdfs:label "related control" ;
+  rdfs:comment "Cross-reference to control in another framework" ;
+  rdfs:domain comp:ComplianceControl ;
+  rdfs:range comp:ComplianceControl .
+
+# ============================================================================
+# SOC2 FRAMEWORK (Service Organization Control)
+# ============================================================================
+
+framework:SOC2 a comp:ComplianceFramework ;
+  dc:title "SOC 2 Type II - Service Organization Control" ;
+  dc:description "Trust Service Criteria for security, availability, processing integrity, confidentiality, privacy" ;
+  comp:frameworkCode "SOC2" ;
+  dc:issued "2022-06-01"^^xsd:date ;
+  dc:valid "2026-05-31"^^xsd:date ;
+  rdfs:comment "Audit period: 12 months. Annual re-assessment required." .
+
+# SOC2 Criteria: CC (Common Criteria), A (Availability), C (Confidentiality), I (Integrity)
+
+# CC.6.1 Logical Access
+control:CC6.1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "CC.6.1" ;
+  comp:controlTitle "Logical Access Restrictions" ;
+  comp:controlDescription "Access to system resources is restricted to authorized personnel" ;
+  rdfs:comment "Covers user provisioning, role management, privilege escalation controls" .
+
+# CC.6.2 User Provisioning
+control:CC6.2 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "CC.6.2" ;
+  comp:controlTitle "User Provisioning and Deprovisioning" ;
+  comp:controlDescription "User access provisioning requires appropriate authorization and verification" ;
+  rdfs:comment "Includes background checks, identity verification, separation of duties" .
+
+# CC.7.1 System Monitoring
+control:CC7.1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "CC.7.1" ;
+  comp:controlTitle "System Monitoring and Alerting" ;
+  comp:controlDescription "System monitoring and alerting are configured, enabled, and actively managed" .
+
+# A.1.1 Availability Monitoring
+control:A1.1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "A.1.1" ;
+  comp:controlTitle "Availability Performance Monitoring" ;
+  comp:controlDescription "Service availability and performance are monitored continuously" ;
+  rdfs:comment "Target: 99.95% uptime (4.4 hours downtime/year max)" .
+
+# C.1.1 Confidentiality Encryption
+control:C1.1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "C.1.1" ;
+  comp:controlTitle "Confidentiality - Encryption at Rest" ;
+  comp:controlDescription "Sensitive data is encrypted using strong cryptography (AES-256+)" ;
+  rdfs:comment "Covers data at rest in databases, file storage, backups" .
+
+# C.1.2 Encryption in Transit
+control:C1.2 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "C.1.2" ;
+  comp:controlTitle "Confidentiality - Encryption in Transit" ;
+  comp:controlDescription "Data in transit is encrypted using TLS 1.2+ with strong ciphers" ;
+  rdfs:comment "Applies to all network communications, APIs, webhooks" .
+
+# I.1.1 Integrity Validation
+control:I1.1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOC2 ;
+  comp:controlId "I.1.1" ;
+  comp:controlTitle "Integrity - Audit Trail Validation" ;
+  comp:controlDescription "Audit trails include cryptographic validation to detect tampering" ;
+  rdfs:comment "Uses HMAC-SHA256 signatures on all audit events" .
+
+# ============================================================================
+# HIPAA FRAMEWORK (Health Insurance Portability and Accountability Act)
+# ============================================================================
+
+framework:HIPAA a comp:ComplianceFramework ;
+  dc:title "HIPAA - Health Insurance Portability and Accountability Act" ;
+  dc:description "US healthcare privacy, security, and breach notification regulations" ;
+  comp:frameworkCode "HIPAA" ;
+  dc:issued "1996-08-21"^^xsd:date ;
+  dc:valid "2099-12-31"^^xsd:date ;
+  rdfs:comment "Covers Protected Health Information (PHI). Criminal penalties up to $250K/violation." .
+
+# PHI-001: Encryption of PHI at Rest
+control:PHI001 a comp:ComplianceControl ;
+  comp:hasFramework framework:HIPAA ;
+  comp:controlId "PHI-001" ;
+  comp:controlTitle "PHI Encryption at Rest" ;
+  comp:controlDescription "All Protected Health Information must be encrypted using FIPS 140-2 validated encryption" ;
+  rdfs:comment "Covers: databases, backups, archives, disaster recovery copies" .
+
+# PHI-002: Access Controls
+control:PHI002 a comp:ComplianceControl ;
+  comp:hasFramework framework:HIPAA ;
+  comp:controlId "PHI-002" ;
+  comp:controlTitle "Access Control and Authorization" ;
+  comp:controlDescription "PHI access restricted by minimum necessary principle; role-based access required" ;
+  rdfs:comment "Requires documented access justification for each clinician/staff member" .
+
+# PHI-003: Audit Controls
+control:PHI003 a comp:ComplianceControl ;
+  comp:hasFramework framework:HIPAA ;
+  comp:controlId "PHI-003" ;
+  comp:controlTitle "PHI Access Audit and Monitoring" ;
+  comp:controlDescription "All PHI access logged; suspicious access patterns monitored and reported" ;
+  rdfs:comment "6-year retention. Real-time alerting for unauthorized access attempts." .
+
+# PHI-004: De-identification
+control:PHI004 a comp:ComplianceControl ;
+  comp:hasFramework framework:HIPAA ;
+  comp:controlId "PHI-004" ;
+  comp:controlTitle "De-identification and Anonymization" ;
+  comp:controlDescription "Methods to remove or mask 18 HIPAA identifiers for research/analytics" ;
+  rdfs:comment "Includes: name, SSN, medical record, insurance, dates, locations, etc." .
+
+# ============================================================================
+# GDPR FRAMEWORK (General Data Protection Regulation)
+# ============================================================================
+
+framework:GDPR a comp:ComplianceFramework ;
+  dc:title "GDPR - General Data Protection Regulation" ;
+  dc:description "EU data protection regulation covering personal data processing rights" ;
+  comp:frameworkCode "GDPR" ;
+  dc:issued "2018-05-25"^^xsd:date ;
+  dc:valid "2099-12-31"^^xsd:date ;
+  rdfs:comment "Fines: 4% of global revenue or €20M (whichever is higher). Extraterritorial jurisdiction." .
+
+# GDPR-DS1: Data Subject Rights
+control:GDPR_DS1 a comp:ComplianceControl ;
+  comp:hasFramework framework:GDPR ;
+  comp:controlId "GDPR-DS1" ;
+  comp:controlTitle "Data Subject Access Rights (DSAR)" ;
+  comp:controlDescription "Data subjects have right to access, rectify, erase, restrict, port personal data" ;
+  rdfs:comment "30-day response SLA (extendable to 90 days in complex cases)" .
+
+# GDPR-CM1: Consent Management
+control:GDPR_CM1 a comp:ComplianceControl ;
+  comp:hasFramework framework:GDPR ;
+  comp:controlId "GDPR-CM1" ;
+  comp:controlTitle "Consent Management" ;
+  comp:controlDescription "Explicit, granular, informed consent obtained BEFORE processing personal data" ;
+  rdfs:comment "Consent records must be auditable, withdrawable, stored with timestamp and version" .
+
+# GDPR-PP1: Privacy by Design
+control:GDPR_PP1 a comp:ComplianceControl ;
+  comp:hasFramework framework:GDPR ;
+  comp:controlId "GDPR-PP1" ;
+  comp:controlTitle "Privacy by Design and Default" ;
+  comp:controlDescription "Privacy controls built into product design from inception; data minimization enforced" ;
+  rdfs:comment "Data Protection Impact Assessment (DPIA) required for high-risk processing" .
+
+# GDPR-TR1: Transfer Controls
+control:GDPR_TR1 a comp:ComplianceControl ;
+  comp:hasFramework framework:GDPR ;
+  comp:controlId "GDPR-TR1" ;
+  comp:controlTitle "International Data Transfers" ;
+  comp:controlDescription "Personal data transfers outside EU/EEA require adequacy decision or Standard Contractual Clauses (SCCs)" ;
+  rdfs:comment "Schrems II ruling: SCCs alone insufficient; supplementary safeguards required" .
+
+# ============================================================================
+# SOX FRAMEWORK (Sarbanes-Oxley - Financial Controls)
+# ============================================================================
+
+framework:SOX a comp:ComplianceFramework ;
+  dc:title "SOX - Sarbanes-Oxley Act" ;
+  dc:description "US financial reporting and internal control requirements for public companies" ;
+  comp:frameworkCode "SOX" ;
+  dc:issued "2002-07-30"^^xsd:date ;
+  dc:valid "2099-12-31"^^xsd:date ;
+  rdfs:comment "Section 302/404: Management certifies financial report accuracy and internal control effectiveness." .
+
+# SOX-FC1: Financial Controls
+control:SOX_FC1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOX ;
+  comp:controlId "SOX-FC1" ;
+  comp:controlTitle "Financial Reporting Controls" ;
+  comp:controlDescription "Internal controls over financial reporting are designed, implemented, and tested" ;
+  rdfs:comment "Annual management assessment required. External auditor must evaluate" .
+
+# SOX-IT1: IT General Controls
+control:SOX_IT1 a comp:ComplianceControl ;
+  comp:hasFramework framework:SOX ;
+  comp:controlId "SOX-IT1" ;
+  comp:controlTitle "IT General Controls" ;
+  comp:controlDescription "Access controls, change management, system monitoring for financial systems" ;
+  rdfs:comment "Covers: user provisioning, change approval, incident response, disaster recovery" .
+
+# ============================================================================
+# CONTROL CATALOG MAPPINGS (CIS, NIST, ISO 27001)
+# ============================================================================
+
+control:CIS_IG1 a comp:ComplianceControl ;
+  comp:controlId "CIS-IG1" ;
+  comp:controlTitle "CIS v8 Implementation Group 1 - Asset Management" ;
+  comp:relatedControl control:CC6.1 ;
+  comp:relatedControl control:PHI002 ;
+  rdfs:comment "Foundation control: Know your assets before you can protect them" .
+
+control:NIST_AC6 a comp:ComplianceControl ;
+  comp:controlId "NIST-AC6" ;
+  comp:controlTitle "NIST 800-53 AC-6 - Least Privilege" ;
+  comp:relatedControl control:CC6.1 ;
+  comp:relatedControl control:PHI002 ;
+  rdfs:comment "Grant minimum permissions required for job function" .
+
+control:ISO27001_A5.1.1 a comp:ComplianceControl ;
+  comp:controlId "ISO27001-A5.1.1" ;
+  comp:controlTitle "ISO 27001:2022 A.5.1.1 - Information Security Policies" ;
+  comp:relatedControl control:CC7.1 ;
+  rdfs:comment "Comprehensive written information security policy required" .
+
+# ============================================================================
+# EVIDENCE TYPES
+# ============================================================================
+
+evidence:AuditLog a comp:Evidence ;
+  rdfs:label "Audit Log Evidence" ;
+  rdfs:comment "System audit log showing control implementation" ;
+  rdfs:seeAlso prov:Activity .
+
+evidence:TestResult a comp:Evidence ;
+  rdfs:label "Test Result Evidence" ;
+  rdfs:comment "Automated or manual test demonstrating control compliance" ;
+  rdfs:seeAlso owl:Thing .
+
+evidence:Certificate a comp:Evidence ;
+  rdfs:label "Certificate Evidence" ;
+  rdfs:comment "Third-party certification (SOC2 report, ISO 27001 certificate)" ;
+  rdfs:seeAlso owl:Thing .
+
+evidence:Assessment a comp:Evidence ;
+  rdfs:label "Assessment Evidence" ;
+  rdfs:comment "Control assessment results from internal or external review" ;
+  rdfs:seeAlso owl:Thing .
+
+evidence:PolicyDocument a comp:Evidence ;
+  rdfs:label "Policy Document Evidence" ;
+  rdfs:comment "Documented policy implementing control requirement" ;
+  rdfs:seeAlso owl:Thing .
+
+# ============================================================================
+# POLICY EXPRESSIONS (ODRL)
+# ============================================================================
+
+policy:PHIAccessPolicy a odrl:Policy ;
+  dc:title "PHI Data Access Policy" ;
+  dc:description "Policy restricting PHI access to authorized clinicians during business hours" ;
+  odrl:permission [
+    odrl:action odrl:Read ;
+    odrl:target [ a dcat:Dataset ; dcat:theme "PHI" ] ;
+    odrl:assignee [ foaf:name "Clinician" ] ;
+    odrl:duty [
+      rdf:type odrl:Duty ;
+      odrl:action odrl:Compensate ;
+      odrl:rightOperand "Log all access attempts with timestamp and reason"
+    ]
+  ] ;
+  odrl:prohibition [
+    odrl:action odrl:Copy, odrl:Print ;
+    odrl:rightOperand "PHI data cannot be exported or printed"
+  ] .
+
+policy:DataMinimizationPolicy a odrl:Policy ;
+  dc:title "Data Minimization Policy (GDPR)" ;
+  dc:description "Process only personal data necessary for stated purpose" ;
+  odrl:permission [
+    odrl:action odrl:Process ;
+    odrl:rightOperand "Collect only essential attributes; delete after purpose completion"
+  ] .
+
+# ============================================================================
+# AUDIT TRAIL EXAMPLES (PROV-O)
+# ============================================================================
+
+audit:PHIAccessEvent_001 a prov:Activity ;
+  prov:startedAtTime "2026-03-25T14:30:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-25T14:30:05Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith [
+    a prov:Agent ;
+    foaf:name "Dr. Sarah Johnson" ;
+    foaf:mbox "sarah.johnson@hospital.example.com"
+  ] ;
+  prov:used [
+    a prov:Entity ;
+    dcat:theme "PHI" ;
+    dc:title "Patient Record #12345"
+  ] ;
+  prov:wasInformedBy [
+    a prov:Activity ;
+    dc:title "Authentication Successful"
+  ] .
+
+audit:RemediationTask_001 a prov:Activity ;
+  prov:startedAtTime "2026-03-25T09:00:00Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith [
+    a prov:Agent ;
+    foaf:name "Compliance Officer"
+  ] ;
+  prov:used [
+    a comp:Gap ;
+    comp:controlId "CC.6.1" ;
+    comp:gapSeverity "HIGH"
+  ] ;
+  prov:generated [
+    a comp:Remediation ;
+    dc:title "Implement MFA for privileged accounts"
+  ] .
+
+# ============================================================================
+# DATA QUALITY METRICS (DQV)
+# ============================================================================
+
+evidence:DataQualityMetric_PHI a dqv:Dimension ;
+  dc:title "PHI Data Quality" ;
+  dc:description "Accuracy and completeness of Protected Health Information" ;
+  dqv:isMeasurementOf [
+    dqv:hasMetric [
+      dqv:value "99.2"^^xsd:float ;
+      dc:title "PHI Accuracy Percentage" ;
+      dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime
+    ]
+  ] .
+
+evidence:DataQualityMetric_GDPR a dqv:Dimension ;
+  dc:title "GDPR Consent Quality" ;
+  dc:description "Percentage of processing with documented consent" ;
+  dqv:isMeasurementOf [
+    dqv:hasMetric [
+      dqv:value "98.5"^^xsd:float ;
+      dc:title "Documented Consent Coverage" ;
+      dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime
+    ]
+  ] .
+
+# ============================================================================
+# DATASET CLASSIFICATION (DCAT)
+# ============================================================================
+
+evidence:PHIDataset a dcat:Dataset ;
+  dc:title "Protected Health Information Catalog" ;
+  dc:description "All datasets containing patient health records" ;
+  dcat:theme "PHI", "HIPAA", "SENSITIVE" ;
+  dcat:accrualPeriodicity dcterms:daily ;
+  dcterms:issued "2020-01-01T00:00:00Z"^^xsd:dateTime ;
+  dcat:landingPage <http://businessos.example.com/catalog/phi> .
+
+evidence:GDPRPersonalDataset a dcat:Dataset ;
+  dc:title "Personal Data Inventory" ;
+  dc:description "All datasets containing personal data subject to GDPR" ;
+  dcat:theme "GDPR", "PERSONAL_DATA", "SENSITIVE" ;
+  dcterms:issued "2018-05-25T00:00:00Z"^^xsd:dateTime .
+
+evidence:FinancialControlsDataset a dcat:Dataset ;
+  dc:title "Financial Transaction Log" ;
+  dc:description "All financial transactions subject to SOX controls" ;
+  dcat:theme "SOX", "FINANCIAL", "SENSITIVE" ;
+  dcterms:issued "2002-07-30T00:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# ASSESSMENT EXAMPLES
+# ============================================================================
+
+evidence:AssessmentCC6_1_Q1_2026 a comp:Assessment ;
+  dc:title "CC.6.1 Assessment Q1 2026" ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  comp:complianceStatus "COMPLIANT" ;
+  comp:hasEvidence evidence:AuditLog ;
+  comp:hasEvidence [
+    a comp:Evidence ;
+    rdfs:comment "MFA enabled on 100% of privileged accounts"
+  ] ;
+  prov:wasAssociatedWith [
+    foaf:name "Internal Auditor"
+  ] .
+
+evidence:AssessmentGDPR_DS1_2026 a comp:Assessment ;
+  dc:title "GDPR Data Subject Rights Assessment 2026" ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime ;
+  comp:complianceStatus "IN_REMEDIATION" ;
+  comp:hasEvidence [
+    a comp:Gap ;
+    comp:gapSeverity "HIGH" ;
+    dc:description "52 unprocessed DSRs; 14 overdue (>30 days)"
+  ] .
+
+# ============================================================================
+# GAP EXAMPLES
+# ============================================================================
+
+evidence:GapCC6_1_001 a comp:Gap ;
+  dc:title "MFA Not Enabled on Service Accounts" ;
+  comp:controlId "CC.6.1" ;
+  comp:gapSeverity "CRITICAL" ;
+  comp:remediationSLA 7 ;
+  dc:description "SOC2 requires MFA on all privileged accounts; 15 service accounts lack MFA" ;
+  prov:wasInformedBy [
+    a prov:Activity ;
+    dc:title "Access Control Audit" ;
+    dcterms:issued "2026-03-20T00:00:00Z"^^xsd:dateTime
+  ] .
+
+evidence:GapGDPR_CM1_001 a comp:Gap ;
+  dc:title "Consent Records Missing GDPR Required Fields" ;
+  comp:controlId "GDPR-CM1" ;
+  comp:gapSeverity "HIGH" ;
+  comp:remediationSLA 30 ;
+  dc:description "GDPR requires timestamped, versioned consent; 8,234 records lack version tracking" .
+
+evidence:GapPHI_001_001 a comp:Gap ;
+  dc:title "Legacy Backups Not Encrypted" ;
+  comp:controlId "PHI-001" ;
+  comp:gapSeverity "CRITICAL" ;
+  comp:remediationSLA 3 ;
+  dc:description "HIPAA requires PHI encryption at rest; 240GB of backup files use plaintext storage" .
+
+# ============================================================================
+# CERTIFICATION STATUS
+# ============================================================================
+
+chatman:ComplianceCertifications a owl:Thing ;
+  rdfs:label "ChatmanGPT Compliance Certifications" ;
+  foaf:page <http://businessos.example.com/compliance-status> ;
+  dc:description "Current compliance certification status across all frameworks" ;
+  comp:hasCertification [
+    comp:framework framework:SOC2 ;
+    comp:certificationStatus "TYPE_II_IN_PROGRESS" ;
+    comp:auditWindow "2025-06-01 to 2026-05-31" ;
+    comp:auditorsNote "Annual re-assessment in progress; no findings to date"
+  ] ;
+  comp:hasCertification [
+    comp:framework framework:HIPAA ;
+    comp:certificationStatus "COMPLIANT" ;
+    comp:lastAssessment "2025-11-15"^^xsd:date ;
+    comp:expirationDate "2026-11-15"^^xsd:date
+  ] ;
+  comp:hasCertification [
+    comp:framework framework:GDPR ;
+    comp:certificationStatus "COMPLIANT_WITH_GAPS" ;
+    comp:gapCount 2 ;
+    comp:criticalGapCount 1 ;
+    comp:lastAssessment "2026-03-20"^^xsd:date
+  ] ;
+  comp:hasCertification [
+    comp:framework framework:SOX ;
+    comp:certificationStatus "COMPLIANT" ;
+    comp:assessmentMethod "Internal + External Audit" ;
+    comp:lastAssessment "2025-12-31"^^xsd:date
+  ] .
+
+# ============================================================================
+# END OF ONTOLOGY
+# ============================================================================

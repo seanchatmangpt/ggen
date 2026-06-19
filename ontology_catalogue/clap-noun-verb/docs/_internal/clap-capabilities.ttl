@@ -1,0 +1,607 @@
+# RDF Ontology for clap-noun-verb Framework Capabilities
+# Defines semantic knowledge graph for 46 clap framework capabilities
+# Used by ggen Tera + SPARQL template generation system
+
+@prefix clap: <http://clap-noun-verb.org/capability/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Capability Class Definition
+# ============================================================================
+
+clap:Capability a rdf:Class ;
+  rdfs:label "CLI Capability" ;
+  rdfs:comment "A semantic capability supported by the clap-noun-verb framework" .
+
+clap:NounEntity a rdf:Class ;
+  rdfs:label "Noun Entity" ;
+  rdfs:comment "Domain entity for noun-verb command structure" .
+
+clap:VerbAction a rdf:Class ;
+  rdfs:label "Verb Action" ;
+  rdfs:comment "Action performed on noun entities" .
+
+clap:ArgumentPattern a rdf:Class ;
+  rdfs:label "Argument Pattern" ;
+  rdfs:comment "Pattern for argument parsing and validation" .
+
+clap:AsyncPattern a rdf:Class ;
+  rdfs:label "Async Pattern" ;
+  rdfs:comment "Async/await handler pattern" .
+
+clap:MiddlewarePattern a rdf:Class ;
+  rdfs:label "Middleware Pattern" ;
+  rdfs:comment "Request/response pipeline pattern" .
+
+clap:ErrorType a rdf:Class ;
+  rdfs:label "Error Type" ;
+  rdfs:comment "Error handling and result type" .
+
+# ============================================================================
+# Noun Entities (10 primary entities)
+# ============================================================================
+
+clap:user a clap:NounEntity ;
+  rdfs:label "User" ;
+  rdfs:comment "User management entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:product a clap:NounEntity ;
+  rdfs:label "Product" ;
+  rdfs:comment "Product catalog entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:order a clap:NounEntity ;
+  rdfs:label "Order" ;
+  rdfs:comment "Order management entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:service a clap:NounEntity ;
+  rdfs:label "Service" ;
+  rdfs:comment "Service/microservice entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:config a clap:NounEntity ;
+  rdfs:label "Configuration" ;
+  rdfs:comment "Configuration management entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:job a clap:NounEntity ;
+  rdfs:label "Job" ;
+  rdfs:comment "Background job entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:template a clap:NounEntity ;
+  rdfs:label "Template" ;
+  rdfs:comment "Code generation template entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:project a clap:NounEntity ;
+  rdfs:label "Project" ;
+  rdfs:comment "Project management entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:workflow a clap:NounEntity ;
+  rdfs:label "Workflow" ;
+  rdfs:comment "Workflow automation entity" ;
+  clap:examples 5 ;
+  clap:tests 5 .
+
+clap:event a clap:NounEntity ;
+  rdfs:label "Event" ;
+  rdfs:comment "Event processing entity" ;
+  clap:examples 4 ;
+  clap:tests 4 .
+
+# ============================================================================
+# Verb Actions (6 CRUD + Utilities)
+# ============================================================================
+
+clap:create a clap:VerbAction ;
+  rdfs:label "Create" ;
+  rdfs:comment "Create new resource" ;
+  clap:operation "post" ;
+  clap:resultType "resource" .
+
+clap:read a clap:VerbAction ;
+  rdfs:label "Read" ;
+  rdfs:comment "Read/retrieve resource" ;
+  clap:operation "get" ;
+  clap:resultType "resource" .
+
+clap:update a clap:VerbAction ;
+  rdfs:label "Update" ;
+  rdfs:comment "Update existing resource" ;
+  clap:operation "put" ;
+  clap:resultType "resource" .
+
+clap:delete a clap:VerbAction ;
+  rdfs:label "Delete" ;
+  rdfs:comment "Delete resource" ;
+  clap:operation "delete" ;
+  clap:resultType "status" .
+
+clap:list a clap:VerbAction ;
+  rdfs:label "List" ;
+  rdfs:comment "List all resources" ;
+  clap:operation "get_list" ;
+  clap:resultType "collection" .
+
+clap:execute a clap:VerbAction ;
+  rdfs:label "Execute" ;
+  rdfs:comment "Execute operation" ;
+  clap:operation "post" ;
+  clap:resultType "result" .
+
+# ============================================================================
+# Argument Patterns (8 patterns)
+# ============================================================================
+
+clap:required_arg a clap:ArgumentPattern ;
+  rdfs:label "Required Argument" ;
+  rdfs:comment "Positional or required named argument" ;
+  clap:validation "must_present" ;
+  clap:type "String" .
+
+clap:optional_arg a clap:ArgumentPattern ;
+  rdfs:label "Optional Argument" ;
+  rdfs:comment "Optional named argument" ;
+  clap:validation "optional" ;
+  clap:type "Option<T>" .
+
+clap:flag_arg a clap:ArgumentPattern ;
+  rdfs:label "Flag Argument" ;
+  rdfs:comment "Boolean flag argument" ;
+  clap:validation "boolean" ;
+  clap:type "bool" .
+
+clap:multi_arg a clap:ArgumentPattern ;
+  rdfs:label "Multiple Arguments" ;
+  rdfs:comment "Multiple values argument" ;
+  clap:validation "one_or_more" ;
+  clap:type "Vec<T>" .
+
+clap:group_arg a clap:ArgumentPattern ;
+  rdfs:label "Argument Group" ;
+  rdfs:comment "Exclusive argument group" ;
+  clap:validation "exclusive_group" ;
+  clap:type "exclusive" .
+
+clap:conflict_arg a clap:ArgumentPattern ;
+  rdfs:label "Conflicting Arguments" ;
+  rdfs:comment "Arguments that conflict with each other" ;
+  clap:validation "mutual_exclusive" ;
+  clap:type "conflict" .
+
+clap:requires_arg a clap:ArgumentPattern ;
+  rdfs:label "Requires Arguments" ;
+  rdfs:comment "Argument that requires other arguments" ;
+  clap:validation "conditional" ;
+  clap:type "requires" .
+
+clap:positional_arg a clap:ArgumentPattern ;
+  rdfs:label "Positional Argument" ;
+  rdfs:comment "Positional command-line argument" ;
+  clap:validation "positional" ;
+  clap:type "positional" .
+
+# ============================================================================
+# Async Patterns (4 categories)
+# ============================================================================
+
+clap:async_simple a clap:AsyncPattern ;
+  rdfs:label "Simple Async" ;
+  rdfs:comment "Basic async/await operation" ;
+  clap:complexity "low" ;
+  clap:frameworks "tokio" .
+
+clap:async_concurrent a clap:AsyncPattern ;
+  rdfs:label "Concurrent Async" ;
+  rdfs:comment "Concurrent async operations with join_all" ;
+  clap:complexity "medium" ;
+  clap:frameworks "tokio" .
+
+clap:async_streaming a clap:AsyncPattern ;
+  rdfs:label "Streaming Async" ;
+  rdfs:comment "Async stream processing" ;
+  clap:complexity "high" ;
+  clap:frameworks "tokio,futures" .
+
+clap:async_distributed a clap:AsyncPattern ;
+  rdfs:label "Distributed Async" ;
+  rdfs:comment "Distributed async coordination" ;
+  clap:complexity "high" ;
+  clap:frameworks "tokio,distributed" .
+
+# ============================================================================
+# Middleware Patterns (3 categories)
+# ============================================================================
+
+clap:middleware_logging a clap:MiddlewarePattern ;
+  rdfs:label "Logging Middleware" ;
+  rdfs:comment "Request/response logging pipeline" ;
+  clap:stage "pre_post" ;
+  clap:purpose "observability" .
+
+clap:middleware_validation a clap:MiddlewarePattern ;
+  rdfs:label "Validation Middleware" ;
+  rdfs:comment "Input validation pipeline" ;
+  clap:stage "pre" ;
+  clap:purpose "input_validation" .
+
+clap:middleware_transformation a clap:MiddlewarePattern ;
+  rdfs:label "Transformation Middleware" ;
+  rdfs:comment "Request/response transformation pipeline" ;
+  clap:stage "pre_post" ;
+  clap:purpose "data_transformation" .
+
+# ============================================================================
+# Error Types (6 error categories)
+# ============================================================================
+
+clap:not_found_error a clap:ErrorType ;
+  rdfs:label "NotFound Error" ;
+  rdfs:comment "Resource not found error" ;
+  clap:httpStatus 404 ;
+  clap:handlingStrategy "return_error" .
+
+clap:invalid_error a clap:ErrorType ;
+  rdfs:label "Invalid Error" ;
+  rdfs:comment "Invalid input/state error" ;
+  clap:httpStatus 400 ;
+  clap:handlingStrategy "validate_and_reject" .
+
+clap:unauthorized_error a clap:ErrorType ;
+  rdfs:label "Unauthorized Error" ;
+  rdfs:comment "Authorization failure" ;
+  clap:httpStatus 401 ;
+  clap:handlingStrategy "check_permission" .
+
+clap:conflict_error a clap:ErrorType ;
+  rdfs:label "Conflict Error" ;
+  rdfs:comment "State conflict error" ;
+  clap:httpStatus 409 ;
+  clap:handlingStrategy "resolve_conflict" .
+
+clap:timeout_error a clap:ErrorType ;
+  rdfs:label "Timeout Error" ;
+  rdfs:comment "Operation timeout" ;
+  clap:httpStatus 504 ;
+  clap:handlingStrategy "retry_or_fail" .
+
+clap:internal_error a clap:ErrorType ;
+  rdfs:label "Internal Error" ;
+  rdfs:comment "Internal server error" ;
+  clap:httpStatus 500 ;
+  clap:handlingStrategy "log_and_return" .
+
+# ============================================================================
+# Capability Combinations (46 primary capabilities)
+# ============================================================================
+
+# Argument Parsing Capabilities (8)
+clap:ArgumentParsing a clap:Capability ;
+  rdfs:label "Argument Parsing" ;
+  rdfs:comment "Parse and validate command-line arguments" ;
+  clap:hasPattern clap:required_arg ;
+  clap:examples 12 ;
+  clap:tests 8 .
+
+clap:OptionalArguments a clap:Capability ;
+  rdfs:label "Optional Arguments" ;
+  rdfs:comment "Support optional command-line arguments" ;
+  clap:hasPattern clap:optional_arg ;
+  clap:examples 8 ;
+  clap:tests 6 .
+
+clap:FlagSupport a clap:Capability ;
+  rdfs:label "Flag Support" ;
+  rdfs:comment "Support boolean flag arguments" ;
+  clap:hasPattern clap:flag_arg ;
+  clap:examples 10 ;
+  clap:tests 8 .
+
+clap:MultipleValues a clap:Capability ;
+  rdfs:label "Multiple Values" ;
+  rdfs:comment "Support arguments accepting multiple values" ;
+  clap:hasPattern clap:multi_arg ;
+  clap:examples 6 ;
+  clap:tests 5 .
+
+clap:ArgumentGroups a clap:Capability ;
+  rdfs:label "Argument Groups" ;
+  rdfs:comment "Support exclusive argument groups" ;
+  clap:hasPattern clap:group_arg ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:ConflictingArguments a clap:Capability ;
+  rdfs:label "Conflicting Arguments" ;
+  rdfs:comment "Support mutually exclusive arguments" ;
+  clap:hasPattern clap:conflict_arg ;
+  clap:examples 4 ;
+  clap:tests 3 .
+
+clap:RequiresArguments a clap:Capability ;
+  rdfs:label "Requires Arguments" ;
+  rdfs:comment "Support conditional required arguments" ;
+  clap:hasPattern clap:requires_arg ;
+  clap:examples 4 ;
+  clap:tests 3 .
+
+clap:PositionalArguments a clap:Capability ;
+  rdfs:label "Positional Arguments" ;
+  rdfs:comment "Support positional command-line arguments" ;
+  clap:hasPattern clap:positional_arg ;
+  clap:examples 8 ;
+  clap:tests 6 .
+
+# Async/Await Capabilities (5)
+clap:AsyncSupport a clap:Capability ;
+  rdfs:label "Async Support" ;
+  rdfs:comment "Basic async/await support with run_async()" ;
+  clap:hasPattern clap:async_simple ;
+  clap:examples 15 ;
+  clap:tests 12 .
+
+clap:ConcurrentAsyncOperations a clap:Capability ;
+  rdfs:label "Concurrent Async" ;
+  rdfs:comment "Concurrent async operations with tokio::join_all" ;
+  clap:hasPattern clap:async_concurrent ;
+  clap:examples 10 ;
+  clap:tests 8 .
+
+clap:AsyncStreaming a clap:Capability ;
+  rdfs:label "Async Streaming" ;
+  rdfs:comment "Async stream processing" ;
+  clap:hasPattern clap:async_streaming ;
+  clap:examples 6 ;
+  clap:tests 5 .
+
+clap:DistributedAsyncCoordination a clap:Capability ;
+  rdfs:label "Distributed Async" ;
+  rdfs:comment "Distributed async agent coordination" ;
+  clap:hasPattern clap:async_distributed ;
+  clap:examples 8 ;
+  clap:tests 6 .
+
+clap:ErrorPropagation a clap:Capability ;
+  rdfs:label "Error Propagation" ;
+  rdfs:comment "Error handling in async contexts" ;
+  clap:relatedTo clap:AsyncSupport ;
+  clap:examples 7 ;
+  clap:tests 5 .
+
+# Noun-Verb Command Capabilities (10)
+clap:UserManagement a clap:Capability ;
+  rdfs:label "User Management" ;
+  rdfs:comment "Create, read, update, delete users" ;
+  clap:hasNoun clap:user ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:ProductCatalog a clap:Capability ;
+  rdfs:label "Product Catalog" ;
+  rdfs:comment "Product management and queries" ;
+  clap:hasNoun clap:product ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:OrderManagement a clap:Capability ;
+  rdfs:label "Order Management" ;
+  rdfs:comment "Create and manage customer orders" ;
+  clap:hasNoun clap:order ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:ServiceManagement a clap:Capability ;
+  rdfs:label "Service Management" ;
+  rdfs:comment "Manage microservices and deployments" ;
+  clap:hasNoun clap:service ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:ConfigurationManagement a clap:Capability ;
+  rdfs:label "Configuration Management" ;
+  rdfs:comment "Manage application configuration" ;
+  clap:hasNoun clap:config ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:JobScheduling a clap:Capability ;
+  rdfs:label "Job Scheduling" ;
+  rdfs:comment "Schedule and manage background jobs" ;
+  clap:hasNoun clap:job ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:TemplateGeneration a clap:Capability ;
+  rdfs:label "Template Generation" ;
+  rdfs:comment "Code generation from templates" ;
+  clap:hasNoun clap:template ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:ProjectManagement a clap:Capability ;
+  rdfs:label "Project Management" ;
+  rdfs:comment "Project lifecycle management" ;
+  clap:hasNoun clap:project ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:WorkflowAutomation a clap:Capability ;
+  rdfs:label "Workflow Automation" ;
+  rdfs:comment "Automate complex workflows" ;
+  clap:hasNoun clap:workflow ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:EventProcessing a clap:Capability ;
+  rdfs:label "Event Processing" ;
+  rdfs:comment "Process and route events" ;
+  clap:hasNoun clap:event ;
+  clap:examples 4 ;
+  clap:tests 3 .
+
+# Middleware/Pipeline Capabilities (4)
+clap:RequestLogging a clap:Capability ;
+  rdfs:label "Request Logging" ;
+  rdfs:comment "Log incoming requests and responses" ;
+  clap:hasPattern clap:middleware_logging ;
+  clap:examples 6 ;
+  clap:tests 5 .
+
+clap:InputValidation a clap:Capability ;
+  rdfs:label "Input Validation" ;
+  rdfs:comment "Validate user input in middleware pipeline" ;
+  clap:hasPattern clap:middleware_validation ;
+  clap:examples 8 ;
+  clap:tests 6 .
+
+clap:DataTransformation a clap:Capability ;
+  rdfs:label "Data Transformation" ;
+  rdfs:comment "Transform request/response data" ;
+  clap:hasPattern clap:middleware_transformation ;
+  clap:examples 6 ;
+  clap:tests 5 .
+
+clap:CustomMiddleware a clap:Capability ;
+  rdfs:label "Custom Middleware" ;
+  rdfs:comment "Create custom middleware components" ;
+  clap:relatedTo clap:MiddlewarePattern ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+# Error Handling Capabilities (5)
+clap:ErrorHandling a clap:Capability ;
+  rdfs:label "Error Handling" ;
+  rdfs:comment "Comprehensive error handling" ;
+  clap:hasError clap:not_found_error ;
+  clap:examples 10 ;
+  clap:tests 8 .
+
+clap:ValidationErrors a clap:Capability ;
+  rdfs:label "Validation Errors" ;
+  rdfs:comment "Input validation and error reporting" ;
+  clap:hasError clap:invalid_error ;
+  clap:examples 8 ;
+  clap:tests 6 .
+
+clap:AuthorizationErrors a clap:Capability ;
+  rdfs:label "Authorization Errors" ;
+  rdfs:comment "Authorization and permission checking" ;
+  clap:hasError clap:unauthorized_error ;
+  clap:examples 5 ;
+  clap:tests 4 .
+
+clap:ConflictResolution a clap:Capability ;
+  rdfs:label "Conflict Resolution" ;
+  rdfs:comment "Handle state conflicts and race conditions" ;
+  clap:hasError clap:conflict_error ;
+  clap:examples 4 ;
+  clap:tests 3 .
+
+clap:RetryLogic a clap:Capability ;
+  rdfs:label "Retry Logic" ;
+  rdfs:comment "Implement retry strategies for failures" ;
+  clap:hasError clap:timeout_error ;
+  clap:examples 6 ;
+  clap:tests 5 .
+
+# Output Format Capabilities (4)
+clap:JsonOutput a clap:Capability ;
+  rdfs:label "JSON Output" ;
+  rdfs:comment "Output results as JSON" ;
+  clap:format "json" ;
+  clap:examples 12 ;
+  clap:tests 10 .
+
+clap:TextOutput a clap:Capability ;
+  rdfs:label "Text Output" ;
+  rdfs:comment "Output results as plain text" ;
+  clap:format "text" ;
+  clap:examples 12 ;
+  clap:tests 10 .
+
+clap:MarkdownOutput a clap:Capability ;
+  rdfs:label "Markdown Output" ;
+  rdfs:comment "Output results as Markdown" ;
+  clap:format "markdown" ;
+  clap:examples 8 ;
+  clap:tests 6 .
+
+clap:CustomFormatOutput a clap:Capability ;
+  rdfs:label "Custom Format Output" ;
+  rdfs:comment "Support custom output formats" ;
+  clap:format "custom" ;
+  clap:examples 6 ;
+  clap:tests 5 .
+
+# ============================================================================
+# Property Definitions
+# ============================================================================
+
+clap:hasNoun a rdf:Property ;
+  rdfs:label "has noun" ;
+  rdfs:domain clap:Capability ;
+  rdfs:range clap:NounEntity .
+
+clap:hasVerb a rdf:Property ;
+  rdfs:label "has verb" ;
+  rdfs:domain clap:Capability ;
+  rdfs:range clap:VerbAction .
+
+clap:hasPattern a rdf:Property ;
+  rdfs:label "has pattern" ;
+  rdfs:domain clap:Capability ;
+  rdfs:range clap:ArgumentPattern .
+
+clap:hasError a rdf:Property ;
+  rdfs:label "has error" ;
+  rdfs:domain clap:Capability ;
+  rdfs:range clap:ErrorType .
+
+clap:examples a rdf:Property ;
+  rdfs:label "examples" ;
+  rdfs:comment "Number of example implementations" ;
+  rdfs:range xsd:integer .
+
+clap:tests a rdf:Property ;
+  rdfs:label "tests" ;
+  rdfs:comment "Number of test cases" ;
+  rdfs:range xsd:integer .
+
+clap:operation a rdf:Property ;
+  rdfs:label "operation" ;
+  rdfs:comment "Operation type (REST)" ;
+  rdfs:range xsd:string .
+
+clap:resultType a rdf:Property ;
+  rdfs:label "result type" ;
+  rdfs:comment "Type of result returned" ;
+  rdfs:range xsd:string .
+
+clap:format a rdf:Property ;
+  rdfs:label "format" ;
+  rdfs:comment "Output format type" ;
+  rdfs:range xsd:string .
+
+clap:frameworks a rdf:Property ;
+  rdfs:label "frameworks" ;
+  rdfs:comment "Required frameworks or libraries" ;
+  rdfs:range xsd:string .
+
+clap:relatedTo a rdf:Property ;
+  rdfs:label "related to" ;
+  rdfs:domain clap:Capability ;
+  rdfs:range clap:Capability .

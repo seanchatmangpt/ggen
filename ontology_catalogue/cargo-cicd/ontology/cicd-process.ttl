@@ -1,0 +1,48 @@
+@prefix cicd: <https://cargo-cicd.dev/vocab#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+cicd: a owl:Ontology ;
+    dcterms:title "cargo-cicd CI/CD Process Ontology" ;
+    dcterms:description "Declares the lawful manufacturing pipeline for cargo-cicd" ;
+    owl:versionInfo "v26.6.2" .
+
+cicd:CicdActivity a owl:Class ; rdfs:subClassOf prov:Activity .
+
+cicd:StatusCommand a cicd:CicdActivity ;
+    skos:prefLabel "status" ;
+    dcterms:description "Report CI/CD environment status" ;
+    cicd:emitsEvidence true .
+
+cicd:TargetCommand a cicd:CicdActivity ;
+    skos:prefLabel "target" ;
+    dcterms:description "Manage compilation target artifacts" .
+
+cicd:TestCommand a cicd:CicdActivity ;
+    skos:prefLabel "test" ;
+    dcterms:description "Run test suite" ;
+    cicd:lawfulPredecessor cicd:StatusCommand .
+
+cicd:PublishCommand a cicd:CicdActivity ;
+    skos:prefLabel "publish" ;
+    dcterms:description "Release artifact to crates.io" ;
+    cicd:lawfulPredecessor cicd:TestCommand ;
+    cicd:requiresAdjudicatedEvidence "true"^^xsd:boolean ;
+    cicd:requiredConformanceScore "1.0"^^xsd:decimal .
+
+cicd:EvidenceAuditCommand a cicd:CicdActivity ;
+    skos:prefLabel "evidence audit" ;
+    dcterms:description "Invoke wasm4pm oracle to adjudicate process evidence" ;
+    prov:used cicd:ProcessEvidence .
+
+cicd:ProcessEvidence a prov:Entity ;
+    dcterms:format "XES 1.0" ;
+    cicd:path "target/cargo-cicd/evidence/events.xes" .
+
+cicd:AdmissionReceipt a prov:Entity ;
+    prov:wasGeneratedBy cicd:EvidenceAuditCommand ;
+    dcterms:description "Receipt issued only after wasm4pm accepts evidence" .

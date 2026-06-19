@@ -1,0 +1,90 @@
+# SPARQL Query: Process Tree Compatibility Join
+# Purpose: Extract process tree forms from wasm4pm-compat (ProcessTree, TreeNode, LoopNode)
+# and join with external process tree standard definitions. Maps tree operators and
+# lifecycle constraints.
+#
+# Usage: ggen query extract-process-tree-compat-join.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX ptree:      <https://open-ontologies.org/processtree#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?treeComponent
+  ?treeComponentType
+  ?treeComponentLabel
+  (GROUP_CONCAT(DISTINCT ?treeOperator; separator=', ') AS ?supportedOperators)
+  ?loopArity
+  ?isProjectable
+  (COUNT(DISTINCT ?treeConstraint) AS ?constraintCount)
+WHERE {
+  # ========== COMPAT SIDE: Process Tree Forms ==========
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile ;
+    compat:admittedAgainst ?ptreeWitness .
+
+  ?ptreeWitness compat:witnessKey 'process-tree' .
+
+  # ========== TREE OPERATORS ==========
+  OPTIONAL {
+    ?compatForm compat:treeOperator ?treeOperator .
+  }
+
+  # ========== LOOP NODE ARITY CONSTRAINT ==========
+  OPTIONAL {
+    ?compatForm compat:loopArity ?loopArity .
+  }
+
+  # ========== PROJECTABILITY ==========
+  OPTIONAL {
+    ?compatForm compat:isProjectable ?isProjectable .
+  }
+
+  # ========== EXTERNAL SIDE: Process Tree Components ==========
+  # Bind external component types
+  BIND (
+    IF(?compatRustType = 'ProcessTree', ptree:ProcessTree,
+    IF(?compatRustType = 'TreeNode', ptree:TreeNode,
+    IF(?compatRustType = 'LoopNode', ptree:LoopNode,
+    IF(?compatRustType = 'ActivityNode', ptree:ActivityNode,
+    IF(?compatRustType = 'GatewayNode', ptree:GatewayNode,
+    ptree:Component)))))
+    AS ?treeComponentType
+  )
+
+  # Match external process tree definitions
+  OPTIONAL {
+    ?treeComponent
+      a ?treeComponentType ;
+      rdfs:label ?treeComponentLabel ;
+      rdfs:comment ?treeComponentComment .
+  }
+
+  # Process tree structural constraints
+  OPTIONAL {
+    ?treeConstraint
+      rdfs:domain ?treeComponentType ;
+      rdf:type owl:Restriction ;
+      rdfs:label ?treeConstraintLabel .
+  }
+}
+GROUP BY
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?treeComponent
+  ?treeComponentType
+  ?treeComponentLabel
+  ?loopArity
+  ?isProjectable
+ORDER BY ?compatRustType ?treeComponentType

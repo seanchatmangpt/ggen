@@ -95,3 +95,6 @@ use_cases = "IEEE conference submissions, academic research papers, computer sci
 [validation]
 requires = ["paper.rdf", "references.bib"]
 checks = ["metadata", "citations", "formatting", "compliance"]
+
+[marketplace]
+production_ready = false

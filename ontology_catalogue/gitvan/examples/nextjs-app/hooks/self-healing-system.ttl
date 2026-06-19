@@ -1,0 +1,88 @@
+@prefix gh: <http://example.org/git-hooks#> .
+@prefix git: <http://example.org/git#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Self-Healing System Hook
+# Detects hook failures and automatically recovers with pattern adjustment and retry logic
+
+gh:SelfHealingSystem a gh:Hook ;
+  gh:name "Self-Healing System" ;
+  gh:description "Automatically detect, analyze, and recover from hook failures with learning" ;
+  gh:priority 9 ;
+  gh:autoExecute true ;
+
+  gh:trigger [
+    a gh:HookFailureEvent ;
+    gh:errorThreshold 3 ;
+    gh:timeWindow "5m"
+  ] ;
+
+  gh:condition [
+    a gh:FailureThreshold ;
+    gh:consecutiveFailures 2 ;
+    gh:failureRate "> 0.2"
+  ] ;
+
+  gh:action [
+    a gh:CompositeAction ;
+    gh:steps [
+      rdf:_1 [
+        a gh:AnalyzeFailure ;
+        gh:query """
+          SELECT ?hook ?error ?cause WHERE {
+            ?failure a git:HookFailure ;
+              git:hook ?hook ;
+              git:error ?error ;
+              git:cause ?cause
+          }
+          ORDER BY DESC(?failure_timestamp)
+          LIMIT 5
+        """
+      ] ;
+      rdf:_2 [
+        a gh:DiagnoseIssue ;
+        gh:rules [
+          "timeout" ;
+          "memory-exceeded" ;
+          "dependency-missing" ;
+          "configuration-error" ;
+          "external-service-error"
+        ] ;
+        gh:threshold 0.7
+      ] ;
+      rdf:_3 [
+        a gh:AdjustPattern ;
+        gh:adjustments [
+          gh:timeout "+30s" ;
+          gh:memory "+200m" ;
+          gh:retries "+1" ;
+          gh:backoff "exponential"
+        ]
+      ] ;
+      rdf:_4 [
+        a gh:RetryOperation ;
+        gh:maxRetries 3 ;
+        gh:backoffMultiplier 2.0 ;
+        gh:backoffBase "100ms"
+      ] ;
+      rdf:_5 [
+        a gh:LearnFromFailure ;
+        gh:store [
+          gh:type "pattern" ;
+          gh:key "${hook}:${cause}" ;
+          gh:value "${adjustment}" ;
+          gh:ttl "7d"
+        ]
+      ] ;
+      rdf:_6 [
+        a gh:NotifyTeam ;
+        gh:severity "warning" ;
+        gh:channels [ "slack" ; "email" ] ;
+        gh:message "Hook ${hook} self-healed: ${cause} → ${adjustment}"
+      ] ;
+      rdf:_7 [
+        a gh:UpdateMetrics ;
+        gh:metrics [ "recoveries" ; "adjustments" ; "learning" ]
+      ]
+    ]
+  ] .

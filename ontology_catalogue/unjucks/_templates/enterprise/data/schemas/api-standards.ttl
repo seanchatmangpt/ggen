@@ -1,0 +1,46 @@
+@prefix : <http://enterprise.com/api/standards#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# API Endpoint Metadata
+:APIEndpoint rdf:type rdfs:Class ;
+  rdfs:label "API Endpoint" ;
+  schema:description "Standardized REST API endpoint for enterprise microservices" .
+
+:APIOperation rdf:type :APIEndpoint ;
+  schema:name "Enterprise API Operation" ;
+  schema:description "Create, read, update, or delete enterprise resources with full audit trail" ;
+  :securityLevel "HIGH" ;
+  :requiresAuthentication true ;
+  :requiresAuthorization true ;
+  :rateLimitEnabled true ;
+  :auditLevel "FULL" .
+
+# Security Profile
+:SecurityProfile rdf:type rdfs:Class ;
+  rdfs:label "Security Profile" ;
+  :encryptionStandard "AES-256-GCM" ;
+  :hashingAlgorithm "SHA-256" ;
+  :tokenExpiration "24h" ;
+  :refreshTokenExpiration "30d" ;
+  :sessionTimeout "8h" .
+
+# Compliance Policy
+:CompliancePolicy rdf:type rdfs:Class ;
+  rdfs:label "Compliance Policy" ;
+  :dataRetention "7 years" ;
+  :auditRetention "10 years" ;
+  :encryptionAtRest true ;
+  :encryptionInTransit true ;
+  :accessLoggingEnabled true ;
+  :dataClassificationRequired true .
+
+# Data Classification
+:DataClassification rdf:type rdfs:Class ;
+  rdfs:label "Data Classification" ;
+  :level "INTERNAL" ;
+  :requiresApproval false ;
+  :retentionPeriod "7 years" ;
+  :encryptionRequired true .

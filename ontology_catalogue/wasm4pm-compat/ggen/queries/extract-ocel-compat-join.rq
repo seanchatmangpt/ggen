@@ -1,0 +1,79 @@
+# SPARQL Query: OCEL 2.0 Compatibility Join
+# Purpose: Extract OCEL 2.0 process forms from wasm4pm-compat and join with external
+# OCEL standard definitions. Maps compat:OcelLog, compat:OcelEvent, compat:EventObjectLink,
+# compat:ObjectObjectLink, compat:ObjectChange to their external OCEL counterparts.
+#
+# Usage: ggen query extract-ocel-compat-join.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX ocel:       <https://open-ontologies.org/ocel#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+
+SELECT DISTINCT
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?ocelComponent
+  ?ocelComponentType
+  ?compatDxSurface
+  (GROUP_CONCAT(DISTINCT ?compatMethod; separator='; ') AS ?compatBuilderMethods)
+  (SAMPLE(?ocelConstraint) AS ?ocelConstraintName)
+WHERE {
+  # ========== COMPAT SIDE: OCEL Forms ==========
+  ?compatForm
+    a compat:ProcessForm ;
+    compat:rustType ?compatRustType ;
+    compat:sourceFile ?compatSourceFile ;
+    compat:admittedAgainst ?ocelWitness .
+
+  ?ocelWitness compat:witnessKey 'ocel-2.0' .
+
+  # DX surface: builder methods on OCEL forms
+  OPTIONAL {
+    ?compatForm compat:dxSurface ?compatDxSurface .
+  }
+
+  # OPTIONAL: Extract builder method examples
+  OPTIONAL {
+    ?compatForm compat:builderMethod ?compatMethod .
+  }
+
+  # ========== EXTERNAL SIDE: OCEL Standard Components ==========
+  # Bind external component types based on compat type
+  BIND (
+    IF(?compatRustType = 'OcelLog', ocel:ObjectCentricEventLog,
+    IF(?compatRustType = 'OcelEvent', ocel:Event,
+    IF(?compatRustType = 'EventObjectLink', ocel:EventObjectLink,
+    IF(?compatRustType = 'ObjectObjectLink', ocel:ObjectObjectLink,
+    IF(?compatRustType = 'ObjectChange', ocel:AttributeChange,
+    ocel:Component)))))
+    AS ?ocelComponentType
+  )
+
+  # Match external OCEL definitions (federation-enabled)
+  OPTIONAL {
+    ?ocelComponent
+      a ?ocelComponentType ;
+      rdfs:label ?ocelComponentLabel ;
+      rdfs:comment ?ocelComponentComment .
+  }
+
+  # OPTIONAL: Collect OCEL-specific constraints
+  OPTIONAL {
+    ?ocelConstraint
+      rdfs:domain ?ocelComponentType ;
+      rdf:type owl:Restriction .
+  }
+}
+GROUP BY
+  ?compatForm
+  ?compatRustType
+  ?compatSourceFile
+  ?ocelComponent
+  ?ocelComponentType
+  ?compatDxSurface
+ORDER BY ?compatRustType ?compatSourceFile

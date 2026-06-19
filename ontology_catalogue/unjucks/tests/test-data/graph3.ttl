@@ -1,0 +1,24 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Different semantic content - Alice has different age and new relationship
+ex:Alice rdf:type foaf:Person ;
+         foaf:name "Alice Smith" ;
+         foaf:age 31 ;
+         foaf:knows ex:Bob, ex:David .
+
+ex:Bob rdf:type foaf:Person ;
+       foaf:name "Bob Johnson" ;
+       foaf:age 25 ;
+       foaf:mbox <mailto:bob@example.com> .
+
+# New person
+ex:David rdf:type foaf:Person ;
+         foaf:name "David Wilson" ;
+         foaf:age 28 .
+
+ex:Company1 rdf:type ex:Organization ;
+            rdfs:label "Example Corp" ;
+            ex:employee ex:Alice, ex:Bob, ex:David .

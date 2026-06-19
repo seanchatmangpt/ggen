@@ -1,0 +1,129 @@
+@prefix pm: <http://purl.org/pm/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Discovery Shapes
+pm:DFGDiscoveryShape a sh:NodeShape ;
+    sh:targetClass pm:DirectlyFollowsGraph ;
+    sh:property [
+        sh:path pm:hasFitness ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:name "Fitness must be between 0 and 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:executionTime ;
+        sh:datatype xsd:duration ;
+        sh:name "Execution time must be a duration"@en
+    ] ;
+    sh:property [
+        sh:path pm:discoversWith ;
+        sh:hasValue pm:DFGDiscovery ;
+        sh:name "Must use DFG discovery algorithm"@en
+    ] .
+
+pm:ConformanceShape a sh:NodeShape ;
+    sh:targetClass pm:ProcessModel ;
+    sh:property [
+        sh:path pm:hasFitness ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Fitness should be between 0 and 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:hasPrecision ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Precision should be between 0 and 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:hasGeneralization ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Generalization should be between 0 and 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:hasSimplicity ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Simplicity should be between 0 and 1"@en
+    ] .
+
+pm:EventLogShape a sh:NodeShape ;
+    sh:targetClass pm:EventLog ;
+    sh:property [
+        sh:path pm:eventCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:name "Event count must be at least 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:traceCount ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:name "Trace count must be at least 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:hasEvent ;
+        sh:minCount 1 ;
+        sh:name "Must contain at least one event"@en
+    ] .
+
+pm:PredictionShape a sh:NodeShape ;
+    sh:targetClass pm:PredictiveModel ;
+    sh:property [
+        sh:path pm:predictionConfidence ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Prediction confidence should be between 0 and 1"@en
+    ] ;
+    sh:property [
+        sh:path pm:anomalyScore ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Anomaly score should be normalized between 0 and 1"@en
+    ] .
+
+# Soft Constraints (Warnings only)
+pm:QualityMetricsShape a sh:NodeShape ;
+    sh:targetClass pm:ProcessModel ;
+    sh:property [
+        sh:path pm:hasFitness ;
+        sh:minInclusive 0.7 ;
+        sh:severity sh:Warning ;
+        sh:message "Fitness below 0.7 may indicate quality issues"@en
+    ] ;
+    sh:property [
+        sh:path pm:hasPrecision ;
+        sh:minInclusive 0.7 ;
+        sh:severity sh:Warning ;
+        sh:message "Precision below 0.7 may indicate overgeneralization"@en
+    ] .
+
+pm:ObjectCentricShape a sh:NodeShape ;
+    sh:targetClass pm:ObjectCentricEventLog ;
+    sh:property [
+        sh:path pm:hasBusinessObject ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "OCEL should contain at least one business object"@en
+    ] ;
+    sh:property [
+        sh:path pm:hasEvent ;
+        sh:minCount 1 ;
+        sh:name "OCEL must contain events"@en
+    ] .

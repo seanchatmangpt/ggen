@@ -1,0 +1,206 @@
+@prefix stpnt: <https://stpnt.org/ontology#> .
+@prefix canon: <https://stpnt.org/canon#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================
+# stpnt First Seed Canon — Minimal Working Canon
+#
+# This is the smallest canon that lets the first seed work.
+# Gall's Law: start with what works. Grow from here.
+#
+# Three parts:
+#   1. WelcomeOneAnotherPart (Romans 15:7, Tradition 3, Peter)
+#   2. InvitePart (1 Corinthians 4:2, Tradition 1, John)
+#   3. GenesisOriginPart (Genesis 1:1, Tradition 2, open)
+#
+# Two avatars: John (invite), Peter (welcome/gatekeeper)
+# Gall Checkpoint: maximum 2 hierarchy levels
+# ============================================================
+
+# ─── Canon Metadata ──────────────────────────────────────────
+
+canon:FirstSeedCanon a stpnt:Canon ;
+    rdfs:label "First Seed Canon" ;
+    dcterms:description "Minimal working canon for the first church deployment" ;
+    stpnt:version "1.0.0" ;
+    stpnt:gallCheckpoint stpnt:MaxTwoHierarchyLevels ;
+    stpnt:status stpnt:Active .
+
+stpnt:MaxTwoHierarchyLevels a stpnt:GallCheckpoint ;
+    rdfs:label "Maximum 2 hierarchy levels" ;
+    stpnt:maxHierarchyLevels 2 ;
+    dcterms:description "Gall's Law enforcement: no system with more than 2 levels of hierarchy can be trusted to work on first deployment." .
+
+# ─── Scriptures ──────────────────────────────────────────────
+
+canon:Romans15_7 a stpnt:Scripture ;
+    rdfs:label "Romans 15:7" ;
+    stpnt:reference "Romans 15:7" ;
+    stpnt:text "Welcome one another as Christ has welcomed you, for the glory of God." ;
+    stpnt:theme "reception, belonging, inclusion" ;
+    stpnt:applicableTo stpnt:WelcomePart .
+
+canon:Corinthians1_4_2 a stpnt:Scripture ;
+    rdfs:label "1 Corinthians 4:2" ;
+    stpnt:reference "1 Corinthians 4:2" ;
+    stpnt:text "Moreover, it is required of stewards that they be found faithful." ;
+    stpnt:theme "faithfulness, stewardship, accountability" ;
+    stpnt:applicableTo stpnt:InvitePart .
+
+canon:Genesis1_1 a stpnt:Scripture ;
+    rdfs:label "Genesis 1:1" ;
+    stpnt:reference "Genesis 1:1" ;
+    stpnt:text "In the beginning, God created the heavens and the earth." ;
+    stpnt:theme "origin, creation, first principles" ;
+    stpnt:applicableTo stpnt:GenesisOriginPart .
+
+canon:Luke15_4_7 a stpnt:Scripture ;
+    rdfs:label "Luke 15:4-7" ;
+    stpnt:reference "Luke 15:4-7" ;
+    stpnt:text "What man of you, having a hundred sheep, if he has lost one of them, does not leave the ninety-nine in the open country, and go after the one that is lost, until he finds it?" ;
+    stpnt:theme "seeking, the lost, persistent love" ;
+    stpnt:applicableTo stpnt:InvitePart .
+
+# ─── AA Steps (used in this seed) ────────────────────────────
+
+canon:Step1 a stpnt:AAStep ;
+    rdfs:label "Step 1" ;
+    stpnt:stepNumber 1 ;
+    stpnt:text "We admitted we were powerless over alcohol — that our lives had become unmanageable." ;
+    stpnt:theme "surrender, honesty, admission" ;
+    stpnt:pentecostStage stpnt:Invite .
+
+canon:Step12 a stpnt:AAStep ;
+    rdfs:label "Step 12" ;
+    stpnt:stepNumber 12 ;
+    stpnt:text "Having had a spiritual awakening as the result of these steps, we tried to carry this message to alcoholics, and to practice these principles in all our affairs." ;
+    stpnt:theme "service, carrying the message, multiplication" ;
+    stpnt:pentecostStage stpnt:StewardAnother .
+
+# ─── AA Traditions (used in this seed) ───────────────────────
+
+canon:Tradition1 a stpnt:AATradition ;
+    rdfs:label "Tradition 1" ;
+    stpnt:traditionNumber 1 ;
+    stpnt:text "Our common welfare should come first; personal recovery depends upon AA unity." ;
+    stpnt:theme "unity, common welfare, community before individual" ;
+    stpnt:applicableTo stpnt:InvitePart .
+
+canon:Tradition3 a stpnt:AATradition ;
+    rdfs:label "Tradition 3" ;
+    stpnt:traditionNumber 3 ;
+    stpnt:text "The only requirement for AA membership is a desire to stop drinking." ;
+    stpnt:theme "open door, no barriers, desire as sufficient condition" ;
+    stpnt:applicableTo stpnt:WelcomePart .
+
+# ─── Avatars ─────────────────────────────────────────────────
+
+canon:AvatarJohn a stpnt:Avatar ;
+    rdfs:label "John" ;
+    stpnt:avatarName "John" ;
+    stpnt:description "The beloved disciple. The welcoming authority. Grounded in love and invitation." ;
+    stpnt:authorizedActions "prepare", "invite" ;
+    stpnt:defaultCapacity 5 ;
+    stpnt:scriptureAuthority canon:Corinthians1_4_2 ;
+    stpnt:aaAnchor canon:Tradition1 .
+
+canon:AvatarPeter a stpnt:Avatar ;
+    rdfs:label "Peter" ;
+    stpnt:avatarName "Peter" ;
+    stpnt:description "The rock. The gatekeeper. The one who holds the keys to belonging and full membership." ;
+    stpnt:authorizedActions "welcome", "remember", "consent" ;
+    stpnt:defaultCapacity 3 ;
+    stpnt:scriptureAuthority canon:Romans15_7 ;
+    stpnt:aaAnchor canon:Tradition3 .
+
+# ─── Parts ───────────────────────────────────────────────────
+
+stpnt:InvitePart a stpnt:Part ;
+    rdfs:label "InvitePart" ;
+    stpnt:partName "InvitePart" ;
+    stpnt:scripture canon:Corinthians1_4_2 ;
+    stpnt:aaAnchor canon:Tradition1 ;
+    stpnt:authorizedAvatar canon:AvatarJohn ;
+    stpnt:pentecostStage stpnt:Invite ;
+    stpnt:canonBasis "1 Corinthians 4:2" ;
+    stpnt:description "The faithful steward invites those who have expressed a desire. John is authorized to invite." .
+
+stpnt:WelcomePart a stpnt:Part ;
+    rdfs:label "WelcomeOneAnotherPart" ;
+    stpnt:partName "WelcomeOneAnotherPart" ;
+    stpnt:scripture canon:Romans15_7 ;
+    stpnt:aaAnchor canon:Tradition3 ;
+    stpnt:authorizedAvatar canon:AvatarPeter ;
+    stpnt:pentecostStage stpnt:Welcome ;
+    stpnt:canonBasis "Romans 15:7" ;
+    stpnt:description "Welcome one another as Christ has welcomed you. Peter is authorized to welcome. The door is open to all who desire." .
+
+stpnt:GenesisOriginPart a stpnt:Part ;
+    rdfs:label "GenesisOriginPart" ;
+    stpnt:partName "GenesisOriginPart" ;
+    stpnt:scripture canon:Genesis1_1 ;
+    stpnt:aaAnchor canon:Tradition1 ;
+    stpnt:pentecostStage stpnt:Prepare ;
+    stpnt:canonBasis "Genesis 1:1" ;
+    stpnt:description "In the beginning. The genesis receipt. Every chain has a first link." .
+
+# ─── Pentecost Path Stages (first seed: Prepare → Invite → Welcome) ──
+
+stpnt:Prepare a stpnt:PentecostStage ;
+    rdfs:label "Prepare" ;
+    stpnt:eventName "prepare" ;
+    stpnt:description "Preparation before invitation. John is authorized." ;
+    stpnt:nextStage stpnt:Invite .
+
+stpnt:Invite a stpnt:PentecostStage ;
+    rdfs:label "Invite" ;
+    stpnt:eventName "invite" ;
+    stpnt:description "A person with desire is invited. John is authorized." ;
+    stpnt:canonBasis canon:Corinthians1_4_2 ;
+    stpnt:authorizedAvatar canon:AvatarJohn ;
+    stpnt:nextStage stpnt:Welcome .
+
+stpnt:Welcome a stpnt:PentecostStage ;
+    rdfs:label "Welcome" ;
+    stpnt:eventName "welcome" ;
+    stpnt:description "The invited person is welcomed. Peter is authorized. Romans 15:7." ;
+    stpnt:canonBasis canon:Romans15_7 ;
+    stpnt:authorizedAvatar canon:AvatarPeter ;
+    stpnt:nextStage stpnt:Remember .
+
+# ─── POWL Route for first seed ───────────────────────────────
+
+canon:FirstSeedRoute a stpnt:PowlRoute ;
+    rdfs:label "First Seed Route" ;
+    stpnt:routeId "first_seed_route" ;
+    stpnt:validTransitions (
+        [ stpnt:from "person.invited" ; stpnt:to "obligation.created" ]
+        [ stpnt:from "obligation.created" ; stpnt:to "obligation.completed" ]
+        [ stpnt:from "obligation.completed" ; stpnt:to "person.welcomed" ]
+    ) ;
+    stpnt:forbiddenTransitions (
+        [ stpnt:from "person.welcomed" ; stpnt:to "person.invited" ]
+    ) ;
+    stpnt:slaSeconds 7776000 ;  # 90 days
+    stpnt:fitnessThreshold 0.95 .
+
+# ─── Consequence Conservation ────────────────────────────────
+#
+# Every action in this canon must produce:
+# 1. A BLAKE3 receipt (consequence of the action)
+# 2. An Ed25519 signature (steward's lawful binding)
+# 3. A prior_receipt_hash link (chain continuity)
+# 4. An OCEL event (memory preservation)
+#
+# The consequence is conserved when:
+#   - The receipt hash matches the canonical form
+#   - The signature is valid against the declared verifying key
+#   - The prior_receipt_hash points to an existing receipt
+#   - The OCEL event log records the transition
+#
+canon:ConsequenceConservation a stpnt:Invariant ;
+    rdfs:label "Consequence Conservation" ;
+    stpnt:rule "Every institutional action produces a receipt. No receipt is orphaned. Every receipt links to its prior." ;
+    stpnt:enforcedBy "validate_chain(), verify_signature(), OCEL append_event()" .

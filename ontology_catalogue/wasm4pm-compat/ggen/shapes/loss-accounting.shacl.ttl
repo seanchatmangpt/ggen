@@ -1,0 +1,215 @@
+# SHACL shapes for loss accounting type-law validation
+# Part of wasm4pm-compat type-law covenant: loss = decided before + named + accountable
+#
+# These shapes validate:
+# - LossReport structure (has ProjectionName, LossPolicy, optional Items)
+# - NamedLoss categories (ObjectLoss, AttributeLoss, LinkLoss, StructuralLoss)
+# - ProjectionName non-emptiness
+# - All lossy paths carry LossReport (enforced by Rust type system; RDF records intent)
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix compat: <https://wasm4pm-compat.rs/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# LossReport Node Shape
+# ============================================================================
+# A LossReport must have:
+#   - Exactly one ProjectionName (non-empty string)
+#   - Exactly one LossPolicy (from enum: RefuseLoss, AllowNamedProjection, AllowLossWithReport)
+#   - Either Items (one or more) OR lossless=true (but not both)
+
+compat:LossReportShape
+    a sh:NodeShape ;
+    sh:targetClass compat:LossReport ;
+    rdfs:label "LossReport Shape" ;
+    rdfs:comment "Validates LossReport<From, To, Items> structure. Every non-refusing projection emits one." ;
+    sh:property compat:LossReport_hasProjectionNameProp ;
+    sh:property compat:LossReport_hasLossPolicyProp ;
+    sh:property compat:LossReport_hasItemsOrLosslessProp .
+
+# Property: hasProjectionName
+# - Required (minCount 1), unique (maxCount 1)
+# - Must be a string literal
+# - Must be non-empty (minLength 1)
+
+compat:LossReport_hasProjectionNameProp
+    a sh:PropertyShape ;
+    sh:path compat:hasProjectionName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "LossReport must have exactly one non-empty ProjectionName (string literal)." .
+
+# Property: hasLossPolicy
+# - Required (minCount 1), unique (maxCount 1)
+# - Must be one of the three authorized enum variants
+
+compat:LossReport_hasLossPolicyProp
+    a sh:PropertyShape ;
+    sh:path compat:hasLossPolicy ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+        compat:LossPolicy_RefuseLoss
+        compat:LossPolicy_AllowNamedProjection
+        compat:LossPolicy_AllowLossWithReport
+    ) ;
+    sh:message "LossReport must have exactly one LossPolicy from the authorized enum (RefuseLoss, AllowNamedProjection, AllowLossWithReport)." .
+
+# Property: Items or Lossless
+# - Either hasLossItems (one or more) OR isLossless (true)
+# - Cannot have both empty Items AND isLossless=false
+
+compat:LossReport_hasItemsOrLosslessProp
+    a sh:PropertyShape ;
+    sh:path compat:hasLossItems ;
+    sh:or (
+        [ sh:minCount 1 ]
+        [ sh:path compat:isLossless ; sh:hasValue true ]
+    ) ;
+    sh:message "LossReport must either list items (minCount 1) OR declare itself lossless (isLossless=true)." .
+
+# ============================================================================
+# NamedLoss Node Shape
+# ============================================================================
+# A NamedLoss pairs a ProjectionName with a loss category:
+#   - ObjectLoss (entire objects discarded)
+#   - AttributeLoss (object attributes dropped)
+#   - LinkLoss (event-to-object or object-to-object links dropped)
+#   - StructuralLoss (nesting, ordering, concurrency relationships lost)
+
+compat:NamedLossShape
+    a sh:NodeShape ;
+    sh:targetClass compat:NamedLoss ;
+    rdfs:label "NamedLoss Shape" ;
+    rdfs:comment "Validates NamedLoss structure: pairs ProjectionName with a loss category." ;
+    sh:property compat:NamedLoss_hasProjectionNameProp ;
+    sh:property compat:NamedLoss_hasLossCategoryProp .
+
+compat:NamedLoss_hasProjectionNameProp
+    a sh:PropertyShape ;
+    sh:path compat:hasProjectionName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "NamedLoss must have exactly one non-empty ProjectionName." .
+
+compat:NamedLoss_hasLossCategoryProp
+    a sh:PropertyShape ;
+    sh:path compat:hasLossCategory ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in (
+        compat:LossCategory_ObjectLoss
+        compat:LossCategory_AttributeLoss
+        compat:LossCategory_LinkLoss
+        compat:LossCategory_StructuralLoss
+    ) ;
+    sh:message "NamedLoss must declare exactly one loss category (ObjectLoss, AttributeLoss, LinkLoss, or StructuralLoss)." .
+
+# ============================================================================
+# ProjectionName Node Shape
+# ============================================================================
+# ProjectionName is a &'static str newtype used as a projection identifier.
+# Must be a non-empty string literal.
+
+compat:ProjectionNameShape
+    a sh:NodeShape ;
+    sh:targetClass compat:ProjectionName ;
+    rdfs:label "ProjectionName Shape" ;
+    rdfs:comment "Validates ProjectionName &'static str newtype: must be non-empty string." ;
+    sh:property compat:ProjectionName_hasNameProp .
+
+compat:ProjectionName_hasNameProp
+    a sh:PropertyShape ;
+    sh:path compat:hasName ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "ProjectionName must have exactly one non-empty name string." .
+
+# ============================================================================
+# LossPolicy Enum Variants
+# ============================================================================
+# Three and only three variants, defined here for reuse in sh:in constraints.
+
+compat:LossPolicy_RefuseLoss
+    a compat:LossPolicy ;
+    rdfs:label "RefuseLoss" ;
+    rdfs:comment "Loss is not tolerated: a projection that would drop evidence must refuse." .
+
+compat:LossPolicy_AllowNamedProjection
+    a compat:LossPolicy ;
+    rdfs:label "AllowNamedProjection" ;
+    rdfs:comment "Loss is permitted, but only via an explicitly named projection (ProjectionName). Items need not be enumerated." .
+
+compat:LossPolicy_AllowLossWithReport
+    a compat:LossPolicy ;
+    rdfs:label "AllowLossWithReport" ;
+    rdfs:comment "Loss is permitted and must be reported: a LossReport enumerating the discarded items is produced alongside the result." .
+
+# ============================================================================
+# Loss Category Instances
+# ============================================================================
+
+compat:LossCategory_ObjectLoss
+    a compat:LossCategory ;
+    rdfs:label "ObjectLoss" ;
+    rdfs:comment "Entire objects were discarded during projection." .
+
+compat:LossCategory_AttributeLoss
+    a compat:LossCategory ;
+    rdfs:label "AttributeLoss" ;
+    rdfs:comment "Object attributes (metadata) were dropped." .
+
+compat:LossCategory_LinkLoss
+    a compat:LossCategory ;
+    rdfs:label "LinkLoss" ;
+    rdfs:comment "Event-to-object or object-to-object links were dropped." .
+
+compat:LossCategory_StructuralLoss
+    a compat:LossCategory ;
+    rdfs:label "StructuralLoss" ;
+    rdfs:comment "Nesting, ordering, concurrency relationships were lost." .
+
+# ============================================================================
+# Property Definitions (used in shapes above)
+# ============================================================================
+
+compat:hasProjectionName
+    a rdf:Property ;
+    rdfs:label "has ProjectionName" ;
+    rdfs:range xsd:string .
+
+compat:hasLossPolicy
+    a rdf:Property ;
+    rdfs:label "has LossPolicy" ;
+    rdfs:range compat:LossPolicy .
+
+compat:hasLossItems
+    a rdf:Property ;
+    rdfs:label "has loss items" ;
+    rdfs:comment "Items discarded in the projection." .
+
+compat:isLossless
+    a rdf:Property ;
+    rdfs:label "is lossless" ;
+    rdfs:range xsd:boolean .
+
+compat:hasLossCategory
+    a rdf:Property ;
+    rdfs:label "has loss category" ;
+    rdfs:range compat:LossCategory .
+
+compat:hasName
+    a rdf:Property ;
+    rdfs:label "has name" ;
+    rdfs:range xsd:string .

@@ -32,17 +32,21 @@ readme = "docs/README.md"
 compliance = "docs/COMPLIANCE.md"
 examples = "docs/EXAMPLES.md"
 
-[features]
-- "pain.001 - Customer Credit Transfer Initiation"
-- "pain.002 - Payment Status Report"
-- "pacs.008 - FI to FI Customer Credit Transfer"
-- "pacs.003 - FI to FI Customer Direct Debit"
-- "camt.053 - Bank to Customer Statement"
-- "IBAN and BIC validation"
-- "SEPA compliance"
-- "XML generation and parsing"
-- "Multi-currency support"
+features = [
+    "pain.001 - Customer Credit Transfer Initiation",
+    "pain.002 - Payment Status Report",
+    "pacs.008 - FI to FI Customer Credit Transfer",
+    "pacs.003 - FI to FI Customer Direct Debit",
+    "camt.053 - Bank to Customer Statement",
+    "IBAN and BIC validation",
+    "SEPA compliance",
+    "XML generation and parsing",
+    "Multi-currency support"
+]
 
 [compliance]
 standards = ["ISO 20022", "SEPA", "EPC"]
 regulations = ["PSD2", "SWIFT"]
+
+[marketplace]
+production_ready = false

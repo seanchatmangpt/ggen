@@ -1,0 +1,225 @@
+@prefix kgen: <http://kgen.dfllss.org/ontology/> .
+@prefix attest: <http://kgen.dfllss.org/ontology/attest/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix crypto: <http://www.w3.org/ns/auth/acl#> .
+
+<http://kgen.dfllss.org/ontology/attest> a owl:Ontology ;
+    dct:title "KGEN Attestation Ontology" ;
+    dct:description "Formal model for cryptographic attestation and provenance tracking in KGEN" ;
+    dct:version "1.0.0" ;
+    dct:created "2024-01-01"^^xsd:date ;
+    dct:creator "DfLLSS Project" ;
+    owl:versionIRI <http://kgen.dfllss.org/ontology/attest/1.0.0> .
+
+# Core Attestation Classes
+attest:Attestation a owl:Class ;
+    rdfs:label "Attestation" ;
+    rdfs:comment "A cryptographic attestation of file generation" ;
+    rdfs:subClassOf owl:Thing .
+
+attest:GenerationRecord a owl:Class ;
+    rdfs:label "Generation Record" ;
+    rdfs:comment "Record of a code generation event" ;
+    rdfs:subClassOf owl:Thing .
+
+attest:Hash a owl:Class ;
+    rdfs:label "Hash" ;
+    rdfs:comment "Cryptographic hash of file content" ;
+    rdfs:subClassOf owl:Thing .
+
+attest:Template a owl:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "Template used in generation" ;
+    rdfs:subClassOf owl:Thing .
+
+attest:Input a owl:Class ;
+    rdfs:label "Input" ;
+    rdfs:comment "Input data used in generation" ;
+    rdfs:subClassOf owl:Thing .
+
+attest:Output a owl:Class ;
+    rdfs:label "Output" ;
+    rdfs:comment "Generated output file" ;
+    rdfs:subClassOf owl:Thing .
+
+attest:Environment a owl:Class ;
+    rdfs:label "Environment" ;
+    rdfs:comment "Generation environment context" ;
+    rdfs:subClassOf owl:Thing .
+
+# Relationships
+attest:attestsTo a owl:ObjectProperty ;
+    rdfs:label "attests to" ;
+    rdfs:comment "Links an attestation to what it attests" ;
+    rdfs:domain attest:Attestation ;
+    rdfs:range attest:GenerationRecord .
+
+attest:hasHash a owl:ObjectProperty ;
+    rdfs:label "has hash" ;
+    rdfs:comment "Links a file to its cryptographic hash" ;
+    rdfs:domain attest:Output ;
+    rdfs:range attest:Hash .
+
+attest:usedTemplate a owl:ObjectProperty ;
+    rdfs:label "used template" ;
+    rdfs:comment "Links generation to the template used" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range attest:Template .
+
+attest:hasInput a owl:ObjectProperty ;
+    rdfs:label "has input" ;
+    rdfs:comment "Links generation to input data" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range attest:Input .
+
+attest:producedOutput a owl:ObjectProperty ;
+    rdfs:label "produced output" ;
+    rdfs:comment "Links generation to produced files" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range attest:Output .
+
+attest:inEnvironment a owl:ObjectProperty ;
+    rdfs:label "in environment" ;
+    rdfs:comment "Links generation to execution environment" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range attest:Environment .
+
+# Data Properties
+attest:timestamp a owl:DatatypeProperty ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "When the attestation was created" ;
+    rdfs:domain attest:Attestation ;
+    rdfs:range xsd:dateTime .
+
+attest:version a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:comment "Version of the attestation format" ;
+    rdfs:domain attest:Attestation ;
+    rdfs:range xsd:string .
+
+attest:algorithm a owl:DatatypeProperty ;
+    rdfs:label "algorithm" ;
+    rdfs:comment "Cryptographic algorithm used for hashing" ;
+    rdfs:domain attest:Hash ;
+    rdfs:range xsd:string .
+
+attest:value a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "Hash value as hexadecimal string" ;
+    rdfs:domain attest:Hash ;
+    rdfs:range xsd:string .
+
+attest:fileName a owl:DatatypeProperty ;
+    rdfs:label "file name" ;
+    rdfs:comment "Name of the file" ;
+    rdfs:domain [ owl:unionOf ( attest:Template attest:Input attest:Output ) ] ;
+    rdfs:range xsd:string .
+
+attest:filePath a owl:DatatypeProperty ;
+    rdfs:label "file path" ;
+    rdfs:comment "Full path to the file" ;
+    rdfs:domain [ owl:unionOf ( attest:Template attest:Input attest:Output ) ] ;
+    rdfs:range xsd:string .
+
+attest:fileSize a owl:DatatypeProperty ;
+    rdfs:label "file size" ;
+    rdfs:comment "Size of the file in bytes" ;
+    rdfs:domain [ owl:unionOf ( attest:Template attest:Input attest:Output ) ] ;
+    rdfs:range xsd:long .
+
+attest:mimeType a owl:DatatypeProperty ;
+    rdfs:label "MIME type" ;
+    rdfs:comment "MIME type of the file" ;
+    rdfs:domain [ owl:unionOf ( attest:Template attest:Input attest:Output ) ] ;
+    rdfs:range xsd:string .
+
+attest:generatedAt a owl:DatatypeProperty ;
+    rdfs:label "generated at" ;
+    rdfs:comment "When the file was generated" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range xsd:dateTime .
+
+attest:generationTool a owl:DatatypeProperty ;
+    rdfs:label "generation tool" ;
+    rdfs:comment "Tool used for generation" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range xsd:string .
+
+attest:toolVersion a owl:DatatypeProperty ;
+    rdfs:label "tool version" ;
+    rdfs:comment "Version of the generation tool" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range xsd:string .
+
+attest:isDeterministic a owl:DatatypeProperty ;
+    rdfs:label "is deterministic" ;
+    rdfs:comment "Whether the generation was deterministic" ;
+    rdfs:domain attest:GenerationRecord ;
+    rdfs:range xsd:boolean .
+
+attest:nodeVersion a owl:DatatypeProperty ;
+    rdfs:label "node version" ;
+    rdfs:comment "Node.js version used" ;
+    rdfs:domain attest:Environment ;
+    rdfs:range xsd:string .
+
+attest:platform a owl:DatatypeProperty ;
+    rdfs:label "platform" ;
+    rdfs:comment "Operating system platform" ;
+    rdfs:domain attest:Environment ;
+    rdfs:range xsd:string .
+
+attest:architecture a owl:DatatypeProperty ;
+    rdfs:label "architecture" ;
+    rdfs:comment "CPU architecture" ;
+    rdfs:domain attest:Environment ;
+    rdfs:range xsd:string .
+
+attest:workingDirectory a owl:DatatypeProperty ;
+    rdfs:label "working directory" ;
+    rdfs:comment "Working directory during generation" ;
+    rdfs:domain attest:Environment ;
+    rdfs:range xsd:string .
+
+attest:gitCommit a owl:DatatypeProperty ;
+    rdfs:label "git commit" ;
+    rdfs:comment "Git commit hash" ;
+    rdfs:domain attest:Environment ;
+    rdfs:range xsd:string .
+
+attest:gitBranch a owl:DatatypeProperty ;
+    rdfs:label "git branch" ;
+    rdfs:comment "Git branch name" ;
+    rdfs:domain attest:Environment ;
+    rdfs:range xsd:string .
+
+# Validation Rules (expressed as SHACL-compatible OWL constraints)
+attest:AttestationShape a owl:Class ;
+    rdfs:label "Attestation Shape" ;
+    rdfs:comment "Validation shape for attestation records" .
+
+# Every attestation must have exactly one timestamp
+[] a owl:Restriction ;
+    owl:onProperty attest:timestamp ;
+    owl:onClass attest:Attestation ;
+    owl:qualifiedCardinality 1 .
+
+# Every attestation must attest to exactly one generation record
+[] a owl:Restriction ;
+    owl:onProperty attest:attestsTo ;
+    owl:onClass attest:Attestation ;
+    owl:qualifiedCardinality 1 .
+
+# Every hash must have exactly one algorithm and value
+[] a owl:Restriction ;
+    owl:onProperty attest:algorithm ;
+    owl:onClass attest:Hash ;
+    owl:qualifiedCardinality 1 .
+
+[] a owl:Restriction ;
+    owl:onProperty attest:value ;
+    owl:onClass attest:Hash ;
+    owl:qualifiedCardinality 1 .

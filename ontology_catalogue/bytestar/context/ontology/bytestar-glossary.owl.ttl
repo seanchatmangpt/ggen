@@ -1,0 +1,41 @@
+@prefix : <https://bytestar.org/ontology/bytestar-glossary#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-glossary>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Glossary & Roles" ;
+  rdfs:comment "Defines CHI, AHI, AHI role taxonomy, and role-to-subsystem bindings." .
+
+### Agents
+:Agent a owl:Class .
+:Human a owl:Class ; rdfs:subClassOf :Agent .
+:Machine a owl:Class ; rdfs:subClassOf :Agent .
+
+### Commander & AHI
+:CHI a owl:Class ; rdfs:subClassOf :Human ;
+  rdfs:comment "Commander (human) who declares intent and accepts risk." .
+
+:AHI a owl:Class ; rdfs:subClassOf :Machine ;
+  rdfs:comment "Artificial Hyper-Intelligence participant in the Byte* ecosystem." .
+
+### AHI Roles (Planner/Gate/Executor/Governor)
+:AHIPlanner  a owl:Class ; rdfs:subClassOf :AHI .
+:AHIGate     a owl:Class ; rdfs:subClassOf :AHI .
+:AHIExecutor a owl:Class ; rdfs:subClassOf :AHI .
+:AHIGovernor a owl:Class ; rdfs:subClassOf :AHI .
+
+### Role bindings to subsystems (capabilities)
+:operates a owl:ObjectProperty ; rdfs:domain :AHI ; rdfs:range bytestar:Subsystem .
+
+:plansFor  a owl:ObjectProperty ; rdfs:domain :AHIPlanner  ; rdfs:range bytestar:ByteFlow .
+:gatesFor  a owl:ObjectProperty ; rdfs:domain :AHIGate     ; rdfs:range bytestar:ByteFlow .
+:executesOn a owl:ObjectProperty; rdfs:domain :AHIExecutor  ; rdfs:range bytestar:ByteActor .
+:governsVia a owl:ObjectProperty; rdfs:domain :AHIGovernor  ; rdfs:range bytestar:ByteEthos .
+
+### Communication artifacts (glossary links)
+:issuesIntent a owl:ObjectProperty ; rdfs:domain :CHI ; rdfs:range :Intent .
+:Intent a owl:Class ; rdfs:comment "High-level goal statement consumed by Planner." .

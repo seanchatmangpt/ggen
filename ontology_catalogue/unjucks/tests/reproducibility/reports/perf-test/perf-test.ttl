@@ -1,0 +1,304 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:PerfTest rdfs:label "Performance Test Dataset" .
+ex:entity0 a ex:TestEntity ;
+  ex:value 0 ;
+  ex:description "Test entity 0" .
+ex:entity1 a ex:TestEntity ;
+  ex:value 1 ;
+  ex:description "Test entity 1" .
+ex:entity2 a ex:TestEntity ;
+  ex:value 2 ;
+  ex:description "Test entity 2" .
+ex:entity3 a ex:TestEntity ;
+  ex:value 3 ;
+  ex:description "Test entity 3" .
+ex:entity4 a ex:TestEntity ;
+  ex:value 4 ;
+  ex:description "Test entity 4" .
+ex:entity5 a ex:TestEntity ;
+  ex:value 5 ;
+  ex:description "Test entity 5" .
+ex:entity6 a ex:TestEntity ;
+  ex:value 6 ;
+  ex:description "Test entity 6" .
+ex:entity7 a ex:TestEntity ;
+  ex:value 7 ;
+  ex:description "Test entity 7" .
+ex:entity8 a ex:TestEntity ;
+  ex:value 8 ;
+  ex:description "Test entity 8" .
+ex:entity9 a ex:TestEntity ;
+  ex:value 9 ;
+  ex:description "Test entity 9" .
+ex:entity10 a ex:TestEntity ;
+  ex:value 10 ;
+  ex:description "Test entity 10" .
+ex:entity11 a ex:TestEntity ;
+  ex:value 11 ;
+  ex:description "Test entity 11" .
+ex:entity12 a ex:TestEntity ;
+  ex:value 12 ;
+  ex:description "Test entity 12" .
+ex:entity13 a ex:TestEntity ;
+  ex:value 13 ;
+  ex:description "Test entity 13" .
+ex:entity14 a ex:TestEntity ;
+  ex:value 14 ;
+  ex:description "Test entity 14" .
+ex:entity15 a ex:TestEntity ;
+  ex:value 15 ;
+  ex:description "Test entity 15" .
+ex:entity16 a ex:TestEntity ;
+  ex:value 16 ;
+  ex:description "Test entity 16" .
+ex:entity17 a ex:TestEntity ;
+  ex:value 17 ;
+  ex:description "Test entity 17" .
+ex:entity18 a ex:TestEntity ;
+  ex:value 18 ;
+  ex:description "Test entity 18" .
+ex:entity19 a ex:TestEntity ;
+  ex:value 19 ;
+  ex:description "Test entity 19" .
+ex:entity20 a ex:TestEntity ;
+  ex:value 20 ;
+  ex:description "Test entity 20" .
+ex:entity21 a ex:TestEntity ;
+  ex:value 21 ;
+  ex:description "Test entity 21" .
+ex:entity22 a ex:TestEntity ;
+  ex:value 22 ;
+  ex:description "Test entity 22" .
+ex:entity23 a ex:TestEntity ;
+  ex:value 23 ;
+  ex:description "Test entity 23" .
+ex:entity24 a ex:TestEntity ;
+  ex:value 24 ;
+  ex:description "Test entity 24" .
+ex:entity25 a ex:TestEntity ;
+  ex:value 25 ;
+  ex:description "Test entity 25" .
+ex:entity26 a ex:TestEntity ;
+  ex:value 26 ;
+  ex:description "Test entity 26" .
+ex:entity27 a ex:TestEntity ;
+  ex:value 27 ;
+  ex:description "Test entity 27" .
+ex:entity28 a ex:TestEntity ;
+  ex:value 28 ;
+  ex:description "Test entity 28" .
+ex:entity29 a ex:TestEntity ;
+  ex:value 29 ;
+  ex:description "Test entity 29" .
+ex:entity30 a ex:TestEntity ;
+  ex:value 30 ;
+  ex:description "Test entity 30" .
+ex:entity31 a ex:TestEntity ;
+  ex:value 31 ;
+  ex:description "Test entity 31" .
+ex:entity32 a ex:TestEntity ;
+  ex:value 32 ;
+  ex:description "Test entity 32" .
+ex:entity33 a ex:TestEntity ;
+  ex:value 33 ;
+  ex:description "Test entity 33" .
+ex:entity34 a ex:TestEntity ;
+  ex:value 34 ;
+  ex:description "Test entity 34" .
+ex:entity35 a ex:TestEntity ;
+  ex:value 35 ;
+  ex:description "Test entity 35" .
+ex:entity36 a ex:TestEntity ;
+  ex:value 36 ;
+  ex:description "Test entity 36" .
+ex:entity37 a ex:TestEntity ;
+  ex:value 37 ;
+  ex:description "Test entity 37" .
+ex:entity38 a ex:TestEntity ;
+  ex:value 38 ;
+  ex:description "Test entity 38" .
+ex:entity39 a ex:TestEntity ;
+  ex:value 39 ;
+  ex:description "Test entity 39" .
+ex:entity40 a ex:TestEntity ;
+  ex:value 40 ;
+  ex:description "Test entity 40" .
+ex:entity41 a ex:TestEntity ;
+  ex:value 41 ;
+  ex:description "Test entity 41" .
+ex:entity42 a ex:TestEntity ;
+  ex:value 42 ;
+  ex:description "Test entity 42" .
+ex:entity43 a ex:TestEntity ;
+  ex:value 43 ;
+  ex:description "Test entity 43" .
+ex:entity44 a ex:TestEntity ;
+  ex:value 44 ;
+  ex:description "Test entity 44" .
+ex:entity45 a ex:TestEntity ;
+  ex:value 45 ;
+  ex:description "Test entity 45" .
+ex:entity46 a ex:TestEntity ;
+  ex:value 46 ;
+  ex:description "Test entity 46" .
+ex:entity47 a ex:TestEntity ;
+  ex:value 47 ;
+  ex:description "Test entity 47" .
+ex:entity48 a ex:TestEntity ;
+  ex:value 48 ;
+  ex:description "Test entity 48" .
+ex:entity49 a ex:TestEntity ;
+  ex:value 49 ;
+  ex:description "Test entity 49" .
+ex:entity50 a ex:TestEntity ;
+  ex:value 50 ;
+  ex:description "Test entity 50" .
+ex:entity51 a ex:TestEntity ;
+  ex:value 51 ;
+  ex:description "Test entity 51" .
+ex:entity52 a ex:TestEntity ;
+  ex:value 52 ;
+  ex:description "Test entity 52" .
+ex:entity53 a ex:TestEntity ;
+  ex:value 53 ;
+  ex:description "Test entity 53" .
+ex:entity54 a ex:TestEntity ;
+  ex:value 54 ;
+  ex:description "Test entity 54" .
+ex:entity55 a ex:TestEntity ;
+  ex:value 55 ;
+  ex:description "Test entity 55" .
+ex:entity56 a ex:TestEntity ;
+  ex:value 56 ;
+  ex:description "Test entity 56" .
+ex:entity57 a ex:TestEntity ;
+  ex:value 57 ;
+  ex:description "Test entity 57" .
+ex:entity58 a ex:TestEntity ;
+  ex:value 58 ;
+  ex:description "Test entity 58" .
+ex:entity59 a ex:TestEntity ;
+  ex:value 59 ;
+  ex:description "Test entity 59" .
+ex:entity60 a ex:TestEntity ;
+  ex:value 60 ;
+  ex:description "Test entity 60" .
+ex:entity61 a ex:TestEntity ;
+  ex:value 61 ;
+  ex:description "Test entity 61" .
+ex:entity62 a ex:TestEntity ;
+  ex:value 62 ;
+  ex:description "Test entity 62" .
+ex:entity63 a ex:TestEntity ;
+  ex:value 63 ;
+  ex:description "Test entity 63" .
+ex:entity64 a ex:TestEntity ;
+  ex:value 64 ;
+  ex:description "Test entity 64" .
+ex:entity65 a ex:TestEntity ;
+  ex:value 65 ;
+  ex:description "Test entity 65" .
+ex:entity66 a ex:TestEntity ;
+  ex:value 66 ;
+  ex:description "Test entity 66" .
+ex:entity67 a ex:TestEntity ;
+  ex:value 67 ;
+  ex:description "Test entity 67" .
+ex:entity68 a ex:TestEntity ;
+  ex:value 68 ;
+  ex:description "Test entity 68" .
+ex:entity69 a ex:TestEntity ;
+  ex:value 69 ;
+  ex:description "Test entity 69" .
+ex:entity70 a ex:TestEntity ;
+  ex:value 70 ;
+  ex:description "Test entity 70" .
+ex:entity71 a ex:TestEntity ;
+  ex:value 71 ;
+  ex:description "Test entity 71" .
+ex:entity72 a ex:TestEntity ;
+  ex:value 72 ;
+  ex:description "Test entity 72" .
+ex:entity73 a ex:TestEntity ;
+  ex:value 73 ;
+  ex:description "Test entity 73" .
+ex:entity74 a ex:TestEntity ;
+  ex:value 74 ;
+  ex:description "Test entity 74" .
+ex:entity75 a ex:TestEntity ;
+  ex:value 75 ;
+  ex:description "Test entity 75" .
+ex:entity76 a ex:TestEntity ;
+  ex:value 76 ;
+  ex:description "Test entity 76" .
+ex:entity77 a ex:TestEntity ;
+  ex:value 77 ;
+  ex:description "Test entity 77" .
+ex:entity78 a ex:TestEntity ;
+  ex:value 78 ;
+  ex:description "Test entity 78" .
+ex:entity79 a ex:TestEntity ;
+  ex:value 79 ;
+  ex:description "Test entity 79" .
+ex:entity80 a ex:TestEntity ;
+  ex:value 80 ;
+  ex:description "Test entity 80" .
+ex:entity81 a ex:TestEntity ;
+  ex:value 81 ;
+  ex:description "Test entity 81" .
+ex:entity82 a ex:TestEntity ;
+  ex:value 82 ;
+  ex:description "Test entity 82" .
+ex:entity83 a ex:TestEntity ;
+  ex:value 83 ;
+  ex:description "Test entity 83" .
+ex:entity84 a ex:TestEntity ;
+  ex:value 84 ;
+  ex:description "Test entity 84" .
+ex:entity85 a ex:TestEntity ;
+  ex:value 85 ;
+  ex:description "Test entity 85" .
+ex:entity86 a ex:TestEntity ;
+  ex:value 86 ;
+  ex:description "Test entity 86" .
+ex:entity87 a ex:TestEntity ;
+  ex:value 87 ;
+  ex:description "Test entity 87" .
+ex:entity88 a ex:TestEntity ;
+  ex:value 88 ;
+  ex:description "Test entity 88" .
+ex:entity89 a ex:TestEntity ;
+  ex:value 89 ;
+  ex:description "Test entity 89" .
+ex:entity90 a ex:TestEntity ;
+  ex:value 90 ;
+  ex:description "Test entity 90" .
+ex:entity91 a ex:TestEntity ;
+  ex:value 91 ;
+  ex:description "Test entity 91" .
+ex:entity92 a ex:TestEntity ;
+  ex:value 92 ;
+  ex:description "Test entity 92" .
+ex:entity93 a ex:TestEntity ;
+  ex:value 93 ;
+  ex:description "Test entity 93" .
+ex:entity94 a ex:TestEntity ;
+  ex:value 94 ;
+  ex:description "Test entity 94" .
+ex:entity95 a ex:TestEntity ;
+  ex:value 95 ;
+  ex:description "Test entity 95" .
+ex:entity96 a ex:TestEntity ;
+  ex:value 96 ;
+  ex:description "Test entity 96" .
+ex:entity97 a ex:TestEntity ;
+  ex:value 97 ;
+  ex:description "Test entity 97" .
+ex:entity98 a ex:TestEntity ;
+  ex:value 98 ;
+  ex:description "Test entity 98" .
+ex:entity99 a ex:TestEntity ;
+  ex:value 99 ;
+  ex:description "Test entity 99" .

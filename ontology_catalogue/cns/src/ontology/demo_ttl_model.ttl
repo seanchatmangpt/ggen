@@ -1,0 +1,229 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix core: <http://cns.io/ontology/core#> .
+@prefix bitstar: <http://cns.io/ontology/bitstar#> .
+
+# BitStar Core Ontology - Demo Model for Weaver AOT Framework
+<http://cns.io/ontology/bitstar/demo> 
+    rdf:type owl:Ontology ;
+    rdfs:comment "BitStar Core demonstration model showcasing 80/20 declarative innovation" ;
+    owl:versionInfo "2026.1.1" .
+
+# Performance Policy Definitions
+cns:EightSpacePolicy 
+    rdf:type cns:PerformancePolicy ;
+    cns:maxTicks 8 ;
+    cns:maxMemoryMB 64 ;
+    cns:maxLatencyNs 100000 ;
+    rdfs:comment "Global 8-Space performance compliance policy" .
+
+# BitFlow Engine Definition
+bitstar:BitFlowEngine rdf:type rdfs:Class ;
+    rdfs:comment "Ultra-high-performance BitFlow processing engine" .
+
+bitstar:BitFlowEngineShape 
+    rdf:type sh:NodeShape ;
+    sh:targetClass bitstar:BitFlowEngine ;
+    rdfs:comment "SHACL shape for BitFlow engine with 8-Space constraints" ;
+    cns:maxTicks 8 ;
+    cns:minThroughput 2200000000 ;
+    sh:closed true ;
+    sh:property [
+        sh:path bitstar:throughput ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 2000000000 ;
+        sh:maxInclusive 3000000000 ;
+        rdfs:comment "Required throughput: 2-3 billion operations per second" ;
+        cns:maxTicks 2 ;
+    ] ;
+    sh:property [
+        sh:path bitstar:tick_budget ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 8 ;
+        rdfs:comment "8-Space CPU tick budget constraint" ;
+        cns:maxTicks 1 ;
+    ] ;
+    sh:property [
+        sh:path bitstar:component_id ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^bitflow_[a-zA-Z0-9_]+$" ;
+        rdfs:comment "Unique component identifier" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:health_status ;
+        sh:datatype xsd:string ;
+        sh:in ("OPTIMAL" "DEGRADED" "FAILED" "RECOVERING") ;
+        rdfs:comment "Component health monitoring status" ;
+        cns:maxTicks 1 ;
+    ] .
+
+# Ring Bus Definition
+bitstar:RingBus rdf:type rdfs:Class ;
+    rdfs:comment "High-speed ring bus for inter-component communication" .
+
+bitstar:RingBusShape 
+    rdf:type sh:NodeShape ;
+    sh:targetClass bitstar:RingBus ;
+    rdfs:comment "Ring bus with 8-Space communication constraints" ;
+    cns:maxTicks 8 ;
+    cns:minThroughput 1000000000 ;
+    sh:property [
+        sh:path bitstar:buffer_size ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1024 ;
+        sh:maxInclusive 65536 ;
+        rdfs:comment "Ring buffer size in bytes" ;
+        cns:maxTicks 1 ;
+    ] ;
+    sh:property [
+        sh:path bitstar:producer_count ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 16 ;
+        rdfs:comment "Number of producer threads" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:consumer_count ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 16 ;
+        rdfs:comment "Number of consumer threads" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:enable_backpressure ;
+        sh:datatype xsd:boolean ;
+        sh:hasValue true ;
+        rdfs:comment "Backpressure control enabled" ;
+    ] .
+
+# Autonomous Agent Definition
+bitstar:AutonomousAgent rdf:type rdfs:Class ;
+    rdfs:comment "Self-healing autonomous orchestration agent" .
+
+bitstar:AutonomousAgentShape 
+    rdf:type sh:NodeShape ;
+    sh:targetClass bitstar:AutonomousAgent ;
+    rdfs:comment "Autonomous agent with recovery capabilities" ;
+    cns:maxTicks 8 ;
+    cns:maxMemoryMB 128 ;
+    sh:property [
+        sh:path bitstar:recovery_rate_target ;
+        sh:datatype xsd:float ;
+        sh:minInclusive 0.964 ;
+        sh:maxInclusive 1.0 ;
+        rdfs:comment "Required autonomous recovery rate (96.4% minimum)" ;
+        cns:maxTicks 2 ;
+    ] ;
+    sh:property [
+        sh:path bitstar:control_loop_interval_ms ;
+        sh:datatype xsd:integer ;
+        sh:hasValue 1 ;
+        rdfs:comment "1ms control loop for real-time response" ;
+        cns:maxTicks 8 ;
+    ] ;
+    sh:property [
+        sh:path bitstar:monitoring_components ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        rdfs:comment "List of monitored component identifiers" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:recovery_strategies ;
+        sh:datatype xsd:string ;
+        sh:in ("OPTIMIZATION" "RESTART" "HEALING" "ESCALATION") ;
+        rdfs:comment "Available autonomous recovery strategies" ;
+    ] .
+
+# Memory Pool Definition
+bitstar:MemoryPool rdf:type rdfs:Class ;
+    rdfs:comment "High-performance memory pool with 8-Space allocation" .
+
+bitstar:MemoryPoolShape 
+    rdf:type sh:NodeShape ;
+    sh:targetClass bitstar:MemoryPool ;
+    rdfs:comment "Memory pool with performance constraints" ;
+    cns:maxTicks 4 ;
+    cns:maxMemoryMB 1024 ;
+    sh:property [
+        sh:path bitstar:pool_size_mb ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 64 ;
+        sh:maxInclusive 2048 ;
+        rdfs:comment "Total pool size in megabytes" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:allocation_strategy ;
+        sh:datatype xsd:string ;
+        sh:in ("FIXED_SIZE" "VARIABLE_SIZE" "HYBRID") ;
+        rdfs:comment "Memory allocation strategy" ;
+        cns:maxTicks 2 ;
+    ] ;
+    sh:property [
+        sh:path bitstar:enable_garbage_collection ;
+        sh:datatype xsd:boolean ;
+        rdfs:comment "Enable automatic memory reclamation" ;
+    ] .
+
+# Event Bus Definition
+bitstar:EventBus rdf:type rdfs:Class ;
+    rdfs:comment "Asynchronous event bus for system coordination" .
+
+bitstar:EventBusShape 
+    rdf:type sh:NodeShape ;
+    sh:targetClass bitstar:EventBus ;
+    rdfs:comment "Event bus with 8-Space event processing" ;
+    cns:maxTicks 6 ;
+    sh:property [
+        sh:path bitstar:max_event_queue_size ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1000 ;
+        sh:maxInclusive 100000 ;
+        rdfs:comment "Maximum event queue capacity" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:event_processing_threads ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 2 ;
+        sh:maxInclusive 32 ;
+        rdfs:comment "Number of event processing threads" ;
+    ] ;
+    sh:property [
+        sh:path bitstar:enable_event_persistence ;
+        sh:datatype xsd:boolean ;
+        rdfs:comment "Persist critical events for replay" ;
+    ] .
+
+# Relationships and Composition
+bitstar:BitFlowEngine rdfs:subClassOf core:Component .
+bitstar:RingBus rdfs:subClassOf core:Component .
+bitstar:AutonomousAgent rdfs:subClassOf core:Agent .
+bitstar:MemoryPool rdfs:subClassOf core:Resource .
+bitstar:EventBus rdfs:subClassOf core:Infrastructure .
+
+# Usage Example: BitStar System Instance
+bitstar:demo_system rdf:type bitstar:BitFlowEngine ;
+    bitstar:throughput 2200000000 ;
+    bitstar:tick_budget 8 ;
+    bitstar:component_id "bitflow_main_engine" ;
+    bitstar:health_status "OPTIMAL" ;
+    rdfs:comment "Demo BitFlow engine instance for Weaver AOT demonstration" .
+
+bitstar:demo_ring_bus rdf:type bitstar:RingBus ;
+    bitstar:buffer_size 8192 ;
+    bitstar:producer_count 4 ;
+    bitstar:consumer_count 4 ;
+    bitstar:enable_backpressure true ;
+    rdfs:comment "Demo ring bus for high-speed communication" .
+
+bitstar:demo_agent rdf:type bitstar:AutonomousAgent ;
+    bitstar:recovery_rate_target 0.975 ;
+    bitstar:control_loop_interval_ms 1 ;
+    bitstar:monitoring_components "bitflow_main_engine" ;
+    bitstar:recovery_strategies "OPTIMIZATION" ;
+    rdfs:comment "Demo autonomous agent achieving 97.5% recovery rate" .

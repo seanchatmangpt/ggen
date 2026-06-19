@@ -1,0 +1,36 @@
+@prefix ostar: <urn:ostar:ontology#> .
+@prefix release: <urn:ostar:release#> .
+
+release:ReleaseDiscipline a ostar:Law ;
+    ostar:lawId "ReleaseDiscipline" ;
+    ostar:hasTransition [
+        ostar:transitionId "EASBuild" ;
+        ostar:fromState "Idle" ;
+        ostar:triggerEvent "StartBuild" ;
+        ostar:toState "Building" ;
+    ], [
+        ostar:transitionId "BuildComplete" ;
+        ostar:fromState "Building" ;
+        ostar:triggerEvent "BuildSuccess" ;
+        ostar:toState "Built" ;
+    ], [
+        ostar:transitionId "OTAUpdate" ;
+        ostar:fromState "Active" ;
+        ostar:triggerEvent "TriggerUpdate" ;
+        ostar:toState "Updating" ;
+    ], [
+        ostar:transitionId "UpdateComplete" ;
+        ostar:fromState "Updating" ;
+        ostar:triggerEvent "UpdateSuccess" ;
+        ostar:toState "Active" ;
+    ], [
+        ostar:transitionId "VersionTransition" ;
+        ostar:fromState "Active" ;
+        ostar:triggerEvent "StartVersionTransition" ;
+        ostar:toState "Transitioning" ;
+    ], [
+        ostar:transitionId "TransitionComplete" ;
+        ostar:fromState "Transitioning" ;
+        ostar:triggerEvent "TransitionSuccess" ;
+        ostar:toState "Active" ;
+    ] .

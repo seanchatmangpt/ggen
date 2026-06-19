@@ -1,0 +1,14 @@
+
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:TestEntity rdf:type ex:Entity ;
+    rdfs:label "Test Entity" ;
+    ex:property1 "Value 1" ;
+    ex:property2 42 ;
+    ex:relatedTo ex:OtherEntity .
+
+ex:OtherEntity rdf:type ex:Entity ;
+    rdfs:label "Other Entity" ;
+    ex:property3 "Value 3" .

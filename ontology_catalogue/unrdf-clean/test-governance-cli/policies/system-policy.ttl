@@ -1,0 +1,51 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix policy: <http://example.org/policy#> .
+@prefix reg: <http://example.org/registry#> .
+
+# System Policy - Governance Rules
+# Defines invariants and constraints for the universe
+
+policy:SystemPolicy
+  a policy:Policy ;
+  rdfs:label "UNRDF System Policy" ;
+  policy:version "1.0.0" ;
+  policy:enforcementLevel "strict" .
+
+# Invariant 1: All projects must have status
+policy:Invariant_ProjectStatus
+  a policy:Invariant ;
+  rdfs:label "Project Status Required" ;
+  policy:constraint [
+    policy:target reg:Project ;
+    policy:property reg:status ;
+    policy:required true
+  ] .
+
+# Invariant 2: All features must belong to a project
+policy:Invariant_FeatureOwnership
+  a policy:Invariant ;
+  rdfs:label "Feature Ownership" ;
+  policy:constraint [
+    policy:target reg:Feature ;
+    policy:property reg:belongsTo ;
+    policy:required true ;
+    policy:range reg:Project
+  ] .
+
+# Invariant 3: Priority levels must be valid
+policy:Invariant_ValidPriority
+  a policy:Invariant ;
+  rdfs:label "Valid Priority Levels" ;
+  policy:constraint [
+    policy:target reg:Feature ;
+    policy:property reg:priority ;
+    policy:allowedValues ( "low" "medium" "high" "critical" )
+  ] .
+
+# Rule: No circular dependencies
+policy:Rule_NoCircularDeps
+  a policy:Rule ;
+  rdfs:label "No Circular Dependencies" ;
+  policy:description "Features cannot have circular dependency relationships" .

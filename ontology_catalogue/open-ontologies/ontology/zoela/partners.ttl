@@ -1,0 +1,308 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ===========================================================================
+# ZOE LA — Partner Organizations Ontology
+# ===========================================================================
+
+<https://zoela.org/ontology/partners>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Partner Organizations Ontology" ;
+    rdfs:comment "Models partner organizations ZOE LA collaborates with, including food banks, hospitals, housing organizations, and other community service providers." ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:creator "ZOE LA" ;
+    owl:versionInfo "1.0.0" .
+
+# ===========================================================================
+# Classes
+# ===========================================================================
+
+zoe:PartnerOrganization
+    a owl:Class ;
+    rdfs:subClassOf schema:Organization, foaf:Organization ;
+    rdfs:label "Partner Organization" ;
+    rdfs:comment "An organization that ZOE LA has a formal partnership with to provide services to individuals and families in need." .
+
+zoe:PartnerCapacity
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Partner Capacity"@en ;
+    rdfs:comment "A snapshot of a partner organization's current service capacity and availability for a given resource type."@en .
+
+# ===========================================================================
+# Properties — zoe:PartnerOrganization
+# ===========================================================================
+
+zoe:partnerCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:string ;
+    rdfs:label "partner code" ;
+    rdfs:comment "A unique short code identifying the partner organization, e.g. 'LA-FOOD-BANK'." ;
+    skos:notation "partnerCode" .
+
+zoe:partnerCategory
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range skos:Concept ;
+    rdfs:label "partner category" ;
+    rdfs:comment "The service category of the partner organization, drawn from the zoe:PartnerCategoryScheme concept scheme." ;
+    skos:notation "partnerCategory" .
+
+zoe:partnerContactName
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:string ;
+    rdfs:label "partner contact name" ;
+    rdfs:comment "The full name of the primary contact person at the partner organization." ;
+    skos:notation "partnerContactName" .
+
+zoe:partnerContactEmail
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:string ;
+    rdfs:label "partner contact email" ;
+    rdfs:comment "The email address of the primary contact person at the partner organization." ;
+    skos:notation "partnerContactEmail" .
+
+zoe:partnerContactPhone
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:string ;
+    rdfs:label "partner contact phone" ;
+    rdfs:comment "The phone number of the primary contact person at the partner organization." ;
+    skos:notation "partnerContactPhone" .
+
+zoe:serviceAreaZips
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:string ;
+    rdfs:label "service area zip codes" ;
+    rdfs:comment "A comma-separated list of ZIP codes representing the geographic service area of the partner organization." ;
+    skos:notation "serviceAreaZips" .
+
+zoe:canReceiveReferrals
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "can receive referrals" ;
+    rdfs:comment "Indicates whether the partner organization is currently accepting referrals from ZOE LA." ;
+    skos:notation "canReceiveReferrals" .
+
+zoe:requiresConsentForReferral
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires consent for referral" ;
+    rdfs:comment "Indicates whether this partner organization requires explicit consent from the subject before a referral can be sent." ;
+    skos:notation "requiresConsentForReferral" .
+
+zoe:maxWeeklyReferrals
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maximum weekly referrals" ;
+    rdfs:comment "The maximum number of referrals this partner organization can accept in a single week." ;
+    skos:notation "maxWeeklyReferrals" .
+
+zoe:isActive
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active" ;
+    rdfs:comment "Indicates whether the partnership with this organization is currently active." ;
+    skos:notation "isActive" .
+
+zoe:partnerMouDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:date ;
+    rdfs:label "partner MOU date" ;
+    rdfs:comment "The date on which the Memorandum of Understanding (MOU) between ZOE LA and the partner organization was signed." ;
+    skos:notation "partnerMouDate" .
+
+zoe:partnerWebsite
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerOrganization ;
+    rdfs:range xsd:string ;
+    rdfs:label "partner website" ;
+    rdfs:comment "The public website URL of the partner organization." ;
+    skos:notation "partnerWebsite" .
+
+# ===========================================================================
+# Properties — zoe:PartnerCapacity
+# ===========================================================================
+
+zoe:capacityPartnerId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerCapacity ;
+    rdfs:range xsd:string ;
+    rdfs:label "capacity partner ID" ;
+    rdfs:comment "The identifier of the partner organization to which this capacity record belongs." ;
+    skos:notation "capacityPartnerId" .
+
+zoe:resourceType
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerCapacity ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource type" ;
+    rdfs:comment "The type of resource or service this capacity record describes, e.g. food, clothing, counseling, housing." ;
+    skos:notation "resourceType" .
+
+zoe:weeklyCapacity
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerCapacity ;
+    rdfs:range xsd:integer ;
+    rdfs:label "weekly capacity" ;
+    rdfs:comment "The total weekly service capacity of the partner organization for this resource type." ;
+    skos:notation "weeklyCapacity" .
+
+zoe:currentAvailability
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerCapacity ;
+    rdfs:range xsd:integer ;
+    rdfs:label "current availability" ;
+    rdfs:comment "The number of service slots currently available at the partner organization for this resource type." ;
+    skos:notation "currentAvailability" .
+
+zoe:availabilityUpdatedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerCapacity ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "availability updated at" ;
+    rdfs:comment "The date and time when the current availability count was last updated." ;
+    skos:notation "availabilityUpdatedAt" .
+
+zoe:waitlistCount
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:PartnerCapacity ;
+    rdfs:range xsd:integer ;
+    rdfs:label "waitlist count" ;
+    rdfs:comment "The number of individuals or households currently on the waitlist for this resource type at the partner organization." ;
+    skos:notation "waitlistCount" .
+
+# ===========================================================================
+# SKOS Concept Scheme — Partner Categories
+# ===========================================================================
+
+zoe:PartnerCategoryScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE LA Partner Category Scheme" ;
+    rdfs:comment "A controlled vocabulary of partner organization categories used to classify ZOE LA partner types." ;
+    skos:prefLabel "Partner Category Scheme" .
+
+zoe:FoodBankPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Food Bank or Pantry" ;
+    skos:notation "FOOD-BANK" ;
+    rdfs:label "Food Bank or Pantry" ;
+    rdfs:comment "A partner organization that provides food bank or food pantry services." .
+
+zoe:ClothingPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Clothing or Thrift Ministry" ;
+    skos:notation "CLOTHING" ;
+    rdfs:label "Clothing or Thrift Ministry" ;
+    rdfs:comment "A partner organization that provides clothing, thrift, or textile assistance services." .
+
+zoe:HousingPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Housing and Shelter Organization" ;
+    skos:notation "HOUSING" ;
+    rdfs:label "Housing and Shelter Organization" ;
+    rdfs:comment "A partner organization that provides housing assistance, emergency shelter, or transitional housing services." .
+
+zoe:CounselingPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Counseling or Mental Health Provider" ;
+    skos:notation "COUNSEL" ;
+    rdfs:label "Counseling or Mental Health Provider" ;
+    rdfs:comment "A partner organization that provides counseling, mental health, or trauma-informed care services." .
+
+zoe:MedicalPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Medical or Healthcare Partner" ;
+    skos:notation "MEDICAL" ;
+    rdfs:label "Medical or Healthcare Partner" ;
+    rdfs:comment "A partner organization that provides medical or general healthcare services." .
+
+zoe:LegalPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Legal Aid Organization" ;
+    skos:notation "LEGAL" ;
+    rdfs:label "Legal Aid Organization" ;
+    rdfs:comment "A partner organization that provides legal aid, advocacy, or immigration legal services." .
+
+zoe:EducationPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Education and Tutoring Organization" ;
+    skos:notation "EDUCATION" ;
+    rdfs:label "Education and Tutoring Organization" ;
+    rdfs:comment "A partner organization that provides educational programs, tutoring, literacy, or GED support." .
+
+zoe:ChildcarePartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Childcare and Family Services" ;
+    skos:notation "CHILDCARE" ;
+    rdfs:label "Childcare and Family Services" ;
+    rdfs:comment "A partner organization that provides childcare, family services, or early childhood development programs." .
+
+zoe:JobsPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Employment and Job Training Organization" ;
+    skos:notation "JOBS" ;
+    rdfs:label "Employment and Job Training Organization" ;
+    rdfs:comment "A partner organization that provides employment placement, job training, or workforce development services." .
+
+zoe:SubstancePartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Substance Recovery Organization" ;
+    skos:notation "SUBSTANCE" ;
+    rdfs:label "Substance Recovery Organization" ;
+    rdfs:comment "A partner organization that provides substance use recovery, detox, or sober living services." .
+
+zoe:HospitalPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Hospital or Clinic" ;
+    skos:notation "HOSPITAL" ;
+    rdfs:label "Hospital or Clinic" ;
+    rdfs:comment "A partner hospital or clinic that coordinates care and chaplaincy services with ZOE LA." .
+
+zoe:ChurchPartner
+    a skos:Concept ;
+    skos:inScheme zoe:PartnerCategoryScheme ;
+    skos:topConceptOf zoe:PartnerCategoryScheme ;
+    skos:prefLabel "Partner Church or Ministry" ;
+    skos:notation "CHURCH" ;
+    rdfs:label "Partner Church or Ministry" ;
+    rdfs:comment "A partner church or ministry organization that collaborates with ZOE LA on outreach and service delivery." .

@@ -1,0 +1,262 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# A2A Protocol Schema
+a2a:protocol a owl:Class ;
+    rdfs:label "A2A Protocol" ;
+    rdfs:comment "Agent-to-Agent communication protocol" .
+
+# Task System
+a2a:task a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Agent task entity" .
+
+a2a:task_id a owl:DatatypeProperty ;
+    rdfs:label "Task ID" ;
+    rdfs:domain a2a:task ;
+    rdfs:range xsd:string .
+
+a2a:task_status a owl:DatatypeProperty ;
+    rdfs:label "Task Status" ;
+    rdfs:domain a2a:task ;
+    rdfs:range ["submitted" "working" "input_required" "auth_required" "completed" "failed" "canceled" "rejected"] .
+
+a2a:task_type a owl:DatatypeProperty ;
+    rdfs:label "Task Type" ;
+    rdfs:domain a2a:task ;
+    rdfs:range xsd:string .
+
+a2a:task_created a owl:DatatypeProperty ;
+    rdfs:label "Task Created" ;
+    rdfs:domain a2a:task ;
+    rdfs:range xsd:dateTime .
+
+a2a:task_updated a owl:DatatypeProperty ;
+    rdfs:label "Task Updated" ;
+    rdfs:domain a2a:task ;
+    rdfs:range xsd:dateTime .
+
+# Agent System
+a2a:agent a owl:Class ;
+    rdfs:label "Agent" ;
+    rdfs:comment "Agent entity" .
+
+a2a:agent_id a owl:DatatypeProperty ;
+    rdfs:label "Agent ID" ;
+    rdfs:domain a2a:agent ;
+    rdfs:range xsd:string .
+
+a2a:agent_name a owl:DatatypeProperty ;
+    rdfs:label "Agent Name" ;
+    rdfs:domain a2a:agent ;
+    rdfs:range xsd:string .
+
+a2a:agent_capabilities a owl:DatatypeProperty ;
+    rdfs:label "Agent Capabilities" ;
+    rdfs:domain a2a:agent ;
+    rdfs:range [a rdf:List] .
+
+# Agent Card
+a2a:agent_card a owl:Class ;
+    rdfs:label "Agent Card" ;
+    rdfs:comment "Agent metadata and capabilities" .
+
+a2a:skill a owl:Class ;
+    rdfs:label "Skill" ;
+    rdfs:comment "Agent skill" .
+
+a2a:skill_name a owl:DatatypeProperty ;
+    rdfs:label "Skill Name" ;
+    rdfs:domain a2a:skill ;
+    rdfs:range xsd:string .
+
+a2a:skill_description a owl:DatatypeProperty ;
+    rdfs:label "Skill Description" ;
+    rdfs:domain a2a:skill ;
+    rdfs:range xsd:string .
+
+a2a:skill_parameters a owl:DatatypeProperty ;
+    rdfs:label "Skill Parameters" ;
+    rdfs:domain a2a:skill ;
+    rdfs:range [a rdf:List] .
+
+# Message System
+a2a:message a owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Protocol message" .
+
+a2a:message_type a owl:DatatypeProperty ;
+    rdfs:label "Message Type" ;
+    rdfs:domain a2a:message ;
+    rdfs:range ["request" "response" "notification" "error"] .
+
+a2a:message_content a owl:DatatypeProperty ;
+    rdfs:label "Message Content" ;
+    rdfs:domain a2a:message ;
+    rdfs:range xsd:string .
+
+a2a:sender_id a owl:DatatypeProperty ;
+    rdfs:label "Sender ID" ;
+    rdfs:domain a2a:message ;
+    rdfs:range xsd:string .
+
+a2a:recipient_id a owl:DatatypeProperty ;
+    rdfs:label "Recipient ID" ;
+    rdfs:domain a2a:message ;
+    rdfs:range xsd:string .
+
+# JSON-RPC
+a2a:json_rpc_request a owl:Class ;
+    rdfs:label "JSON-RPC Request" ;
+    rdfs:subClassOf a2a:message .
+
+a2a:json_rpc_response a owl:Class ;
+    rdfs:label "JSON-RPC Response" ;
+    rdfs:subClassOf a2a:message .
+
+a2a:json_rpc_error a owl:Class ;
+    rdfs:label "JSON-RPC Error" ;
+    rdfs:subClassOf a2a:message .
+
+a2a:json_rpc_method a owl:DatatypeProperty ;
+    rdfs:label "JSON-RPC Method" ;
+    rdfs:domain a2a:json_rpc_request ;
+    rdfs:range xsd:string .
+
+a2a:json_rpc_params a owl:DatatypeProperty ;
+    rdfs:label "JSON-RPC Parameters" ;
+    rdfs:domain a2a:json_rpc_request ;
+    rdfs:range xsd:string .
+
+a2a:json_rpc_id a owl:DatatypeProperty ;
+    rdfs:label "JSON-RPC ID" ;
+    rdfs:domain a2a:json_rpc_request ;
+    rdfs:range xsd:string .
+
+# SSE
+a2a:sse_event a owl:Class ;
+    rdfs:label "SSE Event" ;
+    rdfs:comment "Server-Sent Event" .
+
+a2a:sse_event_type a owl:DatatypeProperty ;
+    rdfs:label "SSE Event Type" ;
+    rdfs:domain a2a:sse_event ;
+    rdfs:range xsd:string .
+
+a2a:sse_data a owl:DatatypeProperty ;
+    rdfs:label "SSE Data" ;
+    rdfs:domain a2a:sse_event ;
+    rdfs:range xsd:string .
+
+# Configuration
+a2a:config a owl:Class ;
+    rdfs:label "Configuration" ;
+    rdfs:comment "Application configuration" .
+
+a2a:http_port a owl:DatatypeProperty ;
+    rdfs:label "HTTP Port" ;
+    rdfs:domain a2a:config ;
+    rdfs:range xsd:integer .
+
+a2a:http_port a owl:DatatypeProperty ;
+    rdfs:label "HTTP Port" ;
+    rdfs:domain a2a:config ;
+    rdfs:range xsd:integer .
+
+a2a:enable_sse a owl:DatatypeProperty ;
+    rdfs:label "Enable SSE" ;
+    rdfs:domain a2a:config ;
+    rdfs:range xsd:boolean .
+
+a2a:enable_metrics a owl:DatatypeProperty ;
+    rdfs:label "Enable Metrics" ;
+    rdfs:domain a2a:config ;
+    rdfs:range xsd:boolean .
+
+a2a:log_level a owl:DatatypeProperty ;
+    rdfs:label "Log Level" ;
+    rdfs:domain a2a:config ;
+    rdfs:range ["debug" "info" "warn" "error" "critical"] .
+
+# Metrics
+a2a:metrics a owl:Class ;
+    rdfs:label "Metrics" ;
+    rdfs:comment "Application metrics" .
+
+a2a:metric_name a owl:DatatypeProperty ;
+    rdfs:label "Metric Name" ;
+    rdfs:domain a2a:metrics ;
+    rdfs:range xsd:string .
+
+a2a:metric_value a owl:DatatypeProperty ;
+    rdfs:label "Metric Value" ;
+    rdfs:domain a2a:metrics ;
+    rdfs:range xsd:double .
+
+a2a:metric_timestamp a owl:DatatypeProperty ;
+    rdfs:label "Metric Timestamp" ;
+    rdfs:domain a2a:metrics ;
+    rdfs:range xsd:dateTime .
+
+# Database
+a2a:ets_table a owl:Class ;
+    rdfs:label "ETS Table" ;
+    rdfs:comment "ETS table definition" .
+
+a2a:ets_table_name a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Name" ;
+    rdfs:domain a2a:ets_table ;
+    rdfs:range xsd:string .
+
+a2a:ets_table_type a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Type" ;
+    rdfs:domain a2a:ets_table ;
+    rdfs:range ["set" "bag" "duplicate_bag" "ordered_set"] .
+
+a2a:ets_table_protection a owl:DatatypeProperty ;
+    rdfs:label "ETS Table Protection" ;
+    rdfs:domain a2a:ets_table ;
+    rdfs:range ["public" "protected" "private"] .
+
+# Event System
+a2a:event a owl:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "System event" .
+
+a2a:event_type a owl:DatatypeProperty ;
+    rdfs:label "Event Type" ;
+    rdfs:domain a2a:event ;
+    rdfs:range xsd:string .
+
+a2a:event_payload a owl:DatatypeProperty ;
+    rdfs:label "Event Payload" ;
+    rdfs:domain a2a:event ;
+    rdfs:range xsd:string .
+
+a2a:event_timestamp a owl:DatatypeProperty ;
+    rdfs:label "Event Timestamp" ;
+    rdfs:domain a2a:event ;
+    rdfs:range xsd:dateTime .
+
+# HotCI
+a2a:hotci_test a owl:Class ;
+    rdfs:label "HotCI Test" ;
+    rdfs:comment "HotCI test case" .
+
+a2a:hotci_test_name a owl:DatatypeProperty ;
+    rdfs:label "HotCI Test Name" ;
+    rdfs:domain a2a:hotci_test ;
+    rdfs:range xsd:string .
+
+a2a:hotci_test_type a owl:DatatypeProperty ;
+    rdfs:label "HotCI Test Type" ;
+    rdfs:domain a2a:hotci_test ;
+    rdfs:range ["upgrade" "downgrade" "consistency" "performance"] .
+
+a2a:hotci_test_scenario a owl:DatatypeProperty ;
+    rdfs:label "HotCI Test Scenario" ;
+    rdfs:domain a2a:hotci_test ;
+    rdfs:range xsd:string .

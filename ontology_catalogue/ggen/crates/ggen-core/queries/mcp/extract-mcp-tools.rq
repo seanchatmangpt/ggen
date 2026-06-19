@@ -1,0 +1,19 @@
+# SPARQL SELECT Query: Extract MCP Tools with Parameters (one row per tool)
+#
+# Returns one row per tool. Each row contains the tool name and description.
+# The template uses sparql_results to iterate all rows and build the tools array.
+#
+# NOTE: Parameters are extracted in a separate query (extract-mcp-params.rq)
+# and grouped by tool_name in the template via sparql_results.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
+
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+
+SELECT ?tool_name ?tool_description
+WHERE {
+  ?tool a mcp:Tool ;
+    mcp:toolName ?tool_name ;
+    mcp:toolDescription ?tool_description .
+}
+ORDER BY ?tool_name

@@ -1,0 +1,11 @@
+PREFIX ddd: <https://ddd-patterns.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service_name ?repository_name
+WHERE {
+  ?svc a ddd:Service .
+  ?svc rdfs:label ?service_name .
+  ?svc ddd:uses ?repo .
+  ?repo rdfs:label ?repository_name .
+}
+LIMIT 10000

@@ -1,0 +1,706 @@
+@prefix : <http://bytestar.org/ontology/throughput-latency-benchmarks#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix benchmark: <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix bounds: <http://bytestar.org/ontology/resource-bounds#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<http://bytestar.org/ontology/throughput-latency-benchmarks> rdf:type owl:Ontology ;
+    dct:title "Throughput and Latency Benchmark Suite"@en ;
+    dct:description """Comprehensive benchmark suite measuring throughput and latency
+    characteristics of all crystal operations under Doctrine of 8. Includes sustained
+    throughput tests, latency distribution analysis, and multi-dimensional performance
+    validation with statistical rigor."""@en ;
+    dct:creator "ByteStar Performance Engineering Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-throughput-latency"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/performance-benchmark> ,
+                <http://bytestar.org/ontology/resource-bounds> .
+
+#################################################################
+#    Throughput Benchmark Suite Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#ThroughputBenchmarkSuite
+:ThroughputBenchmarkSuite rdf:type owl:Class ;
+                         rdfs:subClassOf benchmark:ThroughputBenchmark ;
+                         rdfs:label "Throughput Benchmark Suite"@en ;
+                         rdfs:comment """Comprehensive suite of throughput benchmarks
+                         measuring sustainable operation rates under Doctrine of 8."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LatencyBenchmarkSuite
+:LatencyBenchmarkSuite rdf:type owl:Class ;
+                      rdfs:subClassOf benchmark:LatencyBenchmark ;
+                      rdfs:label "Latency Benchmark Suite"@en ;
+                      rdfs:comment """Comprehensive suite of latency benchmarks
+                      measuring response time distributions and tail behavior."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#CombinedThroughputLatencyBenchmark
+:CombinedThroughputLatencyBenchmark rdf:type owl:Class ;
+                                   rdfs:subClassOf :ThroughputBenchmarkSuite ;
+                                   rdfs:subClassOf :LatencyBenchmarkSuite ;
+                                   rdfs:label "Combined Throughput-Latency Benchmark"@en ;
+                                   rdfs:comment """Benchmark measuring throughput while
+                                   simultaneously analyzing latency characteristics."""@en .
+
+#################################################################
+#    Throughput Measurement Types
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#SustainedThroughputTest
+:SustainedThroughputTest rdf:type owl:Class ;
+                        rdfs:subClassOf :ThroughputBenchmarkSuite ;
+                        rdfs:label "Sustained Throughput Test"@en ;
+                        rdfs:comment """Test measuring maximum sustainable throughput
+                        over extended periods while maintaining sub-8-tick latency."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#BurstThroughputTest
+:BurstThroughputTest rdf:type owl:Class ;
+                    rdfs:subClassOf :ThroughputBenchmarkSuite ;
+                    rdfs:label "Burst Throughput Test"@en ;
+                    rdfs:comment """Test measuring peak throughput during short
+                    burst periods with latency monitoring."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LoadRampTest
+:LoadRampTest rdf:type owl:Class ;
+             rdfs:subClassOf :ThroughputBenchmarkSuite ;
+             rdfs:label "Load Ramp Test"@en ;
+             rdfs:comment """Test gradually increasing load to identify
+             throughput saturation and latency degradation points."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#ConstantLoadTest
+:ConstantLoadTest rdf:type owl:Class ;
+                 rdfs:subClassOf :ThroughputBenchmarkSuite ;
+                 rdfs:label "Constant Load Test"@en ;
+                 rdfs:comment """Test maintaining constant load to measure
+                 stable throughput and latency characteristics."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#StressTest
+:StressTest rdf:type owl:Class ;
+           rdfs:subClassOf :ThroughputBenchmarkSuite ;
+           rdfs:label "Stress Test"@en ;
+           rdfs:comment """Test exceeding normal capacity to identify
+           breaking points and failure modes."""@en .
+
+#################################################################
+#    Latency Measurement Types
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LatencyDistributionAnalysis
+:LatencyDistributionAnalysis rdf:type owl:Class ;
+                            rdfs:subClassOf :LatencyBenchmarkSuite ;
+                            rdfs:label "Latency Distribution Analysis"@en ;
+                            rdfs:comment """Analysis of complete latency distributions
+                            with percentile calculations and tail analysis."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#TailLatencyAnalysis
+:TailLatencyAnalysis rdf:type owl:Class ;
+                    rdfs:subClassOf :LatencyDistributionAnalysis ;
+                    rdfs:label "Tail Latency Analysis"@en ;
+                    rdfs:comment """Specialized analysis focusing on tail latencies
+                    (P95, P99, P99.9) and worst-case behavior."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LatencyJitterAnalysis
+:LatencyJitterAnalysis rdf:type owl:Class ;
+                      rdfs:subClassOf :LatencyBenchmarkSuite ;
+                      rdfs:label "Latency Jitter Analysis"@en ;
+                      rdfs:comment """Analysis of latency variance and jitter
+                      to identify timing consistency issues."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#WarmupLatencyTest
+:WarmupLatencyTest rdf:type owl:Class ;
+                  rdfs:subClassOf :LatencyBenchmarkSuite ;
+                  rdfs:label "Warmup Latency Test"@en ;
+                  rdfs:comment """Test measuring latency during system warmup
+                  to understand cold-start behavior."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#SteadyStateLatencyTest
+:SteadyStateLatencyTest rdf:type owl:Class ;
+                       rdfs:subClassOf :LatencyBenchmarkSuite ;
+                       rdfs:label "Steady State Latency Test"@en ;
+                       rdfs:comment """Test measuring latency under steady-state
+                       conditions with stable throughput."""@en .
+
+#################################################################
+#    Workload Generation
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#WorkloadGenerator
+:WorkloadGenerator rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemComponent ;
+                  rdfs:label "Workload Generator"@en ;
+                  rdfs:comment """Generator creating realistic workloads for
+                  throughput and latency benchmarking."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#SyntheticWorkloadGenerator
+:SyntheticWorkloadGenerator rdf:type owl:Class ;
+                           rdfs:subClassOf :WorkloadGenerator ;
+                           rdfs:label "Synthetic Workload Generator"@en ;
+                           rdfs:comment """Generator creating synthetic workloads
+                           with controlled characteristics."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#RealisticWorkloadGenerator
+:RealisticWorkloadGenerator rdf:type owl:Class ;
+                           rdfs:subClassOf :WorkloadGenerator ;
+                           rdfs:label "Realistic Workload Generator"@en ;
+                           rdfs:comment """Generator creating realistic workloads
+                           based on production patterns."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#AdversarialWorkloadGenerator
+:AdversarialWorkloadGenerator rdf:type owl:Class ;
+                             rdfs:subClassOf :WorkloadGenerator ;
+                             rdfs:label "Adversarial Workload Generator"@en ;
+                             rdfs:comment """Generator creating adversarial workloads
+                             designed to stress system limits."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#WorkloadPattern
+:WorkloadPattern rdf:type owl:Class ;
+                rdfs:subClassOf ba:Pattern ;
+                rdfs:label "Workload Pattern"@en ;
+                rdfs:comment """Specific pattern for workload generation
+                including timing and load characteristics."""@en .
+
+#################################################################
+#    Performance Measurement Classes
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#ThroughputMeasurement
+:ThroughputMeasurement rdf:type owl:Class ;
+                      rdfs:subClassOf benchmark:ThroughputMeasurement ;
+                      rdfs:label "Enhanced Throughput Measurement"@en ;
+                      rdfs:comment """Enhanced throughput measurement with
+                      quality metrics and statistical analysis."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LatencyMeasurement
+:LatencyMeasurement rdf:type owl:Class ;
+                   rdfs:subClassOf benchmark:LatencyDistribution ;
+                   rdfs:label "Enhanced Latency Measurement"@en ;
+                   rdfs:comment """Enhanced latency measurement with complete
+                   distribution analysis and metadata."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#PercentileMeasurement
+:PercentileMeasurement rdf:type owl:Class ;
+                      rdfs:subClassOf :LatencyMeasurement ;
+                      rdfs:label "Percentile Measurement"@en ;
+                      rdfs:comment """Measurement of specific latency percentiles
+                      with confidence intervals."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#QualityMetric
+:QualityMetric rdf:type owl:Class ;
+              rdfs:subClassOf perf:PerformanceMetric ;
+              rdfs:label "Quality Metric"@en ;
+              rdfs:comment """Metric measuring quality aspects of throughput
+              and latency performance."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#SuccessRateMetric
+:SuccessRateMetric rdf:type owl:Class ;
+                  rdfs:subClassOf :QualityMetric ;
+                  rdfs:label "Success Rate Metric"@en ;
+                  rdfs:comment """Metric measuring percentage of successful
+                  operations meeting requirements."""@en .
+
+#################################################################
+#    Statistical Analysis Tools
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#StatisticalAnalyzer
+:StatisticalAnalyzer rdf:type owl:Class ;
+                    rdfs:subClassOf benchmark:StatisticalAnalyzer ;
+                    rdfs:label "Enhanced Statistical Analyzer"@en ;
+                    rdfs:comment """Enhanced statistical analyzer for throughput
+                    and latency data with advanced methods."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#DistributionAnalyzer
+:DistributionAnalyzer rdf:type owl:Class ;
+                     rdfs:subClassOf :StatisticalAnalyzer ;
+                     rdfs:label "Distribution Analyzer"@en ;
+                     rdfs:comment """Analyzer for latency distribution
+                     characteristics and fitting."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#PercentileCalculator
+:PercentileCalculator rdf:type owl:Class ;
+                     rdfs:subClassOf :StatisticalAnalyzer ;
+                     rdfs:label "Percentile Calculator"@en ;
+                     rdfs:comment """Calculator for precise percentile
+                     measurements with confidence intervals."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#TrendAnalyzer
+:TrendAnalyzer rdf:type owl:Class ;
+              rdfs:subClassOf :StatisticalAnalyzer ;
+              rdfs:label "Trend Analyzer"@en ;
+              rdfs:comment """Analyzer for performance trends over time
+              and across different conditions."""@en .
+
+#################################################################
+#    Benchmark Execution Control
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#BenchmarkController
+:BenchmarkController rdf:type owl:Class ;
+                    rdfs:subClassOf benchmark:BenchmarkExecutor ;
+                    rdfs:label "Benchmark Controller"@en ;
+                    rdfs:comment """Controller orchestrating complex benchmark
+                    execution with precise timing control."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LoadController
+:LoadController rdf:type owl:Class ;
+               rdfs:subClassOf :BenchmarkController ;
+               rdfs:label "Load Controller"@en ;
+               rdfs:comment """Controller managing load generation and
+               distribution for throughput testing."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#TimingController
+:TimingController rdf:type owl:Class ;
+                 rdfs:subClassOf :BenchmarkController ;
+                 rdfs:label "Timing Controller"@en ;
+                 rdfs:comment """Controller ensuring precise timing for
+                 latency measurement accuracy."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#CoordinationController
+:CoordinationController rdf:type owl:Class ;
+                       rdfs:subClassOf :BenchmarkController ;
+                       rdfs:label "Coordination Controller"@en ;
+                       rdfs:comment """Controller coordinating multiple
+                       concurrent benchmark processes."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#generatesWorkload
+:generatesWorkload rdf:type owl:ObjectProperty ;
+                  rdfs:domain :WorkloadGenerator ;
+                  rdfs:range :WorkloadPattern ;
+                  rdfs:label "generates workload"@en ;
+                  rdfs:comment "Relates generator to workload patterns produced."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#measuresThroughput
+:measuresThroughput rdf:type owl:ObjectProperty ;
+                   rdfs:domain :ThroughputBenchmarkSuite ;
+                   rdfs:range :ThroughputMeasurement ;
+                   rdfs:label "measures throughput"@en ;
+                   rdfs:comment "Relates benchmark to throughput measurements."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#measuresLatency
+:measuresLatency rdf:type owl:ObjectProperty ;
+                rdfs:domain :LatencyBenchmarkSuite ;
+                rdfs:range :LatencyMeasurement ;
+                rdfs:label "measures latency"@en ;
+                rdfs:comment "Relates benchmark to latency measurements."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#analyzesDistribution
+:analyzesDistribution rdf:type owl:ObjectProperty ;
+                     rdfs:domain :DistributionAnalyzer ;
+                     rdfs:range :LatencyMeasurement ;
+                     rdfs:label "analyzes distribution"@en ;
+                     rdfs:comment "Relates analyzer to distributions analyzed."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#calculatesPercentile
+:calculatesPercentile rdf:type owl:ObjectProperty ;
+                     rdfs:domain :PercentileCalculator ;
+                     rdfs:range :PercentileMeasurement ;
+                     rdfs:label "calculates percentile"@en ;
+                     rdfs:comment "Relates calculator to percentile measurements."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#controlsLoad
+:controlsLoad rdf:type owl:ObjectProperty ;
+             rdfs:domain :LoadController ;
+             rdfs:range :WorkloadGenerator ;
+             rdfs:label "controls load"@en ;
+             rdfs:comment "Relates controller to load generators controlled."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#hasQualityMetric
+:hasQualityMetric rdf:type owl:ObjectProperty ;
+                 rdfs:domain :ThroughputMeasurement ;
+                 rdfs:range :QualityMetric ;
+                 rdfs:label "has quality metric"@en ;
+                 rdfs:comment "Relates measurement to quality metrics."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#operationsPerSecond
+:operationsPerSecond rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :ThroughputMeasurement ;
+                    rdfs:range xsd:double ;
+                    rdfs:label "operations per second"@en ;
+                    rdfs:comment "Number of operations completed per second."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#sustainedDuration
+:sustainedDuration rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :SustainedThroughputTest ;
+                  rdfs:range xsd:duration ;
+                  rdfs:label "sustained duration"@en ;
+                  rdfs:comment "Duration for which throughput was sustained."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#burstDuration
+:burstDuration rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :BurstThroughputTest ;
+              rdfs:range xsd:duration ;
+              rdfs:label "burst duration"@en ;
+              rdfs:comment "Duration of the burst test period."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#rampRate
+:rampRate rdf:type owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+         rdfs:domain :LoadRampTest ;
+         rdfs:range xsd:double ;
+         rdfs:label "ramp rate"@en ;
+         rdfs:comment "Rate of load increase (ops/sec per second)."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#targetLoad
+:targetLoad rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+           rdfs:domain :ConstantLoadTest ;
+           rdfs:range xsd:double ;
+           rdfs:label "target load"@en ;
+           rdfs:comment "Target load level in operations per second."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#stressMultiplier
+:stressMultiplier rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :StressTest ;
+                 rdfs:range xsd:double ;
+                 rdfs:label "stress multiplier"@en ;
+                 rdfs:comment "Multiplier above normal capacity for stress testing."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#percentileValue
+:percentileValue rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :PercentileMeasurement ;
+                rdfs:range xsd:double ;
+                rdfs:label "percentile value"@en ;
+                rdfs:comment "Percentile being measured (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#latencyNanos
+:latencyNanos rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain :PercentileMeasurement ;
+             rdfs:range xsd:long ;
+             rdfs:label "latency nanoseconds"@en ;
+             rdfs:comment "Latency value in nanoseconds for this percentile."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#confidenceInterval
+:confidenceInterval rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :PercentileMeasurement ;
+                   rdfs:range xsd:double ;
+                   rdfs:label "confidence interval"@en ;
+                   rdfs:comment "Confidence interval for percentile measurement."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#successRate
+:successRate rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :SuccessRateMetric ;
+            rdfs:range xsd:double ;
+            rdfs:label "success rate"@en ;
+            rdfs:comment "Success rate as percentage (0.0-100.0)."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#jitterValue
+:jitterValue rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+            rdfs:domain :LatencyJitterAnalysis ;
+            rdfs:range xsd:double ;
+            rdfs:label "jitter value"@en ;
+            rdfs:comment "Latency jitter measurement in nanoseconds."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#warmupDuration
+:warmupDuration rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+               rdfs:domain :WarmupLatencyTest ;
+               rdfs:range xsd:duration ;
+               rdfs:label "warmup duration"@en ;
+               rdfs:comment "Duration of warmup period."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#steadyStateDuration
+:steadyStateDuration rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :SteadyStateLatencyTest ;
+                    rdfs:range xsd:duration ;
+                    rdfs:label "steady state duration"@en ;
+                    rdfs:comment "Duration of steady state measurement."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#loadGenerationRate
+:loadGenerationRate rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :WorkloadGenerator ;
+                   rdfs:range xsd:double ;
+                   rdfs:label "load generation rate"@en ;
+                   rdfs:comment "Rate at which load is generated (ops/sec)."@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#timingPrecision
+:timingPrecision rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :TimingController ;
+                rdfs:range xsd:double ;
+                rdfs:label "timing precision"@en ;
+                rdfs:comment "Timing precision in nanoseconds."@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#ThroughputMeasurementShape
+:ThroughputMeasurementShape rdf:type sh:NodeShape ;
+                           sh:targetClass :ThroughputMeasurement ;
+                           rdfs:label "Throughput Measurement Shape"@en ;
+                           rdfs:comment "Validates throughput measurement properties."@en ;
+                           sh:property [
+                               sh:path :operationsPerSecond ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.0 ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Operations per second must be non-negative."@en
+                           ] .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#PercentileMeasurementShape
+:PercentileMeasurementShape rdf:type sh:NodeShape ;
+                           sh:targetClass :PercentileMeasurement ;
+                           rdfs:label "Percentile Measurement Shape"@en ;
+                           rdfs:comment "Validates percentile measurement properties."@en ;
+                           sh:property [
+                               sh:path :percentileValue ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.0 ;
+                               sh:maxInclusive 100.0 ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Percentile value must be between 0.0 and 100.0."@en
+                           ] ;
+                           sh:property [
+                               sh:path :latencyNanos ;
+                               sh:datatype xsd:long ;
+                               sh:minInclusive 0 ;
+                               sh:maxInclusive 1000000 ; # 1ms = 8 ticks at 8GHz
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Latency must be non-negative and ≤1ms (8 ticks)."@en
+                           ] ;
+                           sh:property [
+                               sh:path :confidenceInterval ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.0 ;
+                               sh:maxInclusive 1.0 ;
+                               sh:message "Confidence interval must be between 0.0 and 1.0."@en
+                           ] .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#SuccessRateMetricShape
+:SuccessRateMetricShape rdf:type sh:NodeShape ;
+                       sh:targetClass :SuccessRateMetric ;
+                       rdfs:label "Success Rate Metric Shape"@en ;
+                       rdfs:comment "Validates success rate metric properties."@en ;
+                       sh:property [
+                           sh:path :successRate ;
+                           sh:datatype xsd:double ;
+                           sh:minInclusive 0.0 ;
+                           sh:maxInclusive 100.0 ;
+                           sh:minCount 1 ;
+                           sh:maxCount 1 ;
+                           sh:message "Success rate must be between 0.0% and 100.0%."@en
+                       ] .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#LoadRampTestShape
+:LoadRampTestShape rdf:type sh:NodeShape ;
+                  sh:targetClass :LoadRampTest ;
+                  rdfs:label "Load Ramp Test Shape"@en ;
+                  rdfs:comment "Validates load ramp test configuration."@en ;
+                  sh:property [
+                      sh:path :rampRate ;
+                      sh:datatype xsd:double ;
+                      sh:minExclusive 0.0 ;
+                      sh:minCount 1 ;
+                      sh:maxCount 1 ;
+                      sh:message "Ramp rate must be positive."@en
+                  ] .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#StressTestShape
+:StressTestShape rdf:type sh:NodeShape ;
+                sh:targetClass :StressTest ;
+                rdfs:label "Stress Test Shape"@en ;
+                rdfs:comment "Validates stress test configuration."@en ;
+                sh:property [
+                    sh:path :stressMultiplier ;
+                    sh:datatype xsd:double ;
+                    sh:minInclusive 1.0 ; # Must exceed normal capacity
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:message "Stress multiplier must be ≥1.0."@en
+                ] .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#TimingControllerShape
+:TimingControllerShape rdf:type sh:NodeShape ;
+                      sh:targetClass :TimingController ;
+                      rdfs:label "Timing Controller Shape"@en ;
+                      rdfs:comment "Validates timing controller precision."@en ;
+                      sh:property [
+                          sh:path :timingPrecision ;
+                          sh:datatype xsd:double ;
+                          sh:maxInclusive 10.0 ; # Maximum 10ns precision
+                          sh:minExclusive 0.0 ;
+                          sh:minCount 1 ;
+                          sh:maxCount 1 ;
+                          sh:message "Timing precision must be positive and ≤10ns."@en
+                      ] .
+
+#################################################################
+#    Benchmark Suite Integration Axioms
+#################################################################
+
+# Axiom: All throughput measurements must have quality metrics
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :ThroughputMeasurement
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :hasQualityMetric ;
+               owl:someValuesFrom :QualityMetric
+           ]
+       )
+   ] .
+
+# Axiom: Latency percentiles must comply with Doctrine of 8
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :PercentileMeasurement
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :latencyNanos ;
+               owl:someValuesFrom [
+                   rdf:type rdfs:Datatype ;
+                   owl:onDatatype xsd:long ;
+                   owl:withRestrictions (
+                       [ xsd:maxInclusive 1000000 ] # 1ms = 8 ticks at 8GHz
+                   )
+               ]
+           ]
+       )
+   ] .
+
+# Axiom: Combined benchmarks must measure both throughput and latency
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :CombinedThroughputLatencyBenchmark
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :measuresThroughput ;
+               owl:someValuesFrom :ThroughputMeasurement
+           ]
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :measuresLatency ;
+               owl:someValuesFrom :LatencyMeasurement
+           ]
+       )
+   ] .
+
+#################################################################
+#    Predefined Benchmark Suites
+#################################################################
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#ComprehensiveThroughputSuite
+:ComprehensiveThroughputSuite rdf:type owl:NamedIndividual ,
+                                       :ThroughputBenchmarkSuite ;
+                             rdfs:label "Comprehensive Throughput Suite"@en ;
+                             rdfs:comment """Complete suite of throughput benchmarks
+                             covering all crystal operation types."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#ComprehensiveLatencySuite
+:ComprehensiveLatencySuite rdf:type owl:NamedIndividual ,
+                                    :LatencyBenchmarkSuite ;
+                          rdfs:label "Comprehensive Latency Suite"@en ;
+                          rdfs:comment """Complete suite of latency benchmarks
+                          with full distribution analysis."""@en .
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#CrystalOperationSustainedTest
+:CrystalOperationSustainedTest rdf:type owl:NamedIndividual ,
+                                        :SustainedThroughputTest ;
+                              rdfs:label "Crystal Operation Sustained Test"@en ;
+                              rdfs:comment """Sustained throughput test for
+                              crystal operations over extended periods."""@en ;
+                              :sustainedDuration "PT1H"^^xsd:duration . # 1 hour
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#HighFrequencyBurstTest
+:HighFrequencyBurstTest rdf:type owl:NamedIndividual ,
+                                 :BurstThroughputTest ;
+                       rdfs:label "High Frequency Burst Test"@en ;
+                       rdfs:comment """Burst test measuring peak throughput
+                       during high-frequency operation bursts."""@en ;
+                       :burstDuration "PT10S"^^xsd:duration . # 10 seconds
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#AdaptiveLoadRamp
+:AdaptiveLoadRamp rdf:type owl:NamedIndividual ,
+                           :LoadRampTest ;
+                 rdfs:label "Adaptive Load Ramp"@en ;
+                 rdfs:comment """Adaptive load ramp test gradually increasing
+                 load to find optimal operating points."""@en ;
+                 :rampRate "100.0"^^xsd:double . # 100 ops/sec increase per second
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#PrecisionTimingController
+:PrecisionTimingController rdf:type owl:NamedIndividual ,
+                                    :TimingController ;
+                          rdfs:label "Precision Timing Controller"@en ;
+                          rdfs:comment """High-precision timing controller
+                          for accurate latency measurements."""@en ;
+                          :timingPrecision "1.0"^^xsd:double . # 1ns precision
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#RealisticWorkload
+:RealisticWorkload rdf:type owl:NamedIndividual ,
+                            :RealisticWorkloadGenerator ;
+                  rdfs:label "Realistic Production Workload"@en ;
+                  rdfs:comment """Generator producing realistic workloads
+                  based on production usage patterns."""@en ;
+                  :loadGenerationRate "10000.0"^^xsd:double . # 10K ops/sec
+
+###  http://bytestar.org/ontology/throughput-latency-benchmarks#AdvancedPercentileCalculator
+:AdvancedPercentileCalculator rdf:type owl:NamedIndividual ,
+                                       :PercentileCalculator ;
+                             rdfs:label "Advanced Percentile Calculator"@en ;
+                             rdfs:comment """Advanced calculator for precise
+                             percentile measurements with confidence intervals."""@en .
+
+#################################################################
+#    Example Measurements
+#################################################################
+
+# Example sustained throughput measurement
+:ExampleSustainedThroughput rdf:type owl:NamedIndividual ,
+                                     :ThroughputMeasurement ;
+                           rdfs:label "Example Sustained Throughput"@en ;
+                           :operationsPerSecond "50000.0"^^xsd:double ; # 50K ops/sec
+                           dct:created "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example P99 latency measurement
+:ExampleP99Latency rdf:type owl:NamedIndividual ,
+                            :PercentileMeasurement ;
+                  rdfs:label "Example P99 Latency"@en ;
+                  :percentileValue "99.0"^^xsd:double ;
+                  :latencyNanos "875000"^^xsd:long ; # 875μs = 7 ticks at 8GHz
+                  :confidenceInterval "0.95"^^xsd:double ;
+                  dct:created "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example success rate metric
+:ExampleSuccessRate rdf:type owl:NamedIndividual ,
+                             :SuccessRateMetric ;
+                   rdfs:label "Example Success Rate"@en ;
+                   :successRate "99.95"^^xsd:double ; # 99.95% success rate
+                   dct:created "2025-08-23T12:00:02Z"^^xsd:dateTime .

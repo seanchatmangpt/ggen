@@ -1,0 +1,145 @@
+# @name: multi_domain_lineage
+# @category: federation
+# @description: SPARQL SELECT tracing dataset lineage across domains (upstream/downstream)
+# @input: dataset_uri (the starting dataset to trace)
+# @output_type: upstream + downstream datasets from any domain
+# @lineage_type: bidirectional (prov:wasDerivedFrom + prov:wasGeneratedBy)
+# @max_depth: unbounded (uses transitive closure)
+# @timeout_ms: 20000
+# @version: 1.0
+# @stability: stable
+#
+# Purpose:
+#   Multi-domain lineage tracing using PROV-O data lineage ontology.
+#   Traces upstream (source data) and downstream (derived data) across domains.
+#   No domain restrictions — works with Finance, Operations, Sales, HR, etc.
+#
+# Use Cases:
+#   1. "Show all datasets that contributed to Finance.revenue_forecast"
+#   2. "Show all datasets downstream of Sales.pipeline (i.e., what derived from it)"
+#   3. "Find data quality issues: trace lineage to identify root cause"
+#   4. "Compliance: show complete data provenance for audit trail"
+#   5. "Impact analysis: if dataset X changes, what else is affected?"
+#
+# Input Parameters:
+#   ?dataset_uri - The dataset IRI to trace lineage from (e.g., <https://ontology.chatmangpt.com/datasets/finance/revenue>)
+#
+# Output Columns:
+#   ?dataset_uri - Input dataset (starting point)
+#   ?upstream_level - Depth in upstream direction (0 = input, 1 = direct source, 2+ = transitive)
+#   ?upstream_dataset - Upstream dataset (input to the lineage)
+#   ?upstream_description - Human-readable description of upstream dataset
+#   ?upstream_domain - Domain of upstream dataset (finance, sales, operations, etc.)
+#   ?downstream_level - Depth in downstream direction (0 = input, 1 = direct derivative, 2+ = transitive)
+#   ?downstream_dataset - Downstream dataset (derived from the lineage)
+#   ?downstream_description - Human-readable description of downstream dataset
+#   ?downstream_domain - Domain of downstream dataset
+#
+# Example Usage:
+#   SPARQL parameter: ?dataset_uri=<https://ontology.chatmangpt.com/datasets/finance/revenue_forecast>
+#
+#   curl -H "Accept: application/sparql-results+json" \
+#     -G "http://localhost:7878/query" \
+#     --data-urlencode "query@-" < multi_domain_lineage.rq \
+#     --data-urlencode "dataset_uri=<https://ontology.chatmangpt.com/datasets/finance/revenue_forecast>"
+
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dqv: <http://www.w3.org/ns/dqv#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT
+  ?dataset_uri
+  ?upstream_level
+  ?upstream_dataset
+  ?upstream_description
+  ?upstream_domain
+  ?downstream_level
+  ?downstream_dataset
+  ?downstream_description
+  ?downstream_domain
+
+WHERE {
+  # ========================================================================
+  # UPSTREAM LINEAGE (sources and direct inputs)
+  # Transitive closure: dataset wasDerivedFrom* upstream source
+  # ========================================================================
+
+  # Start from input dataset ?dataset_uri
+  OPTIONAL {
+    # Direct upstream: immediate sources
+    ?dataset_uri prov:wasDerivedFrom+ ?upstream_dataset .
+    BIND(1 AS ?upstream_level)
+
+    # Get metadata about upstream dataset
+    OPTIONAL {
+      ?upstream_dataset rdfs:label ?upstream_description .
+    }
+    BIND(COALESCE(?upstream_description, "Unknown dataset") AS ?upstream_description)
+
+    # Extract domain from upstream dataset URI
+    # Pattern: https://ontology.chatmangpt.com/datasets/{domain}/*
+    OPTIONAL {
+      BIND(
+        REPLACE(
+          STR(?upstream_dataset),
+          "^.*datasets/([^/]+)/.*$",
+          "$1"
+        ) AS ?upstream_domain
+      )
+    }
+    BIND(COALESCE(?upstream_domain, "unknown") AS ?upstream_domain)
+  }
+
+  # ========================================================================
+  # DOWNSTREAM LINEAGE (derived datasets and outputs)
+  # Transitive closure: downstream wasDerivedFrom* dataset
+  # ========================================================================
+
+  OPTIONAL {
+    # Direct downstream: datasets derived from the input
+    ?downstream_dataset prov:wasDerivedFrom+ ?dataset_uri .
+    BIND(1 AS ?downstream_level)
+
+    # Get metadata about downstream dataset
+    OPTIONAL {
+      ?downstream_dataset rdfs:label ?downstream_description .
+    }
+    BIND(COALESCE(?downstream_description, "Unknown dataset") AS ?downstream_description)
+
+    # Extract domain from downstream dataset URI
+    OPTIONAL {
+      BIND(
+        REPLACE(
+          STR(?downstream_dataset),
+          "^.*datasets/([^/]+)/.*$",
+          "$1"
+        ) AS ?downstream_domain
+      )
+    }
+    BIND(COALESCE(?downstream_domain, "unknown") AS ?downstream_domain)
+  }
+
+  # ========================================================================
+  # QUALITY FILTERS
+  # ========================================================================
+
+  # Exclude self-references (dataset derived from itself would indicate a cycle)
+  FILTER(?upstream_dataset != ?dataset_uri)
+  FILTER(?downstream_dataset != ?dataset_uri)
+
+  # At least one of upstream or downstream must exist
+  FILTER(BOUND(?upstream_dataset) || BOUND(?downstream_dataset))
+}
+
+# ============================================================================
+# RESULT ORDERING
+# ============================================================================
+
+ORDER BY
+  ?upstream_domain ?upstream_level ?upstream_dataset
+  ?downstream_domain ?downstream_level ?downstream_dataset
+
+LIMIT 10000

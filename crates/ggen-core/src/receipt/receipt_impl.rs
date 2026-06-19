@@ -91,6 +91,9 @@ impl Receipt {
     /// Returns `ReceiptError::InvalidSignature` if the signature is invalid or malformed.
     /// Returns `ReceiptError::Serialization` if the receipt cannot be serialized.
     pub fn verify(&self, verifying_key: &VerifyingKey) -> Result<()> {
+        if self.signature.is_empty() {
+            return Err(ReceiptError::InvalidSignature);
+        }
         let message = self.signing_message()?;
 
         let signature_bytes =
@@ -281,6 +284,21 @@ mod tests {
     }
 
     #[test]
+    fn test_unsigned_receipt_verify_returns_invalid_signature() {
+        let (_, verifying_key) = generate_keypair();
+        let unsigned = Receipt::new(
+            "test-op".to_string(),
+            vec!["input1".to_string()],
+            vec!["output1".to_string()],
+            None,
+        );
+        assert!(
+            unsigned.verify(&verifying_key).is_err(),
+            "unsigned receipt with empty signature must fail verify"
+        );
+    }
+
+    #[test]
     fn test_hash_data() {
         let data = b"test data";
         let hash1 = hash_data(data);
@@ -288,5 +306,57 @@ mod tests {
 
         assert_eq!(hash1, hash2);
         assert_eq!(hash1.len(), 64);
+    }
+
+    // ── Sabotage tests (coding-agent-mistakes.md §5) ─────────────────────────
+
+    /// Sabotage §5 row 3: a receipt with an empty signature field must fail
+    /// verify().  This prevents decorative-completion (Mistake Class 1.1) where
+    /// `ggen receipt verify` returns `is_valid: true` for an unsigned receipt.
+    #[test]
+    fn sabotage_empty_signature_receipt_verify_returns_err() {
+        // Arrange — Receipt::new() leaves signature as "" (the field is String::new())
+        let (_, verifying_key) = generate_keypair();
+        let receipt = Receipt::new(
+            "sabotage-op-id".to_string(),
+            vec!["sha256:input-hash".to_string()],
+            vec!["sha256:output-hash".to_string()],
+            None,
+        );
+        assert!(receipt.signature.is_empty(), "precondition: signature must be empty");
+
+        // Act
+        let result = receipt.verify(&verifying_key);
+
+        // Assert — empty signature must be rejected, not silently accepted
+        assert!(
+            result.is_err(),
+            "verify() must return Err for an unsigned receipt; got Ok"
+        );
+    }
+
+    /// Sabotage §5 row 4 (unit variant): a Receipt whose signature field is set
+    /// to `{}` (i.e., corrupt/non-hex content) must also fail verify().
+    /// This is the unit companion to the CLI-level test in sabotage_tests.rs.
+    #[test]
+    fn sabotage_corrupt_signature_content_receipt_verify_returns_err() {
+        // Arrange — manually set signature to non-hex garbage (simulates `{}` file)
+        let (_, verifying_key) = generate_keypair();
+        let mut receipt = Receipt::new(
+            "sabotage-corrupt".to_string(),
+            vec!["sha256:input".to_string()],
+            vec!["sha256:output".to_string()],
+            None,
+        );
+        receipt.signature = "{}".to_string(); // not valid hex
+
+        // Act
+        let result = receipt.verify(&verifying_key);
+
+        // Assert — non-hex signature must be rejected
+        assert!(
+            result.is_err(),
+            "verify() must return Err for a receipt with corrupt signature content; got Ok"
+        );
     }
 }

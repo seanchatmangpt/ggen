@@ -1,0 +1,33 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX java26: <http://ggen.io/java26#>
+
+# =============================================================================
+# QUERY: Extract Sealed Interfaces
+# =============================================================================
+# Returns one row per java26:SealedInterface, with the comma-separated list
+# of permitted record names derived by inverting java26:implements.
+#
+# Variables bound per row:
+#   ?interfaceName  — Java simple class name (e.g. "OrderStatus")
+#   ?javaPackage    — Java package (e.g. "com.example.orders")
+#   ?permits        — comma-separated permitted implementors (e.g. "PendingOrder,ShippedOrder")
+#
+# Template: templates/SealedInterface.java.tera
+# Template: templates/SealedDomainTest.java.tera
+# =============================================================================
+
+SELECT ?interfaceName ?javaPackage
+       (GROUP_CONCAT(?permitName; separator=",") AS ?permits)
+WHERE {
+    ?iface a java26:SealedInterface ;
+           java26:name ?interfaceName ;
+           java26:javaPackage ?javaPackage .
+
+    OPTIONAL {
+        ?record a java26:SealedRecord ;
+                java26:implements ?iface ;
+                java26:name ?permitName .
+    }
+}
+GROUP BY ?interfaceName ?javaPackage
+ORDER BY ?interfaceName

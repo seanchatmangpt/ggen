@@ -1,0 +1,66 @@
+@prefix knhk: <https://ontology.chatmangpt.com/knhk#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Expected L1 Conformance Inference Results
+# Input: L0 facts from knhk_input_facts.ttl
+# Query: knhk_L1_conformance_inference.sparql
+# Expected output: Soundness assessment showing SOUND process (all 3 properties hold)
+
+# Soundness Assessment (should show: sound, deadlock_free, liveness_guaranteed, bounded)
+knhk:soundness/wf-deal-approval-001
+  a knhk:SoundnessAssessment ;
+  knhk:process_id "wf-deal-approval-001" ;
+  knhk:deadlock_free "deadlock_free" ;
+  knhk:liveness_guaranteed "liveness_guaranteed" ;
+  knhk:resource_bounded "bounded" ;
+  knhk:overall_soundness_status "sound" ;
+  knhk:conformance_score 1.0 ;
+  rdfs:label "Soundness: deal_approval_workflow" ;
+  prov:wasGeneratedBy knhk:activity/conformance/wf-deal-approval-001 .
+
+# Deadlock Risk (should show: no deadlock detected)
+knhk:deadlock-risk/wf-deal-approval-001
+  a knhk:DeadlockRisk ;
+  knhk:detected false ;
+  knhk:timeout_occurrences 0 ;
+  knhk:circular_wait_detected false ;
+  knhk:risk_level "low" .
+
+# Liveness (should show: liveness guaranteed)
+knhk:liveness-check/wf-deal-approval-001
+  a knhk:LivenessViolation ;
+  knhk:detected false ;
+  knhk:max_loop_iterations 5 ;
+  knhk:infinite_loop_risk false ;
+  knhk:stagnation_detected false .
+
+# Resource Bounds (should show: bounded)
+knhk:bounds/wf-deal-approval-001
+  a knhk:ResourceBounds ;
+  knhk:max_queue_depth 1000 ;
+  knhk:max_memory_mb 8192 ;
+  knhk:peak_observed_queue 1 ;
+  knhk:peak_observed_memory 450 ;
+  knhk:bounded "bounded" .
+
+# Inference Activity
+knhk:activity/conformance/wf-deal-approval-001
+  a prov:Activity ;
+  rdfs:label "KNHK L1 Conformance Inference" ;
+  prov:used knhk:facts/wf-deal-approval-001 ;
+  prov:wasAssociatedWith knhk:L1ConformanceEngine ;
+  prov:wasAssociatedWith knhk:WvdASoundnessAnalyzer .
+
+knhk:L1ConformanceEngine
+  a prov:Agent ;
+  rdfs:label "KNHK L1 Conformance Engine" .
+
+knhk:WvdASoundnessAnalyzer
+  a prov:Agent ;
+  rdfs:label "van der Aalst Soundness Analyzer" .
+
+knhk:facts/wf-deal-approval-001
+  a prov:Entity ;
+  rdfs:label "L0 Workflow Facts for wf-deal-approval-001" .

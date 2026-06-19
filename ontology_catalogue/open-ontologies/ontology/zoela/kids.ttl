@@ -1,0 +1,290 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# ZOE LA — Kids Ministry Ontology
+# Models ZOE Kids ministry (ages 0-11, requires guardian consent)
+# =============================================================================
+
+<https://zoela.org/ontology/kids>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Kids Ministry Ontology"@en ;
+    rdfs:comment "Models ZOE Kids ministry sessions, check-in processes, and camp registrations for children ages 0–11."@en ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Classes
+# =============================================================================
+
+zoe:ZoeKidsSession
+    a owl:Class ;
+    rdfs:subClassOf schema:Event ;
+    rdfs:label "ZOE Kids Session"@en ;
+    rdfs:comment "A single scheduled ZOE Kids ministry session for a specific age group at a campus."@en .
+
+zoe:KidsCheckIn
+    a owl:Class ;
+    rdfs:subClassOf schema:CheckInAction ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "Kids Check-In"@en ;
+    rdfs:comment "A guardian-verified check-in event recording a child's attendance at a ZOE Kids session."@en .
+
+zoe:KidsCampRegistration
+    a owl:Class ;
+    rdfs:subClassOf schema:RegisterAction ;
+    rdfs:label "Kids Camp Registration"@en ;
+    rdfs:comment "A formal registration of a child for a ZOE Kids camp event, requiring guardian consent and medical consent."@en .
+
+# =============================================================================
+# Properties — ZoeKidsSession
+# =============================================================================
+
+zoe:sessionCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range xsd:string ;
+    rdfs:label "session code"@en ;
+    rdfs:comment "Unique alphanumeric code identifying this kids ministry session (e.g. KIDS-2026-05-17-ELEM)."@en ;
+    skos:notation "session_code" .
+
+zoe:sessionDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range xsd:date ;
+    rdfs:label "session date"@en ;
+    rdfs:comment "The calendar date on which this kids session is scheduled to occur."@en ;
+    skos:notation "session_date" .
+
+zoe:ageGroup
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range skos:Concept ;
+    rdfs:label "age group"@en ;
+    rdfs:comment "The generation segment concept (ElementarySegment, PreschoolSegment, or InfantSegment) this session targets."@en ;
+    skos:notation "age_group" .
+
+zoe:campusId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "campus ID"@en ;
+    rdfs:comment "Identifier of the ZOE LA campus at which this resource is associated."@en ;
+    skos:notation "campus_id" .
+
+zoe:roomLocation
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range xsd:string ;
+    rdfs:label "room location"@en ;
+    rdfs:comment "Physical room or space identifier where this kids session takes place."@en ;
+    skos:notation "room_location" .
+
+zoe:maxCapacity
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max capacity"@en ;
+    rdfs:comment "Maximum number of children permitted to attend this session."@en ;
+    skos:notation "max_capacity" .
+
+zoe:leadTeacherId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range xsd:string ;
+    rdfs:label "lead teacher ID"@en ;
+    rdfs:comment "Profile identifier of the lead teacher or minister responsible for this kids session."@en ;
+    skos:notation "lead_teacher_id" .
+
+zoe:requiresGuardianCheckIn
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:ZoeKidsSession ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires guardian check-in"@en ;
+    rdfs:comment "Always true for ZOE Kids sessions; a guardian must physically check the child in and out."@en ;
+    skos:notation "requires_guardian_check_in" .
+
+# =============================================================================
+# Properties — KidsCheckIn
+# =============================================================================
+
+zoe:checkInId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:string ;
+    rdfs:label "check-in ID"@en ;
+    rdfs:comment "Unique identifier for this specific check-in event."@en ;
+    skos:notation "check_in_id" .
+
+zoe:childId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "child ID"@en ;
+    rdfs:comment "Foreign key referencing the child's person profile in the ZOE LA person registry."@en ;
+    skos:notation "child_id" .
+
+zoe:guardianId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "guardian ID"@en ;
+    rdfs:comment "Foreign key referencing the guardian's person profile in the ZOE LA person registry."@en ;
+    skos:notation "guardian_id" .
+
+zoe:sessionId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:string ;
+    rdfs:label "session ID"@en ;
+    rdfs:comment "Foreign key referencing the ZoeKidsSession this check-in is associated with."@en ;
+    skos:notation "session_id" .
+
+zoe:checkedInAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "checked in at"@en ;
+    rdfs:comment "ISO 8601 timestamp recording when the child was checked in to the session."@en ;
+    skos:notation "checked_in_at" .
+
+zoe:checkedOutAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "checked out at"@en ;
+    rdfs:comment "ISO 8601 timestamp recording when the child was checked out of the session."@en ;
+    skos:notation "checked_out_at" .
+
+zoe:checkInMethod
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:string ;
+    rdfs:label "check-in method"@en ;
+    rdfs:comment "Method used for check-in: 'qr' for QR code scan or 'manual' for staff-assisted entry."@en ;
+    skos:notation "check_in_method" .
+
+zoe:guardianConsentVerified
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "guardian consent verified"@en ;
+    rdfs:comment "True when the guardian's consent was verified at the time of check-in."@en ;
+    skos:notation "guardian_consent_verified" .
+
+zoe:securityTag
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCheckIn ;
+    rdfs:range xsd:string ;
+    rdfs:label "security tag"@en ;
+    rdfs:comment "A 4-digit alphanumeric security code printed on the child's and guardian's matching tags for secure pickup."@en ;
+    skos:notation "security_tag" .
+
+# =============================================================================
+# Properties — KidsCampRegistration
+# =============================================================================
+
+zoe:campRegistrationId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:KidsCampRegistration ;
+    rdfs:range xsd:string ;
+    rdfs:label "camp registration ID"@en ;
+    rdfs:comment "Unique identifier for this kids camp registration record."@en ;
+    skos:notation "camp_registration_id" .
+
+zoe:campEventId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "camp event ID"@en ;
+    rdfs:comment "Foreign key referencing the camp event this registration is for."@en ;
+    skos:notation "camp_event_id" .
+
+zoe:medicalConsentId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "medical consent ID"@en ;
+    rdfs:comment "Foreign key referencing the signed medical consent record required for camp participation."@en ;
+    skos:notation "medical_consent_id" .
+
+zoe:guardianConsentId
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    rdfs:label "guardian consent ID"@en ;
+    rdfs:comment "Foreign key referencing the guardian consent record authorizing participation."@en ;
+    skos:notation "guardian_consent_id" .
+
+zoe:registrationStatus
+    a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range skos:Concept ;
+    rdfs:label "registration status"@en ;
+    rdfs:comment "Current status of the registration as a SKOS concept from the relevant status scheme."@en ;
+    skos:notation "registration_status" .
+
+zoe:registeredAt
+    a owl:DatatypeProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "registered at"@en ;
+    rdfs:comment "ISO 8601 timestamp recording when this registration was submitted."@en ;
+    skos:notation "registered_at" .
+
+# =============================================================================
+# SKOS ConceptScheme — KidsCampStatusScheme
+# =============================================================================
+
+zoe:KidsCampStatusScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE Kids Camp Status Scheme"@en ;
+    rdfs:comment "Controlled vocabulary for the lifecycle status of a ZOE Kids camp registration."@en ;
+    skos:prefLabel "Kids Camp Registration Statuses"@en .
+
+zoe:KidsCampStatusPending
+    a skos:Concept ;
+    skos:inScheme zoe:KidsCampStatusScheme ;
+    skos:topConceptOf zoe:KidsCampStatusScheme ;
+    rdfs:label "Pending"@en ;
+    skos:prefLabel "Pending"@en ;
+    rdfs:comment "Registration has been submitted but not yet confirmed by staff."@en ;
+    skos:definition "Initial status assigned when a camp registration is first submitted; awaiting staff review and payment confirmation."@en ;
+    skos:notation "PENDING" .
+
+zoe:KidsCampStatusConfirmed
+    a skos:Concept ;
+    skos:inScheme zoe:KidsCampStatusScheme ;
+    skos:topConceptOf zoe:KidsCampStatusScheme ;
+    rdfs:label "Confirmed"@en ;
+    skos:prefLabel "Confirmed"@en ;
+    rdfs:comment "Registration has been confirmed; the child has a reserved spot at camp."@en ;
+    skos:definition "Registration is confirmed with payment received and all required consents on file."@en ;
+    skos:notation "CONFIRMED" .
+
+zoe:KidsCampStatusWaitListed
+    a skos:Concept ;
+    skos:inScheme zoe:KidsCampStatusScheme ;
+    skos:topConceptOf zoe:KidsCampStatusScheme ;
+    rdfs:label "Wait Listed"@en ;
+    skos:prefLabel "Wait Listed"@en ;
+    rdfs:comment "Camp is at capacity; the child is on the waitlist for an opening."@en ;
+    skos:definition "Camp has reached maximum enrollment; registration is queued on the waitlist and will be confirmed if space opens."@en ;
+    skos:notation "WAITLISTED" .
+
+zoe:KidsCampStatusCancelled
+    a skos:Concept ;
+    skos:inScheme zoe:KidsCampStatusScheme ;
+    skos:topConceptOf zoe:KidsCampStatusScheme ;
+    rdfs:label "Cancelled"@en ;
+    skos:prefLabel "Cancelled"@en ;
+    rdfs:comment "Registration has been cancelled by the family or staff."@en ;
+    skos:definition "Registration was cancelled and the child's spot has been released; refund policy applies."@en ;
+    skos:notation "CANCELLED" .

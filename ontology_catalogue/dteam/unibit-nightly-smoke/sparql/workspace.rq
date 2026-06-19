@@ -1,0 +1,10 @@
+PREFIX code: <https://chatmangpt.com/ontology/codegen#>
+PREFIX rust: <https://chatmangpt.com/ontology/rust#>
+
+SELECT ?workspace ?name ?edition ?toolchain
+WHERE {
+  ?workspace a code:Workspace ;
+             code:name ?name .
+  OPTIONAL { ?workspace code:edition ?edition . }
+  OPTIONAL { ?workspace code:toolchain ?toolchain . }
+}

@@ -1,0 +1,85 @@
+# Telemetry Application Example
+# Demonstrates composing a complete telemetry service from Turtle
+# Run: bin/render-project examples/telemetry-app.ttl ./generated/telemetry --validate
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix app:   <https://jgen.dev/ontology/java/enterprise#> .
+@prefix eip:   <https://jgen.dev/ontology/java/messaging#> .
+@prefix jproj: <https://jgen.dev/ontology/java/project#> .
+
+# =============================================================================
+# Application Definition
+# =============================================================================
+
+app:TelemetryService a app:Application ;
+    rdfs:label "Telemetry Processing Service" ;
+    app:hasName "telemetry-service" ;
+    app:hasSupervisorStrategy app:ONE_FOR_ONE ;
+    app:hasMaxRestarts 10 ;
+    app:hasRestartWindow "PT1M" .
+
+# =============================================================================
+# Services
+# =============================================================================
+
+app:IngressService a app:Service ;
+    rdfs:label "Data Ingress" ;
+    app:hasName "ingress" ;
+    app:hasInitialState app:IngressState ;
+    app:hasHandler app:ingressHandler ;
+    app:usesPattern eip:ContentBasedRouter .
+
+app:ProcessingService a app:Service ;
+    rdfs:label "Sample Processing" ;
+    app:hasName "processor" ;
+    app:hasInitialState app:ProcessorState ;
+    app:hasHandler app:processorHandler ;
+    app:usesPattern eip:IdempotentReceiver .
+
+app:StorageService a app:Service ;
+    rdfs:label "Data Storage" ;
+    app:hasName "storage" ;
+    app:hasInitialState app:StorageState ;
+    app:hasHandler app:storageHandler ;
+    app:usesPattern eip:DeadLetterChannel .
+
+# =============================================================================
+# Infrastructure
+# =============================================================================
+
+app:TelemetryMessageBus a app:Infrastructure ;
+    rdfs:label "Message Bus" ;
+    app:hasType app:MessageBus ;
+    app:providesPattern eip:MessageBus .
+
+app:TelemetryEventStore a app:Infrastructure ;
+    rdfs:label "Event Store" ;
+    app:hasType app:EventStore ;
+    app:providesPattern app:EventStore .
+
+app:TelemetryMetrics a app:Infrastructure ;
+    rdfs:label "Metrics Collector" ;
+    app:hasType app:MetricsCollector ;
+    app:providesPattern app:MetricsCollector .
+
+# =============================================================================
+# Health Checks
+# =============================================================================
+
+app:TelemetryHealthCheck a app:HealthCheck ;
+    rdfs:label "Health Check" ;
+    app:hasCheck "self" ;
+    app:hasInterval "PT5S" .
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+app:TelemetryConfig a app:ApplicationConfig ;
+    app:environment "production" ;
+    app:set "kafka.bootstrap.servers" "kafka:9092" ;
+    app:set "batch.size" "100" ;
+    app:set "timeout.ms" "5000" .

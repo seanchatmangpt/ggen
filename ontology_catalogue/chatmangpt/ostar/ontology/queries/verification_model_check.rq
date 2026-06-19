@@ -1,0 +1,83 @@
+# SPARQL Query to Verify Tier Verification Status Model
+# Checks that all required classes and properties exist with correct types
+
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star-tier#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Check 1: TierVerification class exists
+SELECT ?class ?label ?comment
+WHERE {
+  ?class a owl:Class .
+  ?class rdfs:label ?label .
+  OPTIONAL { ?class rdfs:comment ?comment }
+  FILTER (?class = ostar:TierVerification)
+}
+LIMIT 1
+
+# Check 2: verifiedAt property with correct domain/range
+SELECT ?property ?label ?domain ?range
+WHERE {
+  ?property a owl:DatatypeProperty .
+  ?property rdfs:label ?label .
+  ?property rdfs:domain ?domain .
+  ?property rdfs:range ?range .
+  FILTER (?property = ostar:verifiedAt)
+}
+LIMIT 1
+
+# Check 3: verifiedBy property with correct domain/range
+SELECT ?property ?label ?domain ?range
+WHERE {
+  ?property a owl:DatatypeProperty .
+  ?property rdfs:label ?label .
+  ?property rdfs:domain ?domain .
+  ?property rdfs:range ?range .
+  FILTER (?property = ostar:verifiedBy)
+}
+LIMIT 1
+
+# Check 4: verificationResult property with correct domain/range
+SELECT ?property ?label ?comment ?domain ?range
+WHERE {
+  ?property a owl:DatatypeProperty .
+  ?property rdfs:label ?label .
+  OPTIONAL { ?property rdfs:comment ?comment }
+  ?property rdfs:domain ?domain .
+  ?property rdfs:range ?range .
+  FILTER (?property = ostar:verificationResult)
+}
+LIMIT 1
+
+# Check 4b: verificationStatus property (alias for verificationResult)
+SELECT ?property ?label ?comment ?domain ?range ?equivalent
+WHERE {
+  ?property a owl:DatatypeProperty .
+  ?property rdfs:label ?label .
+  OPTIONAL { ?property rdfs:comment ?comment }
+  ?property rdfs:domain ?domain .
+  ?property rdfs:range ?range .
+  OPTIONAL { ?property owl:equivalentProperty ?equivalent }
+  FILTER (?property = ostar:verificationStatus)
+}
+LIMIT 1
+
+# Check 5: hasVerification object property linking DeploymentTier to TierVerification
+SELECT ?property ?label ?domain ?range
+WHERE {
+  ?property a owl:ObjectProperty .
+  ?property rdfs:label ?label .
+  ?property rdfs:domain ?domain .
+  ?property rdfs:range ?range .
+  FILTER (?property = ostar:hasVerification)
+}
+LIMIT 1
+
+# Check 6: Verify status values are documented in comments
+SELECT ?property ?comment
+WHERE {
+  ?property rdfs:comment ?comment .
+  FILTER (?property IN (ostar:verificationResult, ostar:verificationStatus, ostar:dimensionStatus))
+  FILTER (REGEX(?comment, "verified.*violated.*unverified", "i"))
+}

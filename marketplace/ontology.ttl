@@ -29,6 +29,15 @@ market:Package a owl:Class ;
     a owl:Restriction ;
     owl:onProperty market:id ;
     owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty market:version ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] , [
+    a owl:Restriction ;
+    owl:onProperty market:productionReady ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
   ] .
 
 market:Asset a owl:Class ;
@@ -65,22 +74,20 @@ market:Dependency a owl:Class ;
 
 market:id a owl:DatatypeProperty ;
   rdfs:label "Package ID"@en ;
-  rdfs:domain market:Package ;
-  rdfs:range xsd:string ;
-  owl:minCardinality "1"^^xsd:nonNegativeInteger .
+  
+  rdfs:range xsd:string .
 
 market:version a owl:DatatypeProperty ;
   rdfs:label "Version"@en ;
-  rdfs:domain market:Package ;
-  rdfs:range xsd:string ;
-  owl:minCardinality "1"^^xsd:nonNegativeInteger .
+  
+  rdfs:range xsd:string .
 
 market:description a owl:DatatypeProperty ;
   rdfs:label "Description"@en ;
   rdfs:domain market:Package ;
   rdfs:range xsd:string .
 
-market:license a owl:ObjectProperty ;
+market:license a owl:DatatypeProperty ;
   rdfs:label "License"@en ;
   rdfs:domain market:Package ;
   rdfs:range xsd:string .
@@ -108,8 +115,7 @@ market:keywords a owl:DatatypeProperty ;
 market:productionReady a owl:DatatypeProperty ;
   rdfs:label "Production Ready"@en ;
   rdfs:domain market:Package ;
-  rdfs:range xsd:boolean ;
-  owl:cardinality "1"^^xsd:nonNegativeInteger .
+  rdfs:range xsd:boolean .
 
 market:path a owl:DatatypeProperty ;
   rdfs:label "Filesystem Path"@en ;
@@ -197,9 +203,14 @@ market:hasBonusScore a owl:ObjectProperty ;
 market:scoreValue a owl:DatatypeProperty ;
   rdfs:label "Score Value"@en ;
   rdfs:domain market:QualityMetric ;
-  rdfs:range xsd:decimal ;
-  owl:minInclusive "0"^^xsd:decimal ;
-  owl:maxInclusive "100"^^xsd:decimal .
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0"^^xsd:decimal ]
+      [ xsd:maxInclusive "100"^^xsd:decimal ]
+    )
+  ] .
 
 market:scoreDimension a owl:DatatypeProperty ;
   rdfs:label "Score Dimension"@en ;
@@ -370,9 +381,14 @@ market:hasGuardResult a owl:ObjectProperty ;
 market:overallScore a owl:DatatypeProperty ;
   rdfs:label "Overall Score"@en ;
   rdfs:domain market:ValidationReceipt ;
-  rdfs:range xsd:decimal ;
-  owl:minInclusive "0"^^xsd:decimal ;
-  owl:maxInclusive "100"^^xsd:decimal .
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:decimal ;
+    owl:withRestrictions (
+      [ xsd:minInclusive "0"^^xsd:decimal ]
+      [ xsd:maxInclusive "100"^^xsd:decimal ]
+    )
+  ] .
 
 market:receiptChecksum a owl:DatatypeProperty ;
   rdfs:label "Receipt Checksum"@en ;
@@ -476,14 +492,16 @@ market:criticalGuardsThreshold a owl:DatatypeProperty ;
   rdfs:label "Critical Guards Threshold"@en ;
   rdfs:domain market:ScoringScheme ;
   rdfs:range xsd:decimal ;
-  owl:sameAs "80"^^xsd:decimal ;
   rdfs:comment "Minimum score required if any critical guard fails" .
+
+# ==============================================================================
+# SECTOR BUNDLE DEFINITIONS - Concrete Marketplace Bundles
+# ==============================================================================
 
 market:bonusMaximum a owl:DatatypeProperty ;
   rdfs:label "Bonus Maximum"@en ;
   rdfs:domain market:ScoringScheme ;
   rdfs:range xsd:decimal ;
-  owl:sameAs "20"^^xsd:decimal ;
   rdfs:comment "Maximum additional points from bonus guards" .
 
 # ==============================================================================
@@ -539,3 +557,26 @@ market:bonusMaximum a owl:DatatypeProperty ;
   market:bundleMinimumScore "90"^^xsd:decimal ;
   rdfs:label "FinTech Sector Bundle"@en ;
   rdfs:comment "Regulated financial system components" .
+
+# ==============================================================================
+# ONTOLOGY CRATE EXTENSION
+# ==============================================================================
+
+market:OntologyCrate a owl:Class ;
+  rdfs:label "Ontology Crate"@en ;
+  rdfs:comment "A cryptographically verifiable registry of enterprise Semantic Universe ontologies."@en .
+
+market:ontologyCount a owl:DatatypeProperty ;
+  rdfs:label "Ontology Count"@en ;
+  rdfs:domain market:OntologyCrate ;
+  rdfs:range xsd:integer .
+
+market:queryCount a owl:DatatypeProperty ;
+  rdfs:label "Query Count"@en ;
+  rdfs:domain market:OntologyCrate ;
+  rdfs:range xsd:integer .
+
+market:blake3Hash a owl:DatatypeProperty ;
+  rdfs:label "BLAKE3 Hash"@en ;
+  rdfs:domain market:OntologyCrate ;
+  rdfs:range xsd:string .

@@ -1,0 +1,177 @@
+@prefix : <https://bytestar.org/ontology/bytegen/fullstack-generation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix tg: <https://bytestar.org/ontology/trojan-gift#> .
+@prefix bytegen_fab: <https://bytestar.org/ontology/bytegen/fabrication#> .
+@prefix sap_arch: <https://bytestar.org/ontology/sap/architecture#> .
+@prefix sap_data: <https://bytestar.org/ontology/sap/data-plane#> .
+@prefix sap_access: <https://bytestar.org/ontology/sap/access-plane#> .
+
+<https://bytestar.org/ontology/bytegen/fullstack-generation>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/bytegen/fullstack-generation/v1.0> ;
+    rdfs:comment "Ontology formalizing the automated full-stack generation from OWL Ontologies with Nuxt and Supabase, based on the Declarative Pipeline Philosophy." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: ,
+                tg: ,
+                bytegen_fab: ,
+                sap_arch: ,
+                sap_data: ,
+                sap_access: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:FullStackGenerationPipeline rdf:type owl:Class ;
+    rdfs:comment "The end-to-end pipeline for automated full-stack application generation." .
+
+:DeclarativePipelinePhilosophy rdf:type owl:Class ;
+    rdfs:comment "The philosophy of defining the application's domain once and generating everything else." .
+
+:OntologyAsSingleSourceOfTruth rdf:type owl:Class ;
+    rdfs:comment "The principle that the OWL ontology serves as the canonical definition of the domain." .
+
+:ClosedWorldDataSchema rdf:type owl:Class ;
+    rdfs:comment "A schema that introduces closed-world constraints on top of an OWL ontology, typically using SHACL." .
+
+:SHACL_Shape rdf:type owl:Class ;
+    rdfs:comment "A SHACL shape used as a canonical schema for code generation and validation." .
+
+:OntologyParsing rdf:type owl:Class ;
+    rdfs:comment "The process of parsing OWL (Turtle/TTL or RDF/XML) files into an internal model." .
+
+:DatabaseSchemaGeneration rdf:type owl:Class ;
+    rdfs:comment "The process of generating a Postgres database schema from an ontology." .
+
+:RLS_Generation rdf:type owl:Class ;
+    rdfs:comment "The process of generating Row-Level Security policies." .
+
+:EdgeFunctionGeneration rdf:type owl:Class ;
+    rdfs:comment "The process of generating Supabase Edge Functions for backend logic." .
+
+:NuxtComponentGeneration rdf:type owl:Class ;
+    rdfs:comment "The process of generating Nuxt 4 UI components (forms, lists, detail views)." .
+
+:RuntimeValidation rdf:type owl:Class ;
+    rdfs:comment "The process of integrating Zod schemas for runtime data validation." .
+
+:CodeGenerationOutput rdf:type owl:Class ;
+    rdfs:comment "A type of artifact produced by the code generation pipeline." .
+
+:SQL_DDL_Output rdf:type :CodeGenerationOutput ;
+    rdfs:comment "SQL Data Definition Language for database schema." .
+
+:JSDoc_TypedSchema_Output rdf:type :CodeGenerationOutput ;
+    rdfs:comment "JSDoc-typed schema definitions for developer ergonomics." .
+
+:ZodSchema_Output rdf:type :CodeGenerationOutput ;
+    rdfs:comment "Zod schemas for runtime validation." .
+
+:VueComponent_Output rdf:type :CodeGenerationOutput ;
+    rdfs:comment "Vue components for the Nuxt frontend." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:followsPhilosophy rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :DeclarativePipelinePhilosophy ;
+    rdfs:comment "The generation pipeline follows a declarative philosophy." .
+
+:usesAsSourceOfTruth rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :OntologyAsSingleSourceOfTruth ;
+    rdfs:comment "The pipeline uses ontology as the single source of truth." .
+
+:employsSchemaConstraint rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :ClosedWorldDataSchema ;
+    rdfs:comment "The pipeline employs closed-world schema constraints." .
+
+:utilizesSHACL_Shape rdf:type owl:ObjectProperty ;
+    rdfs:domain :ClosedWorldDataSchema ;
+    rdfs:range :SHACL_Shape ;
+    rdfs:comment "A closed-world schema utilizes SHACL shapes." .
+
+:performsParsing rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :OntologyParsing ;
+    rdfs:comment "The pipeline performs ontology parsing." .
+
+:generatesDatabaseSchema rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :DatabaseSchemaGeneration ;
+    rdfs:comment "The pipeline generates database schemas." .
+
+:generatesRLS rdf:type owl:ObjectProperty ;
+    rdfs:domain :DatabaseSchemaGeneration ;
+    rdfs:range :RLS_Generation ;
+    rdfs:comment "Database schema generation includes RLS generation." .
+
+:generatesEdgeFunctions rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :EdgeFunctionGeneration ;
+    rdfs:comment "The pipeline generates Edge Functions." .
+
+:generatesNuxtComponents rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :NuxtComponentGeneration ;
+    rdfs:comment "The pipeline generates Nuxt components." .
+
+:integratesRuntimeValidation rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :RuntimeValidation ;
+    rdfs:comment "The pipeline integrates runtime validation." .
+
+:producesOutput rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range :CodeGenerationOutput ;
+    rdfs:comment "The pipeline produces various code generation outputs." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:maximizesRuntimeSafety rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DeclarativePipelinePhilosophy ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the philosophy maximizes runtime safety." .
+
+:ensuresConsistency rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DeclarativePipelinePhilosophy ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the philosophy ensures consistency." .
+
+:isScriptableAndAutomated rdf:type owl:DatatypeProperty ;
+    rdfs:domain :FullStackGenerationPipeline ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the pipeline is scriptable and automated." .
+
+:usesOpenWorldAssumption rdf:type owl:DatatypeProperty ;
+    rdfs:domain owl:Ontology ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if an ontology uses an open-world assumption." .
+
+:usesClosedWorldAssumption rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ClosedWorldDataSchema ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if a schema uses a closed-world assumption." .
+
+:leveragesJSDocTypes rdf:type owl:DatatypeProperty ;
+    rdfs:domain :JSDoc_TypedSchema_Output ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the output leverages JSDoc types." .
+
+:usesZodSchemas rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RuntimeValidation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if runtime validation uses Zod schemas." .
+

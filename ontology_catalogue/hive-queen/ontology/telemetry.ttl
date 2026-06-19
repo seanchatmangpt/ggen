@@ -1,0 +1,604 @@
+@prefix hqt: <https://hive-queen.ai/ontology/telemetry#> .
+@prefix hq: <https://hive-queen.ai/ontology/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix ssn: <http://www.w3.org/ns/ssn/> .
+
+# ==========================================
+# HIVE QUEEN Telemetry Ontology
+# Defines observability, metrics, and monitoring
+# ==========================================
+
+<https://hive-queen.ai/ontology/telemetry#>
+  a owl:Ontology ;
+  dct:title "HIVE QUEEN Telemetry Ontology" ;
+  dct:description "Observability definitions and telemetry structure" ;
+  dct:version "1.0.0" ;
+  dct:created "2025-09-03"^^xsd:date ;
+  owl:imports <https://hive-queen.ai/ontology/core#> ;
+  owl:versionIRI <https://hive-queen.ai/ontology/telemetry/1.0.0#> .
+
+# ==========================================
+# Observability Classes
+# ==========================================
+
+hqt:Metric
+  a owl:Class ;
+  rdfs:label "Metric" ;
+  rdfs:comment "A quantitative measurement or indicator" ;
+  rdfs:subClassOf sosa:Observation .
+
+hqt:Log
+  a owl:Class ;
+  rdfs:label "Log" ;
+  rdfs:comment "A log entry recording an event or state change" ;
+  rdfs:subClassOf prov:Activity .
+
+hqt:Trace
+  a owl:Class ;
+  rdfs:label "Trace" ;
+  rdfs:comment "A distributed trace across system components" ;
+  rdfs:subClassOf prov:Activity .
+
+hqt:Span
+  a owl:Class ;
+  rdfs:label "Span" ;
+  rdfs:comment "A unit of work within a distributed trace" ;
+  rdfs:subClassOf prov:Activity .
+
+hqt:Event
+  a owl:Class ;
+  rdfs:label "Event" ;
+  rdfs:comment "A discrete occurrence in the system" ;
+  rdfs:subClassOf prov:InstantaneousEvent .
+
+hqt:Alert
+  a owl:Class ;
+  rdfs:label "Alert" ;
+  rdfs:comment "A notification triggered by specific conditions" .
+
+hqt:Dashboard
+  a owl:Class ;
+  rdfs:label "Dashboard" ;
+  rdfs:comment "A visual interface for monitoring metrics" .
+
+hqt:Sensor
+  a owl:Class ;
+  rdfs:label "Sensor" ;
+  rdfs:comment "A monitoring sensor that observes system properties" ;
+  rdfs:subClassOf sosa:Sensor .
+
+hqt:Monitor
+  a owl:Class ;
+  rdfs:label "Monitor" ;
+  rdfs:comment "A monitoring system or component" ;
+  rdfs:subClassOf sosa:Platform .
+
+# ==========================================
+# Performance Classes
+# ==========================================
+
+hqt:PerformanceMetric
+  a owl:Class ;
+  rdfs:label "Performance Metric" ;
+  rdfs:comment "Metric related to system performance" ;
+  rdfs:subClassOf hqt:Metric .
+
+hqt:LatencyMetric
+  a owl:Class ;
+  rdfs:label "Latency Metric" ;
+  rdfs:comment "Metric measuring response time or delay" ;
+  rdfs:subClassOf hqt:PerformanceMetric .
+
+hqt:ThroughputMetric
+  a owl:Class ;
+  rdfs:label "Throughput Metric" ;
+  rdfs:comment "Metric measuring processing rate" ;
+  rdfs:subClassOf hqt:PerformanceMetric .
+
+hqt:MemoryMetric
+  a owl:Class ;
+  rdfs:label "Memory Metric" ;
+  rdfs:comment "Metric measuring memory usage" ;
+  rdfs:subClassOf hqt:PerformanceMetric .
+
+hqt:CPUMetric
+  a owl:Class ;
+  rdfs:label "CPU Metric" ;
+  rdfs:comment "Metric measuring CPU utilization" ;
+  rdfs:subClassOf hqt:PerformanceMetric .
+
+hqt:NetworkMetric
+  a owl:Class ;
+  rdfs:label "Network Metric" ;
+  rdfs:comment "Metric measuring network activity" ;
+  rdfs:subClassOf hqt:PerformanceMetric .
+
+hqt:DiskMetric
+  a owl:Class ;
+  rdfs:label "Disk Metric" ;
+  rdfs:comment "Metric measuring disk I/O" ;
+  rdfs:subClassOf hqt:PerformanceMetric .
+
+# ==========================================
+# Business Metrics Classes
+# ==========================================
+
+hqt:BusinessMetric
+  a owl:Class ;
+  rdfs:label "Business Metric" ;
+  rdfs:comment "Metric related to business outcomes" ;
+  rdfs:subClassOf hqt:Metric .
+
+hqt:TaskCompletionMetric
+  a owl:Class ;
+  rdfs:label "Task Completion Metric" ;
+  rdfs:comment "Metric measuring task completion rates" ;
+  rdfs:subClassOf hqt:BusinessMetric .
+
+hqt:AgentEfficiencyMetric
+  a owl:Class ;
+  rdfs:label "Agent Efficiency Metric" ;
+  rdfs:comment "Metric measuring agent performance efficiency" ;
+  rdfs:subClassOf hqt:BusinessMetric .
+
+hqt:ErrorRateMetric
+  a owl:Class ;
+  rdfs:label "Error Rate Metric" ;
+  rdfs:comment "Metric measuring error occurrence rates" ;
+  rdfs:subClassOf hqt:BusinessMetric .
+
+hqt:SuccessRateMetric
+  a owl:Class ;
+  rdfs:label "Success Rate Metric" ;
+  rdfs:comment "Metric measuring success rates" ;
+  rdfs:subClassOf hqt:BusinessMetric .
+
+# ==========================================
+# Log Level Enumeration
+# ==========================================
+
+hqt:LogLevel
+  a owl:Class ;
+  rdfs:label "Log Level" ;
+  rdfs:comment "Enumeration of log severity levels" .
+
+hqt:trace
+  a hqt:LogLevel ;
+  rdfs:label "trace" ;
+  rdfs:comment "Detailed diagnostic information" .
+
+hqt:debug
+  a hqt:LogLevel ;
+  rdfs:label "debug" ;
+  rdfs:comment "Debug information for troubleshooting" .
+
+hqt:info
+  a hqt:LogLevel ;
+  rdfs:label "info" ;
+  rdfs:comment "General informational messages" .
+
+hqt:warn
+  a hqt:LogLevel ;
+  rdfs:label "warn" ;
+  rdfs:comment "Warning messages" .
+
+hqt:error
+  a hqt:LogLevel ;
+  rdfs:label "error" ;
+  rdfs:comment "Error conditions" .
+
+hqt:fatal
+  a hqt:LogLevel ;
+  rdfs:label "fatal" ;
+  rdfs:comment "Critical errors causing system failure" .
+
+# ==========================================
+# Alert Severity Enumeration
+# ==========================================
+
+hqt:AlertSeverity
+  a owl:Class ;
+  rdfs:label "Alert Severity" ;
+  rdfs:comment "Enumeration of alert severity levels" .
+
+hqt:low
+  a hqt:AlertSeverity ;
+  rdfs:label "low" ;
+  rdfs:comment "Low severity alert" .
+
+hqt:medium
+  a hqt:AlertSeverity ;
+  rdfs:label "medium" ;
+  rdfs:comment "Medium severity alert" .
+
+hqt:high
+  a hqt:AlertSeverity ;
+  rdfs:label "high" ;
+  rdfs:comment "High severity alert" .
+
+hqt:critical
+  a hqt:AlertSeverity ;
+  rdfs:label "critical" ;
+  rdfs:comment "Critical severity alert" .
+
+# ==========================================
+# Telemetry Properties
+# ==========================================
+
+hqt:observes
+  a owl:ObjectProperty ;
+  rdfs:label "observes" ;
+  rdfs:comment "Associates a sensor with what it observes" ;
+  rdfs:domain hqt:Sensor ;
+  rdfs:subPropertyOf sosa:observes .
+
+hqt:hasMetric
+  a owl:ObjectProperty ;
+  rdfs:label "has metric" ;
+  rdfs:comment "Associates an entity with metrics" ;
+  rdfs:range hqt:Metric .
+
+hqt:hasLog
+  a owl:ObjectProperty ;
+  rdfs:label "has log" ;
+  rdfs:comment "Associates an entity with log entries" ;
+  rdfs:range hqt:Log .
+
+hqt:hasTrace
+  a owl:ObjectProperty ;
+  rdfs:label "has trace" ;
+  rdfs:comment "Associates an entity with traces" ;
+  rdfs:range hqt:Trace .
+
+hqt:hasSpan
+  a owl:ObjectProperty ;
+  rdfs:label "has span" ;
+  rdfs:comment "Associates a trace with spans" ;
+  rdfs:domain hqt:Trace ;
+  rdfs:range hqt:Span .
+
+hqt:parentSpan
+  a owl:ObjectProperty ;
+  rdfs:label "parent span" ;
+  rdfs:comment "Associates a span with its parent span" ;
+  rdfs:domain hqt:Span ;
+  rdfs:range hqt:Span .
+
+hqt:triggeredBy
+  a owl:ObjectProperty ;
+  rdfs:label "triggered by" ;
+  rdfs:comment "Associates an alert with what triggered it" ;
+  rdfs:domain hqt:Alert .
+
+hqt:monitors
+  a owl:ObjectProperty ;
+  rdfs:label "monitors" ;
+  rdfs:comment "Associates a monitor with monitored entities" ;
+  rdfs:domain hqt:Monitor .
+
+hqt:generatedBy
+  a owl:ObjectProperty ;
+  rdfs:label "generated by" ;
+  rdfs:comment "Associates telemetry data with its generator" ;
+  rdfs:range [
+    a owl:Class ;
+    owl:unionOf (hq:Agent hqt:Sensor hqt:Monitor)
+  ] .
+
+hqt:relatedTo
+  a owl:ObjectProperty ;
+  rdfs:label "related to" ;
+  rdfs:comment "Associates telemetry with system entities" ;
+  rdfs:range [
+    a owl:Class ;
+    owl:unionOf (hq:Agent hq:Task hq:Resource)
+  ] .
+
+# ==========================================
+# Telemetry Data Properties
+# ==========================================
+
+hqt:metricValue
+  a owl:DatatypeProperty ;
+  rdfs:label "metric value" ;
+  rdfs:comment "Numeric value of a metric" ;
+  rdfs:domain hqt:Metric ;
+  rdfs:range xsd:double .
+
+hqt:unit
+  a owl:DatatypeProperty ;
+  rdfs:label "unit" ;
+  rdfs:comment "Unit of measurement" ;
+  rdfs:domain hqt:Metric ;
+  rdfs:range xsd:string .
+
+hqt:timestamp
+  a owl:DatatypeProperty ;
+  rdfs:label "timestamp" ;
+  rdfs:comment "Timestamp when data was collected" ;
+  rdfs:range xsd:dateTime .
+
+hqt:logLevel
+  a owl:ObjectProperty ;
+  rdfs:label "log level" ;
+  rdfs:comment "Severity level of log entry" ;
+  rdfs:domain hqt:Log ;
+  rdfs:range hqt:LogLevel .
+
+hqt:logMessage
+  a owl:DatatypeProperty ;
+  rdfs:label "log message" ;
+  rdfs:comment "Text content of log entry" ;
+  rdfs:domain hqt:Log ;
+  rdfs:range xsd:string .
+
+hqt:traceId
+  a owl:DatatypeProperty ;
+  rdfs:label "trace ID" ;
+  rdfs:comment "Unique identifier for a trace" ;
+  rdfs:domain hqt:Trace ;
+  rdfs:range xsd:string .
+
+hqt:spanId
+  a owl:DatatypeProperty ;
+  rdfs:label "span ID" ;
+  rdfs:comment "Unique identifier for a span" ;
+  rdfs:domain hqt:Span ;
+  rdfs:range xsd:string .
+
+hqt:operationName
+  a owl:DatatypeProperty ;
+  rdfs:label "operation name" ;
+  rdfs:comment "Name of the operation being traced" ;
+  rdfs:domain hqt:Span ;
+  rdfs:range xsd:string .
+
+hqt:duration
+  a owl:DatatypeProperty ;
+  rdfs:label "duration" ;
+  rdfs:comment "Duration of span or operation" ;
+  rdfs:range xsd:duration .
+
+hqt:startTime
+  a owl:DatatypeProperty ;
+  rdfs:label "start time" ;
+  rdfs:comment "Start time of span or operation" ;
+  rdfs:range xsd:dateTime .
+
+hqt:endTime
+  a owl:DatatypeProperty ;
+  rdfs:label "end time" ;
+  rdfs:comment "End time of span or operation" ;
+  rdfs:range xsd:dateTime .
+
+hqt:eventType
+  a owl:DatatypeProperty ;
+  rdfs:label "event type" ;
+  rdfs:comment "Type or category of event" ;
+  rdfs:domain hqt:Event ;
+  rdfs:range xsd:string .
+
+hqt:eventData
+  a owl:DatatypeProperty ;
+  rdfs:label "event data" ;
+  rdfs:comment "Structured data associated with event" ;
+  rdfs:domain hqt:Event ;
+  rdfs:range xsd:string .
+
+hqt:alertSeverity
+  a owl:ObjectProperty ;
+  rdfs:label "alert severity" ;
+  rdfs:comment "Severity level of alert" ;
+  rdfs:domain hqt:Alert ;
+  rdfs:range hqt:AlertSeverity .
+
+hqt:alertMessage
+  a owl:DatatypeProperty ;
+  rdfs:label "alert message" ;
+  rdfs:comment "Description of alert condition" ;
+  rdfs:domain hqt:Alert ;
+  rdfs:range xsd:string .
+
+hqt:threshold
+  a owl:DatatypeProperty ;
+  rdfs:label "threshold" ;
+  rdfs:comment "Threshold value that triggered alert" ;
+  rdfs:domain hqt:Alert ;
+  rdfs:range xsd:double .
+
+hqt:samplingRate
+  a owl:DatatypeProperty ;
+  rdfs:label "sampling rate" ;
+  rdfs:comment "Rate at which metric is sampled" ;
+  rdfs:domain hqt:Metric ;
+  rdfs:range xsd:double .
+
+hqt:aggregationType
+  a owl:DatatypeProperty ;
+  rdfs:label "aggregation type" ;
+  rdfs:comment "Type of aggregation applied (sum, avg, max, min)" ;
+  rdfs:domain hqt:Metric ;
+  rdfs:range xsd:string .
+
+hqt:tags
+  a owl:DatatypeProperty ;
+  rdfs:label "tags" ;
+  rdfs:comment "Comma-separated tags for categorization" ;
+  rdfs:range xsd:string .
+
+# ==========================================
+# Agent-specific Telemetry
+# ==========================================
+
+hqt:AgentMetric
+  a owl:Class ;
+  rdfs:label "Agent Metric" ;
+  rdfs:comment "Metric specific to agent performance" ;
+  rdfs:subClassOf hqt:Metric .
+
+hqt:TaskMetric
+  a owl:Class ;
+  rdfs:label "Task Metric" ;
+  rdfs:comment "Metric specific to task execution" ;
+  rdfs:subClassOf hqt:Metric .
+
+hqt:CapabilityMetric
+  a owl:Class ;
+  rdfs:label "Capability Metric" ;
+  rdfs:comment "Metric measuring capability utilization" ;
+  rdfs:subClassOf hqt:Metric .
+
+hqt:agentLoad
+  a owl:DatatypeProperty ;
+  rdfs:label "agent load" ;
+  rdfs:comment "Current load on agent (0.0-1.0)" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range xsd:double .
+
+hqt:tasksCompleted
+  a owl:DatatypeProperty ;
+  rdfs:label "tasks completed" ;
+  rdfs:comment "Number of tasks completed by agent" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range xsd:int .
+
+hqt:tasksActive
+  a owl:DatatypeProperty ;
+  rdfs:label "tasks active" ;
+  rdfs:comment "Number of currently active tasks" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range xsd:int .
+
+hqt:averageTaskDuration
+  a owl:DatatypeProperty ;
+  rdfs:label "average task duration" ;
+  rdfs:comment "Average duration for task completion" ;
+  rdfs:domain hq:Agent ;
+  rdfs:range xsd:duration .
+
+hqt:errorCount
+  a owl:DatatypeProperty ;
+  rdfs:label "error count" ;
+  rdfs:comment "Number of errors encountered" ;
+  rdfs:range xsd:int .
+
+hqt:successRate
+  a owl:DatatypeProperty ;
+  rdfs:label "success rate" ;
+  rdfs:comment "Rate of successful operations (0.0-1.0)" ;
+  rdfs:range xsd:double .
+
+# ==========================================
+# Predefined Metrics
+# ==========================================
+
+hqt:SystemCPUUsage
+  a hqt:CPUMetric ;
+  rdfs:label "System CPU Usage" ;
+  rdfs:comment "Overall system CPU utilization" ;
+  hqt:unit "percent" ;
+  hqt:aggregationType "average" .
+
+hqt:SystemMemoryUsage
+  a hqt:MemoryMetric ;
+  rdfs:label "System Memory Usage" ;
+  rdfs:comment "Overall system memory utilization" ;
+  hqt:unit "bytes" ;
+  hqt:aggregationType "current" .
+
+hqt:NetworkLatency
+  a hqt:NetworkMetric ;
+  rdfs:label "Network Latency" ;
+  rdfs:comment "Network round-trip time" ;
+  hqt:unit "milliseconds" ;
+  hqt:aggregationType "average" .
+
+hqt:DiskIOPS
+  a hqt:DiskMetric ;
+  rdfs:label "Disk IOPS" ;
+  rdfs:comment "Disk input/output operations per second" ;
+  hqt:unit "ops/sec" ;
+  hqt:aggregationType "sum" .
+
+hqt:AgentResponseTime
+  a hqt:LatencyMetric, hqt:AgentMetric ;
+  rdfs:label "Agent Response Time" ;
+  rdfs:comment "Time taken for agent to respond to requests" ;
+  hqt:unit "milliseconds" ;
+  hqt:aggregationType "average" .
+
+hqt:TaskThroughput
+  a hqt:ThroughputMetric, hqt:TaskMetric ;
+  rdfs:label "Task Throughput" ;
+  rdfs:comment "Number of tasks completed per unit time" ;
+  hqt:unit "tasks/hour" ;
+  hqt:aggregationType "sum" .
+
+# ==========================================
+# Constraints
+# ==========================================
+
+# All metrics must have a timestamp
+[]
+  a owl:Restriction ;
+  owl:onProperty hqt:timestamp ;
+  owl:cardinality 1 ;
+  rdfs:subClassOf hqt:Metric .
+
+# All spans must belong to a trace
+[]
+  a owl:Restriction ;
+  owl:onProperty hqt:hasSpan ;
+  owl:minCardinality 1 ;
+  rdfs:subClassOf hqt:Trace .
+
+# Agent load must be between 0.0 and 1.0
+hqt:agentLoad
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:double ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0.0 ]
+      [ xsd:maxInclusive 1.0 ]
+    )
+  ] .
+
+# Success rate must be between 0.0 and 1.0
+hqt:successRate
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:double ;
+    owl:withRestrictions (
+      [ xsd:minInclusive 0.0 ]
+      [ xsd:maxInclusive 1.0 ]
+    )
+  ] .
+
+# Sampling rate must be positive
+hqt:samplingRate
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:onDatatype xsd:double ;
+    owl:withRestrictions (
+      [ xsd:minExclusive 0.0 ]
+    )
+  ] .
+
+# ==========================================
+# Monitoring Rules (SWRL-style)
+# ==========================================
+
+# If CPU usage > 80%, trigger high severity alert
+# hqt:CPUMetric(?metric) ∧ hqt:metricValue(?metric, ?value) ∧ swrlb:greaterThan(?value, 80) → hqt:Alert(?alert) ∧ hqt:alertSeverity(?alert, hqt:high)
+
+# If error rate > 5%, trigger medium severity alert
+# hqt:ErrorRateMetric(?metric) ∧ hqt:metricValue(?metric, ?value) ∧ swrlb:greaterThan(?value, 0.05) → hqt:Alert(?alert) ∧ hqt:alertSeverity(?alert, hqt:medium)
+
+# If agent response time > 5000ms, trigger alert
+# hqt:AgentResponseTime(?metric) ∧ hqt:metricValue(?metric, ?value) ∧ swrlb:greaterThan(?value, 5000) → hqt:Alert(?alert)

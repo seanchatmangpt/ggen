@@ -1,0 +1,316 @@
+# Remo CLI Ontology
+# Defines the actions and data types for the Remo telemetry system
+
+@prefix remo: <http://remo.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Base namespace
+@base <http://remo.dev/ontology> .
+
+# Action definitions
+
+remo:ObsScan a remo:Action ;
+    rdfs:label "Observatory Scan" ;
+    rdfs:comment "Scans a repository for observability patterns and telemetry" ;
+    remo:hasParameter remo:repoParam ;
+    remo:hasParameter remo:refParam ;
+    remo:hasParameter remo:outputFormatParam ;
+    remo:returnsType remo:ScanResult .
+
+remo:DataProcess a remo:Action ;
+    rdfs:label "Data Processing" ;
+    rdfs:comment "Processes telemetry data with configurable transformations" ;
+    remo:hasParameter remo:inputFormatParam ;
+    remo:hasParameter remo:outputFormatParam ;
+    remo:hasParameter remo:batchSizeParam ;
+    remo:hasParameter remo:processingModeParam ;
+    remo:returnsType remo:ProcessingResult .
+
+remo:MetricsExport a remo:Action ;
+    rdfs:label "Metrics Export" ;
+    rdfs:comment "Exports metrics to various telemetry backends" ;
+    remo:hasParameter remo:metricsSourceParam ;
+    remo:hasParameter remo:exportFormatParam ;
+    remo:hasParameter remo:destinationParam ;
+    remo:hasParameter remo:compressionParam ;
+    remo:returnsType remo:ExportResult .
+
+remo:TraceAnalyze a remo:Action ;
+    rdfs:label "Trace Analysis" ;
+    rdfs:comment "Analyzes distributed traces for performance insights" ;
+    remo:hasParameter remo:traceIdParam ;
+    remo:hasParameter remo:timeWindowParam ;
+    remo:hasParameter remo:analysisDepthParam ;
+    remo:returnsType remo:AnalysisResult .
+
+# Parameter definitions
+
+remo:repoParam a remo:Parameter ;
+    rdfs:label "Repository" ;
+    rdfs:comment "Git repository URL or path" ;
+    remo:hasName "repo" ;
+    remo:hasType remo:StringType ;
+    remo:isRequired true .
+
+remo:refParam a remo:Parameter ;
+    rdfs:label "Git Reference" ;
+    rdfs:comment "Git branch, tag, or commit hash" ;
+    remo:hasName "ref" ;
+    remo:hasType remo:StringType ;
+    remo:isRequired true ;
+    remo:hasDefault "main" .
+
+remo:outputFormatParam a remo:Parameter ;
+    rdfs:label "Output Format" ;
+    rdfs:comment "Format for output data" ;
+    remo:hasName "output_format" ;
+    remo:hasType remo:FormatType ;
+    remo:isRequired false ;
+    remo:hasDefault "json" .
+
+remo:inputFormatParam a remo:Parameter ;
+    rdfs:label "Input Format" ;
+    rdfs:comment "Format of input data" ;
+    remo:hasName "input_format" ;
+    remo:hasType remo:FormatType ;
+    remo:isRequired true .
+
+remo:batchSizeParam a remo:Parameter ;
+    rdfs:label "Batch Size" ;
+    rdfs:comment "Number of items to process in each batch" ;
+    remo:hasName "batch_size" ;
+    remo:hasType remo:IntegerType ;
+    remo:isRequired false ;
+    remo:hasDefault "100" .
+
+remo:processingModeParam a remo:Parameter ;
+    rdfs:label "Processing Mode" ;
+    rdfs:comment "Mode for data processing" ;
+    remo:hasName "processing_mode" ;
+    remo:hasType remo:ProcessingModeType ;
+    remo:isRequired false ;
+    remo:hasDefault "standard" .
+
+remo:metricsSourceParam a remo:Parameter ;
+    rdfs:label "Metrics Source" ;
+    rdfs:comment "Source of metrics data" ;
+    remo:hasName "metrics_source" ;
+    remo:hasType remo:StringType ;
+    remo:isRequired true .
+
+remo:exportFormatParam a remo:Parameter ;
+    rdfs:label "Export Format" ;
+    rdfs:comment "Format for exported metrics" ;
+    remo:hasName "export_format" ;
+    remo:hasType remo:ExportFormatType ;
+    remo:isRequired true .
+
+remo:destinationParam a remo:Parameter ;
+    rdfs:label "Destination" ;
+    rdfs:comment "Export destination URL or path" ;
+    remo:hasName "destination" ;
+    remo:hasType remo:StringType ;
+    remo:isRequired true .
+
+remo:compressionParam a remo:Parameter ;
+    rdfs:label "Compression" ;
+    rdfs:comment "Enable compression for export" ;
+    remo:hasName "compression" ;
+    remo:hasType remo:BooleanType ;
+    remo:isRequired false ;
+    remo:hasDefault "true" .
+
+remo:traceIdParam a remo:Parameter ;
+    rdfs:label "Trace ID" ;
+    rdfs:comment "Unique identifier for the trace" ;
+    remo:hasName "trace_id" ;
+    remo:hasType remo:StringType ;
+    remo:isRequired true .
+
+remo:timeWindowParam a remo:Parameter ;
+    rdfs:label "Time Window" ;
+    rdfs:comment "Time window for trace analysis in seconds" ;
+    remo:hasName "time_window" ;
+    remo:hasType remo:IntegerType ;
+    remo:isRequired false ;
+    remo:hasDefault "3600" .
+
+remo:analysisDepthParam a remo:Parameter ;
+    rdfs:label "Analysis Depth" ;
+    rdfs:comment "Depth of trace analysis" ;
+    remo:hasName "analysis_depth" ;
+    remo:hasType remo:AnalysisDepthType ;
+    remo:isRequired false ;
+    remo:hasDefault "normal" .
+
+# Data type definitions
+
+remo:StringType a remo:DataType ;
+    rdfs:label "String" ;
+    rdfs:comment "Text string data type" ;
+    remo:baseType xsd:string .
+
+remo:IntegerType a remo:DataType ;
+    rdfs:label "Integer" ;
+    rdfs:comment "Integer number data type" ;
+    remo:baseType xsd:integer .
+
+remo:BooleanType a remo:DataType ;
+    rdfs:label "Boolean" ;
+    rdfs:comment "Boolean true/false data type" ;
+    remo:baseType xsd:boolean .
+
+remo:FormatType a remo:DataType ;
+    rdfs:label "Format Type" ;
+    rdfs:comment "Data format specification" ;
+    remo:baseType xsd:string ;
+    remo:hasEnum "json" ;
+    remo:hasEnum "yaml" ;
+    remo:hasEnum "xml" ;
+    remo:hasEnum "csv" .
+
+remo:ProcessingModeType a remo:DataType ;
+    rdfs:label "Processing Mode Type" ;
+    rdfs:comment "Data processing mode" ;
+    remo:baseType xsd:string ;
+    remo:hasEnum "standard" ;
+    remo:hasEnum "fast" ;
+    remo:hasEnum "thorough" ;
+    remo:hasEnum "experimental" .
+
+remo:ExportFormatType a remo:DataType ;
+    rdfs:label "Export Format Type" ;
+    rdfs:comment "Metrics export format" ;
+    remo:baseType xsd:string ;
+    remo:hasEnum "prometheus" ;
+    remo:hasEnum "statsd" ;
+    remo:hasEnum "jaeger" ;
+    remo:hasEnum "otlp" ;
+    remo:hasEnum "zipkin" .
+
+remo:AnalysisDepthType a remo:DataType ;
+    rdfs:label "Analysis Depth Type" ;
+    rdfs:comment "Depth of trace analysis" ;
+    remo:baseType xsd:string ;
+    remo:hasEnum "shallow" ;
+    remo:hasEnum "normal" ;
+    remo:hasEnum "deep" ;
+    remo:hasEnum "comprehensive" .
+
+# Result type definitions
+
+remo:ScanResult a remo:DataType ;
+    rdfs:label "Scan Result" ;
+    rdfs:comment "Result of repository observatory scan" ;
+    remo:baseType remo:ObjectType ;
+    remo:hasProperty remo:scanMetrics ;
+    remo:hasProperty remo:telemetryPatterns ;
+    remo:hasProperty remo:recommendations .
+
+remo:ProcessingResult a remo:DataType ;
+    rdfs:label "Processing Result" ;
+    rdfs:comment "Result of data processing operation" ;
+    remo:baseType remo:ObjectType ;
+    remo:hasProperty remo:processedCount ;
+    remo:hasProperty remo:errorCount ;
+    remo:hasProperty remo:processingTime .
+
+remo:ExportResult a remo:DataType ;
+    rdfs:label "Export Result" ;
+    rdfs:comment "Result of metrics export operation" ;
+    remo:baseType remo:ObjectType ;
+    remo:hasProperty remo:exportedMetrics ;
+    remo:hasProperty remo:exportStatus ;
+    remo:hasProperty remo:exportTime .
+
+remo:AnalysisResult a remo:DataType ;
+    rdfs:label "Analysis Result" ;
+    rdfs:comment "Result of trace analysis" ;
+    remo:baseType remo:ObjectType ;
+    remo:hasProperty remo:performanceInsights ;
+    remo:hasProperty remo:bottlenecks ;
+    remo:hasProperty remo:recommendations .
+
+remo:ObjectType a remo:DataType ;
+    rdfs:label "Object Type" ;
+    rdfs:comment "Generic object data type" ;
+    remo:baseType xsd:string ;
+    remo:format "json" .
+
+# Core classes
+
+remo:Action a owl:Class ;
+    rdfs:label "Action" ;
+    rdfs:comment "Represents a CLI action or operation" .
+
+remo:Parameter a owl:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "Represents a parameter of an action" .
+
+remo:DataType a owl:Class ;
+    rdfs:label "Data Type" ;
+    rdfs:comment "Represents a data type definition" .
+
+# Properties
+
+remo:hasParameter a owl:ObjectProperty ;
+    rdfs:label "has parameter" ;
+    rdfs:comment "Links an action to its parameters" ;
+    rdfs:domain remo:Action ;
+    rdfs:range remo:Parameter .
+
+remo:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:comment "Specifies the name of a parameter" ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:string .
+
+remo:hasType a owl:ObjectProperty ;
+    rdfs:label "has type" ;
+    rdfs:comment "Specifies the type of a parameter" ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range remo:DataType .
+
+remo:isRequired a owl:DatatypeProperty ;
+    rdfs:label "is required" ;
+    rdfs:comment "Indicates if a parameter is required" ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:boolean .
+
+remo:hasDefault a owl:DatatypeProperty ;
+    rdfs:label "has default" ;
+    rdfs:comment "Specifies the default value of a parameter" ;
+    rdfs:domain remo:Parameter ;
+    rdfs:range xsd:string .
+
+remo:returnsType a owl:ObjectProperty ;
+    rdfs:label "returns type" ;
+    rdfs:comment "Specifies the return type of an action" ;
+    rdfs:domain remo:Action ;
+    rdfs:range remo:DataType .
+
+remo:baseType a owl:DatatypeProperty ;
+    rdfs:label "base type" ;
+    rdfs:comment "Specifies the base type of a data type" ;
+    rdfs:domain remo:DataType ;
+    rdfs:range xsd:string .
+
+remo:hasEnum a owl:DatatypeProperty ;
+    rdfs:label "has enum value" ;
+    rdfs:comment "Specifies an enumeration value for a data type" ;
+    rdfs:domain remo:DataType ;
+    rdfs:range xsd:string .
+
+remo:hasProperty a owl:ObjectProperty ;
+    rdfs:label "has property" ;
+    rdfs:comment "Links a data type to its properties" ;
+    rdfs:domain remo:DataType ;
+    rdfs:range owl:Thing .
+
+remo:format a owl:DatatypeProperty ;
+    rdfs:label "format" ;
+    rdfs:comment "Specifies the format of a data type" ;
+    rdfs:domain remo:DataType ;
+    rdfs:range xsd:string .

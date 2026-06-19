@@ -1,0 +1,224 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix earl:   <http://www.w3.org/ns/earl#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix spdx:   <http://spdx.org/rdf/terms#> .
+@prefix odrl:   <http://www.w3.org/ns/odrl/2/> .
+
+# ─── Manufacturing gate concept scheme ───────────────────────────────────────
+
+<urn:cell8:gates> a skos:ConceptScheme ;
+    dcterms:title "Cell8 Manufacturing Gates" .
+
+<urn:cell8:gate:seed> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Seed" ;
+    schema:position 0 ;
+    schema:execTime "100000000"^^xsd:integer ;
+    dcterms:description "Initial compilation. Produces WASM core." .
+
+<urn:cell8:gate:breed> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Breed" ;
+    schema:position 1 ;
+    schema:execTime "50000000"^^xsd:integer ;
+    dcterms:description "Type law verification. No forbidden states." .
+
+<urn:cell8:gate:validate> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Validate" ;
+    schema:position 2 ;
+    schema:execTime "50000000"^^xsd:integer ;
+    dcterms:description "Contract enforcement. Preconditions and postconditions." .
+
+<urn:cell8:gate:seal> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Seal" ;
+    schema:position 3 ;
+    schema:execTime "1000000"^^xsd:integer ;
+    dcterms:description "Receipt64 emission. Blake3 of admitted motion." .
+
+<urn:cell8:gate:replay> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Replay" ;
+    schema:position 4 ;
+    schema:execTime "200000000"^^xsd:integer ;
+    dcterms:description "Fixture verification. Known-good and known-bad cases." .
+
+<urn:cell8:gate:probe> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Probe" ;
+    schema:position 5 ;
+    schema:execTime "10000000"^^xsd:integer ;
+    dcterms:description "Host capability check. Fit(Part, Host) = 1 required." .
+
+<urn:cell8:gate:admit> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Admit" ;
+    schema:position 6 ;
+    schema:execTime "1000000"^^xsd:integer ;
+    dcterms:description "CellReady = 1. All prior gates passed." .
+
+<urn:cell8:gate:install> a earl:TestCriterion, skos:Concept ;
+    skos:inScheme <urn:cell8:gates> ;
+    skos:prefLabel "Install" ;
+    schema:position 7 ;
+    schema:execTime "5000000"^^xsd:integer ;
+    dcterms:description "Deployment. Host receives verified part." .
+
+# ─── Byte law types concept scheme ────────────────────────────────────────────
+
+<urn:cell8:bytelaw> a skos:ConceptScheme ;
+    dcterms:title "Cell8 Byte Law Types" .
+
+<urn:cell8:bytelaw:cellflag8> a skos:Concept ;
+    skos:inScheme <urn:cell8:bytelaw> ;
+    skos:prefLabel "CellFlags8" ;
+    schema:value "1"^^xsd:integer ;
+    schema:additionalProperty "u8" ;
+    dcterms:description "One-byte bitmask: bit0=AtomVMEmbedded, bit1=BoundaryBound, bit2=ContractsEmbedded, bit3=ReceiptsEmbedded, bit4=ReplayPassing, bit5=HostFitVerified, bit6=CellCardSigned, bit7=CellReady" .
+
+<urn:cell8:bytelaw:station8> a skos:Concept ;
+    skos:inScheme <urn:cell8:bytelaw> ;
+    skos:prefLabel "Station8" ;
+    schema:value "8"^^xsd:integer ;
+    schema:additionalProperty "repr(C, align(8))" ;
+    dcterms:description "Per-station 8-byte manufacturing record." .
+
+<urn:cell8:bytelaw:receipt64> a skos:Concept ;
+    skos:inScheme <urn:cell8:bytelaw> ;
+    skos:prefLabel "Receipt64" ;
+    schema:value "64"^^xsd:integer ;
+    schema:additionalProperty "repr(C, packed)" ;
+    dcterms:description "Fixed 64-byte proof record for admitted motions." .
+
+<urn:cell8:bytelaw:cellcard64> a skos:Concept ;
+    skos:inScheme <urn:cell8:bytelaw> ;
+    skos:prefLabel "CellCard64" ;
+    schema:value "64"^^xsd:integer ;
+    schema:additionalProperty "repr(C, align(8))" ;
+    dcterms:description "Canonical readiness certificate and part identity." .
+
+# ─── Refusal test cases concept scheme ───────────────────────────────────────
+
+<urn:cell8:refusal> a skos:ConceptScheme ;
+    dcterms:title "Cell8 Refusal Test Cases" .
+
+<urn:cell8:refusal:nopii> a earl:TestCase, skos:Concept ;
+    skos:inScheme <urn:cell8:refusal> ;
+    skos:prefLabel "Known-bad raw personal-data fixture refused" ;
+    dcterms:description "Verifier supplied known-bad ingress fixture containing PII and required refusal rather than admission." .
+
+<urn:cell8:refusal:badinput> a earl:TestCase, skos:Concept ;
+    skos:inScheme <urn:cell8:refusal> ;
+    skos:prefLabel "Forbidden input refused" ;
+    dcterms:description "Verifier supplied input violating admission contract and required refusal with reason and evidence." .
+
+<urn:cell8:refusal:jsonboundary> a earl:TestCase, skos:Concept ;
+    skos:inScheme <urn:cell8:refusal> ;
+    skos:prefLabel "JSON export is projection only" ;
+    dcterms:description "Verifier confirms JSON is exported from the Rust-defined byte record and is not consumed as canonical authority by the WASM artifact." .
+
+# ─── Replay test cases concept scheme ────────────────────────────────────────
+
+<urn:cell8:replay> a skos:ConceptScheme ;
+    dcterms:title "Cell8 Replay Test Cases" .
+
+<urn:cell8:replay:knowngood> a earl:TestCase, skos:Concept ;
+    skos:inScheme <urn:cell8:replay> ;
+    skos:prefLabel "Known-good replay passes" ;
+    dcterms:description "Verifier replays a known-good input fixture and confirms the artifact admits it and emits the expected receipt." .
+
+<urn:cell8:replay:knownbad> a earl:TestCase, skos:Concept ;
+    skos:inScheme <urn:cell8:replay> ;
+    skos:prefLabel "Known-bad replay refused" ;
+    dcterms:description "Verifier replays a known-bad input fixture and confirms the artifact refuses it without advancing state." .
+
+<urn:cell8:replay:stale> a earl:TestCase, skos:Concept ;
+    skos:inScheme <urn:cell8:replay> ;
+    skos:prefLabel "Stale working context refused" ;
+    dcterms:description "Verifier presents stale working context and confirms the artifact refuses rather than operating under false assumptions." .
+
+# ─── Cell8 Public Ontology Conformance Profile SHACL Shape ──────────────────
+
+<urn:cell8:shape:softwareapplication> a sh:NodeShape ;
+    sh:name "Cell8 public evidence graph shape" ;
+    sh:description "Admission shape for the public RDF projection of a proof-carrying interchangeable WASM operating part." ;
+    sh:targetClass schema:SoftwareApplication ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue schema:SoftwareApplication ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue prov:Entity ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue dcat:Distribution ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue spdx:Package ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue earl:TestSubject ;
+    ] ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue odrl:Asset ;
+    ] ;
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path dcterms:hasVersion ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:conformsTo ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcat:downloadURL ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+    sh:property [
+        sh:path dcat:mediaType ;
+        sh:minCount 1 ;
+        sh:hasValue "application/wasm" ;
+    ] ;
+    sh:property [
+        sh:path dcat:byteSize ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0 ;
+    ] ;
+    sh:property [
+        sh:path spdx:checksum ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:class prov:Activity ;
+    ] ;
+    sh:property [
+        sh:path odrl:hasPolicy ;
+        sh:minCount 1 ;
+        sh:class odrl:Policy ;
+    ] .

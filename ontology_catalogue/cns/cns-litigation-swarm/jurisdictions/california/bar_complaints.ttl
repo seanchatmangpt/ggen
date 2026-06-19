@@ -1,0 +1,84 @@
+# California Bar Complaints - TTL Schema
+@prefix cns: <http://cns.litigation/ontology#> .
+@prefix bar: <http://calbar.ca.gov/ontology#> .
+@prefix yawl: <http://yawlwms.org/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# California State Bar Filing Requirements
+bar:CaliforniaStateBar a cns:JurisdictionEntity ;
+    cns:address "180 Howard Street, San Francisco, CA 94105" ;
+    cns:filingMethods ( cns:OnlineForm cns:MailSubmission ) ;
+    cns:requiredForms ( bar:Form1 bar:SupportingDocuments ) ;
+    cns:filingFees "0" ;
+    cns:processingTime "30-90 days" .
+
+# Employment Classification Violations
+bar:EmploymentMisclassification a cns:FilingType ;
+    cns:jurisdiction "California" ;
+    cns:applicableWhen [
+        cns:condition "No W-2 issued" ;
+        cns:condition "No taxes withheld" ;
+        cns:condition "No lawful termination process"
+    ] ;
+    cns:requiredEvidence ( cns:ContractCopy cns:PaymentRecords cns:CommunicationLogs ) .
+
+# Civil Rights Retaliation
+bar:CivilRightsRetaliation a cns:FilingType ;
+    cns:jurisdiction "California" ;
+    cns:protectedActivity ( "Opposition to discrimination" "Filing complaints" "Testifying" ) ;
+    cns:adverseAction ( "Termination" "Demotion" "Harassment" ) ;
+    cns:temporalProximity "Close in time to protected activity" .
+
+# Workflow Pattern - Van der Aalst Pattern 1: Sequence
+bar:BarComplaintWorkflow a yawl:Workflow ;
+    yawl:pattern yawl:Sequence ;
+    yawl:steps (
+        bar:InitiateComplaint
+        bar:GatherEvidence
+        bar:ValidateJurisdiction
+        bar:CompileSubmission
+        bar:GenerateIRI
+        bar:SubmitComplaint
+        bar:TrackProgress
+        bar:AuditTrail
+    ) .
+
+bar:InitiateComplaint a yawl:Task ;
+    cns:progressTick 0 ;
+    cns:dagIRI "bar:complaint/init" ;
+    otel:spanName "bar.complaint.initiate" .
+
+bar:GatherEvidence a yawl:Task ;
+    cns:progressTick 1 ;
+    cns:dagIRI "bar:complaint/evidence" ;
+    otel:spanName "bar.complaint.evidence" .
+
+bar:ValidateJurisdiction a yawl:Task ;
+    cns:progressTick 2 ;
+    cns:dagIRI "bar:complaint/validate" ;
+    otel:spanName "bar.complaint.validate" .
+
+bar:CompileSubmission a yawl:Task ;
+    cns:progressTick 3 ;
+    cns:dagIRI "bar:complaint/compile" ;
+    otel:spanName "bar.complaint.compile" .
+
+bar:GenerateIRI a yawl:Task ;
+    cns:progressTick 4 ;
+    cns:dagIRI "bar:complaint/iri" ;
+    otel:spanName "bar.complaint.iri" .
+
+bar:SubmitComplaint a yawl:Task ;
+    cns:progressTick 5 ;
+    cns:dagIRI "bar:complaint/submit" ;
+    otel:spanName "bar.complaint.submit" .
+
+bar:TrackProgress a yawl:Task ;
+    cns:progressTick 6 ;
+    cns:dagIRI "bar:complaint/track" ;
+    otel:spanName "bar.complaint.track" .
+
+bar:AuditTrail a yawl:Task ;
+    cns:progressTick 7 ;
+    cns:dagIRI "bar:complaint/audit" ;
+    otel:spanName "bar.complaint.audit" .

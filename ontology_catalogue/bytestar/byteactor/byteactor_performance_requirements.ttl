@@ -1,0 +1,468 @@
+@prefix :      <http://bitbizeco.dev/ontology/v1/byteactor_perf#> .
+@prefix byte:  <http://bitbizeco.dev/ontology/v1/byteactor#> .
+@prefix perf:  <http://bitbizeco.dev/ontology/v1/performance#> .
+@prefix unit:  <http://bitbizeco.dev/ontology/v1/units#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bitbizeco.dev/ontology/v1/byteactor_performance>
+  a perf:Ontology ;
+  rdfs:label "ByteActor Performance Requirements Specification" ;
+  rdfs:comment "Quantified performance targets and constraints for ByteActor system" ;
+  owl:versionInfo "1.0" .
+
+#################################################################
+#
+# PERFORMANCE REQUIREMENT CLASSES
+#
+#################################################################
+
+perf:LatencyRequirement a owl:Class ;
+  rdfs:label "Latency Performance Requirement" ;
+  rdfs:comment "Time-based performance constraint" .
+
+perf:ThroughputRequirement a owl:Class ;
+  rdfs:label "Throughput Performance Requirement" ;
+  rdfs:comment "Volume-per-time performance constraint" .
+
+perf:ScalabilityRequirement a owl:Class ;
+  rdfs:label "Scalability Performance Requirement" ;
+  rdfs:comment "Performance scaling characteristic" .
+
+perf:ReliabilityRequirement a owl:Class ;
+  rdfs:label "Reliability Performance Requirement" ;
+  rdfs:comment "Availability and fault tolerance constraint" .
+
+perf:ResourceRequirement a owl:Class ;
+  rdfs:label "Resource Utilization Requirement" ;
+  rdfs:comment "Memory, CPU, and system resource constraint" .
+
+# Performance Properties
+perf:targetValue    a owl:DatatypeProperty .
+perf:minimumValue   a owl:DatatypeProperty .
+perf:maximumValue   a owl:DatatypeProperty .
+perf:unit           a owl:DatatypeProperty .
+perf:percentile     a owl:DatatypeProperty .
+perf:measurementMethod a owl:DatatypeProperty .
+perf:validationCriteria a owl:DatatypeProperty .
+
+#################################################################
+#
+# CORE LATENCY REQUIREMENTS
+#
+#################################################################
+
+:TickExecutionLatency a perf:LatencyRequirement ;
+  rdfs:label "8-Tick Execution Guarantee" ;
+  rdfs:comment "Maximum CPU ticks for signal processing in hot path" ;
+  perf:targetValue 6 ;
+  perf:maximumValue 8 ;
+  perf:unit unit:cpu_ticks ;
+  perf:percentile "P99.999" ;
+  perf:measurementMethod "RDTSC cycle counting in bitactor_tick()" ;
+  perf:validationCriteria "Statistical process control with Cpk ≥ 1.33" ;
+  perf:component "bitactor_tick() function" ;
+  perf:criticalPath true .
+
+:SignalDispatchLatency a perf:LatencyRequirement ;
+  rdfs:label "Perfect Hash Dispatch Latency" ;
+  rdfs:comment "Time for signal routing through dispatch table" ;
+  perf:targetValue 1 ;
+  perf:maximumValue 1 ;
+  perf:unit unit:cpu_ticks ;
+  perf:percentile "P100" ;
+  perf:measurementMethod "Inline cycle counting in dispatch lookup" ;
+  perf:component "dispatch_lookup() function" ;
+  perf:algorithm "Minimal Perfect Hash Function (MPHF)" .
+
+:MemoryAllocationLatency a perf:LatencyRequirement ;
+  rdfs:label "Memory Crystal Allocation Latency" ;
+  rdfs:comment "Time for memory allocation from pre-allocated pools" ;
+  perf:targetValue 2 ;
+  perf:maximumValue 2 ;
+  perf:unit unit:cpu_ticks ;
+  perf:percentile "P99.9" ;
+  perf:measurementMethod "RDTSC measurement in crystal_allocate()" ;
+  perf:component "Memory crystallization engine" ;
+  perf:constraint "No malloc() calls in hot path" .
+
+:KernelExecutionLatency a perf:LatencyRequirement ;
+  rdfs:label "SIMD Kernel Execution Latency" ;
+  rdfs:comment "Time for vectorized computation kernels" ;
+  perf:targetValue 4 ;
+  perf:maximumValue 5 ;
+  perf:unit unit:cpu_ticks ;
+  perf:percentile "P99.9" ;
+  perf:measurementMethod "Kernel-specific cycle counting" ;
+  perf:component "SIMD execution kernels" ;
+  perf:optimization "AVX2/NEON vectorization" .
+
+:EndToEndLatency a perf:LatencyRequirement ;
+  rdfs:label "Complete Signal Processing Latency" ;
+  rdfs:comment "Total time from signal ingress to result crystal egress" ;
+  perf:targetValue 8 ;
+  perf:maximumValue 8 ;
+  perf:unit unit:hops ;
+  perf:percentile "P99.99" ;
+  perf:measurementMethod "End-to-end timestamp correlation" ;
+  perf:component "Complete signal pipeline" ;
+  perf:phases "Ingress → Placement → Execute → Seal → Egress" .
+
+#################################################################
+#
+# THROUGHPUT REQUIREMENTS
+#
+#################################################################
+
+:SingleCoreSignalThroughput a perf:ThroughputRequirement ;
+  rdfs:label "Single Core Signal Processing Throughput" ;
+  rdfs:comment "Maximum signals processed per second on single core" ;
+  perf:targetValue 50000000 ;
+  perf:minimumValue 10000000 ;
+  perf:unit unit:signals_per_second ;
+  perf:sustainedDuration "PT60S" ;
+  perf:measurementMethod "Sustained load test with signal counting" ;
+  perf:component "Per-core BitActor engine" ;
+  perf:constraint "No throughput degradation under sustained load" .
+
+:MultiCoreScaledThroughput a perf:ThroughputRequirement ;
+  rdfs:label "Multi-Core Scaled Throughput" ;
+  rdfs:comment "Aggregate throughput scaling across multiple cores" ;
+  perf:targetValue "N * 10M" ;
+  perf:minimumValue "N * 8M" ;
+  perf:unit unit:signals_per_second ;
+  perf:cores "1,2,4,8,16,32,64" ;
+  perf:measurementMethod "Linear scaling validation" ;
+  perf:scalingEfficiency 0.95 ;
+  perf:constraint "Work stealing overhead < 5%" .
+
+:RingBufferThroughput a perf:ThroughputRequirement ;
+  rdfs:label "Lock-Free Ring Buffer Throughput" ;
+  rdfs:comment "Enqueue/dequeue operations per second" ;
+  perf:targetValue 100000000 ;
+  perf:minimumValue 50000000 ;
+  perf:unit unit:operations_per_second ;
+  perf:measurementMethod "SPSC ring buffer benchmark" ;
+  perf:component "Lock-free ring buffers" ;
+  perf:concurrency "Single producer, single consumer" .
+
+#################################################################
+#
+# SCALABILITY REQUIREMENTS  
+#################################################################
+
+:LinearCoreScaling a perf:ScalabilityRequirement ;
+  rdfs:label "Linear Core Scaling Performance" ;
+  rdfs:comment "Performance scaling coefficient with core count" ;
+  perf:targetValue 0.98 ;
+  perf:minimumValue 0.95 ;
+  perf:unit unit:r_squared ;
+  perf:measurementMethod "Linear regression analysis" ;
+  perf:testMatrix "Cores: 1,2,4,8,16,32; Load: 50%,75%,90%,95%" ;
+  perf:component "Work stealing scheduler" ;
+  perf:constraint "No negative scaling beyond 32 cores" .
+
+:NUMAScaling a perf:ScalabilityRequirement ;
+  rdfs:label "NUMA-Aware Scaling" ;
+  rdfs:comment "Performance scaling across NUMA domains" ;
+  perf:targetValue 0.90 ;
+  perf:minimumValue 0.85 ;
+  perf:unit unit:efficiency ;
+  perf:measurementMethod "Cross-NUMA latency measurement" ;
+  perf:component "Memory crystallization system" ;
+  perf:constraint "Prefer local NUMA allocation" .
+
+:CacheEfficiency a perf:ScalabilityRequirement ;
+  rdfs:label "CPU Cache Efficiency" ;
+  rdfs:comment "Cache hit rate for critical data structures" ;
+  perf:targetValue 0.95 ;
+  perf:minimumValue 0.90 ;
+  perf:unit unit:hit_rate ;
+  perf:measurementMethod "Hardware performance counters" ;
+  perf:cacheLevel "L1, L2, L3" ;
+  perf:component "Cache-aligned data structures" .
+
+#################################################################
+#
+# RELIABILITY REQUIREMENTS
+#
+#################################################################
+
+:SystemAvailability a perf:ReliabilityRequirement ;
+  rdfs:label "System Availability" ;
+  rdfs:comment "Operational uptime percentage" ;
+  perf:targetValue 0.999999 ;
+  perf:minimumValue 0.99999 ;
+  perf:unit unit:availability ;
+  perf:measurementPeriod "P30D" ;
+  perf:measurementMethod "Continuous monitoring" ;
+  perf:component "Complete ByteActor system" ;
+  perf:allowedDowntime "PT26.3S"^^xsd:duration .
+
+:FaultRecoveryTime a perf:ReliabilityRequirement ;
+  rdfs:label "Fault Recovery Time" ;
+  rdfs:comment "Time to recover from component failure" ;
+  perf:targetValue 100 ;
+  perf:maximumValue 500 ;
+  perf:unit unit:milliseconds ;
+  perf:percentile "P99" ;
+  perf:measurementMethod "Fault injection testing" ;
+  perf:component "OTP supervision tree" ;
+  perf:faultTypes "Process crash, node failure, network partition" .
+
+:DataIntegrityRate a perf:ReliabilityRequirement ;
+  rdfs:label "Data Integrity Validation Rate" ;
+  rdfs:comment "Percentage of result crystals with valid cryptographic proof" ;
+  perf:targetValue 1.0 ;
+  perf:minimumValue 1.0 ;
+  perf:unit unit:success_rate ;
+  perf:measurementMethod "BLAKE3 hash verification" ;
+  perf:component "Result crystal sealing system" ;
+  perf:sampleSize 1000000 .
+
+:ZeroDataLoss a perf:ReliabilityRequirement ;
+  rdfs:label "Zero Data Loss Guarantee" ;
+  rdfs:comment "No signals lost under normal operation" ;
+  perf:targetValue 0 ;
+  perf:maximumValue 0 ;
+  perf:unit unit:signals_lost ;
+  perf:measurementMethod "End-to-end signal counting" ;
+  perf:component "Ring buffer overflow protection" ;
+  perf:testDuration "PT24H" .
+
+#################################################################
+#
+# RESOURCE REQUIREMENTS
+#
+#################################################################
+
+:MemoryUtilization a perf:ResourceRequirement ;
+  rdfs:label "Memory Utilization Efficiency" ;
+  rdfs:comment "Percentage of allocated memory actively used" ;
+  perf:targetValue 0.90 ;
+  perf:minimumValue 0.80 ;
+  perf:unit unit:utilization_ratio ;
+  perf:measurementMethod "Memory profiling" ;
+  perf:component "Memory crystallization pools" ;
+  perf:constraint "Zero memory leaks" .
+
+:CPUUtilization a perf:ResourceRequirement ;
+  rdfs:label "CPU Utilization Under Load" ;
+  rdfs:comment "CPU usage percentage under sustained load" ;
+  perf:targetValue 0.95 ;
+  perf:minimumValue 0.85 ;
+  perf:unit unit:utilization_ratio ;
+  perf:measurementMethod "System monitoring" ;
+  perf:component "Per-core execution engines" ;
+  perf:loadLevel "90% of maximum throughput" .
+
+:MemoryFootprint a perf:ResourceRequirement ;
+  rdfs:label "Memory Footprint per Core" ;
+  rdfs:comment "Maximum memory used per ByteActor engine" ;
+  perf:targetValue 8192 ;
+  perf:maximumValue 16384 ;
+  perf:unit unit:kilobytes ;
+  perf:measurementMethod "RSS measurement" ;
+  perf:component "BitActor engine state" ;
+  perf:includes "Ring buffers, dispatch table, scratch memory" .
+
+:NetworkBandwidth a perf:ResourceRequirement ;
+  rdfs:label "Inter-Node Network Bandwidth" ;
+  rdfs:comment "Network utilization for distributed coordination" ;
+  perf:targetValue 1000 ;
+  perf:maximumValue 10000 ;
+  perf:unit unit:megabits_per_second ;
+  perf:measurementMethod "Network monitoring" ;
+  perf:component "Erlang distribution protocol" ;
+  perf:constraint "Minimize cross-node communication" .
+
+#################################################################
+#
+# MEASUREMENT SPECIFICATIONS
+#
+#################################################################
+
+:PerformanceMeasurement a perf:MeasurementSpecification ;
+  rdfs:label "Performance Measurement Framework" ;
+  perf:toolchain [
+    perf:tool "RDTSC cycle counting" ;
+    perf:precision "1 CPU cycle" ;
+    perf:overhead "< 1 cycle" ;
+    perf:component "Core latency measurements"
+  ], [
+    perf:tool "Linux perf" ;
+    perf:metrics "CPU cycles, cache misses, branch mispredictions" ;
+    perf:sampling "1000Hz" ;
+    perf:component "System-level profiling"
+  ], [
+    perf:tool "Intel VTune" ;
+    perf:analysis "Hotspot analysis, microarchitecture exploration" ;
+    perf:precision "Instruction level" ;
+    perf:component "Optimization guidance"
+  ], [
+    perf:tool "OpenTelemetry" ;
+    perf:metrics "Application-level traces and metrics" ;
+    perf:export "Prometheus, Jaeger" ;
+    perf:component "Production monitoring"
+  ] .
+
+:BenchmarkSuite a perf:BenchmarkSpecification ;
+  rdfs:label "ByteActor Performance Benchmark Suite" ;
+  perf:benchmark [
+    perf:name "Microbenchmark: Single Signal Processing" ;
+    perf:description "Isolated measurement of signal processing latency" ;
+    perf:duration "PT10S" ;
+    perf:samples 1000000 ;
+    perf:metrics "P50, P90, P99, P99.9, P99.99 latency" ;
+    perf:reportFormat "JSON with timestamp, percentiles, outliers"
+  ], [
+    perf:name "Throughput: Sustained Load Test" ;
+    perf:description "Maximum sustained throughput measurement" ;
+    perf:duration "PT300S" ;
+    perf:rampUp "PT30S" ;
+    perf:steadyState "PT240S" ;
+    perf:rampDown "PT30S" ;
+    perf:metrics "Signals/sec, CPU usage, memory usage"
+  ], [
+    perf:name "Scalability: Core Scaling Analysis" ;
+    perf:description "Linear scaling validation across core counts" ;
+    perf:coreConfigurations "1,2,4,8,16,32" ;
+    perf:loadLevels "50%,75%,90%,95%" ;
+    perf:duration "PT60S" ;
+    perf:metrics "Throughput ratio, scaling efficiency, R-squared"
+  ], [
+    perf:name "Reliability: Fault Injection Test" ;
+    perf:description "System resilience under fault conditions" ;
+    perf:duration "PT3600S" ;
+    perf:faultTypes "Process kill, memory pressure, network delay" ;
+    perf:faultRate "1 per 60 seconds" ;
+    perf:metrics "Recovery time, data loss count, availability"
+  ] .
+
+#################################################################
+#
+# VALIDATION CRITERIA
+#
+#################################################################
+
+:PerformanceValidation a perf:ValidationCriteria ;
+  rdfs:label "Performance Requirement Validation" ;
+  perf:acceptanceCriteria [
+    perf:requirement :TickExecutionLatency ;
+    perf:testMethod "Statistical process control analysis" ;
+    perf:passCriteria "Cpk ≥ 1.33 for 8-tick upper spec limit" ;
+    perf:sampleSize 100000 ;
+    perf:confidenceLevel 0.99
+  ], [
+    perf:requirement :SingleCoreSignalThroughput ;
+    perf:testMethod "Sustained load test" ;
+    perf:passCriteria "Average throughput ≥ 10M signals/sec for 60 seconds" ;
+    perf:allowableVariation "±5%" ;
+    perf:warmupTime "PT30S"
+  ], [
+    perf:requirement :LinearCoreScaling ;
+    perf:testMethod "Regression analysis" ;
+    perf:passCriteria "R² ≥ 0.95 for throughput vs. core count" ;
+    perf:testPoints "1,2,4,8,16 cores" ;
+    perf:replicates 5
+  ], [
+    perf:requirement :SystemAvailability ;
+    perf:testMethod "Continuous monitoring" ;
+    perf:passCriteria "Uptime ≥ 99.999% over 30-day period" ;
+    perf:monitoringInterval "PT1M" ;
+    perf:alertThreshold "Any downtime > 1 minute"
+  ] .
+
+#################################################################
+#
+# PERFORMANCE BUDGETS
+#
+#################################################################
+
+:TickBudgetAllocation a perf:PerformanceBudget ;
+  rdfs:label "8-Tick Execution Budget Allocation" ;
+  perf:totalBudget 8 ;
+  perf:allocation [
+    perf:component "Signal dequeue" ;
+    perf:allocation 1 ;
+    perf:description "Ring buffer pointer arithmetic"
+  ], [
+    perf:component "Dispatch table lookup" ;
+    perf:allocation 1 ;
+    perf:description "Perfect hash function and array access"
+  ], [
+    perf:component "Memory allocation" ;
+    perf:allocation 1 ;
+    perf:description "Pre-allocated pool lookup"
+  ], [
+    perf:component "Kernel execution" ;
+    perf:allocation 4 ;
+    perf:description "SIMD-optimized computation"
+  ], [
+    perf:component "Result sealing" ;
+    perf:allocation 1 ;
+    perf:description "BLAKE3 hash and crystal creation"
+  ] ;
+  perf:contingency 0 ;
+  perf:validation "Sum must equal total budget" .
+
+:MemoryBudgetAllocation a perf:PerformanceBudget ;
+  rdfs:label "Per-Core Memory Budget Allocation" ;
+  perf:totalBudget 8192 ;
+  perf:unit unit:kilobytes ;
+  perf:allocation [
+    perf:component "Signal ring buffer" ;
+    perf:allocation 4096 ;
+    perf:description "65536 * 64-byte signals"
+  ], [
+    perf:component "Dispatch table" ;
+    perf:allocation 2048 ;
+    perf:description "256 function pointers + MPHF data"
+  ], [
+    perf:component "Scratch memory" ;
+    perf:allocation 1024 ;
+    perf:description "Handler working memory"
+  ], [
+    perf:component "Telemetry buffer" ;
+    perf:allocation 512 ;
+    perf:description "Performance monitoring data"
+  ], [
+    perf:component "Control structures" ;
+    perf:allocation 512 ;
+    perf:description "Engine state and counters"
+  ] ;
+  perf:contingency 0 ;
+  perf:validation "All allocations cache-aligned" .
+
+#################################################################
+#
+# SIX SIGMA QUALITY METRICS
+#
+#################################################################
+
+:SixSigmaMetrics a perf:QualityMetrics ;
+  rdfs:label "Six Sigma Quality Metrics for ByteActor" ;
+  perf:defectDefinitions [
+    perf:defect "Execution time > 8 ticks" ;
+    perf:opportunity "Each signal processing operation" ;
+    perf:targetDPMO 3.4
+  ], [
+    perf:defect "Throughput < 10M signals/sec" ;
+    perf:opportunity "Each 1-second measurement window" ;
+    perf:targetDPMO 100
+  ], [
+    perf:defect "Hash collision in dispatch table" ;
+    perf:opportunity "Each signal type mapping" ;
+    perf:targetDPMO 0
+  ], [
+    perf:defect "Memory allocation > 2 ticks" ;
+    perf:opportunity "Each memory allocation request" ;
+    perf:targetDPMO 1000
+  ] ;
+  perf:processCapability [
+    perf:metric "Execution time Cpk" ;
+    perf:target 1.67 ;
+    perf:minimum 1.33 ;
+    perf:current 1.89
+  ] .

@@ -1,0 +1,84 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/ecommerce#> .
+
+ex:EcommerceOntology a owl:Ontology ;
+    rdfs:label "E-commerce Test Ontology" ;
+    rdfs:comment "Sample ontology for testing OntoForge functionality" .
+
+# Product Class
+ex:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the e-commerce system" .
+
+ex:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:string .
+
+ex:price a owl:DatatypeProperty ;
+    rdfs:label "price" ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:decimal .
+
+ex:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:string .
+
+ex:inStock a owl:DatatypeProperty ;
+    rdfs:label "in stock" ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:boolean .
+
+# Customer Class  
+ex:Customer a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "A customer in the e-commerce system" .
+
+ex:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:domain ex:Customer ;
+    rdfs:range xsd:string .
+
+ex:firstName a owl:DatatypeProperty ;
+    rdfs:label "first name" ;
+    rdfs:domain ex:Customer ;
+    rdfs:range xsd:string .
+
+ex:lastName a owl:DatatypeProperty ;
+    rdfs:label "last name" ;
+    rdfs:domain ex:Customer ;
+    rdfs:range xsd:string .
+
+# Order Class
+ex:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "An order placed by a customer" .
+
+ex:orderDate a owl:DatatypeProperty ;
+    rdfs:label "order date" ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:dateTime .
+
+ex:totalAmount a owl:DatatypeProperty ;
+    rdfs:label "total amount" ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:decimal .
+
+ex:status a owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:string .
+
+# Object Properties
+ex:hasCustomer a owl:ObjectProperty ;
+    rdfs:label "has customer" ;
+    rdfs:domain ex:Order ;
+    rdfs:range ex:Customer .
+
+ex:containsProduct a owl:ObjectProperty ;
+    rdfs:label "contains product" ;
+    rdfs:domain ex:Order ;
+    rdfs:range ex:Product .

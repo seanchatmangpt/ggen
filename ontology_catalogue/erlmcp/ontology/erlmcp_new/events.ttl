@@ -1,0 +1,198 @@
+# =============================================================================
+# erlmcp Event Sourcing Ontology
+# =============================================================================
+# Defines event sourcing for state reconstruction
+#
+# Features:
+#   - Event log persistence
+#   - Event replay
+#   - Snapshot management
+#   - Event versioning
+#   - CQRS support
+#   - Event projection
+# =============================================================================
+
+@prefix events: <http://erlmcp.org/schema/events/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+events:EventStore a rdfs:Class ;
+    rdfs:label "Event Store" ;
+    rdfs:comment "Persist and retrieve events" ;
+    rdfs:subClassOf otp:GenServer .
+
+events:Event a rdfs:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "Domain event" .
+
+events:Snapshot a rdfs:Class ;
+    rdfs:label "Snapshot" ;
+    rdfs:comment "State snapshot for recovery" .
+
+events:Projection a rdfs:Class ;
+    rdfs:label "Projection" ;
+    rdfs:comment "Read model from event stream" .
+
+events:Aggregate a rdfs:Class ;
+    rdfs:label "Aggregate" ;
+    rdfs:comment "Event sourcing aggregate root" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+events:eventId a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "event ID" .
+
+events:aggregateId a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "aggregate ID" .
+
+events:eventType a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "event type" .
+
+events:eventVersion a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:integer ;
+    rdfs:label "event version" .
+
+events:payload a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "event payload (JSON)" .
+
+events:metadata a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "event metadata (JSON)" .
+
+events:timestamp a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+events:sequenceNumber a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:integer ;
+    rdfs:label "sequence number" .
+
+events:causationId a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "causation ID" .
+
+events:correlationId a rdf:Property ;
+    rdfs:domain events:Event ;
+    rdfs:range xsd:string ;
+    rdfs:label "correlation ID" .
+
+events:snapshotVersion a rdf:Property ;
+    rdfs:domain events:Snapshot ;
+    rdfs:range xsd:integer ;
+    rdfs:label "snapshot version" .
+
+events:snapshotData a rdf:Property ;
+    rdfs:domain events:Snapshot ;
+    rdfs:range xsd:string ;
+    rdfs:label "snapshot data" .
+
+events:snapshotAt a rdf:Property ;
+    rdfs:domain events:Snapshot ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "snapshot at" .
+
+events:projectionName a rdf:Property ;
+    rdfs:domain events:Projection ;
+    rdfs:range xsd:string ;
+    rdfs:label "projection name" .
+
+events:lastProcessedEvent a rdf:Property ;
+    rdfs:domain events:Projection ;
+    rdfs:range xsd:integer ;
+    rdfs:label "last processed event" .
+
+events:projectionData a rdf:Property ;
+    rdfs:domain events:Projection ;
+    rdfs:range xsd:string ;
+    rdfs:label "projection data" .
+
+events:aggregateType a rdf:Property ;
+    rdfs:domain events:Aggregate ;
+    rdfs:range xsd:string ;
+    rdfs:label "aggregate type" .
+
+events:currentVersion a rdf:Property ;
+    rdfs:domain events:Aggregate ;
+    rdfs:range xsd:integer ;
+    rdfs:label "current version" .
+
+# -----------------------------------------------------------------------------
+# Storage Backends
+# -----------------------------------------------------------------------------
+
+events:MemoryStore a rdfs:Class ;
+    rdfs:label "Memory Store" ;
+    rdfs:comment "In-memory event storage" .
+
+events:ETSStore a rdfs:Class ;
+    rdfs:label "ETS Store" ;
+    rdfs:comment "ETS-based event storage" .
+
+events:DiskStore a rdfs:Class ;
+    rdfs:label "Disk Store" ;
+    rdfs:comment "Disk-based event storage" .
+
+events:RedisStore a rdfs:Class ;
+    rdfs:label "Redis Store" ;
+    rdfs:comment "Redis-backed event storage" .
+
+events:PostgreSQLStore a rdfs:Class ;
+    rdfs:label "PostgreSQL Store" ;
+    rdfs:comment "PostgreSQL event storage" .
+
+# -----------------------------------------------------------------------------
+# Snapshot Strategies
+# -----------------------------------------------------------------------------
+
+events:IntervalSnapshot a rdfs:Class ;
+    rdfs:label "Interval Snapshot" ;
+    rdfs:comment "Snapshot every N events" .
+
+events:TimeSnapshot a rdfs:Class ;
+    rdfs:label "Time Snapshot" ;
+    rdfs:comment "Snapshot at time intervals" .
+
+events:ManualSnapshot a rdfs:Class ;
+    rdfs:label "Manual Snapshot" ;
+    rdfs:comment "Explicit snapshot commands" .
+
+# -----------------------------------------------------------------------------
+# Event Types
+# -----------------------------------------------------------------------------
+
+events:AggregateCreated a events:Event ;
+    rdfs:label "Aggregate Created" ;
+    rdfs:comment "New aggregate created" .
+
+events:AggregateUpdated a events:Event ;
+    rdfs:label "Aggregate Updated" ;
+    rdfs:comment "Aggregate state changed" .
+
+events:AggregateDeleted a events:Event ;
+    rdfs:label "Aggregate Deleted" ;
+    rdfs:comment "Aggregate marked deleted" .
+
+events:SnapshotCreated a events:Event ;
+    rdfs:label "Snapshot Created" ;
+    rdfs:comment "Snapshot stored" .

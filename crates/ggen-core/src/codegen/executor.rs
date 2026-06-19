@@ -493,15 +493,15 @@ impl SyncExecutor {
         });
 
         // Check ontology syntax
-        let ontology_path = base_path.join(&manifest_data.ontology.source);
-        let ontology_exists = ontology_path.exists();
+        let ontology_paths = manifest_data.ontology.resolved_sources(&base_path);
+        let ontology_exists = !ontology_paths.is_empty() && ontology_paths.iter().all(|p| p.exists());
         validations.push(ValidationCheck {
             check: "Ontology syntax".to_string(),
             passed: ontology_exists,
             details: if ontology_exists {
-                Some(format!("{}", ontology_path.display()))
+                Some(format!("{}", ontology_paths.first().map(|p| p.display().to_string()).unwrap_or_default()))
             } else {
-                Some(format!("File not found: {}", ontology_path.display()))
+                Some(format!("File not found: {}", ontology_paths.first().map(|p| p.display().to_string()).unwrap_or_default()))
             },
         });
 
@@ -519,6 +519,33 @@ impl SyncExecutor {
             passed: true,
             details: Some(format!("{} templates validated", query_count)),
         });
+
+        // Check custom validation rules ([[validation.rules]] SPARQL ASK/SELECT).
+        // These run against the inferred graph, alongside the structural checks
+        // above. ASK polarity follows the executor convention: ASK=true => valid,
+        // ASK=false => violation (matches the manifest field doc "true = valid").
+        if !manifest_data.validation.rules.is_empty() {
+            let mut rules_passed = true;
+            let mut rules_detail = format!("{} rules", manifest_data.validation.rules.len());
+            let mut pipeline =
+                GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
+            match pipeline
+                .load_ontology()
+                .and_then(|_| pipeline.execute_inference_rules().map(|_| ()))
+                .and_then(|_| pipeline.execute_validation_rules())
+            {
+                Ok(()) => {}
+                Err(e) => {
+                    rules_passed = false;
+                    rules_detail = e.to_string();
+                }
+            }
+            validations.push(ValidationCheck {
+                check: "Custom validation rules".to_string(),
+                passed: rules_passed,
+                details: Some(rules_detail),
+            });
+        }
 
         let all_passed = validations.iter().all(|v| v.passed);
 
@@ -788,32 +815,86 @@ impl SyncExecutor {
         let files_synced = synced_files.len();
 
         // Determine audit trail path and write if enabled
-        let audit_path =
-            if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
-                let audit_file_path = base_path.join(&output_directory).join("audit.json");
+        let audit_path = if self.options.flags.behavior.audit
+            || manifest_data.generation.require_audit_trail
+        {
+            let audit_file_path = base_path.join(&output_directory).join("audit.json");
 
-                // Create audit trail from pipeline state using AuditTrailBuilder
-                let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
+            // Create audit trail from pipeline state using AuditTrailBuilder
+            let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
 
-                // Record inputs (simplified - would need actual file paths in production)
-                // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
+            // Record real input hashes: manifest + ontology source + all template files.
+            {
+                let ontology_paths = manifest_data.ontology.resolved_sources(&base_path);
+                let template_paths: Vec<PathBuf> = manifest_data
+                    .generation
+                    .rules
+                    .iter()
+                    .filter_map(|r| {
+                        if let crate::manifest::TemplateSource::File { file } = &r.template {
+                            Some(base_path.join(file))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                let template_refs: Vec<&std::path::Path> =
+                    template_paths.iter().map(|p| p.as_path()).collect();
+                let ontology_refs: Vec<&std::path::Path> = 
+                    ontology_paths.iter().map(|p| p.as_path()).collect();
+                // Failure to hash an input is a hard error: an audit with missing
+                // input hashes is contract drift, not a degraded audit.
+                builder
+                    .record_inputs(
+                        &self.options.manifest_path,
+                        &ontology_refs,
+                        &template_refs,
+                    )
+                    .map_err(|e| Error::new(&format!("Failed to record audit inputs: {}", e)))?;
+            }
 
-                // Record outputs
-                for file in &state.generated_files {
-                    builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
-                }
+            // Record real output hashes by reading each generated file from disk.
+            for file in &state.generated_files {
+                let content = std::fs::read_to_string(&file.path).unwrap_or_default();
+                builder.record_output(
+                    &file.path,
+                    &content,
+                    &format!("rule-{}", file.path.display()),
+                );
+            }
 
-                // Build the final audit trail
-                let audit_trail = builder.build(true); // validation_passed = true for now
+            // Record μ₁–μ₅ pipeline steps from executed rules so audit.pipeline is populated.
+            for rule in &state.executed_rules {
+                let step_type = match rule.rule_type {
+                    RuleType::Inference => "inference",
+                    RuleType::Generation => "render",
+                };
+                let triples = if rule.triples_added > 0 {
+                    Some(rule.triples_added)
+                } else {
+                    None
+                };
+                builder.record_step(
+                    step_type,
+                    &rule.name,
+                    std::time::Duration::from_millis(rule.duration_ms),
+                    triples,
+                    "success",
+                );
+            }
 
-                // Write audit trail to disk using AuditTrailBuilder::write_to
-                crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
-                    .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+            // validation_passed is true iff we reached this point: every validation
+            // gate above returns Err and short-circuits before this block executes.
+            let audit_trail = builder.build(true);
 
-                Some(audit_file_path.display().to_string())
-            } else {
-                None
-            };
+            // Write audit trail to disk using AuditTrailBuilder::write_to
+            crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
+                .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+
+            Some(audit_file_path.display().to_string())
+        } else {
+            None
+        };
 
         // Save cache if enabled
         if let Some(cache) = cache {
@@ -834,15 +915,18 @@ impl SyncExecutor {
                     e
                 ))
             })?;
-        let ontology_content =
-            std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
-                .map_err(|e| {
-                    Error::new(&format!(
-                        "error[E0007]: Failed to read ontology for proof generation\n  --> {}\n  |\n  = error: {}",
-                        base_path.join(&manifest_data.ontology.source).display(),
-                        e
-                    ))
-                })?;
+        let mut ontology_content = String::new();
+        for path in manifest_data.ontology.resolved_sources(&base_path) {
+            let content = std::fs::read_to_string(&path).map_err(|e| {
+                Error::new(&format!(
+                    "error[E0007]: Failed to read ontology for proof generation\n  --> {}\n  |\n  = error: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+            ontology_content.push_str(&content);
+            ontology_content.push('\n');
+        }
 
         if let Ok(proof) = proof_carrier.generate_proof(
             &manifest_content,
@@ -1041,7 +1125,8 @@ impl SyncExecutor {
             Err(_) => return, // Silently skip if manifest parsing fails
         };
 
-        let ontology_path = base_path.join(&manifest_data.ontology.source);
+        // Note: Drift detector currently takes a single path, so we just use the first resolved path for now or skip if multiple.
+        let ontology_path = manifest_data.ontology.resolved_sources(&base_path).into_iter().next().unwrap_or_else(|| base_path.join(&manifest_data.ontology.source));
 
         // Check drift
         match detector.check_drift(&ontology_path, &self.options.manifest_path) {
@@ -1072,7 +1157,8 @@ impl SyncExecutor {
             }
         };
 
-        let ontology_path = base_path.join(&manifest_data.ontology.source);
+        // Note: Drift detector currently takes a single path, so we just use the first resolved path for now or skip if multiple.
+        let ontology_path = manifest_data.ontology.resolved_sources(&base_path).into_iter().next().unwrap_or_else(|| base_path.join(&manifest_data.ontology.source));
 
         // Collect imports (if any)
         let imports = manifest_data

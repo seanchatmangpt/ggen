@@ -1,0 +1,73 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix playground: <http://example.org/playground#> .
+
+
+# Playground Ontology
+# Defines concepts for the autonomic knowledge graph system
+
+playground: a owl:Ontology ;
+    dcterms:title "Playground Ontology"@en ;
+    dcterms:description "An ontology for autonomic knowledge graph systems"@en ;
+    dcterms:created "2024-01-01"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# Classes
+
+playground:KnowledgeHook a owl:Class ;
+    rdfs:label "Knowledge Hook"@en ;
+    rdfs:comment "A hook that intercepts and processes knowledge operations"@en ;
+    rdfs:subClassOf owl:Thing .
+
+playground:PolicyPack a owl:Class ;
+    rdfs:label "Policy Pack"@en ;
+    rdfs:comment "A collection of policies for knowledge validation"@en ;
+    rdfs:subClassOf owl:Thing .
+
+playground:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule"@en ;
+    rdfs:comment "A rule used to validate knowledge graphs"@en ;
+    rdfs:subClassOf owl:Thing .
+
+playground:TransformOperation a owl:Class ;
+    rdfs:label "Transform Operation"@en ;
+    rdfs:comment "An operation that transforms RDF data"@en ;
+    rdfs:subClassOf owl:Thing .
+
+playground:QueryTemplate a owl:Class ;
+    rdfs:label "Query Template"@en ;
+    rdfs:comment "A reusable SPARQL query template"@en ;
+    rdfs:subClassOf owl:Thing .
+
+# Properties
+
+playground:hasHook a owl:ObjectProperty ;
+    rdfs:label "has hook"@en ;
+    rdfs:domain playground:PolicyPack ;
+    rdfs:range playground:KnowledgeHook .
+
+playground:hasRule a owl:ObjectProperty ;
+    rdfs:label "has rule"@en ;
+    rdfs:domain playground:PolicyPack ;
+    rdfs:range playground:ValidationRule .
+
+playground:hookPriority a owl:DatatypeProperty ;
+    rdfs:label "hook priority"@en ;
+    rdfs:domain playground:KnowledgeHook ;
+    rdfs:range xsd:integer .
+
+playground:isEnabled a owl:DatatypeProperty ;
+    rdfs:label "is enabled"@en ;
+    rdfs:domain playground:KnowledgeHook ;
+    rdfs:range xsd:boolean .
+
+playground:sparqlQuery a owl:DatatypeProperty ;
+    rdfs:label "SPARQL query"@en ;
+    rdfs:domain playground:QueryTemplate ;
+    rdfs:range xsd:string .

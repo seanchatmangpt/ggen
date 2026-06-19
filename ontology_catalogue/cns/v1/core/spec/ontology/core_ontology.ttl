@@ -1,0 +1,249 @@
+# CNS v8.0 Core Ontology
+# This is the fundamental type system and property definitions
+# Specification IS Implementation - this file drives code generation
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cns: <http://cns.v8.org/ontology#> .
+
+# Core Ontology Declaration
+<http://cns.v8.org/ontology> a owl:Ontology ;
+    rdfs:label "CNS v8.0 Core Ontology" ;
+    rdfs:comment "Foundational types and contracts for deterministic logic compilation" ;
+    owl:versionInfo "8.0.0" .
+
+# =============================================================================
+# FUNDAMENTAL CONTRACTS - The 8T-8H-8M Trinity
+# =============================================================================
+
+cns:TemporalContract a owl:Class ;
+    rdfs:label "8T Temporal Contract" ;
+    rdfs:comment "Operations must complete within 8 CPU cycles" ;
+    cns:maxCycles 8 ;
+    cns:enforcementLevel cns:Critical .
+
+cns:HarmonicContract a owl:Class ;
+    rdfs:label "8H Harmonic Contract" ;
+    rdfs:comment "Six Sigma quality with Cpk > 20" ;
+    cns:targetSigma 6 ;
+    cns:minCpk 20.0 ;
+    cns:enforcementLevel cns:Critical .
+
+cns:MemoryContract a owl:Class ;
+    rdfs:label "8M Memory Contract" ;
+    rdfs:comment "8-byte quantum alignment with zero fragmentation" ;
+    cns:quantumBits 8 ;
+    cns:maxFragmentation 0.0 ;
+    cns:enforcementLevel cns:Critical .
+
+# =============================================================================
+# CORE SYSTEM TYPES
+# =============================================================================
+
+cns:Operation a owl:Class ;
+    rdfs:label "System Operation" ;
+    rdfs:comment "Any computational operation in the CNS system" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cns:hasTemporalContract ;
+        owl:someValuesFrom cns:TemporalContract
+    ] .
+
+cns:CriticalOperation a owl:Class ;
+    rdfs:label "Critical Operation" ;
+    rdfs:comment "Operations subject to 8-tick constraint" ;
+    rdfs:subClassOf cns:Operation ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cns:maxCycles ;
+        owl:hasValue 8
+    ] .
+
+cns:MemoryRegion a owl:Class ;
+    rdfs:label "Memory Region" ;
+    rdfs:comment "8-byte aligned memory allocation unit" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cns:alignment ;
+        owl:hasValue 8
+    ] .
+
+cns:Arena a owl:Class ;
+    rdfs:label "Arena Allocator" ;
+    rdfs:comment "Zero-fragmentation memory allocator" ;
+    rdfs:subClassOf cns:MemoryRegion .
+
+# =============================================================================
+# PERFORMANCE PROPERTIES
+# =============================================================================
+
+cns:maxCycles a owl:DatatypeProperty ;
+    rdfs:domain cns:Operation ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Maximum CPU Cycles" ;
+    rdfs:comment "Maximum allowed CPU cycles for operation completion" .
+
+cns:actualCycles a owl:DatatypeProperty ;
+    rdfs:domain cns:Operation ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "Actual CPU Cycles" ;
+    rdfs:comment "Measured CPU cycles for operation execution" .
+
+cns:alignment a owl:DatatypeProperty ;
+    rdfs:domain cns:MemoryRegion ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "Memory Alignment" ;
+    rdfs:comment "Required byte alignment for memory region" .
+
+cns:fragmentation a owl:DatatypeProperty ;
+    rdfs:domain cns:MemoryRegion ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Memory Fragmentation" ;
+    rdfs:comment "Percentage of fragmented memory (must be 0.0)" .
+
+# =============================================================================
+# GRAPH ENGINE TYPES
+# =============================================================================
+
+cns:Triple a owl:Class ;
+    rdfs:label "RDF Triple" ;
+    rdfs:comment "Subject-Predicate-Object triple in graph store" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cns:hasSubject ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cns:hasPredicate ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty cns:hasObject ;
+        owl:cardinality 1
+    ] .
+
+cns:GraphIndex a owl:Class ;
+    rdfs:label "Graph Index" ;
+    rdfs:comment "High-performance index for graph queries" ;
+    rdfs:subClassOf cns:CriticalOperation .
+
+cns:QueryEngine a owl:Class ;
+    rdfs:label "Query Engine" ;
+    rdfs:comment "SPARQL query processing engine" ;
+    rdfs:subClassOf cns:CriticalOperation .
+
+# =============================================================================
+# VALIDATION TYPES
+# =============================================================================
+
+cns:SHACLRule a owl:Class ;
+    rdfs:label "SHACL Validation Rule" ;
+    rdfs:comment "Compiled validation rule for real-time checking" ;
+    rdfs:subClassOf cns:CriticalOperation .
+
+cns:ValidationEngine a owl:Class ;
+    rdfs:label "Validation Engine" ;
+    rdfs:comment "Real-time constraint validation system" ;
+    rdfs:subClassOf cns:CriticalOperation .
+
+# =============================================================================
+# SELF-HEALING TYPES
+# =============================================================================
+
+cns:HealingAgent a owl:Class ;
+    rdfs:label "Healing Agent" ;
+    rdfs:comment "Autonomous error detection and recovery agent" ;
+    rdfs:subClassOf cns:Operation .
+
+cns:ContextRecovery a owl:Class ;
+    rdfs:label "Context Recovery" ;
+    rdfs:comment "Automatic context reconstruction from timestamps" ;
+    rdfs:subClassOf cns:HealingAgent .
+
+cns:PerformanceTuner a owl:Class ;
+    rdfs:label "Performance Tuner" ;
+    rdfs:comment "Automatic performance optimization agent" ;
+    rdfs:subClassOf cns:HealingAgent .
+
+# =============================================================================
+# RELATIONSHIP PROPERTIES
+# =============================================================================
+
+cns:hasTemporalContract a owl:ObjectProperty ;
+    rdfs:domain cns:Operation ;
+    rdfs:range cns:TemporalContract ;
+    rdfs:label "Has Temporal Contract" .
+
+cns:hasMemoryContract a owl:ObjectProperty ;
+    rdfs:domain cns:MemoryRegion ;
+    rdfs:range cns:MemoryContract ;
+    rdfs:label "Has Memory Contract" .
+
+cns:hasSubject a owl:ObjectProperty ;
+    rdfs:domain cns:Triple ;
+    rdfs:label "Triple Subject" .
+
+cns:hasPredicate a owl:ObjectProperty ;
+    rdfs:domain cns:Triple ;
+    rdfs:label "Triple Predicate" .
+
+cns:hasObject a owl:ObjectProperty ;
+    rdfs:domain cns:Triple ;
+    rdfs:label "Triple Object" .
+
+# =============================================================================
+# ENFORCEMENT LEVELS
+# =============================================================================
+
+cns:Critical a cns:EnforcementLevel ;
+    rdfs:label "Critical Enforcement" ;
+    rdfs:comment "Contract violations cause immediate system halt" .
+
+cns:Warning a cns:EnforcementLevel ;
+    rdfs:label "Warning Enforcement" ;
+    rdfs:comment "Contract violations generate warnings but allow continuation" .
+
+cns:Informational a cns:EnforcementLevel ;
+    rdfs:label "Informational Enforcement" ;
+    rdfs:comment "Contract violations are logged for analysis" .
+
+# =============================================================================
+# AXIOMS AND CONSTRAINTS
+# =============================================================================
+
+# Every critical operation must have a temporal contract
+[] a owl:Axiom ;
+   owl:annotatedSource cns:CriticalOperation ;
+   owl:annotatedProperty rdfs:subClassOf ;
+   owl:annotatedTarget [
+       a owl:Restriction ;
+       owl:onProperty cns:hasTemporalContract ;
+       owl:someValuesFrom cns:TemporalContract
+   ] ;
+   rdfs:comment "All critical operations must specify temporal contracts" .
+
+# Memory regions must be 8-byte aligned
+[] a owl:Axiom ;
+   owl:annotatedSource cns:MemoryRegion ;
+   owl:annotatedProperty rdfs:subClassOf ;
+   owl:annotatedTarget [
+       a owl:Restriction ;
+       owl:onProperty cns:alignment ;
+       owl:hasValue 8
+   ] ;
+   rdfs:comment "All memory regions must maintain 8-byte alignment" .
+
+# Fragmentation must be zero for all memory regions
+[] a owl:Axiom ;
+   owl:annotatedSource cns:MemoryRegion ;
+   owl:annotatedProperty rdfs:subClassOf ;
+   owl:annotatedTarget [
+       a owl:Restriction ;
+       owl:onProperty cns:fragmentation ;
+       owl:hasValue 0.0
+   ] ;
+   rdfs:comment "Zero fragmentation requirement for all memory regions" .

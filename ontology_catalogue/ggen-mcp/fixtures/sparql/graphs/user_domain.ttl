@@ -1,0 +1,150 @@
+@prefix ddd: <https://ddd-patterns.dev/schema#> .
+@prefix ggen: <https://ggen-mcp.dev/domain#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# User Domain - Aggregate Roots, Entities, and Value Objects
+# ============================================================================
+
+# User Aggregate Root
+ggen:UserAggregate a ddd:AggregateRoot ;
+    rdfs:label "User" ;
+    rdfs:comment "User aggregate root with profile and authentication" ;
+    ddd:hasProperty ggen:UserAggregate_id ;
+    ddd:hasProperty ggen:UserAggregate_email ;
+    ddd:hasProperty ggen:UserAggregate_name ;
+    ddd:hasInvariant ggen:UserAggregate_EmailUnique .
+
+# User Properties
+ggen:UserAggregate_id a ddd:Property ;
+    rdfs:label "id" ;
+    ddd:type "UserId" .
+
+ggen:UserAggregate_email a ddd:Property ;
+    rdfs:label "email" ;
+    ddd:type "Email" .
+
+ggen:UserAggregate_name a ddd:Property ;
+    rdfs:label "name" ;
+    ddd:type "String" .
+
+# User Invariants
+ggen:UserAggregate_EmailUnique a ddd:Invariant ;
+    rdfs:label "EmailMustBeUnique" ;
+    ddd:check "email_must_be_unique" ;
+    ddd:message "Email address must be unique across all users" .
+
+# Email Value Object
+ggen:EmailVO a ddd:ValueObject ;
+    rdfs:label "Email" ;
+    rdfs:comment "Email address value object with validation" ;
+    ddd:hasProperty ggen:EmailVO_address ;
+    ddd:hasInvariant ggen:EmailVO_ValidFormat .
+
+ggen:EmailVO_address a ddd:Property ;
+    rdfs:label "address" ;
+    ddd:type "String" .
+
+ggen:EmailVO_ValidFormat a ddd:Invariant ;
+    rdfs:label "ValidEmailFormat" ;
+    ddd:check "valid_email_format" ;
+    ddd:message "Email must be in valid format" .
+
+# UserId Value Object
+ggen:UserIdVO a ddd:ValueObject ;
+    rdfs:label "UserId" ;
+    rdfs:comment "User identifier value object" ;
+    ddd:hasProperty ggen:UserIdVO_value .
+
+ggen:UserIdVO_value a ddd:Property ;
+    rdfs:label "value" ;
+    ddd:type "uuid::Uuid" .
+
+# Order Aggregate Root
+ggen:OrderAggregate a ddd:AggregateRoot ;
+    rdfs:label "Order" ;
+    rdfs:comment "Order aggregate with line items" ;
+    ddd:hasProperty ggen:OrderAggregate_id ;
+    ddd:hasProperty ggen:OrderAggregate_userId ;
+    ddd:hasProperty ggen:OrderAggregate_total ;
+    ddd:hasInvariant ggen:OrderAggregate_PositiveTotal .
+
+ggen:OrderAggregate_id a ddd:Property ;
+    rdfs:label "id" ;
+    ddd:type "OrderId" .
+
+ggen:OrderAggregate_userId a ddd:Property ;
+    rdfs:label "userId" ;
+    ddd:type "UserId" .
+
+ggen:OrderAggregate_total a ddd:Property ;
+    rdfs:label "total" ;
+    ddd:type "Money" .
+
+ggen:OrderAggregate_PositiveTotal a ddd:Invariant ;
+    rdfs:label "TotalMustBePositive" ;
+    ddd:check "total > 0" ;
+    ddd:message "Order total must be positive" .
+
+# Commands
+ggen:CreateUserCommand a ddd:Command ;
+    rdfs:label "CreateUser" ;
+    rdfs:comment "Create a new user" ;
+    ddd:hasParameter ggen:CreateUserCommand_email ;
+    ddd:hasParameter ggen:CreateUserCommand_name ;
+    ddd:emitsEvent ggen:UserCreatedEvent .
+
+ggen:CreateUserCommand_email a ddd:Parameter ;
+    rdfs:label "email" ;
+    ddd:type "String" .
+
+ggen:CreateUserCommand_name a ddd:Parameter ;
+    rdfs:label "name" ;
+    ddd:type "String" .
+
+# Events
+ggen:UserCreatedEvent a ddd:DomainEvent ;
+    rdfs:label "UserCreated" ;
+    rdfs:comment "User was created" ;
+    ddd:hasProperty ggen:UserCreatedEvent_userId ;
+    ddd:hasProperty ggen:UserCreatedEvent_email .
+
+ggen:UserCreatedEvent_userId a ddd:Property ;
+    rdfs:label "userId" ;
+    ddd:type "UserId" .
+
+ggen:UserCreatedEvent_email a ddd:Property ;
+    rdfs:label "email" ;
+    ddd:type "String" .
+
+# Handler
+ggen:CreateUserHandler a ddd:Handler ;
+    rdfs:label "CreateUserHandler" ;
+    ddd:handles ggen:CreateUserCommand ;
+    ddd:emits ggen:UserCreatedEvent .
+
+# Repository
+ggen:UserRepository a ddd:Repository ;
+    rdfs:label "UserRepository" ;
+    ddd:forAggregate ggen:UserAggregate ;
+    ddd:hasMethod ggen:UserRepository_findById ;
+    ddd:hasMethod ggen:UserRepository_save .
+
+ggen:UserRepository_findById a ddd:Method ;
+    rdfs:label "find_by_id" ;
+    ddd:param "id: UserId" ;
+    ddd:returns "Option<User>" .
+
+ggen:UserRepository_save a ddd:Method ;
+    rdfs:label "save" ;
+    ddd:param "user: User" ;
+    ddd:returns "Result<()>" .
+
+# Bounded Context
+ggen:UserContext a ddd:BoundedContext ;
+    rdfs:label "UserManagement" ;
+    rdfs:comment "User management bounded context" ;
+    ddd:owns ggen:UserAggregate ;
+    ddd:publishesEvent ggen:UserCreatedEvent .

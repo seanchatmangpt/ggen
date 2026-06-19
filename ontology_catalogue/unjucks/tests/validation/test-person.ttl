@@ -1,0 +1,10 @@
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+
+ex:john a schema:Person ;
+    schema:name "John Doe" ;
+    schema:email "john.doe@example.com" .
+
+ex:jane a schema:Person ;
+    schema:name "Jane Smith" ;
+    schema:birthDate "1985-03-15"^^<http://www.w3.org/2001/XMLSchema#date> .

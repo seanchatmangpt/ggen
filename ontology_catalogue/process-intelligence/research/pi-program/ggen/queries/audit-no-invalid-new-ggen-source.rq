@@ -1,0 +1,15 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: No Invalid New ggen Source Files
+# ASK query: Verifies that all new .ggen files are classified as MIGRATION_REQUIRED in ledger
+# Passes if: No unclassified .ggen files discovered in projects
+# Date: 2026-06-01
+
+ASK {
+    FILTER NOT EXISTS {
+        ?file a pi:Source .
+        ?file pi:sourceType "ggen" .
+        FILTER NOT EXISTS { ?file a pi:InvalidGGENFile }
+    }
+}

@@ -4,12 +4,14 @@
 //! checking across 10 dimensions.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt;
 
 use crate::marketplace::atomic::{AtomicPackClass, AtomicPackId};
 use crate::marketplace::error::{Error, Result};
-use crate::marketplace::ownership::{MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipTarget};
+use crate::marketplace::ownership::{
+    MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipTarget,
+};
 
 /// Compatibility dimension for conflict detection.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -154,9 +156,9 @@ pub struct Conflict {
     /// Suggested resolution (if any).
     pub resolution: Option<ConflictResolution>,
 
-    /// Additional context for debugging.
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub context: HashMap<String, String>,
+    /// Additional context for debugging — BTreeMap for deterministic JSON serialization.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub context: BTreeMap<String, String>,
 }
 
 impl Conflict {
@@ -172,7 +174,7 @@ impl Conflict {
             description,
             severity,
             resolution: None,
-            context: HashMap::new(),
+            context: BTreeMap::new(),
         }
     }
 
@@ -1522,12 +1524,14 @@ impl CompatibilityChecker {
                     hash_function: Some("sha256".to_string()),
                     chain_depth_max: None,
                 },
-                crate::marketplace::atomic::AtomicPackClass::ReceiptEnterpriseSigned => ReceiptSchemaMeta {
-                    schema_version: "1".to_string(),
-                    signature_algorithm: Some("ed25519".to_string()),
-                    hash_function: Some("sha256".to_string()),
-                    chain_depth_max: None,
-                },
+                crate::marketplace::atomic::AtomicPackClass::ReceiptEnterpriseSigned => {
+                    ReceiptSchemaMeta {
+                        schema_version: "1".to_string(),
+                        signature_algorithm: Some("ed25519".to_string()),
+                        hash_function: Some("sha256".to_string()),
+                        chain_depth_max: None,
+                    }
+                }
                 _ => ReceiptSchemaMeta::default(),
             };
             result.push(((*receipt_pack).clone(), default_meta));

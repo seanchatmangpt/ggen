@@ -1,0 +1,53 @@
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# ============================================================================
+# R2 — FIELD-NAME COLLISION DETECTION (authoritative, every consumer inherits)
+# ============================================================================
+# Pairs with validation rule `cnv-fieldname-collision` (severity Error) in the
+# pack ggen.toml. ASK semantics for a ggen validation.rule of severity Error:
+#   ASK returns TRUE  => a violation EXISTS => generation FAILS.
+#   ASK returns FALSE => no collision       => generation proceeds.
+#
+# A collision is: two DISTINCT cnv:Argument nodes attached to the SAME cnv:Verb
+# whose RESOLVED Rust field name is identical. The resolved field name is:
+#
+#   fieldName := COALESCE( ?explicitFieldName , sanitize(?cliFlag) )
+#
+# where sanitize() applies the pinned sanitizer spec (see
+# clap-noun-verb-ontology.ttl, cnv:fieldName):
+#   (a) Rust keyword  -> raw-identifier r#kw  (name preserved)
+#   (b) kebab -> snake : every '-' becomes '_'   ("dry-run" -> "dry_run")
+#   (c) leading-digit / empty -> reject
+#
+# Collision equivalence is decided at the snake-cased layer: raw-identifier
+# escaping (a) is a pure prefix and never changes equivalence, so reproducing
+# only the kebab->snake step (b) here is sufficient and exact. Thus "--dry-run"
+# and a literal "dry_run" flag (or an explicit cnv:fieldName "dry_run") are
+# correctly reported as colliding and MUST NOT be silently merged.
+#
+# NOTE: '.' and other non-[A-Za-z0-9_-] characters in a flag are NOT legal
+# clap flag names and are rejected upstream by clap itself; this query only
+# normalises the one transform the sanitizer performs ('-' -> '_').
+
+ASK {
+  ?verb rdf:type cnv:Verb ;
+        cnv:hasArguments ?argA ;
+        cnv:hasArguments ?argB .
+
+  # Distinct arguments only; the ordering filter also halves the work and
+  # prevents an argument from "colliding" with itself.
+  FILTER( STR(?argA) < STR(?argB) )
+
+  ?argA cnv:hasArgumentName ?flagA .
+  ?argB cnv:hasArgumentName ?flagB .
+
+  # Resolve each field name: explicit cnv:fieldName wins, else sanitize flag.
+  OPTIONAL { ?argA cnv:fieldName ?explicitA }
+  OPTIONAL { ?argB cnv:fieldName ?explicitB }
+
+  BIND( COALESCE( ?explicitA, REPLACE(STR(?flagA), "-", "_") ) AS ?fieldA )
+  BIND( COALESCE( ?explicitB, REPLACE(STR(?flagB), "-", "_") ) AS ?fieldB )
+
+  FILTER( ?fieldA = ?fieldB )
+}

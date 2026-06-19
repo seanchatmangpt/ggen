@@ -1,0 +1,13 @@
+@prefix cell8: <urn:cell8:gate:> .
+@prefix bos: <https://open-ontologies.org/bible-o-star#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+bos:Snapshot002 a cell8:Snapshot ;
+  rdfs:label "Bible O* Snapshot 002" ;
+  dcterms:created "2026-06-02T00:00:00Z"^^xsd:dateTime ;
+  cell8:snapshotVersion "002" ;
+  cell8:fileCount 52 ;
+  cell8:precedingCheckpoint "BIBLE_O_STAR_002" ;
+  cell8:rollbackProcedure "Restore all files from SNAPSHOT_002.md manifest hashes" .

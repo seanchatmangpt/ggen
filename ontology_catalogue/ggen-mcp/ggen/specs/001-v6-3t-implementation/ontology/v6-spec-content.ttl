@@ -1,0 +1,661 @@
+@prefix : <http://ggen.dev/spec/v6/content#> .
+@prefix spec: <http://ggen.dev/speckit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# ggen v6 Specification Content (Pure 3T Implementation)
+# ============================================================================
+# Purpose: All v6 specification content as RDF triples
+# Generated from: specs/001-v6-3t-implementation/spec.md
+# Created: 2025-12-19
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Specification Metadata
+# ----------------------------------------------------------------------------
+
+:v6-spec a spec:Specification ;
+    spec:name "ggen v6 - 3T (TOML, Tera, Turtle) Only Implementation" ;
+    spec:featureBranch "001-v6-3t-implementation" ;
+    spec:created "2025-12-19"^^xsd:date ;
+    spec:status "Draft" ;
+    spec:inputDescription "create v6 using 3T (TOML, Tera, Turtle) only" ;
+    spec:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005, :us-006 ;
+    spec:hasRequirement :fr-001, :fr-002, :fr-003, :fr-004, :fr-005, :fr-006, :fr-007, :fr-008, :fr-009, :fr-010,
+                        :fr-011, :fr-012, :fr-013, :fr-014, :fr-015, :fr-016, :fr-017, :fr-018, :fr-019, :fr-020 ;
+    spec:hasSuccessCriterion :sc-001, :sc-002, :sc-003, :sc-004, :sc-005, :sc-006, :sc-007, :sc-008, :sc-009, :sc-010 ;
+    spec:hasEntity :entity-ontology, :entity-projection-function, :entity-artifact, :entity-template, :entity-configuration,
+                   :entity-receipt, :entity-shacl-shape, :entity-guard, :entity-pass ;
+    spec:hasEdgeCase :edge-001, :edge-002, :edge-003, :edge-004, :edge-005, :edge-006, :edge-007 ;
+    spec:hasDependency :dep-001, :dep-002, :dep-003, :dep-004, :dep-005, :dep-006, :dep-007, :dep-008 ;
+    spec:hasAssumption :assump-001, :assump-002, :assump-003, :assump-004, :assump-005, :assump-006, :assump-007 ;
+    spec:hasNonGoal :ng-001, :ng-002, :ng-003, :ng-004, :ng-005, :ng-006, :ng-007, :ng-008 ;
+    spec:hasRisk :risk-001, :risk-002, :risk-003, :risk-004, :risk-005 .
+
+# ============================================================================
+# User Stories
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# User Story 1 - Project Initialization with Pure 3T (P1)
+# ----------------------------------------------------------------------------
+
+:us-001 a spec:UserStory ;
+    spec:storyIndex 1 ;
+    spec:title "Project Initialization with Pure 3T" ;
+    spec:priority "P1" ;
+    spec:rationale "This is the foundational capability that enables all other v6 features. Without the ability to initialize and configure a pure 3T project, the entire v6 paradigm cannot function." ;
+    spec:testStrategy "Can be fully tested by initializing a new v6 project with `ggen init --v6 project-name`, writing a minimal ontology (defining one type), and verifying that `ggen sync` generates complete, compilable code without any hand-written source files in the output directory." ;
+    spec:description "A developer creates a new software project using ggen v6 where the entire system specification exists only as TOML configuration, Turtle ontologies, and Tera templates - with zero hand-written code in the generated output." ;
+    spec:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003, :us-001-as-004 .
+
+:us-001-as-001 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 1 ;
+    spec:given "a developer has ggen v6 installed" ;
+    spec:when "they run `ggen init --v6 my-project`" ;
+    spec:then "a project structure is created containing only `ggen.toml`, `ontology/` directory with schema files, and `templates/` directory with rendering templates" .
+
+:us-001-as-002 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 2 ;
+    spec:given "a new v6 project" ;
+    spec:when "the developer defines a simple type in `ontology/domain.ttl`" ;
+    spec:then "running `ggen sync` generates complete source code in `generated/` without requiring any hand-written code" .
+
+:us-001-as-003 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 3 ;
+    spec:given "a v6 project with ontology definitions" ;
+    spec:when "the developer regenerates with `ggen sync`" ;
+    spec:then "the output is bit-for-bit identical to the previous generation (deterministic)" .
+
+:us-001-as-004 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 4 ;
+    spec:given "a v6 project" ;
+    spec:when "the developer inspects the repository" ;
+    spec:then "the `generated/` directory is gitignored and only 3T files (TOML, Tera, Turtle) are version-controlled" .
+
+# ----------------------------------------------------------------------------
+# User Story 2 - Staged Pipeline Compilation (μ₁-μ₅) (P1)
+# ----------------------------------------------------------------------------
+
+:us-002 a spec:UserStory ;
+    spec:storyIndex 2 ;
+    spec:title "Staged Pipeline Compilation (μ₁-μ₅)" ;
+    spec:priority "P1" ;
+    spec:rationale "The staged pipeline is the core mechanism of v6's A = μ(O) constitutional equation. Without this, v6 is just another template-based code generator rather than an ontology-first system." ;
+    spec:testStrategy "Can be tested by creating an ontology with complex types, running `ggen sync --verbose` to observe all five passes executing sequentially, and verifying that each pass produces expected intermediate outputs (normalized ontology, extracted bindings, emitted files, canonicalized output, and cryptographic receipt)." ;
+    spec:description "A developer leverages the five-stage compilation pipeline to transform ontology substrate through normalization, extraction, emission, canonicalization, and receipt generation - ensuring deterministic, provenance-tracked artifact projection." ;
+    spec:hasAcceptanceScenario :us-002-as-001, :us-002-as-002, :us-002-as-003, :us-002-as-004, :us-002-as-005, :us-002-as-006 .
+
+:us-002-as-001 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 1 ;
+    spec:given "an ontology with type definitions" ;
+    spec:when "μ₁ (Normalization Pass) executes" ;
+    spec:then "CONSTRUCT queries rewrite the ontology into canonical form with SHACL validation passing" .
+
+:us-002-as-002 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 2 ;
+    spec:given "a normalized ontology" ;
+    spec:when "μ₂ (Extraction Pass) executes" ;
+    spec:then "SELECT queries extract RDF bindings that map to template variables" .
+
+:us-002-as-003 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 3 ;
+    spec:given "extracted bindings" ;
+    spec:when "μ₃ (Emission Pass) executes" ;
+    spec:then "Tera templates render bindings into target artifacts (Rust source, JSON schemas, documentation)" .
+
+:us-002-as-004 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 4 ;
+    spec:given "emitted files" ;
+    spec:when "μ₄ (Canonicalization Pass) executes" ;
+    spec:then "files are formatted deterministically (line endings normalized, whitespace trimmed, sorted)" .
+
+:us-002-as-005 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 5 ;
+    spec:given "canonicalized artifacts" ;
+    spec:when "μ₅ (Receipt Pass) executes" ;
+    spec:then "a cryptographic receipt is generated binding output hashes to input ontology hashes" .
+
+:us-002-as-006 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 6 ;
+    spec:given "a completed pipeline run" ;
+    spec:when "the developer inspects the receipt file" ;
+    spec:then "they can verify that artifacts are provably derived from the ontology substrate" .
+
+# ----------------------------------------------------------------------------
+# User Story 3 - Constitutional Invariants Enforcement (P1)
+# ----------------------------------------------------------------------------
+
+:us-003 a spec:UserStory ;
+    spec:storyIndex 3 ;
+    spec:title "Constitutional Invariants Enforcement" ;
+    spec:priority "P1" ;
+    spec:rationale "Constitutional invariants are what distinguish v6 from previous versions and traditional build systems. They guarantee zero-drift by construction rather than by discipline." ;
+    spec:testStrategy "Can be tested by running `ggen sync` multiple times and verifying bit-for-bit identical output (idempotence), attempting to modify files in `generated/` and having the system reject them or warn on next sync (no-edit law), and verifying that hash chains in receipts prove output provenance from ontology." ;
+    spec:description "The system automatically enforces constitutional laws ensuring idempotence (μ∘μ = μ), determinism (same O → same A), provenance (hash verification), the no-edit law (artifacts never modified), and substrate primacy (ontology as sole truth source)." ;
+    spec:hasAcceptanceScenario :us-003-as-001, :us-003-as-002, :us-003-as-003, :us-003-as-004, :us-003-as-005 .
+
+:us-003-as-001 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 1 ;
+    spec:given "a v6 project" ;
+    spec:when "`ggen sync` is run twice without ontology changes" ;
+    spec:then "the second run produces no file changes (idempotence: μ∘μ = μ)" .
+
+:us-003-as-002 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 2 ;
+    spec:given "artifacts in `generated/`" ;
+    spec:when "a developer manually edits a generated file" ;
+    spec:then "the next `ggen sync` either overwrites the change or fails with a warning about violated no-edit law" .
+
+:us-003-as-003 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 3 ;
+    spec:given "a project on different platforms (Linux, macOS, Windows)" ;
+    spec:when "`ggen sync` runs on each" ;
+    spec:then "artifacts are bit-for-bit identical (determinism)" .
+
+:us-003-as-004 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 4 ;
+    spec:given "a generated receipt file" ;
+    spec:when "the developer verifies hashes" ;
+    spec:then "they can cryptographically prove that output hash = hash(μ(ontology hash))" .
+
+:us-003-as-005 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 5 ;
+    spec:given "an ontology change" ;
+    spec:when "`ggen sync` runs" ;
+    spec:then "all affected artifacts regenerate and the receipt updates to reflect new provenance chain" .
+
+# ----------------------------------------------------------------------------
+# User Story 4 - Vocabulary Governance and Validation (P2)
+# ----------------------------------------------------------------------------
+
+:us-004 a spec:UserStory ;
+    spec:storyIndex 4 ;
+    spec:title "Vocabulary Governance and Validation" ;
+    spec:priority "P2" ;
+    spec:rationale "Vocabulary governance is critical for team projects and maintaining clean ontology design, but a single developer can work without it initially. It becomes essential at scale." ;
+    spec:testStrategy "Can be tested by configuring allowed vocabularies in `ggen.toml`, adding triples from unauthorized namespaces to the ontology, and verifying that `ggen sync` fails validation during μ₁ (Normalization Pass) with clear error messages identifying the violation." ;
+    spec:description "Developers define allowed RDF namespaces in `ggen.toml` and the system enforces vocabulary constraints via SHACL shapes, preventing namespace pollution and ensuring architectural coherence at compile-time." ;
+    spec:hasAcceptanceScenario :us-004-as-001, :us-004-as-002, :us-004-as-003, :us-004-as-004 .
+
+:us-004-as-001 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 1 ;
+    spec:given "a `ggen.toml` with `allowed_vocabularies = [\"http://schema.org/\", \"http://ggen.dev/\"]`" ;
+    spec:when "an ontology uses triples from `http://example.org/`" ;
+    spec:then "`ggen sync` fails during μ₁ with a vocabulary violation error" .
+
+:us-004-as-002 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 2 ;
+    spec:given "SHACL shape definitions in the ontology" ;
+    spec:when "an ontology instance violates a shape constraint" ;
+    spec:then "validation fails during μ₁ with detailed constraint violation messages" .
+
+:us-004-as-003 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 3 ;
+    spec:given "a vocabulary governance configuration" ;
+    spec:when "a developer adds a new namespace to `allowed_vocabularies`" ;
+    spec:then "previously-failing ontologies with that namespace now pass validation" .
+
+:us-004-as-004 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 4 ;
+    spec:given "a large ontology" ;
+    spec:when "vocabulary validation runs" ;
+    spec:then "validation completes in under 2 seconds for ontologies with 10,000+ triples" .
+
+# ----------------------------------------------------------------------------
+# User Story 5 - Guards for Output Constraints (P2)
+# ----------------------------------------------------------------------------
+
+:us-005 a spec:UserStory ;
+    spec:storyIndex 5 ;
+    spec:title "Guards for Output Constraints" ;
+    spec:priority "P2" ;
+    spec:rationale "Guards are a security feature that becomes critical in production but isn't required for basic v6 functionality. Can be added after core pipeline works." ;
+    spec:testStrategy "Can be tested by defining a secret guard pattern in `ggen.toml`, creating an ontology that would generate code containing that pattern, and verifying that `ggen sync` fails during μ₅ (Receipt Pass) with a guard violation error." ;
+    spec:description "The system enforces guards (forbidden output patterns) to prevent accidental secret leaks, enforce path constraints, and maintain security policies defined in `ggen.toml`." ;
+    spec:hasAcceptanceScenario :us-005-as-001, :us-005-as-002, :us-005-as-003 .
+
+:us-005-as-001 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 1 ;
+    spec:given "a guard configured as `secret = { pattern = \"(?i)(password|secret|api.?key)\", action = \"reject\" }`" ;
+    spec:when "an ontology would generate code containing \"API_KEY = 'xyz'\"" ;
+    spec:then "`ggen sync` fails with a secret guard violation before writing files" .
+
+:us-005-as-002 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 2 ;
+    spec:given "a path guard `path = { pattern = \"generated/**\", action = \"allow\" }`" ;
+    spec:when "an ontology attempts to generate files outside `generated/`" ;
+    spec:then "the system rejects the operation" .
+
+:us-005-as-003 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 3 ;
+    spec:given "multiple guards defined" ;
+    spec:when "a generation violates any guard" ;
+    spec:then "all violations are reported together rather than failing on the first" .
+
+# ----------------------------------------------------------------------------
+# User Story 6 - Meta-Circular Self-Generation (P3)
+# ----------------------------------------------------------------------------
+
+:us-006 a spec:UserStory ;
+    spec:storyIndex 6 ;
+    spec:title "Meta-Circular Self-Generation" ;
+    spec:priority "P3" ;
+    spec:rationale "This is the ultimate validation of v6's power and completeness, but it's a demonstration feature rather than essential functionality. Core v6 can work without self-generation capability initially." ;
+    spec:testStrategy "Can be tested by loading the ggen-core ontology (which defines the v6 compiler itself), running `ggen sync` on it, and verifying that the generated Rust code compiles into a working ggen binary that is functionally equivalent to the original." ;
+    spec:description "The v6 system includes its own type definitions, compilation rules, and projection logic in its ontology, enabling it to regenerate itself by running `ggen sync` on the ggen-core ontology." ;
+    spec:hasAcceptanceScenario :us-006-as-001, :us-006-as-002, :us-006-as-003 .
+
+:us-006-as-001 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 1 ;
+    spec:given "the ggen-core ontology defining the v6 compiler" ;
+    spec:when "`ggen sync` runs on it" ;
+    spec:then "complete Rust source code for ggen is generated in `generated/`" .
+
+:us-006-as-002 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 2 ;
+    spec:given "generated ggen source" ;
+    spec:when "it's compiled with `cargo build`" ;
+    spec:then "it produces a binary that can successfully compile other v6 projects" .
+
+:us-006-as-003 a spec:AcceptanceScenario ;
+    spec:scenarioIndex 3 ;
+    spec:given "a self-generated ggen binary" ;
+    spec:when "it runs `ggen sync` on its own ontology" ;
+    spec:then "it produces identical output to the original (self-rendering closure)" .
+
+# ============================================================================
+# Functional Requirements
+# ============================================================================
+
+:fr-001 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-001" ;
+    spec:category "Configuration" ;
+    spec:description "System MUST parse TOML configuration files conforming to the ggen v6 schema, validating all required sections (`[project]`, `[v6]`, `[v6.passes]`, `[v6.invariants]`)" .
+
+:fr-002 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-002" ;
+    spec:category "RDF Processing" ;
+    spec:description "System MUST load Turtle (`.ttl`) ontology files using an RDF parser supporting the Turtle 1.1 specification" .
+
+:fr-003 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-003" ;
+    spec:category "Pipeline μ₁" ;
+    spec:description "System MUST execute SPARQL 1.1 CONSTRUCT queries for ontology normalization (μ₁ pass)" .
+
+:fr-004 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-004" ;
+    spec:category "Pipeline μ₂" ;
+    spec:description "System MUST execute SPARQL 1.1 SELECT queries for data extraction (μ₂ pass)" .
+
+:fr-005 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-005" ;
+    spec:category "Pipeline μ₃" ;
+    spec:description "System MUST render Tera templates using bindings from SELECT query results (μ₃ pass)" .
+
+:fr-006 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-006" ;
+    spec:category "Pipeline μ₄" ;
+    spec:description "System MUST canonicalize generated files through deterministic formatting (μ₄ pass): normalize line endings to LF, trim trailing whitespace, ensure final newline, sort when applicable" .
+
+:fr-007 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-007" ;
+    spec:category "Pipeline μ₅" ;
+    spec:description "System MUST generate cryptographic receipts (μ₅ pass) containing SHA-256 hashes of input ontologies and output artifacts" .
+
+:fr-008 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-008" ;
+    spec:category "Validation" ;
+    spec:description "System MUST validate ontologies against SHACL shapes during μ₁, failing if any constraint violations are detected" .
+
+:fr-009 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-009" ;
+    spec:category "Validation" ;
+    spec:description "System MUST enforce vocabulary governance by rejecting triples from namespaces not in the `allowed_vocabularies` list" .
+
+:fr-010 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-010" ;
+    spec:category "Security" ;
+    spec:description "System MUST enforce guards by scanning generated content for forbidden patterns before writing files" .
+
+:fr-011 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-011" ;
+    spec:category "Security" ;
+    spec:description "System MUST detect and reject attempts to generate files outside the configured `output_dir`" .
+
+:fr-012 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-012" ;
+    spec:category "Invariants" ;
+    spec:description "System MUST be idempotent: running `ggen sync` twice without ontology changes produces no file modifications" .
+
+:fr-013 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-013" ;
+    spec:category "Invariants" ;
+    spec:description "System MUST be deterministic: identical ontology input produces bit-for-bit identical output across all platforms and runs" .
+
+:fr-014 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-014" ;
+    spec:category "Version Control" ;
+    spec:description "System MUST gitignore the `generated/` directory by default, preventing generated artifacts from being committed" .
+
+:fr-015 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-015" ;
+    spec:category "Error Handling" ;
+    spec:description "System MUST fail fast with actionable error messages when ontology syntax is invalid, SPARQL queries fail, or SHACL validation fails" .
+
+:fr-016 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-016" ;
+    spec:category "Version Control" ;
+    spec:description "System MUST preserve TOML, Tera, and Turtle files as the only version-controlled files in a v6 project" .
+
+:fr-017 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-017" ;
+    spec:category "Pipeline Orchestration" ;
+    spec:description "System MUST execute the five passes in strict order (μ₁ → μ₂ → μ₃ → μ₄ → μ₅) with no parallelization within a single `ggen sync` invocation" .
+
+:fr-018 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-018" ;
+    spec:category "CLI" ;
+    spec:description "System MUST support `ggen init --v6 <project-name>` to scaffold a new v6 project with minimal ontology, templates, and configuration" .
+
+:fr-019 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-019" ;
+    spec:category "Provenance" ;
+    spec:description "System MUST generate receipts in JSON format containing: timestamp, ontology file hashes (SHA-256), artifact file hashes (SHA-256), pipeline configuration hash" .
+
+:fr-020 a spec:FunctionalRequirement ;
+    spec:requirementId "FR-020" ;
+    spec:category "CLI" ;
+    spec:description "System MUST provide a `ggen verify` command that validates receipt integrity by recomputing hashes and comparing against receipt" .
+
+# ============================================================================
+# Success Criteria
+# ============================================================================
+
+:sc-001 a spec:SuccessCriterion ;
+    spec:criterionId "SC-001" ;
+    spec:measurable true ;
+    spec:metric "Time to working code from minimal ontology" ;
+    spec:target "< 2 minutes, < 3 commands" ;
+    spec:description "Developers can initialize a new v6 project and generate working code from a minimal ontology (defining one type with properties) in under 3 commands and 2 minutes" .
+
+:sc-002 a spec:SuccessCriterion ;
+    spec:criterionId "SC-002" ;
+    spec:measurable true ;
+    spec:metric "Compilation time for 10K+ triple ontology" ;
+    spec:target "< 5 seconds" ;
+    spec:description "The system compiles ontologies with 10,000+ triples in under 5 seconds on standard development hardware (4-core CPU, 8GB RAM)" .
+
+:sc-003 a spec:SuccessCriterion ;
+    spec:criterionId "SC-003" ;
+    spec:measurable true ;
+    spec:metric "Idempotence validation" ;
+    spec:target "100% (zero file modifications)" ;
+    spec:description "Running `ggen sync` twice without ontology changes produces zero file modifications (100% idempotence validation)" .
+
+:sc-004 a spec:SuccessCriterion ;
+    spec:criterionId "SC-004" ;
+    spec:measurable true ;
+    spec:metric "Cross-platform determinism" ;
+    spec:target "100% (bit-for-bit identical)" ;
+    spec:description "Identical ontologies generate bit-for-bit identical artifacts across Linux, macOS, and Windows platforms (100% determinism validation)" .
+
+:sc-005 a spec:SuccessCriterion ;
+    spec:criterionId "SC-005" ;
+    spec:measurable true ;
+    spec:metric "SHACL validation error detection rate" ;
+    spec:target "95%+" ;
+    spec:description "SHACL validation catches 95%+ of common ontology modeling errors (missing required properties, type mismatches, cardinality violations) during μ₁" .
+
+:sc-006 a spec:SuccessCriterion ;
+    spec:criterionId "SC-006" ;
+    spec:measurable true ;
+    spec:metric "Guard enforcement effectiveness" ;
+    spec:target "100%" ;
+    spec:description "Guard enforcement prevents 100% of configured secret patterns from appearing in generated artifacts" .
+
+:sc-007 a spec:SuccessCriterion ;
+    spec:criterionId "SC-007" ;
+    spec:measurable true ;
+    spec:metric "ggen-core self-generation time" ;
+    spec:target "< 10 seconds" ;
+    spec:description "The ggen-core ontology (defining the v6 compiler itself) successfully generates a compilable Rust codebase in under 10 seconds" .
+
+:sc-008 a spec:SuccessCriterion ;
+    spec:criterionId "SC-008" ;
+    spec:measurable true ;
+    spec:metric "Meta-circular closure verification" ;
+    spec:target "100% (identical output)" ;
+    spec:description "Self-generated ggen binaries produce identical output to the original compiler when run on the same ontology (meta-circular closure)" .
+
+:sc-009 a spec:SuccessCriterion ;
+    spec:criterionId "SC-009" ;
+    spec:measurable true ;
+    spec:metric "Error message quality" ;
+    spec:target "100% (file/line/constraint)" ;
+    spec:description "Error messages during ontology validation include file name, line number, and specific constraint violated in 100% of SHACL/vocabulary failures" .
+
+:sc-010 a spec:SuccessCriterion ;
+    spec:criterionId "SC-010" ;
+    spec:measurable true ;
+    spec:metric "Receipt verification time" ;
+    spec:target "< 1 second for 100+ files" ;
+    spec:description "Developers can verify artifact provenance using `ggen verify` in under 1 second for projects with 100+ generated files" .
+
+# ============================================================================
+# Key Entities
+# ============================================================================
+
+:entity-ontology a spec:Entity ;
+    spec:entityName "Ontology (O)" ;
+    spec:definition "The semantic substrate consisting of RDF triples in Turtle format. Represents the complete system specification including types, properties, constraints, and domain logic. The sole source of truth in v6." .
+
+:entity-projection-function a spec:Entity ;
+    spec:entityName "Projection Function (μ)" ;
+    spec:definition "The deterministic transformation pipeline consisting of five passes (μ₁-μ₅). Takes ontology as input, produces artifacts as output. Implemented by the ggen v6 compiler." .
+
+:entity-artifact a spec:Entity ;
+    spec:entityName "Artifact (A)" ;
+    spec:definition "Any generated file in the `output_dir` (e.g., Rust source code, JSON schemas, markdown documentation). Artifacts are ephemeral, reproducible, and never hand-edited. Related to Ontology via the equation A = μ(O)." .
+
+:entity-template a spec:Entity ;
+    spec:entityName "Template" ;
+    spec:definition "A Tera template file (`.tera`) that defines how to render RDF bindings into target format. Contains Jinja2-style syntax with filters, loops, and conditionals. Related to Projection Function as the formatting specification for μ₃." .
+
+:entity-configuration a spec:Entity ;
+    spec:entityName "Configuration (ggen.toml)" ;
+    spec:definition "The TOML file defining pipeline behavior, allowed vocabularies, guards, generation rules (SPARQL queries + template mappings), and constitutional invariant settings." .
+
+:entity-receipt a spec:Entity ;
+    spec:entityName "Receipt" ;
+    spec:definition "A JSON file containing cryptographic proof of provenance. Binds output artifact hashes to input ontology hashes with timestamp and configuration hash. Enables verification that A = μ(O)." .
+
+:entity-shacl-shape a spec:Entity ;
+    spec:entityName "SHACL Shape" ;
+    spec:definition "An RDF constraint definition validating ontology structure during μ₁. Ensures type safety and architectural coherence before projection begins." .
+
+:entity-guard a spec:Entity ;
+    spec:entityName "Guard" ;
+    spec:definition "A constraint pattern (regex) with an action (allow/reject) enforcing security policies on generated output. Prevents secret leaks and path violations." .
+
+:entity-pass a spec:Entity ;
+    spec:entityName "Pass" ;
+    spec:definition "One of the five stages in the projection pipeline (μ₁: Normalization, μ₂: Extraction, μ₃: Emission, μ₄: Canonicalization, μ₅: Receipt). Each pass is a pure function with defined inputs and outputs." .
+
+# ============================================================================
+# Edge Cases
+# ============================================================================
+
+:edge-001 a spec:EdgeCase ;
+    spec:scenario "What happens when an ontology is syntactically invalid Turtle?" ;
+    spec:expectedBehavior "System fails fast during μ₁ with a parse error pointing to the exact line and character in the `.ttl` file" .
+
+:edge-002 a spec:EdgeCase ;
+    spec:scenario "What happens when SPARQL queries in `ggen.toml` return no results?" ;
+    spec:expectedBehavior "μ₂ produces empty bindings, μ₃ renders templates with empty data (templates must handle empty cases gracefully), and the system completes successfully with a warning" .
+
+:edge-003 a spec:EdgeCase ;
+    spec:scenario "What happens when two templates try to write to the same output file?" ;
+    spec:expectedBehavior "System detects the conflict during μ₃ and fails with an error listing both templates and the conflicting path" .
+
+:edge-004 a spec:EdgeCase ;
+    spec:scenario "What happens when generated code doesn't compile?" ;
+    spec:expectedBehavior "This is outside v6's responsibility - the ontology author must ensure their ontology produces valid code for the target language (v6 guarantees deterministic projection, not correctness)" .
+
+:edge-005 a spec:EdgeCase ;
+    spec:scenario "What happens when the receipt file is manually deleted?" ;
+    spec:expectedBehavior "Next `ggen sync` regenerates it from scratch based on current artifact hashes" .
+
+:edge-006 a spec:EdgeCase ;
+    spec:scenario "What happens when a user modifies `generated/` files and runs `ggen sync`?" ;
+    spec:expectedBehavior "System either overwrites changes (default) or fails with a diff showing violations of the no-edit law (configurable via `ggen.toml`)" .
+
+:edge-007 a spec:EdgeCase ;
+    spec:scenario "What happens when vocabulary validation is disabled?" ;
+    spec:expectedBehavior "System skips μ₁ SHACL checks but still validates Turtle syntax - useful for rapid prototyping but discouraged for production" .
+
+# ============================================================================
+# Dependencies
+# ============================================================================
+
+:dep-001 a spec:Dependency ;
+    spec:dependencyId "D-001" ;
+    spec:version "1.75+" ;
+    spec:description "Rust 1.75+ toolchain for building the ggen v6 compiler itself" .
+
+:dep-002 a spec:Dependency ;
+    spec:dependencyId "D-002" ;
+    spec:version "latest" ;
+    spec:description "Oxigraph crate for RDF triple store and SPARQL query execution" .
+
+:dep-003 a spec:Dependency ;
+    spec:dependencyId "D-003" ;
+    spec:version "latest" ;
+    spec:description "Tera crate for template rendering engine" .
+
+:dep-004 a spec:Dependency ;
+    spec:dependencyId "D-004" ;
+    spec:version "latest" ;
+    spec:description "SHACL validation library (or custom implementation) for μ₁ constraint checking" .
+
+:dep-005 a spec:Dependency ;
+    spec:dependencyId "D-005" ;
+    spec:version "2.0+" ;
+    spec:description "Git for version control of 3T files (TOML, Tera, Turtle)" .
+
+:dep-006 a spec:Dependency ;
+    spec:dependencyId "D-006" ;
+    spec:version "latest" ;
+    spec:description "SHA-256 hashing library for cryptographic receipt generation" .
+
+:dep-007 a spec:Dependency ;
+    spec:dependencyId "D-007" ;
+    spec:version "std" ;
+    spec:description "Cross-platform file system access (std::fs) for reading/writing project files" .
+
+:dep-008 a spec:Dependency ;
+    spec:dependencyId "D-008" ;
+    spec:version "latest" ;
+    spec:description "TOML parser for loading `ggen.toml` configuration" .
+
+# ============================================================================
+# Assumptions
+# ============================================================================
+
+:assump-001 a spec:Assumption ;
+    spec:assumptionId "A-001" ;
+    spec:description "Developers have basic knowledge of RDF, SPARQL, and semantic web concepts (or are willing to learn from documentation)" .
+
+:assump-002 a spec:Assumption ;
+    spec:assumptionId "A-002" ;
+    spec:description "Target output languages (Rust, TypeScript, etc.) have stable syntax that doesn't change frequently enough to invalidate templates" .
+
+:assump-003 a spec:Assumption ;
+    spec:assumptionId "A-003" ;
+    spec:description "Ontologies authored by developers are semantically correct - v6 guarantees deterministic projection, not logical correctness of the specification" .
+
+:assump-004 a spec:Assumption ;
+    spec:assumptionId "A-004" ;
+    spec:description "Build systems for target languages (cargo, npm, etc.) are available to compile generated code - v6 only generates source files" .
+
+:assump-005 a spec:Assumption ;
+    spec:assumptionId "A-005" ;
+    spec:description "Developers accept that debugging generated code requires editing the ontology + templates, not the artifacts directly" .
+
+:assump-006 a spec:Assumption ;
+    spec:assumptionId "A-006" ;
+    spec:description "The Rust ecosystem's Oxigraph RDF store and Tera template engine remain actively maintained and stable" .
+
+:assump-007 a spec:Assumption ;
+    spec:assumptionId "A-007" ;
+    spec:description "Projects using v6 can tolerate a paradigm shift from imperative programming to declarative ontology authoring" .
+
+# ============================================================================
+# Non-Goals
+# ============================================================================
+
+:ng-001 a spec:NonGoal ;
+    spec:nonGoalId "NG-001" ;
+    spec:description "Runtime code execution or interpretation - v6 only generates static artifacts" .
+
+:ng-002 a spec:NonGoal ;
+    spec:nonGoalId "NG-002" ;
+    spec:description "Graphical ontology editors or visual programming - v6 assumes text-based Turtle editing" .
+
+:ng-003 a spec:NonGoal ;
+    spec:nonGoalId "NG-003" ;
+    spec:description "Language-specific syntax validation - if generated code doesn't compile, that's an ontology/template authoring error" .
+
+:ng-004 a spec:NonGoal ;
+    spec:nonGoalId "NG-004" ;
+    spec:description "Automatic ontology migration from v5 to v6 - migration requires manual rewriting" .
+
+:ng-005 a spec:NonGoal ;
+    spec:nonGoalId "NG-005" ;
+    spec:description "Support for RDF serializations other than Turtle (N-Triples, JSON-LD, etc.) - Turtle is the canonical format" .
+
+:ng-006 a spec:NonGoal ;
+    spec:nonGoalId "NG-006" ;
+    spec:description "Incremental compilation or caching of intermediate results - each `ggen sync` runs the full μ₁-μ₅ pipeline" .
+
+:ng-007 a spec:NonGoal ;
+    spec:nonGoalId "NG-007" ;
+    spec:description "IDE integrations or language servers for Turtle/Tera editing - developers use standard text editors" .
+
+:ng-008 a spec:NonGoal ;
+    spec:nonGoalId "NG-008" ;
+    spec:description "Package management or distribution of ontologies - v6 projects are standalone Git repositories" .
+
+# ============================================================================
+# Risks
+# ============================================================================
+
+:risk-001 a spec:Risk ;
+    spec:riskId "R-001" ;
+    spec:severity "Medium" ;
+    spec:description "Ontology authoring has a steep learning curve, limiting adoption" ;
+    spec:mitigation "Provide comprehensive examples, starter templates, and migration guides from traditional code" .
+
+:risk-002 a spec:Risk ;
+    spec:riskId "R-002" ;
+    spec:severity "Medium" ;
+    spec:description "Templates become complex and hard to maintain for large systems" ;
+    spec:mitigation "Encourage modular template design, template inheritance, and reusable template libraries" .
+
+:risk-003 a spec:Risk ;
+    spec:riskId "R-003" ;
+    spec:severity "High" ;
+    spec:description "SPARQL query performance degrades on large ontologies" ;
+    spec:mitigation "Benchmark with 100K+ triple ontologies, optimize queries, and provide query complexity guidelines" .
+
+:risk-004 a spec:Risk ;
+    spec:riskId "R-004" ;
+    spec:severity "High" ;
+    spec:description "Determinism breaks due to platform-specific file system behavior" ;
+    spec:mitigation "Extensive cross-platform testing (Linux, macOS, Windows) in CI/CD pipeline" .
+
+:risk-005 a spec:Risk ;
+    spec:riskId "R-005" ;
+    spec:severity "Low" ;
+    spec:description "Meta-circular self-generation creates bootstrapping complexity" ;
+    spec:mitigation "Maintain a hand-written v6 compiler as the bootstrap until self-generation is proven stable" .

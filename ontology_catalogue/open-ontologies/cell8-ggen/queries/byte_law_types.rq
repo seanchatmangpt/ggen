@@ -1,0 +1,14 @@
+PREFIX skos:   <http://www.w3.org/2004/02/skos/core#>
+PREFIX schema: <https://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT ?label ?byte_size ?repr ?doc
+WHERE {
+    ?type a skos:Concept ;
+          skos:prefLabel ?label ;
+          schema:value ?byte_size ;
+          schema:additionalProperty ?repr .
+    OPTIONAL { ?type dcterms:description ?doc . }
+    FILTER EXISTS { ?type skos:inScheme <urn:cell8:bytelaw> }
+}
+ORDER BY ?label

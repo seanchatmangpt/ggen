@@ -1,0 +1,223 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# ZOE LA Mobile — Autonomics Ontology
+# ============================================================================
+# Formal OWL source for autonomic action classification and admission gate
+# definitions. TypeScript artifacts in packages/autonomics/ are derived from
+# this ontology.
+#
+# Doctrine: Human action is not the default.
+# Autonomic action is the default when route law permits.
+#
+# The product is CodeManufactory; ZOE LA Mobile is proof that CodeManufactory works.
+# ============================================================================
+
+<https://zoela.org/ontology/autonomics>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Mobile — Autonomics Ontology"@en ;
+    rdfs:comment "Formal OWL definitions for autonomic action classes (A0-A4), admission gates, and autonomic policies governing route stage execution in ZOE LA Mobile."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-18"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo  "1.0.0" ;
+    owl:imports <https://zoela.org/ontology/connect-group-routes> .
+
+# ============================================================================
+# § 1  AutonomicActionClass — OWL Class
+# ============================================================================
+
+zoe:AutonomicActionClass a owl:Class ;
+    rdfs:label   "Autonomic Action Class"@en ;
+    rdfs:comment "A risk classification tier for autonomic actions performed at route stages. Instances are the five A0-A4 individuals. Determines whether human approval, reversal capability, or andon signal is required before execution."@en ;
+    rdfs:subClassOf skos:Concept .
+
+# ============================================================================
+# § 2  AutonomicActionClass ConceptScheme (A0-A4)
+# ============================================================================
+# These SKOS notations ("A0" through "A4") are the canonical values referenced
+# by packages/autonomics/autonomicActions.ts constants A0_OBSERVE … A4_REFUSE.
+
+zoe:AutonomicActionClassScheme a skos:ConceptScheme ;
+    rdfs:label      "Autonomic Action Classes"@en ;
+    rdfs:comment    "A0-A4 risk classification scheme for autonomic actions performed at route stages."@en ;
+    skos:prefLabel  "Autonomic Action Classes"@en ;
+    skos:hasTopConcept
+        zoe:A0Observe ,
+        zoe:A1SafeAction ,
+        zoe:A2ReversibleAction ,
+        zoe:A3HumanRequired ,
+        zoe:A4Refusal .
+
+# A0 — Observe only: no mutation, no side effects
+
+zoe:A0Observe a zoe:AutonomicActionClass ;
+    skos:inScheme   zoe:AutonomicActionClassScheme ;
+    rdfs:label      "A0 — Observe Only"@en ;
+    rdfs:comment    "No state change. Log only. No mutation, no side effects. Corresponds to TypeScript constant A0_OBSERVE."@en ;
+    skos:prefLabel  "A0 — Observe Only"@en ;
+    skos:notation   "A0" .
+
+# A1 — Safe autonomic action: execute immediately, no human required
+
+zoe:A1SafeAction a zoe:AutonomicActionClass ;
+    skos:inScheme   zoe:AutonomicActionClassScheme ;
+    rdfs:label      "A1 — Safe Autonomic Action"@en ;
+    rdfs:comment    "State change. Safe. Execute immediately, no human approval required, no reversal needed. Corresponds to TypeScript constant A1_SAFE."@en ;
+    skos:prefLabel  "A1 — Safe Autonomic Action"@en ;
+    skos:notation   "A1" .
+
+# A2 — Reversible autonomic action: execute with rollback capability
+
+zoe:A2ReversibleAction a zoe:AutonomicActionClass ;
+    skos:inScheme   zoe:AutonomicActionClassScheme ;
+    rdfs:label      "A2 — Reversible Autonomic Action"@en ;
+    rdfs:comment    "State change. Reversible. Execute with rollback capability. May require notification. Corresponds to TypeScript constant A2_REVERSIBLE."@en ;
+    skos:prefLabel  "A2 — Reversible Autonomic Action"@en ;
+    skos:notation   "A2" .
+
+# A3 — Human approval required: escalate before execution
+
+zoe:A3HumanRequired a zoe:AutonomicActionClass ;
+    skos:inScheme   zoe:AutonomicActionClassScheme ;
+    rdfs:label      "A3 — Human Approval Required"@en ;
+    rdfs:comment    "Human authority, care, or judgment required before execution. Escalate before executing. Corresponds to TypeScript constant A3_HUMAN."@en ;
+    skos:prefLabel  "A3 — Human Approval Required"@en ;
+    skos:notation   "A3" .
+
+# A4 — Refuse: missing consent, unsafe access, or opt-out violation
+
+zoe:A4Refusal a zoe:AutonomicActionClass ;
+    skos:inScheme   zoe:AutonomicActionClassScheme ;
+    rdfs:label      "A4 — Refusal / Andon"@en ;
+    rdfs:comment    "Action refused. Missing consent, unsafe access, or opt-out violation. Evidence-bearing refusal emitted. Andon signal raised. Corresponds to TypeScript constant A4_REFUSE."@en ;
+    skos:prefLabel  "A4 — Refusal / Andon"@en ;
+    skos:notation   "A4" .
+
+# ============================================================================
+# § 3  AdmissionGate — OWL Class (canonical anchor)
+# ============================================================================
+# connect-group-routes.ttl declares zoe:AdmissionGate and the 7 gate individuals.
+# This file re-anchors the class with full documentation and links gate
+# individuals to their on-failure action class.
+#
+# Note: zoe:AdmissionGate is declared in connect-group-routes.ttl (imported above).
+# The additional assertions below extend that declaration.
+
+# ============================================================================
+# § 4  Properties for AdmissionGate
+# ============================================================================
+
+zoe:onFailureClass a owl:ObjectProperty ;
+    rdfs:domain  zoe:AdmissionGate ;
+    rdfs:range   zoe:AutonomicActionClass ;
+    rdfs:label   "On Failure Class"@en ;
+    rdfs:comment "The AutonomicActionClass that applies when this gate fails admission evaluation. Determines whether the route should refuse (A4), escalate to human (A3), or observe (A0)."@en ;
+    skos:notation "on_failure_class" .
+
+zoe:gateSequencePosition a owl:DatatypeProperty ;
+    rdfs:domain  zoe:AdmissionGate ;
+    rdfs:range   xsd:positiveInteger ;
+    rdfs:label   "Gate Sequence Position"@en ;
+    rdfs:comment "Ordinal position (1-based) of this gate in the ordered ConnectGroupAdmissionPolicy gate sequence. Gates are evaluated in ascending position order; the first failing gate terminates evaluation."@en ;
+    skos:notation "gate_sequence_position" .
+
+# ============================================================================
+# § 5  Gate on-failure classification
+# ============================================================================
+# Gates are declared in connect-group-routes.ttl. Here we assert the
+# on-failure action class for each gate, consistent with the TypeScript
+# implementation in packages/autonomics/connectGroupAdmission.ts.
+#
+# PolicyGate → A3 (human required) because private groups need pastoral judgment.
+# All other gates → A4 (refuse) for hard blockers (consent, role, capacity, etc.).
+
+zoe:RouteEnabledGate
+    zoe:onFailureClass      zoe:A4Refusal ;
+    zoe:gateSequencePosition 1 .
+
+zoe:ConsentGate
+    zoe:onFailureClass      zoe:A4Refusal ;
+    zoe:gateSequencePosition 2 .
+
+zoe:RoleGate
+    zoe:onFailureClass      zoe:A4Refusal ;
+    zoe:gateSequencePosition 3 .
+
+zoe:CapacityGate
+    zoe:onFailureClass      zoe:A4Refusal ;
+    zoe:gateSequencePosition 4 .
+
+zoe:ScheduleGate
+    zoe:onFailureClass      zoe:A4Refusal ;
+    zoe:gateSequencePosition 5 .
+
+zoe:PolicyGate
+    zoe:onFailureClass      zoe:A3HumanRequired ;
+    zoe:gateSequencePosition 6 .
+
+zoe:NotificationBudgetGate
+    zoe:onFailureClass      zoe:A4Refusal ;
+    zoe:gateSequencePosition 7 .
+
+# ============================================================================
+# § 6  AutonomicPolicy Class
+# ============================================================================
+
+zoe:AutonomicPolicy a owl:Class ;
+    rdfs:label   "Autonomic Policy"@en ;
+    rdfs:comment "A named policy governing the admission sequence and action-class escalation rules for an autonomic route. Each policy declares which admission gates apply in what order, and what route it governs."@en ;
+    rdfs:subClassOf odrl:Policy .
+
+# ============================================================================
+# § 7  AutonomicPolicy Properties
+# ============================================================================
+
+zoe:hasGateSequence a owl:ObjectProperty ;
+    rdfs:domain  zoe:AutonomicPolicy ;
+    rdfs:range   zoe:AdmissionGate ;
+    rdfs:label   "Has Gate Sequence"@en ;
+    rdfs:comment "Links an AutonomicPolicy to the ordered AdmissionGates that must be evaluated before allowing route stage execution. Gates are evaluated in ascending zoe:gateSequencePosition order."@en ;
+    skos:notation "has_gate_sequence" .
+
+zoe:appliesTo a owl:ObjectProperty ;
+    rdfs:domain  zoe:AutonomicPolicy ;
+    rdfs:range   zoe:ServiceRoute ;
+    rdfs:label   "Applies To"@en ;
+    rdfs:comment "Links an AutonomicPolicy to the ServiceRoute it governs. A route may have at most one AutonomicPolicy; all admission decisions for that route use this policy's gate sequence."@en ;
+    skos:notation "applies_to" .
+
+zoe:defaultAllowedClass a owl:ObjectProperty ;
+    rdfs:domain  zoe:AutonomicPolicy ;
+    rdfs:range   zoe:AutonomicActionClass ;
+    rdfs:label   "Default Allowed Class"@en ;
+    rdfs:comment "The AutonomicActionClass granted when all gates in the policy's gate sequence pass. Defines the execution authority for the nominal (no-refusal) path."@en ;
+    skos:notation "default_allowed_class" .
+
+# ============================================================================
+# § 8  ConnectGroupAdmissionPolicy — Policy Instance
+# ============================================================================
+
+zoe:ConnectGroupAdmissionPolicy a zoe:AutonomicPolicy ;
+    rdfs:label            "Connect Group Admission Policy"@en ;
+    rdfs:comment          "7-gate ordered admission policy for the ConnectGroupJoinRoute. All 7 gates must pass (in order) for A1_SAFE autonomic execution. PolicyGate failure escalates to A3_HUMAN; all other gate failures result in A4_REFUSE."@en ;
+    zoe:appliesTo         zoe:ConnectGroupJoinRouteInstance ;
+    zoe:defaultAllowedClass zoe:A1SafeAction ;
+    zoe:hasGateSequence   zoe:RouteEnabledGate ;
+    zoe:hasGateSequence   zoe:ConsentGate ;
+    zoe:hasGateSequence   zoe:RoleGate ;
+    zoe:hasGateSequence   zoe:CapacityGate ;
+    zoe:hasGateSequence   zoe:ScheduleGate ;
+    zoe:hasGateSequence   zoe:PolicyGate ;
+    zoe:hasGateSequence   zoe:NotificationBudgetGate .
+
+# ============================================================================
+# End of ontology/zoela/autonomics.ttl
+# ============================================================================

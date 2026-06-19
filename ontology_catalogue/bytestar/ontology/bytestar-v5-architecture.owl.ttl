@@ -1,0 +1,79 @@
+@prefix : <https://bytestar.org/ontology/v5/architecture#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+
+<https://bytestar.org/ontology/v5/architecture>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/core> ;
+  rdfs:label "ByteStar v5 Architecture Ontology - The Realms and their Contracts" ;
+  rdfs:comment "This ontology defines the four architectural pillars (realms) of the ByteStar ecosystem and the formal contracts that govern their interactions. It ensures a perfect separation of concerns." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Interaction Properties (The Contracts Between Realms)
+# #################################################################
+
+:placesCrystalsOn a owl:ObjectProperty ;
+    rdfs:label "places crystals on" ;
+    rdfs:comment "ByteFlow is the only realm that can place validated work crystals onto ByteActor." ;
+    rdfs:domain core:ByteFlow ;
+    rdfs:range core:ByteActor .
+
+:returnsReceiptsTo a owl:ObjectProperty ;
+    rdfs:label "returns receipts to" ;
+    rdfs:comment "ByteActor returns PQC-sealed receipts of execution back to ByteFlow for orchestration." ;
+    rdfs:domain core:ByteActor ;
+    rdfs:range core:ByteFlow .
+
+:submitsProofsTo a owl:ObjectProperty ;
+    rdfs:label "submits proofs to" ;
+    rdfs:comment "ByteFlow submits final, verified proofs to ByteEthos for finality and ledger inclusion." ;
+    rdfs:domain core:ByteFlow ;
+    rdfs:range core:ByteEthos .
+
+:isGovernedBy a owl:ObjectProperty ;
+    rdfs:label "is governed by" ;
+    rdfs:comment "ByteFlow's admission and fabrication processes are governed by the rules enforced by ByteEthos." ;
+    rdfs:domain core:ByteFlow ;
+    rdfs:range core:ByteEthos .
+
+:usesABIFrom a owl:ObjectProperty ;
+    rdfs:label "uses ABI from" ;
+    rdfs:comment "A property linking a Subsystem to the foundational ABI it must consume from ByteCore." ;
+    rdfs:domain core:Subsystem ;
+    rdfs:range core:ByteCore .
+
+# #################################################################
+# II. Formalizing the Architectural Data Flow
+# #################################################################
+
+# These axioms formally state the primary data flow of the ecosystem.
+core:ByteFlow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :placesCrystalsOn ; owl:someValuesFrom core:ByteActor ] .
+
+core:ByteActor rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :returnsReceiptsTo ; owl:someValuesFrom core:ByteFlow ] .
+
+core:ByteFlow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :submitsProofsTo ; owl:someValuesFrom core:ByteEthos ] .
+
+core:ByteFlow rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :isGovernedBy ; owl:someValuesFrom core:ByteEthos ] .
+
+# All subsystems (including ByteCore itself) must use the ABI from ByteCore.
+core:Subsystem rdfs:subClassOf [ a owl:Restriction ; owl:onProperty :usesABIFrom ; owl:hasValue core:ByteCore ] .
+
+# #################################################################
+# III. The ABI Contract
+# #################################################################
+
+:IntegrationContract a owl:Class ;
+    rdfs:label "Integration Contract" ;
+    rdfs:comment "An abstract class for contracts that define the interaction between realms." .
+
+:ABI a :IntegrationContract ;
+    rdfs:label "Application Binary Interface (ABI)" ;
+    rdfs:comment "A formal, physical contract that defines the precise memory layout, alignment, and constant-time access patterns for shared data structures. It is the most critical contract, defined in ByteCore." .
+
+:conformsTo a owl:ObjectProperty ;
+    rdfs:label "conforms to" ;
+    rdfs:comment "A fundamental property linking a Subsystem to an ABI it MUST obey. This property is the primary mechanism for enforcing architectural discipline." ;
+    rdfs:domain core:Subsystem ;
+    rdfs:range :ABI .

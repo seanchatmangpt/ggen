@@ -1,0 +1,509 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix a2a: <https://a2a.com/schema/> .
+@prefix ex: <https://example.org/a2a/examples/> .
+
+# A2A Protocol Examples - Comprehensive Demonstrations
+
+# =================================================================================
+# Example 1: Task Processing Workflow
+# =================================================================================
+
+ex:data_processing_workflow a a2a:Task ;
+    a2a:task_id "workflow_001" ;
+    a2a:task_name "User Data Processing Workflow" ;
+    a2a:task_description "Multi-step workflow for processing user data through validation, transformation, and storage" ;
+    a2a:task_state a2a:pending ;
+    a2a:task_priority 7 ;
+    a2a:task_timeout "PT45M" ;
+    a2a:task_created "2026-02-03T09:00:00Z"^^xsd:dateTime ;
+    a2a:scheduling_strategy a2a:skill_based .
+
+ex:validation_subtask a a2a:Task ;
+    a2a:task_id "subtask_001" ;
+    a2a:task_name "Data Validation" ;
+    a2a:task_description "Validate user data format and completeness" ;
+    a2a:task_state a2a:queued ;
+    a2a:task_priority 8 ;
+    a2a:scheduling_strategy a2a:least_loaded ;
+    a2a:task_created "2026-02-03T09:01:00Z"^^xsd:dateTime .
+
+ex:transformation_subtask a a2a:Task ;
+    a2a:task_id "subtask_002" ;
+    a2a:task_name "Data Transformation" ;
+    a2a:task_description "Transform raw data into standard format" ;
+    a2a:task_state a2a:input_required ;
+    a2a:task_priority 6 ;
+    a2a:task_timeout "PT20M" ;
+    a2a:scheduling_strategy a2a:skill_based ;
+    a2a:task_created "2026-02-03T09:02:00Z"^^xsd:dateTime .
+
+ex:storage_subtask a a2a:Task ;
+    a2a:task_id "subtask_003" ;
+    a2a:task_name "Data Storage" ;
+    a2a:task_description "Store processed data in database" ;
+    a2a:task_state a2a:pending ;
+    a2a:task_priority 5 ;
+    a2a:task_timeout "PT15M" ;
+    a2a:scheduling_strategy a2a:resource_aware ;
+    a2a:task_created "2026-02-03T09:03:00Z"^^xsd:dateTime .
+
+# =================================================================================
+# Example 2: Multi-Agent System
+# =================================================================================
+
+ex:agent_system a owl:Ontology ;
+    rdfs:label "Multi-Agent System Example" .
+
+ex:coordinator_agent a a2a:Agent ;
+    a2a:agent_id "coordinator_001" ;
+    a2a:agent_name "Workflow Coordinator" ;
+    a2a:agent_type "orchestration" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 20 ;
+    a2a:agent_current_load 5 ;
+    a2a:agent_capabilities ( "workflow_orchestration" "task_decomposition"
+                           "status_monitoring" "error_handling" ) ;
+    a2a:agent_endpoint "http://coordinator.example.com:8080" .
+
+ex:data_validator_agent a a2a:Agent ;
+    a2a:agent_id "validator_001" ;
+    a2a:agent_name "Data Validator" ;
+    a2a:agent_type "validation" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 15 ;
+    a2a:agent_current_load 8 ;
+    a2a:agent_capabilities ( "schema_validation" "data_quality_check"
+                           "format_verification" "business_rule_validation" ) ;
+    a2a:agent_endpoint "http://validator.example.com:8081" .
+
+ex:data_processor_agent a a2a:Agent ;
+    a2a:agent_id "processor_001" ;
+    a2a:agent_name "Data Processor" ;
+    a2a:agent_type "processing" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 10 ;
+    a2a:agent_current_load 3 ;
+    a2a:agent_capabilities ( "data_transformation" "format_conversion"
+                           "aggregation" "calculation" ) ;
+    a2a:agent_endpoint "http://processor.example.com:8082" .
+
+ex:storage_agent a a2a:Agent ;
+    a2a:agent_id "storage_001" ;
+    a2a:agent_name "Data Storage" ;
+    a2a:agent_type "storage" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 8 ;
+    a2a:agent_current_load 2 ;
+    a2a:agent_capabilities ( "database_storage" "file_storage" "backup"
+                           "retention_policy" ) ;
+    a2a:agent_endpoint "http://storage.example.com:8083" .
+
+ex:notification_agent a a2a:Agent ;
+    a2a:agent_id "notification_001" ;
+    a2a:agent_name "Notification Service" ;
+    a2a:agent_type "communication" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 50 ;
+    a2a:agent_current_load 15 ;
+    a2a:agent_capabilities ( "email_notification" "sms_notification"
+                           "push_notification" "webhook" ) ;
+    a2a:agent_endpoint "http://notification.example.com:8084" .
+
+# =================================================================================
+# Example 3: Communication Pattern Demonstrations
+# =================================================================================
+
+ex:request_response_exchange a a2a:Message ;
+    a2a:message_id "req_resp_001" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"user_id\":\"user_123\",\"operation\":\"validate_data\",\"dataset\":\"user_profile\"}" ;
+    a2a:timestamp "2026-02-03T09:05:00Z"^^xsd:dateTime ;
+    a2a:sender ex:coordinator_agent ;
+    a2a:recipient ex:data_validator_agent ;
+    a2a:correlation_id "corr_validate_001" ;
+    a2a:communication_pattern a2a:point_to_point ;
+    a2a:routing_strategy a2a:content_based_routing .
+
+ex:request_response_reply a a2a:Message ;
+    a2a:message_id "req_resp_002" ;
+    a2a:message_type a2a:response ;
+    a2a:content "{\"status\":\"success\",\"validation_result\":\"valid\",\"details\":[]}" ;
+    a2a:timestamp "2026-02-03T09:05:05Z"^^xsd:dateTime ;
+    a2a:sender ex:data_validator_agent ;
+    a2a:recipient ex:coordinator_agent ;
+    a2a:correlation_id "corr_validate_001" ;
+    a2a:communication_pattern a2a:point_to_point .
+
+ex:status_notification a a2a:Message ;
+    a2a:message_id "notif_001" ;
+    a2a:message_type a2a:notification ;
+    a2a:content "{\"event\":\"task_progress\",\"task_id\":\"subtask_001\",\"percentage\":25,\"status\":\"processing\"}" ;
+    a2a:timestamp "2026-02-03T09:06:00Z"^^xsd:dateTime ;
+    a2a:sender ex:data_validator_agent ;
+    a2a:communication_pattern a2a:broadcast .
+
+ex:heartbeat_message a a2a:Message ;
+    a2a:message_id "heartbeat_001" ;
+    a2a:message_type a2a:heartbeat ;
+    a2a:content "{\"agent_id\":\"storage_001\",\"status\":\"active\",\"load\":2,\"timestamp\":\"2026-02-03T09:07:00Z\"}" ;
+    a2a:timestamp "2026-02-03T09:07:00Z"^^xsd:dateTime ;
+    a2a:sender ex:storage_agent ;
+    a2a:communication_pattern a2a:multicast .
+
+ex:acknowledgment_message a a2a:Message ;
+    a2a:message_id "ack_001" ;
+    a2a:message_type a2a:acknowledgment ;
+    a2a:content "{\"message_id\":\"req_resp_001\",\"status\":\"received\",\"timestamp\":\"2026-02-03T09:07:01Z\"}" ;
+    a2a:timestamp "2026-02-03T09:07:01Z"^^xsd:dateTime ;
+    a2a:sender ex:data_validator_agent ;
+    a2a:communication_pattern a2a:point_to_point .
+
+# =================================================================================
+# Example 4: Error Handling Scenarios
+# =================================================================================
+
+ex:data_validation_error a a2a:Error ;
+    a2a:error_code "VAL_001" ;
+    a2a:error_message "Data validation failed: missing required field 'email'" ;
+    a2a:error_severity "high" ;
+    a2a:error_type a2a:validation_error ;
+    a2a:recovery_strategy a2a:retry_strategy ;
+    a2a:timestamp "2026-02-03T09:08:00Z"^^xsd:dateTime .
+
+ex:timeout_error a a2a:Error ;
+    a2a:error_code "TIMEOUT_001" ;
+    a2a:error_message "Task execution timed out after 30 seconds" ;
+    a2a:error_severity "critical" ;
+    a2a:error_type a2a:timeout_error ;
+    a2a:recovery_strategy a2a:retry_strategy ;
+    a2a:timestamp "2026-02-03T09:10:00Z"^^xsd:dateTime .
+
+ex:network_error a a2a:Error ;
+    a2a:error_code "NETWORK_001" ;
+    a2a:error_message "Connection to storage agent failed: Connection refused" ;
+    a2a:error_severity "high" ;
+    a2a:error_type a2a:network_error ;
+    a2a:recovery_strategy a2a:fallback_strategy ;
+    a2a:timestamp "2026-02-03T09:12:00Z"^^xsd:dateTime .
+
+ex:authorization_error a a2a:Error ;
+    a2a:error_code "AUTH_001" ;
+    a2a:error_message "Access denied: insufficient permissions for operation" ;
+    a2a:error_severity "medium" ;
+    a2a:error_type a2a:authorization_error ;
+    a2a:recovery_strategy a2a:escalate_strategy ;
+    a2a:timestamp "2026-02-03T09:15:00Z"^^xsd:dateTime .
+
+ex:error_chain a a2a:Error ;
+    a2a:error_code "CHAIN_001" ;
+    a2a:error_message "Multiple errors occurred during processing" ;
+    a2a:error_severity "critical" ;
+    a2a:error_type a2a:protocol_error ;
+    a2a:error_cause ex:network_error ;
+    a2a:recovery_strategy a2a:compensate_strategy ;
+    a2a:timestamp "2026-02-03T09:16:00Z"^^xsd:dateTime .
+
+# =================================================================================
+# Example 5: State Machine Transitions
+# =================================================================================
+
+ex:task_state_machine a a2a:TaskStateMachine ;
+    a2a:initial_state a2a:pending ;
+    a2a:current_state a2a:pending .
+
+ex:transition_to_queued a a2a:Transition ;
+    a2a:from_state a2a:pending ;
+    a2a:to_state a2a:queued ;
+    a2a:condition [
+        a rdfs:label "Valid task condition" ;
+        a rdfs:comment "Task has valid ID, name, and priority" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Add to queue" ;
+        a rdfs:comment "Place task in execution queue" ;
+    ] .
+
+ex:transition_to_running a a2a:Transition ;
+    a2a:from_state a2a:queued ;
+    a2a:to_state a2a:running ;
+    a2a:condition [
+        a rdfs:label "Agent available condition" ;
+        a rdfs:comment "Agent with required capability is available" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Start execution" ;
+        a rdfs:comment "Assign task to agent and start processing" ;
+    ] .
+
+ex:transition_to_input_required a a2a:Transition ;
+    a2a:from_state a2a:running ;
+    a2a:to_state a2a:input_required ;
+    a2a:condition [
+        a rdfs:label "Additional input needed condition" ;
+        a rdfs:comment "Task requires more input to proceed" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Pause execution" ;
+        a rdfs:comment "Pause task and request additional input" ;
+    ] .
+
+ex:transition_to_completed a a2a:Transition ;
+    a2a:from_state a2a:running ;
+    a2a:to_state a2a:completed ;
+    a2a:condition [
+        a rdfs:label "Task successful condition" ;
+        a rdfs:comment "Task completed successfully" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Complete task" ;
+        a rdfs:comment "Mark task as completed and release resources" ;
+    ] .
+
+ex:transition_to_failed a a2a:Transition ;
+    a2a:from_state a2a:running ;
+    a2a:to_state a2a:failed ;
+    a2a:condition [
+        a rdfs:label "Task failure condition" ;
+        a rdfs:comment "Task failed to complete" ;
+    ] ;
+    a2a:action [
+        a rdfs:label "Handle failure" ;
+        a rdfs:comment "Log error and trigger recovery process" ;
+    ] .
+
+# =================================================================================
+# Example 6: Complex Workflow Orchestration
+# =================================================================================
+
+ex:complex_workflow a owl:Ontology ;
+    rdfs:label "Complex Workflow Example" .
+
+ex:workflow_instance a a2a:Task ;
+    a2a:task_id "workflow_complex_001" ;
+    a2a:task_name "Customer Onboarding Workflow" ;
+    a2a:task_description "Complete customer onboarding with verification, account creation, and notification" ;
+    a2a:task_state a2a:running ;
+    a2a:task_priority 9 ;
+    a2a:task_timeout "PT1H" ;
+    a2a:task_started "2026-02-03T09:00:00Z"^^xsd:dateTime ;
+    a2a:scheduling_strategy a2a:priority_based .
+
+ex:verification_step a a2a:Task ;
+    a2a:task_id "step_verify_001" ;
+    a2a:task_name "Customer Verification" ;
+    a2a:task_description "Verify customer identity and documents" ;
+    a2a:task_state a2a:completed ;
+    a2a:task_completed "2026-02-03T09:15:00Z"^^xsd:dateTime ;
+    a2a:scheduling_strategy a2a:skill_based .
+
+ex:account_creation_step a a2a:Task ;
+    a2a:task_id "step_account_001" ;
+    a2a:task_name "Account Creation" ;
+    a2a:task_description "Create customer account and credentials" ;
+    a2a:task_state a2a:running ;
+    a2a:task_started "2026-02-03T09:15:01Z"^^xsd:dateTime ;
+    a2a:task_timeout "PT10M" ;
+    a2a:scheduling_strategy a2a:skill_based .
+
+ex:notification_step a a2a:Task ;
+    a2a:task_id "step_notify_001" ;
+    a2a:task_name "Welcome Notification" ;
+    a2a:task_description "Send welcome email and welcome package" ;
+    a2a:task_state a2a:pending ;
+    a2a:scheduling_strategy a2a:resource_aware .
+
+ex:workflow_messages a rdf:List (
+        ex:workflow_start_message
+        ex:verification_complete_message
+        ex:account_creation_message
+        ex:notification_request_message
+    ) .
+
+ex:workflow_start_message a a2a:Message ;
+    a2a:message_id "wf_msg_001" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"customer_id\":\"cust_001\",\"workflow_id\":\"workflow_complex_001\"}" ;
+    a2a:timestamp "2026-02-03T09:00:00Z"^^xsd:dateTime ;
+    a2a:sender ex:coordinator_agent ;
+    a2a:recipient ex:data_validator_agent ;
+    a2a:correlation_id "wf_corr_001" .
+
+ex:verification_complete_message a a2a:Message ;
+    a2a:message_id "wf_msg_002" ;
+    a2a:message_type a2a:response ;
+    a2a:content "{\"status\":\"success\",\"verification_id\":\"verify_001\",\"result\":\"verified\"}" ;
+    a2a:timestamp "2026-02-03T09:15:00Z"^^xsd:dateTime ;
+    a2a:sender ex:data_validator_agent ;
+    a2a:recipient ex:coordinator_agent ;
+    a2a:correlation_id "wf_corr_001" .
+
+ex:account_creation_message a a2a:Message ;
+    a2a:message_id "wf_msg_003" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"customer_id\":\"cust_001\",\"verification_result\":\"verified\"}" ;
+    a2a:timestamp "2026-02-03T09:15:01Z"^^xsd:dateTime ;
+    a2a:sender ex:coordinator_agent ;
+    a2a:recipient ex:storage_agent ;
+    a2a:correlation_id "wf_corr_002" .
+
+ex:notification_request_message a a2a:Message ;
+    a2a:message_id "wf_msg_004" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"customer_id\":\"cust_001\",\"notification_type\":\"welcome\",\"channels\":[\"email\",\"sms\"]}" ;
+    a2a:timestamp "2026-02-03T09:15:01Z"^^xsd:dateTime ;
+    a2a:sender ex:coordinator_agent ;
+    a2a:recipient ex:notification_agent ;
+    a2a:correlation_id "wf_corr_003" .
+
+# =================================================================================
+# Example 7: Multi-Domain Federation
+# =================================================================================
+
+ex:federated_system a owl:Ontology ;
+    rdfs:label "Federated System Example" .
+
+ex:domain_a_agent a a2a:Agent ;
+    a2a:agent_id "domain_a_agent_001" ;
+    a2a:agent_name "Domain A Processing Agent" ;
+    a2a:agent_type "processing" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 10 ;
+    a2a:agent_current_load 3 ;
+    a2a:agent_capabilities ( "domain_a_processing" "format_a_conversion" ) ;
+    a2a:agent_endpoint "http://domain-a.example.com:8080" .
+
+ex:domain_b_agent a a2a:Agent ;
+    a2a:agent_id "domain_b_agent_001" ;
+    a2a:agent_name "Domain B Processing Agent" ;
+    a2a:agent_type "processing" ;
+    a2a:agent_state a2a:active ;
+    a2a:agent_capacity 8 ;
+    a2a:agent_current_load 2 ;
+    a2a:agent_capabilities ( "domain_b_processing" "format_b_conversion" ) ;
+    a2a:agent_endpoint "http://domain-b.example.com:8080" .
+
+ex:federated_request a a2a:Message ;
+    a2a:message_id "fed_req_001" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"operation\":\"cross_domain_processing\",\"source_domain\":\"A\",\"target_domain\":\"B\",\"data\":\"cross_domain_payload\"}" ;
+    a2a:timestamp "2026-02-03T10:00:00Z"^^xsd:dateTime ;
+    a2a:sender ex:domain_a_agent ;
+    a2a:recipient ex:domain_b_agent ;
+    a2a:correlation_id "fed_corr_001" ;
+    a2a:communication_pattern a2a:federated ;
+    a2a:routing_strategy a2a:content_based_routing .
+
+ex:federated_response a a2a:Message ;
+    a2a:message_id "fed_resp_001" ;
+    a2a:message_type a2a:response ;
+    a2a:content "{\"status\":\"success\",\"processed_data\":\"domain_b_processed_result\",\"processing_time\":5.2}" ;
+    a2a:timestamp "2026-02-03T10:00:10Z"^^xsd:dateTime ;
+    a2a:sender ex:domain_b_agent ;
+    a2a:recipient ex:domain_a_agent ;
+    a2a:correlation_id "fed_corr_001" ;
+    a2a:communication_pattern a2a:federated .
+
+# =================================================================================
+# Example 8: Monitoring and Metrics
+# =================================================================================
+
+ex:monitoring_data a owl:Ontology ;
+    rdfs:label "Monitoring Data Example" .
+
+ex:task_metrics a a2a:Metrics ;
+    a2a:metric_name "task_completion_rate" ;
+    a2a:metric_value 0.95 ;
+    a2a:metric_timestamp "2026-02-03T09:00:00Z"^^xsd:dateTime .
+
+ex:agent_metrics a a2a:Metrics ;
+    a2a:metric_name "agent_utilization" ;
+    a2a:metric_value 0.65 ;
+    a2a:metric_timestamp "2026-02-03T09:00:00Z"^^xsd:dateTime .
+
+ex:communication_metrics a a2a:Metrics ;
+    a2a:metric_name "message_latency" ;
+    a2a:metric_value 0.15 ;
+    a2a:metric_timestamp "2026-02-03T09:00:00Z"^^xsd:dateTime .
+
+ex:error_metrics a a2a:Metrics ;
+    a2a:metric_name "error_rate" ;
+    a2a:metric_value 0.02 ;
+    a2a:metric_timestamp "2026-02-03T09:00:00Z"^^xsd:dateTime .
+
+ex:performance_summary a owl:Ontology ;
+    rdfs:label "Performance Summary Example" .
+
+ex:system_health_report a a2a:Metrics ;
+    a2a:metric_name "system_health_score" ;
+    a2a:metric_value 0.98 ;
+    a2a:metric_timestamp "2026-02-03T09:00:00Z"^^xsd:dateTime ;
+    rdfs:comment "Overall system health based on multiple metrics" .
+
+# =================================================================================
+# Example 9: Protocol Versioning
+# =================================================================================
+
+ex:protocol_v1_0 a a2a:Protocol ;
+    a2a:protocol_version "1.0.0" ;
+    a2a:supported_patterns ( a2a:request_response a2a:point_to_point ) ;
+    a2a:encryption_required false ;
+    rdfs:comment "Initial protocol version with basic communication" .
+
+ex:protocol_v1_1 a a2a:Protocol ;
+    a2a:protocol_version "1.1.0" ;
+    a2a:supported_patterns ( a2a:request_response a2a:point_to_point
+                           a2a:publish_subscribe a2a:broadcast ) ;
+    a2a:encryption_required true ;
+    rdfs:comment "Enhanced protocol with pub/sub and encryption" .
+
+ex:protocol_v2_0 a a2a:Protocol ;
+    a2a:protocol_version "2.0.0" ;
+    a2a:supported_patterns ( a2a:request_response a2a:point_to_point
+                           a2a:publish_subscribe a2a:broadcast a2a:multicast
+                           a2a:federated ) ;
+    a2a:encryption_required true ;
+    rdfs:comment "Federated protocol with full communication patterns" .
+
+# =================================================================================
+# Example 10: Disaster Recovery Scenarios
+# =================================================================================
+
+ex:disaster_recovery_scenario a owl:Ontology ;
+    rdfs:label "Disaster Recovery Example" .
+
+ex:primary_agent_failure a a2a:Error ;
+    a2a:error_code "AGENT_FAIL_001" ;
+    a2a:error_message "Primary processing agent became unresponsive" ;
+    a2a:error_severity "critical" ;
+    a2a:error_type a2a:resource_error ;
+    a2a:recovery_strategy a2a:fallback_strategy ;
+    a2a:timestamp "2026-02-03T11:00:00Z"^^xsd:dateTime .
+
+ex:failover_request a a2a:Message ;
+    a2a:message_id "failover_req_001" ;
+    a2a:message_type a2a:request ;
+    a2a:content "{\"original_agent\":\"processor_001\",\"failover_agent\":\"processor_backup_001\",\"task_id\":\"task_002\"}" ;
+    a2a:timestamp "2026-02-03T11:01:00Z"^^xsd:dateTime ;
+    a2a:sender ex:coordinator_agent ;
+    a2a:recipient ex:storage_agent ;
+    a2a:communication_pattern a2a:point_to_point ;
+    rdfs:comment "Initiate failover process" .
+
+ex:recovery_complete_message a a2a:Message ;
+    a2a:message_id "recovery_comp_001" ;
+    a2a:message_type a2a:notification ;
+    a2a:content "{\"recovery_type\":\"failover\",\"original_agent\":\"processor_001\",\"new_agent\":\"processor_backup_001\",\"status\":\"success\"}" ;
+    a2a:timestamp "2026-02-03T11:05:00Z"^^xsd:dateTime ;
+    a2a:sender ex:storage_agent ;
+    a2a:communication_pattern a2a:broadcast ;
+    rdfs:comment "Broadcast recovery completion" .
+
+ex:recovery_metrics a a2a:Metrics ;
+    a2a:metric_name "recovery_time" ;
+    a2a:metric_value 300 ;
+    a2a:metric_timestamp "2026-02-03T11:05:00Z"^^xsd:dateTime ;
+    rdfs:comment "Time taken for recovery process (seconds)" .

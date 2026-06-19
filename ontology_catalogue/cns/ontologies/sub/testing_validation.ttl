@@ -1,0 +1,868 @@
+@prefix test: <http://cns.io/ontology/testing#> .
+@prefix valid: <http://cns.io/ontology/validation#> .
+@prefix dfls: <http://cns.bitactor.io/ontology/dfls#> .
+@prefix otel: <http://cns.io/ontology/otel#> .
+@prefix bitactor: <http://cns.bitactor.io/ontology/bitactor#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# =============================================================================
+# TESTING & VALIDATION SUB-ONTOLOGY
+# Comprehensive semantic model for testing framework with DFLS integration
+# and 80/20 test prioritization
+# =============================================================================
+
+test: a owl:Ontology ;
+    rdfs:label "Testing & Validation Sub-Ontology" ;
+    rdfs:comment "Comprehensive testing framework with DFLS DMEDI integration, OTEL observability, and 80/20 test prioritization" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports dfls:, otel:, bitactor: .
+
+# =============================================================================
+# CORE TESTING FRAMEWORK CLASSES
+# =============================================================================
+
+# Base Testing Classes
+test:Test a owl:Class ;
+    rdfs:label "Test" ;
+    rdfs:comment "Base class for all test types" ;
+    rdfs:subClassOf dfls:QualityGate, otel:Instrumentable .
+
+test:TestSuite a owl:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "Collection of related tests implementing DFLS phase validation" ;
+    rdfs:subClassOf dfls:QualityGate ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:hasTest ;
+        owl:minCardinality 1
+    ] .
+
+test:TestPlan a owl:Class ;
+    rdfs:label "Test Plan" ;
+    rdfs:comment "Comprehensive test plan with DFLS gate conditions" ;
+    rdfs:subClassOf dfls:Project ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:hasTestSuite ;
+        owl:minCardinality 1
+    ] .
+
+# 80/20 Test Prioritization Classes
+test:CriticalTest a owl:Class ;
+    rdfs:label "Critical Test (80% Value)" ;
+    rdfs:comment "High-impact tests covering 80% of defect detection (20% of tests)" ;
+    rdfs:subClassOf test:Test ;
+    test:paretoClass "critical" ;
+    test:defectDetectionRate 80.0 ;
+    test:testExecutionCost 20.0 .
+
+test:StandardTest a owl:Class ;
+    rdfs:label "Standard Test" ;
+    rdfs:comment "Standard tests for comprehensive coverage" ;
+    rdfs:subClassOf test:Test ;
+    test:paretoClass "standard" ;
+    test:defectDetectionRate 15.0 ;
+    test:testExecutionCost 30.0 .
+
+test:EdgeCaseTest a owl:Class ;
+    rdfs:label "Edge Case Test (20% Value)" ;
+    rdfs:comment "Specialized tests for edge cases and rare scenarios (80% of tests)" ;
+    rdfs:subClassOf test:Test ;
+    test:paretoClass "edge" ;
+    test:defectDetectionRate 5.0 ;
+    test:testExecutionCost 50.0 .
+
+# Test Type Categories
+test:UnitTest a owl:Class ;
+    rdfs:label "Unit Test" ;
+    rdfs:comment "Test for individual components and functions" ;
+    rdfs:subClassOf test:CriticalTest ;
+    test:testScope "component" ;
+    test:isolationLevel "high" .
+
+test:IntegrationTest a owl:Class ;
+    rdfs:label "Integration Test" ;
+    rdfs:comment "Test for component interactions and interfaces" ;
+    rdfs:subClassOf test:CriticalTest ;
+    test:testScope "interface" ;
+    test:isolationLevel "medium" .
+
+test:SystemTest a owl:Class ;
+    rdfs:label "System Test" ;
+    rdfs:comment "End-to-end system testing" ;
+    rdfs:subClassOf test:StandardTest ;
+    test:testScope "system" ;
+    test:isolationLevel "low" .
+
+test:PerformanceTest a owl:Class ;
+    rdfs:label "Performance Test" ;
+    rdfs:comment "Test for performance characteristics and benchmarks" ;
+    rdfs:subClassOf test:CriticalTest, dfls:QualityGate ;
+    test:testScope "performance" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:performanceTarget ;
+        owl:someValuesFrom dfls:SixSigmaMetric
+    ] .
+
+test:SecurityTest a owl:Class ;
+    rdfs:label "Security Test" ;
+    rdfs:comment "Test for security vulnerabilities and compliance" ;
+    rdfs:subClassOf test:CriticalTest ;
+    test:testScope "security" .
+
+test:RegressionTest a owl:Class ;
+    rdfs:label "Regression Test" ;
+    rdfs:comment "Test for preventing regression in existing functionality" ;
+    rdfs:subClassOf test:StandardTest ;
+    test:testScope "regression" .
+
+# Advanced Testing Classes
+test:PermutationTest a owl:Class ;
+    rdfs:label "Permutation Test" ;
+    rdfs:comment "Test covering all possible permutations of inputs/configurations" ;
+    rdfs:subClassOf test:StandardTest ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:permutationCoverage ;
+        owl:allValuesFrom xsd:decimal
+    ] .
+
+test:CombinationTest a owl:Class ;
+    rdfs:label "Combination Test" ;
+    rdfs:comment "Test covering critical combinations of parameters" ;
+    rdfs:subClassOf test:StandardTest ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:combinationStrategy ;
+        owl:allValuesFrom test:CombinationStrategy
+    ] .
+
+test:AdversarialTest a owl:Class ;
+    rdfs:label "Adversarial Test" ;
+    rdfs:comment "Test designed to find failure modes and attack vectors" ;
+    rdfs:subClassOf test:CriticalTest ;
+    test:testScope "adversarial" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:attackVector ;
+        owl:someValuesFrom test:AttackVector
+    ] .
+
+test:BenchmarkTest a owl:Class ;
+    rdfs:label "Benchmark Test" ;
+    rdfs:comment "Test for performance benchmarking and comparison" ;
+    rdfs:subClassOf test:PerformanceTest ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:benchmarkTarget ;
+        owl:someValuesFrom test:BenchmarkTarget
+    ] .
+
+test:StressTest a owl:Class ;
+    rdfs:label "Stress Test" ;
+    rdfs:comment "Test under extreme load and resource constraints" ;
+    rdfs:subClassOf test:PerformanceTest ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:stressLevel ;
+        owl:allValuesFrom xsd:decimal
+    ] .
+
+test:ChaosTest a owl:Class ;
+    rdfs:label "Chaos Test" ;
+    rdfs:comment "Test system resilience under random failures" ;
+    rdfs:subClassOf test:AdversarialTest ;
+    test:testScope "chaos" .
+
+# Validation Classes
+valid:Validator a owl:Class ;
+    rdfs:label "Validator" ;
+    rdfs:comment "Component for validation logic and rules" ;
+    rdfs:subClassOf dfls:QualityGate, otel:Instrumentable .
+
+valid:SemanticValidator a owl:Class ;
+    rdfs:label "Semantic Validator" ;
+    rdfs:comment "Validator for semantic correctness using SHACL" ;
+    rdfs:subClassOf valid:Validator ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty valid:usesSHACL ;
+        owl:hasValue true
+    ] .
+
+valid:FunctionalValidator a owl:Class ;
+    rdfs:label "Functional Validator" ;
+    rdfs:comment "Validator for functional requirements and behavior" ;
+    rdfs:subClassOf valid:Validator .
+
+valid:PerformanceValidator a owl:Class ;
+    rdfs:label "Performance Validator" ;
+    rdfs:comment "Validator for performance requirements and SLAs" ;
+    rdfs:subClassOf valid:Validator, dfls:SixSigmaMetric ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty valid:performanceThreshold ;
+        owl:someValuesFrom xsd:decimal
+    ] .
+
+valid:SecurityValidator a owl:Class ;
+    rdfs:label "Security Validator" ;
+    rdfs:comment "Validator for security requirements and compliance" ;
+    rdfs:subClassOf valid:Validator .
+
+valid:ComplianceValidator a owl:Class ;
+    rdfs:label "Compliance Validator" ;
+    rdfs:comment "Validator for regulatory and standard compliance" ;
+    rdfs:subClassOf valid:Validator .
+
+# Test Strategy Classes
+test:CombinationStrategy a owl:Class ;
+    rdfs:label "Combination Strategy" ;
+    rdfs:comment "Strategy for combination testing" .
+
+test:PairwiseTesting a owl:Class ;
+    rdfs:label "Pairwise Testing" ;
+    rdfs:comment "Testing all pairs of parameter combinations" ;
+    rdfs:subClassOf test:CombinationStrategy .
+
+test:OrthogonalArrayTesting a owl:Class ;
+    rdfs:label "Orthogonal Array Testing" ;
+    rdfs:comment "Testing using orthogonal arrays" ;
+    rdfs:subClassOf test:CombinationStrategy .
+
+test:AllCombinationsTesting a owl:Class ;
+    rdfs:label "All Combinations Testing" ;
+    rdfs:comment "Exhaustive testing of all combinations" ;
+    rdfs:subClassOf test:CombinationStrategy .
+
+# Attack Vector Classes
+test:AttackVector a owl:Class ;
+    rdfs:label "Attack Vector" ;
+    rdfs:comment "Type of attack or failure mode to test" .
+
+test:BufferOverflow a owl:Class ;
+    rdfs:label "Buffer Overflow Attack" ;
+    rdfs:comment "Buffer overflow attack vector" ;
+    rdfs:subClassOf test:AttackVector .
+
+test:InjectionAttack a owl:Class ;
+    rdfs:label "Injection Attack" ;
+    rdfs:comment "Code or data injection attack vector" ;
+    rdfs:subClassOf test:AttackVector .
+
+test:RaceCondition a owl:Class ;
+    rdfs:label "Race Condition Attack" ;
+    rdfs:comment "Race condition exploit vector" ;
+    rdfs:subClassOf test:AttackVector .
+
+test:ResourceExhaustion a owl:Class ;
+    rdfs:label "Resource Exhaustion Attack" ;
+    rdfs:comment "Resource exhaustion attack vector" ;
+    rdfs:subClassOf test:AttackVector .
+
+test:TimingAttack a owl:Class ;
+    rdfs:label "Timing Attack" ;
+    rdfs:comment "Timing-based attack vector" ;
+    rdfs:subClassOf test:AttackVector .
+
+# Benchmark Target Classes
+test:BenchmarkTarget a owl:Class ;
+    rdfs:label "Benchmark Target" ;
+    rdfs:comment "Target for performance benchmarking" .
+
+test:ThroughputBenchmark a owl:Class ;
+    rdfs:label "Throughput Benchmark" ;
+    rdfs:comment "Benchmark for throughput measurement" ;
+    rdfs:subClassOf test:BenchmarkTarget .
+
+test:LatencyBenchmark a owl:Class ;
+    rdfs:label "Latency Benchmark" ;
+    rdfs:comment "Benchmark for latency measurement" ;
+    rdfs:subClassOf test:BenchmarkTarget .
+
+test:MemoryBenchmark a owl:Class ;
+    rdfs:label "Memory Benchmark" ;
+    rdfs:comment "Benchmark for memory usage measurement" ;
+    rdfs:subClassOf test:BenchmarkTarget .
+
+test:CPUBenchmark a owl:Class ;
+    rdfs:label "CPU Benchmark" ;
+    rdfs:comment "Benchmark for CPU utilization measurement" ;
+    rdfs:subClassOf test:BenchmarkTarget .
+
+# Test Result Classes
+test:TestResult a owl:Class ;
+    rdfs:label "Test Result" ;
+    rdfs:comment "Result of test execution" ;
+    rdfs:subClassOf dfls:QualityData, otel:TelemetryData .
+
+test:PassResult a owl:Class ;
+    rdfs:label "Pass Result" ;
+    rdfs:comment "Test passed successfully" ;
+    rdfs:subClassOf test:TestResult .
+
+test:FailResult a owl:Class ;
+    rdfs:label "Fail Result" ;
+    rdfs:comment "Test failed with defects found" ;
+    rdfs:subClassOf test:TestResult ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty test:defectCount ;
+        owl:minInclusive 1
+    ] .
+
+test:SkipResult a owl:Class ;
+    rdfs:label "Skip Result" ;
+    rdfs:comment "Test was skipped due to conditions" ;
+    rdfs:subClassOf test:TestResult .
+
+test:ErrorResult a owl:Class ;
+    rdfs:label "Error Result" ;
+    rdfs:comment "Test encountered error during execution" ;
+    rdfs:subClassOf test:TestResult .
+
+# Coverage Classes
+test:Coverage a owl:Class ;
+    rdfs:label "Test Coverage" ;
+    rdfs:comment "Measurement of test coverage" ;
+    rdfs:subClassOf dfls:SixSigmaMetric .
+
+test:StatementCoverage a owl:Class ;
+    rdfs:label "Statement Coverage" ;
+    rdfs:comment "Percentage of code statements covered by tests" ;
+    rdfs:subClassOf test:Coverage .
+
+test:BranchCoverage a owl:Class ;
+    rdfs:label "Branch Coverage" ;
+    rdfs:comment "Percentage of code branches covered by tests" ;
+    rdfs:subClassOf test:Coverage .
+
+test:PathCoverage a owl:Class ;
+    rdfs:label "Path Coverage" ;
+    rdfs:comment "Percentage of execution paths covered by tests" ;
+    rdfs:subClassOf test:Coverage .
+
+test:FunctionCoverage a owl:Class ;
+    rdfs:label "Function Coverage" ;
+    rdfs:comment "Percentage of functions covered by tests" ;
+    rdfs:subClassOf test:Coverage .
+
+# =============================================================================
+# TESTING PROPERTIES
+# =============================================================================
+
+# Core Test Properties
+test:testName a owl:DatatypeProperty ;
+    rdfs:label "Test Name" ;
+    rdfs:comment "Human-readable test name" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+test:testDescription a owl:DatatypeProperty ;
+    rdfs:label "Test Description" ;
+    rdfs:comment "Detailed description of test purpose and scope" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:string .
+
+test:testPriority a owl:DatatypeProperty ;
+    rdfs:label "Test Priority" ;
+    rdfs:comment "Priority level (critical/high/medium/low)" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:string .
+
+test:testScope a owl:DatatypeProperty ;
+    rdfs:label "Test Scope" ;
+    rdfs:comment "Scope of testing (component/interface/system/performance)" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:string .
+
+test:isolationLevel a owl:DatatypeProperty ;
+    rdfs:label "Isolation Level" ;
+    rdfs:comment "Level of test isolation (high/medium/low)" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:string .
+
+# 80/20 Test Properties
+test:paretoClass a owl:DatatypeProperty ;
+    rdfs:label "Pareto Classification" ;
+    rdfs:comment "80/20 classification (critical/standard/edge)" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:string .
+
+test:defectDetectionRate a owl:DatatypeProperty ;
+    rdfs:label "Defect Detection Rate" ;
+    rdfs:comment "Percentage of defects detected by this test class" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:decimal .
+
+test:testExecutionCost a owl:DatatypeProperty ;
+    rdfs:label "Test Execution Cost" ;
+    rdfs:comment "Relative cost of test execution and maintenance" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:decimal .
+
+test:riskCoverage a owl:DatatypeProperty ;
+    rdfs:label "Risk Coverage" ;
+    rdfs:comment "Percentage of identified risks covered by test" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:decimal .
+
+# Performance Test Properties
+test:performanceTarget a owl:DatatypeProperty ;
+    rdfs:label "Performance Target" ;
+    rdfs:comment "Target performance metric (latency/throughput/etc.)" ;
+    rdfs:domain test:PerformanceTest ;
+    rdfs:range xsd:decimal .
+
+test:stressLevel a owl:DatatypeProperty ;
+    rdfs:label "Stress Level" ;
+    rdfs:comment "Level of stress applied (1.0-10.0 multiplier)" ;
+    rdfs:domain test:StressTest ;
+    rdfs:range xsd:decimal .
+
+test:loadPattern a owl:DatatypeProperty ;
+    rdfs:label "Load Pattern" ;
+    rdfs:comment "Type of load pattern (constant/ramp/spike)" ;
+    rdfs:domain test:PerformanceTest ;
+    rdfs:range xsd:string .
+
+# Advanced Test Properties
+test:permutationCoverage a owl:DatatypeProperty ;
+    rdfs:label "Permutation Coverage" ;
+    rdfs:comment "Percentage of permutations covered (0.0-1.0)" ;
+    rdfs:domain test:PermutationTest ;
+    rdfs:range xsd:decimal .
+
+test:adversarialIntensity a owl:DatatypeProperty ;
+    rdfs:label "Adversarial Intensity" ;
+    rdfs:comment "Intensity of adversarial testing (1-10)" ;
+    rdfs:domain test:AdversarialTest ;
+    rdfs:range xsd:integer .
+
+test:chaosLevel a owl:DatatypeProperty ;
+    rdfs:label "Chaos Level" ;
+    rdfs:comment "Level of chaos injection (0.0-1.0)" ;
+    rdfs:domain test:ChaosTest ;
+    rdfs:range xsd:decimal .
+
+# Test Execution Properties
+test:expectedDuration a owl:DatatypeProperty ;
+    rdfs:label "Expected Duration" ;
+    rdfs:comment "Expected test execution duration" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:duration .
+
+test:maxExecutionTime a owl:DatatypeProperty ;
+    rdfs:label "Maximum Execution Time" ;
+    rdfs:comment "Maximum allowed execution time before timeout" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:duration .
+
+test:retryAttempts a owl:DatatypeProperty ;
+    rdfs:label "Retry Attempts" ;
+    rdfs:comment "Number of retry attempts for flaky tests" ;
+    rdfs:domain test:Test ;
+    rdfs:range xsd:integer .
+
+# Validation Properties
+valid:usesSHACL a owl:DatatypeProperty ;
+    rdfs:label "Uses SHACL" ;
+    rdfs:comment "Whether validator uses SHACL constraints" ;
+    rdfs:domain valid:SemanticValidator ;
+    rdfs:range xsd:boolean .
+
+valid:performanceThreshold a owl:DatatypeProperty ;
+    rdfs:label "Performance Threshold" ;
+    rdfs:comment "Performance threshold for validation" ;
+    rdfs:domain valid:PerformanceValidator ;
+    rdfs:range xsd:decimal .
+
+valid:complianceStandard a owl:DatatypeProperty ;
+    rdfs:label "Compliance Standard" ;
+    rdfs:comment "Standard or regulation for compliance validation" ;
+    rdfs:domain valid:ComplianceValidator ;
+    rdfs:range xsd:string .
+
+# Result Properties
+test:defectCount a owl:DatatypeProperty ;
+    rdfs:label "Defect Count" ;
+    rdfs:comment "Number of defects found in test" ;
+    rdfs:domain test:TestResult ;
+    rdfs:range xsd:integer .
+
+test:executionTime a owl:DatatypeProperty ;
+    rdfs:label "Execution Time" ;
+    rdfs:comment "Actual test execution time" ;
+    rdfs:domain test:TestResult ;
+    rdfs:range xsd:duration .
+
+test:resultStatus a owl:DatatypeProperty ;
+    rdfs:label "Result Status" ;
+    rdfs:comment "Test result status (pass/fail/skip/error)" ;
+    rdfs:domain test:TestResult ;
+    rdfs:range xsd:string .
+
+# Coverage Properties
+test:coveragePercentage a owl:DatatypeProperty ;
+    rdfs:label "Coverage Percentage" ;
+    rdfs:comment "Coverage percentage (0.0-100.0)" ;
+    rdfs:domain test:Coverage ;
+    rdfs:range xsd:decimal .
+
+test:coverageTarget a owl:DatatypeProperty ;
+    rdfs:label "Coverage Target" ;
+    rdfs:comment "Target coverage percentage" ;
+    rdfs:domain test:Coverage ;
+    rdfs:range xsd:decimal .
+
+# =============================================================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+# =============================================================================
+
+# Test Structure Relationships
+test:hasTest a owl:ObjectProperty ;
+    rdfs:label "Has Test" ;
+    rdfs:comment "Test suite has individual tests" ;
+    rdfs:domain test:TestSuite ;
+    rdfs:range test:Test .
+
+test:hasTestSuite a owl:ObjectProperty ;
+    rdfs:label "Has Test Suite" ;
+    rdfs:comment "Test plan has test suites" ;
+    rdfs:domain test:TestPlan ;
+    rdfs:range test:TestSuite .
+
+test:dependsOn a owl:ObjectProperty ;
+    rdfs:label "Depends On" ;
+    rdfs:comment "Test depends on another test or component" ;
+    rdfs:domain test:Test ;
+    rdfs:range owl:Thing ;
+    a owl:TransitiveProperty .
+
+test:prerequisite a owl:ObjectProperty ;
+    rdfs:label "Prerequisite" ;
+    rdfs:comment "Test has prerequisite conditions" ;
+    rdfs:domain test:Test ;
+    rdfs:range test:Test .
+
+# Test Execution Relationships
+test:hasResult a owl:ObjectProperty ;
+    rdfs:label "Has Result" ;
+    rdfs:comment "Test has execution result" ;
+    rdfs:domain test:Test ;
+    rdfs:range test:TestResult ;
+    a owl:FunctionalProperty .
+
+test:testedBy a owl:ObjectProperty ;
+    rdfs:label "Tested By" ;
+    rdfs:comment "Component is tested by test" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range test:Test .
+
+test:covers a owl:ObjectProperty ;
+    rdfs:label "Covers" ;
+    rdfs:comment "Test covers specific functionality or requirement" ;
+    rdfs:domain test:Test ;
+    rdfs:range owl:Thing .
+
+# Validation Relationships
+test:validatedBy a owl:ObjectProperty ;
+    rdfs:label "Validated By" ;
+    rdfs:comment "Component is validated by validator" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range valid:Validator .
+
+test:usesValidator a owl:ObjectProperty ;
+    rdfs:label "Uses Validator" ;
+    rdfs:comment "Test uses specific validator" ;
+    rdfs:domain test:Test ;
+    rdfs:range valid:Validator .
+
+valid:validatesConstraint a owl:ObjectProperty ;
+    rdfs:label "Validates Constraint" ;
+    rdfs:comment "Validator checks specific constraint" ;
+    rdfs:domain valid:Validator ;
+    rdfs:range sh:Shape .
+
+# Coverage Relationships
+test:hasCoverage a owl:ObjectProperty ;
+    rdfs:label "Has Coverage" ;
+    rdfs:comment "Test suite has coverage measurement" ;
+    rdfs:domain test:TestSuite ;
+    rdfs:range test:Coverage .
+
+test:measuresCoverage a owl:ObjectProperty ;
+    rdfs:label "Measures Coverage" ;
+    rdfs:comment "Coverage measures specific component or code" ;
+    rdfs:domain test:Coverage ;
+    rdfs:range owl:Thing .
+
+# Strategy Relationships
+test:usesCombinationStrategy a owl:ObjectProperty ;
+    rdfs:label "Uses Combination Strategy" ;
+    rdfs:comment "Combination test uses specific strategy" ;
+    rdfs:domain test:CombinationTest ;
+    rdfs:range test:CombinationStrategy .
+
+test:targetsAttackVector a owl:ObjectProperty ;
+    rdfs:label "Targets Attack Vector" ;
+    rdfs:comment "Adversarial test targets specific attack vector" ;
+    rdfs:domain test:AdversarialTest ;
+    rdfs:range test:AttackVector .
+
+test:benchmarks a owl:ObjectProperty ;
+    rdfs:label "Benchmarks" ;
+    rdfs:comment "Benchmark test measures specific target" ;
+    rdfs:domain test:BenchmarkTest ;
+    rdfs:range test:BenchmarkTarget .
+
+# DFLS Integration Relationships
+test:implementsQualityGate a owl:ObjectProperty ;
+    rdfs:label "Implements Quality Gate" ;
+    rdfs:comment "Test implements DFLS quality gate" ;
+    rdfs:domain test:Test ;
+    rdfs:range dfls:QualityGate .
+
+test:validatesPhase a owl:ObjectProperty ;
+    rdfs:label "Validates Phase" ;
+    rdfs:comment "Test validates DFLS DMEDI phase" ;
+    rdfs:domain test:Test ;
+    rdfs:range dfls:PhaseType .
+
+test:measuresQualityMetric a owl:ObjectProperty ;
+    rdfs:label "Measures Quality Metric" ;
+    rdfs:comment "Test measures DFLS quality metric" ;
+    rdfs:domain test:Test ;
+    rdfs:range dfls:SixSigmaMetric .
+
+# OTEL Integration Relationships
+test:generatesTestSpan a owl:ObjectProperty ;
+    rdfs:label "Generates Test Span" ;
+    rdfs:comment "Test generates OTEL span for tracing" ;
+    rdfs:domain test:Test ;
+    rdfs:range otel:Span .
+
+test:reportsTestMetric a owl:ObjectProperty ;
+    rdfs:label "Reports Test Metric" ;
+    rdfs:comment "Test reports OTEL metric" ;
+    rdfs:domain test:Test ;
+    rdfs:range otel:Metric .
+
+# =============================================================================
+# CORE TEST INSTANCES
+# =============================================================================
+
+# Critical Tests (80% Value)
+test:BitActorCompilationTest a test:UnitTest, test:CriticalTest ;
+    rdfs:label "BitActor Compilation Test" ;
+    test:testName "bitactor_compilation" ;
+    test:testDescription "Validates BitActor code generation and compilation" ;
+    test:testPriority "critical" ;
+    test:testScope "component" ;
+    test:isolationLevel "high" ;
+    test:paretoClass "critical" ;
+    test:defectDetectionRate 25.0 ;
+    test:testExecutionCost 5.0 ;
+    test:riskCoverage 90.0 ;
+    test:expectedDuration "PT30S"^^xsd:duration ;
+    test:maxExecutionTime "PT60S"^^xsd:duration .
+
+test:SemanticValidationTest a test:IntegrationTest, test:CriticalTest ;
+    rdfs:label "Semantic Validation Test" ;
+    test:testName "semantic_validation" ;
+    test:testDescription "Validates TTL/RDF semantic correctness using SHACL" ;
+    test:testPriority "critical" ;
+    test:testScope "interface" ;
+    test:isolationLevel "medium" ;
+    test:paretoClass "critical" ;
+    test:defectDetectionRate 20.0 ;
+    test:testExecutionCost 8.0 ;
+    test:riskCoverage 85.0 ;
+    test:expectedDuration "PT15S"^^xsd:duration ;
+    test:maxExecutionTime "PT45S"^^xsd:duration .
+
+test:PerformanceBenchmarkTest a test:PerformanceTest, test:CriticalTest ;
+    rdfs:label "Performance Benchmark Test" ;
+    test:testName "performance_benchmark" ;
+    test:testDescription "Benchmarks system performance against Six Sigma targets" ;
+    test:testPriority "critical" ;
+    test:testScope "performance" ;
+    test:paretoClass "critical" ;
+    test:defectDetectionRate 15.0 ;
+    test:testExecutionCost 12.0 ;
+    test:performanceTarget "0.001"^^xsd:decimal ;  # 1ms latency target
+    test:expectedDuration "PT120S"^^xsd:duration ;
+    test:maxExecutionTime "PT300S"^^xsd:duration .
+
+test:SecurityPenetrationTest a test:SecurityTest, test:CriticalTest ;
+    rdfs:label "Security Penetration Test" ;
+    test:testName "security_penetration" ;
+    test:testDescription "Tests system security against common attack vectors" ;
+    test:testPriority "critical" ;
+    test:testScope "security" ;
+    test:paretoClass "critical" ;
+    test:defectDetectionRate 12.0 ;
+    test:testExecutionCost 15.0 ;
+    test:expectedDuration "PT180S"^^xsd:duration ;
+    test:maxExecutionTime "PT600S"^^xsd:duration .
+
+test:RegressionSmokeTest a test:RegressionTest, test:CriticalTest ;
+    rdfs:label "Regression Smoke Test" ;
+    test:testName "regression_smoke" ;
+    test:testDescription "Quick smoke test for critical functionality" ;
+    test:testPriority "critical" ;
+    test:testScope "regression" ;
+    test:paretoClass "critical" ;
+    test:defectDetectionRate 8.0 ;
+    test:testExecutionCost 3.0 ;
+    test:expectedDuration "PT60S"^^xsd:duration ;
+    test:maxExecutionTime "PT120S"^^xsd:duration .
+
+# Advanced Testing Instances
+test:ParameterPermutationTest a test:PermutationTest, test:StandardTest ;
+    rdfs:label "Parameter Permutation Test" ;
+    test:testName "parameter_permutation" ;
+    test:testDescription "Tests all permutations of critical parameters" ;
+    test:testPriority "medium" ;
+    test:paretoClass "standard" ;
+    test:permutationCoverage "0.95"^^xsd:decimal ;  # 95% coverage
+    test:expectedDuration "PT300S"^^xsd:duration .
+
+test:ConfigurationCombinationTest a test:CombinationTest, test:StandardTest ;
+    rdfs:label "Configuration Combination Test" ;
+    test:testName "configuration_combination" ;
+    test:testDescription "Tests pairwise combinations of configuration options" ;
+    test:testPriority "medium" ;
+    test:paretoClass "standard" ;
+    test:expectedDuration "PT180S"^^xsd:duration .
+
+test:AdversarialFuzzTest a test:AdversarialTest, test:CriticalTest ;
+    rdfs:label "Adversarial Fuzz Test" ;
+    test:testName "adversarial_fuzz" ;
+    test:testDescription "Fuzzing test with adversarial inputs" ;
+    test:testPriority "high" ;
+    test:testScope "adversarial" ;
+    test:paretoClass "critical" ;
+    test:adversarialIntensity 8 ;
+    test:expectedDuration "PT600S"^^xsd:duration .
+
+test:LoadStressTest a test:StressTest, test:StandardTest ;
+    rdfs:label "Load Stress Test" ;
+    test:testName "load_stress" ;
+    test:testDescription "Stress test under 10x normal load" ;
+    test:testPriority "medium" ;
+    test:paretoClass "standard" ;
+    test:stressLevel "10.0"^^xsd:decimal ;
+    test:loadPattern "ramp" ;
+    test:expectedDuration "PT900S"^^xsd:duration .
+
+test:ChaosEngineeringTest a test:ChaosTest, test:StandardTest ;
+    rdfs:label "Chaos Engineering Test" ;
+    test:testName "chaos_engineering" ;
+    test:testDescription "Chaos engineering test with random failures" ;
+    test:testPriority "medium" ;
+    test:paretoClass "standard" ;
+    test:chaosLevel "0.3"^^xsd:decimal ;  # 30% chaos level
+    test:expectedDuration "PT1200S"^^xsd:duration .
+
+# Validator Instances
+valid:TTLSemanticValidator a valid:SemanticValidator ;
+    rdfs:label "TTL Semantic Validator" ;
+    rdfs:comment "Validates TTL files using SHACL constraints" ;
+    valid:usesSHACL true ;
+    valid:complianceStandard "W3C RDF" .
+
+valid:BitActorPerformanceValidator a valid:PerformanceValidator ;
+    rdfs:label "BitActor Performance Validator" ;
+    rdfs:comment "Validates BitActor performance against targets" ;
+    valid:performanceThreshold "0.0005"^^xsd:decimal .  # 500μs threshold
+
+valid:DFLSQualityValidator a valid:FunctionalValidator ;
+    rdfs:label "DFLS Quality Validator" ;
+    rdfs:comment "Validates DFLS Six Sigma quality requirements" .
+
+# Coverage Instances
+test:CriticalPathCoverage a test:PathCoverage ;
+    rdfs:label "Critical Path Coverage" ;
+    rdfs:comment "Coverage for critical execution paths" ;
+    test:coveragePercentage "95.0"^^xsd:decimal ;
+    test:coverageTarget "90.0"^^xsd:decimal .
+
+test:UnitTestStatementCoverage a test:StatementCoverage ;
+    rdfs:label "Unit Test Statement Coverage" ;
+    rdfs:comment "Statement coverage for unit tests" ;
+    test:coveragePercentage "88.5"^^xsd:decimal ;
+    test:coverageTarget "85.0"^^xsd:decimal .
+
+# Strategy Instances
+test:PairwiseParameterTesting a test:PairwiseTesting ;
+    rdfs:label "Pairwise Parameter Testing" ;
+    rdfs:comment "Pairwise testing strategy for parameters" .
+
+test:BufferOverflowVector a test:BufferOverflow ;
+    rdfs:label "Buffer Overflow Attack Vector" ;
+    rdfs:comment "Testing buffer overflow vulnerabilities" .
+
+test:LatencyBenchmarkTarget a test:LatencyBenchmark ;
+    rdfs:label "Latency Benchmark Target" ;
+    rdfs:comment "Benchmark target for latency measurement" .
+
+# =============================================================================
+# TEST SUITE RELATIONSHIPS
+# =============================================================================
+
+# Core Test Suite
+test:CoreTestSuite a test:TestSuite ;
+    rdfs:label "Core Test Suite" ;
+    rdfs:comment "Critical tests providing 80% defect detection" ;
+    test:hasTest test:BitActorCompilationTest,
+                 test:SemanticValidationTest,
+                 test:PerformanceBenchmarkTest,
+                 test:SecurityPenetrationTest,
+                 test:RegressionSmokeTest .
+
+# Advanced Test Suite
+test:AdvancedTestSuite a test:TestSuite ;
+    rdfs:label "Advanced Test Suite" ;
+    rdfs:comment "Advanced tests for comprehensive coverage" ;
+    test:hasTest test:ParameterPermutationTest,
+                 test:ConfigurationCombinationTest,
+                 test:AdversarialFuzzTest,
+                 test:LoadStressTest,
+                 test:ChaosEngineeringTest .
+
+# Master Test Plan
+test:MasterTestPlan a test:TestPlan ;
+    rdfs:label "Master Test Plan" ;
+    rdfs:comment "Comprehensive test plan with DFLS gate conditions" ;
+    test:hasTestSuite test:CoreTestSuite,
+                      test:AdvancedTestSuite .
+
+# Test Dependencies
+test:SemanticValidationTest test:prerequisite test:BitActorCompilationTest .
+test:PerformanceBenchmarkTest test:dependsOn test:SemanticValidationTest .
+test:AdvancedTestSuite test:dependsOn test:CoreTestSuite .
+
+# Validator Assignments
+test:SemanticValidationTest test:usesValidator valid:TTLSemanticValidator .
+test:PerformanceBenchmarkTest test:usesValidator valid:BitActorPerformanceValidator .
+test:CoreTestSuite test:usesValidator valid:DFLSQualityValidator .
+
+# Strategy Assignments
+test:ConfigurationCombinationTest test:usesCombinationStrategy test:PairwiseParameterTesting .
+test:AdversarialFuzzTest test:targetsAttackVector test:BufferOverflowVector .
+test:PerformanceBenchmarkTest test:benchmarks test:LatencyBenchmarkTarget .
+
+# Coverage Assignments
+test:CoreTestSuite test:hasCoverage test:CriticalPathCoverage .
+test:BitActorCompilationTest test:hasCoverage test:UnitTestStatementCoverage .
+
+# =============================================================================
+# END OF ONTOLOGY
+# =============================================================================

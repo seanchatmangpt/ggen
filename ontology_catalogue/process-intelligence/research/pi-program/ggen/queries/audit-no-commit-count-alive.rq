@@ -1,0 +1,19 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX chk: <https://process.intelligence/checkpoint/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# AUDIT: No Commit Count ALIVE
+# ASK query: Verifies ALIVE verdicts are not based on commit count metrics
+# Passes if: No ALIVE checkpoint cites commitCount as sole or primary criterion
+# Date: 2026-06-01
+
+ASK {
+    FILTER NOT EXISTS {
+        ?checkpoint a pi:ALIVEVerdictCheckpoint .
+        ?checkpoint pi:verdictReason ?reason .
+        FILTER (
+            CONTAINS(STR(?reason), "commit") &&
+            NOT EXISTS { ?checkpoint pi:gatesCriteriaMet ?count . FILTER (?count > 1) }
+        )
+    }
+}

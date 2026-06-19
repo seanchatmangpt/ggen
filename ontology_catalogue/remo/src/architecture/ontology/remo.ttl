@@ -1,0 +1,422 @@
+# Remo CLI Ontology Definition
+# Defines the complete action space and data model for the self-hosting CLI
+
+@prefix remo: <https://remo.cli/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix telemetry: <https://remo.cli/ontology/telemetry/> .
+@prefix obs: <https://remo.cli/ontology/observatory/> .
+@prefix forge: <https://remo.cli/ontology/forge/> .
+
+# =====================================================
+# CORE ONTOLOGY STRUCTURE
+# =====================================================
+
+remo:RemoCLI a owl:Ontology ;
+    rdfs:label "Remo CLI Ontology" ;
+    rdfs:comment "Complete ontology defining Remo CLI actions, models, and behaviors" ;
+    owl:versionInfo "1.0.0" .
+
+# =====================================================
+# BASE CLASSES
+# =====================================================
+
+remo:Action a owl:Class ;
+    rdfs:label "Action" ;
+    rdfs:comment "Base class for all CLI actions" .
+
+remo:Command a owl:Class ;
+    rdfs:subClassOf remo:Action ;
+    rdfs:label "Command" ;
+    rdfs:comment "CLI command that can be executed" .
+
+remo:Operation a owl:Class ;
+    rdfs:label "Operation" ;
+    rdfs:comment "Business logic operation" .
+
+remo:Runtime a owl:Class ;
+    rdfs:label "Runtime" ;
+    rdfs:comment "Runtime side effect" .
+
+remo:Model a owl:Class ;
+    rdfs:label "Model" ;
+    rdfs:comment "Data model" .
+
+remo:Config a owl:Class ;
+    rdfs:label "Config" ;
+    rdfs:comment "Configuration parameter" .
+
+# =====================================================
+# TELEMETRY FRAMEWORK
+# =====================================================
+
+telemetry:Metric a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Metric" ;
+    rdfs:comment "OpenTelemetry metric definition" .
+
+telemetry:Trace a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Trace" ;
+    rdfs:comment "OpenTelemetry trace span" .
+
+telemetry:Log a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Log" ;
+    rdfs:comment "Structured log entry" .
+
+# Telemetry Properties
+telemetry:hasName a owl:DatatypeProperty ;
+    rdfs:domain telemetry:Metric ;
+    rdfs:range xsd:string .
+
+telemetry:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain telemetry:Metric ;
+    rdfs:range xsd:string .
+
+telemetry:hasUnit a owl:DatatypeProperty ;
+    rdfs:domain telemetry:Metric ;
+    rdfs:range xsd:string .
+
+telemetry:hasLabels a owl:DatatypeProperty ;
+    rdfs:domain telemetry:Metric ;
+    rdfs:range xsd:string .
+
+# =====================================================
+# OBSERVATORY DOMAIN
+# =====================================================
+
+obs:Observatory a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Observatory" ;
+    rdfs:comment "Code intelligence and analysis system" .
+
+# Observatory Commands
+obs:ScanCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Scan Command" ;
+    rdfs:comment "Scan filesystem and analyze code" .
+
+obs:WatchCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Watch Command" ;
+    rdfs:comment "Watch filesystem for changes" .
+
+obs:QueryCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Query Command" ;
+    rdfs:comment "Query code intelligence database" .
+
+# Observatory Operations
+obs:ScanOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Scan Operation" ;
+    rdfs:comment "File system scanning business logic" .
+
+obs:AnalyzeOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Analyze Operation" ;
+    rdfs:comment "Code analysis business logic" .
+
+obs:IndexOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Index Operation" ;
+    rdfs:comment "Knowledge indexing business logic" .
+
+# Observatory Models
+obs:ScanResult a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Scan Result" ;
+    rdfs:comment "Result of filesystem scan" .
+
+obs:CodeFile a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Code File" ;
+    rdfs:comment "Analyzed code file" .
+
+obs:Dependency a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "Code dependency relationship" .
+
+obs:Symbol a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Symbol" ;
+    rdfs:comment "Code symbol (function, type, etc.)" .
+
+# Observatory Properties
+obs:hasPath a owl:DatatypeProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range xsd:string .
+
+obs:hasLanguage a owl:DatatypeProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range xsd:string .
+
+obs:hasSize a owl:DatatypeProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range xsd:long .
+
+obs:hasModified a owl:DatatypeProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range xsd:dateTime .
+
+obs:hasChecksum a owl:DatatypeProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range xsd:string .
+
+obs:dependsOn a owl:ObjectProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range obs:CodeFile .
+
+obs:hasSymbol a owl:ObjectProperty ;
+    rdfs:domain obs:CodeFile ;
+    rdfs:range obs:Symbol .
+
+obs:symbolName a owl:DatatypeProperty ;
+    rdfs:domain obs:Symbol ;
+    rdfs:range xsd:string .
+
+obs:symbolType a owl:DatatypeProperty ;
+    rdfs:domain obs:Symbol ;
+    rdfs:range xsd:string .
+
+obs:symbolLine a owl:DatatypeProperty ;
+    rdfs:domain obs:Symbol ;
+    rdfs:range xsd:int .
+
+obs:symbolColumn a owl:DatatypeProperty ;
+    rdfs:domain obs:Symbol ;
+    rdfs:range xsd:int .
+
+# Observatory Metrics
+obs:ScanDurationMetric a telemetry:Metric ;
+    telemetry:hasName "obs_scan_duration_seconds" ;
+    telemetry:hasDescription "Duration of filesystem scan" ;
+    telemetry:hasUnit "seconds" ;
+    telemetry:hasLabels "path,language" .
+
+obs:FilesScannedMetric a telemetry:Metric ;
+    telemetry:hasName "obs_files_scanned_total" ;
+    telemetry:hasDescription "Total files scanned" ;
+    telemetry:hasUnit "files" ;
+    telemetry:hasLabels "language,result" .
+
+obs:DependenciesFoundMetric a telemetry:Metric ;
+    telemetry:hasName "obs_dependencies_found_total" ;
+    telemetry:hasDescription "Dependencies discovered" ;
+    telemetry:hasUnit "dependencies" ;
+    telemetry:hasLabels "type,language" .
+
+# =====================================================
+# FORGE DOMAIN
+# =====================================================
+
+forge:Forge a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Forge" ;
+    rdfs:comment "Code generation and building system" .
+
+# Forge Commands
+forge:PlanCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Plan Command" ;
+    rdfs:comment "Generate build plan" .
+
+forge:BuildCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Build Command" ;
+    rdfs:comment "Execute build plan" .
+
+forge:DeployCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Deploy Command" ;
+    rdfs:comment "Deploy built artifacts" .
+
+# Forge Operations
+forge:PlanOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Plan Operation" ;
+    rdfs:comment "Build planning business logic" .
+
+forge:BuildOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Build Operation" ;
+    rdfs:comment "Code building business logic" .
+
+forge:DeployOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Deploy Operation" ;
+    rdfs:comment "Deployment business logic" .
+
+# Forge Models
+forge:BuildPlan a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Build Plan" ;
+    rdfs:comment "Build execution plan" .
+
+forge:BuildStep a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Build Step" ;
+    rdfs:comment "Individual build step" .
+
+forge:Artifact a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Artifact" ;
+    rdfs:comment "Build artifact" .
+
+forge:Target a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Target" ;
+    rdfs:comment "Build target" .
+
+# Forge Properties
+forge:hasSteps a owl:ObjectProperty ;
+    rdfs:domain forge:BuildPlan ;
+    rdfs:range forge:BuildStep .
+
+forge:stepName a owl:DatatypeProperty ;
+    rdfs:domain forge:BuildStep ;
+    rdfs:range xsd:string .
+
+forge:stepCommand a owl:DatatypeProperty ;
+    rdfs:domain forge:BuildStep ;
+    rdfs:range xsd:string .
+
+forge:stepDependsOn a owl:ObjectProperty ;
+    rdfs:domain forge:BuildStep ;
+    rdfs:range forge:BuildStep .
+
+forge:artifactPath a owl:DatatypeProperty ;
+    rdfs:domain forge:Artifact ;
+    rdfs:range xsd:string .
+
+forge:artifactType a owl:DatatypeProperty ;
+    rdfs:domain forge:Artifact ;
+    rdfs:range xsd:string .
+
+forge:artifactSize a owl:DatatypeProperty ;
+    rdfs:domain forge:Artifact ;
+    rdfs:range xsd:long .
+
+# Forge Metrics
+forge:PlanDurationMetric a telemetry:Metric ;
+    telemetry:hasName "forge_plan_duration_seconds" ;
+    telemetry:hasDescription "Duration of build planning" ;
+    telemetry:hasUnit "seconds" ;
+    telemetry:hasLabels "target,complexity" .
+
+forge:BuildDurationMetric a telemetry:Metric ;
+    telemetry:hasName "forge_build_duration_seconds" ;
+    telemetry:hasDescription "Duration of build execution" ;
+    telemetry:hasUnit "seconds" ;
+    telemetry:hasLabels "target,steps" .
+
+forge:ArtifactSizeMetric a telemetry:Metric ;
+    telemetry:hasName "forge_artifact_size_bytes" ;
+    telemetry:hasDescription "Size of generated artifacts" ;
+    telemetry:hasUnit "bytes" ;
+    telemetry:hasLabels "type,target" .
+
+# =====================================================
+# CONFIG DOMAIN
+# =====================================================
+
+remo:ConfigCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Config Command" ;
+    rdfs:comment "Configuration management command" .
+
+remo:ConfigOperation a owl:Class ;
+    rdfs:subClassOf remo:Operation ;
+    rdfs:label "Config Operation" ;
+    rdfs:comment "Configuration business logic" .
+
+remo:ConfigValue a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Config Value" ;
+    rdfs:comment "Configuration value" .
+
+# Config Properties
+remo:configKey a owl:DatatypeProperty ;
+    rdfs:domain remo:ConfigValue ;
+    rdfs:range xsd:string .
+
+remo:configValue a owl:DatatypeProperty ;
+    rdfs:domain remo:ConfigValue ;
+    rdfs:range xsd:string .
+
+remo:configType a owl:DatatypeProperty ;
+    rdfs:domain remo:ConfigValue ;
+    rdfs:range xsd:string .
+
+remo:configRequired a owl:DatatypeProperty ;
+    rdfs:domain remo:ConfigValue ;
+    rdfs:range xsd:boolean .
+
+remo:configDefault a owl:DatatypeProperty ;
+    rdfs:domain remo:ConfigValue ;
+    rdfs:range xsd:string .
+
+# =====================================================
+# WEAVER SELF-HOSTING
+# =====================================================
+
+remo:WeaverCommand a owl:Class ;
+    rdfs:subClassOf remo:Command ;
+    rdfs:label "Weaver Command" ;
+    rdfs:comment "Code generation command" .
+
+remo:Generator a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Generator" ;
+    rdfs:comment "Code generator" .
+
+remo:Template a owl:Class ;
+    rdfs:subClassOf remo:Model ;
+    rdfs:label "Template" ;
+    rdfs:comment "Code template" .
+
+# Weaver Properties
+remo:generatorName a owl:DatatypeProperty ;
+    rdfs:domain remo:Generator ;
+    rdfs:range xsd:string .
+
+remo:templatePath a owl:DatatypeProperty ;
+    rdfs:domain remo:Template ;
+    rdfs:range xsd:string .
+
+remo:outputPath a owl:DatatypeProperty ;
+    rdfs:domain remo:Generator ;
+    rdfs:range xsd:string .
+
+# =====================================================
+# ACTION MAPPINGS
+# =====================================================
+
+# Define which commands map to which operations
+remo:maps a owl:ObjectProperty ;
+    rdfs:domain remo:Command ;
+    rdfs:range remo:Operation .
+
+obs:ScanCommand remo:maps obs:ScanOperation .
+obs:WatchCommand remo:maps obs:AnalyzeOperation .
+obs:QueryCommand remo:maps obs:IndexOperation .
+
+forge:PlanCommand remo:maps forge:PlanOperation .
+forge:BuildCommand remo:maps forge:BuildOperation .
+forge:DeployCommand remo:maps forge:DeployOperation .
+
+# Define operation to runtime mappings
+remo:uses a owl:ObjectProperty ;
+    rdfs:domain remo:Operation ;
+    rdfs:range remo:Runtime .
+
+# This ontology serves as the source of truth for code generation
+# The Weaver reads this file and generates:
+# 1. CLI command structures
+# 2. HTTP API handlers
+# 3. Data model definitions
+# 4. Telemetry instrumentation
+# 5. Business logic interfaces

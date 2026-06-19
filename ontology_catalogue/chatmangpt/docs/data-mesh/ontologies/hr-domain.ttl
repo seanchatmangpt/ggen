@@ -1,0 +1,498 @@
+# HR Domain Ontology — BusinessOS
+# Built on FOAF (Friend of a Friend) + HR Extensions
+# URI: https://businessos.local/ontology/hr/
+# Version: 1.0.0
+# Date: 2026-03-25
+
+@prefix : <https://businessos.local/ontology/hr/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dqv: <http://www.w3.org/ns/dqv#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# DOMAIN DEFINITION
+# ============================================================================
+
+:HRDomain
+  a owl:Class ;
+  dcterms:title "HR Domain"@en ;
+  dcterms:description "Human resources, employees, roles, skills, and organizational structure"@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:isPartOf <https://businessos.local> ;
+  skos:broadMatch foaf:Person .
+
+# ============================================================================
+# CORE ENTITIES
+# ============================================================================
+
+# Person - Employee or contractor
+:Person
+  a owl:Class ;
+  dcterms:title "Person"@en ;
+  dcterms:description "Employee, contractor, or other person in organization"@en ;
+  skos:definition "Individual human being with identity and employment attributes" ;
+  rdfs:subClassOf foaf:Person ;
+  owl:sameAs foaf:Person .
+
+:Person
+  skos:hasProperty :personId, :firstName, :lastName, :email, :phone, :employmentStatus .
+
+:personId
+  a owl:DatatypeProperty ;
+  dcterms:title "Person ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique employee ID or SSN" .
+
+:firstName
+  a owl:DatatypeProperty ;
+  dcterms:title "First Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Person's given name" .
+
+:lastName
+  a owl:DatatypeProperty ;
+  dcterms:title "Last Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Person's family name" .
+
+:email
+  a owl:DatatypeProperty ;
+  dcterms:title "Email Address"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Corporate email address" .
+
+:phone
+  a owl:DatatypeProperty ;
+  dcterms:title "Phone Number"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Work phone number" .
+
+:employmentStatus
+  a owl:DatatypeProperty ;
+  dcterms:title "Employment Status"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "ACTIVE" "INACTIVE" "CONTRACTOR" "VENDOR" "TERMINATED" )
+  ] ;
+  dqv:dimension dqv:Completeness ;
+  dcterms:description "Current employment status" .
+
+# Employee - Active employee with employment attributes
+:Employee
+  a owl:Class ;
+  dcterms:title "Employee"@en ;
+  dcterms:description "Active employee with payroll and benefits"@en ;
+  rdfs:subClassOf :Person .
+
+:Employee
+  skos:hasProperty :employeeId, :hireDate, :salary, :department, :manager, :role .
+
+:employeeId
+  a owl:DatatypeProperty ;
+  dcterms:title "Employee ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique employee identifier" .
+
+:hireDate
+  a owl:DatatypeProperty ;
+  dcterms:title "Hire Date"@en ;
+  rdfs:range xsd:date ;
+  dcterms:description "Date person was hired" .
+
+:salary
+  a owl:DatatypeProperty ;
+  dcterms:title "Annual Salary"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Current annual salary (encrypted)" .
+
+:department
+  a owl:ObjectProperty ;
+  dcterms:title "Department"@en ;
+  rdfs:range :Department ;
+  dcterms:description "Current department assignment" .
+
+:manager
+  a owl:ObjectProperty ;
+  dcterms:title "Manager"@en ;
+  rdfs:range :Employee ;
+  dcterms:description "Direct manager/supervisor" .
+
+:role
+  a owl:ObjectProperty ;
+  dcterms:title "Role"@en ;
+  rdfs:range :Role ;
+  dcterms:description "Current job role" .
+
+# Role - Job title and responsibilities
+:Role
+  a owl:Class ;
+  dcterms:title "Job Role"@en ;
+  dcterms:description "Defined job title and set of responsibilities"@en ;
+  rdfs:subClassOf org:Role ;
+  owl:sameAs org:Role .
+
+:Role
+  skos:hasProperty :roleId, :roleName, :description, :requiredSkills, :salaryRange .
+
+:roleId
+  a owl:DatatypeProperty ;
+  dcterms:title "Role ID"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Unique role identifier" .
+
+:roleName
+  a owl:DatatypeProperty ;
+  dcterms:title "Role Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Job title (e.g., Senior Software Engineer)" .
+
+:description
+  a owl:DatatypeProperty ;
+  dcterms:title "Role Description"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Summary of responsibilities and requirements" .
+
+:requiredSkills
+  a owl:ObjectProperty ;
+  dcterms:title "Required Skills"@en ;
+  rdfs:range :Skill ;
+  dcterms:description "Skills required for the role" .
+
+:salaryRange
+  a owl:ObjectProperty ;
+  dcterms:title "Salary Range"@en ;
+  rdfs:range :SalaryRange ;
+  dcterms:description "Min and max salary for role" .
+
+# Team - Group of people
+:Team
+  a owl:Class ;
+  dcterms:title "Team"@en ;
+  dcterms:description "Group of people working together"@en ;
+  rdfs:subClassOf org:Organization .
+
+:Team
+  skos:hasProperty :teamId, :teamName, :lead, :members, :department .
+
+:teamId
+  a owl:DatatypeProperty ;
+  dcterms:title "Team ID"@en ;
+  rdfs:range xsd:string .
+
+:teamName
+  a owl:DatatypeProperty ;
+  dcterms:title "Team Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Team name (e.g., Platform Team)" .
+
+:lead
+  a owl:ObjectProperty ;
+  dcterms:title "Team Lead"@en ;
+  rdfs:range :Employee ;
+  dcterms:description "Person leading the team" .
+
+:members
+  a owl:ObjectProperty ;
+  dcterms:title "Team Members"@en ;
+  rdfs:range :Employee ;
+  dcterms:description "Employees in this team" .
+
+# Department - Organizational department
+:Department
+  a owl:Class ;
+  dcterms:title "Department"@en ;
+  dcterms:description "Department or business unit in organization"@en ;
+  rdfs:subClassOf org:Organization .
+
+:Department
+  skos:hasProperty :deptId, :deptName, :head, :teams, :budget .
+
+:deptId
+  a owl:DatatypeProperty ;
+  dcterms:title "Department ID"@en ;
+  rdfs:range xsd:string .
+
+:deptName
+  a owl:DatatypeProperty ;
+  dcterms:title "Department Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Department name (e.g., Engineering)" .
+
+:head
+  a owl:ObjectProperty ;
+  dcterms:title "Department Head"@en ;
+  rdfs:range :Employee ;
+  dcterms:description "VP or Director of department" .
+
+:teams
+  a owl:ObjectProperty ;
+  dcterms:title "Teams"@en ;
+  rdfs:range :Team ;
+  dcterms:description "Teams within department" .
+
+:budget
+  a owl:DatatypeProperty ;
+  dcterms:title "Annual Budget"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Annual department budget" .
+
+# Skill - Capability or competency
+:Skill
+  a owl:Class ;
+  dcterms:title "Skill"@en ;
+  dcterms:description "Professional competency or capability"@en ;
+  skos:definition "Technical or soft skill (e.g., Python, Leadership)" .
+
+:Skill
+  skos:hasProperty :skillId, :skillName, :skillCategory, :proficiencyLevels .
+
+:skillId
+  a owl:DatatypeProperty ;
+  dcterms:title "Skill ID"@en ;
+  rdfs:range xsd:string .
+
+:skillName
+  a owl:DatatypeProperty ;
+  dcterms:title "Skill Name"@en ;
+  rdfs:range xsd:string ;
+  dcterms:description "Skill name (e.g., Python, Project Management)" .
+
+:skillCategory
+  a owl:DatatypeProperty ;
+  dcterms:title "Skill Category"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "TECHNICAL" "SOFT_SKILL" "LEADERSHIP" "DOMAIN_KNOWLEDGE" "TOOL_PROFICIENCY" )
+  ] ;
+  dcterms:description "Category of skill" .
+
+:proficiencyLevels
+  a owl:DatatypeProperty ;
+  dcterms:title "Proficiency Levels"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "NOVICE" "INTERMEDIATE" "ADVANCED" "EXPERT" )
+  ] ;
+  dcterms:description "Possible proficiency levels for skill" .
+
+# PersonSkill - Person's proficiency in a skill
+:PersonSkill
+  a owl:Class ;
+  dcterms:title "Person Skill"@en ;
+  dcterms:description "Person's proficiency in a particular skill"@en ;
+  skos:definition "Links person to skill with proficiency level" .
+
+:PersonSkill
+  skos:hasProperty :person, :skill, :proficiency, :yearsOfExperience, :verified .
+
+:person
+  a owl:ObjectProperty ;
+  dcterms:title "Person"@en ;
+  rdfs:range :Person ;
+  dcterms:description "Person with skill" .
+
+:skill
+  a owl:ObjectProperty ;
+  dcterms:title "Skill"@en ;
+  rdfs:range :Skill ;
+  dcterms:description "Skill person possesses" .
+
+:proficiency
+  a owl:DatatypeProperty ;
+  dcterms:title "Proficiency Level"@en ;
+  rdfs:range [
+    a rdfs:Datatype ;
+    owl:oneOf ( "NOVICE" "INTERMEDIATE" "ADVANCED" "EXPERT" )
+  ] ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Level of proficiency" .
+
+:yearsOfExperience
+  a owl:DatatypeProperty ;
+  dcterms:title "Years of Experience"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Years person has used this skill" .
+
+:verified
+  a owl:DatatypeProperty ;
+  dcterms:title "Verified"@en ;
+  rdfs:range xsd:boolean ;
+  dqv:dimension dqv:Accuracy ;
+  dcterms:description "Whether skill proficiency has been verified/tested" .
+
+# SalaryRange - Min/max salary for role
+:SalaryRange
+  a owl:Class ;
+  dcterms:title "Salary Range"@en ;
+  dcterms:description "Minimum and maximum salary for a role"@en .
+
+:SalaryRange
+  skos:hasProperty :minimumSalary, :maximumSalary .
+
+:minimumSalary
+  a owl:DatatypeProperty ;
+  dcterms:title "Minimum Salary"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy .
+
+:maximumSalary
+  a owl:DatatypeProperty ;
+  dcterms:title "Maximum Salary"@en ;
+  rdfs:range xsd:decimal ;
+  dqv:dimension dqv:Accuracy .
+
+# ============================================================================
+# DATA CONTRACTS (DCAT)
+# ============================================================================
+
+:EmployeeDataset
+  a dcat:Dataset ;
+  dcterms:title "Employee Directory"@en ;
+  dcterms:description "Active employees with contact and role information"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcterms:creator <https://businessos.local/agents/hr> ;
+  dcat:keyword "employee", "person", "directory" ;
+  dcat:accessURL <https://businessos.local/api/hr/employees> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/daily> ;
+  dqv:hasQualityMeasurement :EmployeeCompletenessMetric ;
+  dcterms:conformsTo <https://owasp.org/www-project-top-ten/> .  # OWASP compliance
+
+:EmployeeCompletenessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :EmployeeDataset ;
+  dqv:value 0.98 ;  # 98% of employees have complete profiles
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:SkillDataset
+  a dcat:Dataset ;
+  dcterms:title "Employee Skills Inventory"@en ;
+  dcterms:description "All employees with skills and proficiency levels"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/hr/skills> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/weekly> ;
+  dqv:hasQualityMeasurement :SkillAccuracyMetric .
+
+:SkillAccuracyMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :SkillDataset ;
+  dqv:value 0.85 ;  # 85% of skills have been verified
+  dqv:dimension dqv:Accuracy ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+:RoleDataset
+  a dcat:Dataset ;
+  dcterms:title "Job Roles & Descriptions"@en ;
+  dcterms:description "All defined job roles with requirements and salary ranges"@en ;
+  dcterms:issued "2026-01-01"^^xsd:date ;
+  dcat:accessURL <https://businessos.local/api/hr/roles> ;
+  dcterms:accrualPeriodicity <http://purl.org/ckan/accrual/monthly> ;
+  dqv:hasQualityMeasurement :RoleCompletenessMetric .
+
+:RoleCompletenessMetric
+  a dqv:QualityMeasurement ;
+  dqv:isMeasurementOf :RoleDataset ;
+  dqv:value 0.94 ;  # 94% of roles fully documented
+  dqv:dimension dqv:Completeness ;
+  dcterms:issued "2026-03-25T00:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# QUALITY METRICS (DQV)
+# ============================================================================
+
+:HRQualityDimensions
+  a dqv:Dimension ;
+  dcterms:title "HR Quality Dimensions"@en ;
+  dqv:inCategory dqv:Accuracy, dqv:Completeness, dqv:Timeliness, dqv:Consistency .
+
+:DataStalenessMetric
+  a dqv:QualityMetric ;
+  dcterms:title "Data Freshness"@en ;
+  skos:definition "Days since last update (target: ≤7 days)" ;
+  dqv:expectedValue "7"^^xsd:integer ;
+  dqv:unit "days" .
+
+# ============================================================================
+# GOVERNANCE (ODRL)
+# ============================================================================
+
+:EmployeeAccessPolicy
+  a odrl:Policy ;
+  dcterms:title "Employee Data Access Policy"@en ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Read ;
+      odrl:target :EmployeeDataset, :SkillDataset, :RoleDataset ;
+      odrl:assignee <https://businessos.local/teams/hr>,
+                    <https://businessos.local/teams/finance>,
+                    <https://businessos.local/teams/operations> ;
+      odrl:constraint
+        [ a odrl:Constraint ;
+          odrl:operator odrl:eq ;
+          odrl:leftOperand odrl:purpose ;
+          odrl:rightOperand odrl:businessPurpose:HRPlanning
+        ] ;
+      dcterms:description "HR, Finance, Operations can READ employee data for planning" ;
+      odrl:datatype "PII" ;
+      odrl:remediation "Notify employee of access"
+    ] ;
+  odrl:permission
+    [ a odrl:Permission ;
+      odrl:action odrl:Write ;
+      odrl:target :EmployeeDataset, :SkillDataset, :RoleDataset ;
+      odrl:assignee <https://businessos.local/agents/hr> ;
+      dcterms:description "HR agent can WRITE employee and role data"
+    ] .
+
+# ============================================================================
+# PROVENANCE & AUDIT (PROV-O)
+# ============================================================================
+
+:SkillMappingActivity
+  a prov:Activity ;
+  dcterms:title "Skill Gap Analysis"@en ;
+  prov:wasAssociatedWith <https://businessos.local/agents/hr> ;
+  prov:used :SkillDataset, :RoleDataset ;
+  prov:generated :SkillGapReport ;
+  prov:startedAtTime "2026-03-20T09:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-03-21T17:00:00Z"^^xsd:dateTime .
+
+:SkillGapReport
+  a prov:Entity ;
+  dcterms:title "Skill Gap Report"@en ;
+  prov:wasDerivedFrom :SkillDataset, :RoleDataset ;
+  dcterms:issued "2026-03-21T17:00:00Z"^^xsd:dateTime ;
+  dcterms:description "Identified skill gaps across organization" .
+
+# ============================================================================
+# FEDERATION LINKS (Cross-domain Integration)
+# ============================================================================
+
+# Link to Finance domain (Employee -> Salary Expense)
+:EmployeeSalary
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/finance/Transaction> ;
+  dcterms:description "HR employee salary transaction in finance GL" .
+
+# Link to Operations domain (Employee -> Task Assignment)
+:EmployeeAssignment
+  a owl:Class ;
+  dcterms:references <https://businessos.local/ontology/operations/Activity> ;
+  dcterms:description "HR employee assigned to operations activity" .
+
+# Link to Sales domain (Employee -> Sales Contact)
+:SalesPerson
+  a owl:Class ;
+  owl:sameAs <https://businessos.local/ontology/sales/Contact> ;
+  dcterms:description "HR employee who is a sales contact" .
+

@@ -1,0 +1,14 @@
+# Extract OSA agent loop architecture stages
+PREFIX osa: <https://chatmangpt.com/osa#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?stageName ?input ?output
+WHERE {
+  ?arch a osa:Architecture ;
+        osa:stage ?stage .
+  ?stage a osa:Stage ;
+         osa:name ?stageName ;
+         osa:input ?input ;
+         osa:output ?output .
+}
+ORDER BY ?stageName

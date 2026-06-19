@@ -1,0 +1,8 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ex: <http://example.org/pizza#>
+
+SELECT ?subclass ?label
+WHERE {
+  ?subclass rdfs:subClassOf ex:Pizza .
+  ?subclass rdfs:label ?label .
+}

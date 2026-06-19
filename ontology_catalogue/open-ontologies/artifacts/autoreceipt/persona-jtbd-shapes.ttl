@@ -1,0 +1,11 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <http://schema.org/> .
+
+<urn:uuid:shape:JTBD> a sh:NodeShape ;
+    sh:targetClass schema:Action ;
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:class prov:Agent ;
+        sh:minCount 1 ;
+    ] .

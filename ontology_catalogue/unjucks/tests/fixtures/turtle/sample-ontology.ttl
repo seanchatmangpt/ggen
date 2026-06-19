@@ -1,0 +1,54 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <http://example.org/ontology#> .
+
+# Person class definition
+ex:Person rdf:type owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human person" .
+
+# Properties for Person
+ex:hasName rdf:type owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .
+
+ex:hasEmail rdf:type owl:DatatypeProperty ;
+    rdfs:label "has email" ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal .
+
+ex:hasAge rdf:type owl:DatatypeProperty ;
+    rdfs:label "has age" ;
+    rdfs:domain ex:Person ;
+    rdfs:range <http://www.w3.org/2001/XMLSchema#integer> .
+
+# Sample instances
+ex:john rdf:type ex:Person ;
+    ex:hasName "John Doe" ;
+    ex:hasEmail "john.doe@example.com" ;
+    ex:hasAge 30 .
+
+ex:jane rdf:type ex:Person ;
+    ex:hasName "Jane Smith" ;
+    ex:hasEmail "jane.smith@example.com" ;
+    ex:hasAge 28 .
+
+# Organization class
+ex:Organization rdf:type owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A business organization" .
+
+ex:worksFor rdf:type owl:ObjectProperty ;
+    rdfs:label "works for" ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+ex:acmeCorp rdf:type ex:Organization ;
+    rdfs:label "ACME Corporation" .
+
+ex:john ex:worksFor ex:acmeCorp .
+ex:jane ex:worksFor ex:acmeCorp .

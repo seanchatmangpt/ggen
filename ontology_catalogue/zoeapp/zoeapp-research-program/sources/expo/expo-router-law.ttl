@@ -1,0 +1,26 @@
+@prefix ostar: <urn:ostar:ontology#> .
+@prefix expo: <urn:ostar:expo#> .
+
+<urn:ostar:law:ExpoRouterLifecycle> a ostar:Law ;
+    ostar:lawId "ExpoRouterLifecycle" ;
+    ostar:hasTransition [
+        ostar:fromState "RoutingDefinition" ;
+        ostar:inputValue "RouteMatch" ;
+        ostar:toState "ComponentResolution" ;
+    ], [
+        ostar:fromState "ComponentResolution" ;
+        ostar:inputValue "RenderSuccess" ;
+        ostar:toState "ViewRendering" ;
+    ] .
+
+<urn:ostar:law:CNGLifecycle> a ostar:Law ;
+    ostar:lawId "CNGLifecycle" ;
+    ostar:hasTransition [
+        ostar:fromState "ConfigRead" ;
+        ostar:inputValue "PluginTrigger" ;
+        ostar:toState "PluginExecution" ;
+    ], [
+        ostar:fromState "PluginExecution" ;
+        ostar:inputValue "TransformationComplete" ;
+        ostar:toState "NativeSync" ;
+    ] .

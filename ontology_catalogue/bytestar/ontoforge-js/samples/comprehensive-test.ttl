@@ -1,0 +1,192 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix : <http://example.org/ontoforge/> .
+
+# Comprehensive test ontology for OntoForge-JS BDD testing
+
+# Basic Classes
+:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A user of the system" .
+
+:Post a owl:Class ;
+    rdfs:label "Blog Post" ;
+    rdfs:comment "A blog post created by a user" .
+
+:Comment a owl:Class ;
+    rdfs:label "Comment" ;
+    rdfs:comment "A comment on a blog post" .
+
+:Tag a owl:Class ;
+    rdfs:label "Tag" ;
+    rdfs:comment "A tag for categorizing posts" .
+
+:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "A category for organizing content" .
+
+# Inheritance hierarchy
+:Person a owl:Class ;
+    rdfs:label "Person" .
+
+:Employee a owl:Class ;
+    rdfs:subClassOf :Person ;
+    rdfs:label "Employee" .
+
+:Manager a owl:Class ;
+    rdfs:subClassOf :Employee ;
+    rdfs:label "Manager" .
+
+# Data Properties - String types
+:username a owl:DatatypeProperty ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "Username" .
+
+:email a owl:DatatypeProperty ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "Email Address" .
+
+:firstName a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "First Name" .
+
+:lastName a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "Last Name" .
+
+:title a owl:DatatypeProperty ;
+    rdfs:domain :Post ;
+    rdfs:range xsd:string ;
+    rdfs:label "Post Title" .
+
+:content a owl:DatatypeProperty ;
+    rdfs:domain :Post ;
+    rdfs:range xsd:string ;
+    rdfs:label "Post Content" .
+
+:tagName a owl:DatatypeProperty ;
+    rdfs:domain :Tag ;
+    rdfs:range xsd:string ;
+    rdfs:label "Tag Name" .
+
+# Data Properties - Numeric types
+:age a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Age" .
+
+:salary a owl:DatatypeProperty ;
+    rdfs:domain :Employee ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Salary" .
+
+:viewCount a owl:DatatypeProperty ;
+    rdfs:domain :Post ;
+    rdfs:range xsd:integer ;
+    rdfs:label "View Count" .
+
+# Data Properties - Boolean types
+:isActive a owl:DatatypeProperty ;
+    rdfs:domain :User ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Active" .
+
+:isPublished a owl:DatatypeProperty ;
+    rdfs:domain :Post ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Published" .
+
+:isPermanent a owl:DatatypeProperty ;
+    rdfs:domain :Employee ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Permanent" .
+
+# Data Properties - DateTime types
+:birthDate a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Birth Date" .
+
+:publishedAt a owl:DatatypeProperty ;
+    rdfs:domain :Post ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Published At" .
+
+:lastLoginAt a owl:DatatypeProperty ;
+    rdfs:domain :User ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Login At" .
+
+:hireDate a owl:DatatypeProperty ;
+    rdfs:domain :Employee ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Hire Date" .
+
+# Object Properties - Relationships
+:author a owl:ObjectProperty ;
+    rdfs:domain :Post ;
+    rdfs:range :User ;
+    rdfs:label "authored by" .
+
+:commenter a owl:ObjectProperty ;
+    rdfs:domain :Comment ;
+    rdfs:range :User ;
+    rdfs:label "commented by" .
+
+:commentOn a owl:ObjectProperty ;
+    rdfs:domain :Comment ;
+    rdfs:range :Post ;
+    rdfs:label "comment on" .
+
+:hasTag a owl:ObjectProperty ;
+    rdfs:domain :Post ;
+    rdfs:range :Tag ;
+    rdfs:label "has tag" .
+
+:belongsToCategory a owl:ObjectProperty ;
+    rdfs:domain :Post ;
+    rdfs:range :Category ;
+    rdfs:label "belongs to category" .
+
+:manager a owl:ObjectProperty ;
+    rdfs:domain :Employee ;
+    rdfs:range :Manager ;
+    rdfs:label "managed by" .
+
+:worksFor a owl:ObjectProperty ;
+    rdfs:domain :Employee ;
+    rdfs:range :User ;
+    rdfs:label "works for" .
+
+# Complex relationship - many-to-many
+:collaboratesWith a owl:ObjectProperty ;
+    rdfs:domain :Employee ;
+    rdfs:range :Employee ;
+    rdfs:label "collaborates with" .
+
+# Mixed namespace properties
+:foafName a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    owl:equivalentProperty foaf:name .
+
+:schemaEmail a owl:DatatypeProperty ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string ;
+    owl:equivalentProperty schema:email .
+
+# Properties with no explicit labels (for fallback testing)
+:unlabeledProperty a owl:DatatypeProperty ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string .
+
+:complexPropertyName a owl:DatatypeProperty ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string .

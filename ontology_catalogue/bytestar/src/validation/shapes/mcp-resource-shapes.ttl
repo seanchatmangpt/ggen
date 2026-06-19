@@ -1,0 +1,345 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcp: <http://bytestar.ai/mcp/> .
+@prefix bytestar: <http://bytestar.ai/ontology/> .
+
+# MCP Resource Base Shape
+mcp:ResourceShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:Resource ;
+    sh:property [
+        sh:path mcp:uri ;
+        sh:datatype xsd:anyURI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9+.-]*:" ;
+        sh:message "Resource must have a valid URI" ;
+    ] ;
+    sh:property [
+        sh:path mcp:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:message "Resource must have a name between 1 and 255 characters" ;
+    ] ;
+    sh:property [
+        sh:path mcp:description ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 2000 ;
+        sh:message "Resource description must not exceed 2000 characters" ;
+    ] ;
+    sh:property [
+        sh:path mcp:mimeType ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9][a-zA-Z0-9\\!\\#\\$\\&\\-\\^]*\/[a-zA-Z0-9][a-zA-Z0-9\\!\\#\\$\\&\\-\\^\\_.]*$" ;
+        sh:message "Resource mime type must be a valid MIME type format" ;
+    ] ;
+    sh:property [
+        sh:path mcp:server ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Resource must specify a server name" ;
+    ] .
+
+# MCP Tool Shape
+mcp:ToolShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:Tool ;
+    sh:property [
+        sh:path mcp:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z_][a-zA-Z0-9_-]*$" ;
+        sh:message "Tool name must be a valid identifier" ;
+    ] ;
+    sh:property [
+        sh:path mcp:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 1000 ;
+        sh:message "Tool must have a description between 10 and 1000 characters" ;
+    ] ;
+    sh:property [
+        sh:path mcp:inputSchema ;
+        sh:class mcp:JSONSchema ;
+        sh:maxCount 1 ;
+        sh:message "Tool may have at most one input schema" ;
+    ] ;
+    sh:property [
+        sh:path mcp:outputSchema ;
+        sh:class mcp:JSONSchema ;
+        sh:maxCount 1 ;
+        sh:message "Tool may have at most one output schema" ;
+    ] .
+
+# MCP Prompt Shape
+mcp:PromptShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:Prompt ;
+    sh:property [
+        sh:path mcp:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z_][a-zA-Z0-9_-]*$" ;
+        sh:message "Prompt name must be a valid identifier" ;
+    ] ;
+    sh:property [
+        sh:path mcp:description ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 500 ;
+        sh:message "Prompt description must not exceed 500 characters" ;
+    ] ;
+    sh:property [
+        sh:path mcp:arguments ;
+        sh:class mcp:ArgumentSet ;
+        sh:maxCount 1 ;
+        sh:message "Prompt may have at most one argument set" ;
+    ] .
+
+# JSON Schema Shape
+mcp:JSONSchemaShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:JSONSchema ;
+    sh:property [
+        sh:path mcp:type ;
+        sh:datatype xsd:string ;
+        sh:in ("object" "array" "string" "number" "integer" "boolean" "null") ;
+        sh:message "JSON Schema type must be a valid JSON type" ;
+    ] ;
+    sh:property [
+        sh:path mcp:properties ;
+        sh:class mcp:PropertySet ;
+        sh:maxCount 1 ;
+        sh:message "JSON Schema may have at most one property set" ;
+    ] ;
+    sh:property [
+        sh:path mcp:required ;
+        sh:datatype xsd:string ;
+        sh:message "Required properties must be strings" ;
+    ] .
+
+# Security Constraint Shapes
+mcp:SecurityConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:SecurityConstraint ;
+    sh:property [
+        sh:path mcp:accessLevel ;
+        sh:datatype xsd:string ;
+        sh:in ("public" "restricted" "private" "secure") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Security constraint must specify a valid access level" ;
+    ] ;
+    sh:property [
+        sh:path mcp:permissions ;
+        sh:datatype xsd:string ;
+        sh:in ("read" "write" "execute" "admin") ;
+        sh:message "Permissions must be valid permission types" ;
+    ] ;
+    sh:property [
+        sh:path mcp:rateLimit ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10000 ;
+        sh:message "Rate limit must be between 1 and 10000 requests" ;
+    ] .
+
+# Resource Size Constraints
+mcp:ResourceSizeShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:Resource ;
+    sh:property [
+        sh:path mcp:maxSize ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 104857600 ; # 100MB
+        sh:message "Resource size must be between 0 and 100MB" ;
+    ] ;
+    sh:property [
+        sh:path mcp:encoding ;
+        sh:datatype xsd:string ;
+        sh:in ("utf-8" "base64" "binary" "json" "xml" "yaml") ;
+        sh:message "Resource encoding must be a supported type" ;
+    ] .
+
+# Data Integrity Shapes
+mcp:DataIntegrityShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:Resource ;
+    sh:property [
+        sh:path mcp:checksum ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:message "Checksum must be a valid SHA-256 hash" ;
+    ] ;
+    sh:property [
+        sh:path mcp:lastModified ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Last modified must be a valid datetime" ;
+    ] ;
+    sh:property [
+        sh:path mcp:version ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$" ;
+        sh:message "Version must follow semantic versioning" ;
+    ] .
+
+# Network Constraints
+mcp:NetworkConstraintShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:NetworkConstraint ;
+    sh:property [
+        sh:path mcp:timeout ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1000 ;
+        sh:maxInclusive 300000 ; # 5 minutes
+        sh:message "Timeout must be between 1 second and 5 minutes (in ms)" ;
+    ] ;
+    sh:property [
+        sh:path mcp:retryAttempts ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 5 ;
+        sh:message "Retry attempts must be between 0 and 5" ;
+    ] ;
+    sh:property [
+        sh:path mcp:backoffStrategy ;
+        sh:datatype xsd:string ;
+        sh:in ("linear" "exponential" "fixed") ;
+        sh:message "Backoff strategy must be linear, exponential, or fixed" ;
+    ] .
+
+# Agent Resource Constraints
+mcp:AgentResourceShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:Agent ;
+    sh:property [
+        sh:path mcp:agentId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:minLength 3 ;
+        sh:maxLength 50 ;
+        sh:message "Agent ID must be alphanumeric with underscores/hyphens, 3-50 chars" ;
+    ] ;
+    sh:property [
+        sh:path mcp:capabilities ;
+        sh:datatype xsd:string ;
+        sh:message "Agent capabilities must be strings" ;
+    ] ;
+    sh:property [
+        sh:path mcp:maxConcurrentTasks ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Max concurrent tasks must be between 1 and 100" ;
+    ] ;
+    sh:property [
+        sh:path mcp:memoryLimit ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 1048576 ; # 1MB
+        sh:maxInclusive 1073741824 ; # 1GB
+        sh:message "Memory limit must be between 1MB and 1GB" ;
+    ] .
+
+# Swarm Topology Constraints
+mcp:SwarmTopologyShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:SwarmTopology ;
+    sh:property [
+        sh:path mcp:topology ;
+        sh:datatype xsd:string ;
+        sh:in ("mesh" "hierarchical" "ring" "star") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Swarm topology must be mesh, hierarchical, ring, or star" ;
+    ] ;
+    sh:property [
+        sh:path mcp:maxAgents ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 1000 ;
+        sh:message "Max agents must be between 1 and 1000" ;
+    ] ;
+    sh:property [
+        sh:path mcp:strategy ;
+        sh:datatype xsd:string ;
+        sh:in ("balanced" "specialized" "adaptive") ;
+        sh:message "Strategy must be balanced, specialized, or adaptive" ;
+    ] .
+
+# Task Orchestration Constraints
+mcp:TaskOrchestrationShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:TaskOrchestration ;
+    sh:property [
+        sh:path mcp:priority ;
+        sh:datatype xsd:string ;
+        sh:in ("low" "medium" "high" "critical") ;
+        sh:message "Priority must be low, medium, high, or critical" ;
+    ] ;
+    sh:property [
+        sh:path mcp:strategy ;
+        sh:datatype xsd:string ;
+        sh:in ("parallel" "sequential" "adaptive") ;
+        sh:message "Execution strategy must be parallel, sequential, or adaptive" ;
+    ] ;
+    sh:property [
+        sh:path mcp:maxDuration ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1000 ;
+        sh:maxInclusive 3600000 ; # 1 hour
+        sh:message "Max task duration must be between 1 second and 1 hour (in ms)" ;
+    ] .
+
+# Memory Storage Constraints
+mcp:MemoryStorageShape
+    a sh:NodeShape ;
+    sh:targetClass mcp:MemoryStorage ;
+    sh:property [
+        sh:path mcp:namespace ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9/_-]*$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 100 ;
+        sh:message "Memory namespace must be valid path-like identifier" ;
+    ] ;
+    sh:property [
+        sh:path mcp:key ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9_/-]+$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxLength 200 ;
+        sh:message "Memory key must be alphanumeric with allowed separators" ;
+    ] ;
+    sh:property [
+        sh:path mcp:ttl ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 2592000000 ; # 30 days in ms
+        sh:message "TTL must be between 0 and 30 days (in ms)" ;
+    ] ;
+    sh:property [
+        sh:path mcp:valueSize ;
+        sh:datatype xsd:long ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10485760 ; # 10MB
+        sh:message "Memory value size must not exceed 10MB" ;
+    ] .

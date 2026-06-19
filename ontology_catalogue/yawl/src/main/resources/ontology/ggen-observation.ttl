@@ -1,0 +1,361 @@
+@prefix : <http://yawlfoundation.org/facts#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# YAWL Codebase Observation Ontology (ggen-observation.ttl)
+#
+# Describes the structure and properties of YAWL codebase for code generation.
+# Used by ggen to understand module organization, dependencies, tests, coverage.
+#
+# Domains:
+#   - Module: Maven modules (yawl-engine, yawl-elements, etc.)
+#   - Dependency: Build and runtime dependencies between modules
+#   - Coverage: Test coverage metrics (line%, branch%)
+#   - Tests: Test count and frameworks used
+#   - BuildProfile: Maven profiles (ci, prod, analysis, etc.)
+#   - BuildPlugin: Maven plugins (spotbugs, checkstyle, jacoco, etc.)
+#   - ArchitecturePattern: Module sharing strategy (full_shared, package_scoped, standard)
+#   - IntegrationPoint: External integrations (MCP, A2A, ZAI)
+#
+# Constraints:
+#   - Every Module must have a moduleName (string)
+#   - Every Dependency must reference two Modules
+#   - Coverage metrics are optional but if present, must be 0-100
+#   - testCount must be non-negative integer
+#   - No cycles in Dependency graph (buildOrder enforces DAG)
+# ============================================================================
+
+# ============================================================================
+# Classes
+# ============================================================================
+
+:Module a rdfs:Class ;
+    rdfs:label "Module" ;
+    rdfs:comment "A Maven module in the YAWL codebase (e.g., yawl-engine)" ;
+    rdfs:isDefinedBy : .
+
+:Dependency a rdfs:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "A build-time dependency between two modules" ;
+    rdfs:isDefinedBy : .
+
+:Coverage a rdfs:Class ;
+    rdfs:label "Coverage" ;
+    rdfs:comment "Code coverage metrics (line coverage %, branch coverage %)" ;
+    rdfs:isDefinedBy : .
+
+:Test a rdfs:Class ;
+    rdfs:label "Test" ;
+    rdfs:comment "Test configuration for a module (framework, count)" ;
+    rdfs:isDefinedBy : .
+
+:BuildProfile a rdfs:Class ;
+    rdfs:label "BuildProfile" ;
+    rdfs:comment "Maven build profile (e.g., 'prod', 'ci', 'analysis')" ;
+    rdfs:isDefinedBy : .
+
+:BuildPlugin a rdfs:Class ;
+    rdfs:label "BuildPlugin" ;
+    rdfs:comment "Maven plugin (e.g., spotbugs, checkstyle, jacoco)" ;
+    rdfs:isDefinedBy : .
+
+:ArchitecturePattern a rdfs:Class ;
+    rdfs:label "ArchitecturePattern" ;
+    rdfs:comment "Module sharing strategy pattern (full_shared, package_scoped, standard)" ;
+    rdfs:isDefinedBy : .
+
+:IntegrationPoint a rdfs:Class ;
+    rdfs:label "IntegrationPoint" ;
+    rdfs:comment "External integration endpoint (MCP tools, A2A skills, ZAI)" ;
+    rdfs:isDefinedBy : .
+
+:Quality a rdfs:Class ;
+    rdfs:label "Quality" ;
+    rdfs:comment "Quality metrics and gates (spotbugs, checkstyle, enforcer)" ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Module Properties
+# ============================================================================
+
+:moduleName a rdf:Property ;
+    rdfs:label "moduleName" ;
+    rdfs:comment "Maven module identifier (e.g., 'yawl-engine')" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:modulePath a rdf:Property ;
+    rdfs:label "modulePath" ;
+    rdfs:comment "Relative path to module in repository" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:srcFiles a rdf:Property ;
+    rdfs:label "srcFiles" ;
+    rdfs:comment "Number of source files (*.java) in module" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:testFiles a rdf:Property ;
+    rdfs:label "testFiles" ;
+    rdfs:comment "Number of test files (*.java) in module" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:hasPom a rdf:Property ;
+    rdfs:label "hasPom" ;
+    rdfs:comment "Whether module has a pom.xml file" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:strategy a rdf:Property ;
+    rdfs:label "strategy" ;
+    rdfs:comment "Module source sharing strategy (full_shared|package_scoped|standard)" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:springConfig a rdf:Property ;
+    rdfs:label "springConfig" ;
+    rdfs:comment "Whether module has Spring configuration" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:hibernateConfig a rdf:Property ;
+    rdfs:label "hibernateConfig" ;
+    rdfs:comment "Whether module has Hibernate configuration" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:sharingStrategy a rdf:Property ;
+    rdfs:label "sharingStrategy" ;
+    rdfs:comment "Full source sharing (full_shared), package scoped, or standard isolation" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Dependency Properties
+# ============================================================================
+
+:dependsOn a rdf:Property ;
+    rdfs:label "dependsOn" ;
+    rdfs:comment "Module A depends on Module B (build-time)" ;
+    rdfs:domain :Module ;
+    rdfs:range :Module ;
+    rdfs:isDefinedBy : .
+
+:buildOrder a rdf:Property ;
+    rdfs:label "buildOrder" ;
+    rdfs:comment "Topological build order (0=first, monotonically increasing)" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Coverage Properties
+# ============================================================================
+
+:lineCoverage a rdf:Property ;
+    rdfs:label "lineCoverage" ;
+    rdfs:comment "Line coverage percentage (0-100)" ;
+    rdfs:domain (:Module :Coverage) ;
+    rdfs:range xsd:double ;
+    rdfs:isDefinedBy : .
+
+:branchCoverage a rdf:Property ;
+    rdfs:label "branchCoverage" ;
+    rdfs:comment "Branch coverage percentage (0-100)" ;
+    rdfs:domain (:Module :Coverage) ;
+    rdfs:range xsd:double ;
+    rdfs:isDefinedBy : .
+
+:linesCovered a rdf:Property ;
+    rdfs:label "linesCovered" ;
+    rdfs:comment "Absolute count of lines covered" ;
+    rdfs:domain :Coverage ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:linesMissed a rdf:Property ;
+    rdfs:label "linesMissed" ;
+    rdfs:comment "Absolute count of lines missed" ;
+    rdfs:domain :Coverage ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:targetLineCoverage a rdf:Property ;
+    rdfs:label "targetLineCoverage" ;
+    rdfs:comment "Target line coverage percentage (typically 65)" ;
+    rdfs:domain :Coverage ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:targetBranchCoverage a rdf:Property ;
+    rdfs:label "targetBranchCoverage" ;
+    rdfs:comment "Target branch coverage percentage (typically 55)" ;
+    rdfs:domain :Coverage ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:meetsLineTarget a rdf:Property ;
+    rdfs:label "meetsLineTarget" ;
+    rdfs:comment "Whether module meets line coverage target" ;
+    rdfs:domain :Coverage ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:meetsBranchTarget a rdf:Property ;
+    rdfs:label "meetsBranchTarget" ;
+    rdfs:comment "Whether module meets branch coverage target" ;
+    rdfs:domain :Coverage ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Test Properties
+# ============================================================================
+
+:testCount a rdf:Property ;
+    rdfs:label "testCount" ;
+    rdfs:comment "Total number of test cases in module" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:testFramework a rdf:Property ;
+    rdfs:label "testFramework" ;
+    rdfs:comment "Test framework used (e.g., JUnit, TestNG)" ;
+    rdfs:domain :Module ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Build Profile Properties
+# ============================================================================
+
+:profileName a rdf:Property ;
+    rdfs:label "profileName" ;
+    rdfs:comment "Maven profile identifier" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Build Plugin Properties
+# ============================================================================
+
+:pluginName a rdf:Property ;
+    rdfs:label "pluginName" ;
+    rdfs:comment "Maven plugin identifier (e.g., spotbugs)" ;
+    rdfs:domain :BuildPlugin ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:enabled a rdf:Property ;
+    rdfs:label "enabled" ;
+    rdfs:comment "Whether plugin is enabled" ;
+    rdfs:domain :BuildPlugin ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy : .
+
+:buildPhase a rdf:Property ;
+    rdfs:label "buildPhase" ;
+    rdfs:comment "Maven build phase (validate, compile, test, verify, install)" ;
+    rdfs:domain :BuildPlugin ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Integration Point Properties
+# ============================================================================
+
+:integrationType a rdf:Property ;
+    rdfs:label "integrationType" ;
+    rdfs:comment "Integration type: MCP|A2A|ZAI" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:server a rdf:Property ;
+    rdfs:label "server" ;
+    rdfs:comment "Server or service implementing this integration" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:toolCount a rdf:Property ;
+    rdfs:label "toolCount" ;
+    rdfs:comment "Number of MCP tools available" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:tool a rdf:Property ;
+    rdfs:label "tool" ;
+    rdfs:comment "MCP tool name" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:skillCount a rdf:Property ;
+    rdfs:label "skillCount" ;
+    rdfs:comment "Number of A2A skills available" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy : .
+
+:skill a rdf:Property ;
+    rdfs:label "skill" ;
+    rdfs:comment "A2A skill name" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:service a rdf:Property ;
+    rdfs:label "service" ;
+    rdfs:comment "Service name (e.g., ZaiFunctionService)" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+:model a rdf:Property ;
+    rdfs:label "model" ;
+    rdfs:comment "AI model (e.g., GLM-4 for ZAI)" ;
+    rdfs:domain :IntegrationPoint ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Architecture Pattern Properties
+# ============================================================================
+
+:pattern a rdf:Property ;
+    rdfs:label "pattern" ;
+    rdfs:comment "Architecture pattern name (e.g., shared_monolith_with_package_scoped_integration)" ;
+    rdfs:domain :ArchitecturePattern ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# Inference Rules (Optional, for RDFS reasoning)
+# ============================================================================
+
+# If module A depends on module B, then module A must have a later buildOrder
+# (enforced by observatory.sh, not by RDFS rule, since ordering is external)
+
+# If lineCoverage < targetLineCoverage, then meetsLineTarget = false
+# (enforced at data ingestion time)
+
+# All modules have a transitive dependency closure to all modules they
+# directly or indirectly depend on (useful for impact analysis)

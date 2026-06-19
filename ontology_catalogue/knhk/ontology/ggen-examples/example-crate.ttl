@@ -1,0 +1,76 @@
+@prefix knhk: <http://knhk.io/ontology/v1#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Example: KNHK Custom Crate Specification
+# This ontology demonstrates how to use ggen to generate a new Rust crate
+#
+# Covenant 1: This RDF document is the SINGLE SOURCE OF TRUTH for the generated code
+# Covenant 2: All validation rules are non-negotiable and MUST be enforced
+# Covenant 6: All generated behavior is telemetry-instrumented
+
+<http://knhk.io/example/my-crate> a knhk:Crate ;
+    rdfs:label "My Custom KNHK Crate" ;
+    rdfs:comment "Example generated crate demonstrating ggen capabilities" ;
+    knhk:hasCrateName "knhk-custom" ;
+    knhk:hasCrateVersion "1.0.0" ;
+    dcterms:author "KNHK Team" ;
+    knhk:hasLicense "MIT OR Apache-2.0" ;
+    knhk:hasRepository "https://github.com/seanchatmangpt/knhk" ;
+    dcterms:created "2024-11-16T00:00:00Z"^^xsd:dateTime ;
+    knhk:hasDescription "A custom KNHK crate generated from RDF ontology" ;
+    knhk:hasDependency
+        <http://knhk.io/example/dep-tokio>,
+        <http://knhk.io/example/dep-serde>,
+        <http://knhk.io/example/dep-tracing> ;
+    knhk:hasKeyword "workflow"^^xsd:string,
+                    "automation"^^xsd:string,
+                    "rdf"^^xsd:string ;
+    knhk:hasEdition "2021"^^xsd:string ;
+    knhk:includeTests true ;
+    knhk:includeTelemetry true ;
+    knhk:includeValidation true ;
+    knhk:includeHooks true ;
+    knhk:includeLockchain true .
+
+# Dependencies
+<http://knhk.io/example/dep-tokio> a knhk:Dependency ;
+    rdfs:label "tokio" ;
+    knhk:hasDependencyVersion "1.35" ;
+    knhk:isDependencyOptional false ;
+    knhk:isDependencyDev false ;
+    knhk:dependencyFeatures "full"^^xsd:string .
+
+<http://knhk.io/example/dep-serde> a knhk:Dependency ;
+    rdfs:label "serde" ;
+    knhk:hasDependencyVersion "1.0" ;
+    knhk:isDependencyOptional false ;
+    knhk:isDependencyDev false ;
+    knhk:dependencyFeatures "derive"^^xsd:string .
+
+<http://knhk.io/example/dep-tracing> a knhk:Dependency ;
+    rdfs:label "tracing" ;
+    knhk:hasDependencyVersion "0.1" ;
+    knhk:isDependencyOptional false ;
+    knhk:isDependencyDev false .
+
+# Validation Rules (Covenant 2)
+<http://knhk.io/example/rule-name-not-empty> a knhk:ValidationRule ;
+    knhk:appliesToClass <http://knhk.io/example/my-crate> ;
+    rdfs:label "Crate name cannot be empty" ;
+    knhk:hasCondition "crate.name.len() > 0" ;
+    knhk:hasErrorMessage "Crate name is required" ;
+    knhk:isCovenantRule false ;
+    knhk:ruleID "R001" ;
+    knhk:ruleSeverity "ERROR"^^xsd:string .
+
+<http://knhk.io/example/rule-valid-version> a knhk:ValidationRule ;
+    knhk:appliesToClass <http://knhk.io/example/my-crate> ;
+    rdfs:label "Crate version must be semantic version" ;
+    knhk:hasCondition "semver::Version::parse(&crate.version).is_ok()" ;
+    knhk:hasErrorMessage "Version must be in semantic version format (e.g., 1.0.0)" ;
+    knhk:isCovenantRule false ;
+    knhk:ruleID "R002" ;
+    knhk:ruleSeverity "ERROR"^^xsd:string .

@@ -1,0 +1,55 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix mcpp: <https://w3id.org/mcpp#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MCP+ Andon Reason Scheme v2 — extends v1 with the three gap-closure codes
+# emitted by Slice B's gap-closing actor topology (Port-of-LA container release).
+#
+# This file is additive: every v1 mcpp:Concept remains valid (the v1 scheme
+# IRI mcpp:AndonReasonScheme is unchanged). v2 only adds three new concepts
+# under the new scheme IRI mcpp:AndonReasonSchemeV2 which `skos:broader`s v1.
+#
+# Slice-B coordination:
+#   - The Rust enum `AndonReasonCode` gets matching variants
+#     (`EvidenceContinuityGap`, `GapClosureUnauthorized`, `GapClosureExhausted`)
+#     added by Slice B. Until that lands, this file is the canonical published
+#     surface; mapping in `mcpp-ontology::skos::andon_string_to_iri` already
+#     accepts the v2 strings.
+#
+# Doctrine: `mcpp:` namespace stays CLOSED at 19 codes total (16 v1 + 3 v2).
+# Cross-enterprise codes go to a separate scheme (Slice E,
+# `mcpp-cross-enterprise-v1.skos.ttl`).
+# ──────────────────────────────────────────────────────────────────────────────
+
+mcpp:AndonReasonSchemeV2 a skos:ConceptScheme ;
+    skos:prefLabel  "MCP+ Andon Reason Scheme v2"@en ;
+    skos:notation   "mcpp-andon-v2" ;
+    skos:definition "v1 + three gap-closure refusal classes (EvidenceContinuityGap, GapClosureUnauthorized, GapClosureExhausted)."@en ;
+    skos:broader    mcpp:AndonReasonScheme .
+
+# ── Gap-closure refusals (3) ─────────────────────────────────────────────────
+
+mcpp:EvidenceContinuityGap a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonSchemeV2 ;
+    skos:inScheme     mcpp:AndonReasonSchemeV2 ;
+    skos:prefLabel    "Evidence Continuity Gap"@en ;
+    skos:notation     "EvidenceContinuityGap" ;
+    skos:definition   "An object-centric event log has a continuity break that the route's `gap_closure_authority` could not close from any permit-listed source."@en ;
+    skos:related      mcpp:RouteConformanceGap .
+
+mcpp:GapClosureUnauthorized a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonSchemeV2 ;
+    skos:inScheme     mcpp:AndonReasonSchemeV2 ;
+    skos:prefLabel    "Gap Closure Unauthorized"@en ;
+    skos:notation     "GapClosureUnauthorized" ;
+    skos:definition   "A `powl.gap.closed` span cited an evidence source NOT in the route's permit-list for that activity. Unauthorized closure attempts are refused, not silently accepted."@en ;
+    skos:related      mcpp:PartialOrderViolation .
+
+mcpp:GapClosureExhausted a skos:Concept ;
+    skos:topConceptOf mcpp:AndonReasonSchemeV2 ;
+    skos:inScheme     mcpp:AndonReasonSchemeV2 ;
+    skos:prefLabel    "Gap Closure Exhausted"@en ;
+    skos:notation     "GapClosureExhausted" ;
+    skos:definition   "The route_coordinator exhausted all permit-listed alternate evidence sources for an activity gap; the gap remains unresolved and admission is refused."@en ;
+    skos:related      mcpp:EvidenceContinuityGap .

@@ -1,0 +1,51 @@
+# docs-reference-command.rq
+# Purpose : Drive per-command reference page generation for cargo-cicd v26.6.2.
+# Returns : cli_command, description, inputs, outputs, evidence_event,
+#           wasm4pm_oracle, feature_flag, public_boundary_clean
+# Note    : inputs / outputs are derived from cc:requiredEventFields on the
+#           emitted event; generators may split the comma list further.
+
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:     <http://www.w3.org/2002/07/owl#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX prov:    <http://www.w3.org/ns/prov#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+PREFIX cc:      <https://cargo-cicd.rs/ontology/>
+
+SELECT
+    ?cli_command
+    ?description
+    ?inputs
+    ?outputs
+    ?evidence_event_label
+    ?wasm4pm_oracle
+    ?feature_flag
+    ?public_boundary_clean
+WHERE {
+    ?capability a skos:Concept ;
+                skos:inScheme    cc:CapabilityScheme ;
+                cc:cliCommand    ?cli_command ;
+                dcterms:description ?description ;
+                cc:requiresFeature  ?featureNode ;
+                cc:emitsEvent       ?eventNode ;
+                cc:publicBoundaryClean ?public_boundary_clean .
+
+    ?featureNode skos:prefLabel ?feature_flag .
+
+    ?eventNode skos:prefLabel        ?evidence_event_label ;
+               cc:requiredEventFields ?required_fields ;
+               cc:wasm4pmOracleCommand ?wasm4pm_oracle .
+
+    # Split required fields into inputs (workspace_id, repo_path, command,
+    # inputs) and outputs (outputs, verdict_claimed, duration_ms, artifacts)
+    # by convention.  Surfaced as a single CSV string; doc renderer splits.
+    BIND(?required_fields AS ?inputs)
+    BIND(?required_fields AS ?outputs)
+
+    FILTER(lang(?description)     = "en" || lang(?description)     = "")
+    FILTER(lang(?feature_flag)    = "en" || lang(?feature_flag)    = "")
+    FILTER(lang(?evidence_event_label) = "en" || lang(?evidence_event_label) = "")
+}
+ORDER BY ?cli_command

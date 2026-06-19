@@ -1,0 +1,10 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+
+# Query: missing_provenance
+# Returns: Plugin versions without source URLs (failed constraint)
+# Returns empty results for valid dataset
+
+ASK {
+  ?v ostar:pluginName ?n .
+  FILTER NOT EXISTS { ?v ostar:sourceUrl ?u }
+}

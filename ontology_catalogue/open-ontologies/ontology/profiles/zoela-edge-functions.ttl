@@ -1,0 +1,346 @@
+@prefix ggen:    <https://open-ontologies.org/ggen#> .
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# ZOE LA Supabase Edge Functions Profile
+# ============================================================================
+#
+# Declares every Supabase Edge Function as a ggen:EdgeFunction instance with
+# its TypeScript body as a literal. ggen renders one .ts file per instance.
+#
+# Doctrine: this is the transitional manufactured form. The body is stored
+# verbatim in TTL rather than synthesized from finer-grained semantics. This
+# keeps the source-of-truth in the ontology layer + provides a signed
+# receipt for every edge function file, even when the body itself is hand
+# code. Future work can replace `ggen:edgeFunctionBody` with structured
+# action declarations that drive code generation.
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/zoela-edge-functions>
+    a owl:Ontology ;
+    rdfs:label   "ZOE LA Supabase Edge Functions Profile"@en ;
+    rdfs:comment "Declarative source for every Supabase Edge Function under supabase/functions/."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-19"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.11" .
+
+# ============================================================================
+# § 1  Profile vocabulary
+# ============================================================================
+
+ggen:EdgeFunction a owl:Class ;
+    rdfs:label "Edge Function"@en ;
+    rdfs:comment "A Supabase Deno-runtime edge function. Each instance produces supabase/functions/{slug}/index.ts."@en .
+
+ggen:edgeFunctionSlug    a owl:DatatypeProperty ; rdfs:domain ggen:EdgeFunction ; rdfs:range xsd:string ;
+    rdfs:comment "Directory name under supabase/functions/. Becomes the function name in Supabase routing."@en .
+ggen:edgeFunctionPurpose a owl:DatatypeProperty ; rdfs:domain ggen:EdgeFunction ; rdfs:range xsd:string ;
+    rdfs:comment "Short description rendered as a comment in the emitted file header."@en .
+ggen:edgeFunctionBody    a owl:DatatypeProperty ; rdfs:domain ggen:EdgeFunction ; rdfs:range xsd:string ;
+    rdfs:comment "Full TypeScript source of the function (excluding the auto-generated DO-NOT-EDIT header). Preserved verbatim."@en .
+
+# ============================================================================
+# § 2  Edge function instances
+# ============================================================================
+
+# ── autonomic-executor ───────────────────────────────────────────────────────
+
+zoe:autonomicExecutorFn a ggen:EdgeFunction ;
+    ggen:edgeFunctionSlug    "autonomic-executor" ;
+    ggen:edgeFunctionPurpose "Executes ZOE LA Mobile autonomic actions per the A0–A4 action-class doctrine. Dispatches on action class and returns whether the action executed, escalated to a human, or was refused at an admission gate." ;
+    ggen:edgeFunctionBody    """/// <reference path=\"../globals.d.ts\" />
+// No import needed — Deno.serve is built-in since Deno 1.35+
+
+export interface AutonomicRequest {
+  eventType: string;
+  objectId: string;
+  objectType: string;
+  actionClass: \"A0\" | \"A1\" | \"A2\" | \"A3\" | \"A4\";
+  payload: Record<string, unknown>;
+  routeStageCode: string;
+  runId: string;
+}
+
+export interface AutonomicResult {
+  executed: boolean;
+  actionClass: string;
+  escalatedToHuman: boolean;
+  refused: boolean;
+  reason?: string;
+  receiptRef?: string;
+  ocelEventRef?: string;
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method !== \"POST\") {
+    return new Response(\"Method not allowed\", { status: 405 });
+  }
+
+  const raw = await req.json();
+  if (!raw || typeof raw !== \"object\") {
+    return new Response(\"Invalid request body\", { status: 400 });
+  }
+  const body = raw as AutonomicRequest;
+  const result = await executeAutonomicAction(body);
+
+  return new Response(JSON.stringify(result), {
+    headers: { \"Content-Type\": \"application/json\" },
+    status: 200,
+  });
+});
+
+async function executeAutonomicAction(req: AutonomicRequest): Promise<AutonomicResult> {
+  switch (req.actionClass) {
+    case \"A0\":
+      // Observe only — no mutation
+      return { executed: false, actionClass: \"A0\", escalatedToHuman: false, refused: false, reason: \"observe-only\" };
+
+    case \"A1\":
+      // Safe autonomic — execute immediately, no human required
+      return {
+        executed: true,
+        actionClass: \"A1\",
+        escalatedToHuman: false,
+        refused: false,
+        ocelEventRef: `${req.eventType}:${req.runId}`,
+      };
+
+    case \"A2\":
+      // Reversible — execute with audit trail for potential rollback
+      return {
+        executed: true,
+        actionClass: \"A2\",
+        escalatedToHuman: false,
+        refused: false,
+        ocelEventRef: `${req.eventType}:${req.runId}`,
+        receiptRef: `receipt:${req.objectType}:${req.objectId}`,
+      };
+
+    case \"A3\":
+      // Human approval required
+      return { executed: false, actionClass: \"A3\", escalatedToHuman: true, refused: false, reason: \"human-approval-required\" };
+
+    case \"A4\":
+      // Refuse — consent missing, unsafe access, or opt-out violation
+      return { executed: false, actionClass: \"A4\", escalatedToHuman: false, refused: true, reason: \"admission-gate-failed\" };
+
+    default:
+      return { executed: false, actionClass: req.actionClass, escalatedToHuman: false, refused: true, reason: \"unknown-action-class\" };
+  }
+}""" .
+
+# ── receipt-verify ───────────────────────────────────────────────────────────
+
+zoe:receiptVerifyFn a ggen:EdgeFunction ;
+    ggen:edgeFunctionSlug    "receipt-verify" ;
+    ggen:edgeFunctionPurpose "Verifies BLAKE3 hashes claimed for ggen-emitted receipts. In production this queries the receipts table and compares against the stored chain; the current implementation validates hash format." ;
+    ggen:edgeFunctionBody    """/// <reference path=\"../globals.d.ts\" />
+// No import needed — Deno.serve is built-in since Deno 1.35+
+
+export interface ReceiptVerifyRequest {
+  receiptId: string;
+  objectType: string;
+  objectId: string;
+  claimedHash: string;
+}
+
+export interface ReceiptVerifyResult {
+  valid: boolean;
+  receiptId: string;
+  reason?: string;
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method !== \"POST\") {
+    return new Response(\"Method not allowed\", { status: 405 });
+  }
+
+  const raw = await req.json();
+  if (!raw || typeof raw !== \"object\") {
+    return new Response(\"Invalid request body\", { status: 400 });
+  }
+  const body = raw as ReceiptVerifyRequest;
+
+  if (!body.receiptId || !body.claimedHash) {
+    return new Response(
+      JSON.stringify({ valid: false, receiptId: body.receiptId ?? \"unknown\", reason: \"missing-required-fields\" }),
+      { headers: { \"Content-Type\": \"application/json\" }, status: 400 }
+    );
+  }
+
+  // Receipt verification logic: in production, query the receipts table
+  // and verify the BLAKE3 hash matches the stored chain
+  const result: ReceiptVerifyResult = {
+    valid: body.claimedHash.length === 64, // BLAKE3 produces 32 bytes = 64 hex chars
+    receiptId: body.receiptId,
+    reason: body.claimedHash.length !== 64 ? \"invalid-hash-length\" : undefined,
+  };
+
+  return new Response(JSON.stringify(result), {
+    headers: { \"Content-Type\": \"application/json\" },
+    status: 200,
+  });
+});""" .
+
+# ── ocel-export ──────────────────────────────────────────────────────────────
+
+zoe:ocelExportFn a ggen:EdgeFunction ;
+    ggen:edgeFunctionSlug    "ocel-export" ;
+    ggen:edgeFunctionPurpose "Exports rows from the ocel_events table as an OCEL 2.0 JSON document. Accepts run_id / route_id / from / to filters via query string or POST body." ;
+    ggen:edgeFunctionBody    """/// <reference path=\"../globals.d.ts\" />
+// No import needed — Deno.serve is built-in since Deno 1.35+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface OcelRelationship {
+  objectId: string;
+  qualifier: string;
+}
+
+interface OcelEvent {
+  \"ocel:id\": string;
+  \"ocel:type\": string;
+  \"ocel:time\": string;
+  \"ocel:attributes\": Record<string, unknown>;
+  \"ocel:relationships\": OcelRelationship[];
+}
+
+interface OcelExportResult {
+  \"ocel:global-event-types\": string[];
+  \"ocel:events\": OcelEvent[];
+  \"ocel:objects\": Record<string, unknown>[];
+}
+
+interface OcelEventRow {
+  id: string;
+  event_type: string;
+  object_id: string;
+  object_type: string;
+  route_id: string;
+  stage_code: string;
+  action_class: string;
+  run_id: string;
+  ts_ns: number;
+  fields: Record<string, unknown>;
+  receipt_hash: string | null;
+  created_at: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Row → OCEL 2.0 event
+// ─────────────────────────────────────────────────────────────────────────────
+
+function rowToOcelEvent(row: OcelEventRow): OcelEvent {
+  // ts_ns is nanoseconds; Date constructor takes milliseconds
+  const ts = new Date(row.ts_ns / 1_000_000).toISOString();
+
+  return {
+    \"ocel:id\": row.id,
+    \"ocel:type\": row.event_type,
+    \"ocel:time\": ts,
+    \"ocel:attributes\": {
+      stage_code: row.stage_code,
+      action_class: row.action_class,
+      route_id: row.route_id,
+      run_id: row.run_id,
+      ...(row.receipt_hash ? { receipt_hash: row.receipt_hash } : {}),
+      ...row.fields,
+    },
+    \"ocel:relationships\": [
+      { objectId: row.object_id, qualifier: \"responsible\" },
+    ],
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Handler
+// ─────────────────────────────────────────────────────────────────────────────
+
+Deno.serve(async (req: Request): Promise<Response> => {
+  if (req.method !== \"GET\" && req.method !== \"POST\") {
+    return new Response(\"Method not allowed\", { status: 405 });
+  }
+
+  let runId: string | null = null;
+  let routeId: string | null = null;
+  let fromTs: string | null = null;
+  let toTs: string | null = null;
+
+  const url = new URL(req.url);
+  runId = url.searchParams.get(\"run_id\");
+  routeId = url.searchParams.get(\"route_id\");
+  fromTs = url.searchParams.get(\"from\");
+  toTs = url.searchParams.get(\"to\");
+
+  if (req.method === \"POST\") {
+    try {
+      const raw = await req.json();
+      if (raw && typeof raw === \"object\") {
+        const body = raw as Record<string, unknown>;
+        runId = runId ?? (typeof body.run_id === \"string\" ? body.run_id : null);
+        routeId = routeId ?? (typeof body.route_id === \"string\" ? body.route_id : null);
+        fromTs = fromTs ?? (typeof body.from === \"string\" ? body.from : null);
+        toTs = toTs ?? (typeof body.to === \"string\" ? body.to : null);
+      }
+    } catch {
+      // ignore parse errors — params already set from query string
+    }
+  }
+
+  const supabaseUrl = Deno.env.get(\"SUPABASE_URL\") ?? \"http://localhost:54321\";
+  const serviceKey = Deno.env.get(\"SUPABASE_SERVICE_ROLE_KEY\") ?? \"\";
+
+  let queryUrl = `${supabaseUrl}/rest/v1/ocel_events?select=*&order=ts_ns.asc`;
+
+  if (runId) {
+    queryUrl += `&run_id=eq.${encodeURIComponent(runId)}`;
+  }
+  if (routeId) {
+    queryUrl += `&route_id=eq.${encodeURIComponent(routeId)}`;
+  }
+  if (fromTs) {
+    queryUrl += `&created_at=gte.${encodeURIComponent(fromTs)}`;
+  }
+  if (toTs) {
+    queryUrl += `&created_at=lte.${encodeURIComponent(toTs)}`;
+  }
+
+  const pgResp = await fetch(queryUrl, {
+    headers: {
+      \"apikey\": serviceKey,
+      \"Authorization\": `Bearer ${serviceKey}`,
+      \"Accept\": \"application/json\",
+    },
+  });
+
+  if (!pgResp.ok) {
+    const errText = await pgResp.text();
+    return new Response(
+      JSON.stringify({ error: \"upstream query failed\", detail: errText }),
+      { status: 502, headers: { \"Content-Type\": \"application/json\" } },
+    );
+  }
+
+  const rows = await pgResp.json() as OcelEventRow[];
+
+  const eventTypeSet = new Set<string>(rows.map((r) => r.event_type));
+
+  const result: OcelExportResult = {
+    \"ocel:global-event-types\": Array.from(eventTypeSet).sort(),
+    \"ocel:events\": rows.map(rowToOcelEvent),
+    \"ocel:objects\": [],
+  };
+
+  return new Response(JSON.stringify(result, null, 2), {
+    headers: { \"Content-Type\": \"application/json\" },
+    status: 200,
+  });
+});""" .

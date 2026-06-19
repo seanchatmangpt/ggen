@@ -1,0 +1,177 @@
+@prefix : <http://dark-matter.ai/ontology/> .
+@prefix sec: <http://dark-matter.ai/ontology/security/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Security Ontology - Security, access control, and compliance definitions
+
+sec:SecurityOntology a owl:Ontology ;
+  rdfs:label "Dark Matter 2026 Security Ontology" ;
+  owl:versionInfo "1.0.0" .
+
+# === SECURITY CLASSES ===
+
+sec:SecurityPolicy a rdfs:Class ;
+  rdfs:label "Security Policy" ;
+  rdfs:comment "A security policy that defines access control rules" .
+
+sec:Role a rdfs:Class ;
+  rdfs:label "Role" ;
+  rdfs:comment "A role that can be assigned to actors for access control" .
+
+sec:Permission a rdfs:Class ;
+  rdfs:label "Permission" ;
+  rdfs:comment "A specific permission to perform an action on a resource" .
+
+sec:AccessControl a rdfs:Class ;
+  rdfs:label "Access Control" ;
+  rdfs:comment "Access control mechanism for protecting resources" .
+
+sec:Audit a rdfs:Class ;
+  rdfs:label "Audit" ;
+  rdfs:comment "Audit trail for security-sensitive operations" .
+
+sec:Threat a rdfs:Class ;
+  rdfs:label "Threat" ;
+  rdfs:comment "A potential security threat to the system" .
+
+sec:Vulnerability a rdfs:Class ;
+  rdfs:label "Vulnerability" ;
+  rdfs:comment "A security vulnerability in the system" .
+
+sec:Incident a rdfs:Class ;
+  rdfs:label "Security Incident" ;
+  rdfs:comment "A security incident that requires response" .
+
+# === SECURITY PROPERTIES ===
+
+sec:hasRole a owl:ObjectProperty ;
+  rdfs:domain :Actor ;
+  rdfs:range sec:Role ;
+  rdfs:label "has role" .
+
+sec:hasPermission a owl:ObjectProperty ;
+  rdfs:domain sec:Role ;
+  rdfs:range sec:Permission ;
+  rdfs:label "has permission" .
+
+sec:protects a owl:ObjectProperty ;
+  rdfs:domain sec:SecurityPolicy ;
+  rdfs:range :Resource ;
+  rdfs:label "protects" .
+
+sec:appliesTo a owl:ObjectProperty ;
+  rdfs:domain sec:SecurityPolicy ;
+  rdfs:range :DataEntity ;
+  rdfs:label "applies to" .
+
+sec:auditLog a owl:ObjectProperty ;
+  rdfs:domain sec:Audit ;
+  rdfs:range :Resource ;
+  rdfs:label "audit log" .
+
+sec:threatLevel a owl:DatatypeProperty ;
+  rdfs:domain sec:Threat ;
+  rdfs:range xsd:string ;
+  rdfs:label "threat level" .
+
+sec:severity a owl:DatatypeProperty ;
+  rdfs:domain sec:Vulnerability ;
+  rdfs:range xsd:string ;
+  rdfs:label "severity" .
+
+sec:status a owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "status" .
+
+# === ROLE INSTANCES ===
+
+sec:AdminRole a sec:Role ;
+  :identifier "admin" ;
+  :name "Administrator" ;
+  :description "Full system administrator with all permissions" .
+
+sec:MemberRole a sec:Role ;
+  :identifier "member" ;
+  :name "Member" ;
+  :description "Regular system member with limited permissions" .
+
+sec:GuestRole a sec:Role ;
+  :identifier "guest" ;
+  :name "Guest" ;
+  :description "Guest user with read-only permissions" .
+
+sec:ServiceRole a sec:Role ;
+  :identifier "service" ;
+  :name "Service Account" ;
+  :description "Service account for automated systems" .
+
+# === PERMISSION INSTANCES ===
+
+sec:ReadPermission a sec:Permission ;
+  :identifier "read" ;
+  :name "Read Permission" ;
+  :description "Permission to read data" .
+
+sec:WritePermission a sec:Permission ;
+  :identifier "write" ;
+  :name "Write Permission" ;
+  :description "Permission to write/modify data" .
+
+sec:DeletePermission a sec:Permission ;
+  :identifier "delete" ;
+  :name "Delete Permission" ;
+  :description "Permission to delete data" .
+
+sec:ExecutePermission a sec:Permission ;
+  :identifier "execute" ;
+  :name "Execute Permission" ;
+  :description "Permission to execute operations" .
+
+sec:AdminPermission a sec:Permission ;
+  :identifier "admin" ;
+  :name "Admin Permission" ;
+  :description "Full administrative permissions" .
+
+# === ROLE-PERMISSION MAPPINGS ===
+
+sec:AdminRole sec:hasPermission sec:ReadPermission,
+                                 sec:WritePermission,
+                                 sec:DeletePermission,
+                                 sec:ExecutePermission,
+                                 sec:AdminPermission .
+
+sec:MemberRole sec:hasPermission sec:ReadPermission,
+                                 sec:WritePermission .
+
+sec:GuestRole sec:hasPermission sec:ReadPermission .
+
+sec:ServiceRole sec:hasPermission sec:ReadPermission,
+                                  sec:WritePermission,
+                                  sec:ExecutePermission .
+
+# === SECURITY POLICIES ===
+
+sec:DataProtectionPolicy a sec:SecurityPolicy ;
+  :identifier "data-protection" ;
+  :name "Data Protection Policy" ;
+  :description "Policy for protecting sensitive data access" ;
+  sec:appliesTo :DataEntity .
+
+sec:AdminOnlyPolicy a sec:SecurityPolicy ;
+  :identifier "admin-only" ;
+  :name "Admin Only Policy" ;
+  :description "Policy restricting access to administrators only" .
+
+sec:OwnerOnlyPolicy a sec:SecurityPolicy ;
+  :identifier "owner-only" ;
+  :name "Owner Only Policy" ;
+  :description "Policy restricting access to resource owners only" .
+
+# === CAPABILITY-SECURITY MAPPINGS ===
+
+:Manage sec:hasRole sec:AdminRole, sec:MemberRole .
+:Govern sec:hasRole sec:AdminRole .
+:Monitor sec:hasRole sec:AdminRole, sec:ServiceRole .
+:Secure sec:hasRole sec:AdminRole, sec:SecurityAgent .

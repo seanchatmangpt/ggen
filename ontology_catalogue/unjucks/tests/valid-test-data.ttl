@@ -1,0 +1,81 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Valid data that should pass SHACL validation
+
+# Valid users with all required properties and correct formats
+ex:validUser1 rdf:type ex:User ;
+    ex:name "John Smith" ;
+    ex:email "john.smith@example.com" ;
+    ex:age "28"^^xsd:int .
+
+ex:validUser2 rdf:type ex:User ;
+    ex:name "Jane Doe" ;
+    ex:email "jane.doe@company.org" ;
+    ex:age "35"^^xsd:int .
+
+ex:validUser3 rdf:type ex:User ;
+    ex:name "Alice Johnson" ;
+    ex:email "alice@university.edu" ;
+    ex:age "22"^^xsd:int .
+
+# User with optional age property
+ex:validUserNoAge rdf:type ex:User ;
+    ex:name "Bob Wilson" ;
+    ex:email "bob.wilson@service.net" .
+
+# Valid service with all required properties
+ex:validService rdf:type ex:RESTService ;
+    ex:hasBaseURL "https://api.example.com/v1" ;
+    ex:hasVersion "1.2.3" ;
+    rdfs:label "User Management API" ;
+    rdfs:comment "A complete REST service for user management" .
+
+# Valid service with minimal required properties
+ex:minimalService rdf:type ex:RESTService ;
+    ex:hasBaseURL "http://localhost:3000" ;
+    ex:hasVersion "2.0.0" ;
+    rdfs:label "Local Test API" .
+
+# Valid endpoints with proper structure
+ex:getUserEndpoint rdf:type ex:Endpoint ;
+    rdfs:label "Get Single User" ;
+    ex:hasMethod "GET" ;
+    ex:hasPath "/api/users/{id}" ;
+    ex:hasPathParameter ex:userIdParam ;
+    ex:hasStatusCode "200" .
+
+ex:createUserEndpoint rdf:type ex:Endpoint ;
+    rdfs:label "Create New User" ;
+    ex:hasMethod "POST" ;
+    ex:hasPath "/api/users" ;
+    ex:hasRequestBody "true" ;
+    ex:hasStatusCode "201" .
+
+# Valid path parameter
+ex:userIdParam rdf:type ex:PathParameter ;
+    rdfs:label "User Identifier" ;
+    ex:hasType "string" .
+
+# Valid properties with proper constraints
+ex:userNameProp rdf:type ex:Property ;
+    rdfs:label "Full Name" ;
+    ex:hasType "string" ;
+    ex:isRequired "true" ;
+    ex:hasMinLength "2" ;
+    ex:hasMaxLength "100" .
+
+ex:userEmailProp rdf:type ex:Property ;
+    rdfs:label "Email Address" ;
+    ex:hasType "string" ;
+    ex:isRequired "true" ;
+    ex:hasPattern "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" .
+
+ex:userAgeProp rdf:type ex:Property ;
+    rdfs:label "User Age" ;
+    ex:hasType "number" ;
+    ex:isRequired "false" ;
+    ex:hasMinValue "0" ;
+    ex:hasMaxValue "150" .

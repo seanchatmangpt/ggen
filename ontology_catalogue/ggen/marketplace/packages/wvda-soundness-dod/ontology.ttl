@@ -1,0 +1,196 @@
+# WvdA Soundness DoD Ontology
+# Wil van der Aalst process verification as verifiable DoD checks
+# Three properties: Deadlock Freedom, Liveness, Boundedness
+
+@prefix dod: <http://ggen.chatmangpt.com/dod#> .
+@prefix wvda: <http://ggen.chatmangpt.com/wvda#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# CATEGORIES
+# ============================================================================
+
+wvda:DeadlockFreedom
+  a dod:CheckCategory ;
+  dod:categoryName "Deadlock Freedom" ;
+  dod:categoryOrder 1 .
+
+wvda:Liveness
+  a dod:CheckCategory ;
+  dod:categoryName "Liveness" ;
+  dod:categoryOrder 2 .
+
+wvda:Boundedness
+  a dod:CheckCategory ;
+  dod:categoryName "Boundedness" ;
+  dod:categoryOrder 3 .
+
+wvda:PetriNetAnalysis
+  a dod:CheckCategory ;
+  dod:categoryName "Petri Net Analysis" ;
+  dod:categoryOrder 4 .
+
+# ============================================================================
+# DEFAULT WvDA CHECKS
+# ============================================================================
+
+# --- Deadlock Freedom (Safety) ---
+
+wvda:check-timeout-all-blocking
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "Every blocking operation (await, receive, get, GenServer.call) has explicit timeout_ms" ;
+  dod:evidenceRequired "Code review: grep for blocking calls without timeout parameter; every await/receive/get has timeout" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'await\\(|receive\\(|\\.get\\(|GenServer\\.call\\(' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ | grep -v 'timeout'" ;
+  dod:belongsToCategory wvda:DeadlockFreedom .
+
+wvda:check-timeout-fallback
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "Every timeout has explicit fallback action (escalate, retry, default return)" ;
+  dod:evidenceRequired "Code review: timeout branch does not return empty/null; timeout triggers supervisor escalation or retry" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'timeout|Timeout' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ -A 2 | grep -v 'escalate\\|retry\\|fallback\\|return Err\\|raise\\|exit'" ;
+  dod:belongsToCategory wvda:DeadlockFreedom .
+
+wvda:check-no-circular-waits
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "No circular wait chains: lock acquisition is ordered; no A-waits-B-waits-A patterns" ;
+  dod:evidenceRequired "Formal deadlock proof: no cycle in resource dependency graph; locks acquired in consistent global order" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'Lock\\(|lock\\(|Mutex::lock|RwLock' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory wvda:DeadlockFreedom .
+
+wvda:check-resource-release
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "All resources explicitly released (never held past scope); no resource leaks" ;
+  dod:evidenceRequired "Code review: resources use RAII/drop/guard patterns; no manual release forgotten; defer/finally for cleanup" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'Lock::new|Mutex::new|open\\(|connect\\(' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ -A 5 | grep -v 'drop\\|_guard\\|defer\\|finally\\|close\\|release'" ;
+  dod:belongsToCategory wvda:DeadlockFreedom .
+
+wvda:check-http-timeout
+  a dod:DoDCheck ;
+  dod:checkType "wvda-deadlock" ;
+  dod:checkDescription "All HTTP requests have socket timeout + read timeout configured" ;
+  dod:evidenceRequired "HTTP client configured with connect_timeout and read_timeout; no infinite-wait HTTP calls" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'HttpClient|reqwest::Client|http\\.Client|fetch|axios' --type-add 'lang:*.rs:*.ex:*.go:*.ts' -t lang src/ | grep -v 'timeout'" ;
+  dod:belongsToCategory wvda:DeadlockFreedom .
+
+# --- Liveness (Progress Guarantee) ---
+
+wvda:check-loop-bounded
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "All loops have bounded iteration count OR explicit exit condition; no infinite loops" ;
+  dod:evidenceRequired "Code review: every loop has max iterations or escape condition; no while true without sleep and break" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'loop \\{|while true|while !|for.*infinite' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ -A 5 | grep -v 'break\\|return\\|sleep\\|timeout\\|max_iter\\|limit'" ;
+  dod:belongsToCategory wvda:Liveness .
+
+wvda:check-recursion-depth
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "All recursive calls have base case AND explicit max recursion depth limit" ;
+  dod:evidenceRequired "Recursive function has base case (when guard); max depth parameter with guard clause preventing stack overflow" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'fn \\w+\\(' --type rust src/ | xargs -I{} sh -c 'grep -c \"{}\" src/*.rs 2>/dev/null' | sort -rn | head -5" ;
+  dod:belongsToCategory wvda:Liveness .
+
+wvda:check-state-machine-terminating
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "All state machines have terminating paths; no state from which no exit is possible" ;
+  dod:evidenceRequired "State machine diagram showing every state has at least one outgoing transition; no sink states without exit" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'state|State|handle_|handle_' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory wvda:Liveness .
+
+wvda:check-no-busy-wait
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "No busy-waiting patterns (tight loop without sleep/yield); use proper async primitives" ;
+  dod:evidenceRequired "Code review: no while true with only computation; busy loops have sleep/yield/await; use channels/conditions instead" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'while.*\\{[^}]*\\}' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ --multiline | grep -v 'sleep\\|yield\\|await\\|recv\\|receive\\|select'" ;
+  dod:belongsToCategory wvda:Liveness .
+
+# --- Boundedness (Resource Guarantee) ---
+
+wvda:check-queue-max-size
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "All queues have max_size or explicit eviction policy; no unbounded queue growth" ;
+  dod:evidenceRequired "Queue initialized with capacity; push checks size before insert; full queue triggers eviction or backpressure" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'VecDeque|Vec<|Queue|channel|unbounded' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ | grep -v 'capacity\\|with_capacity\\|bounded\\|max\\|limit\\|backpressure'" ;
+  dod:belongsToCategory wvda:Boundedness .
+
+wvda:check-cache-ttl
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "All caches have TTL and max item count; no unbounded cache growth" ;
+  dod:evidenceRequired "Cache configured with ttl_seconds and max_items; expired entries evicted; max_items enforced with LRU/LFU" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'cache|Cache|lru|LRU|ttl|TTL|expire' --type-add 'lang:*.rs:*.ex:*.go:*.ts' -t lang src/ config/" ;
+  dod:belongsToCategory wvda:Boundedness .
+
+wvda:check-memory-limits
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "In-memory structures have explicit size limits; memory growth monitored" ;
+  dod:evidenceRequired "Collections have capacity bounds; memory metrics exposed; growth rate alerting configured" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'HashMap|BTreeMap|Vec<|HashSet' --type rust src/ | grep -v 'capacity\\|with_capacity\\|shrink_to'" ;
+  dod:belongsToCategory wvda:Boundedness .
+
+wvda:check-db-result-limits
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "All database queries have LIMIT clause or cursor-based pagination; no unbounded result sets" ;
+  dod:evidenceRequired "SQL queries include LIMIT; search endpoints use pagination; no SELECT * without LIMIT" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'SELECT|query|execute' --type-add 'lang:*.rs:*.ex:*.go:*.sql' -t lang src/ | grep -v 'LIMIT\\|limit\\|pagination\\|cursor'" ;
+  dod:belongsToCategory wvda:Boundedness .
+
+# --- Petri Net Analysis ---
+
+wvda:check-petri-net-soundness
+  a dod:DoDCheck ;
+  dod:checkType "wvda-boundedness" ;
+  dod:checkDescription "Petri net model is sound: deadlock-free (no dead transitions), safe (1-bounded places), and live (every transition can fire)" ;
+  dod:evidenceRequired "Formal Petri net model constructed; reachability graph analyzed; all three soundness properties verified" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test test_petri_net_soundness 2>&1" ;
+  dod:belongsToCategory wvda:PetriNetAnalysis .
+
+wvda:check-reachability-analysis
+  a dod:DoDCheck ;
+  dod:checkType "wvda-liveness" ;
+  dod:checkDescription "Reachability analysis confirms no unreachable states; all states in model are reachable from initial marking" ;
+  dod:evidenceRequired "Reachability graph constructed; all states reachable from initial marking verified; no isolated subnets" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test test_reachability 2>&1" ;
+  dod:belongsToCategory wvda:PetriNetAnalysis .

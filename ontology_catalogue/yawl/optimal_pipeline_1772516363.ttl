@@ -1,0 +1,10 @@
+@prefix ns1: <https://yawl.io/sim#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:OptimalPipeline_1772516363 a ns1:OptimalPipeline ;
+    ns1:hasAccuracy 0e+00 ;
+    ns1:hasComplexity 5e-01 ;
+    ns1:hasFitness -5e-02 ;
+    ns1:hasParameter_complexity 1.2e+00 ;
+    ns1:hasType "Transform" .
+

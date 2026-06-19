@@ -137,29 +137,28 @@ impl PackRepository for FileSystemRepository {
             let path = entry.path();
 
             if path.extension().and_then(|s| s.to_str()) == Some("toml") {
-                match tokio::fs::read_to_string(&path).await {
-                    Ok(content) => {
-                        match toml::from_str::<crate::domain::packs::types::PackFile>(&content) {
-                            Ok(pack_file) => {
-                                let pack = pack_file.pack;
-
-                                // Filter by category if specified
-                                if let Some(cat) = category {
-                                    if pack.category == cat {
-                                        packs.push(pack);
-                                    }
-                                } else {
-                                    packs.push(pack);
-                                }
-                            }
-                            Err(e) => {
-                                tracing::warn!("Failed to parse pack {}: {}", path.display(), e);
-                            }
-                        }
+                let content = tokio::fs::read_to_string(&path).await.map_err(|e| {
+                    crate::utils::error::Error::new(&format!(
+                        "Failed to read pack {}: {}",
+                        path.display(),
+                        e
+                    ))
+                })?;
+                let pack_file = toml::from_str::<crate::domain::packs::types::PackFile>(&content)
+                    .map_err(|e| {
+                    crate::utils::error::Error::new(&format!(
+                        "Failed to parse pack {}: {}",
+                        path.display(),
+                        e
+                    ))
+                })?;
+                let pack = pack_file.pack;
+                if let Some(cat) = category {
+                    if pack.category == cat {
+                        packs.push(pack);
                     }
-                    Err(e) => {
-                        tracing::warn!("Failed to read pack {}: {}", path.display(), e);
-                    }
+                } else {
+                    packs.push(pack);
                 }
             }
         }

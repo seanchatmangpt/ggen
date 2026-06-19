@@ -1,0 +1,26 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fin: <https://kgen.dev/ontologies/finance#> .
+
+# External revenue
+[] a fin:Transaction ; fin:hasAccount fin:SalesRevenue ; fin:hasAmount "500000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-11-15"^^xsd:date .
+[] a fin:Transaction ; fin:hasAccount fin:SalesRevenue ; fin:hasAmount "200000"^^xsd:decimal ; fin:hasCurrency "EUR" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-01"^^xsd:date .
+
+# Intercompany revenue
+[] a fin:Transaction ; fin:hasAccount fin:SalesRevenue ; fin:hasAmount "50000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "true"^^xsd:boolean ; fin:hasDate "2025-10-20"^^xsd:date .
+
+# COGS external
+[] a fin:Transaction ; fin:hasAccount fin:CostOfGoodsSold ; fin:hasAmount "200000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-10"^^xsd:date .
+[] a fin:Transaction ; fin:hasAccount fin:CostOfGoodsSold ; fin:hasAmount "100000"^^xsd:decimal ; fin:hasCurrency "EUR" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-10"^^xsd:date .
+
+# COGS intercompany
+[] a fin:Transaction ; fin:hasAccount fin:IntercompanyCOGS ; fin:hasAmount "30000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "true"^^xsd:boolean ; fin:hasDate "2025-11-30"^^xsd:date .
+
+# OPEX
+[] a fin:Transaction ; fin:hasAccount fin:OperatingExpenses ; fin:hasAmount "120000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-20"^^xsd:date .
+[] a fin:Transaction ; fin:hasAccount fin:OperatingExpenses ; fin:hasAmount "20000"^^xsd:decimal ; fin:hasCurrency "EUR" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-21"^^xsd:date .
+
+# Other P&L
+[] a fin:Transaction ; fin:hasAccount fin:InterestExpense ; fin:hasAmount "10000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-05"^^xsd:date .
+[] a fin:Transaction ; fin:hasAccount fin:TaxExpense ; fin:hasAmount "38000"^^xsd:decimal ; fin:hasCurrency "USD" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-28"^^xsd:date .
+[] a fin:Transaction ; fin:hasAccount fin:Depreciation ; fin:hasAmount "5000"^^xsd:decimal ; fin:hasCurrency "EUR" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-29"^^xsd:date .
+[] a fin:Transaction ; fin:hasAccount fin:Amortization ; fin:hasAmount "3000"^^xsd:decimal ; fin:hasCurrency "EUR" ; fin:isIntercompany "false"^^xsd:boolean ; fin:hasDate "2025-12-29"^^xsd:date .

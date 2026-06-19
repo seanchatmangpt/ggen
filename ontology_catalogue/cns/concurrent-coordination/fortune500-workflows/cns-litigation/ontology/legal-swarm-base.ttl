@@ -1,0 +1,521 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ls: <http://legal-swarm.ai/ontology/> .
+@prefix lsagent: <http://legal-swarm.ai/ontology/agent/> .
+@prefix lsentity: <http://legal-swarm.ai/ontology/entity/> .
+@prefix lsworkflow: <http://legal-swarm.ai/ontology/workflow/> .
+@prefix lsactor: <http://legal-swarm.ai/ontology/actor/> .
+
+# Base Ontology Declaration
+ls: rdf:type owl:Ontology ;
+    dct:title "Legal Swarm Coordination Ontology" ;
+    dct:description "Comprehensive ontology for legal AI swarm coordination, workflows, and knowledge representation" ;
+    dct:version "1.0.0" ;
+    dct:created "2025-07-29"^^xsd:date ;
+    dct:creator "Legal Swarm System" ;
+    owl:versionIRI <http://legal-swarm.ai/ontology/1.0.0/> .
+
+# ============================================================================
+# CORE AGENT CLASSES
+# ============================================================================
+
+# Base Agent Class
+lsagent:LegalAgent rdf:type owl:Class ;
+    rdfs:label "Legal Agent" ;
+    rdfs:comment "Base class for all legal AI agents in the swarm coordination system" ;
+    rdfs:subClassOf foaf:Agent .
+
+# Specialized Agent Classes
+lsagent:ContradictionSwarm rdf:type owl:Class ;
+    rdfs:label "Contradiction Swarm" ;
+    rdfs:comment "Agent specialized in detecting and exploiting legal contradictions" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+lsagent:FilingSwarm rdf:type owl:Class ;
+    rdfs:label "Filing Swarm" ;
+    rdfs:comment "Agent specialized in automated legal document filing and procedural compliance" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+lsagent:BarSwarm rdf:type owl:Class ;
+    rdfs:label "Bar Swarm" ;
+    rdfs:comment "Agent specialized in bar admission requirements and attorney regulation" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+lsagent:IPSwarm rdf:type owl:Class ;
+    rdfs:label "IP Swarm" ;
+    rdfs:comment "Agent specialized in intellectual property analysis and export control" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+lsagent:PacketSwarm rdf:type owl:Class ;
+    rdfs:label "Packet Swarm" ;
+    rdfs:comment "Agent specialized in evidence packaging and chain of custody" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+lsagent:TriggerSwarm rdf:type owl:Class ;
+    rdfs:label "Trigger Swarm" ;
+    rdfs:comment "Agent specialized in event-driven workflow automation and alerts" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+lsagent:MonitorSwarm rdf:type owl:Class ;
+    rdfs:label "Monitor Swarm" ;
+    rdfs:comment "Agent specialized in real-time monitoring and performance analysis" ;
+    rdfs:subClassOf lsagent:LegalAgent .
+
+# ============================================================================
+# LEGAL ENTITY CLASSES
+# ============================================================================
+
+# Base Legal Entity
+lsentity:LegalEntity rdf:type owl:Class ;
+    rdfs:label "Legal Entity" ;
+    rdfs:comment "Base class for all legal entities in the system" .
+
+# Court System
+lsentity:Court rdf:type owl:Class ;
+    rdfs:label "Court" ;
+    rdfs:comment "Judicial court with specific jurisdiction and procedural rules" ;
+    rdfs:subClassOf lsentity:LegalEntity .
+
+lsentity:FederalCourt rdf:type owl:Class ;
+    rdfs:label "Federal Court" ;
+    rdfs:comment "Federal judicial court with federal jurisdiction" ;
+    rdfs:subClassOf lsentity:Court .
+
+lsentity:StateCourt rdf:type owl:Class ;
+    rdfs:label "State Court" ;
+    rdfs:comment "State judicial court with state jurisdiction" ;
+    rdfs:subClassOf lsentity:Court .
+
+lsentity:DistrictCourt rdf:type owl:Class ;
+    rdfs:label "District Court" ;
+    rdfs:comment "Federal district court with trial jurisdiction" ;
+    rdfs:subClassOf lsentity:FederalCourt .
+
+lsentity:CircuitCourt rdf:type owl:Class ;
+    rdfs:label "Circuit Court" ;
+    rdfs:comment "Federal circuit court with appellate jurisdiction" ;
+    rdfs:subClassOf lsentity:FederalCourt .
+
+# Bar Organizations
+lsentity:Bar rdf:type owl:Class ;
+    rdfs:label "Bar Association" ;
+    rdfs:comment "Professional organization for attorneys with regulatory authority" ;
+    rdfs:subClassOf lsentity:LegalEntity .
+
+lsentity:StateBar rdf:type owl:Class ;
+    rdfs:label "State Bar" ;
+    rdfs:comment "State-level bar association with attorney licensing authority" ;
+    rdfs:subClassOf lsentity:Bar .
+
+# Jurisdictions
+lsentity:Jurisdiction rdf:type owl:Class ;
+    rdfs:label "Jurisdiction" ;
+    rdfs:comment "Geographic or subject matter area with specific legal authority" ;
+    rdfs:subClassOf lsentity:LegalEntity .
+
+lsentity:FederalJurisdiction rdf:type owl:Class ;
+    rdfs:label "Federal Jurisdiction" ;
+    rdfs:comment "Federal jurisdiction covering constitutional and federal law matters" ;
+    rdfs:subClassOf lsentity:Jurisdiction .
+
+lsentity:StateJurisdiction rdf:type owl:Class ;
+    rdfs:label "State Jurisdiction" ;
+    rdfs:comment "State jurisdiction covering state law matters" ;
+    rdfs:subClassOf lsentity:Jurisdiction .
+
+# Legal Documents
+lsentity:Filing rdf:type owl:Class ;
+    rdfs:label "Legal Filing" ;
+    rdfs:comment "Legal document filed with a court or administrative body" ;
+    rdfs:subClassOf ls:Document .
+
+lsentity:Complaint rdf:type owl:Class ;
+    rdfs:label "Complaint" ;
+    rdfs:comment "Initial pleading that starts a civil lawsuit" ;
+    rdfs:subClassOf lsentity:Filing .
+
+lsentity:Motion rdf:type owl:Class ;
+    rdfs:label "Motion" ;
+    rdfs:comment "Formal request to a court for a specific ruling or order" ;
+    rdfs:subClassOf lsentity:Filing .
+
+lsentity:Brief rdf:type owl:Class ;
+    rdfs:label "Legal Brief" ;
+    rdfs:comment "Written legal argument submitted to a court" ;
+    rdfs:subClassOf lsentity:Filing .
+
+# IP Claims
+lsentity:IPClaim rdf:type owl:Class ;
+    rdfs:label "Intellectual Property Claim" ;
+    rdfs:comment "Legal claim related to intellectual property rights" ;
+    rdfs:subClassOf lsentity:LegalEntity .
+
+lsentity:Patent rdf:type owl:Class ;
+    rdfs:label "Patent" ;
+    rdfs:comment "Intellectual property protection for inventions" ;
+    rdfs:subClassOf lsentity:IPClaim .
+
+lsentity:Trademark rdf:type owl:Class ;
+    rdfs:label "Trademark" ;
+    rdfs:comment "Intellectual property protection for brands and marks" ;
+    rdfs:subClassOf lsentity:IPClaim .
+
+lsentity:Copyright rdf:type owl:Class ;
+    rdfs:label "Copyright" ;
+    rdfs:comment "Intellectual property protection for creative works" ;
+    rdfs:subClassOf lsentity:IPClaim .
+
+# ============================================================================
+# VAN DER AALST WORKFLOW PATTERNS
+# ============================================================================
+
+# Base Workflow Pattern Class
+lsworkflow:WorkflowPattern rdf:type owl:Class ;
+    rdfs:label "Workflow Pattern" ;
+    rdfs:comment "Base class for Van der Aalst workflow patterns in legal processes" .
+
+# Basic Control Flow Patterns (1-20)
+lsworkflow:Sequence rdf:type owl:Class ;
+    rdfs:label "Sequence Pattern" ;
+    rdfs:comment "Tasks executed in sequential order" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ParallelSplit rdf:type owl:Class ;
+    rdfs:label "Parallel Split Pattern" ;
+    rdfs:comment "Single thread of control splits into multiple parallel branches" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:Synchronization rdf:type owl:Class ;
+    rdfs:label "Synchronization Pattern" ;
+    rdfs:comment "Multiple parallel branches converge into single thread" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ExclusiveChoice rdf:type owl:Class ;
+    rdfs:label "Exclusive Choice Pattern" ;
+    rdfs:comment "Point where single thread splits into one of several branches" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:SimpleMerge rdf:type owl:Class ;
+    rdfs:label "Simple Merge Pattern" ;
+    rdfs:comment "Point where one of several alternative branches reconverge" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Advanced Branching and Synchronization Patterns (6-20)
+lsworkflow:MultiChoice rdf:type owl:Class ;
+    rdfs:label "Multi-Choice Pattern" ;
+    rdfs:comment "Point where thread splits into one or more parallel branches" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:StructuredSynchronizingMerge rdf:type owl:Class ;
+    rdfs:label "Structured Synchronizing Merge Pattern" ;
+    rdfs:comment "Convergence of branches from multi-choice split" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:MultiMerge rdf:type owl:Class ;
+    rdfs:label "Multi-Merge Pattern" ;
+    rdfs:comment "Point where multiple parallel branches converge without synchronization" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:StructuredDiscriminator rdf:type owl:Class ;
+    rdfs:label "Structured Discriminator Pattern" ;
+    rdfs:comment "Convergence point that waits for first incoming branch" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ArbitraryLoop rdf:type owl:Class ;
+    rdfs:label "Arbitrary Loop Pattern" ;
+    rdfs:comment "Loop with multiple entry and exit points" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Structural Patterns (21-29)
+lsworkflow:ImplicitTermination rdf:type owl:Class ;
+    rdfs:label "Implicit Termination Pattern" ;
+    rdfs:comment "Workflow terminates when no more tasks can be executed" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ExplicitTermination rdf:type owl:Class ;
+    rdfs:label "Explicit Termination Pattern" ;
+    rdfs:comment "Workflow terminates when designated termination task executes" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Multiple Instance Patterns (12-15, 34-37)
+lsworkflow:MultipleInstancesWithoutSynchronization rdf:type owl:Class ;
+    rdfs:label "Multiple Instances Without Synchronization Pattern" ;
+    rdfs:comment "Task executed multiple times without waiting for completion" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:MultipleInstancesWithAPrioriDesignTimeKnowledge rdf:type owl:Class ;
+    rdfs:label "Multiple Instances A Priori Design Time Knowledge Pattern" ;
+    rdfs:comment "Task executed predetermined number of times" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:MultipleInstancesWithAPrioriRuntimeKnowledge rdf:type owl:Class ;
+    rdfs:label "Multiple Instances A Priori Runtime Knowledge Pattern" ;
+    rdfs:comment "Task executed number of times determined at runtime" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:MultipleInstancesWithoutAPrioriRuntimeKnowledge rdf:type owl:Class ;
+    rdfs:label "Multiple Instances Without A Priori Runtime Knowledge Pattern" ;
+    rdfs:comment "Task executed unknown number of times determined during execution" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# State-Based Patterns (16-18)
+lsworkflow:DeferredChoice rdf:type owl:Class ;
+    rdfs:label "Deferred Choice Pattern" ;
+    rdfs:comment "Choice between alternative branches made by environment" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:InterleavedParallelRouting rdf:type owl:Class ;
+    rdfs:label "Interleaved Parallel Routing Pattern" ;
+    rdfs:comment "Tasks executed in arbitrary order but mutually exclusive" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:Milestone rdf:type owl:Class ;
+    rdfs:label "Milestone Pattern" ;
+    rdfs:comment "Task enabled when workflow reaches specific state" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Cancellation Patterns (19-20)
+lsworkflow:CancelActivity rdf:type owl:Class ;
+    rdfs:label "Cancel Activity Pattern" ;
+    rdfs:comment "Enabled activity disabled and withdrawn prior to execution" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:CancelCase rdf:type owl:Class ;
+    rdfs:label "Cancel Case Pattern" ;
+    rdfs:comment "Complete workflow case disabled and withdrawn" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# ============================================================================
+# BITACTOR MESSAGING INTERFACE
+# ============================================================================
+
+# BitActor Base Class
+lsactor:BitActor rdf:type owl:Class ;
+    rdfs:label "BitActor" ;
+    rdfs:comment "Autonomous agent with messaging capabilities for legal workflow coordination" .
+
+# Message Types
+lsactor:Message rdf:type owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Communication unit between BitActors" .
+
+lsactor:CoordinationMessage rdf:type owl:Class ;
+    rdfs:label "Coordination Message" ;
+    rdfs:comment "Message for coordinating workflow execution between agents" ;
+    rdfs:subClassOf lsactor:Message .
+
+lsactor:DataMessage rdf:type owl:Class ;
+    rdfs:label "Data Message" ;
+    rdfs:comment "Message containing legal data or document information" ;
+    rdfs:subClassOf lsactor:Message .
+
+lsactor:EventMessage rdf:type owl:Class ;
+    rdfs:label "Event Message" ;
+    rdfs:comment "Message signaling workflow events or state changes" ;
+    rdfs:subClassOf lsactor:Message .
+
+lsactor:ErrorMessage rdf:type owl:Class ;
+    rdfs:label "Error Message" ;
+    rdfs:comment "Message indicating error conditions or exceptions" ;
+    rdfs:subClassOf lsactor:Message .
+
+# ============================================================================
+# CORE PROPERTIES
+# ============================================================================
+
+# Agent Properties
+ls:hasCapability rdf:type owl:ObjectProperty ;
+    rdfs:label "has capability" ;
+    rdfs:comment "Capability possessed by an agent" ;
+    rdfs:domain lsagent:LegalAgent ;
+    rdfs:range ls:Capability .
+
+ls:managedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "managed by" ;
+    rdfs:comment "Agent or system that manages this entity" ;
+    rdfs:range lsagent:LegalAgent .
+
+ls:coordinates rdf:type owl:ObjectProperty ;
+    rdfs:label "coordinates" ;
+    rdfs:comment "Entity coordinated by this agent" ;
+    rdfs:domain lsagent:LegalAgent .
+
+# Workflow Properties
+ls:hasPattern rdf:type owl:ObjectProperty ;
+    rdfs:label "has pattern" ;
+    rdfs:comment "Workflow pattern used in this process" ;
+    rdfs:range lsworkflow:WorkflowPattern .
+
+ls:nextStep rdf:type owl:ObjectProperty ;
+    rdfs:label "next step" ;
+    rdfs:comment "Next step in workflow sequence" ;
+    rdfs:domain lsworkflow:WorkflowPattern ;
+    rdfs:range lsworkflow:WorkflowPattern .
+
+ls:triggers rdf:type owl:ObjectProperty ;
+    rdfs:label "triggers" ;
+    rdfs:comment "Event or condition that triggers this workflow" .
+
+# Legal Entity Properties
+ls:hasJurisdiction rdf:type owl:ObjectProperty ;
+    rdfs:label "has jurisdiction" ;
+    rdfs:comment "Jurisdiction over this legal matter" ;
+    rdfs:range lsentity:Jurisdiction .
+
+ls:filedIn rdf:type owl:ObjectProperty ;
+    rdfs:label "filed in" ;
+    rdfs:comment "Court where document was filed" ;
+    rdfs:domain lsentity:Filing ;
+    rdfs:range lsentity:Court .
+
+ls:regulatedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "regulated by" ;
+    rdfs:comment "Regulatory body with oversight" ;
+    rdfs:range lsentity:Bar .
+
+# Messaging Properties
+ls:sendsMessage rdf:type owl:ObjectProperty ;
+    rdfs:label "sends message" ;
+    rdfs:comment "Message sent by this actor" ;
+    rdfs:domain lsactor:BitActor ;
+    rdfs:range lsactor:Message .
+
+ls:receivesMessage rdf:type owl:ObjectProperty ;
+    rdfs:label "receives message" ;
+    rdfs:comment "Message received by this actor" ;
+    rdfs:domain lsactor:BitActor ;
+    rdfs:range lsactor:Message .
+
+# Data Properties
+ls:agentId rdf:type owl:DatatypeProperty ;
+    rdfs:label "agent ID" ;
+    rdfs:comment "Unique identifier for agent" ;
+    rdfs:domain lsagent:LegalAgent ;
+    rdfs:range xsd:string .
+
+ls:priority rdf:type owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority level (0-10)" ;
+    rdfs:range xsd:integer .
+
+ls:status rdf:type owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:comment "Current status of entity" ;
+    rdfs:range xsd:string .
+
+ls:timestamp rdf:type owl:DatatypeProperty ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "Time of creation or last update" ;
+    rdfs:range xsd:dateTime .
+
+ls:filingNumber rdf:type owl:DatatypeProperty ;
+    rdfs:label "filing number" ;
+    rdfs:comment "Court-assigned filing number" ;
+    rdfs:domain lsentity:Filing ;
+    rdfs:range xsd:string .
+
+ls:docketNumber rdf:type owl:DatatypeProperty ;
+    rdfs:label "docket number" ;
+    rdfs:comment "Court docket number" ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# SUPPORTING CLASSES
+# ============================================================================
+
+ls:Document rdf:type owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "Legal document or file" .
+
+ls:Capability rdf:type owl:Class ;
+    rdfs:label "Capability" ;
+    rdfs:comment "Functional capability of an agent or system" .
+
+ls:Event rdf:type owl:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "Workflow or system event" .
+
+ls:Task rdf:type owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Atomic unit of work in a workflow" .
+
+ls:Workflow rdf:type owl:Class ;
+    rdfs:label "Workflow" ;
+    rdfs:comment "Coordinated sequence of tasks and processes" .
+
+# ============================================================================
+# ADDITIONAL VAN DER AALST PATTERNS (30-43)
+# ============================================================================
+
+# Trigger Patterns (23, 27)
+lsworkflow:TransientTrigger rdf:type owl:Class ;
+    rdfs:label "Transient Trigger Pattern" ;
+    rdfs:comment "Task triggered by transient event that may be missed" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:PersistentTrigger rdf:type owl:Class ;
+    rdfs:label "Persistent Trigger Pattern" ;
+    rdfs:comment "Task triggered by persistent condition" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Advanced Synchronization Patterns (28-33)
+lsworkflow:BlockingDiscriminator rdf:type owl:Class ;
+    rdfs:label "Blocking Discriminator Pattern" ;
+    rdfs:comment "Discriminator that blocks subsequent activations" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:CancellingDiscriminator rdf:type owl:Class ;
+    rdfs:label "Cancelling Discriminator Pattern" ;
+    rdfs:comment "Discriminator that cancels other branches after first completion" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:StructuredPartialJoin rdf:type owl:Class ;
+    rdfs:label "Structured Partial Join Pattern" ;
+    rdfs:comment "Join that waits for subset of incoming branches" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:BlockingPartialJoin rdf:type owl:Class ;
+    rdfs:label "Blocking Partial Join Pattern" ;
+    rdfs:comment "Partial join that blocks until required branches complete" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:CancellingPartialJoin rdf:type owl:Class ;
+    rdfs:label "Cancelling Partial Join Pattern" ;
+    rdfs:comment "Partial join that cancels remaining branches after threshold" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:GeneralizedANDJoin rdf:type owl:Class ;
+    rdfs:label "Generalized AND-Join Pattern" ;
+    rdfs:comment "Join that waits for all active incoming branches" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Thread Management Patterns (38-42)
+lsworkflow:ThreadMerge rdf:type owl:Class ;
+    rdfs:label "Thread Merge Pattern" ;
+    rdfs:comment "Multiple threads merge into single thread without synchronization" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ThreadSplit rdf:type owl:Class ;
+    rdfs:label "Thread Split Pattern" ;
+    rdfs:comment "Single thread splits into multiple threads" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ExplicitTermination rdf:type owl:Class ;
+    rdfs:label "Explicit Termination Pattern" ;
+    rdfs:comment "Workflow explicitly terminated by termination task" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+lsworkflow:ImplicitTermination rdf:type owl:Class ;
+    rdfs:label "Implicit Termination Pattern" ;
+    rdfs:comment "Workflow terminates when no more work remains" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .
+
+# Critical Section Pattern (43)
+lsworkflow:CriticalSection rdf:type owl:Class ;
+    rdfs:label "Critical Section Pattern" ;
+    rdfs:comment "Tasks executed with exclusive access to shared resource" ;
+    rdfs:subClassOf lsworkflow:WorkflowPattern .

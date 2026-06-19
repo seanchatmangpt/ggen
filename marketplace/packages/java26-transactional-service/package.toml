@@ -8,3 +8,6 @@ keywords = ["java26", "service", "transactional", "spring-boot", "command-patter
 categories = ["java", "spring-boot", "patterns"]
 pattern_number = 19
 pattern_name = "TRANSACTIONAL SERVICE"
+
+[marketplace]
+production_ready = false

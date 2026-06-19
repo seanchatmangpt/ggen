@@ -1,0 +1,207 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+
+# ============================================================================
+# ZOE LA Mobile — Ministry Ontology
+# ============================================================================
+# Models the ministry organisational units of ZOE LA Church.
+# Each ministry is an org:OrganizationalUnit with a code, focus statement,
+# and optional consent requirement (for minors-facing ministries).
+# MinistryRole governs permission-level access control for mobile app features.
+#
+# Design alignment:
+#   zoe:Ministry       → org:OrganizationalUnit (formal org unit)
+#   zoe:MinistryRole   → org:Role (RBAC primitive)
+#   zoe:MinistryScheme → skos:ConceptScheme (controlled vocabulary)
+# ============================================================================
+
+zoe:MinistryOntology a owl:Ontology ;
+    rdfs:label   "ZOE LA Ministry Ontology"@en ;
+    rdfs:comment "Models ZOE LA ministry units and roles for the ZOE LA Mobile manufacturing pipeline."@en ;
+    dcterms:creator  "Sean Chatman" ;
+    dcterms:created  "2026-05-17"^^xsd:date ;
+    dcterms:license  <https://opensource.org/licenses/MIT> ;
+    owl:imports      <https://zoela.org/ontology/CampusOntology> ;
+    owl:versionInfo  "1.0.0" .
+
+# ── Classes ──────────────────────────────────────────────────────────────────
+
+zoe:Ministry a owl:Class ;
+    rdfs:label      "Ministry"@en ;
+    rdfs:comment    "An organisational ministry unit within ZOE LA Church. Each ministry has a defined mission focus, optional consent requirements, and may target a specific generational segment."@en ;
+    rdfs:subClassOf org:OrganizationalUnit .
+
+zoe:MinistryRole a owl:Class ;
+    rdfs:label      "Ministry Role"@en ;
+    rdfs:comment    "A role held by a person within a ZOE LA ministry. Encodes permission level and receipt-creation authority for mobile app access control."@en ;
+    rdfs:subClassOf org:Role .
+
+# ── Datatype properties on Ministry ──────────────────────────────────────────
+
+zoe:ministryCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Ministry ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Ministry Code"@en ;
+    rdfs:comment "Short uppercase code uniquely identifying the ministry (e.g. CARES, KIDS). Used as a routing key in the manufacturing pipeline."@en ;
+    skos:notation "ministry_code" .
+
+zoe:ministryFocus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Ministry ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Ministry Focus"@en ;
+    rdfs:comment "Human-readable statement describing the primary mission and scope of the ministry."@en ;
+    skos:notation "ministry_focus" .
+
+zoe:requiresConsent a owl:DatatypeProperty ;
+    rdfs:domain  zoe:Ministry ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Requires Consent"@en ;
+    rdfs:comment "True when participation in this ministry requires explicit guardian or parental consent (typically for minors-facing ministries)."@en ;
+    skos:notation "requires_consent" .
+
+# ── Object properties on Ministry ────────────────────────────────────────────
+
+zoe:targetGeneration a owl:ObjectProperty ;
+    rdfs:domain  zoe:Ministry ;
+    rdfs:range   zoe:GenerationSegment ;
+    rdfs:label   "Target Generation"@en ;
+    rdfs:comment "The generational demographic segment that this ministry primarily serves."@en ;
+    skos:notation "target_generation" .
+
+zoe:hasCampus a owl:ObjectProperty ;
+    rdfs:domain  zoe:Ministry ;
+    rdfs:range   zoe:Campus ;
+    rdfs:label   "Has Campus"@en ;
+    rdfs:comment "Associates the ministry with the ZOE LA campus at which it operates. A ministry may operate at multiple campuses."@en ;
+    skos:notation "has_campus" .
+
+# ── Datatype properties on MinistryRole ──────────────────────────────────────
+
+zoe:rolePermissionLevel a owl:DatatypeProperty ;
+    rdfs:domain  zoe:MinistryRole ;
+    rdfs:range   xsd:integer ;
+    rdfs:label   "Role Permission Level"@en ;
+    rdfs:comment "Integer permission level for this role (1 = read-only, 5 = admin). Controls which mobile app features are accessible."@en ;
+    skos:notation "role_permission_level" .
+
+zoe:canCreateReceipts a owl:DatatypeProperty ;
+    rdfs:domain  zoe:MinistryRole ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Can Create Receipts"@en ;
+    rdfs:comment "True when this role is authorised to emit manufacturing receipts on behalf of the ministry."@en ;
+    skos:notation "can_create_receipts" .
+
+# ── GenerationSegment class (forward-declared for range reference) ────────────
+
+zoe:GenerationSegment a owl:Class ;
+    rdfs:label      "Generation Segment"@en ;
+    rdfs:comment    "A SKOS concept representing a generational demographic cohort targeted by ministry activities."@en ;
+    rdfs:subClassOf skos:Concept .
+
+# ── SKOS ConceptScheme ────────────────────────────────────────────────────────
+
+zoe:MinistryScheme a skos:ConceptScheme ;
+    rdfs:label      "ZOE LA Ministry Scheme"@en ;
+    rdfs:comment    "Controlled vocabulary of ZOE LA ministry units."@en ;
+    skos:prefLabel  "ZOE LA Ministry Scheme"@en .
+
+# ── Named individuals ─────────────────────────────────────────────────────────
+
+zoe:ZoeCaresMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "ZOE Cares Ministry"@en ;
+    skos:prefLabel    "ZOE Cares Ministry"@en ;
+    skos:notation     "CARES" ;
+    skos:definition   "ZOE LA ministry providing pastoral care and community provision to members and neighbours in need."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "CARES" ;
+    zoe:ministryFocus "pastoral care and community provision" ;
+    zoe:requiresConsent false .
+
+zoe:ZoeKidsMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "ZOE Kids Ministry"@en ;
+    skos:prefLabel    "ZOE Kids Ministry"@en ;
+    skos:notation     "KIDS" ;
+    skos:definition   "ZOE LA ministry serving children aged 0-11 with age-appropriate discipleship and care."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "KIDS" ;
+    zoe:ministryFocus "children's discipleship and care (ages 0-11)" ;
+    zoe:requiresConsent true .
+
+zoe:ZoeYthMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "ZOE Youth Ministry"@en ;
+    skos:prefLabel    "ZOE Youth Ministry"@en ;
+    skos:notation     "YTH" ;
+    skos:definition   "ZOE LA ministry serving teenagers aged 12-17 with discipleship, mentoring, and community formation."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "YTH" ;
+    zoe:ministryFocus "youth discipleship and community formation (ages 12-17)" ;
+    zoe:requiresConsent true .
+
+zoe:ServeTeamMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "Serve Team Ministry"@en ;
+    skos:prefLabel    "Serve Team Ministry"@en ;
+    skos:notation     "SERVE" ;
+    skos:definition   "ZOE LA ministry mobilising volunteers for service across all campuses and community outreach efforts."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "SERVE" ;
+    zoe:ministryFocus "volunteer service mobilization" ;
+    zoe:requiresConsent false .
+
+zoe:ConnectGroupsMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "Connect Groups Ministry"@en ;
+    skos:prefLabel    "Connect Groups Ministry"@en ;
+    skos:notation     "CG" ;
+    skos:definition   "ZOE LA ministry facilitating small group community formation and relational discipleship across campuses."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "CG" ;
+    zoe:ministryFocus "small group community formation" ;
+    zoe:requiresConsent false .
+
+zoe:LeadershipCollegeMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "Leadership College Ministry"@en ;
+    skos:prefLabel    "Leadership College Ministry"@en ;
+    skos:notation     "LC" ;
+    skos:definition   "ZOE LA ministry focused on systematic leadership formation and training for emerging and established leaders."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "LC" ;
+    zoe:ministryFocus "leadership formation and training" ;
+    zoe:requiresConsent false .
+
+zoe:MissionsMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "Missions Ministry"@en ;
+    skos:prefLabel    "Missions Ministry"@en ;
+    skos:notation     "MISS" ;
+    skos:definition   "ZOE LA ministry coordinating local and global missions, outreach partnerships, and cross-cultural engagement."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "MISS" ;
+    zoe:ministryFocus "local and global missions and outreach" ;
+    zoe:requiresConsent false .
+
+zoe:GenerationsMinistry a zoe:Ministry , skos:Concept ;
+    rdfs:label        "Generations Ministry"@en ;
+    skos:prefLabel    "Generations Ministry"@en ;
+    skos:notation     "GEN" ;
+    skos:definition   "ZOE LA ministry serving families across all generations with integrated multi-generational discipleship programmes."@en ;
+    skos:inScheme     zoe:MinistryScheme ;
+    zoe:ministryCode  "GEN" ;
+    zoe:ministryFocus "multi-generational family ministry" ;
+    zoe:requiresConsent false .
+
+# ── ConceptScheme back-links ──────────────────────────────────────────────────
+
+zoe:MinistryScheme skos:hasTopConcept
+    zoe:ZoeCaresMinistry ,
+    zoe:ZoeKidsMinistry ,
+    zoe:ZoeYthMinistry ,
+    zoe:ServeTeamMinistry ,
+    zoe:ConnectGroupsMinistry ,
+    zoe:LeadershipCollegeMinistry ,
+    zoe:MissionsMinistry ,
+    zoe:GenerationsMinistry .

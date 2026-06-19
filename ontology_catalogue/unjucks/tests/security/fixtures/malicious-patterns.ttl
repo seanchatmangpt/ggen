@@ -1,0 +1,26 @@
+# Malicious RDF patterns for security testing
+# These patterns test various attack vectors that should be blocked
+
+@prefix ex: <http://example.org/> .
+@prefix evil: <javascript:alert('XSS')> .
+@prefix file: <file:///etc/> .
+
+# JavaScript URI injection
+ex:malicious1 evil:script "payload" .
+ex:malicious2 <javascript:void(0)> "dangerous" .
+
+# File system access attempts
+ex:malicious3 ex:file file:passwd .
+ex:malicious4 ex:path "../../../etc/shadow" .
+
+# Oversized content
+ex:malicious5 ex:huge "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" .
+
+# Template injection attempts
+ex:malicious6 ex:template "{{constructor.constructor('alert(1)')()}}" .
+ex:malicious7 ex:eval "{{global.process.exit(1)}}" .
+ex:malicious8 ex:proto "__proto__" .
+
+# Network injection
+ex:malicious9 ex:ssrf <http://127.0.0.1:8080/admin> .
+ex:malicious10 ex:metadata <http://169.254.169.254/metadata> .

@@ -1,0 +1,15 @@
+
+# Create and execute a case
+knhk workflow create <spec-id> --data '{"input":"test"}'
+knhk workflow start <case-id>
+knhk workflow execute <case-id>
+
+# List workflows and cases
+knhk workflow list              # List all workflows
+knhk workflow list <spec-id>    # List cases for workflow
+
+# List all patterns
+knhk workflow patterns
+
+# Start REST API server
+knhk workflow serve --port 8080

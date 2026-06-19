@@ -1,0 +1,25 @@
+@prefix : <https://bytestar.org/ontology/bytestar-ethos#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-ethos>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Ethos Ontology" ;
+  rdfs:comment "Identity, policy, and finality (PoA/PoR)." .
+
+:ProofOfAgreement, :ProofOfReputation a owl:Class .
+:usesPoA a owl:DatatypeProperty ; rdfs:domain bytestar:ByteEthos ; rdfs:range xsd:boolean .
+:usesPoR a owl:DatatypeProperty ; rdfs:domain bytestar:ByteEthos ; rdfs:range xsd:boolean .
+
+# PoA: count-based threshold
+:quorum a owl:DatatypeProperty ; rdfs:domain bytestar:ByteEthos ; rdfs:range xsd:integer .
+
+# PoR: weight-based threshold
+:weightThreshold a owl:DatatypeProperty ; rdfs:domain bytestar:ByteEthos ; rdfs:range xsd:decimal .
+
+# Identity Crystal non-transferability (as a declared policy)
+:IdentityCrystal a owl:Class .
+:transferable a owl:DatatypeProperty ; rdfs:domain :IdentityCrystal ; rdfs:range xsd:boolean .

@@ -1,0 +1,9 @@
+# CQ-1: Which LIVE rules are fully covered?
+PREFIX aat: <urn:ontostar:aat:live:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?rule ?label ?coveredBy WHERE {
+  ?rule a aat:LiveRule ;
+        rdfs:label ?label ;
+        aat:coverageStatus "covered" .
+  OPTIONAL { ?rule aat:coveredBy ?coveredBy }
+} ORDER BY ?label

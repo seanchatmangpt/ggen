@@ -1,0 +1,47 @@
+# =============================================================================
+# SPARQL Query: Extract Proxy/Relay Configuration
+# =============================================================================
+# Purpose: Extract MCP relay configuration for code generation
+# =============================================================================
+
+PREFIX proxy: <http://erlmcp.org/schema/proxy/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?relay a proxy:MCPRelay ;
+        proxy:hasBackend ?backend ;
+        proxy:hasLoadBalancer ?strategy ;
+        proxy:retryPolicy ?retryPolicy .
+
+    ?backend a proxy:Backend ;
+        proxy:backendUrl ?url ;
+        proxy:backendWeight ?weight ;
+        proxy:maxConnections ?maxConn ;
+        proxy:hasHealthCheck ?healthCheck ;
+        proxy:circuitBreakerThreshold ?circuitThreshold .
+
+    ?healthCheck a proxy:HealthCheck ;
+        proxy:healthCheckInterval ?interval ;
+        proxy:healthCheckTimeout ?timeout ;
+        proxy:unhealthyThreshold ?unhealthy ;
+        proxy:healthyThreshold ?healthy .
+}
+WHERE {
+    ?relay a proxy:MCPRelay .
+    OPTIONAL {
+        ?relay proxy:hasBackend ?backend .
+        ?backend proxy:backendUrl ?url .
+        OPTIONAL { ?backend proxy:backendWeight ?weight . }
+        OPTIONAL { ?backend proxy:maxConnections ?maxConn . }
+        OPTIONAL {
+            ?backend proxy:hasHealthCheck ?healthCheck .
+            OPTIONAL { ?healthCheck proxy:healthCheckInterval ?interval . }
+            OPTIONAL { ?healthCheck proxy:healthCheckTimeout ?timeout . }
+            OPTIONAL { ?healthCheck proxy:unhealthyThreshold ?unhealthy . }
+            OPTIONAL { ?healthCheck proxy:healthyThreshold ?healthy . }
+        }
+        OPTIONAL { ?backend proxy:circuitBreakerThreshold ?circuitThreshold . }
+    }
+    OPTIONAL { ?relay proxy:hasLoadBalancer ?strategy . }
+    OPTIONAL { ?relay proxy:retryPolicy ?retryPolicy . }
+}

@@ -1,0 +1,51 @@
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CNS v8.0 Master Ontology - The Canonical Generative Grammar
+
+cns:CNSSystem a owl:Class ;
+    rdfs:label "CNS System" ;
+    rdfs:comment "The root class for all CNS v8.0 components" .
+
+cns:AOTCompiler a owl:Class ;
+    rdfs:subClassOf cns:CNSSystem ;
+    rdfs:label "AOT Compiler" ;
+    rdfs:comment "Ahead-of-Time compilation system for deterministic logic" .
+
+cns:SelfHealingSubstrate a owl:Class ;
+    rdfs:subClassOf cns:CNSSystem ;
+    rdfs:label "Self-Healing Substrate" ;
+    rdfs:comment "Auto-recovery and healing capabilities" .
+
+cns:AutonomousOrchestrator a owl:Class ;
+    rdfs:subClassOf cns:CNSSystem ;
+    rdfs:label "Autonomous Orchestrator" ;
+    rdfs:comment "10‖ agent coordination and management" .
+
+cns:hasPerformanceMultiplier a owl:DatatypeProperty ;
+    rdfs:domain cns:CNSSystem ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Performance Multiplier" ;
+    rdfs:comment "26x performance improvement factor" .
+
+cns:hasContinuityGuarantee a owl:DatatypeProperty ;
+    rdfs:domain cns:CNSSystem ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Continuity Guarantee" ;
+    rdfs:comment "100% session recovery guarantee" .
+
+cns:hasHealingCapability a owl:DatatypeProperty ;
+    rdfs:domain cns:CNSSystem ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Healing Capability" ;
+    rdfs:comment "Self-correction and auto-repair" .
+
+# Instances
+cns:CNSv8 a cns:CNSSystem ;
+    cns:hasPerformanceMultiplier "26.0"^^xsd:decimal ;
+    cns:hasContinuityGuarantee "true"^^xsd:boolean ;
+    cns:hasHealingCapability "true"^^xsd:boolean ;
+    rdfs:label "CNS v8.0 Instance" .

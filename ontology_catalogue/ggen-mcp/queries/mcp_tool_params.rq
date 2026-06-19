@@ -1,0 +1,33 @@
+PREFIX ggen: <https://ggen-mcp.dev/domain#>
+PREFIX mcp: <https://mcp.dev/schema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Extract MCP tool parameters grouped by tool for generating params structs
+SELECT DISTINCT
+  ?tool
+  ?toolName
+  ?paramUri
+  ?paramName
+  ?paramType
+  ?paramRequired
+  ?paramDescription
+  ?paramOrder
+  ?paramAlias
+  ?paramDefault
+WHERE {
+  ?tool a mcp:Tool ;
+        mcp:toolName ?toolName ;
+        mcp:hasParam ?paramUri .
+
+  ?paramUri mcp:paramName ?paramName ;
+           mcp:paramType ?paramType .
+
+  OPTIONAL { ?paramUri mcp:paramRequired ?paramRequired }
+  OPTIONAL { ?paramUri mcp:paramDescription ?paramDescription }
+  OPTIONAL { ?paramUri mcp:paramOrder ?paramOrder }
+  OPTIONAL { ?paramUri mcp:paramAlias ?paramAlias }
+  OPTIONAL { ?paramUri mcp:paramDefault ?paramDefault }
+}
+ORDER BY ?toolName ?paramOrder ?paramName
+LIMIT 10000

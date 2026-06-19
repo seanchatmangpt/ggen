@@ -1,0 +1,163 @@
+# Van der Aalst 43 YAWL Workflow Patterns - Core Implementation
+@prefix cns: <http://cns.litigation/ontology#> .
+@prefix yawl: <http://yawlwms.org/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Basic Control Flow Patterns (1-20)
+yawl:Sequence a yawl:Pattern ;
+    yawl:patternNumber 1 ;
+    rdfs:label "Sequence" ;
+    rdfs:comment "Tasks execute in sequential order" ;
+    cns:litigation_use "Linear filing procedures" .
+
+yawl:ParallelSplit a yawl:Pattern ;
+    yawl:patternNumber 2 ;
+    rdfs:label "Parallel Split" ;
+    rdfs:comment "Split execution into parallel branches" ;
+    cns:litigation_use "Simultaneous jurisdiction filings" .
+
+yawl:Synchronization a yawl:Pattern ;
+    yawl:patternNumber 3 ;
+    rdfs:label "Synchronization" ;
+    rdfs:comment "Merge parallel branches" ;
+    cns:litigation_use "Consolidate evidence from multiple sources" .
+
+yawl:ExclusiveChoice a yawl:Pattern ;
+    yawl:patternNumber 4 ;
+    rdfs:label "Exclusive Choice" ;
+    rdfs:comment "Choose one branch based on condition" ;
+    cns:litigation_use "Route to appropriate jurisdiction" .
+
+yawl:SimpleMerge a yawl:Pattern ;
+    yawl:patternNumber 5 ;
+    rdfs:label "Simple Merge" ;
+    rdfs:comment "Merge exclusive branches" ;
+    cns:litigation_use "Consolidate jurisdiction-specific procedures" .
+
+# Advanced Branching Patterns (6-15)
+yawl:MultiChoice a yawl:Pattern ;
+    yawl:patternNumber 6 ;
+    rdfs:label "Multi-Choice" ;
+    rdfs:comment "Select multiple branches based on conditions" ;
+    cns:litigation_use "File in multiple jurisdictions simultaneously" .
+
+yawl:StructuredSynchronizingMerge a yawl:Pattern ;
+    yawl:patternNumber 7 ;
+    rdfs:label "Structured Synchronizing Merge" ;
+    rdfs:comment "Wait for selected branches to complete" ;
+    cns:litigation_use "Wait for all relevant jurisdiction responses" .
+
+yawl:MultiMerge a yawl:Pattern ;
+    yawl:patternNumber 8 ;
+    rdfs:label "Multi-Merge" ;
+    rdfs:comment "Merge multiple instances" ;
+    cns:litigation_use "Consolidate multiple complaint responses" .
+
+yawl:StructuredDiscriminatingMerge a yawl:Pattern ;
+    yawl:patternNumber 9 ;
+    rdfs:label "Structured Discriminating Merge" ;
+    rdfs:comment "Take first completion from parallel branches" ;
+    cns:litigation_use "Accept first jurisdiction acceptance" .
+
+yawl:ArbitraryCycles a yawl:Pattern ;
+    yawl:patternNumber 10 ;
+    rdfs:label "Arbitrary Cycles" ;
+    rdfs:comment "Loop through tasks based on conditions" ;
+    cns:litigation_use "Iterative evidence collection and refinement" .
+
+# Multiple Instance Patterns (12-15)
+yawl:MultipleInstancesWithoutSynchronization a yawl:Pattern ;
+    yawl:patternNumber 12 ;
+    rdfs:label "Multiple Instances without Synchronization" ;
+    rdfs:comment "Create multiple task instances independently" ;
+    cns:litigation_use "File multiple similar complaints independently" .
+
+yawl:MultipleInstancesWithAPrioriDesignTimeKnowledge a yawl:Pattern ;
+    yawl:patternNumber 13 ;
+    rdfs:label "Multiple Instances with A Priori Design Time Knowledge" ;
+    rdfs:comment "Known number of instances at design time" ;
+    cns:litigation_use "File in predetermined set of jurisdictions" .
+
+yawl:MultipleInstancesWithAPrioriRuntimeKnowledge a yawl:Pattern ;
+    yawl:patternNumber 14 ;
+    rdfs:label "Multiple Instances with A Priori Runtime Knowledge" ;
+    rdfs:comment "Number of instances determined at runtime" ;
+    cns:litigation_use "File based on applicable jurisdictions determined at runtime" .
+
+yawl:MultipleInstancesWithoutAPrioriRuntimeKnowledge a yawl:Pattern ;
+    yawl:patternNumber 15 ;
+    rdfs:label "Multiple Instances without A Priori Runtime Knowledge" ;
+    rdfs:comment "Dynamic creation and completion of instances" ;
+    cns:litigation_use "Add jurisdictions dynamically as new violations discovered" .
+
+# State-based Patterns (16-18)
+yawl:DeferredChoice a yawl:Pattern ;
+    yawl:patternNumber 16 ;
+    rdfs:label "Deferred Choice" ;
+    rdfs:comment "Choice deferred until runtime" ;
+    cns:litigation_use "Wait for external trigger (deadline, response)" .
+
+yawl:InterleavedParallelRouting a yawl:Pattern ;
+    yawl:patternNumber 17 ;
+    rdfs:label "Interleaved Parallel Routing" ;
+    rdfs:comment "Sequential execution of parallel tasks" ;
+    cns:litigation_use "Sequential processing of evidence items" .
+
+yawl:Milestone a yawl:Pattern ;
+    yawl:patternNumber 18 ;
+    rdfs:label "Milestone" ;
+    rdfs:comment "Task enabled by condition" ;
+    cns:litigation_use "File appeal only after initial decision received" .
+
+# Cancellation Patterns (19-25)
+yawl:CancelTask a yawl:Pattern ;
+    yawl:patternNumber 19 ;
+    rdfs:label "Cancel Task" ;
+    rdfs:comment "Cancel individual task" ;
+    cns:litigation_use "Cancel filing due to settlement" .
+
+yawl:CancelCase a yawl:Pattern ;
+    yawl:patternNumber 20 ;
+    rdfs:label "Cancel Case" ;
+    rdfs:comment "Cancel entire workflow instance" ;
+    cns:litigation_use "Cancel all proceedings due to resolution" .
+
+# CNS Litigation-Specific Workflow Compositions
+cns:LitigationWorkflowComposite a yawl:WorkflowNet ;
+    yawl:patterns (
+        yawl:Sequence            # Linear case progression
+        yawl:ExclusiveChoice     # Jurisdiction routing
+        yawl:ParallelSplit       # Multi-jurisdiction filing
+        yawl:Synchronization     # Evidence consolidation
+        yawl:ArbitraryCycles     # Iterative refinement
+        yawl:DeferredChoice      # Response-based routing
+        yawl:Milestone           # Deadline-based triggers
+        yawl:CancelCase          # Settlement termination
+    ) ;
+    cns:cognitiveProfile "DISC 99/80/40/40" ;
+    cns:ultrathinikStabilizer "Anti-distraction scoring active" .
+
+# OpenTelemetry Integration
+otel:LitigationSpan a otel:Span ;
+    otel:attributes [
+        otel:jurisdiction ?jurisdiction ;
+        otel:filing_type ?filing_type ;
+        otel:targeted_entity ?entity ;
+        otel:progress_tick ?tick ;
+        otel:dag_iri ?dag_iri ;
+        otel:file_path ?file_path
+    ] .
+
+# Ultrathink Behavioral Stabilizer
+cns:UltrathinkStabilizer a cns:CognitiveSystem ;
+    cns:profile "DISC 99/80/40/40" ;
+    cns:directional_focus "Maximum lawful defense" ;
+    cns:distraction_detection [
+        cns:missed_reminders "Calendar integration" ;
+        cns:unpressed_buttons "UI interaction tracking" ;
+        cns:cognitive_divergence "Information theory metrics"
+    ] ;
+    cns:entropy_constraints "Reverse-predictive entropy calculation" ;
+    cns:task_scoring "Anti-distraction scoring algorithm" .

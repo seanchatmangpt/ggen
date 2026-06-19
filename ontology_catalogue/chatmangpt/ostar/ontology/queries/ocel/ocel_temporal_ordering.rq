@@ -1,0 +1,22 @@
+# OCEL Temporal Ordering Validation
+# Validates that events are properly ordered by timestamp
+# An event cannot occur before its causally preceding events
+
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX ostar: <https://chatmangpt.com/ontologies/ostar#>
+
+ASK {
+  # Find temporal ordering violations
+  ?event1 a ocel:Event ;
+           ocel:object-id ?object_id ;
+           ocel:lifecycle "complete" .
+  ?event2 a ocel:Event ;
+           ocel:object-id ?object_id ;
+           ocel:lifecycle "create" .
+
+  ?event1 ocel:timestamp ?time1 .
+  ?event2 ocel:timestamp ?time2 .
+
+  # Complete cannot happen before create
+  FILTER (?time1 < ?time2)
+}

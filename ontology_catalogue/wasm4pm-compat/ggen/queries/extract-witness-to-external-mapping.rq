@@ -1,0 +1,108 @@
+# SPARQL Query: Extract Witness Marker to External Standard Mapping
+# Purpose: Create authoritative mapping table from compat witness markers to open-ontologies
+# standard URIs. This query produces the canonical witness-to-external ledger used by all
+# other bridge queries.
+#
+# Output columns:
+# - witnessKey: stable compat identifier (e.g., 'ocel-2.0', 'bpmn-2.0')
+# - witnessTitle: human-facing title (e.g., 'OCEL 2.0')
+# - witnessFamily: StandardDocument, Paper, ApiGrammar, RustLaw, InternalBridge
+# - externalNamespace: open-ontologies namespace URI
+# - externalPrefix: SPARQL prefix (e.g., 'ocel', 'bpmn')
+# - processForms: count of compat ProcessForm instances admitted against this witness
+# - externalComponentCount: count of external component definitions in that namespace
+#
+# Usage: ggen query extract-witness-to-external-mapping.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+
+SELECT DISTINCT
+  ?witnessKey
+  ?witnessTitle
+  ?witnessFamily
+  ?witnessYear
+  ?externalNamespace
+  ?externalPrefix
+  ?externalNamespaceLabel
+  (COUNT(DISTINCT ?form) AS ?compatProcessFormCount)
+  (SAMPLE(?description) AS ?witnessDescription)
+WHERE {
+  # ========== COMPAT SIDE: Witness Markers ==========
+  ?witness
+    a compat:WitnessMarker ;
+    compat:witnessKey ?witnessKey ;
+    compat:witnessTitle ?witnessTitle ;
+    compat:witnessFamily ?witnessFamily ;
+    rdfs:comment ?description .
+
+  OPTIONAL {
+    ?witness compat:year ?witnessYear .
+  }
+
+  # Find all ProcessForms admitted against this witness
+  OPTIONAL {
+    ?form compat:admittedAgainst ?witness .
+  }
+
+  # ========== EXTERNAL MAPPING: Map witness to open-ontologies namespace ==========
+  # This binding leverages the witness key to compute the external namespace.
+  # For federation, replace with SERVICE call to external registry.
+
+  BIND (
+    IF(?witnessKey = 'ocel-2.0', 'https://open-ontologies.org/ocel#',
+    IF(?witnessKey = 'bpmn-2.0', 'https://open-ontologies.org/bpmn#',
+    IF(?witnessKey = 'petri-net', 'https://open-ontologies.org/petri#',
+    IF(?witnessKey = 'wf-net', 'https://open-ontologies.org/wfnet#',
+    IF(?witnessKey = 'object-centric-petri-net', 'https://open-ontologies.org/ocpn#',
+    IF(?witnessKey = 'process-tree', 'https://open-ontologies.org/processtree#',
+    IF(?witnessKey = 'xes-1849', 'https://open-ontologies.org/xes#',
+    IF(?witnessKey = 'dfg', 'https://open-ontologies.org/dfg#',
+    IF(?witnessKey = 'pm4py-api-grammar', 'https://open-ontologies.org/pm4py#',
+    'https://open-ontologies.org/unknown#')))))))
+    AS ?externalNamespace
+  )
+
+  # Bind SPARQL prefix abbreviation
+  BIND (
+    IF(?witnessKey = 'ocel-2.0', 'ocel',
+    IF(?witnessKey = 'bpmn-2.0', 'bpmn',
+    IF(?witnessKey = 'petri-net', 'petri',
+    IF(?witnessKey = 'wf-net', 'wfnet',
+    IF(?witnessKey = 'object-centric-petri-net', 'ocpn',
+    IF(?witnessKey = 'process-tree', 'ptree',
+    IF(?witnessKey = 'xes-1849', 'xes',
+    IF(?witnessKey = 'dfg', 'dfg',
+    IF(?witnessKey = 'pm4py-api-grammar', 'pm4py',
+    'unknown')))))))))
+    AS ?externalPrefix
+  )
+
+  # Bind human-facing external namespace label
+  BIND (
+    IF(?witnessKey = 'ocel-2.0', 'OCEL 2.0 Standard Components',
+    IF(?witnessKey = 'bpmn-2.0', 'BPMN 2.0 Elements',
+    IF(?witnessKey = 'petri-net', 'Petri Net Components',
+    IF(?witnessKey = 'wf-net', 'Workflow Net Components',
+    IF(?witnessKey = 'object-centric-petri-net', 'Object-Centric Petri Net Components',
+    IF(?witnessKey = 'process-tree', 'Process Tree Components',
+    IF(?witnessKey = 'xes-1849', 'XES 1.8.4.9 Event Log Standard',
+    IF(?witnessKey = 'dfg', 'Directly-Follows Graph Components',
+    IF(?witnessKey = 'pm4py-api-grammar', 'pm4py Python API Grammar',
+    'Unknown External Standard')))))))))
+    AS ?externalNamespaceLabel
+  )
+}
+GROUP BY
+  ?witnessKey
+  ?witnessTitle
+  ?witnessFamily
+  ?witnessYear
+  ?externalNamespace
+  ?externalPrefix
+  ?externalNamespaceLabel
+ORDER BY ?witnessKey

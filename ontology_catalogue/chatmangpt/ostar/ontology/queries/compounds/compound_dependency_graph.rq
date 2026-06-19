@@ -1,0 +1,43 @@
+# SELECT: Extract the dependency graph for a compound
+#
+# Returns every ontology in the compound together with its incoming
+# (dependsOn) and outgoing (dependedBy) dependency edges.
+#
+# Parameter: ?compound -- a prov:Bundle URI
+#
+# Public ontology terms:
+#   OntologyCompound -> prov:Bundle
+#   DependencyGraph -> prov:Entity
+#   dependsOn -> prov:wasDerivedFrom
+#   dependedBy -> prov:hadDerivation
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+SELECT ?ontology ?dependsOn ?dependedBy
+WHERE {
+  # Bind the compound parameter -- replace with a concrete URI
+  VALUES ?compound { <https://chatmangpt.com/compounds/placeholder> }
+
+  # Every ontology in the compound (prov:Bundle)
+  ?compound prov:hadMember ?ontology .
+
+  # Dependency graph node for this ontology
+  ?depGraph rdf:type prov:Entity .
+
+  # dependsOn: this ontology depends on another
+  OPTIONAL {
+    ?depGraph prov:wasDerivedFrom ?ontology ;
+              prov:hadDerivation ?dependsOn .
+  }
+
+  # dependedBy: another ontology depends on this one
+  OPTIONAL {
+    ?depGraph prov:wasDerivedFrom ?dependedBy ;
+              prov:hadDerivation ?ontology .
+  }
+}
+ORDER BY ?ontology

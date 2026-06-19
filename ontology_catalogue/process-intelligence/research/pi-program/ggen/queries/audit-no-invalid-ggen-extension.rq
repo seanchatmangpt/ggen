@@ -1,0 +1,12 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX schema: <https://schema.org/>
+
+# AUDIT: FAIL if .ggen file found as source artifact (invalid file format)
+# Valid: .ttl (ontology), .rq (queries), .tera (templates), .yaml (manifests). Invalid: .ggen (not a standard format).
+SELECT ?violation ?path
+WHERE {
+  ?entity schema:codeRepository ?path .
+  BIND ("InvalidGgenExtension" AS ?violation)
+  FILTER (REGEX(?path, "\\.ggen$", "i"))
+}

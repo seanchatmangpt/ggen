@@ -1,0 +1,20 @@
+# Performance Regression Detection Rule
+# Identifies operations with latency increases >10%
+# Helps catch performance degradation early
+
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# RULE: {"id": "performance-regression-detection", "name": "Performance Regression Detection", "description": "Detects operations with latency increases exceeding 10% threshold", "antecedent": "?operation gv:baselineLatency ?baseline . ?operation gv:currentLatency ?current . FILTER((?current / ?baseline) > 1.1)", "consequent": "?operation gv:hasPerformanceRegression true", "priority": 80}
+
+# Example data structure
+ex:operation1 gv:baselineLatency "100ms" .
+ex:operation1 gv:currentLatency "95ms" .
+
+ex:operation2 gv:baselineLatency "200ms" .
+ex:operation2 gv:currentLatency "230ms" .
+
+ex:operation3 gv:baselineLatency "150ms" .
+ex:operation3 gv:currentLatency "100ms" .

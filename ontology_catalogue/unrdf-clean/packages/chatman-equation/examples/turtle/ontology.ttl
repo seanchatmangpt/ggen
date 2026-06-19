@@ -1,0 +1,74 @@
+@prefix ce: <http://unrdf.org/chatman-equation#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Chatman Equation Ontology
+# 3T Methodology: TOML + Tera + Turtle
+
+ce:Ontology a owl:Ontology ;
+    rdfs:label "Chatman Equation Ontology" ;
+    rdfs:comment "Defines the core concepts of the 3T methodology for knowledge graph generation" ;
+    owl:versionInfo "1.0.0" .
+
+# Classes
+ce:Methodology a owl:Class ;
+    rdfs:label "Methodology" ;
+    rdfs:comment "A systematic approach to knowledge representation" .
+
+ce:Component a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "A building block of the methodology" .
+
+ce:ConfigurationFormat a owl:Class ;
+    rdfs:subClassOf ce:Component ;
+    rdfs:label "Configuration Format" ;
+    rdfs:comment "Format for storing configuration data" .
+
+ce:TemplateEngine a owl:Class ;
+    rdfs:subClassOf ce:Component ;
+    rdfs:label "Template Engine" ;
+    rdfs:comment "Engine for rendering templates" .
+
+ce:OntologyFormat a owl:Class ;
+    rdfs:subClassOf ce:Component ;
+    rdfs:label "Ontology Format" ;
+    rdfs:comment "Format for representing ontologies" .
+
+# Properties
+ce:hasComponent a owl:ObjectProperty ;
+    rdfs:domain ce:Methodology ;
+    rdfs:range ce:Component ;
+    rdfs:label "has component" .
+
+ce:hasName a owl:DatatypeProperty ;
+    rdfs:domain ce:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "has name" .
+
+ce:hasVersion a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "has version" .
+
+ce:hasDescription a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "has description" .
+
+# Individuals
+ce:3TMethodology a ce:Methodology ;
+    rdfs:label "3T Methodology" ;
+    ce:hasDescription "TOML + Tera + Turtle methodology for configuration-driven knowledge graph generation" ;
+    ce:hasVersion "1.0.0" ;
+    ce:hasComponent ce:TOML, ce:Tera, ce:Turtle .
+
+ce:TOML a ce:ConfigurationFormat ;
+    ce:hasName "TOML" ;
+    ce:hasDescription "Tom's Obvious, Minimal Language - configuration format" .
+
+ce:Tera a ce:TemplateEngine ;
+    ce:hasName "Tera" ;
+    ce:hasDescription "Template engine for rendering RDF from configurations" .
+
+ce:Turtle a ce:OntologyFormat ;
+    ce:hasName "Turtle" ;
+    ce:hasDescription "Terse RDF Triple Language - RDF serialization format" .

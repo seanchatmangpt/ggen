@@ -1,0 +1,86 @@
+@prefix : <https://bytestar.org/ontology/sap/access-plane#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix sap_arch: <https://bytestar.org/ontology/sap/architecture#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+
+<https://bytestar.org/ontology/sap/access-plane>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/sap/access-plane/v1.0> ;
+    rdfs:comment "Ontology modeling the Nuxt access plane components within the Sovereign Access Plane (SAP)." ;
+    owl:imports arch: ,
+                doctrines: ,
+                sap_arch: ,
+                spr: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:NuxtAccessPlane rdf:type owl:Class ;
+    rdfs:comment "The access plane implemented using Nuxt, providing user interaction and fabricating mission crystals." .
+
+:LayeredFrontend rdf:type owl:Class ;
+    rdfs:comment "The multi-layered Nuxt frontend (base domain, product, org skin, deployment)." .
+
+:ClientSDK rdf:type owl:Class ;
+    rdfs:comment "A typed client SDK compiled from SHACL/ontology for safe data access." .
+
+:UserInteraction rdf:type owl:Class ;
+    rdfs:comment "An action performed by a user within the Nuxt UI." .
+
+:MissionCrystalFabrication rdf:type owl:Class ;
+    rdfs:comment "The process of fabricating mission crystals from UI actions." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:hasLayeredFrontend rdf:type owl:ObjectProperty ;
+    rdfs:domain :NuxtAccessPlane ;
+    rdfs:range :LayeredFrontend ;
+    rdfs:comment "The Nuxt access plane has a layered frontend." .
+
+:hasClientSDK rdf:type owl:ObjectProperty ;
+    rdfs:domain :NuxtAccessPlane ;
+    rdfs:range :ClientSDK ;
+    rdfs:comment "The Nuxt access plane provides a client SDK." .
+
+:triggersFabrication rdf:type owl:ObjectProperty ;
+    rdfs:domain :UserInteraction ;
+    rdfs:range :MissionCrystalFabrication ;
+    rdfs:comment "A user interaction triggers mission crystal fabrication." .
+
+:fabricatesCrystal rdf:type owl:ObjectProperty ;
+    rdfs:domain :MissionCrystalFabrication ;
+    rdfs:range spr:SPR ;
+    rdfs:comment "Mission crystal fabrication produces an SPR (mission crystal)." .
+
+:generatedFromOntology rdf:type owl:ObjectProperty ;
+    rdfs:domain :ClientSDK ;
+    rdfs:range owl:Ontology ;
+    rdfs:comment "A client SDK is generated from an ontology." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:neverWritesState rdf:type owl:DatatypeProperty ;
+    rdfs:domain :NuxtAccessPlane ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the Nuxt access plane never writes state directly." .
+
+:hasLayerCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :LayeredFrontend ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The number of layers in the frontend." .
+
+:isTypeSafe rdf:type owl:DatatypeProperty ;
+    rdfs:domain :ClientSDK ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the client SDK is type-safe." .
+

@@ -1,0 +1,20 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ANTI-PATTERN: Invalid split-join combination (not in permutation matrix)
+
+<http://example.org/test/invalid-pattern> a yawl:WorkflowSpecification ;
+    rdfs:label "Invalid Workflow - Bad Pattern" ;
+    rdfs:comment "This workflow uses an invalid split-join combination" ;
+
+    yawl:hasTask <#bad-task> .
+
+<#bad-task> a yawl:Task ;
+    rdfs:label "Invalid Pattern Task" ;
+
+    # VIOLATION: XOR split with AND join is invalid
+    # XOR can only choose one branch, so AND join can never synchronize all branches
+    yawl:hasSplitType yawl:XOR ;
+    yawl:hasJoinType yawl:AND .
+
+# This should be REJECTED by pattern matrix validation

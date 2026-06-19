@@ -1,0 +1,15 @@
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:entity0 rdfs:label "Entity 0 for tiny test dataset" .
+ex:entity1 ex:hasId 1 .
+ex:entity2 ex:createdAt "2025-09-12T18:37:27.331Z"^^xsd:dateTime .
+ex:entity3 ex:belongsToDataset ex:tinyDataset .
+ex:entity4 rdf:type ex:TestEntity .
+ex:entity5 rdfs:label "Entity 5 for tiny test dataset" .
+ex:entity6 ex:hasId 6 .
+ex:entity7 ex:createdAt "2025-09-12T18:37:27.331Z"^^xsd:dateTime .
+ex:entity8 ex:belongsToDataset ex:tinyDataset .
+ex:entity9 rdf:type ex:TestEntity .

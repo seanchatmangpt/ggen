@@ -1,0 +1,19 @@
+@prefix tai:   <http://bitbizeco.dev/ontology/v1#> .
+@prefix dflss: <http://bitbizeco.dev/ontology/v1/dflss#> .
+@prefix rorn:  <http://bitbizeco.dev/ontology/v1/rorn#> .
+@prefix sas:   <http://bitbizeco.dev/ontology/v1/sas#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Domain classes derive from canonical primitives
+dflss:Project     rdfs:subClassOf tai:CoordinatedExecutionUnit .
+dflss:PhaseType   rdfs:subClassOf tai:StateTransitionTrigger .
+
+rorn:Assembly     rdfs:subClassOf tai:CoordinatedExecutionUnit .
+rorn:Motion       rdfs:subClassOf tai:StateTransitionTrigger .
+
+sas:ScrumTeam     rdfs:subClassOf tai:CoordinatedExecutionUnit .
+sas:SprintEvent   rdfs:subClassOf tai:StateTransitionTrigger .
+
+
+

@@ -1,0 +1,550 @@
+@prefix : <http://www.example.org/yawl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<http://www.example.org/yawl> rdf:type owl:Ontology ;
+    owl:versionIRI <http://www.example.org/yawl/2.0.0> ;
+    rdfs:comment "Enterprise-grade YAWL workflow ontology with advanced patterns, validation, and monitoring capabilities." ;
+    rdfs:label "YAWL Comprehensive Ontology v2.0" .
+
+#################################################################
+#    Object Properties - Core Control Flow
+#################################################################
+
+:flowsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :Node ;
+    rdfs:range :Node ;
+    rdfs:comment "Represents a control-flow connection between two nodes." .
+
+:hasNode rdf:type owl:ObjectProperty ;
+    rdfs:domain :Process ;
+    rdfs:range :Node ;
+    rdfs:comment "Links a process to its constituent nodes." .
+
+:hasInputCondition rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Condition .
+
+:hasOutputCondition rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Condition .
+
+:hasDecomposition rdf:type owl:ObjectProperty ;
+    rdfs:domain :CompositeTask ;
+    rdfs:range :Process .
+
+:hasJoinType rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Logic .
+
+:hasSplitType rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Logic .
+
+#################################################################
+#    Object Properties - Advanced Control Flow
+#################################################################
+
+:cancels rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Node ;
+    rdfs:comment "Specifies cancellation of target node execution." .
+
+:triggers rdf:type owl:ObjectProperty ;
+    rdfs:domain :Event ;
+    rdfs:range :Task ;
+    rdfs:comment "Event triggers task execution." .
+
+:hasExceptionHandler rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :ExceptionHandler ;
+    rdfs:comment "Links task to exception handling logic." .
+
+:hasTimeout rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :TimeoutSpecification ;
+    rdfs:comment "Specifies timeout behavior for task." .
+
+:hasRetryPolicy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :RetryPolicy ;
+    rdfs:comment "Defines retry behavior for failed tasks." .
+
+#################################################################
+#    Object Properties - Data Handling
+#################################################################
+
+:hasVariable rdf:type owl:ObjectProperty ;
+    rdfs:domain :Process ;
+    rdfs:range :ProcessVariable .
+
+:mapsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :TaskVariable ;
+    rdfs:range :ProcessVariable .
+
+:hasTaskVariable rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :TaskVariable .
+
+:hasDataTransformation rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :DataTransformation ;
+    rdfs:comment "Specifies data transformation rules." .
+
+:hasValidationRule rdf:type owl:ObjectProperty ;
+    rdfs:domain :Variable ;
+    rdfs:range :ValidationRule ;
+    rdfs:comment "Links variable to validation constraints." .
+
+#################################################################
+#    Object Properties - Organizational Perspective
+#################################################################
+
+:isOfferedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Role .
+
+:hasParticipant rdf:type owl:ObjectProperty ;
+    rdfs:domain :Role ;
+    rdfs:range :Resource .
+
+:hasWorkQueue rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :WorkQueue ;
+    rdfs:comment "Specifies work queue for task distribution." .
+
+:hasEscalationPolicy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :EscalationPolicy ;
+    rdfs:comment "Defines escalation rules for task completion." .
+
+#################################################################
+#    Object Properties - Monitoring & Analytics
+#################################################################
+
+:hasMetric rdf:type owl:ObjectProperty ;
+    rdfs:domain :Process ;
+    rdfs:range :Metric ;
+    rdfs:comment "Links process to performance metrics." .
+
+:hasAuditTrail rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :AuditEvent ;
+    rdfs:comment "Records audit events for compliance." .
+
+:hasSLA rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :ServiceLevelAgreement ;
+    rdfs:comment "Defines service level agreements." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:taskName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:string .
+
+:variableName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Variable ;
+    rdfs:range xsd:string .
+
+:variableType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Variable ;
+    rdfs:range xsd:string .
+
+:mappingDirection rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TaskVariable ;
+    rdfs:range xsd:string .
+
+:resourceName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Resource ;
+    rdfs:range xsd:string .
+
+:roleName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Role ;
+    rdfs:range xsd:string .
+
+:priority rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Task priority level (1-10)." .
+
+:estimatedDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Estimated task completion time." .
+
+:maxRetries rdf:type owl:DatatypeProperty ;
+    rdfs:domain :RetryPolicy ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum number of retry attempts." .
+
+:timeoutValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :TimeoutSpecification ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Timeout duration value." .
+
+#################################################################
+#    Classes - Core Workflow
+#################################################################
+
+:Node rdf:type owl:Class ;
+    rdfs:comment "Abstract class for all workflow elements." .
+
+:Process rdf:type owl:Class ;
+    rdfs:comment "A complete workflow process definition." .
+
+:Task rdf:type owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:comment "A unit of work in the workflow." .
+
+:Condition rdf:type owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:comment "A decision point or state in the workflow." .
+
+:Event rdf:type owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:comment "An event that can trigger workflow actions." .
+
+:AtomicTask rdf:type owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:comment "A task that cannot be decomposed further." .
+
+:CompositeTask rdf:type owl:Class ;
+    rdfs:subClassOf :Task ;
+    rdfs:comment "A task that contains a sub-process." .
+
+:Logic rdf:type owl:Class ;
+    rdfs:comment "Control flow logic types (AND, XOR, OR)." .
+
+#################################################################
+#    Classes - Advanced Workflow
+#################################################################
+
+:ExceptionHandler rdf:type owl:Class ;
+    rdfs:comment "Handles exceptions during task execution." .
+
+:TimeoutSpecification rdf:type owl:Class ;
+    rdfs:comment "Specifies timeout behavior for tasks." .
+
+:RetryPolicy rdf:type owl:Class ;
+    rdfs:comment "Defines retry behavior for failed tasks." .
+
+:DataTransformation rdf:type owl:Class ;
+    rdfs:comment "Specifies data transformation rules." .
+
+:ValidationRule rdf:type owl:Class ;
+    rdfs:comment "Data validation constraints." .
+
+:WorkQueue rdf:type owl:Class ;
+    rdfs:comment "Queue for distributing work items." .
+
+:EscalationPolicy rdf:type owl:Class ;
+    rdfs:comment "Rules for escalating overdue tasks." .
+
+#################################################################
+#    Classes - Data & Variables
+#################################################################
+
+:Variable rdf:type owl:Class ;
+    rdfs:comment "Abstract class for data variables." .
+
+:ProcessVariable rdf:type owl:Class ;
+    rdfs:subClassOf :Variable ;
+    rdfs:comment "Variables at process level." .
+
+:TaskVariable rdf:type owl:Class ;
+    rdfs:subClassOf :Variable ;
+    rdfs:comment "Variables local to a task." .
+
+#################################################################
+#    Classes - Organizational
+#################################################################
+
+:Resource rdf:type owl:Class ;
+    rdfs:comment "An actor that can perform work." .
+
+:Role rdf:type owl:Class ;
+    rdfs:comment "A classification of resources." .
+
+#################################################################
+#    Classes - Monitoring & Analytics
+#################################################################
+
+:Metric rdf:type owl:Class ;
+    rdfs:comment "Performance measurement metrics." .
+
+:AuditEvent rdf:type owl:Class ;
+    rdfs:comment "Audit trail events for compliance." .
+
+:ServiceLevelAgreement rdf:type owl:Class ;
+    rdfs:comment "Service level agreement definitions." .
+
+#################################################################
+#    Individuals - Control Flow Logic
+#################################################################
+
+:AND rdf:type :Logic, owl:NamedIndividual ;
+    rdfs:comment "All inputs must be satisfied." .
+
+:XOR rdf:type :Logic, owl:NamedIndividual ;
+    rdfs:comment "Exactly one input must be satisfied." .
+
+:OR rdf:type :Logic, owl:NamedIndividual ;
+    rdfs:comment "At least one input must be satisfied." .
+
+:NOR rdf:type :Logic, owl:NamedIndividual ;
+    rdfs:comment "No inputs should be satisfied." .
+
+:NAND rdf:type :Logic, owl:NamedIndividual ;
+    rdfs:comment "Not all inputs should be satisfied." .
+
+#################################################################
+#    SHACL Shapes - Core Validation
+#################################################################
+
+:ProcessShape rdf:type sh:NodeShape ;
+    sh:targetClass :Process ;
+    sh:property [
+        sh:path :hasNode ;
+        sh:minCount 1 ;
+        sh:message "A process must have at least one node."
+    ],
+    [
+        sh:path :hasVariable ;
+        sh:minCount 0 ;
+        sh:message "Process variables are optional."
+    ] .
+
+:TaskShape rdf:type sh:NodeShape ;
+    sh:targetClass :Task ;
+    sh:property [
+        sh:path :taskName ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:minCount 1 ;
+        sh:message "Task must have exactly one name."
+    ],
+    [
+        sh:path :hasJoinType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task must have exactly one join type."
+    ],
+    [
+        sh:path :hasSplitType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task must have exactly one split type."
+    ],
+    [
+        sh:path :isOfferedTo ;
+        sh:minCount 1 ;
+        sh:message "Task must be offered to at least one role."
+    ],
+    [
+        sh:path :priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:message "Priority must be between 1 and 10."
+    ] .
+
+:TaskVariableShape rdf:type sh:NodeShape ;
+    sh:targetClass :TaskVariable ;
+    sh:property [
+        sh:path :mapsTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task variable must map to exactly one process variable."
+    ],
+    [
+        sh:path :mappingDirection ;
+        sh:in ( "input" "output" "inout" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Mapping direction must be 'input', 'output', or 'inout'."
+    ] .
+
+:RoleShape rdf:type sh:NodeShape ;
+    sh:targetClass :Role ;
+    sh:property [
+        sh:path :hasParticipant ;
+        sh:minCount 1 ;
+        sh:message "Role must have at least one participant."
+    ],
+    [
+        sh:path :roleName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Role must have exactly one name."
+    ] .
+
+#################################################################
+#    SHACL Shapes - Advanced Validation
+#################################################################
+
+:TimeoutSpecificationShape rdf:type sh:NodeShape ;
+    sh:targetClass :TimeoutSpecification ;
+    sh:property [
+        sh:path :timeoutValue ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Timeout must have exactly one duration value."
+    ] .
+
+:RetryPolicyShape rdf:type sh:NodeShape ;
+    sh:targetClass :RetryPolicy ;
+    sh:property [
+        sh:path :maxRetries ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 10 ;
+        sh:message "Max retries must be between 0 and 10."
+    ] .
+
+:ServiceLevelAgreementShape rdf:type sh:NodeShape ;
+    sh:targetClass :ServiceLevelAgreement ;
+    sh:property [
+        sh:path :estimatedDuration ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "SLA must have exactly one estimated duration."
+    ] .
+
+#################################################################
+#    Example Instance - Enterprise Loan Processing
+#################################################################
+
+:EnterpriseLoanProcess rdf:type :Process, owl:NamedIndividual ;
+    :hasNode :Start, :ValidateApplication, :CreditCheck, :RiskAssessment, :ApprovalDecision, :DocumentGeneration, :End ;
+    :hasVariable :ApplicationData, :CreditScore, :RiskLevel, :ApprovalStatus .
+
+### Organizational Setup
+:LoanOfficerRole rdf:type :Role, owl:NamedIndividual ;
+    :roleName "Loan Officer" ;
+    :hasParticipant :JohnDoe, :JaneSmith .
+
+:RiskAnalystRole rdf:type :Role, owl:NamedIndividual ;
+    :roleName "Risk Analyst" ;
+    :hasParticipant :BobWilson .
+
+:ManagerRole rdf:type :Role, owl:NamedIndividual ;
+    :roleName "Manager" ;
+    :hasParticipant :AliceJohnson .
+
+:JohnDoe rdf:type :Resource, owl:NamedIndividual ; :resourceName "John Doe" .
+:JaneSmith rdf:type :Resource, owl:NamedIndividual ; :resourceName "Jane Smith" .
+:BobWilson rdf:type :Resource, owl:NamedIndividual ; :resourceName "Bob Wilson" .
+:AliceJohnson rdf:type :Resource, owl:NamedIndividual ; :resourceName "Alice Johnson" .
+
+### Process Variables
+:ApplicationData rdf:type :ProcessVariable, owl:NamedIndividual ;
+    :variableName "application_data" ;
+    :variableType "json" .
+
+:CreditScore rdf:type :ProcessVariable, owl:NamedIndividual ;
+    :variableName "credit_score" ;
+    :variableType "integer" .
+
+:RiskLevel rdf:type :ProcessVariable, owl:NamedIndividual ;
+    :variableName "risk_level" ;
+    :variableType "string" .
+
+:ApprovalStatus rdf:type :ProcessVariable, owl:NamedIndividual ;
+    :variableName "approval_status" ;
+    :variableType "string" .
+
+### Process Flow
+:Start rdf:type :Condition, owl:NamedIndividual ;
+    :flowsTo :ValidateApplication .
+
+:ValidateApplication rdf:type :AtomicTask, owl:NamedIndividual ;
+    :taskName "Validate Application" ;
+    :hasJoinType :AND ;
+    :hasSplitType :XOR ;
+    :isOfferedTo :LoanOfficerRole ;
+    :priority 8 ;
+    :hasInputCondition :Start ;
+    :hasOutputCondition :C1, :C2 ;
+    :hasTaskVariable [
+        rdf:type :TaskVariable ;
+        :variableName "app_data_in" ;
+        :mapsTo :ApplicationData ;
+        :mappingDirection "input"
+    ] .
+
+:C1 rdf:type :Condition, owl:NamedIndividual ; :flowsTo :CreditCheck .
+:C2 rdf:type :Condition, owl:NamedIndividual ; :flowsTo :End .
+
+:CreditCheck rdf:type :AtomicTask, owl:NamedIndividual ;
+    :taskName "Credit Check" ;
+    :hasJoinType :AND ;
+    :hasSplitType :AND ;
+    :isOfferedTo :LoanOfficerRole ;
+    :priority 7 ;
+    :hasInputCondition :C1 ;
+    :hasOutputCondition :C3 ;
+    :hasTaskVariable [
+        rdf:type :TaskVariable ;
+        :variableName "credit_score_out" ;
+        :mapsTo :CreditScore ;
+        :mappingDirection "output"
+    ] .
+
+:C3 rdf:type :Condition, owl:NamedIndividual ; :flowsTo :RiskAssessment .
+
+:RiskAssessment rdf:type :AtomicTask, owl:NamedIndividual ;
+    :taskName "Risk Assessment" ;
+    :hasJoinType :AND ;
+    :hasSplitType :AND ;
+    :isOfferedTo :RiskAnalystRole ;
+    :priority 6 ;
+    :hasInputCondition :C3 ;
+    :hasOutputCondition :C4 ;
+    :hasTaskVariable [
+        rdf:type :TaskVariable ;
+        :variableName "risk_level_out" ;
+        :mapsTo :RiskLevel ;
+        :mappingDirection "output"
+    ] .
+
+:C4 rdf:type :Condition, owl:NamedIndividual ; :flowsTo :ApprovalDecision .
+
+:ApprovalDecision rdf:type :AtomicTask, owl:NamedIndividual ;
+    :taskName "Approval Decision" ;
+    :hasJoinType :AND ;
+    :hasSplitType :XOR ;
+    :isOfferedTo :ManagerRole ;
+    :priority 9 ;
+    :hasInputCondition :C4 ;
+    :hasOutputCondition :C5, :C6 ;
+    :hasTaskVariable [
+        rdf:type :TaskVariable ;
+        :variableName "approval_status_out" ;
+        :mapsTo :ApprovalStatus ;
+        :mappingDirection "output"
+    ] .
+
+:C5 rdf:type :Condition, owl:NamedIndividual ; :flowsTo :DocumentGeneration .
+:C6 rdf:type :Condition, owl:NamedIndividual ; :flowsTo :End .
+
+:DocumentGeneration rdf:type :AtomicTask, owl:NamedIndividual ;
+    :taskName "Generate Documents" ;
+    :hasJoinType :AND ;
+    :hasSplitType :AND ;
+    :isOfferedTo :LoanOfficerRole ;
+    :priority 5 ;
+    :hasInputCondition :C5 ;
+    :hasOutputCondition :End .
+
+:End rdf:type :Condition, owl:NamedIndividual . 

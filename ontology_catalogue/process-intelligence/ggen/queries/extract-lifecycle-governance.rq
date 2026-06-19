@@ -1,0 +1,118 @@
+# extract-lifecycle-governance.rq
+# SPARQL query to extract MAPE-K rules and lifecycle state transitions
+# for Blue River autonomic governance engine
+# Authority: MAPE_K_INTEGRATION.md, full-lifecycle-process.md, blue-river-dam.md
+# Output: State machine definition, monitor/analyze/plan/execute/knowledge rules
+
+PREFIX lifecycle: <https://process.intelligence/lifecycle/>
+PREFIX compat: <https://process.intelligence/compat/>
+PREFIX wasm4pm: <https://process.intelligence/wasm4pm/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?state
+  ?stateName
+  ?statePhase
+  ?stateDescription
+  ?transitionTarget
+  ?transitionTargetName
+  ?transitionGuardCondition
+  ?transitionGuardExpression
+  ?transitionActionOnFire
+  ?monitorRule
+  ?monitorExpression
+  ?monitorMetric
+  ?analyzeRule
+  ?analyzeExpression
+  ?analyzeThreshold
+  ?planRule
+  ?planPolicyExpression
+  ?planOutputShape
+  ?executeAction
+  ?executeActionName
+  ?executeAuditLog
+  ?knowledgeAsset
+  ?knowledgeAssetType
+  ?knowledgeAssetValue
+
+WHERE {
+  # Select all lifecycle states across the design → decommission spectrum
+  ?state a lifecycle:ProcessState .
+  ?state rdfs:label ?stateName .
+  ?state lifecycle:phase ?statePhase .
+  FILTER (?statePhase IN (
+    lifecycle:DesignPhase,
+    lifecycle:SimulationPhase,
+    lifecycle:ValidationPhase,
+    lifecycle:MonitoringPhase,
+    lifecycle:OptimizationPhase,
+    lifecycle:RepairPhase,
+    lifecycle:DecommissionPhase
+  ))
+
+  OPTIONAL { ?state dcterms:description ?stateDescription . }
+
+  # State transitions: where can we go from here?
+  ?state lifecycle:transitions ?transition .
+  ?transition lifecycle:to ?transitionTarget .
+  ?transitionTarget rdfs:label ?transitionTargetName .
+
+  # Guard conditions: what conditions must be satisfied to take the transition?
+  OPTIONAL {
+    ?transition lifecycle:guard ?transitionGuard .
+    ?transitionGuard lifecycle:condition ?transitionGuardCondition .
+    ?transitionGuard lifecycle:expression ?transitionGuardExpression .
+  }
+
+  # Actions to fire on transition
+  OPTIONAL {
+    ?transition lifecycle:action ?transitionAction .
+    ?transitionAction rdfs:label ?transitionActionOnFire .
+  }
+
+  # MAPE-K Monitor rules: what observations trigger analysis?
+  OPTIONAL {
+    ?state lifecycle:monitorRule ?monitorRule .
+    ?monitorRule lifecycle:expression ?monitorExpression .
+    ?monitorRule lifecycle:observes ?monitorMetric .
+  }
+
+  # MAPE-K Analyze rules: what analysis patterns apply in this state?
+  OPTIONAL {
+    ?state lifecycle:analyzeRule ?analyzeRule .
+    ?analyzeRule lifecycle:pattern ?analyzeExpression .
+    ?analyzeRule lifecycle:threshold ?analyzeThreshold .
+  }
+
+  # MAPE-K Plan rules: what remediation policies apply?
+  OPTIONAL {
+    ?state lifecycle:planRule ?planRule .
+    ?planRule lifecycle:policy ?planPolicyExpression .
+    ?planRule lifecycle:outputShape ?planOutputShape .
+  }
+
+  # MAPE-K Execute actions: what can we do in this state?
+  OPTIONAL {
+    ?state lifecycle:canExecute ?executeAction .
+    ?executeAction rdfs:label ?executeActionName .
+    ?executeAction lifecycle:auditedVia ?executeAuditLog .
+  }
+
+  # MAPE-K Knowledge: what learned assets inform decisions in this state?
+  OPTIONAL {
+    ?state lifecycle:knowledgeSource ?knowledgeAsset .
+    ?knowledgeAsset a ?knowledgeAssetType .
+    FILTER (?knowledgeAssetType IN (
+      lifecycle:ProcessModel,
+      lifecycle:ConformancePattern,
+      lifecycle:RemediationStrategy,
+      lifecycle:PredictiveModel,
+      lifecycle:AutonomicPolicy
+    ))
+    ?knowledgeAsset lifecycle:value ?knowledgeAssetValue .
+  }
+
+}
+ORDER BY ?statePhase ?stateName

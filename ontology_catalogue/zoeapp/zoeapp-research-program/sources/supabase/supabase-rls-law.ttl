@@ -1,0 +1,26 @@
+@prefix ostar: <urn:ostar:ontology#> .
+@prefix rls: <urn:ostar:rls#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Supabase Law Substrate
+<urn:ostar:law:SupabaseRLS> a ostar:Law ;
+    ostar:lawId "SupabaseRLS" ;
+    ostar:description "Semantic definition of Row Level Security for Supabase" .
+
+# Table definition
+rls:Table a ostar:Class .
+
+# Policy definition
+rls:Policy a ostar:Class ;
+    rls:hasTableName xsd:string ;
+    rls:hasRole xsd:string ;
+    rls:hasAction xsd:string ;
+    rls:hasUsingClause xsd:string ;
+    rls:hasCheckClause xsd:string .
+
+# Specific Policies Example
+rls:ProfilesOwnRead a rls:Policy ;
+    rls:hasTableName "profiles" ;
+    rls:hasRole "authenticated" ;
+    rls:hasAction "SELECT" ;
+    rls:hasUsingClause "auth.uid() = id" .

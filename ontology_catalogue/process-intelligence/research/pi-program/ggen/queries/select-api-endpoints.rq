@@ -1,0 +1,26 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX api: <http://process-intelligence.org/api/>
+
+# Select all API endpoints with their methods, paths, and metadata
+# For OpenAPI 3.0 specification generation
+
+SELECT ?endpoint ?method ?path ?operationId ?summary ?description
+       ?requestBodySchema ?responseBodySchema ?statusCode
+       ?authRequired ?rateLimitTier ?tags
+WHERE {
+  ?endpoint a api:ApiEndpoint .
+  ?endpoint api:method ?method .
+  ?endpoint api:path ?path .
+  ?endpoint api:operationId ?operationId .
+  ?endpoint rdfs:label ?summary .
+  ?endpoint api:description ?description .
+  OPTIONAL { ?endpoint api:requestBody ?requestBodySchema }
+  OPTIONAL { ?endpoint api:responseBody ?responseBodySchema }
+  ?endpoint api:statusCode ?statusCode .
+  ?endpoint api:authRequired ?authRequired .
+  ?endpoint api:rateLimitTier ?rateLimitTier .
+  ?endpoint api:tags ?tags .
+}
+ORDER BY ?path ?method

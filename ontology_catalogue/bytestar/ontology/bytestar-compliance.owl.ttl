@@ -1,0 +1,83 @@
+@prefix : <https://bytestar.org/ontology/compliance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+@prefix validation: <https://bytestar.org/ontology/validation#> .
+
+<https://bytestar.org/ontology/compliance>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/compliance/v1.0> ;
+    rdfs:comment "Ontology defining concepts related to compliance by construction, DP budgets, and audit processes within the ByteStar ecosystem." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: ,
+                validation: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:ComplianceByConstruction rdf:type owl:Class ;
+    rdfs:comment "The principle of building systems that are compliant by design, rather than through post-hoc auditing." .
+
+:DP_Budget rdf:type owl:Class ;
+    rdfs:comment "A quantifiable budget for Differential Privacy spend, enforced per publication epoch." .
+
+:AuditProcess rdf:type owl:Class ;
+    rdfs:comment "A systematic process for verifying adherence to policies and regulations." .
+
+:VerifiableProof rdf:type owl:Class ;
+    rdfs:comment "A cryptographically verifiable artifact that proves a specific event or state." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:ensuresCompliance rdf:type owl:ObjectProperty ;
+    rdfs:domain :ComplianceByConstruction ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "Compliance by construction ensures compliance of a specific resource or process." .
+
+:enforcesBudget rdf:type owl:ObjectProperty ;
+    rdfs:domain :DP_Budget ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "A DP budget enforces a budget on a specific resource or process." .
+
+:generatesProof rdf:type owl:ObjectProperty ;
+    rdfs:domain :AuditProcess ;
+    rdfs:range :VerifiableProof ;
+    rdfs:comment "An audit process generates verifiable proofs." .
+
+:reliesOnProof rdf:type owl:ObjectProperty ;
+    rdfs:domain :ComplianceByConstruction ;
+    rdfs:range :VerifiableProof ;
+    rdfs:comment "Compliance by construction relies on verifiable proofs." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasBudgetAmount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DP_Budget ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The amount of the Differential Privacy budget (epsilon)." .
+
+:isEnforcedPerEpoch rdf:type owl:DatatypeProperty ;
+    rdfs:domain :DP_Budget ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if the DP budget is enforced per publication epoch." .
+
+:hasAuditFrequency rdf:type owl:DatatypeProperty ;
+    rdfs:domain :AuditProcess ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The frequency of the audit process (e.g., 'daily', 'per-transaction')." .
+
+:hasProofType rdf:type owl:DatatypeProperty ;
+    rdfs:domain :VerifiableProof ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The type of verifiable proof (e.g., 'receipt', 'zero-knowledge proof')." .
+

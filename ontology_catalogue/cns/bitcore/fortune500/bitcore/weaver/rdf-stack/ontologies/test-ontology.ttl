@@ -1,0 +1,320 @@
+@prefix weaver: <http://bitstar.ai/weaver#> .
+@prefix test: <http://bitstar.ai/test#> .
+@prefix code: <http://bitstar.ai/code#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+@prefix yawl: <http://yawl.org/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Weaver TDD Framework Test Ontology
+# Based on v1/docs/01-WEAVER-TDD-FRAMEWORK.md patterns
+
+#################################################################
+#    Core Test-Code Linking Classes
+#################################################################
+
+weaver:RDFLinkingPattern a owl:Class ;
+    rdfs:label "RDF Test-Code Linking Pattern" ;
+    rdfs:comment "Patterns that link tests and code through RDF predicates" .
+
+test:TestCase a owl:Class ;
+    rdfs:label "Test Case" ;
+    rdfs:comment "A single test case in the TDD cycle" .
+
+test:TestSuite a owl:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "Collection of related test cases" .
+
+code:Function a owl:Class ;
+    rdfs:label "Code Function" ;
+    rdfs:comment "A function or method to be tested" .
+
+code:Module a owl:Class ;
+    rdfs:label "Code Module" ;
+    rdfs:comment "A module or class containing functions" .
+
+#################################################################
+#    TDD Cycle Classes
+#################################################################
+
+test:RedPhase a owl:Class ;
+    rdfs:label "Red Phase" ;
+    rdfs:comment "Failing test phase of TDD cycle" .
+
+test:GreenPhase a owl:Class ;
+    rdfs:label "Green Phase" ;
+    rdfs:comment "Minimal code implementation phase" .
+
+test:RefactorPhase a owl:Class ;
+    rdfs:label "Refactor Phase" ;
+    rdfs:comment "Code optimization phase" .
+
+#################################################################
+#    Test Type Classes (80/20 Optimization)
+#################################################################
+
+test:UnitTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Unit Test" ;
+    rdfs:comment "Basic unit tests - 35% of all tests" ;
+    test:impactPercentage 35 .
+
+test:IntegrationTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Integration Test" ;
+    rdfs:comment "API integration tests - 25% of all tests" ;
+    test:impactPercentage 25 .
+
+test:AdversarialTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Adversarial Test" ;
+    rdfs:comment "Security/error handling tests - 15% of all tests" ;
+    test:impactPercentage 15 .
+
+test:PerformanceTest a owl:Class ;
+    rdfs:subClassOf test:TestCase ;
+    rdfs:label "Performance Test" ;
+    rdfs:comment "Performance/edge case tests - 5% of all tests" ;
+    test:impactPercentage 5 .
+
+#################################################################
+#    Coverage Classes
+#################################################################
+
+test:CoverageMetric a owl:Class ;
+    rdfs:label "Coverage Metric" ;
+    rdfs:comment "Test coverage measurement" .
+
+test:LineCoverage a owl:Class ;
+    rdfs:subClassOf test:CoverageMetric ;
+    rdfs:label "Line Coverage" ;
+    rdfs:comment "Line coverage measurement - 90% required" ;
+    test:requiredThreshold 90 .
+
+test:BranchCoverage a owl:Class ;
+    rdfs:subClassOf test:CoverageMetric ;
+    rdfs:label "Branch Coverage" ;
+    rdfs:comment "Branch coverage measurement - 85% required" ;
+    test:requiredThreshold 85 .
+
+test:FunctionCoverage a owl:Class ;
+    rdfs:subClassOf test:CoverageMetric ;
+    rdfs:label "Function Coverage" ;
+    rdfs:comment "Function coverage measurement - 95% required" ;
+    test:requiredThreshold 95 .
+
+#################################################################
+#    OpenTelemetry Integration Classes
+#################################################################
+
+otel:TestSpan a owl:Class ;
+    rdfs:label "Test Execution Span" ;
+    rdfs:comment "OpenTelemetry span for test execution" .
+
+otel:TestMetric a owl:Class ;
+    rdfs:label "Test Metric" ;
+    rdfs:comment "Performance metric during test execution" .
+
+otel:TestTrace a owl:Class ;
+    rdfs:label "Test Trace" ;
+    rdfs:comment "Complete test execution trace" .
+
+#################################################################
+#    YAWL Workflow Integration Classes
+#################################################################
+
+yawl:TestWorkflow a owl:Class ;
+    rdfs:label "Test Workflow" ;
+    rdfs:comment "YAWL workflow for automated testing" .
+
+yawl:TestTask a owl:Class ;
+    rdfs:label "Test Task" ;
+    rdfs:comment "Individual task in test workflow" .
+
+#################################################################
+#    Properties - Core Relationships
+#################################################################
+
+test:testsFunction a owl:ObjectProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range code:Function ;
+    rdfs:comment "Links test case to the function it tests" .
+
+test:hasName a owl:DatatypeProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the test case" .
+
+test:hasDescription a owl:DatatypeProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of what the test validates" .
+
+test:hasCoverage a owl:DatatypeProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Coverage percentage achieved by test" .
+
+test:hasStatus a owl:ObjectProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range test:Status ;
+    rdfs:comment "Current status of the test case" .
+
+test:hasCategory a owl:ObjectProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range test:TestType ;
+    rdfs:comment "Category/type of the test case" .
+
+test:expectedBehavior a owl:DatatypeProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Expected behavior description" .
+
+#################################################################
+#    Properties - TDD Cycle
+#################################################################
+
+weaver:hasSequence a owl:ObjectProperty ;
+    rdfs:domain weaver:RDFLinkingPattern ;
+    rdfs:range weaver:TDDStep ;
+    rdfs:comment "Sequence of steps in TDD pattern" .
+
+weaver:step a owl:DatatypeProperty ;
+    rdfs:domain weaver:TDDStep ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Step number in TDD sequence" .
+
+weaver:action a owl:ObjectProperty ;
+    rdfs:domain weaver:TDDStep ;
+    rdfs:range weaver:Action ;
+    rdfs:comment "Action to perform in TDD step" .
+
+weaver:produces a owl:ObjectProperty ;
+    rdfs:domain weaver:TDDStep ;
+    rdfs:range test:Phase ;
+    rdfs:comment "Phase produced by TDD step" .
+
+#################################################################
+#    Properties - Performance & Telemetry
+#################################################################
+
+test:executionTime a owl:DatatypeProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time taken to execute test" .
+
+test:tickCost a owl:DatatypeProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Tick cost for test execution (7-tick limit)" .
+
+otel:hasSpan a owl:ObjectProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range otel:TestSpan ;
+    rdfs:comment "Associated OpenTelemetry span" .
+
+otel:hasMetric a owl:ObjectProperty ;
+    rdfs:domain test:TestCase ;
+    rdfs:range otel:TestMetric ;
+    rdfs:comment "Associated performance metrics" .
+
+#################################################################
+#    Properties - YAWL Integration
+#################################################################
+
+yawl:hasWorkflow a owl:ObjectProperty ;
+    rdfs:domain test:TestSuite ;
+    rdfs:range yawl:TestWorkflow ;
+    rdfs:comment "YAWL workflow for test suite execution" .
+
+yawl:hasTask a owl:ObjectProperty ;
+    rdfs:domain yawl:TestWorkflow ;
+    rdfs:range yawl:TestTask ;
+    rdfs:comment "Task in test workflow" .
+
+yawl:maxHops a owl:DatatypeProperty ;
+    rdfs:domain yawl:TestWorkflow ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum hops in workflow execution" .
+
+yawl:ttl a owl:DatatypeProperty ;
+    rdfs:domain yawl:TestWorkflow ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Time-to-live for workflow execution" .
+
+#################################################################
+#    Status Individuals
+#################################################################
+
+test:Passing a test:Status, owl:NamedIndividual ;
+    rdfs:label "Passing" ;
+    rdfs:comment "Test is currently passing" .
+
+test:Failing a test:Status, owl:NamedIndividual ;
+    rdfs:label "Failing" ;
+    rdfs:comment "Test is currently failing" .
+
+test:Pending a test:Status, owl:NamedIndividual ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Test is pending implementation" .
+
+test:Skipped a test:Status, owl:NamedIndividual ;
+    rdfs:label "Skipped" ;
+    rdfs:comment "Test was skipped during execution" .
+
+#################################################################
+#    TDD Action Individuals
+#################################################################
+
+weaver:WriteFailingTest a weaver:Action, owl:NamedIndividual ;
+    rdfs:label "Write Failing Test" ;
+    rdfs:comment "Write a test that fails (Red phase)" .
+
+weaver:WriteMinimalCode a weaver:Action, owl:NamedIndividual ;
+    rdfs:label "Write Minimal Code" ;
+    rdfs:comment "Write minimal code to pass test (Green phase)" .
+
+weaver:RefactorCode a weaver:Action, owl:NamedIndividual ;
+    rdfs:label "Refactor Code" ;
+    rdfs:comment "Optimize code while maintaining tests (Refactor phase)" .
+
+#################################################################
+#    Example TDD Pattern Instance
+#################################################################
+
+weaver:TestFirst a weaver:RDFLinkingPattern, owl:NamedIndividual ;
+    rdfs:label "Test-First Development Pattern" ;
+    rdfs:comment "Standard TDD Red-Green-Refactor cycle" ;
+    weaver:hasSequence [
+        weaver:step 1 ;
+        weaver:action weaver:WriteFailingTest ;
+        weaver:produces test:RedPhase
+    ] ;
+    weaver:hasSequence [
+        weaver:step 2 ;
+        weaver:action weaver:WriteMinimalCode ;
+        weaver:produces test:GreenPhase
+    ] ;
+    weaver:hasSequence [
+        weaver:step 3 ;
+        weaver:action weaver:RefactorCode ;
+        weaver:produces test:RefactorPhase
+    ] .
+
+#################################################################
+#    Example Test Case Instance
+#################################################################
+
+test:CalculateScore a test:UnitTest, owl:NamedIndividual ;
+    test:hasName "Calculate Score Test" ;
+    test:testsFunction code:calculate_score ;
+    test:hasCoverage 0.95 ;
+    test:hasCategory test:UnitTest ;
+    test:expectedBehavior "Multiplies two inputs correctly" ;
+    test:hasStatus test:Passing ;
+    test:tickCost 3 ;
+    otel:hasSpan [
+        a otel:TestSpan ;
+        rdfs:label "test.execution.calculate_score"
+    ] .

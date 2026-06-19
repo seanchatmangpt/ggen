@@ -1,0 +1,62 @@
+# Select MAPE-K Monitor Components
+# Authority: Autonomic Knowledge Actuation
+# Purpose: Extract real-time event monitoring configuration
+
+PREFIX aka: <http://process-intelligence.local/autonomic/>
+PREFIX mape: <http://process-intelligence.local/mape-k/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  ?monitor a mape:Monitor ;
+    rdfs:label ?label ;
+    rdfs:comment ?comment ;
+    mape:eventFormat ?format ;
+    mape:alignmentMethod ?alignment ;
+    mape:updateFrequency ?frequency ;
+    mape:fitnessThreshold ?threshold .
+} WHERE {
+  {
+    # Monitor: XES/OCEL 2.0 Event Stream Ingestion
+    BIND(IRI("http://process-intelligence.local/mape-k/monitor-event-ingestion") AS ?monitor)
+    BIND("Event Stream Ingestion" AS ?label)
+    BIND("Real-time ingestion of XES and OCEL 2.0 event traces" AS ?comment)
+    BIND("XES/OCEL2.0" AS ?format)
+    BIND("stream-based" AS ?alignment)
+    BIND("rt" AS ?frequency)
+    BIND(1.0 AS ?threshold)
+  }
+  UNION
+  {
+    # Monitor: Trace Alignment Calculation
+    BIND(IRI("http://process-intelligence.local/mape-k/monitor-trace-alignment") AS ?monitor)
+    BIND("Trace Alignment Calculator" AS ?label)
+    BIND("Continuous alignment of observed traces to process model" AS ?comment)
+    BIND("optimal-alignment" AS ?format)
+    BIND("pm4py-cost-function" AS ?alignment)
+    BIND("bounded" AS ?frequency)
+    BIND(0.85 AS ?threshold)
+  }
+  UNION
+  {
+    # Monitor: Conformance Fitness Tracker
+    BIND(IRI("http://process-intelligence.local/mape-k/monitor-conformance-fitness") AS ?monitor)
+    BIND("Conformance Fitness Tracker" AS ?label)
+    BIND("Real-time computation of fitness metric across running traces" AS ?comment)
+    BIND("fitness-scalar" AS ?format)
+    BIND("weighted-cost" AS ?alignment)
+    BIND("1s" AS ?frequency)
+    BIND(0.85 AS ?threshold)
+  }
+  UNION
+  {
+    # Monitor: Coverability State Space Checker
+    BIND(IRI("http://process-intelligence.local/mape-k/monitor-state-space") AS ?monitor)
+    BIND("Coverability State Space Monitor" AS ?label)
+    BIND("Background verification of reachable markings and boundedness" AS ?comment)
+    BIND("reachability-graph" AS ?format)
+    BIND("structural-analysis" AS ?alignment)
+    BIND("bounded" AS ?frequency)
+    BIND(1.0 AS ?threshold)
+  }
+}

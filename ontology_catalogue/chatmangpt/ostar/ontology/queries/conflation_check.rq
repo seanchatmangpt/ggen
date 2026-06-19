@@ -1,0 +1,23 @@
+# SPARQL query to identify law dimension / proof feature conflation
+# Problem: Law dimensions and proof features are in the same SKOS scheme
+# Expected: Two separate schemes with different types
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX tier: <https://chatmangpt.com/ontologies/o-star-tier#>
+
+ASK {
+  # Check if law dimensions and proof features are conflated
+  # They should NOT be in the same skos:ConceptScheme
+  ?feature1 a skos:Concept ;
+            skos:inScheme ?scheme .
+
+  ?feature2 a skos:Concept ;
+            skos:inScheme ?scheme .
+
+  # These are different types of concepts (law dim vs proof feature)
+  # but they're in the same scheme - that's the conflation
+  FILTER (?feature1 = tier:feature-closure-validation && ?feature2 = tier:feature-enterprise-verifier)
+}

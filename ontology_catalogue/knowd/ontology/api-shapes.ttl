@@ -1,0 +1,104 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix api: <http://knowd.io/api#> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL Shapes for API Metadata Validation
+# Ensures API definitions are well-formed and complete
+
+## Endpoint Shape
+api:EndpointShape a sh:NodeShape ;
+    sh:targetClass api:Endpoint ;
+    sh:property [
+        sh:path api:path ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^/v[0-9]+/" ;
+        sh:message "Path must start with version prefix (e.g., /v1/)" ;
+    ] ;
+    sh:property [
+        sh:path api:method ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("GET" "POST" "PUT" "DELETE" "PATCH" "OPTIONS") ;
+        sh:message "Method must be valid HTTP method" ;
+    ] ;
+    sh:property [
+        sh:path hydra:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Endpoint must have a title" ;
+    ] ;
+    sh:property [
+        sh:path hydra:description ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Endpoint must have a description" ;
+    ] ;
+    sh:property [
+        sh:path api:requiresAuth ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] ;
+    sh:property [
+        sh:path api:rateLimit ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Rate limit must be non-negative" ;
+    ] .
+
+## Request Body Shape
+api:RequestBodyShape a sh:NodeShape ;
+    sh:targetClass api:RequestBody ;
+    sh:property [
+        sh:path hydra:supportedProperty ;
+        sh:minCount 1 ;
+        sh:message "Request body must define at least one property" ;
+    ] .
+
+## Response Body Shape
+api:ResponseBodyShape a sh:NodeShape ;
+    sh:targetClass api:ResponseBody ;
+    sh:property [
+        sh:path hydra:supportedProperty ;
+        sh:minCount 1 ;
+        sh:message "Response body must define at least one property" ;
+    ] .
+
+## OpenAPI Fragment Shape
+api:OpenAPIFragmentShape a sh:NodeShape ;
+    sh:targetObjectsOf api:openapi ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "OpenAPI fragment must be valid JSON" ;
+    # Note: Would ideally validate JSON schema, but SHACL can't do that directly
+    # In practice, we'd validate this programmatically when loading the ontology
+.
+
+## Path Format Shape
+api:PathFormatShape a sh:NodeShape ;
+    sh:targetObjectsOf api:path ;
+    sh:datatype xsd:string ;
+    sh:pattern "^/[a-zA-Z0-9/_-]+$" ;
+    sh:message "Path must contain only alphanumeric characters, slashes, hyphens, and underscores" .
+
+## HTTP Method Shape
+api:HTTPMethodShape a sh:NodeShape ;
+    sh:targetObjectsOf api:method ;
+    sh:datatype xsd:string ;
+    sh:pattern "^(GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD)$" ;
+    sh:message "Method must be a valid HTTP method" .
+
+## Rate Limit Shape
+api:RateLimitShape a sh:NodeShape ;
+    sh:targetObjectsOf api:rateLimit ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 100000 ;
+    sh:message "Rate limit must be between 1 and 100,000 requests per minute" .

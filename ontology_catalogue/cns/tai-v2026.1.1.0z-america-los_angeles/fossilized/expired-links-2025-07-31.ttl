@@ -1,0 +1,50 @@
+# TAI v2026.1.1.0z Fossilized Links - Expired Connections
+# Archive of relationships that have naturally ended their lifecycle
+# Fossilized on 2025-07-31
+
+@prefix tai: <http://tai.cognitive-mesh.org/ontology#> .
+@prefix fossil: <http://tai.cognitive-mesh.org/fossil#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Fossilized Connection 001 - Experimental Integration
+fossil:deprecated_integration_001 a tai:FossilizedConnection ;
+    rdfs:label "Deprecated BitTest Integration" ;
+    fossil:originalRelevanceStrength 0.42 ;
+    fossil:finalRelevanceStrength 0.18 ;
+    fossil:connectionType "experimental-integration" ;
+    fossil:reasonForExpiry "experiment-concluded-unsuccessful" ;
+    fossil:activeFrom "2025-07-25T09:00:00Z"^^xsd:dateTime ;
+    fossil:expiredAt "2025-07-31T14:30:00Z"^^xsd:dateTime ;
+    fossil:totalLifespan 538200 ;  # 6.23 days in seconds
+    fossil:peakRelevance 0.67 ;
+    fossil:decayPattern "gradual-decline" ;
+    fossil:fossilizationReason "natural-decay-below-threshold" .
+
+# Fossilized Connection 002 - Temporary Coordination
+fossil:temp_coordination_002 a tai:FossilizedConnection ;
+    rdfs:label "Temporary Cross-Domain Bridge" ;
+    fossil:originalRelevanceStrength 0.78 ;
+    fossil:finalRelevanceStrength 0.12 ;
+    fossil:connectionType "temporary-bridge" ;
+    fossil:reasonForExpiry "purpose-completed" ;
+    fossil:activeFrom "2025-07-30T16:45:00Z"^^xsd:dateTime ;
+    fossil:expiredAt "2025-07-31T11:20:00Z"^^xsd:dateTime ;
+    fossil:totalLifespan 67500 ;  # 18.75 hours
+    fossil:peakRelevance 0.91 ;
+    fossil:decayPattern "mission-accomplished-release" ;
+    fossil:fossilizationReason "completion-based-expiry" .
+
+# Memory of Expired Patterns
+fossil:pattern_memory_001 a fossil:PatternMemory ;
+    rdfs:label "Interaction Pattern Between Deprecated Systems" ;
+    fossil:patternDescription "periodic-sync-with-validation" ;
+    fossil:observedDuration 432000 ;  # 5 days
+    fossil:patternEffectiveness 0.34 ;
+    fossil:reasonForObsolescence "underlying-systems-deprecated" ;
+    fossil:preservedLearnings "validation-step-was-critical", "sync-frequency-too-high" ;
+    fossil:archivalDate "2025-07-31T17:00:00Z"^^xsd:dateTime .
+EOF < /dev/null

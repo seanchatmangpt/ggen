@@ -1,0 +1,211 @@
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix swift: <https://www.swift.com/standards/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# SWIFT International Payment - MT103 Message Processing
+# Patterns: Parallel Split (2), Synchronization (3), Deferred Choice (16), Milestone (18)
+
+<http://bitflow.ai/workflows/swift/mt103> a yawl:Specification ;
+    yawl:specName "SWIFT MT103 Payment Processing" ;
+    yawl:version "1.0" ;
+    yawl:hasInputCondition <http://bitflow.ai/workflows/swift/mt103/start> ;
+    yawl:hasOutputCondition <http://bitflow.ai/workflows/swift/mt103/end> ;
+
+    # Tasks
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/validate_message> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/sanctions_screening> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/aml_check> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/fraud_detection> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/compliance_review> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/debit_sender> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/credit_beneficiary> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/send_mt202> ;
+    yawl:hasTask <http://bitflow.ai/workflows/swift/mt103/send_confirmation> ;
+
+    # Flows
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_1> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_2> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_3> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_4> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_5> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_6> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_7> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_8> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_9> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_10> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_11> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_12> ;
+    yawl:hasFlow <http://bitflow.ai/workflows/swift/mt103/flow_13> .
+
+# Input Condition
+<http://bitflow.ai/workflows/swift/mt103/start> a yawl:InputCondition ;
+    yawl:conditionName "MT103 Message Received" .
+
+# Output Condition
+<http://bitflow.ai/workflows/swift/mt103/end> a yawl:OutputCondition ;
+    yawl:conditionName "Payment Complete" .
+
+# Task 1: Validate Message Format
+<http://bitflow.ai/workflows/swift/mt103/validate_message> a yawl:AtomicTask ;
+    yawl:taskName "Validate MT103 Format" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeAnd ;  # Pattern 2: Parallel Split
+    yawl:hasInputParameter [
+        yawl:paramName "mt103Message" ;
+        yawl:paramType "string"
+    ] .
+
+# Task 2: Sanctions Screening (parallel)
+<http://bitflow.ai/workflows/swift/mt103/sanctions_screening> a yawl:AtomicTask ;
+    yawl:taskName "OFAC Sanctions Screening" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "beneficiaryName" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "beneficiaryCountry" ;
+        yawl:paramType "string"
+    ] .
+
+# Task 3: AML Check (parallel)
+<http://bitflow.ai/workflows/swift/mt103/aml_check> a yawl:AtomicTask ;
+    yawl:taskName "Anti-Money Laundering Check" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "paymentAmount" ;
+        yawl:paramType "decimal"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "currency" ;
+        yawl:paramType "string"
+    ] .
+
+# Task 4: Fraud Detection (parallel)
+<http://bitflow.ai/workflows/swift/mt103/fraud_detection> a yawl:AtomicTask ;
+    yawl:taskName "Fraud Pattern Detection" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "transactionHistory" ;
+        yawl:paramType "string"
+    ] .
+
+# Task 5: Compliance Review (Pattern 3: Synchronization)
+<http://bitflow.ai/workflows/swift/mt103/compliance_review> a yawl:AtomicTask ;
+    yawl:taskName "Aggregate Compliance Results" ;
+    yawl:join yawl:ControlTypeAnd ;  # Pattern 3: Synchronization
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "sanctionsResult" ;
+        yawl:paramType "boolean"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "amlResult" ;
+        yawl:paramType "boolean"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "fraudResult" ;
+        yawl:paramType "boolean"
+    ] .
+
+# Task 6: Debit Sender Account (Pattern 2: Parallel Split to credit + MT202)
+<http://bitflow.ai/workflows/swift/mt103/debit_sender> a yawl:AtomicTask ;
+    yawl:taskName "Debit Sender Account" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeAnd ;  # Pattern 2: Parallel Split
+    yawl:hasInputParameter [
+        yawl:paramName "senderAccount" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "debitAmount" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 7: Credit Beneficiary (parallel with MT202)
+<http://bitflow.ai/workflows/swift/mt103/credit_beneficiary> a yawl:AtomicTask ;
+    yawl:taskName "Credit Beneficiary Account" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor ;
+    yawl:hasInputParameter [
+        yawl:paramName "beneficiaryAccount" ;
+        yawl:paramType "string"
+    ] ;
+    yawl:hasInputParameter [
+        yawl:paramName "creditAmount" ;
+        yawl:paramType "decimal"
+    ] .
+
+# Task 8: Send MT202 (Cover Payment)
+<http://bitflow.ai/workflows/swift/mt103/send_mt202> a yawl:AtomicTask ;
+    yawl:taskName "Send MT202 Cover Payment" ;
+    yawl:join yawl:ControlTypeXor ;
+    yawl:split yawl:ControlTypeXor .
+
+# Task 9: Send Confirmation (Pattern 3: Synchronization - waits for both branches)
+<http://bitflow.ai/workflows/swift/mt103/send_confirmation> a yawl:AtomicTask ;
+    yawl:taskName "Send Payment Confirmation" ;
+    yawl:join yawl:ControlTypeAnd ;  # Pattern 3: Synchronization
+    yawl:split yawl:ControlTypeXor .
+
+# Flows
+<http://bitflow.ai/workflows/swift/mt103/flow_1> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/start> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/validate_message> .
+
+# Parallel compliance checks (Pattern 2: Parallel Split)
+<http://bitflow.ai/workflows/swift/mt103/flow_2> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/validate_message> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/sanctions_screening> .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_3> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/validate_message> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/aml_check> .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_4> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/validate_message> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/fraud_detection> .
+
+# Synchronization (Pattern 3)
+<http://bitflow.ai/workflows/swift/mt103/flow_5> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/sanctions_screening> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/compliance_review> .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_6> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/aml_check> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/compliance_review> .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_7> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/fraud_detection> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/compliance_review> .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_8> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/compliance_review> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/debit_sender> ;
+    yawl:predicate "allComplianceChecksPassed == true" .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_9> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/debit_sender> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/credit_beneficiary> .
+
+# Parallel MT202 cover payment (Pattern 2: Parallel Split from debit_sender)
+<http://bitflow.ai/workflows/swift/mt103/flow_10> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/debit_sender> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/send_mt202> .
+
+# Synchronization flows to confirmation (Pattern 3: Synchronization)
+<http://bitflow.ai/workflows/swift/mt103/flow_11> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/credit_beneficiary> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/send_confirmation> .
+
+<http://bitflow.ai/workflows/swift/mt103/flow_12> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/send_mt202> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/send_confirmation> .
+
+# Final flow to end condition
+<http://bitflow.ai/workflows/swift/mt103/flow_13> a yawl:Flow ;
+    yawl:flowsFrom <http://bitflow.ai/workflows/swift/mt103/send_confirmation> ;
+    yawl:flowsInto <http://bitflow.ai/workflows/swift/mt103/end> .

@@ -1,0 +1,458 @@
+@prefix : <http://gitvan.io/ontology/cache#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ex: <http://example.org/> .
+
+# ============================================================================
+# CACHE ONTOLOGY - RDF-based Performance Caching Layer
+# ============================================================================
+# Defines OWL classes and properties for cache management with RDF support.
+# Includes SHACL shapes for validation and PROV-O for lineage tracking.
+# ============================================================================
+
+# ============================================================================
+# OWL CLASS DEFINITIONS
+# ============================================================================
+
+:CacheEntry a owl:Class ;
+  rdfs:label "Cache Entry" ;
+  rdfs:comment "Represents a single cache entry with metadata" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :key ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :value ;
+    owl:cardinality 1
+  ] .
+
+:CachePolicy a owl:Class ;
+  rdfs:label "Cache Policy" ;
+  rdfs:comment "Defines caching behavior and invalidation rules" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :ttl ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :maxEntries ;
+    owl:cardinality 1
+  ] .
+
+:InvalidationRule a owl:Class ;
+  rdfs:label "Invalidation Rule" ;
+  rdfs:comment "Defines when and how cache entries should be invalidated" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :pattern ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :action ;
+    owl:cardinality 1
+  ] .
+
+:CacheDependency a owl:Class ;
+  rdfs:label "Cache Dependency" ;
+  rdfs:comment "Tracks RDF triple dependencies for cache entries" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :dependentQuery ;
+    owl:cardinality 1
+  ] .
+
+:SubscriptionPattern a owl:Class ;
+  rdfs:label "Subscription Pattern" ;
+  rdfs:comment "Defines RDF patterns for reactive cache invalidation" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :patternQuery ;
+    owl:cardinality 1
+  ] .
+
+:CacheStatistics a owl:Class ;
+  rdfs:label "Cache Statistics" ;
+  rdfs:comment "Aggregated cache performance metrics" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hitCount ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :missCount ;
+    owl:cardinality 1
+  ] .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+:hasCachePolicy a owl:ObjectProperty ;
+  rdfs:label "has Cache Policy" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range :CachePolicy ;
+  owl:inverseOf :appliesToCache .
+
+:appliesToCache a owl:ObjectProperty ;
+  rdfs:label "applies to Cache" ;
+  rdfs:domain :CachePolicy ;
+  rdfs:range :CacheEntry .
+
+:hasInvalidationRule a owl:ObjectProperty ;
+  rdfs:label "has Invalidation Rule" ;
+  rdfs:domain :CachePolicy ;
+  rdfs:range :InvalidationRule ;
+  owl:inverseOf :partOfPolicy .
+
+:partOfPolicy a owl:ObjectProperty ;
+  rdfs:label "part of Policy" ;
+  rdfs:domain :InvalidationRule ;
+  rdfs:range :CachePolicy .
+
+:dependsOn a owl:ObjectProperty ;
+  rdfs:label "depends on" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range :CacheDependency ;
+  owl:inverseOf :supports .
+
+:supports a owl:ObjectProperty ;
+  rdfs:label "supports" ;
+  rdfs:domain :CacheDependency ;
+  rdfs:range :CacheEntry .
+
+:hasSubscriptionPattern a owl:ObjectProperty ;
+  rdfs:label "has Subscription Pattern" ;
+  rdfs:domain :CachePolicy ;
+  rdfs:range :SubscriptionPattern ;
+  owl:inverseOf :triggersInvalidation .
+
+:triggersInvalidation a owl:ObjectProperty ;
+  rdfs:label "triggers Invalidation" ;
+  rdfs:domain :SubscriptionPattern ;
+  rdfs:range :InvalidationRule .
+
+:recordedIn a owl:ObjectProperty ;
+  rdfs:label "recorded in" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range :CacheStatistics ;
+  owl:inverseOf :records .
+
+:records a owl:ObjectProperty ;
+  rdfs:label "records" ;
+  rdfs:domain :CacheStatistics ;
+  rdfs:range :CacheEntry .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+:key a owl:DatatypeProperty ;
+  rdfs:label "cache key" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:string ;
+  owl:hasKey ([ rdfs:seeAlso <http://www.w3.org/2001/XMLSchema#string> ]) ;
+  rdfs:comment "SHA256 hash of normalized SPARQL query" .
+
+:value a owl:DatatypeProperty ;
+  rdfs:label "cached value" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Serialized query result" .
+
+:ttl a owl:DatatypeProperty ;
+  rdfs:label "time to live" ;
+  rdfs:domain :CachePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Time-to-live in milliseconds" ;
+  owl:minCardinality 10000 ;
+  owl:maxCardinality 3600000 .
+
+:maxEntries a owl:DatatypeProperty ;
+  rdfs:label "maximum entries" ;
+  rdfs:domain :CachePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Maximum cache entries before LRU eviction" ;
+  owl:minCardinality 100 ;
+  owl:maxCardinality 1000000 .
+
+:hitCount a owl:DatatypeProperty ;
+  rdfs:label "hit count" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of times this entry was accessed" .
+
+:missCount a owl:DatatypeProperty ;
+  rdfs:label "miss count" ;
+  rdfs:domain :CacheStatistics ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Total number of cache misses" .
+
+:accessCount a owl:DatatypeProperty ;
+  rdfs:label "access count" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of accesses to this entry" .
+
+:timestamp a owl:DatatypeProperty ;
+  rdfs:label "timestamp" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "When entry was created" .
+
+:createdAt a owl:DatatypeProperty ;
+  rdfs:label "created at" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:dateTime .
+
+:expiresAt a owl:DatatypeProperty ;
+  rdfs:label "expires at" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:dateTime .
+
+:invalidatedAt a owl:DatatypeProperty ;
+  rdfs:label "invalidated at" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range xsd:dateTime .
+
+:pattern a owl:DatatypeProperty ;
+  rdfs:label "pattern" ;
+  rdfs:domain :InvalidationRule ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Regex or SPARQL pattern for invalidation" .
+
+:action a owl:DatatypeProperty ;
+  rdfs:label "action" ;
+  rdfs:domain :InvalidationRule ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Action to take: 'CLEAR', 'INVALIDATE_PATTERN', 'NOTIFY'" .
+
+:patternQuery a owl:DatatypeProperty ;
+  rdfs:label "pattern query" ;
+  rdfs:domain :SubscriptionPattern ;
+  rdfs:range xsd:string ;
+  rdfs:comment "SPARQL pattern for matching RDF triples" .
+
+:dependentQuery a owl:DatatypeProperty ;
+  rdfs:label "dependent query" ;
+  rdfs:domain :CacheDependency ;
+  rdfs:range xsd:string ;
+  rdfs:comment "SPARQL query that depends on this triple" .
+
+:affectedSubjects a owl:DatatypeProperty ;
+  rdfs:label "affected subjects" ;
+  rdfs:domain :CacheDependency ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Subjects affected by dependency" .
+
+:affectedPredicates a owl:DatatypeProperty ;
+  rdfs:label "affected predicates" ;
+  rdfs:domain :CacheDependency ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Predicates affected by dependency" .
+
+:notificationLatency a owl:DatatypeProperty ;
+  rdfs:label "notification latency" ;
+  rdfs:domain :SubscriptionPattern ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Latency of pattern match notification in milliseconds" .
+
+# ============================================================================
+# SHACL SHAPES FOR VALIDATION
+# ============================================================================
+
+:CacheEntryShape a sh:NodeShape ;
+  sh:targetClass :CacheEntry ;
+  rdfs:label "Cache Entry Shape" ;
+  sh:property [
+    sh:path :key ;
+    sh:datatype xsd:string ;
+    sh:minLength 32 ;
+    sh:maxLength 64 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Key must be a 32-64 char SHA256 hash"
+  ] ;
+  sh:property [
+    sh:path :value ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Value must be present"
+  ] ;
+  sh:property [
+    sh:path :hitCount ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:description "Hit count must be non-negative"
+  ] ;
+  sh:property [
+    sh:path :accessCount ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:description "Access count must be non-negative"
+  ] ;
+  sh:property [
+    sh:path :timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+    sh:description "Timestamp must be a single datetime"
+  ] ;
+  sh:property [
+    sh:path :expiresAt ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+    sh:description "Expiration time must be a single datetime"
+  ] .
+
+:CachePolicyShape a sh:NodeShape ;
+  sh:targetClass :CachePolicy ;
+  rdfs:label "Cache Policy Shape" ;
+  sh:property [
+    sh:path :ttl ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 10000 ;
+    sh:maxInclusive 3600000 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "TTL must be between 10s and 1h"
+  ] ;
+  sh:property [
+    sh:path :maxEntries ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 100 ;
+    sh:maxInclusive 1000000 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Max entries must be between 100 and 1M"
+  ] .
+
+:InvalidationRuleShape a sh:NodeShape ;
+  sh:targetClass :InvalidationRule ;
+  rdfs:label "Invalidation Rule Shape" ;
+  sh:property [
+    sh:path :pattern ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Pattern must be specified"
+  ] ;
+  sh:property [
+    sh:path :action ;
+    sh:datatype xsd:string ;
+    sh:in ("CLEAR" "INVALIDATE_PATTERN" "NOTIFY") ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Action must be one of CLEAR, INVALIDATE_PATTERN, NOTIFY"
+  ] .
+
+:SubscriptionPatternShape a sh:NodeShape ;
+  sh:targetClass :SubscriptionPattern ;
+  rdfs:label "Subscription Pattern Shape" ;
+  sh:property [
+    sh:path :patternQuery ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Pattern query must be specified"
+  ] ;
+  sh:property [
+    sh:path :notificationLatency ;
+    sh:datatype xsd:integer ;
+    sh:maxInclusive 10 ;
+    sh:description "Notification latency must be <10ms"
+  ] .
+
+# ============================================================================
+# PROV-O INTEGRATION FOR CACHE LINEAGE
+# ============================================================================
+
+:CacheEntryGeneration a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "Cache Entry Generation" ;
+  rdfs:comment "Represents generation of a cache entry from a query execution" .
+
+:QueryExecution a owl:Class ;
+  rdfs:subClassOf prov:Activity ;
+  rdfs:label "Query Execution" ;
+  rdfs:comment "Represents execution of a SPARQL query" .
+
+# Cache entry is generated by query execution
+:generatedBy a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:wasGeneratedBy ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range :QueryExecution .
+
+# Query used cache as input
+:usedCache a owl:ObjectProperty ;
+  rdfs:subPropertyOf prov:used ;
+  rdfs:domain :QueryExecution ;
+  rdfs:range :CacheEntry .
+
+# Cache entry invalidated by predicate change
+:invalidatedByPredicateChange a owl:ObjectProperty ;
+  rdfs:label "invalidated by predicate change" ;
+  rdfs:domain :CacheEntry ;
+  rdfs:range rdf:Property .
+
+# ============================================================================
+# EXAMPLE INSTANCES
+# ============================================================================
+
+:defaultCachePolicy a :CachePolicy ;
+  rdfs:label "Default Cache Policy" ;
+  :ttl 10000 ;
+  :maxEntries 1000 ;
+  :hasInvalidationRule :defaultInvalidationRule ;
+  :hasSubscriptionPattern :defaultSubscriptionPattern .
+
+:defaultInvalidationRule a :InvalidationRule ;
+  rdfs:label "Default Invalidation Rule" ;
+  :pattern ".*" ;
+  :action "INVALIDATE_PATTERN" .
+
+:defaultSubscriptionPattern a :SubscriptionPattern ;
+  rdfs:label "Default Subscription Pattern" ;
+  :patternQuery "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" ;
+  :notificationLatency 5 .
+
+# ============================================================================
+# EXPLANATION AND DOCUMENTATION
+# ============================================================================
+
+<http://gitvan.io/ontology/cache> a owl:Ontology ;
+  owl:versionInfo "1.0.0" ;
+  rdfs:label "GitVan Cache Ontology" ;
+  rdfs:comment """
+    This ontology defines the RDF-based cache management system for GitVan.
+
+    Key Concepts:
+    1. CacheEntry - Individual cached query results with metadata
+    2. CachePolicy - Rules and configuration for cache behavior
+    3. InvalidationRule - Conditions triggering cache invalidation
+    4. CacheDependency - RDF triple dependencies tracked per query
+    5. SubscriptionPattern - Reactive patterns for invalidation
+    6. CacheStatistics - Aggregated performance metrics
+
+    Integration Points:
+    - OWL: Type system and constraints on cache entries
+    - SHACL: Validation rules for cache data quality
+    - PROV-O: Lineage tracking from query to cached result
+    - SPARQL: Querying cache dependencies and statistics
+
+    Performance Requirements:
+    - Invalidation: <10ms for single entries
+    - Pattern matching: <10ms notification latency
+    - Large datasets: Efficient memory with 10K+ entries
+    - Batch operations: <50ms for 100+ entries
+  """ ;
+  owl:imports <http://www.w3.org/2002/07/owl> ;
+  owl:imports <http://www.w3.org/ns/shacl> ;
+  owl:imports <http://www.w3.org/ns/prov> .

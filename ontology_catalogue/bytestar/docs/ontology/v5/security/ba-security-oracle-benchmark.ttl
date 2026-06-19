@@ -1,0 +1,552 @@
+# ByteStar Security Oracle and Benchmark Suite Ontology
+# Comprehensive security oracle generation and benchmarking framework
+# Version: 5.0.0 - Security Domain
+# Classification: Security Testing and Validation Framework
+# Dependencies: All security frameworks, doctrine constraints
+
+@prefix : <https://w3id.org/bytestar/ontology/security/oracle-benchmark#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Import existing ByteStar ontologies (80% reuse)
+@prefix sp: <https://w3id.org/bytestar/ontology/security/policy#> .
+@prefix pqc: <https://w3id.org/bytestar/ontology/security/pqc-validation#> .
+@prefix scr: <https://w3id.org/bytestar/ontology/security/sidechannel-resistance#> .
+@prefix sct: <https://w3id.org/bytestar/ontology/security/sidechannel-testing#> .
+@prefix ctv: <https://w3id.org/bytestar/ontology/security/constant-time-validator#> .
+@prefix hti: <https://w3id.org/bytestar/ontology/security/hsm-tee-integration#> .
+@prefix doe: <https://w3id.org/bytestar/ontology/doctrine#> .
+@prefix ba: <https://w3id.org/bytestar/ontology/core#> .
+
+# Ontology Declaration
+<https://w3id.org/bytestar/ontology/security/oracle-benchmark> 
+    rdf:type owl:Ontology ;
+    dcterms:title "ByteStar Security Oracle and Benchmark Suite"@en ;
+    dcterms:description "Comprehensive security oracle generation and benchmarking framework for all ByteStar crystal security validations"@en ;
+    dcterms:version "5.0.0" ;
+    dcterms:created "2025-08-23"^^xsd:date ;
+    dcterms:creator "ByteStar Security Architecture Team" ;
+    owl:imports <https://w3id.org/bytestar/ontology/security/pqc-validation>,
+                <https://w3id.org/bytestar/ontology/security/sidechannel-resistance>,
+                <https://w3id.org/bytestar/ontology/security/sidechannel-testing>,
+                <https://w3id.org/bytestar/ontology/security/constant-time-validator>,
+                <https://w3id.org/bytestar/ontology/security/hsm-tee-integration>,
+                <https://w3id.org/bytestar/ontology/security/policy>,
+                <https://w3id.org/bytestar/ontology/doctrine> .
+
+# ===== SECURITY ORACLE FRAMEWORK =====
+
+:SecurityOracleFramework rdf:type owl:Class ;
+                         rdfs:subClassOf sp:SecurityValidationFramework ;
+                         rdfs:label "Security Oracle Framework"@en ;
+                         rdfs:comment "Comprehensive framework for generating security oracles and ground truth datasets"@en ;
+                         :generatesOracle :PQCOracle , :SideChannelOracle , :ConstantTimeOracle ,
+                                         :HSMOracle , :ComplianceOracle , :AttackOracle ;
+                         :hasOracleType :GroundTruthOracle , :TestOracle , :ValidationOracle ,
+                                       :BenchmarkOracle , :ReferenceOracle ;
+                         :operatesWithinConstraint doe:EightTickConstraint ;
+                         :hasAccuracyRequirement "0.9999"^^xsd:decimal .
+
+:OracleGenerator rdf:type owl:Class ;
+                 rdfs:subClassOf :SecurityOracleFramework ;
+                 rdfs:label "Oracle Generator"@en ;
+                 rdfs:comment "Automated generation engine for security validation oracles"@en ;
+                 :usesMethodology :FormalVerification , :StatisticalAnalysis , :MachineLearning ,
+                                 :CryptographicAnalysis , :ExpertKnowledge ;
+                 :generatesFormat :NIST_TestVectors , :RFC_TestCases , :CryptoLabels ,
+                                 :BenchmarkSuites , :GroundTruthDatasets ;
+                 :hasGenerationRate "10000"^^xsd:positiveInteger ; # oracles per hour
+                 :maintainsProvenance "true"^^xsd:boolean .
+
+:GroundTruthGenerator rdf:type owl:Class ;
+                      rdfs:subClassOf :OracleGenerator ;
+                      rdfs:label "Ground Truth Generator"@en ;
+                      rdfs:comment "Generation of mathematically verified ground truth datasets"@en ;
+                      :usesFormalMethods :TheoremProving , :ModelChecking , :SAT_Solving , :SMT_Solving ;
+                      :providesCertificate :ProofCertificate , :VerificationReport , :MathematicalProof ;
+                      :hasVerificationDepth :Complete , :Partial , :Heuristic ;
+                      :guaranteesCorrectness "true"^^xsd:boolean .
+
+# ===== PQC SECURITY ORACLES =====
+
+:PQCSecurityOracle rdf:type owl:Class ;
+                   rdfs:subClassOf :SecurityOracleFramework ;
+                   rdfs:label "PQC Security Oracle"@en ;
+                   rdfs:comment "Post-quantum cryptography security validation oracle"@en ;
+                   :validatesAlgorithm :Kyber , :Dilithium , :Falcon , :SPHINCS_Plus ;
+                   :generatesTestVector :KnownAnswerTests , :MonteCarloTests , :AdversarialTests ;
+                   :hasSecurityLevel :NIST_Level1 , :NIST_Level3 , :NIST_Level5 ;
+                   :providesAssurance :QuantumResistance , :ClassicalSecurity , :SidechannelResistance ;
+                   :operatesWithinConstraint doe:EightTickConstraint .
+
+:KyberOracle rdf:type owl:Class ;
+             rdfs:subClassOf :PQCSecurityOracle ;
+             rdfs:label "Kyber Oracle"@en ;
+             rdfs:comment "NIST Kyber KEM security validation oracle"@en ;
+             :validatesVariant :Kyber512 , :Kyber768 , :Kyber1024 ;
+             :generatesTestCase :KeyGeneration , :Encapsulation , :Decapsulation ;
+             :checksProperty :Correctness , :IND_CCA_Security , :QuantumSecurity ;
+             :hasTestVectorCount "50000"^^xsd:positiveInteger ;
+             :providesLatticeAnalysis :SVP_Hardness , :LWE_Hardness , :ModuleLWE_Hardness .
+
+:DilithiumOracle rdf:type owl:Class ;
+                 rdfs:subClassOf :PQCSecurityOracle ;
+                 rdfs:label "Dilithium Oracle"@en ;
+                 rdfs:comment "NIST Dilithium signature security validation oracle"@en ;
+                 :validatesVariant :Dilithium2 , :Dilithium3 , :Dilithium5 ;
+                 :generatesTestCase :KeyGeneration , :Signing , :Verification ;
+                 :checksProperty :Correctness , :EUF_CMA_Security , :QuantumSecurity ;
+                 :hasTestVectorCount "75000"^^xsd:positiveInteger ;
+                 :providesLatticeAnalysis :SIS_Hardness , :MLWE_Hardness , :SelfTargetMSIS_Hardness .
+
+:FalconOracle rdf:type owl:Class ;
+              rdfs:subClassOf :PQCSecurityOracle ;
+              rdfs:label "Falcon Oracle"@en ;
+              rdfs:comment "NIST Falcon signature security validation oracle"@en ;
+              :validatesVariant :Falcon512 , :Falcon1024 ;
+              :generatesTestCase :KeyGeneration , :Signing , :Verification ;
+              :checksProperty :Correctness , :EUF_CMA_Security , :CompactSignature ;
+              :hasTestVectorCount "25000"^^xsd:positiveInteger ;
+              :providesLatticeAnalysis :NTRU_Hardness , :SIS_Hardness , :CVP_Hardness .
+
+# ===== SIDE-CHANNEL ATTACK ORACLES =====
+
+:SideChannelAttackOracle rdf:type owl:Class ;
+                         rdfs:subClassOf :SecurityOracleFramework ;
+                         rdfs:label "Side-Channel Attack Oracle"@en ;
+                         rdfs:comment "Comprehensive side-channel attack validation oracle"@en ;
+                         :simulatesAttack :TimingAttack , :PowerAttack , :ElectromagneticAttack ,
+                                         :CacheAttack , :AcousticAttack , :FaultAttack ;
+                         :generateTrace :PowerTrace , :TimingTrace , :ElectromagneticTrace ,
+                                       :CacheTrace , :AcousticTrace ;
+                         :hasAttackComplexity :Simple , :Differential , :Correlation , :Mutual_Information ;
+                         :providesLeakageModel :HammingWeight , :HammingDistance , :IdentityModel .
+
+:TimingAttackOracle rdf:type owl:Class ;
+                    rdfs:subClassOf :SideChannelAttackOracle ;
+                    rdfs:label "Timing Attack Oracle"@en ;
+                    rdfs:comment "Timing-based side-channel attack validation oracle"@en ;
+                    :generatesTimingProfile :ConstantTime , :VariableTime , :DataDependent ;
+                    :simulatesEnvironment :LocalAttacker , :RemoteAttacker , :NetworkAttacker ;
+                    :hasTimingPrecision "1"^^xsd:positiveInteger ; # nanosecond
+                    :providesStatisticalTest :TTest , :KSTest , :ChiSquareTest ;
+                    :hasTraceCount "1000000"^^xsd:positiveInteger .
+
+:PowerAnalysisOracle rdf:type owl:Class ;
+                     rdfs:subClassOf :SideChannelAttackOracle ;
+                     rdfs:label "Power Analysis Oracle"@en ;
+                     rdfs:comment "Power analysis attack validation oracle"@en ;
+                     :generatesPowerModel :HammingWeightModel , :HammingDistanceModel , :TransitionModel ;
+                     :simulatesAttack :SPA , :DPA , :CPA , :MIA , :TemplateAttack ;
+                     :hasSamplingRate "1000000000"^^xsd:positiveInteger ; # 1GS/s
+                     :hasResolution "12"^^xsd:positiveInteger ; # 12-bit ADC
+                     :hasTraceCount "500000"^^xsd:positiveInteger .
+
+:CacheAttackOracle rdf:type owl:Class ;
+                   rdfs:subClassOf :SideChannelAttackOracle ;
+                   rdfs:label "Cache Attack Oracle"@en ;
+                   rdfs:comment "Cache-based side-channel attack validation oracle"@en ;
+                   :simulatesAttack :FlushAndReload , :PrimeAndProbe , :FlushAndFlush , :Evict ;
+                   :targetsCacheLevel :L1Cache , :L2Cache , :L3Cache , :TLBCache ;
+                   :hasAttackPrecision "64"^^xsd:positiveInteger ; # cache line granularity
+                   :providesLeakageDetection :TableLookup , :BranchPrediction , :MemoryAccess ;
+                   :hasTraceCount "100000"^^xsd:positiveInteger .
+
+# ===== CONSTANT-TIME VALIDATION ORACLES =====
+
+:ConstantTimeOracle rdf:type owl:Class ;
+                    rdfs:subClassOf :SecurityOracleFramework ;
+                    rdfs:label "Constant-Time Oracle"@en ;
+                    rdfs:comment "Constant-time execution validation oracle"@en ;
+                    :validatesProperty :ConstantTimeExecution , :DataIndependentControl ,
+                                      :DataIndependentMemoryAccess , :DataIndependentTiming ;
+                    :usesAnalysisMethod :StaticAnalysis , :DynamicAnalysis , :FormalVerification ;
+                    :hasTimingPrecision "1"^^xsd:positiveInteger ; # nanosecond
+                    :providesVerification :BalancedImplementation , :UnbalancedImplementation ;
+                    :generateReference :ReferenceImplementation , :OptimizedImplementation .
+
+:ConstantTimeAnalyzer rdf:type owl:Class ;
+                      rdfs:subClassOf :ConstantTimeOracle ;
+                      rdfs:label "Constant-Time Analyzer"@en ;
+                      rdfs:comment "Analysis engine for constant-time property validation"@en ;
+                      :detectsViolation :ConditionalBranching , :DataDependentMemoryAccess ,
+                                       :VariableTimeOperation , :SecretDependentControl ;
+                      :usesInstrumentation :CPUCounters , :PerformanceCounters , :TimingCounters ;
+                      :providesStatistics :MeanExecutionTime , :StandardDeviation , :Variance ;
+                      :hasAnalysisAccuracy "0.9995"^^xsd:decimal .
+
+:FormalVerificationOracle rdf:type owl:Class ;
+                          rdfs:subClassOf :ConstantTimeOracle ;
+                          rdfs:label "Formal Verification Oracle"@en ;
+                          rdfs:comment "Formal verification-based constant-time oracle"@en ;
+                          :usesLogic :PredicateLogic , :TemporalLogic , :HoareLogic , :SeparationLogic ;
+                          :providesProof :CorrectnessProof , :SecurityProof , :TimingProof ;
+                          :hasProofSystem :Coq , :Isabelle , :Lean , :CBMC , :SMACK ;
+                          :guaranteesProperty :Soundness , :Completeness , :Decidability .
+
+# ===== HSM/TEE VALIDATION ORACLES =====
+
+:HSMValidationOracle rdf:type owl:Class ;
+                     rdfs:subClassOf :SecurityOracleFramework ;
+                     rdfs:label "HSM Validation Oracle"@en ;
+                     rdfs:comment "Hardware Security Module validation oracle"@en ;
+                     :validatesCompliance :FIPS140_3 , :CommonCriteria , :NIAP_PP ;
+                     :checksProperty :TamperResistance , :TamperEvidence , :TamperResponse ;
+                     :testsInterface :PKCS11 , :CryptoAPI , :JCE , :OpenSSL ;
+                     :validatesPerformance :Throughput , :Latency , :Concurrency ;
+                     :hasTestSuiteCount "15"^^xsd:positiveInteger .
+
+:TEEValidationOracle rdf:type owl:Class ;
+                     rdfs:subClassOf :SecurityOracleFramework ;
+                     rdfs:label "TEE Validation Oracle"@en ;
+                     rdfs:comment "Trusted Execution Environment validation oracle"@en ;
+                     :validatesPlatform :ARMTrustZone , :IntelSGX , :AMDSecureMemoryEncryption , :RISCV_TEE ;
+                     :checksIsolation :ProcessIsolation , :MemoryIsolation , :IOIsolation ;
+                     :validatesAttestation :LocalAttestation , :RemoteAttestation , :QuoteGeneration ;
+                     :testsIntegrity :CodeIntegrity , :DataIntegrity , :ControlFlowIntegrity ;
+                     :hasTestSuiteCount "12"^^xsd:positiveInteger .
+
+:AttestationOracle rdf:type owl:Class ;
+                   rdfs:subClassOf :HSMValidationOracle , :TEEValidationOracle ;
+                   rdfs:label "Attestation Oracle"@en ;
+                   rdfs:comment "Cryptographic attestation validation oracle"@en ;
+                   :validatesQuote :PlatformQuote , :EnclaveQuote , :ApplicationQuote ;
+                   :checksSignature :ECDSA_Signature , :RSA_Signature , :PQC_Signature ;
+                   :validatesCertificate :X509Certificate , :AttributeCertificate ;
+                   :providesRevocation :CRL , :OCSP , :OnlineRevocation ;
+                   :hasValidationAccuracy "0.9999"^^xsd:decimal .
+
+# ===== COMPLIANCE VALIDATION ORACLES =====
+
+:ComplianceOracle rdf:type owl:Class ;
+                  rdfs:subClassOf :SecurityOracleFramework ;
+                  rdfs:label "Compliance Oracle"@en ;
+                  rdfs:comment "Regulatory compliance validation oracle"@en ;
+                  :validatesRegulation :GDPR , :HIPAA , :SOX , :PCI_DSS , :ISO27001 ;
+                  :checksRequirement :DataProtection , :PrivacyRights , :SecurityControls ,
+                                    :AuditRequirements , :IncidentResponse ;
+                  :generatesEvidence :ComplianceReport , :AuditTrail , :PolicyEvidence ;
+                  :hasComplianceScore "0.99"^^xsd:decimal ;
+                  :maintainsChainOfCustody "true"^^xsd:boolean .
+
+:GDPROracle rdf:type owl:Class ;
+            rdfs:subClassOf :ComplianceOracle ;
+            rdfs:label "GDPR Compliance Oracle"@en ;
+            rdfs:comment "GDPR compliance validation oracle"@en ;
+            :validatesArticle :Article6 , :Article17 , :Article25 , :Article32 ;
+            :checksRight :RightToAccess , :RightToRectification , :RightToErasure ,
+                        :RightToPortability , :RightToObject ;
+            :validatesPrinciple :LawfulnessFairness , :PurposeLimitation , :DataMinimisation ,
+                               :Accuracy , :StorageLimitation , :IntegrityConfidentiality ;
+            :hasLegalBasisValidation "true"^^xsd:boolean .
+
+:FIPS140_3Oracle rdf:type owl:Class ;
+                  rdfs:subClassOf :ComplianceOracle ;
+                  rdfs:label "FIPS 140-3 Compliance Oracle"@en ;
+                  rdfs:comment "FIPS 140-3 compliance validation oracle"@en ;
+                  :validatesLevel :Level1 , :Level2 , :Level3 , :Level4 ;
+                  :checksArea :CryptographicModuleSpecification , :CryptographicModulePorts ,
+                             :RolesServicesAuthentication , :FiniteStateMachine ,
+                             :PhysicalSecurity , :OperationalEnvironment , :CryptographicKeyManagement ,
+                             :ElectromagneticInterferenceCompatibility , :SelfTests , :DesignAssurance ,
+                             :MitigationOfOtherAttacks ;
+                  :hasValidationAuthority :NIST_CMVP , :CSE_CMVP .
+
+# ===== BENCHMARK SUITE FRAMEWORK =====
+
+:BenchmarkSuite rdf:type owl:Class ;
+                rdfs:subClassOf ba:BenchmarkFramework ;
+                rdfs:label "Security Benchmark Suite"@en ;
+                rdfs:comment "Comprehensive security benchmarking suite for all crystal security operations"@en ;
+                :includesBenchmark :CryptographicBenchmark , :SideChannelBenchmark , :ConstantTimeBenchmark ,
+                                  :HSMBenchmark , :ComplianceBenchmark , :AttackBenchmark ;
+                :operatesWithinConstraint doe:EightTickConstraint ;
+                :hasPerformanceTarget :Throughput , :Latency , :Scalability , :Accuracy ;
+                :providesComparison :BaselineComparison , :IndustryComparison , :HistoricalComparison .
+
+:CryptographicBenchmark rdf:type owl:Class ;
+                        rdfs:subClassOf :BenchmarkSuite ;
+                        rdfs:label "Cryptographic Benchmark"@en ;
+                        rdfs:comment "Cryptographic algorithm performance benchmarking"@en ;
+                        :benchmarksAlgorithm :AES , :RSA , :ECDSA , :SHA256 , :Kyber , :Dilithium ;
+                        :measuresMetric :OperationsPerSecond , :BytesPerSecond , :KeysPerSecond ;
+                        :testsPlatform :Intel , :AMD , :ARM , :RISC_V ;
+                        :usesWorkload :Synthetic , :RealWorld , :Adversarial ;
+                        :hasBaselinePerformance "true"^^xsd:boolean .
+
+:SideChannelBenchmark rdf:type owl:Class ;
+                      rdfs:subClassOf :BenchmarkSuite ;
+                      rdfs:label "Side-Channel Benchmark"@en ;
+                      rdfs:comment "Side-channel resistance performance benchmarking"@en ;
+                      :benchmarksResistance :TimingAttackResistance , :PowerAttackResistance ,
+                                          :CacheAttackResistance , :EMAttackResistance ;
+                      :measuresLeakage :InformationLeakage , :SignalToNoiseRatio , :AttackComplexity ;
+                      :usesMetric :TraceCount , :SuccessRate , :KeyRecoveryTime ;
+                      :providesRanking :VulnerabilityRanking , :ResistanceScore .
+
+:ConstantTimeBenchmark rdf:type owl:Class ;
+                       rdfs:subClassOf :BenchmarkSuite ;
+                       rdfs:label "Constant-Time Benchmark"@en ;
+                       rdfs:comment "Constant-time execution performance benchmarking"@en ;
+                       :benchmarksProperty :TimingConsistency , :DataIndependence , :ControlFlowIndependence ;
+                       :measuresVariation :ExecutionTimeVariation , :StandardDeviation , :MaxDeviation ;
+                       :usesStatistic :Mean , :Median , :Percentile95 , :Percentile99 ;
+                       :providesVerdict :ConstantTime , :VariableTime , :ConditionallyConstantTime .
+
+# ===== ATTACK SIMULATION FRAMEWORK =====
+
+:AttackSimulationFramework rdf:type owl:Class ;
+                           rdfs:subClassOf :SecurityOracleFramework ;
+                           rdfs:label "Attack Simulation Framework"@en ;
+                           rdfs:comment "Comprehensive attack simulation and validation framework"@en ;
+                           :simulatesAttack :CryptanalyticalAttack , :SideChannelAttack , :FaultAttack ,
+                                          :ImplementationAttack , :ProtocolAttack ;
+                           :hasAttackerModel :PassiveAttacker , :ActiveAttacker , :AdaptiveAttacker ;
+                           :providesCapability :ChosePlaintextAttack , :ChosenCiphertextAttack ,
+                                              :RelatedKeyAttack , :KnownPlaintextAttack ;
+                           :hasComplexityModel :TimeComplexity , :SpaceComplexity , :DataComplexity .
+
+:CryptanalyticalAttackSim rdf:type owl:Class ;
+                          rdfs:subClassOf :AttackSimulationFramework ;
+                          rdfs:label "Cryptanalytical Attack Simulator"@en ;
+                          rdfs:comment "Simulation of cryptanalytical attacks on cryptographic algorithms"@en ;
+                          :simulatesAttack :BruteForceAttack , :DifferentialCryptanalysis ,
+                                          :LinearCryptanalysis , :AlgebraicAttack , :LatticeAttack ;
+                          :hasTimeComplexity :Polynomial , :Exponential , :SubExponential ;
+                          :requiresResource :CPU_Time , :Memory , :Storage ;
+                          :providesSuccess :SuccessProbability , :ExpectedRuntime , :ResourceRequirement .
+
+:QuantumAttackSimulator rdf:type owl:Class ;
+                        rdfs:subClassOf :CryptanalyticalAttackSim ;
+                        rdfs:label "Quantum Attack Simulator"@en ;
+                        rdfs:comment "Simulation of quantum attacks on cryptographic algorithms"@en ;
+                        :simulatesAlgorithm :Shors , :Grovers , :BKW , :LLL , :BKZ ;
+                        :hasQuantumComplexity :QuantumPolynomial , :QuantumExponential ;
+                        :requiresQubits "4096"^^xsd:positiveInteger ;
+                        :hasQuantumAdvantage "true"^^xsd:boolean ;
+                        :providesPostQuantumSecurity "false"^^xsd:boolean .
+
+# ===== PERFORMANCE MEASUREMENT =====
+
+:PerformanceMeasurement rdf:type owl:Class ;
+                        rdfs:subClassOf ba:PerformanceMetric ;
+                        rdfs:label "Performance Measurement"@en ;
+                        rdfs:comment "Comprehensive performance measurement for security operations"@en ;
+                        :measuresAspect :Throughput , :Latency , :ResourceUtilization , :Accuracy ;
+                        :operatesWithinConstraint doe:EightTickConstraint ;
+                        :hasTimingPrecision "1"^^xsd:positiveInteger ; # nanosecond
+                        :providesStatistics :Mean , :Median , :StandardDeviation , :Percentiles ;
+                        :supportsBenchmarking "true"^^xsd:boolean .
+
+:ThroughputMeasurement rdf:type owl:Class ;
+                       rdfs:subClassOf :PerformanceMeasurement ;
+                       rdfs:label "Throughput Measurement"@en ;
+                       rdfs:comment "Throughput measurement for security operations"@en ;
+                       :measuresUnit :OperationsPerSecond , :BytesPerSecond , :TransactionsPerSecond ;
+                       :hasMeasurementPeriod "60"^^xsd:positiveInteger ; # seconds
+                       :providesAggregation :Sum , :Average , :Peak , :Sustained ;
+                       :hasBaselineThroughput "1000000"^^xsd:positiveInteger . # ops/sec
+
+:LatencyMeasurement rdf:type owl:Class ;
+                    rdfs:subClassOf :PerformanceMeasurement ;
+                    rdfs:label "Latency Measurement"@en ;
+                    rdfs:comment "Latency measurement for security operations"@en ;
+                    :measuresUnit :Nanoseconds , :Microseconds , :Milliseconds ;
+                    :providesPercentile :P50 , :P90 , :P95 , :P99 , :P99_9 ;
+                    :hasLatencyTarget "8000"^^xsd:positiveInteger ; # nanoseconds (8 ticks)
+                    :operatesWithinConstraint doe:EightTickConstraint .
+
+# ===== QUALITY ASSURANCE =====
+
+:QualityAssuranceFramework rdf:type owl:Class ;
+                           rdfs:subClassOf sp:QualityAssurance ;
+                           rdfs:label "Quality Assurance Framework"@en ;
+                           rdfs:comment "Quality assurance framework for security oracle and benchmark generation"@en ;
+                           :providesQualityGate :Correctness , :Completeness , :Consistency , :Reliability ;
+                           :usesMethodology :FormalVerification , :StatisticalValidation , :CrossValidation ;
+                           :hasQualityScore "0.999"^^xsd:decimal ;
+                           :maintainsTraceability "true"^^xsd:boolean ;
+                           :providesAuditTrail "true"^^xsd:boolean .
+
+:CorrectnessValidation rdf:type owl:Class ;
+                       rdfs:subClassOf :QualityAssuranceFramework ;
+                       rdfs:label "Correctness Validation"@en ;
+                       rdfs:comment "Validation of oracle and benchmark correctness"@en ;
+                       :usesMethod :MathematicalProof , :PropertyBasedTesting , :ModelChecking ;
+                       :checksProperty :Soundness , :Completeness , :Consistency ;
+                       :hasValidationAccuracy "0.9999"^^xsd:decimal ;
+                       :providesCounterExample "true"^^xsd:boolean .
+
+:ReliabilityAssurance rdf:type owl:Class ;
+                      rdfs:subClassOf :QualityAssuranceFramework ;
+                      rdfs:label "Reliability Assurance"@en ;
+                      rdfs:comment "Reliability assurance for security testing infrastructure"@en ;
+                      :hasReliabilityTarget "0.9999"^^xsd:decimal ; # 99.99% uptime
+                      :providesFaultTolerance :Redundancy , :Failover , :GracefulDegradation ;
+                      :hasRecoveryTime "30"^^xsd:positiveInteger ; # seconds
+                      :implementsMonitoring :HealthChecks , :AlertSystem , :LoggingSystem .
+
+# ===== AUTOMATION AND ORCHESTRATION =====
+
+:AutomationFramework rdf:type owl:Class ;
+                     rdfs:subClassOf ba:AutomationFramework ;
+                     rdfs:label "Security Testing Automation"@en ;
+                     rdfs:comment "Automated orchestration of security testing and validation workflows"@en ;
+                     :orchestratesWorkflow :ContinuousIntegration , :ContinuousDeployment ,
+                                          :ContinuousValidation , :ContinuousMonitoring ;
+                     :supportsScheduling :Cron , :EventBased , :Trigger , :Manual ;
+                     :hasAutomationLevel "0.95"^^xsd:decimal ;
+                     :operatesWithinConstraint doe:EightTickConstraint .
+
+:ContinuousSecurityTesting rdf:type owl:Class ;
+                           rdfs:subClassOf :AutomationFramework ;
+                           rdfs:label "Continuous Security Testing"@en ;
+                           rdfs:comment "Continuous integration of security testing in development pipeline"@en ;
+                           :integratesWithCI :Jenkins , :GitHubActions , :GitLabCI , :AzureDevOps ;
+                           :runsTrigger :CodeCommit , :PullRequest , :Deployment , :Schedule ;
+                           :providesGates :SecurityGate , :PerformanceGate , :ComplianceGate ;
+                           :hasTestExecution :Parallel , :Sequential , :Conditional .
+
+# ===== REPORTING AND ANALYTICS =====
+
+:SecurityAnalytics rdf:type owl:Class ;
+                   rdfs:subClassOf ba:AnalyticsFramework ;
+                   rdfs:label "Security Analytics"@en ;
+                   rdfs:comment "Advanced analytics and reporting for security testing results"@en ;
+                   :providesAnalytics :TrendAnalysis , :AnomalyDetection , :RiskAssessment ,
+                                    :ComplianceAnalysis , :PerformanceAnalysis ;
+                   :usesVisualization :Dashboard , :Charts , :Heatmaps , :Timeseries ;
+                   :generatesReport :ExecutiveReport , :TechnicalReport , :ComplianceReport ;
+                   :hasRealtimeCapability "true"^^xsd:boolean .
+
+:SecurityDashboard rdf:type owl:Class ;
+                   rdfs:subClassOf :SecurityAnalytics ;
+                   rdfs:label "Security Dashboard"@en ;
+                   rdfs:comment "Real-time security testing dashboard and monitoring"@en ;
+                   :displayMetric :SecurityScore , :VulnerabilityCount , :ComplianceStatus ,
+                                 :TestCoverage , :PerformanceMetrics ;
+                   :providesAlert :SecurityAlert , :PerformanceAlert , :ComplianceAlert ;
+                   :hasRefreshRate "1"^^xsd:positiveInteger ; # second
+                   :supportsFiltering :TimeRange , :Severity , :Category , :Crystal .
+
+# ===== SHACL VALIDATION SHAPES =====
+
+:SecurityOracleFrameworkShape rdf:type sh:NodeShape ;
+                              sh:targetClass :SecurityOracleFramework ;
+                              sh:property [
+                                  sh:path :hasAccuracyRequirement ;
+                                  sh:datatype xsd:decimal ;
+                                  sh:minInclusive 0.99 ;
+                                  sh:maxInclusive 1.0 ;
+                                  sh:minCount 1 ;
+                                  sh:maxCount 1 ;
+                              ] ;
+                              sh:property [
+                                  sh:path :operatesWithinConstraint ;
+                                  sh:hasValue doe:EightTickConstraint ;
+                                  sh:minCount 1 ;
+                                  sh:maxCount 1 ;
+                              ] .
+
+:BenchmarkSuiteShape rdf:type sh:NodeShape ;
+                     sh:targetClass :BenchmarkSuite ;
+                     sh:property [
+                         sh:path :includesBenchmark ;
+                         sh:minCount 3 ;
+                         sh:maxCount 10 ;
+                     ] .
+
+# ===== PROPERTIES =====
+
+:generatesOracle rdf:type owl:ObjectProperty ;
+                 rdfs:domain :SecurityOracleFramework ;
+                 rdfs:range :OracleType ;
+                 rdfs:label "generates oracle"@en .
+
+:hasOracleType rdf:type owl:ObjectProperty ;
+               rdfs:domain :SecurityOracleFramework ;
+               rdfs:range :OracleType ;
+               rdfs:label "has oracle type"@en .
+
+:validatesAlgorithm rdf:type owl:ObjectProperty ;
+                    rdfs:domain :PQCSecurityOracle ;
+                    rdfs:range :CryptographicAlgorithm ;
+                    rdfs:label "validates algorithm"@en .
+
+:simulatesAttack rdf:type owl:ObjectProperty ;
+                 rdfs:domain :AttackSimulationFramework ;
+                 rdfs:range :AttackType ;
+                 rdfs:label "simulates attack"@en .
+
+:benchmarksAlgorithm rdf:type owl:ObjectProperty ;
+                     rdfs:domain :CryptographicBenchmark ;
+                     rdfs:range :CryptographicAlgorithm ;
+                     rdfs:label "benchmarks algorithm"@en .
+
+:hasAccuracyRequirement rdf:type owl:DatatypeProperty ;
+                        rdfs:domain :SecurityOracleFramework ;
+                        rdfs:range xsd:decimal ;
+                        rdfs:label "has accuracy requirement"@en .
+
+:hasGenerationRate rdf:type owl:DatatypeProperty ;
+                   rdfs:domain :OracleGenerator ;
+                   rdfs:range xsd:positiveInteger ;
+                   rdfs:label "has generation rate"@en .
+
+:hasTestVectorCount rdf:type owl:DatatypeProperty ;
+                    rdfs:domain :PQCSecurityOracle ;
+                    rdfs:range xsd:positiveInteger ;
+                    rdfs:label "has test vector count"@en .
+
+# ===== INDIVIDUALS =====
+
+# Oracle Types
+:GroundTruthOracle rdf:type :OracleType ;
+                   rdfs:label "Ground Truth Oracle"@en .
+
+:TestOracle rdf:type :OracleType ;
+            rdfs:label "Test Oracle"@en .
+
+:ValidationOracle rdf:type :OracleType ;
+                  rdfs:label "Validation Oracle"@en .
+
+:BenchmarkOracle rdf:type :OracleType ;
+                 rdfs:label "Benchmark Oracle"@en .
+
+:ReferenceOracle rdf:type :OracleType ;
+                 rdfs:label "Reference Oracle"@en .
+
+# Attack Types
+:CryptanalyticalAttack rdf:type :AttackType ;
+                       rdfs:label "Cryptanalytical Attack"@en .
+
+:SideChannelAttack rdf:type :AttackType ;
+                   rdfs:label "Side-Channel Attack"@en .
+
+:FaultAttack rdf:type :AttackType ;
+             rdfs:label "Fault Attack"@en .
+
+:ImplementationAttack rdf:type :AttackType ;
+                      rdfs:label "Implementation Attack"@en .
+
+:ProtocolAttack rdf:type :AttackType ;
+                rdfs:label "Protocol Attack"@en .
+
+# Security Levels
+:NIST_Level1 rdf:type :SecurityLevel ;
+             rdfs:label "NIST Security Level 1"@en ;
+             :hasSecurityEquivalent "AES-128"^^xsd:string .
+
+:NIST_Level3 rdf:type :SecurityLevel ;
+             rdfs:label "NIST Security Level 3"@en ;
+             :hasSecurityEquivalent "AES-192"^^xsd:string .
+
+:NIST_Level5 rdf:type :SecurityLevel ;
+             rdfs:label "NIST Security Level 5"@en ;
+             :hasSecurityEquivalent "AES-256"^^xsd:string .
+
+# ===== END OF ONTOLOGY =====

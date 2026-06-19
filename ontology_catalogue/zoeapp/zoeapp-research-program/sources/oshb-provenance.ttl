@@ -1,0 +1,41 @@
+@prefix bos: <http://bible.o.star/ontology#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Source Definition
+bos:OSHB_Project
+    a prov:Entity ;
+    dc:title "Open Scriptures Hebrew Bible (OSHB)" ;
+    dc:creator "Open Scriptures Project" ;
+    dc:source <https://github.com/openscriptures/morphhb> ;
+    dc:license <https://creativecommons.org/licenses/by/4.0/> ;
+    prov:wasAttributedTo bos:OpenScripturesContributorGroup .
+
+# Lemma/Morphology Data Layer
+bos:OSHB_LemmaMorphology
+    a bos:DataLayer, prov:Entity ;
+    dc:title "OSHB Lemma and Morphology Layer" ;
+    dc:description "Morphological tagging and lemmatization for the Hebrew Bible." ;
+    bos:role bos:LinguisticAnalysis ;
+    dc:license <https://creativecommons.org/licenses/by/4.0/> ;
+    prov:wasDerivedFrom bos:OSHB_Project ;
+    bos:format "OSIS/XML" ;
+    bos:contentScope "Lemma, Morphology, Strong's Numbers" .
+
+# Provenance Entry for Research Task
+bos:OSHB_Provenance
+    a prov:Bundle ;
+    prov:wasGeneratedBy bos:BIBLE_O_STAR_001 ;
+    prov:qualifiedAttribution [
+        a prov:Attribution ;
+        prov:agent bos:Agent_Meremoth ;
+        prov:hadRole bos:Researcher 
+    ] .
+
+bos:BIBLE_O_STAR_001
+    a prov:Activity ;
+    dc:title "Research OSHB as public language/morphology layer" ;
+    prov:startedAtTime "2024-06-12T00:00:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith bos:Agent_Meremoth .

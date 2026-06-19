@@ -1,0 +1,183 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sct:  <https://w3id.org/mcpp/skos/snomed-ct-sample-v1/> .
+
+# ----------------------------------------------------------------------
+# SNOMED-CT sample SKOS scheme (v26.5.17 Slice F)
+#
+# Sample subset of SNOMED-CT concept identifiers used by the healthcare
+# ADE fixtures. Covers anatomical sites, administration routes, and
+# adverse-event types. NOT a clinically authoritative replication —
+# full SNOMED-CT loaded out-of-band in production under a SNOMED
+# International license.
+# ----------------------------------------------------------------------
+
+sct:Scheme a skos:ConceptScheme ;
+    skos:prefLabel "SNOMED-CT (sample subset, v1)"@en ;
+    skos:notation  "snomed-ct-sample-v1" ;
+    skos:definition "Sample subset of SNOMED-CT clinical concepts used by mcpp v26.5.17 healthcare fixtures."@en .
+
+# ── Anatomical sites ──────────────────────────────────────────────────
+
+sct:113257007 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Anatomical structure (body structure)"@en ;
+    skos:notation  "113257007" .
+
+sct:69536005 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Head structure (body structure)"@en ;
+    skos:notation  "69536005" .
+
+sct:39937001 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Skin structure (body structure)"@en ;
+    skos:notation  "39937001" .
+
+sct:10200004 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Liver structure (body structure)"@en ;
+    skos:notation  "10200004" .
+
+sct:64033007 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Kidney structure (body structure)"@en ;
+    skos:notation  "64033007" .
+
+sct:39607008 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Lung structure (body structure)"@en ;
+    skos:notation  "39607008" .
+
+sct:80891009 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Heart structure (body structure)"@en ;
+    skos:notation  "80891009" .
+
+sct:113331007 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Endocrine system structure (body structure)"@en ;
+    skos:notation  "113331007" .
+
+# ── Administration routes ─────────────────────────────────────────────
+
+sct:26643006 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Oral route (qualifier value)"@en ;
+    skos:notation  "26643006" .
+
+sct:47625008 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Intravenous route (qualifier value)"@en ;
+    skos:notation  "47625008" .
+
+sct:78421000 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Intramuscular route (qualifier value)"@en ;
+    skos:notation  "78421000" .
+
+sct:34206005 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Subcutaneous route (qualifier value)"@en ;
+    skos:notation  "34206005" .
+
+sct:6064005 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Topical route (qualifier value)"@en ;
+    skos:notation  "6064005" .
+
+sct:46713006 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Nasal route (qualifier value)"@en ;
+    skos:notation  "46713006" .
+
+sct:54485002 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Ophthalmic route (qualifier value)"@en ;
+    skos:notation  "54485002" .
+
+sct:447694001 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Respiratory tract route (qualifier value)"@en ;
+    skos:notation  "447694001" .
+
+# ── Adverse-event types ───────────────────────────────────────────────
+
+sct:281647001 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Adverse reaction (disorder)"@en ;
+    skos:notation  "281647001" .
+
+sct:62014003 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Adverse reaction caused by drug (disorder)"@en ;
+    skos:notation  "62014003" .
+
+sct:39579001 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Anaphylaxis (disorder)"@en ;
+    skos:notation  "39579001" .
+
+sct:418799008 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug-induced liver injury (disorder)"@en ;
+    skos:notation  "418799008" .
+
+sct:30242009 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Toxic epidermal necrolysis (disorder)"@en ;
+    skos:notation  "30242009" .
+
+sct:373216008 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Stevens-Johnson syndrome (disorder)"@en ;
+    skos:notation  "373216008" .
+
+sct:111583000 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Renal failure due to drug (disorder)"@en ;
+    skos:notation  "111583000" .
+
+sct:281288004 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug-induced cardiomyopathy (disorder)"@en ;
+    skos:notation  "281288004" .
+
+sct:707234007 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug-induced QT prolongation (finding)"@en ;
+    skos:notation  "707234007" .
+
+sct:88307002 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug-induced encephalopathy (disorder)"@en ;
+    skos:notation  "88307002" .
+
+sct:282100009 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Adverse reaction caused by vaccine (disorder)"@en ;
+    skos:notation  "282100009" .
+
+sct:191469000 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug-induced agranulocytosis (disorder)"@en ;
+    skos:notation  "191469000" .
+
+sct:9826008 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Idiosyncratic reaction (disorder)"@en ;
+    skos:notation  "9826008" .
+
+sct:418470004 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug-induced rhabdomyolysis (disorder)"@en ;
+    skos:notation  "418470004" .
+
+sct:65440005 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Lupus erythematosus induced by drug (disorder)"@en ;
+    skos:notation  "65440005" .
+
+sct:402674008 a skos:Concept ;
+    skos:inScheme  sct:Scheme ;
+    skos:prefLabel "Drug eruption (disorder)"@en ;
+    skos:notation  "402674008" .

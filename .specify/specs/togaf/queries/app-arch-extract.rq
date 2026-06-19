@@ -1,0 +1,18 @@
+PREFIX togaf: <https://ggen.dev/ontology/togaf#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?component ?component_label ?owner ?status ?version
+       ?cap_label ?data_label ?node_label ?std_label
+WHERE {
+    ?component a togaf:ApplicationComponent ;
+               rdfs:label ?component_label ;
+               togaf:owner ?owner ;
+               togaf:status ?status .
+    OPTIONAL { ?component togaf:version ?raw_version . }
+    OPTIONAL { ?component togaf:implementsCapability ?cap . ?cap rdfs:label ?cap_label . }
+    OPTIONAL { ?component togaf:handlesDataObject ?data . ?data rdfs:label ?data_label . }
+    OPTIONAL { ?component togaf:realizedBy ?node . ?node rdfs:label ?node_label . }
+    OPTIONAL { ?component togaf:conformsTo ?std . ?std rdfs:label ?std_label . }
+    BIND(COALESCE(?raw_version, "unversioned") AS ?version)
+}
+ORDER BY ?component_label ?cap_label ?std_label

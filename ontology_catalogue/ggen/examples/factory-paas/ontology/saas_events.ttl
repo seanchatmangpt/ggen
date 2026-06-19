@@ -1,0 +1,153 @@
+# SaaS Events - Domain Events
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# SUBSCRIPTION CREATED EVENT
+# ============================================================================
+
+attr:SubscriptionCreated a ddd:Event ;
+  ddd:name "SubscriptionCreated" ;
+  rdfs:comment "New subscription tracked in system" ;
+  ddd:hasField attr:SubscriptionCreated_subscription_id ;
+  ddd:hasField attr:SubscriptionCreated_program_id ;
+  ddd:hasField attr:SubscriptionCreated_publisher_id ;
+  ddd:hasField attr:SubscriptionCreated_customer_id ;
+  ddd:hasField attr:SubscriptionCreated_plan ;
+  ddd:hasField attr:SubscriptionCreated_mrr ;
+  ddd:hasField attr:SubscriptionCreated_start_date ;
+  ddd:hasField attr:SubscriptionCreated_created_at .
+
+attr:SubscriptionCreated_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:SubscriptionCreated_program_id a ddd:Field ;
+  ddd:name "program_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:SubscriptionCreated_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:SubscriptionCreated_customer_id a ddd:Field ;
+  ddd:name "customer_id" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+attr:SubscriptionCreated_plan a ddd:Field ;
+  ddd:name "plan" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+attr:SubscriptionCreated_mrr a ddd:Field ;
+  ddd:name "mrr" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Monthly recurring revenue" .
+
+attr:SubscriptionCreated_start_date a ddd:Field ;
+  ddd:name "start_date" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:SubscriptionCreated_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# RECURRING COMMISSION RECORDED EVENT
+# ============================================================================
+
+attr:RecurringCommissionRecorded a ddd:Event ;
+  ddd:name "RecurringCommissionRecorded" ;
+  rdfs:comment "Monthly commission recorded for active subscription" ;
+  ddd:hasField attr:RecurringCommissionRecorded_commission_id ;
+  ddd:hasField attr:RecurringCommissionRecorded_subscription_id ;
+  ddd:hasField attr:RecurringCommissionRecorded_publisher_id ;
+  ddd:hasField attr:RecurringCommissionRecorded_amount ;
+  ddd:hasField attr:RecurringCommissionRecorded_period_start ;
+  ddd:hasField attr:RecurringCommissionRecorded_period_end ;
+  ddd:hasField attr:RecurringCommissionRecorded_recorded_at .
+
+attr:RecurringCommissionRecorded_commission_id a ddd:Field ;
+  ddd:name "commission_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RecurringCommissionRecorded_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RecurringCommissionRecorded_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RecurringCommissionRecorded_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Commission amount for this period" .
+
+attr:RecurringCommissionRecorded_period_start a ddd:Field ;
+  ddd:name "period_start" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:RecurringCommissionRecorded_period_end a ddd:Field ;
+  ddd:name "period_end" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:RecurringCommissionRecorded_recorded_at a ddd:Field ;
+  ddd:name "recorded_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# SUBSCRIPTION CANCELED EVENT
+# ============================================================================
+
+attr:SubscriptionCanceled a ddd:Event ;
+  ddd:name "SubscriptionCanceled" ;
+  rdfs:comment "Subscription marked as canceled" ;
+  ddd:hasField attr:SubscriptionCanceled_subscription_id ;
+  ddd:hasField attr:SubscriptionCanceled_publisher_id ;
+  ddd:hasField attr:SubscriptionCanceled_cancel_date ;
+  ddd:hasField attr:SubscriptionCanceled_lifetime_commission ;
+  ddd:hasField attr:SubscriptionCanceled_canceled_at .
+
+attr:SubscriptionCanceled_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:SubscriptionCanceled_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:SubscriptionCanceled_cancel_date a ddd:Field ;
+  ddd:name "cancel_date" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:SubscriptionCanceled_lifetime_commission a ddd:Field ;
+  ddd:name "lifetime_commission" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Total commission earned before cancellation" .
+
+attr:SubscriptionCanceled_canceled_at a ddd:Field ;
+  ddd:name "canceled_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

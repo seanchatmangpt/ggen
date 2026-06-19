@@ -1,0 +1,116 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix op: <https://gitvan.dev/op#> .
+
+# Integration test workflow hook
+ex:AllStepsIntegrationWorkflow rdf:type gh:Hook ;
+    dct:title "All Steps Integration Test" ;
+    gh:hasPredicate ex:integrationTestPredicate ;
+    gh:orderedPipelines ex:integrationPipeline .
+
+# Pipeline
+ex:integrationPipeline rdf:type op:Pipeline ;
+    op:steps ex:sparqlStep, ex:templateStep, ex:fileStep, ex:httpStep, ex:cliStep .
+
+# SPARQL Step - Query the workflow data
+ex:sparqlStep rdf:type gv:SparqlStep ;
+    gv:text """
+        PREFIX ex: <http://example.org/>
+        PREFIX gh: <https://gitvan.dev/graph-hook#>
+        
+        SELECT ?workflow ?title WHERE {
+            ?workflow rdf:type gh:Hook ;
+                dct:title ?title .
+        }
+    """ ;
+    gv:outputMapping '{"workflowResults": "results"}' .
+
+# Template Step - Generate documentation
+ex:templateStep rdf:type gv:TemplateStep ;
+    gv:text """
+# GitVan Integration Test Results
+
+## Workflow: {{ workflowName }}
+**Status**: {{ status }}
+**Timestamp**: {{ timestamp }}
+
+## SPARQL Query Results
+{% if workflowResults %}
+Found {{ workflowResults.length }} workflows:
+{% for result in workflowResults %}
+- **{{ result.title }}** ({{ result.workflow }})
+{% endfor %}
+{% else %}
+No workflows found.
+{% endif %}
+
+## Test Configuration
+- **Environment**: {{ env }}
+- **Version**: {{ version }}
+- **Test Type**: Integration Test
+
+## Next Steps
+1. File operations will be tested
+2. HTTP requests will be validated  
+3. CLI commands will be executed
+    """ ;
+    gv:filePath "test-results/integration-report.md" ;
+    gv:dependsOn ex:sparqlStep .
+
+# File Step - Create test files
+ex:fileStep rdf:type gv:FileStep ;
+    gv:filePath "test-results/test-data.json" ;
+    gv:operation "write" ;
+    gv:content """
+{
+  "testName": "All Steps Integration Test",
+  "timestamp": "{{ timestamp }}",
+  "steps": [
+    {
+      "name": "sparql",
+      "status": "completed",
+      "description": "Query workflow data"
+    },
+    {
+      "name": "template", 
+      "status": "completed",
+      "description": "Generate documentation"
+    },
+    {
+      "name": "file",
+      "status": "running",
+      "description": "Create test files"
+    },
+    {
+      "name": "http",
+      "status": "pending",
+      "description": "Test HTTP requests"
+    },
+    {
+      "name": "cli",
+      "status": "pending", 
+      "description": "Execute CLI commands"
+    }
+  ],
+  "metadata": {
+    "environment": "test",
+    "version": "2.0.1",
+    "testType": "integration"
+  }
+}
+    """ ;
+    gv:dependsOn ex:templateStep .
+
+# HTTP Step - Test API calls
+ex:httpStep rdf:type gv:HttpStep ;
+    gv:httpUrl "https://httpbin.org/json" ;
+    gv:httpMethod "GET" ;
+    gv:dependsOn ex:fileStep .
+
+# CLI Step - Execute system commands
+ex:cliStep rdf:type gv:CliStep ;
+    gv:cliCommand "echo 'Integration test completed successfully at {{ timestamp }}'" ;
+    gv:dependsOn ex:httpStep .

@@ -1,0 +1,316 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix bibo:    <http://purl.org/ontology/bibo/> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+@prefix art:     <https://process.intelligence/artifact/> .
+@prefix proj:    <https://process.intelligence/project/> .
+
+# ============================================================
+# research-artifact-ledger.ttl — Papers, Experiments, Audits
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# ============================================================
+
+<https://process.intelligence/ontology/research-artifact-ledger>
+    a owl:Ontology ;
+    owl:imports <https://process.intelligence/ontology/pi-program> ;
+    dcterms:title "PI Research Artifact Ledger" ;
+    dcterms:description "Ledger of all research artifacts produced by the PI program: academic paper classifications, experiment fixtures, audit findings, and comparison matrices. Every artifact must cite its evidence source." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================
+# SECTION 1: Artifact Sub-Classifications
+# ============================================================
+
+pi:PaperClassification
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Paper Classification" ;
+    skos:definition "A formal mapping of an academic paper to process mining type-law and execution-law surfaces. Requires reading the paper and confirming the cited claim appears in it." .
+
+pi:ExperimentFixture
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Experiment Fixture" ;
+    skos:definition "A synthetic or recorded event log, Petri net model, or benchmark comparison matrix used to validate program claims." .
+
+pi:AuditFinding
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit Finding" ;
+    skos:definition "A completeness audit result documenting source coverage, gap analysis, or conformance status. Audits are append-only; never reverted." .
+
+pi:CapabilityMap
+    a owl:Class ;
+    rdfs:subClassOf pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Capability Map" ;
+    skos:definition "A systematic mapping of a system's function surface (e.g., PM4Py API) to equivalence/gap status relative to the wasm4pm engine." .
+
+# ============================================================
+# SECTION 2: Paper Canon (9 classified papers)
+# ============================================================
+
+art:paper-workflow-mining-2004
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Workflow Mining: Discovering Process Models from Event Logs" ;
+    dcterms:creator "van der Aalst, Weijters, Maruster" ;
+    dcterms:date "2004" ;
+    dcterms:source "IEEE Transactions on Knowledge and Data Engineering" ;
+    dcterms:description "Foundational process discovery paper. Type-law mapping: DFG → HeuristicsWitness, directly-follows relations → AlphaWitness. Execution-law: wasm4pm alpha_miner and heuristics_miner surfaces." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> ;
+    schema:url <file:///Users/sac/process-intelligence/sources/papers> .
+
+art:paper-inductive-miner-2011
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Discovering Block-Structured Process Models from Event Logs" ;
+    dcterms:creator "Leemans, Fahland, van der Aalst" ;
+    dcterms:date "2013" ;
+    dcterms:source "Proceedings of ACSD" ;
+    dcterms:description "Block-structured discovery guaranteeing soundness by construction. Type-law mapping: ProcessTree → InductiveWitness (tree_depth, xor_blocks, and_blocks, seq_blocks, loop_blocks). Execution-law: wasm4pm inductive_miner surface." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-wfnet-soundness-1998
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "WF-net Soundness (van der Aalst 1998/1999)" ;
+    dcterms:creator "van der Aalst" ;
+    dcterms:date "1998" ;
+    dcterms:description "Workflow Net soundness: unique source/sink, strong connectivity, liveness, 1-boundedness. Type-law: wasm4pm-compat WfNetSoundnessPaper witness. Execution-law: wasm4pm PetriNet::analyze_soundness(), Blue River Gate 1." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-conformance-checking-2011
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Conformance Checking using Alignments" ;
+    dcterms:creator "Adriansyah, Sidorova, van Dongen" ;
+    dcterms:date "2011" ;
+    dcterms:description "Alignment-based conformance: synchronous moves (cost=0), log moves (cost=1), model moves (cost=1). Optimal alignment via A* search. Type-law: WitnessState {PartialReplay, trace_indices, marking, cost}. Status in wasm4pm: conformance_boundary=false (NOT GRADUATED — alignment stub only)." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-adriansyah-phd-2014
+    a prov:Entity, pi:PaperClassification, bibo:Thesis ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Alignment-Based Process Conformance Checking (PhD thesis)" ;
+    dcterms:creator "Adriansyah" ;
+    dcterms:date "2014" ;
+    dcterms:description "PhD thesis on alignment-based conformance. Authoritative reference for A* alignment algorithm. Type-law: WitnessState lattice. Execution-law: wasm4pm conformance.rs alignment surface (stub — NotImplementedYet refusal)." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-petri-nets-murata-1989
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Petri Nets: Properties, Analysis and Applications" ;
+    dcterms:creator "Murata" ;
+    dcterms:date "1989" ;
+    dcterms:source "Proceedings of the IEEE" ;
+    dcterms:description "Foundational Petri Net theory. Type-law: wasm4pm-compat ConditionCell<BITS> (generic_const_exprs, Need9 law enforced at 8 bits max). Execution-law: wasm4pm PetriNet, Marking, firing, coverability tree." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-ocel-2-0-2023
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Object-Centric Event Logs (OCEL 2.0)" ;
+    dcterms:creator "van der Aalst et al." ;
+    dcterms:date "2023" ;
+    dcterms:source "IEEE Transactions" ;
+    dcterms:description "OCEL 2.0 object-centric event log standard: tuple (E, O, EA, OA, E2O, O2O). Type-law: wasm4pm-compat Ocel20 witness. Execution-law: wasm4pm ZeroCopyOcel (binary format, OCEL magic 0x4F43454C). OCPQ queries over object-centric logs." ;
+    dcterms:conformsTo <https://doi.org/10.1109/TKDE.2023.3318844> ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-ocpn-van-der-aalst-berti-2020
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "Object-Centric Petri Nets" ;
+    dcterms:creator "van der Aalst, Berti" ;
+    dcterms:date "2020" ;
+    dcterms:description "Object-Centric Petri Net discovery from object-centric event logs. Type-law: wasm4pm-compat ObjectCentricPetriNetPaper witness. Execution-law: mapped to wasm4pm OCPQ query surface." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+art:paper-powl-kourani-2023
+    a prov:Entity, pi:PaperClassification, bibo:AcademicArticle ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "POWL: Partially Ordered Workflow Language" ;
+    dcterms:creator "Kourani" ;
+    dcterms:date "2023" ;
+    dcterms:description "POWL: Partially Ordered Workflow Language for process models. Type-law: wasm4pm-compat PowlPaper witness, TypedNode<{Kind}> using adt_const_params nightly feature. TreeProjectable trait seals over-block loss. Status: PARTIAL (SeparableWfNet compile-fail fixture not yet in tests/ui/)." ;
+    prov:wasAttributedTo <https://process.intelligence/agent/paper-census> .
+
+# ============================================================
+# SECTION 3: Experiment Fixtures
+# ============================================================
+
+art:experiment-paper-to-fixture-mapping
+    a prov:Entity, pi:ExperimentFixture ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Paper-to-Fixture Mapping Sample" ;
+    dcterms:description "Sample mapping of academic papers to wasm4pm fixture types. Validates paper-to-type-law and paper-to-execution-law transitions." ;
+    schema:url <file:///Users/sac/process-intelligence/experiments/paper-to-fixture_mapping_sample.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/2-paper-fixture-mapping> .
+
+art:experiment-paper-to-ma-claim-mapping
+    a prov:Entity, pi:ExperimentFixture ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Paper-to-M&A Claim Mapping Sample" ;
+    dcterms:description "Sample mapping of academic process mining papers to M&A board admissible claim structures, validating the evidence chain from academic source to board claim." ;
+    schema:url <file:///Users/sac/process-intelligence/experiments/paper-to-m&a-claim_mapping_sample.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/6-ma-claim-taxonomy> .
+
+art:experiment-pm4py-compat-type-boundary-matrix
+    a prov:Entity, pi:ExperimentFixture ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "PM4Py vs compat Type Boundary Matrix" ;
+    dcterms:description "Comparison matrix of PM4Py type system (Pickle/numpy) versus wasm4pm-compat type law (Evidence<T, State, W>). Identifies serialization boundary differences and forbidden collapse patterns." ;
+    schema:url <file:///Users/sac/process-intelligence/experiments/pm4py_vs_compat_type_boundary_matrix.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/3-pm4py-benchmarking> .
+
+art:experiment-pm4py-wasm4pm-capability-matrix
+    a prov:Entity, pi:ExperimentFixture ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "PM4Py vs wasm4pm Capability Matrix" ;
+    dcterms:description "Comprehensive comparison of PM4Py 2.7.x API functions versus wasm4pm execution surfaces. 140+ functions classified as COVERED, GAP, or PARTIAL. Serves as oracle for downstream conformance claims." ;
+    schema:url <file:///Users/sac/process-intelligence/experiments/pm4py_vs_wasm4pm_capability_matrix.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/3-pm4py-benchmarking> .
+
+art:experiment-zoeapp-replay-fixtures
+    a prov:Entity, pi:ExperimentFixture ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "ZOEapp OCEL 2.0 Replay Fixtures" ;
+    dcterms:description "516 replay fixtures (rec_intel_*.json) from ZOEapp proof cell. Each fixture: OCEL 2.0 event_log with timestamped activities, object maps, SHA256 batch hash, BLAKE3 receipt hash, and audit verdict (VERIFIED/FAILED). Ministry activities: PublishSermon, Connect, Give, Watch, Serve, Pray." ;
+    schema:url <file:///Users/sac/zoeapp/replays> ;
+    prov:wasGeneratedBy proj:zoeapp ;
+    prov:used art:paper-ocel-2-0-2023 .
+
+art:experiment-ma-receipt-fixtures
+    a prov:Entity, pi:ExperimentFixture ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "M&A Cryptographic Receipt Fixtures" ;
+    dcterms:description "5 board-admissible receipt fixtures: rec_ebitda_rework_001.json (EBITDA +$1,250,000, fitness 0.982), rec_wc_ar_002.json, rec_risk_sla_003.json, rec_risk_compliance_004.json, rec_residual_standard_005.json. Each signed with Ed25519 and BLAKE3-chained." ;
+    schema:url <file:///Users/sac/process-intelligence/receipts> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/6-ma-claim-taxonomy> .
+
+# ============================================================
+# SECTION 4: Audit Findings
+# ============================================================
+
+art:audit-paper-coverage
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: Paper Coverage Completeness" ;
+    dcterms:description "9 papers audited. All formal object mappings and type-law bindings confirmed. Every citation verified in source text per CLAUDE.md rule: Never cite a paper without confirming the cited claim appears in it." ;
+    schema:url <file:///Users/sac/process-intelligence/audits/audit-paper-coverage.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/9-source-completeness-audits> .
+
+art:audit-pm4py-capability
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: PM4Py Capability Completeness" ;
+    dcterms:description "140+ PM4Py functions classified by wasm4pm coverage or gap severity. Oracle benchmark certified for downstream conformance claims." ;
+    schema:url <file:///Users/sac/process-intelligence/audits/audit-execution-boundaries.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/9-source-completeness-audits> .
+
+art:audit-lifecycle-completeness
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: Lifecycle Completeness" ;
+    dcterms:description "37 lifecycle states verified sound per WF-net criteria. All transition rules audited. MAPE-K loop closure confirmed. Commit: be001c3." ;
+    schema:url <file:///Users/sac/process-intelligence/audits/audit-lifecycle-completeness.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/10-lifecycle-ma-audits> .
+
+art:audit-ma-projection-completeness
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: M&A Projection Completeness" ;
+    dcterms:description "8 M&A claim categories audited. 100% of executive claims mapped to cryptographic receipts. Board admissibility gates verified. Commit: 77175a2." ;
+    schema:url <file:///Users/sac/process-intelligence/audits/audit-board-claim-support.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/10-lifecycle-ma-audits> .
+
+art:audit-source-comparison-completeness
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: Source Comparison Completeness" ;
+    dcterms:description "Source authority comparison completeness. wasm4pm-compat execution boundary validated, tool smuggling blocked, feature isolation enforced. Commit: b5df1ab." ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/9-source-completeness-audits> .
+
+art:audit-type-law-coverage
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: Type-Law Coverage" ;
+    dcterms:description "Evidence<T, State, Witness> lattice bounds verified. Monotonicity axioms checked (idempotence, commutativity, associativity). ConstraintValue 5-point lattice validated. UnifiedWitnessState product lattice verified." ;
+    schema:url <file:///Users/sac/process-intelligence/audits/audit-type-law-coverage.md> ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/9-source-completeness-audits> .
+
+art:audit-ggen-dto-fail
+    a prov:Entity, pi:AuditFinding ;
+    pi:hasRole pi:RESEARCH_ARTIFACT ;
+    rdfs:label "Audit: GGEN Audit 1 — DTO Flattening FAIL" ;
+    dcterms:description "FAIL. ggen audit-no-dto-flattening: 1 violation found. compat/src/manufacturing/mod.rs:735 (to_json_string) and compat/src/manufacturing/traits.rs:34 (receipt_json). Rationale: JSON flattens Evidence<T> type structure, violating receipt proof carrier law. Blocking remediation required." ;
+    prov:wasGeneratedBy <https://process.intelligence/phase/11-final-checkpoint> .
+
+# ============================================================
+# SECTION 5: Capability Maps
+# ============================================================
+
+art:pm4py-capability-atlas
+    a prov:Entity, pi:CapabilityMap ;
+    pi:hasRole pi:SOURCE_COURT ;
+    rdfs:label "PM4Py Capability Atlas" ;
+    dcterms:description "9-file atlas mapping PM4Py 2.7.x discovery, conformance, replay, and visualization functions to wasm4pm equivalents. Comparison oracle for downstream conformance claims. 140+ functions." ;
+    schema:url <file:///Users/sac/process-intelligence/sources/pm4py> .
+
+art:wasm4pm-authority-maps
+    a prov:Entity, pi:CapabilityMap ;
+    pi:hasRole pi:ENGINE ;
+    rdfs:label "wasm4pm Execution Authority Maps" ;
+    dcterms:description "15-file authority map defining wasm4pm's execution surfaces across 5 domains: discovery (IM/HM/AM/DFG), OCPQ query execution, token-replay conformance, replay executor, and 12-state autonomic lifecycle. Grounding for all ENGINE claims." ;
+    schema:url <file:///Users/sac/process-intelligence/sources/wasm4pm> .
+
+art:compat-type-law-atlas
+    a prov:Entity, pi:CapabilityMap ;
+    pi:hasRole pi:COMPATIBILITY_LAYER ;
+    rdfs:label "wasm4pm-compat Type-Law Atlas" ;
+    dcterms:description "11-file type-law atlas defining Evidence<T, State, W> bounds, witness lattice families (Standards/Paper/ApiGrammar/RustLaw/InternalBridge), 46 compile fixtures, admission/refusal covenants, loss policy law, strict boundary judgment, and graduation bridge." ;
+    schema:url <file:///Users/sac/process-intelligence/sources/wasm4pm-compat> .
+
+# ============================================================
+# SECTION 6: SHACL Constraints
+# ============================================================
+
+pi:ResearchArtifactShape
+    a sh:NodeShape ;
+    sh:targetClass pi:RESEARCH_ARTIFACT ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:message "Every research artifact must identify the activity that generated it." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:description ;
+        sh:minCount 1 ;
+        sh:message "Every research artifact must have a description." ;
+    ] .
+
+pi:PaperClassificationShape
+    a sh:NodeShape ;
+    sh:targetClass pi:PaperClassification ;
+    sh:property [
+        sh:path dcterms:creator ;
+        sh:minCount 1 ;
+        sh:message "Paper classifications must name the author(s)." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:date ;
+        sh:minCount 1 ;
+        sh:message "Paper classifications must include publication year." ;
+    ] .

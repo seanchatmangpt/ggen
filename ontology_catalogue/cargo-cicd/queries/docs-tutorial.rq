@@ -1,0 +1,40 @@
+# docs-tutorial.rq
+# Purpose : Drive tutorial documentation generation for cargo-cicd v26.6.2.
+# Returns : doc_id, title, audience, capabilities_covered (comma list),
+#           commands_used
+# Source  : diataxis.ttl — capabilities linked to cc:Tutorial
+
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:     <http://www.w3.org/2002/07/owl#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+PREFIX cc:      <https://cargo-cicd.rs/ontology/>
+
+SELECT
+    ?doc_id
+    ?title
+    ?audience
+    (GROUP_CONCAT(DISTINCT ?capability_label; separator=", ") AS ?capabilities_covered)
+    (GROUP_CONCAT(DISTINCT ?cli_command;       separator=", ") AS ?commands_used)
+WHERE {
+    # Tutorial doc node: the cc:Tutorial concept itself anchors tutorial docs.
+    # Each capability linked to cc:Tutorial represents a section / capability
+    # block within the tutorial suite.
+    BIND(cc:Tutorial AS ?docNode)
+    BIND(STR(cc:Tutorial) AS ?doc_id)
+
+    cc:Tutorial skos:prefLabel ?title .
+    BIND("Newcomer learning cargo-cicd for the first time"@en AS ?audience)
+
+    ?capability a skos:Concept ;
+                skos:inScheme       cc:CapabilityScheme ;
+                cc:coveredByDocType cc:Tutorial ;
+                skos:prefLabel      ?capability_label ;
+                cc:cliCommand       ?cli_command .
+
+    FILTER(lang(?title)             = "en" || lang(?title)             = "")
+    FILTER(lang(?capability_label)  = "en" || lang(?capability_label)  = "")
+}
+GROUP BY ?doc_id ?title ?audience

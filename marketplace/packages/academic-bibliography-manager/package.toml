@@ -100,3 +100,6 @@ use_cases = "Academic writing, literature reviews, thesis bibliography, journal 
 [validation]
 requires = ["references.bib"]
 formats_supported = ["bibtex", "csl-json", "ris", "mods", "json-ld"]
+
+[marketplace]
+production_ready = false

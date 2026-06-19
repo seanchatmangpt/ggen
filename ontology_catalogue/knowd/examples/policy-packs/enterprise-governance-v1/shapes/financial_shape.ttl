@@ -1,0 +1,78 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+# SHACL Shape for Financial Transactions with Compliance Rules
+
+ex:TransactionShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Transaction ;
+    sh:property [
+        sh:path ex:amount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        sh:severity sh:Violation ;
+        sh:message "Transaction amount must be positive" ;
+    ] ;
+    sh:property [
+        sh:path ex:currency ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{3}$" ;
+        sh:severity sh:Violation ;
+        sh:message "Currency must be a valid ISO 4217 code" ;
+    ] ;
+    sh:property [
+        sh:path ex:transactionDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:fromAccount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+    sh:property [
+        sh:path ex:toAccount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] .
+
+ex:HighValueTransactionShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Transaction ;
+    sh:property [
+        sh:path ex:amount ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10000.00 ;  # Transactions >= $10k
+    ] ;
+    sh:property [
+        sh:path ex:approvalRequired ;
+        sh:hasValue true ;
+        sh:severity sh:Violation ;
+        sh:message "High value transactions require approval" ;
+    ] ;
+    sh:property [
+        sh:path ex:approvedBy ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "High value transactions must be approved by authorized personnel" ;
+    ] .
+
+ex:AuditTrailShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Transaction ;
+    sh:property [
+        sh:path ex:auditLog ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "All transactions should have an audit trail" ;
+    ] ;
+    sh:property [
+        sh:path ex:createdBy ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] .

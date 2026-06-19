@@ -1,0 +1,57 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema: <http://schema.org/> .
+@prefix fibo: <http://www.omg.org/spec/EDMC-FIBO/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix ex: <http://example.org/storehouse#> .
+
+ex:storehouse-ontology
+    a owl:Ontology ;
+    rdfs:label "Storehouse Ledger Ontology" ;
+    rdfs:comment "Ontology mapping custom Storehouse entities to W3C-backed and canonical vocabularies (PROV, ORG, FOAF, FIBO, and Schema.org)" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Classes
+ex:StorehouseUnit
+    a owl:Class ;
+    rdfs:label "Storehouse Unit" ;
+    rdfs:comment "A unit of value or asset tracked within the closed-loop internal ledger" ;
+    rdfs:subClassOf prov:Entity .
+
+ex:Receipt
+    a owl:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "An invoice or receipt proving payment execution" ;
+    rdfs:subClassOf schema:Invoice, prov:Entity .
+
+ex:Fund
+    a owl:Class ;
+    rdfs:label "Fund" ;
+    rdfs:comment "An organizational fund, representing a storehouse asset container" ;
+    rdfs:subClassOf org:FormalOrganization .
+
+ex:Receiver
+    a owl:Class ;
+    rdfs:label "Receiver" ;
+    rdfs:comment "An individual receiver or agent receiving funds" ;
+    rdfs:subClassOf foaf:Person, schema:Person .
+
+ex:Transfer
+    a owl:Class ;
+    rdfs:label "Transfer" ;
+    rdfs:comment "A cash flow activity transferring value between parties" ;
+    rdfs:subClassOf prov:Activity .
+
+# Core Properties
+ex:forFund
+    a owl:ObjectProperty ;
+    rdfs:label "for fund" ;
+    rdfs:comment "Associates an entity (like a Unit or Transfer) with its target Fund" ;
+    rdfs:domain ex:StorehouseUnit ;
+    rdfs:range ex:Fund .

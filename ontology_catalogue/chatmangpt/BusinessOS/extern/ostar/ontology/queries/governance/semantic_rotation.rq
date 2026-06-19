@@ -1,0 +1,17 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?changedClass ?changeType ?previousVersion ?newVersion ?impact
+WHERE {
+  ?changedClass a owl:Class .
+  ?changedClass prov:wasGeneratedBy ?changeEvent .
+  ?changeEvent prov:used ?previousVersion .
+  ?changeEvent prov:generated ?newVersion .
+  ?changeEvent ostar:changeType ?changeType .
+  ?changeEvent ostar:breakingChange "true"^^xsd:boolean .
+  ?changeEvent ostar:impactAssessment ?impact .
+
+  FILTER(?changeType IN ("deleted", "renamed", "restricted"))
+}
+ORDER BY ?impact

@@ -58,3 +58,6 @@ npm run regenerate
 echo "✅ Next.js ontology-driven app ready!"
 echo "Run: cd {install_dir} && npm run dev"
 """
+
+[marketplace]
+production_ready = false

@@ -1,0 +1,195 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix cli: <http://kgen.dfllss.org/ontology/cli/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Command Shape
+cli:CommandShape
+    a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:property [
+        sh:path cli:commandName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9-]*$" ;
+        sh:message "Command name must be lowercase alphanumeric with hyphens" ;
+    ] ;
+    sh:property [
+        sh:path cli:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 200 ;
+        sh:message "Command description must be 10-200 characters" ;
+    ] ;
+    sh:property [
+        sh:path cli:hasOption ;
+        sh:class cli:Option ;
+        sh:message "Command options must be valid Option instances" ;
+    ] ;
+    sh:property [
+        sh:path cli:hasArgument ;
+        sh:class cli:Argument ;
+        sh:message "Command arguments must be valid Argument instances" ;
+    ] .
+
+# Option Shape
+cli:OptionShape
+    a sh:NodeShape ;
+    sh:targetClass cli:Option ;
+    sh:property [
+        sh:path cli:optionName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z][a-z0-9-]*$" ;
+        sh:message "Option name must be lowercase alphanumeric with hyphens" ;
+    ] ;
+    sh:property [
+        sh:path cli:shortFlag ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z]$" ;
+        sh:message "Short flag must be a single letter" ;
+    ] ;
+    sh:property [
+        sh:path cli:longFlag ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^--[a-z][a-z0-9-]*$" ;
+        sh:message "Long flag must start with -- and be lowercase alphanumeric with hyphens" ;
+    ] ;
+    sh:property [
+        sh:path cli:isRequired ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Option must specify whether it is required" ;
+    ] ;
+    sh:property [
+        sh:path cli:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 150 ;
+        sh:message "Option description must be 5-150 characters" ;
+    ] ;
+    # Either shortFlag or longFlag must be present
+    sh:or (
+        [
+            sh:property [
+                sh:path cli:shortFlag ;
+                sh:minCount 1 ;
+            ]
+        ]
+        [
+            sh:property [
+                sh:path cli:longFlag ;
+                sh:minCount 1 ;
+            ]
+        ]
+    ) ;
+    sh:message "Option must have either a short flag or long flag (or both)" .
+
+# Argument Shape
+cli:ArgumentShape
+    a sh:NodeShape ;
+    sh:targetClass cli:Argument ;
+    sh:property [
+        sh:path cli:isRequired ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Argument must specify whether it is required" ;
+    ] ;
+    sh:property [
+        sh:path cli:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:maxLength 150 ;
+        sh:message "Argument description must be 5-150 characters" ;
+    ] .
+
+# Template Shape
+cli:TemplateShape
+    a sh:NodeShape ;
+    sh:targetClass cli:Template ;
+    sh:property [
+        sh:path cli:templatePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+\\.(hbs|handlebars|mustache)$" ;
+        sh:message "Template path must be valid file path ending with .hbs, .handlebars, or .mustache" ;
+    ] ;
+    sh:property [
+        sh:path cli:outputPath ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]*$" ;
+        sh:message "Output path must be a valid file path" ;
+    ] ;
+    sh:property [
+        sh:path cli:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 200 ;
+        sh:message "Template description must be 10-200 characters" ;
+    ] .
+
+# Generator Shape
+cli:GeneratorShape
+    a sh:NodeShape ;
+    sh:targetClass cli:Generator ;
+    sh:property [
+        sh:path cli:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 10 ;
+        sh:maxLength 200 ;
+        sh:message "Generator description must be 10-200 characters" ;
+    ] ;
+    sh:property [
+        sh:path cli:usesTemplate ;
+        sh:class cli:Template ;
+        sh:minCount 1 ;
+        sh:message "Generator must use at least one template" ;
+    ] .
+
+# Specific Command Validation
+cli:GenerateCommandShape
+    a sh:NodeShape ;
+    sh:targetNode cli:GenerateCommand ;
+    sh:property [
+        sh:path cli:hasOption ;
+        sh:hasValue cli:TemplateOption ;
+        sh:minCount 1 ;
+        sh:message "Generate command must have template option" ;
+    ] .
+
+cli:ValidateCommandShape
+    a sh:NodeShape ;
+    sh:targetNode cli:ValidateCommand ;
+    sh:property [
+        sh:path cli:hasOption ;
+        sh:class cli:Option ;
+        sh:message "Validate command options must be valid" ;
+    ] .
+
+cli:InitCommandShape
+    a sh:NodeShape ;
+    sh:targetNode cli:InitCommand ;
+    sh:property [
+        sh:path cli:hasOption ;
+        sh:hasValue cli:ProjectNameOption ;
+        sh:minCount 1 ;
+        sh:message "Init command must have project name option" ;
+    ] .

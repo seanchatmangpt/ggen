@@ -1,0 +1,227 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema:  <https://schema.org/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix pi:      <https://process.intelligence/ontology/> .
+@prefix conf:    <https://process.intelligence/conformance/> .
+@prefix proj:    <https://process.intelligence/project/> .
+
+# ============================================================
+# conformance-ledger.ttl — Boundary Conformance Records
+# Authority: Process Intelligence Research Foundry
+# Date: 2026-06-01
+# ============================================================
+
+<https://process.intelligence/ontology/conformance-ledger>
+    a owl:Ontology ;
+    owl:imports <https://process.intelligence/ontology/pi-program> ;
+    dcterms:title "PI Program Conformance Ledger" ;
+    dcterms:description "Ledger of boundary conformance records: admission gates, refusal covenants, receipt minting surfaces, replay mechanisms, and conformance verdicts across all PI program systems." ;
+    dcterms:created "2026-06-01"^^xsd:date ;
+    dcterms:creator <https://process.intelligence/agent/research-foundry> ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================
+# SECTION 1: Conformance Record Properties
+# ============================================================
+
+pi:ConformanceRecord
+    a owl:Class ;
+    rdfs:label "Conformance Record" ;
+    skos:definition "A structured record documenting the result of comparing a process model against event log evidence, with fitness/precision metrics and a cryptographic receipt." .
+
+pi:fitnessValue
+    a owl:DatatypeProperty ;
+    rdfs:label "fitness value" ;
+    rdfs:domain pi:ConformanceRecord ;
+    rdfs:range xsd:decimal ;
+    skos:definition "Token-replay or alignment fitness, bounded [0.0, 1.0]. Board-admissible threshold: 0.95. Elastic repair threshold: 0.85. Below 0.85: compliance deviation (lockdown)." .
+
+pi:precisionValue
+    a owl:DatatypeProperty ;
+    rdfs:label "precision value" ;
+    rdfs:domain pi:ConformanceRecord ;
+    rdfs:range xsd:decimal ;
+    skos:definition "Process model precision, bounded [0.0, 1.0]. Board-admissible threshold: 0.90." .
+
+pi:conformanceVerdict
+    a owl:DatatypeProperty ;
+    rdfs:label "conformance verdict" ;
+    rdfs:domain pi:ConformanceRecord ;
+    rdfs:range xsd:string ;
+    skos:definition "The verdict of conformance checking: FullyConforming, PartiallyConforming, NonConforming." .
+
+pi:receiptHash
+    a owl:DatatypeProperty ;
+    rdfs:label "receipt hash" ;
+    rdfs:range xsd:string ;
+    skos:definition "BLAKE3 hex digest of the conformance receipt. 256-bit (64 hex characters)." .
+
+pi:witnessMarker
+    a owl:DatatypeProperty ;
+    rdfs:label "witness marker" ;
+    rdfs:range xsd:string ;
+    skos:definition "The zero-cost witness type that sealed this conformance record (e.g., InductiveWitness, AlphaWitness, WitnessState, Ocel20)." .
+
+pi:alignmentCost
+    a owl:DatatypeProperty ;
+    rdfs:label "alignment cost" ;
+    rdfs:domain pi:ConformanceRecord ;
+    rdfs:range xsd:integer ;
+    skos:definition "Total alignment cost: log moves + model moves. Synchronous moves cost 0." .
+
+# ============================================================
+# SECTION 2: Boundary Conformance Surfaces
+# ============================================================
+
+conf:otel-to-ocel-boundary
+    a prov:Entity, pi:CONFORMANCE_SURFACE ;
+    rdfs:label "OTel-to-OCEL Projection Boundary" ;
+    dcterms:description "Projection: OtelSpanToOcelEventProjection (witness marker). TraceID→CaseCorrelationID, SpanID→EventTransactionID, SpanName→ActivityLabel, StartTime/EndTime→StartEndTimestamp. Loss policy: OtelToOcelLossPolicy. Nanosecond→microsecond truncation documented. Resource scope collapse documented. Causality degradation (async spans) documented. LossReport generated at every projection." ;
+    prov:wasPartOf proj:otel-weaver ;
+    pi:witnessMarker "OtelSpanToOcelEventProjection" .
+
+conf:wasm4pm-token-replay-conformance
+    a prov:Entity, pi:CONFORMANCE_SURFACE ;
+    rdfs:label "wasm4pm Token Replay Conformance" ;
+    dcterms:description "Token replay conformance surface in wasm4pm. Surface: token_replay_conformance(net, event_log). Fitness = 1.0 - (alignment_cost / (log_length * 2)). ConformanceVerdict: FullyConforming (fitness=1.0), PartiallyConforming{fitness, deviations}, NonConforming{reason}. ConformanceVerdicts aggregator: aggregate_fitness, aggregate_precision, admission_rate." ;
+    prov:wasPartOf proj:wasm4pm ;
+    pi:fitnessValue "1.0"^^xsd:decimal ;
+    skos:note "alignment-based conformance (stub, conformance_boundary=false) not graduated" .
+
+conf:blue-river-conformance
+    a prov:Entity, pi:CONFORMANCE_SURFACE ;
+    rdfs:label "Blue River Dam MAPE-K Conformance" ;
+    dcterms:description "Blue River Dam Auditor::compute_fitness (LCS-based). ConformanceMetric{fitness, trace_id, alignment_moves, threshold}. Thresholds: >= 0.95 (within bounds), 0.85-0.95 (WarningDeviation→elastic repair), < 0.85 (CriticalDeviation→lockdown+escalation). Gate 3: admissible(σ) ≡ fitness >= 0.95 ∨ (fitness >= 0.85 ∧ override_signed)." ;
+    prov:wasPartOf proj:blue-river-dam ;
+    pi:conformanceThreshold "0.95"^^xsd:decimal .
+
+conf:ggen-board-admissible-gate
+    a prov:Entity, pi:CONFORMANCE_SURFACE ;
+    rdfs:label "ggen Board-Admissible Conformance Gate" ;
+    dcterms:description "Board-admissible conformance gate in ggen primary cell. SPARQL filter: FILTER (?verdictFitness >= 0.95 && ?verdictPrecision >= 0.90). Template gate: ma-deck.tera line 55 ADMISSIBLE/REJECTED status. Ontology gate: ma:backedBy requires owl:minCardinality 1 ConformanceVerdict." ;
+    prov:wasPartOf proj:ggen-primary-cell ;
+    pi:fitnessValue "0.95"^^xsd:decimal ;
+    pi:precisionValue "0.90"^^xsd:decimal .
+
+conf:compat-fitness-type-law
+    a prov:Entity, pi:CONFORMANCE_SURFACE ;
+    rdfs:label "wasm4pm-compat Fitness Type-Law Surface" ;
+    dcterms:description "Compile-time bounded [0,1] metrics in wasm4pm-compat. FitnessConst<NUM, DEN>: compiles only when NUM/DEN ∈ [0,1]. FitnessConst<3,4>=0.75 compiles. FitnessConst<2,1>=2.0 does NOT compile. Between01<NUM, DEN> nightly const_trait_impl enforcement. No runtime computation — shape only." ;
+    prov:wasPartOf proj:wasm4pm-compat ;
+    skos:note "wasm4pm-compat carries conformance shapes but never computes them. Execution graduates to wasm4pm ENGINE." .
+
+conf:zoeapp-ocel-conformance
+    a prov:Entity, pi:CONFORMANCE_SURFACE ;
+    rdfs:label "ZOEapp OCEL 2.0 Conformance" ;
+    dcterms:description "ZOEapp OCEL 2.0 conformance via truex-hook-replay Edge Function. Verification: batchValid (SHA256 ocel2 batch hash == expected_path_hash), receiptValid (BLAKE3 receipt_hash == expected), verified (both). 516 replay fixtures. Sample OCEL event: {activity: PublishSermon, timestamp: 2026-05-23T10:00:00Z, object: sermon-1, type: CreativeWork}." ;
+    prov:wasPartOf proj:zoeapp ;
+    pi:conformanceVerdict "VERIFIED" .
+
+# ============================================================
+# SECTION 3: Receipt Records (Cryptographic Proof Surfaces)
+# ============================================================
+
+conf:wasm4pm-receipt-minting
+    a prov:Entity, pi:RECEIPT_SURFACE ;
+    rdfs:label "wasm4pm Receipt Minting" ;
+    dcterms:description "ReplayModuleReceipt::mint(artifact_hash, witness_marker, previous_receipt). OtelSpan.blake3_receipt: hex-encoded Blake3 hash per span step. OtelTrace.event_chain_root: final span's Blake3 receipt. Evidence<T, State, W>.hash: Blake3Hash([u8; 32]) over (payload, state, witness, epoch, signature). IdentitySignature: 32-byte Ed25519 pubkey + 64-byte signature." ;
+    prov:wasPartOf proj:wasm4pm .
+
+conf:blue-river-receipt-chain
+    a prov:Entity, pi:RECEIPT_SURFACE ;
+    rdfs:label "Blue River Dam Governance Receipt Chain" ;
+    dcterms:description "SHA-256 block-chained governance ledger. Every action produces Receipt{action_id: u64, timestamp: u64, outcome: ActionOutcome}. Decommissioning magic: 0xDEC0FFEE. Ledger entry: {block_index, timestamp, entry_type, evidence, block_hash, prev_block_hash, authority_signature(Ed25519)}. Tamper-evident: hash chain breaks on modification." ;
+    prov:wasPartOf proj:blue-river-dam .
+
+conf:zoeapp-blake3-receipts
+    a prov:Entity, pi:RECEIPT_SURFACE ;
+    rdfs:label "ZOEapp BLAKE3 Receipt Chain" ;
+    dcterms:description "ZOEapp receipt chain: actor_receipts Supabase table + BLAKE3 verification. 3-tier storage fallback: Zustand latestReceipt → MMKV → SQLite (drizzle-orm). truex-verify Edge Function: BLAKE3 receipt hash verification. PremiumReceiptBlockingScreen: displays command_id, expected delta_hash, signature verification badge, refusal reason code." ;
+    prov:wasPartOf proj:zoeapp .
+
+conf:ma-receipt-chain
+    a prov:Entity, pi:RECEIPT_SURFACE ;
+    rdfs:label "M&A Cryptographic Receipt Chain" ;
+    dcterms:description "Board-admissible M&A receipts: Ed25519-signed fitness/precision/EBITDA impact tuples. Sample: rec_ebitda_rework_001.json — fitness=0.982, precision=0.945, ebitda_impact=$1,250,000. validator_signature: ed25519_sig_8a3e811c_02e0df2f... Verification chain: hash_log, hash_model, execute_conformance_wasm4pm, measure_fitness, calculate_ebitda, sign_ed25519, store_BLAKE3_chain." ;
+    prov:wasPartOf <https://process.intelligence/phase/6-ma-claim-taxonomy> .
+
+# ============================================================
+# SECTION 4: Admission/Refusal Covenant Records
+# ============================================================
+
+conf:compat-one-way-door
+    a prov:Entity, pi:ADMISSION_SURFACE ;
+    rdfs:label "wasm4pm-compat One-Way Door" ;
+    dcterms:description "Type-level one-way lifecycle in wasm4pm-compat. Raw→Parsed→Admitted→{Projected|Exportable|Receipted}. Evidence<T, Raw, W> and Evidence<T, Admitted, W> are different types — compiler enforces at zero runtime cost. No function accepting Admitted can accept Raw. Refused: immutable Refusal<R, W> terminal state carrying named law." ;
+    prov:wasPartOf proj:wasm4pm-compat .
+
+conf:wasm4pm-11-pathway-admission
+    a prov:Entity, pi:ADMISSION_SURFACE ;
+    rdfs:label "wasm4pm 11-Pathway Admission Law (via Blue River)" ;
+    dcterms:description "11 admission pathways in Blue River Dam: (1) temporal monotonicity, (2) schema type match, (3) causal object reference resolution, (4) memory bounds, (5) Ed25519 signature valid, (6) Petri net soundness, (7) fitness >= 0.85, (8) object identity not contradictory, (9) BPMN OR-join quorum defined, (10) Declare constraints absent, (11) event IDs unique. Default: DENY." ;
+    prov:wasPartOf proj:blue-river-dam .
+
+conf:otel-feedstock-admission
+    a prov:Entity, pi:ADMISSION_SURFACE ;
+    rdfs:label "OTel Weaver Feedstock Admission" ;
+    dcterms:description "OTel feedstock admission: schema URL present → receipt context resolved. violation_halt refusals rejected. escalation_warning admitted with quarantine flag. Admitted feedstock wrapped in Admission<T, OtelSpanToOcelEventProjection>. LossReport mandatory for every projection (truncation, scope collapse, causality degradation)." ;
+    prov:wasPartOf proj:otel-weaver .
+
+# ============================================================
+# SECTION 5: Replay Conformance Records
+# ============================================================
+
+conf:wasm4pm-replay-engine
+    a prov:Entity, pi:REPLAY_SURFACE ;
+    rdfs:label "wasm4pm ReplayEngine" ;
+    dcterms:description "ReplayEngine: multi-path token game replay over event log. Synchronous moves (cost=0), log moves (cost=1), model moves (cost=1). WitnessState: PartialReplay{trace_indices, marking, cost}. Best path selection by minimum cost. fitness: 1 - (alignment_cost / (log_length * 2)). OtelSpan emitted per step with BLAKE3 receipt." ;
+    prov:wasPartOf proj:wasm4pm .
+
+conf:wasm4pm-step-simulator
+    a prov:Entity, pi:REPLAY_SURFACE ;
+    rdfs:label "wasm4pm StepSimulator" ;
+    dcterms:description "StepSimulator: interactive one-step-at-a-time execution. enabled_activities() lists enabled transitions at current Marking. step(activity) fires named transition. Each step emits OtelSpan{span_id, parent_span_id, span_name, start/end_time, instruction_count, blake3_receipt}. reset() returns to initial marking. history() inspects all executed steps." ;
+    prov:wasPartOf proj:wasm4pm .
+
+conf:zoeapp-truex-replay
+    a prov:Entity, pi:REPLAY_SURFACE ;
+    rdfs:label "ZOEapp truex-hook-replay" ;
+    dcterms:description "Deterministic replay verification in ZOEapp Edge Function. Input: {history, messages, initialState}. Output: {verified, proof, messageCount}. Verifies batch hash == expected_path_hash (SHA256) and receipt hash == expected (BLAKE3). 516 fixture scenarios verified." ;
+    prov:wasPartOf proj:zoeapp .
+
+# ============================================================
+# SECTION 6: SHACL Constraints
+# ============================================================
+
+pi:ConformanceRecordShape
+    a sh:NodeShape ;
+    sh:targetClass pi:ConformanceRecord ;
+    sh:property [
+        sh:path pi:fitnessValue ;
+        sh:minCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Conformance records must have a fitness value bounded [0.0, 1.0]." ;
+    ] ;
+    sh:property [
+        sh:path pi:conformanceVerdict ;
+        sh:minCount 1 ;
+        sh:in ("FullyConforming" "PartiallyConforming" "NonConforming" "VERIFIED" "FAILED") ;
+        sh:message "Conformance verdict must be one of the defined verdict types." ;
+    ] .
+
+pi:ReceiptSurfaceShape
+    a sh:NodeShape ;
+    sh:targetClass pi:RECEIPT_SURFACE ;
+    sh:property [
+        sh:path pi:witnessMarker ;
+        sh:minCount 1 ;
+        sh:message "Receipt surfaces must name the witness marker sealing the proof." ;
+    ] .

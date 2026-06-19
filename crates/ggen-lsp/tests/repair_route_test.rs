@@ -52,8 +52,12 @@ fn invalid_enum_value_yields_an_advisory_route_not_a_destructive_edit() {
     // Registry selects an advisory route; its steps carry NO concrete edit
     // (we must never guess/delete the value).
     let registry = RouteRegistry::seeded();
-    let plan = route_plan_for_diagnostic(&registry, &enum_diag.lsp, "[logging]\nlevel = \"verbose\"\n")
-        .expect("an advisory route exists");
+    let plan = route_plan_for_diagnostic(
+        &registry,
+        &enum_diag.lsp,
+        "[logging]\nlevel = \"verbose\"\n",
+    )
+    .expect("an advisory route exists");
     assert!(
         !plan.ordered_steps.is_empty(),
         "advisory guidance is present"

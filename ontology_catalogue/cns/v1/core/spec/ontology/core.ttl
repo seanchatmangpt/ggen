@@ -1,0 +1,12 @@
+@prefix core: <https://core.bitstar.dev/ontology/core#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+core:Module a rdfs:Class ;
+  rdfs:label "Core Module" ;
+  rdfs:comment "A deterministic, spec-first module" .
+
+core:hasVersion a rdf:Property ; rdfs:domain core:Module ; rdfs:range xsd:integer .
+core:hasCapability a rdf:Property ; rdfs:domain core:Module ; rdfs:range rdfs:Literal .
+

@@ -1,0 +1,132 @@
+# SaaS Aggregates - Event Sourcing Roots
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# REVENUE AGGREGATE
+# ============================================================================
+
+attr:RevenueAggregate a ddd:Aggregate ;
+  ddd:name "RevenueAggregate" ;
+  rdfs:comment "Revenue tracking aggregate with subscription lifecycle" ;
+  ddd:identityField attr:RevenueAggregate_id ;
+  ddd:hasField attr:RevenueAggregate_id ;
+  ddd:hasField attr:RevenueAggregate_total_mrr ;
+  ddd:hasField attr:RevenueAggregate_active_subscriptions ;
+  ddd:hasField attr:RevenueAggregate_lifetime_commissions ;
+  ddd:hasField attr:RevenueAggregate_total_subscriptions ;
+  ddd:hasField attr:RevenueAggregate_canceled_subscriptions ;
+  ddd:hasField attr:RevenueAggregate_projected_arr ;
+  ddd:hasField attr:RevenueAggregate_updated_at .
+
+attr:RevenueAggregate_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Aggregate root identifier" .
+
+attr:RevenueAggregate_total_mrr a ddd:Field ;
+  ddd:name "total_mrr" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Total monthly recurring revenue" .
+
+attr:RevenueAggregate_active_subscriptions a ddd:Field ;
+  ddd:name "active_subscriptions" ;
+  ddd:type "i64" ;
+  ddd:required true ;
+  ddd:default "0" ;
+  rdfs:comment "Count of active subscriptions" .
+
+attr:RevenueAggregate_lifetime_commissions a ddd:Field ;
+  ddd:name "lifetime_commissions" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Total commissions earned all-time" .
+
+attr:RevenueAggregate_total_subscriptions a ddd:Field ;
+  ddd:name "total_subscriptions" ;
+  ddd:type "i64" ;
+  ddd:required true ;
+  ddd:default "0" ;
+  rdfs:comment "Total subscriptions created" .
+
+attr:RevenueAggregate_canceled_subscriptions a ddd:Field ;
+  ddd:name "canceled_subscriptions" ;
+  ddd:type "i64" ;
+  ddd:required true ;
+  ddd:default "0" ;
+  rdfs:comment "Count of canceled subscriptions" .
+
+attr:RevenueAggregate_projected_arr a ddd:Field ;
+  ddd:name "projected_arr" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Projected annual recurring revenue (MRR * 12)" .
+
+attr:RevenueAggregate_updated_at a ddd:Field ;
+  ddd:name "updated_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Last aggregate update timestamp" .
+
+# ============================================================================
+# PUBLISHER REVENUE AGGREGATE
+# ============================================================================
+
+attr:PublisherRevenueAggregate a ddd:Aggregate ;
+  ddd:name "PublisherRevenueAggregate" ;
+  rdfs:comment "Per-publisher revenue tracking" ;
+  ddd:identityField attr:PublisherRevenueAggregate_publisher_id ;
+  ddd:hasField attr:PublisherRevenueAggregate_publisher_id ;
+  ddd:hasField attr:PublisherRevenueAggregate_mrr ;
+  ddd:hasField attr:PublisherRevenueAggregate_active_subs ;
+  ddd:hasField attr:PublisherRevenueAggregate_total_commissions ;
+  ddd:hasField attr:PublisherRevenueAggregate_this_month_commission ;
+  ddd:hasField attr:PublisherRevenueAggregate_updated_at .
+
+attr:PublisherRevenueAggregate_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Publisher identifier" .
+
+attr:PublisherRevenueAggregate_mrr a ddd:Field ;
+  ddd:name "mrr" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Publisher's total MRR" .
+
+attr:PublisherRevenueAggregate_active_subs a ddd:Field ;
+  ddd:name "active_subs" ;
+  ddd:type "i64" ;
+  ddd:required true ;
+  ddd:default "0" ;
+  rdfs:comment "Active subscription count" .
+
+attr:PublisherRevenueAggregate_total_commissions a ddd:Field ;
+  ddd:name "total_commissions" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Lifetime commission total" .
+
+attr:PublisherRevenueAggregate_this_month_commission a ddd:Field ;
+  ddd:name "this_month_commission" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Current month commission" .
+
+attr:PublisherRevenueAggregate_updated_at a ddd:Field ;
+  ddd:name "updated_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Last update timestamp" .

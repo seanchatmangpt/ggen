@@ -1,0 +1,93 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix unjucks: <http://unjucks.dev/ontology#> .
+
+# SHACL shapes for validating RDF data
+
+# Person shape
+PersonShape a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Person must have exactly one non-empty name"
+    ] ;
+    sh:property [
+        sh:path schema:email ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Invalid email format"
+    ] ;
+    sh:property [
+        sh:path schema:birthDate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Birth date must be a valid date"
+    ] .
+
+# Organization shape
+OrganizationShape a sh:NodeShape ;
+    sh:targetClass schema:Organization ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Organization must have a name"
+    ] ;
+    sh:property [
+        sh:path schema:numberOfEmployees ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Number of employees must be non-negative"
+    ] .
+
+# Template shape
+TemplateShape a sh:NodeShape ;
+    sh:targetClass unjucks:Template ;
+    sh:property [
+        sh:path unjucks:templateBody ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Template must have a body"
+    ] ;
+    sh:property [
+        sh:path unjucks:targetPath ;
+        sh:pattern "^[a-zA-Z0-9/_.-]+$" ;
+        sh:message "Target path contains invalid characters"
+    ] .
+
+# Variable shape
+VariableShape a sh:NodeShape ;
+    sh:targetClass unjucks:Variable ;
+    sh:property [
+        sh:path unjucks:variableName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9_]*$" ;
+        sh:message "Variable name must be a valid identifier"
+    ] ;
+    sh:property [
+        sh:path unjucks:variableType ;
+        sh:in ("string" "number" "boolean" "array" "object") ;
+        sh:message "Variable type must be one of: string, number, boolean, array, object"
+    ] .
+
+# Generator shape  
+GeneratorShape a sh:NodeShape ;
+    sh:targetClass unjucks:Generator ;
+    sh:property [
+        sh:path unjucks:generatorName ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-z][a-z0-9-]*$" ;
+        sh:message "Generator name must be kebab-case"
+    ] ;
+    sh:property [
+        sh:path unjucks:hasTemplate ;
+        sh:minCount 1 ;
+        sh:class unjucks:Template ;
+        sh:message "Generator must have at least one template"
+    ] .

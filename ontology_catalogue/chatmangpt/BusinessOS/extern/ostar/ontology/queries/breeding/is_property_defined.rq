@@ -1,0 +1,36 @@
+# SPARQL ASK query to check if a URI is defined as an rdf:Property
+#
+# Args:
+#   ?uri: The property URI to check
+#
+# Returns:
+#   true if ?uri is an instance of rdf:Property or any OWL property type in any public ontology graph
+#
+
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK {
+    GRAPH ?g {
+        {
+            ?uri a rdf:Property .
+        } UNION {
+            ?uri a owl:DatatypeProperty .
+        } UNION {
+            ?uri a owl:ObjectProperty .
+        } UNION {
+            ?uri a owl:AnnotationProperty .
+        } UNION {
+            ?uri a owl:OntologyProperty .
+        } UNION {
+            ?uri rdf:type rdf:Property .
+        } UNION {
+            ?uri rdf:type owl:DatatypeProperty .
+        } UNION {
+            ?uri rdf:type owl:ObjectProperty .
+        } UNION {
+            ?uri rdf:type owl:AnnotationProperty .
+        }
+        FILTER STRSTARTS(STR(?g), "urn:public:")
+    }
+}

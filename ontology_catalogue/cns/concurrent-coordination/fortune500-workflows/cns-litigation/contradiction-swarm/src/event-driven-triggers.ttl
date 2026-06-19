@@ -1,0 +1,592 @@
+@prefix edt: <http://cns-litigation.com/event-driven-triggers#> .
+@prefix ts: <http://cns-litigation.com/trigger-swarm#> .
+@prefix csm: <http://cns-litigation.com/campaign-state-machine#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ba: <http://cns-litigation.com/bitactor#> .
+@prefix vda: <http://van-der-aalst.com/patterns#> .
+
+# Event-Driven Trigger System for Automated Legal Campaign Execution
+# Real-time event processing with complex event pattern matching
+# Zero-latency trigger evaluation and workflow automation
+
+edt:EventDrivenTriggerSystem a owl:Class ;
+    rdfs:label "Event-Driven Trigger System" ;
+    rdfs:comment "Comprehensive trigger system for automated legal workflow execution" ;
+    edt:version "2.0" ;
+    edt:processingMode edt:RealTime ;
+    edt:latencyTarget "PT0.1S"^^xsd:duration ;
+    edt:throughputTarget 10000 ;
+    edt:eventRetention "P30D"^^xsd:duration .
+
+# ============================================================================
+# EVENT HIERARCHY AND CLASSIFICATION
+# ============================================================================
+
+# Base Event Class
+edt:Event a owl:Class ;
+    rdfs:label "Legal Event" ;
+    rdfs:comment "Base class for all legal system events" .
+
+# Legal Document Events
+edt:DocumentEvent a owl:Class ;
+    rdfs:label "Document Event" ;
+    rdfs:comment "Events related to legal documents" ;
+    rdfs:subClassOf edt:Event .
+
+edt:DocumentFiled a edt:DocumentEvent ;
+    rdfs:label "Document Filed" ;
+    rdfs:comment "Legal document filed with court or agency" ;
+    edt:eventCode "DOC_FILED" ;
+    edt:priority 8 ;
+    edt:triggersCampaigns edt:FilingCampaign, edt:ComplianceCampaign .
+
+edt:DocumentAmended a edt:DocumentEvent ;
+    rdfs:label "Document Amended" ;
+    rdfs:comment "Legal document amended or modified" ;
+    edt:eventCode "DOC_AMENDED" ;
+    edt:priority 7 ;
+    edt:triggersCampaigns edt:ContradictionCampaign, edt:AnalysisCampaign .
+
+edt:DocumentWithdrawn a edt:DocumentEvent ;
+    rdfs:label "Document Withdrawn" ;
+    rdfs:comment "Legal document withdrawn or dismissed" ;
+    edt:eventCode "DOC_WITHDRAWN" ;
+    edt:priority 6 ;
+    edt:triggersCampaigns edt:OpportunityAnalysis .
+
+# Court Events
+edt:CourtEvent a owl:Class ;
+    rdfs:label "Court Event" ;
+    rdfs:comment "Events from court proceedings" ;
+    rdfs:subClassOf edt:Event .
+
+edt:HearingScheduled a edt:CourtEvent ;
+    rdfs:label "Hearing Scheduled" ;
+    rdfs:comment "Court hearing scheduled" ;
+    edt:eventCode "HEARING_SCHEDULED" ;
+    edt:priority 9 ;
+    edt:triggersCampaigns edt:PreparationCampaign, edt:DeadlineCampaign .
+
+edt:OrderIssued a edt:CourtEvent ;
+    rdfs:label "Court Order Issued" ;
+    rdfs:comment "Court order or ruling issued" ;
+    edt:eventCode "ORDER_ISSUED" ;
+    edt:priority 10 ;
+    edt:triggersCampaigns edt:ComplianceCampaign, edt:AppealAnalysis .
+
+edt:JudgmentEntered a edt:CourtEvent ;
+    rdfs:label "Judgment Entered" ;
+    rdfs:comment "Final judgment entered by court" ;
+    edt:eventCode "JUDGMENT_ENTERED" ;
+    edt:priority 10 ;
+    edt:triggersCampaigns edt:PostJudgmentCampaign, edt:CollectionCampaign .
+
+edt:MotionFiled a edt:CourtEvent ;
+    rdfs:label "Motion Filed" ;
+    rdfs:comment "Motion filed by party" ;
+    edt:eventCode "MOTION_FILED" ;
+    edt:priority 8 ;
+    edt:triggersCampaigns edt:OppositionCampaign, edt:ContradictionCampaign .
+
+# Deadline Events
+edt:DeadlineEvent a owl:Class ;
+    rdfs:label "Deadline Event" ;
+    rdfs:comment "Events related to legal deadlines" ;
+    rdfs:subClassOf edt:Event .
+
+edt:DeadlineApproaching a edt:DeadlineEvent ;
+    rdfs:label "Deadline Approaching" ;
+    rdfs:comment "Legal deadline approaching within threshold" ;
+    edt:eventCode "DEADLINE_APPROACHING" ;
+    edt:priority 9 ;
+    edt:triggersCampaigns edt:FilingCampaign, edt:PreparationCampaign ;
+    edt:thresholds [
+        edt:warningThreshold "P7D"^^xsd:duration ;
+        edt:urgentThreshold "P1D"^^xsd:duration ;
+        edt:criticalThreshold "PT4H"^^xsd:duration
+    ] .
+
+edt:DeadlineMissed a edt:DeadlineEvent ;
+    rdfs:label "Deadline Missed" ;
+    rdfs:comment "Legal deadline missed" ;
+    edt:eventCode "DEADLINE_MISSED" ;
+    edt:priority 10 ;
+    edt:triggersCampaigns edt:EmergencyCampaign, edt:RemedyCampaign .
+
+# Evidence Events
+edt:EvidenceEvent a owl:Class ;
+    rdfs:label "Evidence Event" ;
+    rdfs:comment "Events related to evidence discovery and analysis" ;
+    rdfs:subClassOf edt:Event .
+
+edt:ContradictionDetected a edt:EvidenceEvent ;
+    rdfs:label "Contradiction Detected" ;
+    rdfs:comment "Evidence contradiction detected by analysis" ;
+    edt:eventCode "CONTRADICTION_DETECTED" ;
+    edt:priority 9 ;
+    edt:triggersCampaigns edt:ContradictionCampaign, edt:ExploitationCampaign ;
+    edt:contradictionTypes edt:TemporalContradiction, edt:SpatialContradiction, 
+                           edt:LogicalContradiction, edt:TestimonyContradiction .
+
+edt:EvidenceDiscovered a edt:EvidenceEvent ;
+    rdfs:label "Evidence Discovered" ;
+    rdfs:comment "New evidence discovered or received" ;
+    edt:eventCode "EVIDENCE_DISCOVERED" ;
+    edt:priority 7 ;
+    edt:triggersCampaigns edt:AnalysisCampaign, edt:IntegrationCampaign .
+
+edt:EvidenceAuthenticated a edt:EvidenceEvent ;
+    rdfs:label "Evidence Authenticated" ;
+    rdfs:comment "Evidence authentication completed" ;
+    edt:eventCode "EVIDENCE_AUTHENTICATED" ;
+    edt:priority 6 ;
+    edt:triggersCampaigns edt:FilingCampaign .
+
+# Opponent Events
+edt:OpponentEvent a owl:Class ;
+    rdfs:label "Opponent Event" ;
+    rdfs:comment "Events related to opposing party actions" ;
+    rdfs:subClassOf edt:Event .
+
+edt:OpponentFilingReceived a edt:OpponentEvent ;
+    rdfs:label "Opponent Filing Received" ;
+    rdfs:comment "Filing received from opposing party" ;
+    edt:eventCode "OPPONENT_FILING" ;
+    edt:priority 8 ;
+    edt:triggersCampaigns edt:ContradictionCampaign, edt:ResponseCampaign .
+
+edt:OpponentDepositionScheduled a edt:OpponentEvent ;
+    rdfs:label "Opponent Deposition Scheduled" ;
+    rdfs:comment "Deposition scheduled by opposing party" ;
+    edt:eventCode "OPPONENT_DEPOSITION" ;
+    edt:priority 7 ;
+    edt:triggersCampaigns edt:PreparationCampaign .
+
+edt:OpponentSettlementOffer a edt:OpponentEvent ;
+    rdfs:label "Opponent Settlement Offer" ;
+    rdfs:comment "Settlement offer received from opponent" ;
+    edt:eventCode "SETTLEMENT_OFFER" ;
+    edt:priority 8 ;
+    edt:triggersCampaigns edt:SettlementAnalysis .
+
+# Ethics and Bar Events
+edt:EthicsEvent a owl:Class ;
+    rdfs:label "Ethics Event" ;
+    rdfs:comment "Events related to attorney ethics and bar regulation" ;
+    rdfs:subClassOf edt:Event .
+
+edt:EthicsViolationDetected a edt:EthicsEvent ;
+    rdfs:label "Ethics Violation Detected" ;
+    rdfs:comment "Potential ethics violation detected" ;
+    edt:eventCode "ETHICS_VIOLATION" ;
+    edt:priority 9 ;
+    edt:triggersCampaigns edt:BarComplaintCampaign ;
+    edt:violationTypes edt:ConflictOfInterest, edt:ClientFunds, edt:Negligence, edt:Misconduct .
+
+edt:BarInvestigationOpened a edt:EthicsEvent ;
+    rdfs:label "Bar Investigation Opened" ;
+    rdfs:comment "Bar investigation opened against attorney" ;
+    edt:eventCode "BAR_INVESTIGATION" ;
+    edt:priority 8 ;
+    edt:triggersCampaigns edt:MonitoringCampaign .
+
+# IP and Export Control Events
+edt:IPEvent a owl:Class ;
+    rdfs:label "IP Event" ;
+    rdfs:comment "Events related to intellectual property" ;
+    rdfs:subClassOf edt:Event .
+
+edt:IPViolationDetected a edt:IPEvent ;
+    rdfs:label "IP Violation Detected" ;
+    rdfs:comment "Intellectual property violation detected" ;
+    edt:eventCode "IP_VIOLATION" ;
+    edt:priority 9 ;
+    edt:triggersCampaigns edt:IPProtectionCampaign ;
+    edt:violationTypes edt:PatentInfringement, edt:TrademarkViolation, edt:CopyrightInfringement .
+
+edt:ExportControlTrigger a edt:IPEvent ;
+    rdfs:label "Export Control Trigger" ;
+    rdfs:comment "Export control compliance issue detected" ;
+    edt:eventCode "EXPORT_CONTROL" ;
+    edt:priority 10 ;
+    edt:triggersCampaigns edt:ComplianceCampaign, edt:IPProtectionCampaign .
+
+# System Events
+edt:SystemEvent a owl:Class ;
+    rdfs:label "System Event" ;
+    rdfs:comment "Internal system and monitoring events" ;
+    rdfs:subClassOf edt:Event .
+
+edt:CampaignCompleted a edt:SystemEvent ;
+    rdfs:label "Campaign Completed" ;
+    rdfs:comment "Legal campaign completed successfully" ;
+    edt:eventCode "CAMPAIGN_COMPLETED" ;
+    edt:priority 5 ;
+    edt:triggersCampaigns edt:ReportingCampaign .
+
+edt:SystemResourceLow a edt:SystemEvent ;
+    rdfs:label "System Resource Low" ;
+    rdfs:comment "System resources running low" ;
+    edt:eventCode "RESOURCE_LOW" ;
+    edt:priority 7 ;
+    edt:triggersCampaigns edt:MaintenanceCampaign .
+
+edt:EmergencyShutdown a edt:SystemEvent ;
+    rdfs:label "Emergency Shutdown" ;
+    rdfs:comment "Emergency system shutdown required" ;
+    edt:eventCode "EMERGENCY_SHUTDOWN" ;
+    edt:priority 10 ;
+    edt:triggersCampaigns edt:EmergencyProtocol .
+
+# ============================================================================
+# TRIGGER DEFINITIONS AND RULES
+# ============================================================================
+
+# Base Trigger Class
+edt:Trigger a owl:Class ;
+    rdfs:label "Event Trigger" ;
+    rdfs:comment "Base class for event triggers" .
+
+# Simple Event Triggers
+edt:SimpleEventTrigger a owl:Class ;
+    rdfs:label "Simple Event Trigger" ;
+    rdfs:comment "Trigger activated by single event occurrence" ;
+    rdfs:subClassOf edt:Trigger .
+
+edt:ContradictionTrigger a edt:SimpleEventTrigger ;
+    rdfs:label "Contradiction Detection Trigger" ;
+    rdfs:comment "Trigger for contradiction detection events" ;
+    edt:triggerId "CONTRADICTION_TRIGGER" ;
+    edt:eventType edt:ContradictionDetected ;
+    edt:conditions [
+        edt:condition "confidenceLevel >= 0.8" ;
+        edt:condition "contradictionType IN ['TEMPORAL', 'LOGICAL', 'DOCUMENTARY']" ;
+        edt:condition "evidenceCount >= 2"
+    ] ;
+    edt:actions [
+        edt:action "startContradictionCampaign" ;
+        edt:action "notifyLegalTeam" ;
+        edt:action "preserveEvidence"
+    ] ;
+    edt:priority 9 ;
+    edt:cooldownPeriod "PT5M"^^xsd:duration .
+
+edt:FilingDeadlineTrigger a edt:SimpleEventTrigger ;
+    rdfs:label "Filing Deadline Trigger" ;
+    rdfs:comment "Trigger for approaching filing deadlines" ;
+    edt:triggerId "FILING_DEADLINE_TRIGGER" ;
+    edt:eventType edt:DeadlineApproaching ;
+    edt:conditions [
+        edt:condition "deadlineType == 'FILING'" ;
+        edt:condition "timeRemaining <= '7 days'" ;
+        edt:condition "documentStatus != 'COMPLETE'"
+    ] ;
+    edt:actions [
+        edt:action "startFilingCampaign" ;
+        edt:action "escalateToAttorney" ;
+        edt:action "prepareDocuments"
+    ] ;
+    edt:priority 9 ;
+    edt:escalationLevels [
+        edt:level "WARNING" ; edt:threshold "P7D"^^xsd:duration ;
+        edt:level "URGENT" ; edt:threshold "P1D"^^xsd:duration ;
+        edt:level "CRITICAL" ; edt:threshold "PT4H"^^xsd:duration
+    ] .
+
+edt:EthicsViolationTrigger a edt:SimpleEventTrigger ;
+    rdfs:label "Ethics Violation Trigger" ;
+    rdfs:comment "Trigger for ethics violation detection" ;
+    edt:triggerId "ETHICS_VIOLATION_TRIGGER" ;
+    edt:eventType edt:EthicsViolationDetected ;
+    edt:conditions [
+        edt:condition "violationSeverity >= 'MODERATE'" ;
+        edt:condition "evidenceStandard >= 'CLEAR_AND_CONVINCING'" ;
+        edt:condition "jurisdictionActive == true"
+    ] ;
+    edt:actions [
+        edt:action "startBarComplaintCampaign" ;
+        edt:action "preserveEvidence" ;
+        edt:action "notifyBarCounsel"
+    ] ;
+    edt:priority 9 .
+
+# Complex Event Pattern Triggers
+edt:ComplexEventTrigger a owl:Class ;
+    rdfs:label "Complex Event Trigger" ;
+    rdfs:comment "Trigger activated by complex event patterns" ;
+    rdfs:subClassOf edt:Trigger .
+
+edt:PatternBasedTrigger a edt:ComplexEventTrigger ;
+    rdfs:label "Pattern-Based Trigger" ;
+    rdfs:comment "Trigger based on event sequence patterns" ;
+    edt:triggerId "PATTERN_TRIGGER" ;
+    edt:eventPattern [
+        edt:sequence [
+            edt:event edt:OpponentFilingReceived ;
+            edt:event edt:ContradictionDetected ;
+            edt:event edt:EvidenceDiscovered
+        ] ;
+        edt:timeWindow "P30D"^^xsd:duration ;
+        edt:orderMatters true
+    ] ;
+    edt:conditions [
+        edt:condition "contradictionStrength >= 0.85" ;
+        edt:condition "evidenceRelevance >= 0.9" ;
+        edt:condition "opposingCounselReputation <= 'MODERATE'"
+    ] ;
+    edt:actions [
+        edt:action "startAggressiveContradictionCampaign" ;
+        edt:action "prioritizeExploitation" ;
+        edt:action "coordinateMultipleSwarms"
+    ] ;
+    edt:priority 10 .
+
+edt:EscalationTrigger a edt:ComplexEventTrigger ;
+    rdfs:label "Escalation Trigger" ;
+    rdfs:comment "Trigger for escalating event patterns" ;
+    edt:triggerId "ESCALATION_TRIGGER" ;
+    edt:eventPattern [
+        edt:count [
+            edt:event edt:DeadlineMissed ;
+            edt:threshold 3 ;
+            edt:timeWindow "P90D"^^xsd:duration
+        ]
+    ] ;
+    edt:conditions [
+        edt:condition "caseImportance >= 'HIGH'" ;
+        edt:condition "clientSatisfaction <= 'MODERATE'"
+    ] ;
+    edt:actions [
+        edt:action "startEmergencyCampaign" ;
+        edt:action "escalateToPartner" ;
+        edt:action "implementStrictMonitoring"
+    ] ;
+    edt:priority 10 .
+
+# Emergency Triggers
+edt:EmergencyTrigger a owl:Class ;
+    rdfs:label "Emergency Trigger" ;
+    rdfs:comment "High-priority emergency triggers" ;
+    rdfs:subClassOf edt:Trigger .
+
+edt:InjunctionTrigger a edt:EmergencyTrigger ;
+    rdfs:label "Injunction Trigger" ;
+    rdfs:comment "Trigger for injunction or restraining order events" ;
+    edt:triggerId "INJUNCTION_TRIGGER" ;
+    edt:eventType edt:OrderIssued ;
+    edt:conditions [
+        edt:condition "orderType IN ['INJUNCTION', 'TRO', 'RESTRAINING_ORDER']" ;
+        edt:condition "affectsClient == true"
+    ] ;
+    edt:actions [
+        edt:action "startEmergencyResponse" ;
+        edt:action "notifyClientImmediately" ;
+        edt:action "prepareUrgentMotion" ;
+        edt:action "suspendConflictingActivities"
+    ] ;
+    edt:priority 10 ;
+    edt:responseTime "PT15M"^^xsd:duration .
+
+edt:SanctionsTrigger a edt:EmergencyTrigger ;
+    rdfs:label "Sanctions Trigger" ;
+    rdfs:comment "Trigger for court sanctions events" ;
+    edt:triggerId "SANCTIONS_TRIGGER" ;
+    edt:eventType edt:OrderIssued ;
+    edt:conditions [
+        edt:condition "orderType == 'SANCTIONS'" ;
+        edt:condition "sanctionTarget == 'CLIENT_COUNSEL'"
+    ] ;
+    edt:actions [
+        edt:action "startSanctionsResponse" ;
+        edt:action "evaluateAppealOptions" ;
+        edt:action "preserveRecord"
+    ] ;
+    edt:priority 10 .
+
+# ============================================================================
+# TRIGGER EVALUATION ENGINE
+# ============================================================================
+
+edt:TriggerEvaluationEngine a owl:Class ;
+    rdfs:label "Trigger Evaluation Engine" ;
+    rdfs:comment "Real-time trigger evaluation and activation engine" ;
+    edt:processingMode edt:StreamProcessing ;
+    edt:evaluationLatency "PT0.05S"^^xsd:duration ;
+    edt:throughput 50000 ;
+    edt:concurrentEvaluations 100 .
+
+# Event Stream Processing
+edt:EventStream a owl:Class ;
+    rdfs:label "Event Stream" ;
+    rdfs:comment "Continuous stream of legal events" ;
+    edt:streamId xsd:string ;
+    edt:eventRate xsd:integer ;
+    edt:bufferSize 10000 ;
+    edt:retentionPeriod "P1D"^^xsd:duration .
+
+edt:LegalEventStream a edt:EventStream ;
+    rdfs:label "Legal Event Stream" ;
+    edt:streamId "LEGAL_EVENTS" ;
+    edt:eventSources edt:CourtSystemAPI, edt:DocumentManagementSystem, 
+                     edt:EvidenceVault, edt:CalendarSystem, edt:EmailSystem ;
+    edt:eventTypes edt:DocumentEvent, edt:CourtEvent, edt:DeadlineEvent,
+                   edt:EvidenceEvent, edt:OpponentEvent, edt:EthicsEvent .
+
+# Trigger Registry
+edt:TriggerRegistry a owl:Class ;
+    rdfs:label "Trigger Registry" ;
+    rdfs:comment "Registry of all active triggers" ;
+    edt:registrySize 1000 ;
+    edt:activeTriggers xsd:integer ;
+    edt:disabledTriggers xsd:integer .
+
+# Event Pattern Matcher
+edt:EventPatternMatcher a owl:Class ;
+    rdfs:label "Event Pattern Matcher" ;
+    rdfs:comment "Complex event pattern matching engine" ;
+    edt:patternTypes edt:SequencePattern, edt:CountPattern, edt:CorrelationPattern,
+                     edt:TimeWindowPattern, edt:AggregationPattern ;
+    edt:matchingAlgorithm edt:FiniteAutomaton ;
+    edt:maxPatternComplexity 10 .
+
+# ============================================================================
+# WORKFLOW AUTOMATION INTEGRATION
+# ============================================================================
+
+# Campaign Launcher
+edt:CampaignLauncher a owl:Class ;
+    rdfs:label "Campaign Launcher" ;
+    rdfs:comment "Automated campaign launching service" ;
+    edt:launchLatency "PT1S"^^xsd:duration ;
+    edt:concurrentLaunches 20 ;
+    edt:failureRetryCount 3 .
+
+# Workflow Activation
+edt:WorkflowActivation a owl:Class ;
+    rdfs:label "Workflow Activation" ;
+    rdfs:comment "Activation record for triggered workflows" ;
+    edt:activationId xsd:string ;
+    edt:triggerId xsd:string ;
+    edt:campaignType xsd:string ;
+    edt:priority xsd:integer ;
+    edt:activationTime xsd:dateTime ;
+    edt:expectedDuration xsd:duration ;
+    edt:resourceRequirements rdf:List .
+
+# Swarm Coordination Integration
+edt:SwarmCoordinator a owl:Class ;
+    rdfs:label "Swarm Coordinator" ;
+    rdfs:comment "Coordinates triggered campaigns with swarm execution" ;
+    edt:coordinationProtocol edt:BitActorMessaging ;
+    edt:swarmTypes edt:ContradictionSwarm, edt:FilingSwarm, edt:BarSwarm,
+                   edt:IPSwarm, edt:PacketSwarm, edt:MonitorSwarm ;
+    edt:coordinationLatency "PT0.5S"^^xsd:duration .
+
+# ============================================================================
+# MONITORING AND ALERTING
+# ============================================================================
+
+# Trigger Performance Monitoring
+edt:TriggerMonitoring a owl:Class ;
+    rdfs:label "Trigger Performance Monitoring" ;
+    rdfs:comment "Performance monitoring for trigger system" ;
+    edt:metricsCollection edt:RealTime ;
+    edt:metrics edt:TriggerLatency, edt:EvaluationRate, edt:ActivationRate,
+                edt:FalsePositiveRate, edt:FalseNegativeRate .
+
+# Alert Configuration
+edt:AlertConfiguration a owl:Class ;
+    rdfs:label "Alert Configuration" ;
+    rdfs:comment "Configuration for trigger system alerts" ;
+    edt:alertChannels edt:Email, edt:SMS, edt:Slack, edt:Dashboard ;
+    edt:escalationLevels edt:Info, edt:Warning, edt:Critical, edt:Emergency ;
+    edt:alertThresholds [
+        edt:metric edt:TriggerLatency ;
+        edt:warningThreshold "PT1S"^^xsd:duration ;
+        edt:criticalThreshold "PT5S"^^xsd:duration
+    ], [
+        edt:metric edt:FalsePositiveRate ;
+        edt:warningThreshold "0.05"^^xsd:decimal ;
+        edt:criticalThreshold "0.1"^^xsd:decimal
+    ] .
+
+# System Health Dashboard
+edt:TriggerDashboard a owl:Class ;
+    rdfs:label "Trigger System Dashboard" ;
+    rdfs:comment "Real-time dashboard for trigger system monitoring" ;
+    edt:refreshRate "PT1S"^^xsd:duration ;
+    edt:displayMetrics edt:ActiveTriggers, edt:EventRate, edt:CampaignLaunches,
+                       edt:SystemLatency, edt:ErrorRate ;
+    edt:historicalData "P7D"^^xsd:duration .
+
+# ============================================================================
+# PROPERTIES AND RELATIONSHIPS
+# ============================================================================
+
+# Object Properties
+edt:triggersEvent rdf:type owl:ObjectProperty ;
+    rdfs:label "triggers event" ;
+    rdfs:comment "Event that activates this trigger" ;
+    rdfs:domain edt:Trigger ;
+    rdfs:range edt:Event .
+
+edt:triggersCampaign rdf:type owl:ObjectProperty ;
+    rdfs:label "triggers campaign" ;
+    rdfs:comment "Campaign triggered by this event" ;
+    rdfs:domain edt:Event ;
+    rdfs:range ts:CampaignType .
+
+edt:hasCondition rdf:type owl:ObjectProperty ;
+    rdfs:label "has condition" ;
+    rdfs:comment "Condition for trigger activation" ;
+    rdfs:domain edt:Trigger .
+
+edt:hasAction rdf:type owl:ObjectProperty ;
+    rdfs:label "has action" ;
+    rdfs:comment "Action executed when trigger activates" ;
+    rdfs:domain edt:Trigger .
+
+# Data Properties
+edt:eventCode rdf:type owl:DatatypeProperty ;
+    rdfs:label "event code" ;
+    rdfs:comment "Unique code for event type" ;
+    rdfs:domain edt:Event ;
+    rdfs:range xsd:string .
+
+edt:triggerId rdf:type owl:DatatypeProperty ;
+    rdfs:label "trigger ID" ;
+    rdfs:comment "Unique identifier for trigger" ;
+    rdfs:domain edt:Trigger ;
+    rdfs:range xsd:string .
+
+edt:priority rdf:type owl:DatatypeProperty ;
+    rdfs:label "priority" ;
+    rdfs:comment "Priority level (1-10)" ;
+    rdfs:range xsd:integer .
+
+edt:activationCount rdf:type owl:DatatypeProperty ;
+    rdfs:label "activation count" ;
+    rdfs:comment "Number of times trigger has activated" ;
+    rdfs:domain edt:Trigger ;
+    rdfs:range xsd:integer .
+
+edt:lastActivation rdf:type owl:DatatypeProperty ;
+    rdfs:label "last activation" ;
+    rdfs:comment "Timestamp of last trigger activation" ;
+    rdfs:domain edt:Trigger ;
+    rdfs:range xsd:dateTime .
+
+edt:cooldownPeriod rdf:type owl:DatatypeProperty ;
+    rdfs:label "cooldown period" ;
+    rdfs:comment "Minimum time between trigger activations" ;
+    rdfs:domain edt:Trigger ;
+    rdfs:range xsd:duration .
+
+edt:responseTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "response time" ;
+    rdfs:comment "Maximum response time for trigger handling" ;
+    rdfs:domain edt:Trigger ;
+    rdfs:range xsd:duration .

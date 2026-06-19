@@ -1,0 +1,106 @@
+@prefix : <https://bytestar.org/ontology/byteethos/governance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+@prefix doctrines: <https://bytestar.org/ontology/doctrines#> .
+@prefix spr: <http://bytestar.net/ontology/spr_calculus#> .
+
+<https://bytestar.org/ontology/byteethos/governance>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/byteethos/governance/v1.0> ;
+    rdfs:comment "Ontology defining the governance rules, identity crystals, and capability management within the ByteEthos realm." ;
+    owl:imports arch: ,
+                doctrines: ,
+                spr: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:GovernanceRule rdf:type owl:Class ;
+    rdfs:comment "A formal rule governing behavior or decision-making within ByteEthos." .
+
+:QuorumRule rdf:type owl:Class ;
+    rdfs:subClassOf :GovernanceRule ;
+    rdfs:comment "A rule defining the minimum number of participants required for a decision." .
+
+:IdentityCrystal rdf:type owl:Class ;
+    rdfs:comment "A non-transferable, PQC-secured digital identity (Soulbound Token)." .
+
+:Capability rdf:type owl:Class ;
+    rdfs:comment "A time-boxed, purpose-scoped authorization token minted by an organization." .
+
+:CapabilityMinting rdf:type owl:Class ;
+    rdfs:comment "The process of issuing new capabilities." .
+
+:SegregationOfDutiesMatrix rdf:type owl:Class ;
+    rdfs:comment "A matrix defining incompatible roles or permissions to prevent conflicts of interest." .
+
+:GovernanceProposal rdf:type owl:Class ;
+    rdfs:comment "A formal proposal submitted for governance decision-making." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:definesRule rdf:type owl:ObjectProperty ;
+    rdfs:domain :GovernanceProposal ;
+    rdfs:range :GovernanceRule ;
+    rdfs:comment "A governance proposal defines a rule." .
+
+:requiresQuorum rdf:type owl:ObjectProperty ;
+    rdfs:domain :GovernanceRule ;
+    rdfs:range :QuorumRule ;
+    rdfs:comment "A governance rule requires a specific quorum." .
+
+:mintsCapability rdf:type owl:ObjectProperty ;
+    rdfs:domain :CapabilityMinting ;
+    rdfs:range :Capability ;
+    rdfs:comment "The process of minting a specific capability." .
+
+:issuedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Capability ;
+    rdfs:range :IdentityCrystal ;
+    rdfs:comment "A capability is issued by an IdentityCrystal (organization)." .
+
+:enforcesSoD rdf:type owl:ObjectProperty ;
+    rdfs:domain :GovernanceRule ;
+    rdfs:range :SegregationOfDutiesMatrix ;
+    rdfs:comment "A governance rule enforces a Segregation of Duties matrix." .
+
+:governs rdf:type owl:ObjectProperty ;
+    rdfs:domain :GovernanceRule ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "A governance rule governs a specific resource or process." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:hasThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:domain :QuorumRule ;
+    rdfs:range xsd:float ;
+    rdfs:comment "The numerical threshold for a quorum (e.g., 0.67 for 67%)." .
+
+:isNonTransferable rdf:type owl:DatatypeProperty ;
+    rdfs:domain :IdentityCrystal ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if an IdentityCrystal is non-transferable." .
+
+:isTimeBoxed rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Capability ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if a capability is time-boxed." .
+
+:isPurposeScoped rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Capability ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Indicates if a capability is purpose-scoped." .
+
+:hasSoDConflict rdf:type owl:DatatypeProperty ;
+    rdfs:domain :SegregationOfDutiesMatrix ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Describes a conflict defined within the SoD matrix." .
+

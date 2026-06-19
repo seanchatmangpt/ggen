@@ -1,0 +1,279 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix attest: <http://kgen.dfllss.org/ontology/attest/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Attestation Shape
+attest:AttestationShape
+    a sh:NodeShape ;
+    sh:targetClass attest:Attestation ;
+    sh:property [
+        sh:path attest:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attestation must have exactly one timestamp" ;
+    ] ;
+    sh:property [
+        sh:path attest:version ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Attestation version must follow semantic versioning (e.g., 1.0.0)" ;
+    ] ;
+    sh:property [
+        sh:path attest:attestsTo ;
+        sh:class attest:GenerationRecord ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attestation must attest to exactly one generation record" ;
+    ] .
+
+# Generation Record Shape
+attest:GenerationRecordShape
+    a sh:NodeShape ;
+    sh:targetClass attest:GenerationRecord ;
+    sh:property [
+        sh:path attest:generatedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Generation record must have exactly one generation timestamp" ;
+    ] ;
+    sh:property [
+        sh:path attest:generationTool ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^kgen$" ;
+        sh:message "Generation tool must be 'kgen'" ;
+    ] ;
+    sh:property [
+        sh:path attest:toolVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$" ;
+        sh:message "Tool version must follow semantic versioning" ;
+    ] ;
+    sh:property [
+        sh:path attest:isDeterministic ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Generation record must specify if generation was deterministic" ;
+    ] ;
+    sh:property [
+        sh:path attest:usedTemplate ;
+        sh:class attest:Template ;
+        sh:minCount 1 ;
+        sh:message "Generation record must reference at least one template" ;
+    ] ;
+    sh:property [
+        sh:path attest:producedOutput ;
+        sh:class attest:Output ;
+        sh:minCount 1 ;
+        sh:message "Generation record must reference at least one output file" ;
+    ] ;
+    sh:property [
+        sh:path attest:inEnvironment ;
+        sh:class attest:Environment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Generation record must reference exactly one environment" ;
+    ] .
+
+# Hash Shape
+attest:HashShape
+    a sh:NodeShape ;
+    sh:targetClass attest:Hash ;
+    sh:property [
+        sh:path attest:algorithm ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "SHA-256" "SHA-512" "Blake3" ) ;
+        sh:message "Hash algorithm must be SHA-256, SHA-512, or Blake3" ;
+    ] ;
+    sh:property [
+        sh:path attest:value ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64,128}$" ;
+        sh:message "Hash value must be 64-128 character hexadecimal string" ;
+    ] .
+
+# Template Shape
+attest:TemplateShape
+    a sh:NodeShape ;
+    sh:targetClass attest:Template ;
+    sh:property [
+        sh:path attest:fileName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+\\.(hbs|handlebars|mustache|liquid)$" ;
+        sh:message "Template file name must end with valid template extension" ;
+    ] ;
+    sh:property [
+        sh:path attest:filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+$" ;
+        sh:message "Template file path must be valid" ;
+    ] ;
+    sh:property [
+        sh:path attest:fileSize ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Template file size must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path attest:mimeType ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^text/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*$" ;
+        sh:message "Template MIME type must be text/* format" ;
+    ] ;
+    sh:property [
+        sh:path attest:hasHash ;
+        sh:class attest:Hash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Template must have exactly one hash" ;
+    ] .
+
+# Input Shape
+attest:InputShape
+    a sh:NodeShape ;
+    sh:targetClass attest:Input ;
+    sh:property [
+        sh:path attest:fileName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+$" ;
+        sh:message "Input file name must be valid" ;
+    ] ;
+    sh:property [
+        sh:path attest:filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+$" ;
+        sh:message "Input file path must be valid" ;
+    ] ;
+    sh:property [
+        sh:path attest:fileSize ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Input file size must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path attest:hasHash ;
+        sh:class attest:Hash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Input must have exactly one hash" ;
+    ] .
+
+# Output Shape
+attest:OutputShape
+    a sh:NodeShape ;
+    sh:targetClass attest:Output ;
+    sh:property [
+        sh:path attest:fileName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+$" ;
+        sh:message "Output file name must be valid" ;
+    ] ;
+    sh:property [
+        sh:path attest:filePath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+$" ;
+        sh:message "Output file path must be valid" ;
+    ] ;
+    sh:property [
+        sh:path attest:fileSize ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Output file size must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path attest:mimeType ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z][a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$" ;
+        sh:message "Output MIME type must be valid format" ;
+    ] ;
+    sh:property [
+        sh:path attest:hasHash ;
+        sh:class attest:Hash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Output must have exactly one hash" ;
+    ] .
+
+# Environment Shape
+attest:EnvironmentShape
+    a sh:NodeShape ;
+    sh:targetClass attest:Environment ;
+    sh:property [
+        sh:path attest:nodeVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^v\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "Node version must be in format vX.Y.Z" ;
+    ] ;
+    sh:property [
+        sh:path attest:platform ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "darwin" "linux" "win32" "freebsd" "openbsd" ) ;
+        sh:message "Platform must be one of: darwin, linux, win32, freebsd, openbsd" ;
+    ] ;
+    sh:property [
+        sh:path attest:architecture ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "x64" "arm64" "arm" "ia32" ) ;
+        sh:message "Architecture must be one of: x64, arm64, arm, ia32" ;
+    ] ;
+    sh:property [
+        sh:path attest:workingDirectory ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^<>:\"|?*]+$" ;
+        sh:message "Working directory must be a valid path" ;
+    ] ;
+    sh:property [
+        sh:path attest:gitCommit ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{40}$" ;
+        sh:message "Git commit must be 40-character SHA-1 hash" ;
+    ] ;
+    sh:property [
+        sh:path attest:gitBranch ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._/-]+$" ;
+        sh:message "Git branch must be valid branch name" ;
+    ] .

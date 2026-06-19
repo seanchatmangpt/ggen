@@ -1,0 +1,33 @@
+@prefix :        <https://bytestar.org/ontology/bytecore/abi/kernel#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore:   <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/bytecore/abi/kernel>
+  a owl:Ontology ;
+  rdfs:label "ByteCore Kernel Calling Convention (K-ABI)" ;
+  rdfs:comment "Defines the formal properties and constraints for all 64 ByteActor kernels." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.2.0" .
+
+:KernelABI a owl:Class ;
+    rdfs:subClassOf bcore:ABI ;
+    rdfs:label "Kernel Calling Convention ABI" .
+
+# All Kernels must conform to this ABI
+bcore:Kernel rdfs:subClassOf [ a owl:Restriction ; owl:onProperty bcore:conformsTo ; owl:hasValue :KernelABI ] .
+
+# Formal Properties from the Specification
+:isBranchFree a owl:DatatypeProperty ; rdfs:domain bcore:Kernel ; rdfs:range xsd:boolean .
+:isConstantTime a owl:DatatypeProperty ; rdfs:domain bcore:Kernel ; rdfs:range xsd:boolean .
+:isL1Resident a owl:DatatypeProperty ; rdfs:domain bcore:Kernel ; rdfs:range xsd:boolean .
+:hasNoHeapAllocation a owl:DatatypeProperty ; rdfs:domain bcore:Kernel ; rdfs:range xsd:boolean .
+:hasMaxTickCost a owl:DatatypeProperty ; rdfs:domain bcore:Kernel ; rdfs:range xsd:integer .
+
+# Universal constraints on all kernels
+bcore:Kernel rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty :isBranchFree ; owl:hasValue true ] ,
+    [ a owl:Restriction ; owl:onProperty :isConstantTime ; owl:hasValue true ] ,
+    [ a owl:Restriction ; owl:onProperty :isL1Resident ; owl:hasValue true ] ,
+    [ a owl:Restriction ; owl:onProperty :hasNoHeapAllocation ; owl:hasValue true ] ,
+    [ a owl:Restriction ; owl:onProperty :hasMaxTickCost ; owl:hasValue 8 ] .

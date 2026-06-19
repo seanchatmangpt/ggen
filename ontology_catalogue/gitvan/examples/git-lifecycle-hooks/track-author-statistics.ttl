@@ -1,0 +1,477 @@
+@prefix ex: <http://example.org/gitvan/hooks/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix git: <https://gitvan.dev/git#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# Track Author Statistics Hook
+# =============================================================================
+#
+# USE CASE:
+# Automatically update developer metrics on each commit
+# Tracks productivity, code quality, and contribution patterns over time
+#
+# TRIGGERS ON:
+# - post-commit (after each commit)
+# - daily-rollup (aggregate daily statistics)
+#
+# SUCCESS CRITERIA:
+# - Captures commit frequency and size metrics
+# - Tracks languages and file types
+# - Measures code churn and quality indicators
+# - Generates developer dashboards and insights
+#
+# INSTALLATION:
+# 1. Copy to .gitvan/hooks/track-author-statistics.ttl
+# 2. Initialize metrics database:
+#    gitvan metrics init
+# 3. Configure aggregation periods:
+#    git config gitvan.metrics.daily true
+#    git config gitvan.metrics.weekly true
+# 4. Enable hook: gitvan hooks enable track-author-statistics
+#
+# =============================================================================
+
+ex:track-author-statistics-hook rdf:type gh:Hook ;
+    rdfs:label "Track Author Statistics" ;
+    gv:title "Developer Metrics and Contribution Tracking" ;
+    rdfs:comment "Automatically tracks and aggregates developer contribution metrics" ;
+    gh:hookType "post-commit" ;
+    gh:priority 25 ;
+    gh:enabled true ;
+    gh:hasPredicate ex:commit-event-predicate ;
+    gh:orderedPipelines ex:metrics-tracking-pipeline .
+
+# =============================================================================
+# ASK Predicate - Triggers on Every Commit
+# =============================================================================
+ex:commit-event-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        ASK WHERE {
+            # Detect any new commit
+            ?commit rdf:type git:Commit ;
+                    git:timestamp ?time .
+
+            # Only recent commits (last 5 minutes)
+            BIND(NOW() - ?time AS ?age)
+            FILTER(?age < "PT5M"^^xsd:duration)
+        }
+    """ ;
+    gh:description "Triggers on every commit to track author metrics" .
+
+# =============================================================================
+# Pipeline - Metrics Tracking and Aggregation
+# =============================================================================
+ex:metrics-tracking-pipeline rdf:type op:Pipeline ;
+    rdfs:label "Author Metrics Tracking Pipeline" ;
+    op:steps (
+        ex:capture-commit-metrics,
+        ex:analyze-code-changes,
+        ex:calculate-quality-indicators,
+        ex:update-author-statistics,
+        ex:aggregate-team-metrics,
+        ex:generate-metrics-dashboard
+    ) .
+
+# =============================================================================
+# Step 1: Capture Commit Metrics
+# =============================================================================
+ex:capture-commit-metrics rdf:type gv:SparqlStep ;
+    rdfs:label "Capture Commit-Level Metrics" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?commit ?sha ?author ?authorEmail ?timestamp ?message
+               ?linesAdded ?linesDeleted ?filesChanged ?branch WHERE {
+            # Get recent commit
+            ?commit rdf:type git:Commit ;
+                    git:sha ?sha ;
+                    git:author ?author ;
+                    git:authorEmail ?authorEmail ;
+                    git:timestamp ?timestamp ;
+                    git:message ?message ;
+                    git:linesAdded ?linesAdded ;
+                    git:linesDeleted ?linesDeleted ;
+                    git:filesChanged ?filesChanged ;
+                    git:onBranch ?branch .
+
+            # Recent commits only
+            BIND(NOW() - ?timestamp AS ?age)
+            FILTER(?age < "PT5M"^^xsd:duration)
+        }
+        ORDER BY DESC(?timestamp)
+        LIMIT 1
+    """ ;
+    gv:outputMapping '{
+        "commitSha": "results[0].sha.value",
+        "shortSha": "results[0].sha.value.substring(0, 7)",
+        "author": "results[0].author.value",
+        "authorEmail": "results[0].authorEmail.value",
+        "timestamp": "results[0].timestamp.value",
+        "message": "results[0].message.value",
+        "linesAdded": "parseInt(results[0].linesAdded.value)",
+        "linesDeleted": "parseInt(results[0].linesDeleted.value)",
+        "totalLines": "parseInt(results[0].linesAdded.value) + parseInt(results[0].linesDeleted.value)",
+        "filesChanged": "parseInt(results[0].filesChanged.value)",
+        "branch": "results[0].branch.value",
+        "date": "new Date(results[0].timestamp.value).toISOString().split(\"T\")[0]",
+        "hour": "new Date(results[0].timestamp.value).getHours()",
+        "dayOfWeek": "new Date(results[0].timestamp.value).getDay()"
+    }' .
+
+# =============================================================================
+# Step 2: Analyze Code Changes
+# =============================================================================
+ex:analyze-code-changes rdf:type gv:SparqlStep ;
+    rdfs:label "Analyze Code Change Patterns" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?language ?fileType ?changeType
+               (COUNT(?change) AS ?fileCount)
+               (SUM(?added) AS ?addedInType)
+               (SUM(?deleted) AS ?deletedInType) WHERE {
+            ?commit git:hasChange ?change .
+
+            ?change git:filePath ?path ;
+                    git:linesAdded ?added ;
+                    git:linesDeleted ?deleted ;
+                    git:changeType ?changeType .
+
+            # Extract file extension and infer language
+            BIND(REPLACE(?path, "^.+\\.([^.]+)$", "$1") AS ?fileType)
+
+            BIND(
+                IF(?fileType IN ("js", "mjs", "cjs"), "JavaScript",
+                IF(?fileType IN ("ts", "tsx"), "TypeScript",
+                IF(?fileType IN ("py", "pyi"), "Python",
+                IF(?fileType IN ("java"), "Java",
+                IF(?fileType IN ("go"), "Go",
+                IF(?fileType IN ("rs"), "Rust",
+                IF(?fileType IN ("c", "h"), "C",
+                IF(?fileType IN ("cpp", "hpp"), "C++",
+                IF(?fileType IN ("rb"), "Ruby",
+                IF(?fileType IN ("php"), "PHP",
+                IF(?fileType IN ("md", "mdx"), "Markdown",
+                IF(?fileType IN ("json", "yaml", "yml", "toml"), "Config",
+                "Other"))))))))))))
+                AS ?language
+            )
+        }
+        GROUP BY ?language ?fileType ?changeType
+        ORDER BY DESC(?fileCount)
+    """ ;
+    gv:outputMapping '{
+        "languages": "results.map(r => r.language.value)",
+        "primaryLanguage": "results[0]?.language.value || \"Unknown\"",
+        "fileTypes": "results.map(r => ({ type: r.fileType.value, count: parseInt(r.fileCount.value) }))",
+        "changeTypes": "results.map(r => r.changeType.value)",
+        "hasTests": "results.some(r => r.filePath?.value.includes(\"test\") || r.filePath?.value.includes(\"spec\"))",
+        "hasDocs": "results.some(r => r.language.value === \"Markdown\")",
+        "languageBreakdown": "results.reduce((acc, r) => ({ ...acc, [r.language.value]: (acc[r.language.value] || 0) + parseInt(r.fileCount.value) }), {})"
+    }' ;
+    gv:dependsOn ex:capture-commit-metrics .
+
+# =============================================================================
+# Step 3: Calculate Quality Indicators
+# =============================================================================
+ex:calculate-quality-indicators rdf:type gv:SparqlStep ;
+    rdfs:label "Calculate Code Quality Indicators" ;
+    gv:text """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?codeChurn ?testCoverage ?docCoverage ?reviewScore WHERE {
+            ?commit rdf:type git:Commit .
+
+            # Code churn (lines deleted / total lines)
+            ?commit git:linesAdded ?added ;
+                    git:linesDeleted ?deleted .
+            BIND(IF(?added + ?deleted > 0,
+                    ?deleted / (?added + ?deleted),
+                    0) AS ?codeChurn)
+
+            # Test file ratio
+            {
+                SELECT (COUNT(?testFile) AS ?testCount)
+                       (COUNT(?totalFile) AS ?totalCount) WHERE {
+                    ?commit git:hasChange ?change .
+                    ?change git:filePath ?path .
+                    BIND(?change AS ?totalFile)
+                    OPTIONAL {
+                        FILTER(REGEX(?path, "test|spec", "i"))
+                        BIND(?change AS ?testFile)
+                    }
+                }
+            }
+            BIND(IF(?totalCount > 0,
+                    COALESCE(?testCount, 0) / ?totalCount,
+                    0) AS ?testCoverage)
+
+            # Documentation file ratio
+            {
+                SELECT (COUNT(?docFile) AS ?docCount) WHERE {
+                    ?commit git:hasChange ?change .
+                    ?change git:filePath ?path .
+                    FILTER(REGEX(?path, "\\.(md|mdx|rst|txt)$", "i"))
+                    BIND(?change AS ?docFile)
+                }
+            }
+            BIND(IF(?totalCount > 0,
+                    COALESCE(?docCount, 0) / ?totalCount,
+                    0) AS ?docCoverage)
+
+            # Calculate overall quality score (0-100)
+            BIND(
+                (IF(?testCoverage > 0.2, 30, ?testCoverage * 150)) +
+                (IF(?docCoverage > 0.1, 20, ?docCoverage * 200)) +
+                (IF(?codeChurn < 0.5, 30, (1 - ?codeChurn) * 60)) +
+                (IF(?added + ?deleted < 500, 20, 20 - ((?added + ?deleted - 500) / 100)))
+                AS ?reviewScore
+            )
+        }
+    """ ;
+    gv:outputMapping '{
+        "codeChurn": "parseFloat(results[0].codeChurn.value).toFixed(2)",
+        "testCoverage": "(parseFloat(results[0].testCoverage.value) * 100).toFixed(1)",
+        "docCoverage": "(parseFloat(results[0].docCoverage.value) * 100).toFixed(1)",
+        "qualityScore": "Math.min(100, Math.max(0, Math.round(parseFloat(results[0].reviewScore.value))))",
+        "qualityGrade": "parseFloat(results[0].reviewScore.value) >= 80 ? \"A\" : parseFloat(results[0].reviewScore.value) >= 60 ? \"B\" : parseFloat(results[0].reviewScore.value) >= 40 ? \"C\" : \"D\""
+    }' ;
+    gv:dependsOn ex:analyze-code-changes .
+
+# =============================================================================
+# Step 4: Update Author Statistics
+# =============================================================================
+ex:update-author-statistics rdf:type gv:SparqlStep ;
+    rdfs:label "Update Author Lifetime Statistics" ;
+    gv:updateQuery """
+        PREFIX git: <https://gitvan.dev/git#>
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX metrics: <https://gitvan.dev/metrics#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        DELETE {
+            ?authorNode metrics:totalCommits ?oldCommits ;
+                       metrics:totalLinesAdded ?oldAdded ;
+                       metrics:totalLinesDeleted ?oldDeleted ;
+                       metrics:totalFilesChanged ?oldFiles ;
+                       metrics:lastCommitAt ?oldLastCommit ;
+                       metrics:avgQualityScore ?oldQuality .
+        }
+        INSERT {
+            ?authorNode rdf:type metrics:Author ;
+                       metrics:name "{{ author }}" ;
+                       metrics:email "{{ authorEmail }}" ;
+                       metrics:totalCommits ?newCommits ;
+                       metrics:totalLinesAdded ?newAdded ;
+                       metrics:totalLinesDeleted ?newDeleted ;
+                       metrics:totalFilesChanged ?newFiles ;
+                       metrics:primaryLanguage "{{ primaryLanguage }}" ;
+                       metrics:lastCommitAt "{{ timestamp }}"^^xsd:dateTime ;
+                       metrics:avgCommitSize ?avgSize ;
+                       metrics:avgQualityScore ?newQuality ;
+                       metrics:updatedAt NOW() .
+
+            # Record this commit
+            <urn:metrics:commit:{{ commitSha }}> rdf:type metrics:CommitRecord ;
+                metrics:sha "{{ commitSha }}" ;
+                metrics:author ?authorNode ;
+                metrics:timestamp "{{ timestamp }}"^^xsd:dateTime ;
+                metrics:linesAdded {{ linesAdded }} ;
+                metrics:linesDeleted {{ linesDeleted }} ;
+                metrics:filesChanged {{ filesChanged }} ;
+                metrics:branch "{{ branch }}" ;
+                metrics:qualityScore {{ qualityScore }} ;
+                metrics:codeChurn {{ codeChurn }} .
+        }
+        WHERE {
+            BIND(<urn:metrics:author:{{ authorEmail }}> AS ?authorNode)
+
+            # Get existing statistics or initialize
+            OPTIONAL { ?authorNode metrics:totalCommits ?oldCommits }
+            OPTIONAL { ?authorNode metrics:totalLinesAdded ?oldAdded }
+            OPTIONAL { ?authorNode metrics:totalLinesDeleted ?oldDeleted }
+            OPTIONAL { ?authorNode metrics:totalFilesChanged ?oldFiles }
+            OPTIONAL { ?authorNode metrics:lastCommitAt ?oldLastCommit }
+            OPTIONAL { ?authorNode metrics:avgQualityScore ?oldQuality }
+
+            # Calculate new totals
+            BIND(COALESCE(?oldCommits, 0) + 1 AS ?newCommits)
+            BIND(COALESCE(?oldAdded, 0) + {{ linesAdded }} AS ?newAdded)
+            BIND(COALESCE(?oldDeleted, 0) + {{ linesDeleted }} AS ?newDeleted)
+            BIND(COALESCE(?oldFiles, 0) + {{ filesChanged }} AS ?newFiles)
+
+            # Calculate running averages
+            BIND((?newAdded + ?newDeleted) / ?newCommits AS ?avgSize)
+            BIND((COALESCE(?oldQuality, 0) * COALESCE(?oldCommits, 0) + {{ qualityScore }}) / ?newCommits AS ?newQuality)
+        }
+    """ ;
+    gv:dependsOn ex:calculate-quality-indicators .
+
+# =============================================================================
+# Step 5: Aggregate Team Metrics
+# =============================================================================
+ex:aggregate-team-metrics rdf:type gv:SparqlStep ;
+    rdfs:label "Aggregate Team-Wide Metrics" ;
+    gv:text """
+        PREFIX metrics: <https://gitvan.dev/metrics#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?totalCommitsToday ?totalAuthorsToday ?avgQualityToday
+               (SUM(?linesAdded) AS ?totalAdded)
+               (SUM(?linesDeleted) AS ?totalDeleted) WHERE {
+            ?commit rdf:type metrics:CommitRecord ;
+                    metrics:timestamp ?time ;
+                    metrics:author ?author ;
+                    metrics:qualityScore ?quality ;
+                    metrics:linesAdded ?linesAdded ;
+                    metrics:linesDeleted ?linesDeleted .
+
+            # Today's commits only
+            FILTER(STRSTARTS(STR(?time), "{{ date }}"))
+        }
+        GROUP BY ?totalCommitsToday ?totalAuthorsToday ?avgQualityToday
+    """ ;
+    gv:outputMapping '{
+        "teamCommitsToday": "results[0] ? results.length : 0",
+        "teamAuthorsToday": "results[0] ? new Set(results.map(r => r.author.value)).size : 0",
+        "teamLinesAdded": "results[0] ? parseInt(results[0].totalAdded.value) : 0",
+        "teamLinesDeleted": "results[0] ? parseInt(results[0].totalDeleted.value) : 0",
+        "teamAvgQuality": "results[0] ? (results.reduce((sum, r) => sum + parseFloat(r.quality.value), 0) / results.length).toFixed(1) : 0"
+    }' ;
+    gv:dependsOn ex:update-author-statistics .
+
+# =============================================================================
+# Step 6: Generate Metrics Dashboard
+# =============================================================================
+ex:generate-metrics-dashboard rdf:type gv:TemplateStep ;
+    rdfs:label "Generate Author Metrics Dashboard" ;
+    gv:text """
+# Developer Metrics Dashboard
+
+**Generated:** {{ "now" | date("YYYY-MM-DD HH:mm:ss") }}
+**Hook:** Track Author Statistics
+**Date:** {{ date }}
+
+## Latest Commit
+
+- **Author:** {{ author }}
+- **SHA:** `{{ shortSha }}`
+- **Branch:** {{ branch }}
+- **Time:** {{ timestamp | date("HH:mm:ss") }}
+- **Message:** {{ message }}
+
+### Commit Metrics
+- **Lines Added:** +{{ linesAdded }}
+- **Lines Deleted:** -{{ linesDeleted }}
+- **Total Lines:** {{ totalLines }}
+- **Files Changed:** {{ filesChanged }}
+- **Primary Language:** {{ primaryLanguage }}
+
+### Quality Indicators
+- **Quality Score:** {{ qualityScore }}/100 (Grade: {{ qualityGrade }})
+- **Code Churn:** {{ codeChurn }}
+- **Test Coverage:** {{ testCoverage }}%
+- **Doc Coverage:** {{ docCoverage }}%
+- **Has Tests:** {% if hasTests %}✅ Yes{% else %}❌ No{% endif %}
+- **Has Docs:** {% if hasDocs %}✅ Yes{% else %}❌ No{% endif %}
+
+## Author Statistics
+
+**Email:** {{ authorEmail }}
+
+### Contribution Patterns
+- **Preferred Language:** {{ primaryLanguage }}
+- **Active Hours:** Peak activity around {{ hour }}:00
+- **Day of Week:** {{ ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayOfWeek] }}
+
+### File Types Modified
+{% for fileType in fileTypes %}
+- {{ fileType.type }}: {{ fileType.count }} file(s)
+{% endfor %}
+
+### Languages Used
+{% for language in languages | unique %}
+- {{ language }}
+{% endfor %}
+
+## Team Metrics (Today)
+
+- **Total Commits:** {{ teamCommitsToday }}
+- **Active Developers:** {{ teamAuthorsToday }}
+- **Lines Added:** +{{ teamLinesAdded }}
+- **Lines Deleted:** -{{ teamLinesDeleted }}
+- **Team Avg Quality:** {{ teamAvgQuality }}/100
+
+## Insights
+
+{% if qualityScore >= 80 %}
+✅ **Excellent commit quality!** Well-tested, documented, and focused.
+{% elif qualityScore >= 60 %}
+✅ **Good commit quality.** Consider adding more tests or documentation.
+{% elif qualityScore >= 40 %}
+⚠️ **Moderate quality.** Missing tests or documentation. Commit may be too large.
+{% else %}
+❌ **Low quality score.** Please add tests, reduce commit size, or improve documentation.
+{% endif %}
+
+{% if codeChurn > 0.7 %}
+⚠️ **High code churn detected** ({{ codeChurn }}). You're deleting a lot of code - ensure this is intentional.
+{% endif %}
+
+{% if totalLines > 1000 %}
+⚠️ **Large commit detected** ({{ totalLines }} lines). Consider splitting into smaller, focused commits.
+{% endif %}
+
+{% if !hasTests %}
+⚠️ **No test files included.** Consider adding tests for your changes.
+{% endif %}
+
+## Historical Trends
+
+Access full historical metrics:
+```bash
+# View your statistics
+gitvan metrics show {{ authorEmail }}
+
+# View team statistics
+gitvan metrics team --date {{ date }}
+
+# Generate weekly report
+gitvan metrics report --weekly
+```
+
+## Visualization
+
+View interactive dashboards:
+- Author Dashboard: `./reports/metrics/authors/{{ authorEmail }}.html`
+- Team Dashboard: `./reports/metrics/team/{{ date }}.html`
+
+---
+*Metrics automatically tracked by the Track Author Statistics Hook*
+*All metrics stored in the GitVan knowledge graph*
+    """ ;
+    gv:filePath "./reports/metrics/commits/{{ shortSha }}-{{ 'now' | date('YYYY-MM-DD-HH-mm-ss') }}.md" ;
+    gv:dependsOn ex:aggregate-team-metrics .
+
+# =============================================================================
+# Metadata
+# =============================================================================
+ex:track-author-statistics-hook
+    gv:version "1.0.0" ;
+    gv:author "GitVan Team" ;
+    gv:created "2025-12-03T00:00:00Z" ;
+    gv:tags "git", "metrics", "analytics", "productivity", "tracking" ;
+    gv:documentation "https://gitvan.dev/docs/hooks/track-author-statistics" .

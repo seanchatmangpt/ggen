@@ -1,0 +1,123 @@
+@prefix core: <https://cns.dev/core#> .
+@prefix perf: <https://cns.dev/performance#> .
+@prefix cns: <https://cns.dev/contracts#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Performance Contract Vocabulary Extensions for CNS
+
+# Core Performance Contract Class
+perf:PerformanceContract a rdfs:Class ;
+  rdfs:label "Performance Contract" ;
+  rdfs:comment "A deterministic performance contract with compile-time and runtime validation" ;
+  rdfs:subClassOf core:Module .
+
+# Performance Constraint Properties
+cns:maxTicks a rdf:Property ;
+  rdfs:label "Maximum CPU Ticks" ;
+  rdfs:comment "Maximum number of CPU ticks allowed for execution" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:nonNegativeInteger .
+
+cns:maxMemoryMB a rdf:Property ;
+  rdfs:label "Maximum Memory Megabytes" ;
+  rdfs:comment "Maximum memory consumption in megabytes" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:decimal .
+
+cns:maxLatencyMs a rdf:Property ;
+  rdfs:label "Maximum Latency Milliseconds" ;
+  rdfs:comment "Maximum execution latency in milliseconds" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:decimal .
+
+# Performance Measurement Properties
+perf:actualTicks a rdf:Property ;
+  rdfs:label "Actual CPU Ticks" ;
+  rdfs:comment "Measured CPU ticks during execution" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:nonNegativeInteger .
+
+perf:actualMemoryMB a rdf:Property ;
+  rdfs:label "Actual Memory Megabytes" ;
+  rdfs:comment "Measured memory consumption in megabytes" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:decimal .
+
+perf:actualLatencyMs a rdf:Property ;
+  rdfs:label "Actual Latency Milliseconds" ;
+  rdfs:comment "Measured execution latency in milliseconds" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:decimal .
+
+# Violation Types
+perf:ViolationType a rdfs:Class ;
+  rdfs:label "Performance Violation Type" ;
+  rdfs:comment "Type of performance contract violation" .
+
+perf:TicksViolation a perf:ViolationType ;
+  rdfs:label "CPU Ticks Violation" ;
+  rdfs:comment "CPU ticks exceeded contract limit" .
+
+perf:MemoryViolation a perf:ViolationType ;
+  rdfs:label "Memory Violation" ;
+  rdfs:comment "Memory usage exceeded contract limit" .
+
+perf:LatencyViolation a perf:ViolationType ;
+  rdfs:label "Latency Violation" ;
+  rdfs:comment "Execution latency exceeded contract limit" .
+
+# Contract Enforcement Levels
+perf:EnforcementLevel a rdfs:Class ;
+  rdfs:label "Contract Enforcement Level" ;
+  rdfs:comment "Level of performance contract enforcement" .
+
+perf:StaticOnly a perf:EnforcementLevel ;
+  rdfs:label "Static Analysis Only" ;
+  rdfs:comment "Contract validated at compile-time only" .
+
+perf:RuntimeWarning a perf:EnforcementLevel ;
+  rdfs:label "Runtime Warning" ;
+  rdfs:comment "Contract violations generate warnings" .
+
+perf:RuntimeException a perf:EnforcementLevel ;
+  rdfs:label "Runtime Exception" ;
+  rdfs:comment "Contract violations throw exceptions" .
+
+perf:RuntimeTerminate a perf:EnforcementLevel ;
+  rdfs:label "Runtime Terminate" ;
+  rdfs:comment "Contract violations terminate execution" .
+
+# Contract Enforcement Property
+perf:hasEnforcementLevel a rdf:Property ;
+  rdfs:label "Has Enforcement Level" ;
+  rdfs:comment "Defines how performance contract is enforced" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range perf:EnforcementLevel .
+
+# Static Analysis Properties
+perf:staticAnalysisResult a rdf:Property ;
+  rdfs:label "Static Analysis Result" ;
+  rdfs:comment "Result of compile-time contract analysis" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range rdfs:Literal .
+
+perf:hasComplexityClass a rdf:Property ;
+  rdfs:label "Has Complexity Class" ;
+  rdfs:comment "Algorithmic complexity class of the contract" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range rdfs:Literal .
+
+# Instrumentation Properties
+perf:hasInstrumentation a rdf:Property ;
+  rdfs:label "Has Instrumentation" ;
+  rdfs:comment "Indicates if runtime instrumentation is enabled" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:boolean .
+
+perf:instrumentationOverhead a rdf:Property ;
+  rdfs:label "Instrumentation Overhead" ;
+  rdfs:comment "Performance overhead of instrumentation as percentage" ;
+  rdfs:domain perf:PerformanceContract ;
+  rdfs:range xsd:decimal .

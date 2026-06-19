@@ -1,0 +1,39 @@
+# generate-cli-spec.rq
+# Comprehensive CLI specification generation query (CONSTRUCT with SELECT subquery)
+# Returns normalized, code-generation-ready RDF triples for the entire CLI
+# Output format: RDF graph of normalized command hierarchy with spec: predicates
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX cnv: <http://clap-noun-verb.io/ontology#>
+PREFIX ex: <http://clap-noun-verb.io/examples#>
+PREFIX spec: <http://clap-noun-verb.io/spec#>
+
+CONSTRUCT {
+  ?noun a spec:NounSpec ;
+    spec:nounName ?nounName ;
+    spec:nounDescription ?nounAbout ;
+    spec:hasVerbSpec ?verbRef .
+
+  ?verbRef a spec:VerbSpec ;
+    spec:verbName ?verbName ;
+    spec:verbDescription ?verbAbout ;
+    spec:parentNoun ?noun ;
+    spec:returnType ?returnType .
+}
+WHERE {
+  ?noun a cnv:Noun ;
+    cnv:hasNounName ?nounName .
+  OPTIONAL { ?noun cnv:nounAbout ?nounAbout . }
+  ?noun cnv:hasVerbs ?verb .
+  ?verb cnv:hasVerbName ?verbName .
+  OPTIONAL { ?verb cnv:verbAbout ?verbAbout . }
+  OPTIONAL { ?verb cnv:returnType ?returnType . }
+
+  # Create verb reference URI
+  BIND(IRI(CONCAT(STR(spec:), ?nounName, ":", ?verbName)) AS ?verbRef)
+}
+ORDER BY ?nounName ?verbName

@@ -1,0 +1,39 @@
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# HOOK LAW — Andon Gates (Deterministic Lifecycle Enforcement)
+# ============================================================================
+# Hooks are Claude Code Andon gates — deterministic enforcement points that enforce admission/refusal conditions at named lifecycle boundaries.
+# They run deterministically at specific events, not at model discretion.
+# ============================================================================
+
+pm:HOOK_no_hand_written_prompts a pm:HookPolicy ;
+  rdfs:label "No Hand-Written Program Prompts" ;
+  pm:mission "Block workflow execution if a rendered prompt lacks derivedFrom source" ;
+  rdfs:comment "Triggers on prompt emit; checks SHACL shape for pm:derivedFrom triple" .
+
+pm:HOOK_no_invalid_ggen_extension a pm:HookPolicy ;
+  rdfs:label "No Invalid .ggen Source Files" ;
+  pm:mission "Block workflow if new .ggen files found in source directory" ;
+  rdfs:comment "Triggers on file write; queries graph for blocking-status .ggen files" .
+
+pm:HOOK_no_forced_alive a pm:HookPolicy ;
+  rdfs:label "No Forced ALIVE" ;
+  pm:mission "Block ALIVE verdict if any required audit gate failed" ;
+  rdfs:comment "Triggers on checkpoint emit; validates all AuditGate status before ALIVE" .
+
+pm:HOOK_checkpoint_must_have_partial_path a pm:HookPolicy ;
+  rdfs:label "Checkpoint Must Have PARTIAL Path" ;
+  pm:mission "Require checkpoint template to include both ALIVE and PARTIAL exit conditions" ;
+  rdfs:comment "Triggers on template render; validates PARTIAL section is present and executable" .
+
+pm:HOOK_receipt_required a pm:HookPolicy ;
+  rdfs:label "Receipt Required for Artifacts" ;
+  pm:mission "Every rendered artifact must have corresponding receipt entry" ;
+  rdfs:comment "Triggers on artifact emit; creates receipt with blake3 hash and provenance" .
+
+pm:HOOK_legacy_ggen_routed a pm:HookPolicy ;
+  rdfs:label "Legacy .ggen Files Must Be Classified" ;
+  pm:mission "Every .ggen file in referenced tree must have classification entry" ;
+  rdfs:comment "Triggers on audit; scans for unclassified .ggen files" .

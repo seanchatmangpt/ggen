@@ -1,0 +1,283 @@
+@prefix kgc: <http://kgc.io/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# KGC 4D Ontology: Observable State + Nanosecond Time + Vector Causality + Git
+# ============================================================================
+
+# Named Graphs for the Four Dimensions
+
+kgc:Universe
+    rdf:type rdf:Graph ;
+    rdfs:label "Observable State (Hot)" ;
+    rdfs:comment "Current state of all observable facts in the workflow" ;
+    .
+
+kgc:EventLog
+    rdf:type rdf:Graph ;
+    rdfs:label "Immutable Event History" ;
+    rdfs:comment "Append-only log of all state-changing events" ;
+    .
+
+kgc:System
+    rdf:type rdf:Graph ;
+    rdfs:label "System Metadata" ;
+    rdfs:comment "Configuration, snapshots, receipts, and system state" ;
+    .
+
+# ============================================================================
+# Dimension 1: Observable State (O - Observation Plane)
+# ============================================================================
+
+kgc:StateTriple
+    rdf:type rdfs:Class ;
+    rdfs:label "State Triple" ;
+    rdfs:comment "A single fact in the observable state (subject-predicate-object)" ;
+    .
+
+# ============================================================================
+# Dimension 2: Nanosecond Time (T - Temporal)
+# ============================================================================
+
+kgc:hasTimestamp
+    rdf:type rdf:Property ;
+    rdfs:label "Has Timestamp" ;
+    rdfs:comment "Nanosecond-precision timestamp (BigInt, monotonic)" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range xsd:dateTime ;
+    .
+
+kgc:timestamp_ns
+    rdf:type rdf:Property ;
+    rdfs:label "Timestamp in Nanoseconds" ;
+    rdfs:comment "Raw nanosecond value as unsigned 128-bit integer" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range xsd:nonNegativeInteger ;
+    .
+
+# ============================================================================
+# Dimension 3: Vector Causality (V - Causality Ordering)
+# ============================================================================
+
+kgc:hasVectorClock
+    rdf:type rdf:Property ;
+    rdfs:label "Has Vector Clock" ;
+    rdfs:comment "Logical clock tracking causality between agents" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range xsd:json ;
+    .
+
+kgc:causedBy
+    rdf:type rdf:Property ;
+    rdfs:label "Caused By" ;
+    rdfs:comment "Direct causal dependency between events" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range kgc:Event ;
+    .
+
+kgc:VectorClock
+    rdf:type rdfs:Class ;
+    rdfs:label "Vector Clock" ;
+    rdfs:comment "Logical timestamp for partial event ordering (agent_id -> counter)" ;
+    .
+
+# ============================================================================
+# Dimension 4: Git References (G - Git-Backed Snapshots)
+# ============================================================================
+
+kgc:FrozenReceipt
+    rdf:type rdfs:Class ;
+    rdfs:label "Frozen Receipt" ;
+    rdfs:comment "Cryptographic proof of a frozen universe state" ;
+    .
+
+kgc:hasReceipt
+    rdf:type rdf:Property ;
+    rdfs:label "Has Receipt" ;
+    rdfs:comment "Reference to a frozen snapshot receipt" ;
+    rdfs:range kgc:FrozenReceipt ;
+    .
+
+kgc:receiptId
+    rdf:type rdf:Property ;
+    rdfs:label "Receipt ID" ;
+    rdfs:comment "Unique identifier for a frozen receipt (UUID)" ;
+    rdfs:domain kgc:FrozenReceipt ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:universeHash
+    rdf:type rdf:Property ;
+    rdfs:label "Universe Hash" ;
+    rdfs:comment "BLAKE3 hash of deterministic N-Quads snapshot" ;
+    rdfs:domain kgc:FrozenReceipt ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:gitRef
+    rdf:type rdf:Property ;
+    rdfs:label "Git Reference" ;
+    rdfs:comment "Git commit hash referencing frozen snapshot" ;
+    rdfs:domain kgc:FrozenReceipt ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:eventCount
+    rdf:type rdf:Property ;
+    rdfs:label "Event Count" ;
+    rdfs:comment "Number of events in log at freeze time" ;
+    rdfs:domain kgc:FrozenReceipt ;
+    rdfs:range xsd:nonNegativeInteger ;
+    .
+
+kgc:nquadCount
+    rdf:type rdf:Property ;
+    rdfs:label "N-Quad Count" ;
+    rdfs:comment "Number of RDF quads in frozen universe" ;
+    rdfs:domain kgc:FrozenReceipt ;
+    rdfs:range xsd:nonNegativeInteger ;
+    .
+
+# ============================================================================
+# Event Type: Core 4D Event
+# ============================================================================
+
+kgc:Event
+    rdf:type rdfs:Class ;
+    rdfs:label "KGC Event" ;
+    rdfs:comment "Immutable event with 4D metadata (time + causality + state + git)" ;
+    .
+
+kgc:eventId
+    rdf:type rdf:Property ;
+    rdfs:label "Event ID" ;
+    rdfs:comment "Unique event identifier (UUID)" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:eventType
+    rdf:type rdf:Property ;
+    rdfs:label "Event Type" ;
+    rdfs:comment "Type of event (CREATE, UPDATE, DELETE, etc.)" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:hasDeltas
+    rdf:type rdf:Property ;
+    rdfs:label "Has Deltas" ;
+    rdfs:comment "RDF state changes included in this event" ;
+    rdfs:domain kgc:Event ;
+    rdfs:range kgc:RdfDelta ;
+    .
+
+# ============================================================================
+# RDF Delta: State Changes
+# ============================================================================
+
+kgc:RdfDelta
+    rdf:type rdfs:Class ;
+    rdfs:label "RDF Delta" ;
+    rdfs:comment "A single RDF state change (Add or Remove triple)" ;
+    .
+
+kgc:Add
+    rdf:type rdfs:Class ;
+    rdfs:subClassOf kgc:RdfDelta ;
+    rdfs:label "Add Triple" ;
+    rdfs:comment "Add an RDF triple to the state" ;
+    .
+
+kgc:Remove
+    rdf:type rdfs:Class ;
+    rdfs:subClassOf kgc:RdfDelta ;
+    rdfs:label "Remove Triple" ;
+    rdfs:comment "Remove an RDF triple from the state" ;
+    .
+
+kgc:subject
+    rdf:type rdf:Property ;
+    rdfs:label "Subject" ;
+    rdfs:domain kgc:RdfDelta ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:predicate
+    rdf:type rdf:Property ;
+    rdfs:label "Predicate" ;
+    rdfs:domain kgc:RdfDelta ;
+    rdfs:range xsd:string ;
+    .
+
+kgc:object
+    rdf:type rdf:Property ;
+    rdfs:label "Object" ;
+    rdfs:domain kgc:RdfDelta ;
+    rdfs:range xsd:string ;
+    .
+
+# ============================================================================
+# Query Templates for 4D Operations
+# ============================================================================
+
+kgc:EventsByTimeRange
+    rdf:type rdfs:Class ;
+    rdfs:label "Query: Events by Time Range" ;
+    rdfs:comment "Find all events between two timestamps" ;
+    .
+
+kgc:CausalPredecessors
+    rdf:type rdfs:Class ;
+    rdfs:label "Query: Causal Predecessors" ;
+    rdfs:comment "Find all events that causally precede a given event" ;
+    .
+
+kgc:StateAtTime
+    rdf:type rdfs:Class ;
+    rdfs:label "Query: State at Historical Time" ;
+    rdfs:comment "Reconstruct state at a past timestamp via snapshot + replay" ;
+    .
+
+kgc:CausalityChain
+    rdf:type rdfs:Class ;
+    rdfs:label "Query: Causality Chain" ;
+    rdfs:comment "Trace the causal chain of events leading to an outcome" ;
+    .
+
+# ============================================================================
+# Constraints (Covenants)
+# ============================================================================
+
+kgc:MonotonicTimeConstraint
+    rdf:type rdf:Property ;
+    rdfs:label "Monotonic Time Constraint" ;
+    rdfs:comment "All timestamps must be strictly increasing (never go backward)" ;
+    .
+
+kgc:VectorClockMergeConstraint
+    rdf:type rdf:Property ;
+    rdfs:label "Vector Clock Merge Constraint" ;
+    rdfs:comment "VectorClock merge must be associative and commutative" ;
+    .
+
+kgc:ImmutableEventLogConstraint
+    rdf:type rdf:Property ;
+    rdfs:label "Immutable Event Log Constraint" ;
+    rdfs:comment "Events in EventLog can never be modified or deleted" ;
+    .
+
+kgc:DeterministicCanonicalizationConstraint
+    rdf:type rdf:Property ;
+    rdfs:label "Deterministic Canonicalization Constraint" ;
+    rdfs:comment "Same input state always produces identical BLAKE3 hash" ;
+    .
+
+kgc:ChatmanConstantConstraint
+    rdf:type rdf:Property ;
+    rdfs:label "Chatman Constant Constraint" ;
+    rdfs:comment "Hot path operations (vector clock ops) must be <= 8 CPU ticks" ;
+    .

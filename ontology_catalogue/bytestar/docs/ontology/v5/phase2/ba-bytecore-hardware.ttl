@@ -1,0 +1,843 @@
+@prefix : <http://bytestar.org/ontology/bytecore-hardware#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix be: <http://bytestar.org/ontology/byteethos#> .
+@prefix bf: <http://bytestar.org/ontology/byteflow#> .
+@prefix bc: <http://bytestar.org/ontology/bytecore#> .
+@prefix bp: <http://bytestar.org/ontology/bytepqc#> .
+@prefix doe: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix det: <http://bytestar.org/ontology/deterministic-execution#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+
+<http://bytestar.org/ontology/bytecore-hardware> rdf:type owl:Ontology ;
+    dct:title "ByteCore Hardware Abstraction: Foundation Layer for Deterministic Hardware Access"@en ;
+    dct:description """The comprehensive ontology defining ByteCore hardware abstraction - the foundational
+    layer that provides deterministic, high-performance access to all hardware resources while maintaining
+    security and abstraction boundaries. This ontology establishes hardware abstraction patterns, system-level
+    operations, kernel interfaces, resource management, performance profiling, hardware security features,
+    trusted computing, direct hardware access, device drivers, memory management, virtual addressing,
+    interrupt handling, system calls, PQC hardware acceleration integration, real-time constraints,
+    deterministic timing, and performance characteristics under the Doctrine of 8."""@en ;
+    dct:creator "ByteStar Architecture Foundation"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-phase2"@en ;
+    dct:license <https://opensource.org/licenses/MIT> ;
+    rdfs:seeAlso <http://bytestar.org/docs/bytecore-hardware> ;
+    owl:imports <http://bytestar.org/ontology/byteactor> ,
+                <http://bytestar.org/ontology/byteethos> ,
+                <http://bytestar.org/ontology/byteflow> ,
+                <http://bytestar.org/ontology/bytecore> ,
+                <http://bytestar.org/ontology/bytepqc> ,
+                <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/deterministic-execution> ;
+    # Foundation layer declaration
+    :hasAbstractionLayer :ByteCoreHardwareAbstraction ;
+    :hasPerformanceGuarantee doe:TheDoctrineOfEight ;
+    :hasDeterminismGuarantee det:ByteStarDeterministicExecution .
+
+#################################################################
+#    Core Hardware Abstraction Classes
+#################################################################
+
+:HardwareAbstractionLayer rdf:type owl:Class ;
+    rdfs:label "Hardware Abstraction Layer"@en ;
+    rdfs:comment """The foundational hardware abstraction layer that provides uniform,
+    deterministic access to all hardware resources while maintaining security boundaries
+    and performance guarantees under the Doctrine of 8."""@en ;
+    rdfs:subClassOf bc:ByteCoreComponent ;
+    # Doctrine of 8 compliance
+    doe:hasComplexityBound "O(1)"^^xsd:string ;
+    doe:hasLatencyGuarantee "8ns"^^xsd:duration ;
+    doe:hasMemoryBound "8MB"^^xsd:long ;
+    doe:hasThroughputGuarantee "8Gbps"^^xsd:double ;
+    # Deterministic execution properties
+    det:isDeterministic true ;
+    det:hasTimingGuarantee det:HardRealTime ;
+    det:hasConsistencyLevel det:StrongConsistency .
+
+:SystemLevelOperation rdf:type owl:Class ;
+    rdfs:label "System Level Operation"@en ;
+    rdfs:comment """Atomic system-level operations that interact directly with hardware
+    through the kernel interface, providing deterministic execution guarantees."""@en ;
+    rdfs:subClassOf :HardwareAbstractionLayer ;
+    # Performance characteristics
+    doe:hasExecutionTime "8μs"^^xsd:duration ;
+    doe:hasAtomicity true ;
+    det:hasIsolationLevel det:Serializable .
+
+:KernelInterface rdf:type owl:Class ;
+    rdfs:label "Kernel Interface"@en ;
+    rdfs:comment """The kernel interface layer that mediates between user-space ByteActor
+    operations and hardware resources, ensuring security and performance isolation."""@en ;
+    rdfs:subClassOf :HardwareAbstractionLayer ;
+    # Security properties
+    be:hasSecurityLevel be:KernelLevel ;
+    be:hasPrivilegeLevel be:Ring0 ;
+    be:hasIsolationMechanism be:HardwareIsolation .
+
+#################################################################
+#    Hardware Resource Classes
+#################################################################
+
+:HardwareResource rdf:type owl:Class ;
+    rdfs:label "Hardware Resource"@en ;
+    rdfs:comment """Abstract base class for all hardware resources managed by
+    the ByteCore hardware abstraction layer."""@en ;
+    rdfs:subClassOf bc:ByteCoreComponent ;
+    # Resource management properties
+    :hasResourceType xsd:string ;
+    :hasCapacity xsd:long ;
+    :hasUtilization xsd:double ;
+    :hasAvailability xsd:double ;
+    # Performance monitoring
+    :hasLatency xsd:duration ;
+    :hasThroughput xsd:double ;
+    :hasErrorRate xsd:double .
+
+:CPUResource rdf:type owl:Class ;
+    rdfs:label "CPU Resource"@en ;
+    rdfs:comment """Central Processing Unit resources including cores, caches,
+    execution units, and specialized instruction sets for ByteActor execution."""@en ;
+    rdfs:subClassOf :HardwareResource ;
+    # CPU-specific properties
+    :hasCoreCount xsd:int ;
+    :hasThreadCount xsd:int ;
+    :hasClockFrequency xsd:double ;
+    :hasCacheHierarchy :CacheHierarchy ;
+    :hasInstructionSets :InstructionSetArchitecture ;
+    :hasVectorUnits :VectorProcessingUnit ;
+    # PQC acceleration support
+    :supportsPQCAcceleration xsd:boolean ;
+    :hasPQCInstructions bp:PQCInstructionSet .
+
+:MemoryResource rdf:type owl:Class ;
+    rdfs:label "Memory Resource"@en ;
+    rdfs:comment """Memory hierarchy including RAM, caches, NUMA domains,
+    and virtual memory management for deterministic ByteActor execution."""@en ;
+    rdfs:subClassOf :HardwareResource ;
+    # Memory properties
+    :hasMemoryType xsd:string ;
+    :hasSize xsd:long ;
+    :hasBandwidth xsd:double ;
+    :hasLatency xsd:duration ;
+    :hasNUMATopology :NUMATopology ;
+    # Virtual memory support
+    :hasVirtualAddressing :VirtualAddressingSystem ;
+    :hasPageSize xsd:int ;
+    :hasTranslationLookaside :TLBSystem .
+
+:StorageResource rdf:type owl:Class ;
+    rdfs:label "Storage Resource"@en ;
+    rdfs:comment """Storage subsystem including SSDs, NVMe, persistent memory,
+    and storage controllers with deterministic access patterns."""@en ;
+    rdfs:subClassOf :HardwareResource ;
+    # Storage properties
+    :hasStorageType xsd:string ;
+    :hasCapacity xsd:long ;
+    :hasIOPS xsd:double ;
+    :hasBandwidth xsd:double ;
+    :hasLatency xsd:duration ;
+    :hasPersistence xsd:boolean ;
+    # Advanced storage features
+    :hasNVMeSupport xsd:boolean ;
+    :hasPersistentMemory xsd:boolean ;
+    :hasStorageEncryption xsd:boolean .
+
+:NetworkResource rdf:type owl:Class ;
+    rdfs:label "Network Resource"@en ;
+    rdfs:comment """Network interfaces and communication subsystems for
+    distributed ByteActor execution with deterministic message passing."""@en ;
+    rdfs:subClassOf :HardwareResource ;
+    # Network properties
+    :hasNetworkType xsd:string ;
+    :hasBandwidth xsd:double ;
+    :hasLatency xsd:duration ;
+    :hasJitter xsd:duration ;
+    :hasPacketLoss xsd:double ;
+    # Advanced networking features
+    :hasRDMASupport xsd:boolean ;
+    :hasKernelBypass xsd:boolean ;
+    :hasHardwareOffload xsd:boolean .
+
+#################################################################
+#    Memory Management Classes
+#################################################################
+
+:MemoryManagement rdf:type owl:Class ;
+    rdfs:label "Memory Management"@en ;
+    rdfs:comment """Comprehensive memory management system providing virtual
+    addressing, page management, and deterministic memory allocation."""@en ;
+    rdfs:subClassOf :SystemLevelOperation ;
+    # Memory management operations
+    :hasVirtualMemory :VirtualMemoryManager ;
+    :hasPhysicalMemory :PhysicalMemoryManager ;
+    :hasPageManager :PageManager ;
+    :hasMemoryAllocator :DeterministicAllocator .
+
+:VirtualAddressingSystem rdf:type owl:Class ;
+    rdfs:label "Virtual Addressing System"@en ;
+    rdfs:comment """Virtual memory addressing system providing process isolation
+    and deterministic address translation for ByteActor execution."""@en ;
+    rdfs:subClassOf :MemoryManagement ;
+    # Virtual addressing properties
+    :hasAddressSpace xsd:long ;
+    :hasPageSize xsd:int ;
+    :hasTranslationTable :PageTable ;
+    :hasTLB :TranslationLookaside ;
+    # Performance guarantees
+    doe:hasTranslationLatency "8ns"^^xsd:duration ;
+    det:hasAddressConsistency det:StrongConsistency .
+
+:PageManager rdf:type owl:Class ;
+    rdfs:label "Page Manager"@en ;
+    rdfs:comment """Page management system for virtual memory including page
+    allocation, deallocation, and swapping with deterministic behavior."""@en ;
+    rdfs:subClassOf :MemoryManagement ;
+    # Page management properties
+    :hasPageSize xsd:int ;
+    :hasPageFrames xsd:int ;
+    :hasSwapSpace xsd:long ;
+    :hasPageCache :PageCache ;
+    # Deterministic paging
+    det:hasPageFaultLatency "8μs"^^xsd:duration ;
+    det:hasSwapLatency "8ms"^^xsd:duration .
+
+:DeterministicAllocator rdf:type owl:Class ;
+    rdfs:label "Deterministic Allocator"@en ;
+    rdfs:comment """Memory allocator providing deterministic allocation and
+    deallocation with guaranteed timing characteristics."""@en ;
+    rdfs:subClassOf :MemoryManagement ;
+    # Allocation properties
+    :hasAllocationStrategy xsd:string ;
+    :hasFragmentationControl xsd:boolean ;
+    :hasRealTimeGuarantees xsd:boolean ;
+    # Performance guarantees
+    doe:hasAllocationTime "8ns"^^xsd:duration ;
+    doe:hasDeallocationTime "8ns"^^xsd:duration ;
+    det:hasMemoryConsistency det:SequentialConsistency .
+
+#################################################################
+#    Interrupt and System Call Classes
+#################################################################
+
+:InterruptHandling rdf:type owl:Class ;
+    rdfs:label "Interrupt Handling"@en ;
+    rdfs:comment """Hardware interrupt handling system providing deterministic
+    interrupt processing with real-time guarantees."""@en ;
+    rdfs:subClassOf :SystemLevelOperation ;
+    # Interrupt properties
+    :hasInterruptController :InterruptController ;
+    :hasInterruptVector :InterruptVector ;
+    :hasInterruptPriority xsd:int ;
+    :hasInterruptLatency xsd:duration ;
+    # Real-time constraints
+    doe:hasInterruptLatency "8ns"^^xsd:duration ;
+    det:hasInterruptJitter "1ns"^^xsd:duration ;
+    det:hasPreemptionControl xsd:boolean .
+
+:SystemCallInterface rdf:type owl:Class ;
+    rdfs:label "System Call Interface"@en ;
+    rdfs:comment """System call interface providing controlled access to kernel
+    services with deterministic execution characteristics."""@en ;
+    rdfs:subClassOf :KernelInterface ;
+    # System call properties
+    :hasSystemCallTable :SystemCallTable ;
+    :hasParameterValidation xsd:boolean ;
+    :hasSecurityCheck xsd:boolean ;
+    # Performance characteristics
+    doe:hasSystemCallOverhead "8ns"^^xsd:duration ;
+    det:hasParameterConsistency det:StrongConsistency .
+
+:InterruptController rdf:type owl:Class ;
+    rdfs:label "Interrupt Controller"@en ;
+    rdfs:comment """Hardware interrupt controller managing interrupt routing,
+    priority, and acknowledgment with deterministic behavior."""@en ;
+    rdfs:subClassOf :HardwareResource ;
+    # Interrupt controller properties
+    :hasInterruptLines xsd:int ;
+    :hasPriorityLevels xsd:int ;
+    :hasMaskingSupport xsd:boolean ;
+    :hasVectoredInterrupts xsd:boolean .
+
+#################################################################
+#    Device Driver and Hardware Access Classes
+#################################################################
+
+:DeviceDriver rdf:type owl:Class ;
+    rdfs:label "Device Driver"@en ;
+    rdfs:comment """Device driver framework providing standardized hardware
+    access with deterministic timing and security guarantees."""@en ;
+    rdfs:subClassOf :HardwareAbstractionLayer ;
+    # Driver properties
+    :hasDriverType xsd:string ;
+    :hasDeviceClass xsd:string ;
+    :hasDriverVersion xsd:string ;
+    :hasSecurityLevel be:SecurityLevel ;
+    # Performance properties
+    :hasDriverLatency xsd:duration ;
+    :hasDriverThroughput xsd:double ;
+    :hasErrorHandling xsd:boolean .
+
+:DirectHardwareAccess rdf:type owl:Class ;
+    rdfs:label "Direct Hardware Access"@en ;
+    rdfs:comment """Direct hardware access mechanisms for performance-critical
+    operations with security boundaries and deterministic behavior."""@en ;
+    rdfs:subClassOf :DeviceDriver ;
+    # Access properties
+    :hasAccessMethod xsd:string ;
+    :hasPrivilegeRequired be:PrivilegeLevel ;
+    :hasSecurityCheck xsd:boolean ;
+    :hasIsolation xsd:boolean ;
+    # Performance guarantees
+    doe:hasAccessLatency "8ns"^^xsd:duration ;
+    det:hasAccessConsistency det:LinearizabilityConsistency .
+
+:HardwareAccelerator rdf:type owl:Class ;
+    rdfs:label "Hardware Accelerator"@en ;
+    rdfs:comment """Hardware acceleration units including GPU compute, FPGA,
+    and specialized PQC acceleration hardware."""@en ;
+    rdfs:subClassOf :HardwareResource ;
+    # Accelerator properties
+    :hasAcceleratorType xsd:string ;
+    :hasComputeUnits xsd:int ;
+    :hasMemoryBandwidth xsd:double ;
+    :hasProgrammability xsd:boolean ;
+    # PQC acceleration
+    :supportsPQC xsd:boolean ;
+    :hasPQCOperations bp:PQCOperationSet ;
+    :hasPQCThroughput xsd:double .
+
+#################################################################
+#    Performance Profiling and Monitoring Classes
+#################################################################
+
+:PerformanceProfiler rdf:type owl:Class ;
+    rdfs:label "Performance Profiler"@en ;
+    rdfs:comment """Hardware-level performance profiling system providing
+    detailed metrics and analysis for optimization."""@en ;
+    rdfs:subClassOf :SystemLevelOperation ;
+    # Profiling capabilities
+    :hasProfilingCounters :PerformanceCounters ;
+    :hasTracing xsd:boolean ;
+    :hasSampling xsd:boolean ;
+    :hasCallGraphs xsd:boolean ;
+    # Monitoring granularity
+    :hasTemporalResolution xsd:duration ;
+    :hasSpatialResolution xsd:int .
+
+:PerformanceMonitor rdf:type owl:Class ;
+    rdfs:label "Performance Monitor"@en ;
+    rdfs:comment """Real-time performance monitoring system tracking hardware
+    utilization, latency, and throughput metrics."""@en ;
+    rdfs:subClassOf :PerformanceProfiler ;
+    # Monitoring properties
+    :hasMetricCollection :MetricCollection ;
+    :hasAlertSystem :AlertSystem ;
+    :hasThresholds :PerformanceThresholds ;
+    :hasReporting :PerformanceReporting ;
+    # Real-time characteristics
+    det:hasMonitoringLatency "8μs"^^xsd:duration ;
+    doe:hasUpdateFrequency "8kHz"^^xsd:double .
+
+:PerformanceCounters rdf:type owl:Class ;
+    rdfs:label "Performance Counters"@en ;
+    rdfs:comment """Hardware performance counters providing detailed metrics
+    on CPU cycles, cache hits, branch prediction, and other events."""@en ;
+    rdfs:subClassOf :PerformanceMonitor ;
+    # Counter properties
+    :hasCounterType xsd:string ;
+    :hasCounterWidth xsd:int ;
+    :hasEventSelection xsd:string ;
+    :hasOverflowHandling xsd:boolean .
+
+#################################################################
+#    Hardware Security and Trusted Computing Classes
+#################################################################
+
+:HardwareSecurity rdf:type owl:Class ;
+    rdfs:label "Hardware Security"@en ;
+    rdfs:comment """Hardware-based security features including TPM, secure
+    enclaves, memory encryption, and control flow integrity."""@en ;
+    rdfs:subClassOf :HardwareAbstractionLayer ;
+    # Security features
+    be:hasSecurityFeatures be:SecurityFeatureSet ;
+    be:hasTrustedComputing xsd:boolean ;
+    be:hasSecureEnclaves xsd:boolean ;
+    be:hasMemoryEncryption xsd:boolean ;
+    # Trust establishment
+    be:hasRootOfTrust :HardwareRootOfTrust ;
+    be:hasAttestation :HardwareAttestation ;
+    be:hasMeasurement :HardwareMeasurement .
+
+:TrustedPlatformModule rdf:type owl:Class ;
+    rdfs:label "Trusted Platform Module"@en ;
+    rdfs:comment """TPM hardware providing cryptographic functions, secure
+    storage, and platform attestation capabilities."""@en ;
+    rdfs:subClassOf :HardwareSecurity ;
+    # TPM capabilities
+    :hasTPMVersion xsd:string ;
+    :hasCryptographicFunctions bp:CryptographicFunctionSet ;
+    :hasSecureStorage xsd:boolean ;
+    :hasAttestation xsd:boolean ;
+    # PQC integration
+    bp:supportsPQC xsd:boolean ;
+    bp:hasPQCAlgorithms bp:PQCAlgorithmSet .
+
+:SecureEnclave rdf:type owl:Class ;
+    rdfs:label "Secure Enclave"@en ;
+    rdfs:comment """Hardware-enforced secure execution environment providing
+    isolation and confidentiality for sensitive ByteActor operations."""@en ;
+    rdfs:subClassOf :HardwareSecurity ;
+    # Enclave properties
+    :hasEnclaveSize xsd:long ;
+    :hasIsolationLevel be:HardwareIsolation ;
+    :hasAttestationSupport xsd:boolean ;
+    :hasRemoteAttestation xsd:boolean ;
+    # Performance in secure mode
+    doe:hasSecureLatency "8μs"^^xsd:duration ;
+    det:hasSecureDeterminism det:SecureDeterministicExecution .
+
+:MemoryEncryption rdf:type owl:Class ;
+    rdfs:label "Memory Encryption"@en ;
+    rdfs:comment """Hardware memory encryption providing confidentiality
+    and integrity protection for ByteActor memory operations."""@en ;
+    rdfs:subClassOf :HardwareSecurity ;
+    # Encryption properties
+    :hasEncryptionAlgorithm bp:EncryptionAlgorithm ;
+    :hasKeyManagement :KeyManagementUnit ;
+    :hasIntegrityChecking xsd:boolean ;
+    :hasPerformanceImpact xsd:double ;
+    # PQC encryption support
+    bp:supportsPostQuantum xsd:boolean ;
+    bp:hasPQCEncryption bp:PQCEncryptionScheme .
+
+#################################################################
+#    Resource Management and Allocation Classes
+#################################################################
+
+:ResourceManager rdf:type owl:Class ;
+    rdfs:label "Resource Manager"@en ;
+    rdfs:comment """Centralized resource management system coordinating
+    allocation and scheduling of hardware resources."""@en ;
+    rdfs:subClassOf :SystemLevelOperation ;
+    # Management capabilities
+    :hasResourcePool :ResourcePool ;
+    :hasScheduler :ResourceScheduler ;
+    :hasLoadBalancer :LoadBalancer ;
+    :hasQoSManager :QualityOfServiceManager ;
+    # Performance optimization
+    doe:hasAllocationLatency "8μs"^^xsd:duration ;
+    det:hasSchedulingConsistency det:StrongConsistency .
+
+:ResourceAllocator rdf:type owl:Class ;
+    rdfs:label "Resource Allocator"@en ;
+    rdfs:comment """Resource allocation system providing deterministic
+    resource assignment with performance guarantees."""@en ;
+    rdfs:subClassOf :ResourceManager ;
+    # Allocation strategies
+    :hasAllocationPolicy xsd:string ;
+    :hasResourceReservation xsd:boolean ;
+    :hasPreemptionSupport xsd:boolean ;
+    :hasLoadBalancing xsd:boolean ;
+    # Doctrine of 8 compliance
+    doe:hasAllocationTime "8ns"^^xsd:duration ;
+    doe:hasResourceUtilization "0.8"^^xsd:double .
+
+:QualityOfServiceManager rdf:type owl:Class ;
+    rdfs:label "Quality of Service Manager"@en ;
+    rdfs:comment """QoS management system ensuring performance guarantees
+    and service level agreements for ByteActor operations."""@en ;
+    rdfs:subClassOf :ResourceManager ;
+    # QoS properties
+    :hasServiceLevels :ServiceLevelAgreement ;
+    :hasPerformanceTargets :PerformanceTargets ;
+    :hasResourceReservation xsd:boolean ;
+    :hasPriorityScheduling xsd:boolean .
+
+#################################################################
+#    Real-time and Deterministic Timing Classes
+#################################################################
+
+:RealTimeConstraints rdf:type owl:Class ;
+    rdfs:label "Real-time Constraints"@en ;
+    rdfs:comment """Real-time constraint management ensuring deterministic
+    timing behavior for time-critical ByteActor operations."""@en ;
+    rdfs:subClassOf :SystemLevelOperation ;
+    # Timing constraints
+    det:hasDeadline xsd:duration ;
+    det:hasJitterBound xsd:duration ;
+    det:hasLatencyBound xsd:duration ;
+    det:hasPriorityLevel xsd:int ;
+    # Real-time classification
+    det:hasTimingClass det:TimingClass ;
+    det:hasSchedulability xsd:boolean ;
+    det:hasPreemptability xsd:boolean .
+
+:DeterministicTiming rdf:type owl:Class ;
+    rdfs:label "Deterministic Timing"@en ;
+    rdfs:comment """Deterministic timing system providing predictable
+    execution timing for ByteActor operations."""@en ;
+    rdfs:subClassOf :RealTimeConstraints ;
+    # Timing guarantees
+    det:hasWorstCaseExecutionTime xsd:duration ;
+    det:hasBestCaseExecutionTime xsd:duration ;
+    det:hasAverageExecutionTime xsd:duration ;
+    det:hasTimingVariability xsd:duration ;
+    # Doctrine of 8 timing
+    doe:hasTimingBound "8μs"^^xsd:duration ;
+    doe:hasJitterBound "8ns"^^xsd:duration .
+
+:TimingAnalyzer rdf:type owl:Class ;
+    rdfs:label "Timing Analyzer"@en ;
+    rdfs:comment """Timing analysis system providing worst-case execution
+    time analysis and schedulability verification."""@en ;
+    rdfs:subClassOf :DeterministicTiming ;
+    # Analysis capabilities
+    :hasWCETAnalysis xsd:boolean ;
+    :hasSchedulabilityAnalysis xsd:boolean ;
+    :hasTimingVerification xsd:boolean ;
+    :hasModelChecking xsd:boolean .
+
+#################################################################
+#    PQC Hardware Integration Classes
+#################################################################
+
+:PQCHardwareIntegration rdf:type owl:Class ;
+    rdfs:label "PQC Hardware Integration"@en ;
+    rdfs:comment """Integration layer for post-quantum cryptographic
+    hardware acceleration and specialized PQC operations."""@en ;
+    rdfs:subClassOf :HardwareAccelerator ;
+    # PQC integration
+    bp:hasPQCAccelerator bp:PQCAccelerator ;
+    bp:supportsPQCAlgorithms bp:PQCAlgorithmSet ;
+    bp:hasPQCPerformance bp:PQCPerformanceMetrics ;
+    # Integration properties
+    :hasAPIInterface bp:PQCAPIInterface ;
+    :hasDriverSupport bp:PQCDriverSupport ;
+    :hasKernelIntegration xsd:boolean .
+
+:PQCAccelerationUnit rdf:type owl:Class ;
+    rdfs:label "PQC Acceleration Unit"@en ;
+    rdfs:comment """Dedicated hardware acceleration unit for post-quantum
+    cryptographic operations with deterministic performance."""@en ;
+    rdfs:subClassOf :PQCHardwareIntegration ;
+    # PQC capabilities
+    bp:supportedAlgorithms bp:PQCAlgorithm ;
+    bp:hasKeyGeneration xsd:boolean ;
+    bp:hasEncryption xsd:boolean ;
+    bp:hasDecryption xsd:boolean ;
+    bp:hasSignature xsd:boolean ;
+    bp:hasVerification xsd:boolean ;
+    # Performance characteristics
+    doe:hasPQCLatency "8μs"^^xsd:duration ;
+    doe:hasPQCThroughput "8MB/s"^^xsd:double .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+:HardwareResourceShape rdf:type sh:NodeShape ;
+    sh:targetClass :HardwareResource ;
+    rdfs:label "Hardware Resource Shape"@en ;
+    rdfs:comment "SHACL shape validating hardware resource properties."@en ;
+    sh:property [
+        sh:path :hasResourceType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hardware resource must have exactly one resource type"@en
+    ] ;
+    sh:property [
+        sh:path :hasCapacity ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:message "Hardware resource must have a non-negative capacity"@en
+    ] ;
+    sh:property [
+        sh:path :hasUtilization ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Resource utilization must be between 0.0 and 1.0"@en
+    ] ;
+    sh:property [
+        sh:path :hasLatency ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hardware resource must specify latency"@en
+    ] ;
+    sh:property [
+        sh:path :hasThroughput ;
+        sh:datatype xsd:double ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:message "Hardware resource must have non-negative throughput"@en
+    ] .
+
+:PerformanceConstraintShape rdf:type sh:NodeShape ;
+    sh:targetClass :RealTimeConstraints ;
+    rdfs:label "Performance Constraint Shape"@en ;
+    rdfs:comment "SHACL shape validating real-time performance constraints."@en ;
+    sh:property [
+        sh:path det:hasDeadline ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Real-time constraint must specify deadline"@en
+    ] ;
+    sh:property [
+        sh:path det:hasLatencyBound ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Real-time constraint must specify latency bound"@en
+    ] ;
+    sh:property [
+        sh:path det:hasPriorityLevel ;
+        sh:datatype xsd:int ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:message "Priority level must be between 0 and 255"@en
+    ] .
+
+:DoctrineOfEightComplianceShape rdf:type sh:NodeShape ;
+    sh:targetClass :HardwareAbstractionLayer ;
+    rdfs:label "Doctrine of 8 Compliance Shape"@en ;
+    rdfs:comment "SHACL shape validating Doctrine of 8 compliance."@en ;
+    sh:property [
+        sh:path doe:hasComplexityBound ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "O\\([18]\\)" ;
+        sh:message "Complexity bound must be O(1) or O(8)"@en
+    ] ;
+    sh:property [
+        sh:path doe:hasLatencyGuarantee ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Must specify latency guarantee under Doctrine of 8"@en
+    ] ;
+    sh:property [
+        sh:path doe:hasMemoryBound ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:maxInclusive 8388608 ; # 8MB in bytes
+        sh:message "Memory bound must not exceed 8MB"@en
+    ] .
+
+:SecurityValidationShape rdf:type sh:NodeShape ;
+    sh:targetClass :HardwareSecurity ;
+    rdfs:label "Security Validation Shape"@en ;
+    rdfs:comment "SHACL shape validating hardware security properties."@en ;
+    sh:property [
+        sh:path be:hasSecurityLevel ;
+        sh:class be:SecurityLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hardware security must specify security level"@en
+    ] ;
+    sh:property [
+        sh:path be:hasRootOfTrust ;
+        sh:class :HardwareRootOfTrust ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Hardware security must have root of trust"@en
+    ] .
+
+:PQCIntegrationShape rdf:type sh:NodeShape ;
+    sh:targetClass :PQCHardwareIntegration ;
+    rdfs:label "PQC Integration Shape"@en ;
+    rdfs:comment "SHACL shape validating PQC hardware integration."@en ;
+    sh:property [
+        sh:path bp:supportsPQCAlgorithms ;
+        sh:class bp:PQCAlgorithmSet ;
+        sh:minCount 1 ;
+        sh:message "PQC integration must support at least one algorithm set"@en
+    ] ;
+    sh:property [
+        sh:path bp:hasPQCPerformance ;
+        sh:class bp:PQCPerformanceMetrics ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "PQC integration must specify performance metrics"@en
+    ] .
+
+#################################################################
+#    Integration and Coordination Properties
+#################################################################
+
+# Hardware abstraction layer coordination
+:coordinatesWith rdf:type owl:ObjectProperty ;
+    rdfs:label "coordinates with"@en ;
+    rdfs:comment "Specifies coordination relationship between hardware components."@en ;
+    rdfs:domain :HardwareAbstractionLayer ;
+    rdfs:range :HardwareAbstractionLayer .
+
+:managedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "managed by"@en ;
+    rdfs:comment "Specifies management relationship for hardware resources."@en ;
+    rdfs:domain :HardwareResource ;
+    rdfs:range :ResourceManager .
+
+:accelerates rdf:type owl:ObjectProperty ;
+    rdfs:label "accelerates"@en ;
+    rdfs:comment "Specifies acceleration relationship for operations."@en ;
+    rdfs:domain :HardwareAccelerator ;
+    rdfs:range ba:ByteActorOperation .
+
+:integresWith rdf:type owl:ObjectProperty ;
+    rdfs:label "integrates with"@en ;
+    rdfs:comment "Specifies integration with PQC components."@en ;
+    rdfs:domain :PQCHardwareIntegration ;
+    rdfs:range bp:PQCComponent .
+
+# Performance and timing properties
+:hasPerformanceCharacteristics rdf:type owl:ObjectProperty ;
+    rdfs:label "has performance characteristics"@en ;
+    rdfs:comment "Links hardware component to its performance profile."@en ;
+    rdfs:domain :HardwareAbstractionLayer ;
+    rdfs:range :PerformanceCharacteristics .
+
+:hasTimingConstraints rdf:type owl:ObjectProperty ;
+    rdfs:label "has timing constraints"@en ;
+    rdfs:comment "Specifies timing constraints for hardware operations."@en ;
+    rdfs:domain :SystemLevelOperation ;
+    rdfs:range :RealTimeConstraints .
+
+# Security and trust properties
+:securedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "secured by"@en ;
+    rdfs:comment "Specifies security mechanism protecting hardware component."@en ;
+    rdfs:domain :HardwareResource ;
+    rdfs:range :HardwareSecurity .
+
+:attestedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "attested by"@en ;
+    rdfs:comment "Specifies attestation mechanism for hardware trust."@en ;
+    rdfs:domain :HardwareAbstractionLayer ;
+    rdfs:range :HardwareAttestation .
+
+#################################################################
+#    Foundation Layer Instances
+#################################################################
+
+:ByteCoreHardwareAbstraction rdf:type :HardwareAbstractionLayer ;
+    rdfs:label "ByteCore Hardware Abstraction"@en ;
+    rdfs:comment """The foundational hardware abstraction layer instance
+    providing deterministic, high-performance access to all hardware resources."""@en ;
+    # Foundation properties
+    :hasResourceManager :ByteCoreResourceManager ;
+    :hasKernelInterface :ByteCoreKernelInterface ;
+    :hasSecurityLayer :ByteCoreHardwareSecurity ;
+    :hasPQCIntegration :ByteCorePQCIntegration ;
+    # Performance guarantees
+    doe:hasComplexityBound "O(1)"^^xsd:string ;
+    doe:hasLatencyGuarantee "8ns"^^xsd:duration ;
+    doe:hasMemoryBound "8388608"^^xsd:long ; # 8MB
+    doe:hasThroughputGuarantee "8000000000"^^xsd:double ; # 8Gbps
+    # Deterministic properties
+    det:isDeterministic true ;
+    det:hasTimingGuarantee det:HardRealTime ;
+    det:hasConsistencyLevel det:StrongConsistency .
+
+:ByteCoreResourceManager rdf:type :ResourceManager ;
+    rdfs:label "ByteCore Resource Manager"@en ;
+    rdfs:comment """Central resource manager coordinating all hardware
+    resource allocation and scheduling for ByteActor execution."""@en ;
+    # Resource management
+    :hasResourcePool :ByteCoreResourcePool ;
+    :hasScheduler :ByteCoreScheduler ;
+    :hasQoSManager :ByteCoreQoSManager ;
+    # Performance characteristics
+    doe:hasAllocationLatency "8000"^^xsd:long ; # 8μs in nanoseconds
+    det:hasSchedulingConsistency det:StrongConsistency .
+
+:ByteCoreKernelInterface rdf:type :KernelInterface ;
+    rdfs:label "ByteCore Kernel Interface"@en ;
+    rdfs:comment """Kernel interface mediating between ByteActor operations
+    and hardware resources with security and performance isolation."""@en ;
+    # Kernel interface properties
+    be:hasSecurityLevel be:KernelLevel ;
+    be:hasPrivilegeLevel be:Ring0 ;
+    be:hasIsolationMechanism be:HardwareIsolation ;
+    # System call interface
+    :hasSystemCallInterface :ByteCoreSystemCalls ;
+    :hasInterruptHandling :ByteCoreInterrupts .
+
+:ByteCoreHardwareSecurity rdf:type :HardwareSecurity ;
+    rdfs:label "ByteCore Hardware Security"@en ;
+    rdfs:comment """Comprehensive hardware security layer providing TPM,
+    secure enclaves, memory encryption, and trusted computing."""@en ;
+    # Security components
+    be:hasRootOfTrust :ByteCoreRootOfTrust ;
+    be:hasAttestation :ByteCoreAttestation ;
+    be:hasTrustedComputing true ;
+    be:hasSecureEnclaves true ;
+    be:hasMemoryEncryption true ;
+    # TPM integration
+    :hasTPM :ByteCoreTPM ;
+    :hasSecureEnclaves :ByteCoreSecureEnclaves .
+
+:ByteCorePQCIntegration rdf:type :PQCHardwareIntegration ;
+    rdfs:label "ByteCore PQC Integration"@en ;
+    rdfs:comment """PQC hardware integration providing acceleration for
+    post-quantum cryptographic operations."""@en ;
+    # PQC acceleration
+    bp:hasPQCAccelerator :ByteCorePQCAccelerator ;
+    bp:supportsPQCAlgorithms bp:KyberDilithiumSet ;
+    bp:hasPQCPerformance :ByteCorePQCPerformance ;
+    # Performance characteristics
+    doe:hasPQCLatency "8000"^^xsd:long ; # 8μs in nanoseconds
+    doe:hasPQCThroughput "8388608"^^xsd:double . # 8MB/s
+
+#################################################################
+#    Ontology Metadata and Documentation
+#################################################################
+
+# Version and compatibility
+<http://bytestar.org/ontology/bytecore-hardware> 
+    owl:versionIRI <http://bytestar.org/ontology/bytecore-hardware/5.0.0-phase2> ;
+    owl:priorVersion <http://bytestar.org/ontology/bytecore-hardware/4.0.0> ;
+    owl:backwardCompatibleWith <http://bytestar.org/ontology/bytecore-hardware/4.0.0> .
+
+# Development and maintenance metadata
+<http://bytestar.org/ontology/bytecore-hardware>
+    dct:contributor "ByteStar Hardware Architecture Team"@en ;
+    dct:publisher "ByteStar Foundation"@en ;
+    dct:rights "Copyright 2025 ByteStar Foundation. All rights reserved."@en ;
+    dct:source <http://bytestar.org/specifications/hardware-abstraction> ;
+    # Technical specifications
+    :requiresHardwareSupport "x86_64, ARM64, RISC-V"@en ;
+    :requiresKernelVersion "Linux 5.15+, FreeBSD 13+, Windows 11+"@en ;
+    :requiresMemory "8GB minimum, 64GB recommended"@en ;
+    :requiresCPU "8 cores minimum, 32 cores recommended"@en ;
+    # Performance targets
+    doe:targetLatency "8ns"^^xsd:duration ;
+    doe:targetThroughput "8Gbps"^^xsd:double ;
+    doe:targetUtilization "0.8"^^xsd:double ;
+    # Integration requirements
+    bp:requiresPQCSupport true ;
+    det:requiresDeterministicExecution true ;
+    be:requiresHardwareSecurity true .

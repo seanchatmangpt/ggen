@@ -1,0 +1,354 @@
+# ontology-diff-example.ttl — Instance data for ontology evolution v1.0 -> v2.0
+# Contains 10 changes of different types demonstrating the diff vocabulary.
+#
+# This file is loaded alongside ontology-diff.ttl as input data for
+# the ontology-diff-extract.rq SPARQL-star CONSTRUCT query.
+#
+# Scenario: A CRM ontology evolving from v1.0 to v2.0 with new classes,
+# renamed properties, type changes, deprecations, and cardinality changes.
+
+@prefix diff: <https://ggen.dev/ontology/diff#> .
+@prefix ex: <https://ggen.dev/examples/diff#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# VERSION CONTEXT
+# ============================================================================
+# v1.0 = https://ggen.dev/examples/diff#v1
+# v2.0 = https://ggen.dev/examples/diff#v2
+# These prefixes denote the version context; actual versioning is captured
+# in the diff:addedInVersion / diff:removedInVersion / diff:modifiedInVersion
+# annotation properties on each triple term.
+
+# ============================================================================
+# CHANGE 1: ADDED CLASS — ex:Organization added in v2.0
+# Non-breaking: new class does not affect existing consumers.
+# ============================================================================
+
+<< ex:Organization rdf:type owl:Class >> diff:changeType "added" ;
+                                             diff:changeReason "CRM now supports B2B relationships requiring an Organization entity separate from Person" ;
+                                             diff:addedInVersion "2.0.0" ;
+                                             diff:impactLevel "low" ;
+                                             diff:affectedTemplates "organization-form.tera, organization-list.tera" ;
+                                             diff:affectedQueries "list-organizations.rq, find-organization.rq" ;
+                                             diff:breakingChange false ;
+                                             diff:autoMigration true ;
+                                             diff:migrationStep "Add Organization struct to generated codebase. No existing code affected." ;
+                                             diff:verificationQuery "ASK { ex:Organization a owl:Class }" .
+
+# ============================================================================
+# CHANGE 2: REMOVED PROPERTY — ex:Person ex:hasPhone removed in v2.0
+# Breaking: existing consumers reference ex:hasPhone and will fail.
+# Replacement: ex:hasContact consolidates phone, email, and address.
+# ============================================================================
+
+<< ex:Person ex:hasPhone xsd:string >> diff:changeType "removed" ;
+                                       diff:changeReason "Phone field consolidated into ex:hasContact alongside email and address for a unified contact model" ;
+                                       diff:removedInVersion "2.0.0" ;
+                                       diff:replacementTriple "<< ex:Person ex:hasContact ex:ContactInfo >>" ;
+                                       diff:impactLevel "high" ;
+                                       diff:affectedTemplates "person-form.tera, person-detail.tera, contact-widget.tera" ;
+                                       diff:affectedQueries "find-person-by-phone.rq, person-contact-details.rq" ;
+                                       diff:breakingChange true ;
+                                       diff:autoMigration true ;
+                                       diff:migrationStep "Replace all ex:hasPhone references with ex:hasContact. Extract phone number into ContactInfo.phone field." ;
+                                       diff:migrationCode "ggen diff migrate --property ex:hasPhone --to-property ex:hasContact --extract-field phone" ;
+                                       diff:verificationQuery "ASK { ?person a ex:Person . FILTER NOT EXISTS { ?person ex:hasPhone ?any } }" .
+
+# ============================================================================
+# CHANGE 3: RENAMED PROPERTY — ex:Person ex:hasEmail -> ex:Person ex:emailAddress
+# Breaking: property IRI changed, existing SPARQL queries and templates break.
+# ============================================================================
+
+<< ex:Person ex:hasEmail xsd:string >> diff:changeType "renamed" ;
+                                        diff:changeReason "Align naming convention with Schema.org 'email' property for cross-ontology interoperability" ;
+                                        diff:modifiedInVersion "2.0.0" ;
+                                        diff:replacementTriple "<< ex:Person ex:emailAddress xsd:string >>" ;
+                                        diff:impactLevel "high" ;
+                                        diff:affectedTemplates "person-form.tera, person-detail.tera, email-notification.tera" ;
+                                        diff:affectedQueries "find-person-by-email.rq, person-contact-details.rq, email-campaign-recipients.rq" ;
+                                        diff:breakingChange true ;
+                                        diff:autoMigration true ;
+                                        diff:migrationStep "Rename ex:hasEmail to ex:emailAddress in all templates and queries. Update generated struct field names." ;
+                                        diff:migrationCode "ggen diff migrate --rename-property ex:hasEmail --to ex:emailAddress" ;
+                                        diff:verificationQuery "ASK { ?person a ex:Person . FILTER NOT EXISTS { ?person ex:hasEmail ?any } . ?person ex:emailAddress ?email }" .
+
+# ============================================================================
+# CHANGE 4: TYPE CHANGED — ex:Person ex:hasAge xsd:integer -> xsd:nonNegativeInteger
+# Breaking: negative values that were valid in v1.0 become invalid in v2.0.
+# Data migration required: validate existing age values.
+# ============================================================================
+
+<< ex:Person ex:hasAge xsd:nonNegativeInteger >> diff:changeType "type_changed" ;
+                                                 diff:changeReason "Age cannot be negative; tightening constraint to catch data quality issues at the schema level" ;
+                                                 diff:modifiedInVersion "2.0.0" ;
+                                                 diff:oldRange "xsd:integer" ;
+                                                 diff:newRange "xsd:nonNegativeInteger" ;
+                                                 diff:impactLevel "high" ;
+                                                 diff:affectedTemplates "person-form.tera, age-validator.tera" ;
+                                                 diff:affectedQueries "person-demographics.rq, age-distribution.rq" ;
+                                                 diff:breakingChange true ;
+                                                 diff:autoMigration false ;
+                                                 diff:migrationStep "Audit all Person instances for negative age values. Fix or nullify invalid records before applying the type constraint." ;
+                                                 diff:migrationCode "SELECT ?person ?age WHERE { ?person ex:hasAge ?age . FILTER(?age < 0) }" ;
+                                                 diff:verificationQuery "ASK { ?person ex:hasAge ?age . FILTER(?age < 0) }" .
+
+# ============================================================================
+# CHANGE 5: DEPRECATED — ex:LegacyField deprecated in v2.0
+# Non-breaking in v2.0 (still functional) but will be removed in v3.0.
+# ============================================================================
+
+<< ex:Person ex:legacyField xsd:string >> diff:changeType "deprecated" ;
+                                           diff:changeReason "Replaced by structured metadata fields (ex:metadata). LegacyField stored free-form key-value strings that could not be validated" ;
+                                           diff:modifiedInVersion "2.0.0" ;
+                                           diff:replacementTriple "<< ex:Person ex:metadata ex:MetadataRecord >>" ;
+                                           diff:impactLevel "medium" ;
+                                           diff:affectedTemplates "legacy-import.tera, person-form.tera" ;
+                                           diff:affectedQueries "legacy-search.rq, person-full-text.rq" ;
+                                           diff:breakingChange false ;
+                                           diff:autoMigration true ;
+                                           diff:migrationStep "Migrate free-form legacyField values into structured ex:metadata records. Parse key=value pairs." ;
+                                           diff:migrationCode "ggen diff migrate --deprecate ex:legacyField --to-property ex:metadata --parse-key-value" ;
+                                           diff:verificationQuery "ASK { ?person ex:metadata ?meta . ?meta ex:key ?k . ?meta ex:value ?v }" .
+
+# ============================================================================
+# CHANGE 6: CARDINALITY CHANGED — ex:Person ex:hasAddress from required (1..1) to optional (0..*)
+# Non-breaking: existing required addresses still valid; new data can omit address.
+# ============================================================================
+
+<< ex:Person ex:hasAddress ex:Address >> diff:changeType "cardinality_changed" ;
+                                          diff:changeReason "Person records may be created before address is known (e.g., lead capture). Allowing optional and multiple addresses supports work and home addresses" ;
+                                          diff:modifiedInVersion "2.0.0" ;
+                                          diff:oldCardinality "1..1" ;
+                                          diff:newCardinality "0..*" ;
+                                          diff:impactLevel "medium" ;
+                                          diff:affectedTemplates "person-form.tera, address-widget.tera, address-list.tera" ;
+                                          diff:affectedQueries "person-with-address.rq, address-geocode.rq" ;
+                                          diff:breakingChange false ;
+                                          diff:autoMigration true ;
+                                          diff:migrationStep "Change generated struct field from Address to Vec<Address>. Remove NOT NULL constraint from database column. Update validation logic to allow empty address list." ;
+                                          diff:migrationCode "ggen diff migrate --cardinality ex:hasAddress --from '1..1' --to '0..*'" ;
+                                          diff:verificationQuery "ASK { ?person a ex:Person . FILTER NOT EXISTS { ?person ex:hasAddress ?any } }" .
+
+# ============================================================================
+# CHANGE 7: BREAKING TYPE CHANGE — ex:Person ex:creditScore xsd:string -> xsd:integer
+# Breaking: incompatible type change. String credit scores ("750") become integers (750).
+# Requires data transformation and validation.
+# ============================================================================
+
+<< ex:Person ex:creditScore xsd:integer >> diff:changeType "type_changed" ;
+                                            diff:changeReason "Credit scores are numeric values (300-850). String type prevented range validation and arithmetic operations" ;
+                                            diff:modifiedInVersion "2.0.0" ;
+                                            diff:oldRange "xsd:string" ;
+                                            diff:newRange "xsd:integer" ;
+                                            diff:impactLevel "critical" ;
+                                            diff:affectedTemplates "credit-report.tera, loan-application.tera, risk-assessment.tera" ;
+                                            diff:affectedQueries "credit-score-range.rq, loan-eligibility.rq, risk-calculation.rq" ;
+                                            diff:breakingChange true ;
+                                            diff:autoMigration false ;
+                                            diff:migrationStep "CRITICAL: Parse all string credit scores to integers. Validate range 300-850. Flag non-numeric values for manual review. Back up data before migration." ;
+                                            diff:migrationCode "SELECT ?person ?score WHERE { ?person ex:creditScore ?score . FILTER(!REGEX(STR(?score), '^[0-9]+$')) }" ;
+                                            diff:verificationQuery "ASK { ?person ex:creditScore ?score . FILTER(?score < 300 || ?score > 850) }" .
+
+# ============================================================================
+# CHANGE 8: NON-BREAKING ADDITION — ex:Person ex:preferredLanguage xsd:string
+# Non-breaking: new optional property, existing data unaffected.
+# ============================================================================
+
+<< ex:Person ex:preferredLanguage xsd:string >> diff:changeType "added" ;
+                                                 diff:changeReason "Multi-language support for notifications and UI localization. Defaults to 'en' if not set" ;
+                                                 diff:addedInVersion "2.0.0" ;
+                                                 diff:impactLevel "low" ;
+                                                 diff:affectedTemplates "person-form.tera, notification-preferences.tera" ;
+                                                 diff:affectedQueries "" ;
+                                                 diff:breakingChange false ;
+                                                 diff:autoMigration true ;
+                                                 diff:migrationStep "Add preferredLanguage field to Person struct with default value 'en'. No existing data migration needed." ;
+                                                 diff:verificationQuery "ASK { ex:Person ex:preferredLanguage rdfs:range xsd:string }" .
+
+# ============================================================================
+# CHANGE 9: ADDED PROPERTY — ex:Organization ex:hasMember ex:Person
+# Non-breaking: new relationship, does not affect existing Person or Organization.
+# ============================================================================
+
+<< ex:Organization ex:hasMember ex:Person >> diff:changeType "added" ;
+                                            diff:changeReason "B2B CRM requires linking Persons to Organizations for account management" ;
+                                            diff:addedInVersion "2.0.0" ;
+                                            diff:impactLevel "low" ;
+                                            diff:affectedTemplates "organization-detail.tera, team-management.tera" ;
+                                            diff:affectedQueries "organization-members.rq, person-organization.rq" ;
+                                            diff:breakingChange false ;
+                                            diff:autoMigration true ;
+                                            diff:migrationStep "Add hasMember relationship to Organization. Generate join table for many-to-many Person-Organization links." ;
+                                            diff:verificationQuery "ASK { ex:Organization ex:hasMember rdfs:range ex:Person }" .
+
+# ============================================================================
+# CHANGE 10: MODIFIED RANGE — ex:Person ex:status xsd:string -> ex:PersonStatus
+# Breaking: range changed from datatype (xsd:string) to object type (ex:PersonStatus).
+# Open string values become constrained enumeration.
+# ============================================================================
+
+<< ex:Person ex:status ex:PersonStatus >> diff:changeType "type_changed" ;
+                                         diff:changeReason "Status was an untyped string ('active', 'inactive', 'suspended'). Migrating to a controlled vocabulary (ex:PersonStatus) to prevent invalid values and enable status-specific business rules" ;
+                                         diff:modifiedInVersion "2.0.0" ;
+                                         diff:oldRange "xsd:string" ;
+                                         diff:newRange "ex:PersonStatus" ;
+                                         diff:impactLevel "critical" ;
+                                         diff:affectedTemplates "person-form.tera, person-list.tera, status-dashboard.tera, audit-log.tera" ;
+                                         diff:affectedQueries "active-persons.rq, status-transitions.rq, compliance-report.rq" ;
+                                         diff:breakingChange true ;
+                                         diff:autoMigration false ;
+                                         diff:migrationStep "Map all existing string status values to ex:PersonStatus instances. Validate that no unexpected status values exist. Create ex:PersonStatus instances for: active, inactive, suspended, pending, archived." ;
+                                         diff:migrationCode "SELECT DISTINCT ?status WHERE { ?person ex:status ?status }" ;
+                                         diff:verificationQuery "ASK { ?person ex:status ?s . FILTER(!ISIRI(?s)) }" .
+
+# ============================================================================
+# IMPACT ASSESSMENT — Aggregated summary for v1.0 -> v2.0 migration
+# ============================================================================
+
+ex:Assessment-v1-to-v2
+  a diff:ImpactAssessment ;
+  rdfs:label "Ontology Migration Assessment: v1.0 to v2.0"@en ;
+  diff:fromVersion "1.0.0" ;
+  diff:toVersion "2.0.0" ;
+  diff:totalChanges 10 ;
+  diff:breakingChanges 5 ;
+  diff:autoMigratableChanges 6 ;
+  diff:manualChanges 4 ;
+  diff:hasChange ex:Change-org-added ;
+  diff:hasChange ex:Change-phone-removed ;
+  diff:hasChange ex:Change-email-renamed ;
+  diff:hasChange ex:Change-age-type-changed ;
+  diff:hasChange ex:Change-legacy-deprecated ;
+  diff:hasChange ex:Change-address-cardinality ;
+  diff:hasChange ex:Change-credit-score-type ;
+  diff:hasChange ex:Change-language-added ;
+  diff:hasChange ex:Change-org-member-added ;
+  diff:hasChange ex:Change-status-type-changed .
+
+# ============================================================================
+# CHANGE INSTANCES — Flat objects for the CONSTRUCT query output
+# ============================================================================
+
+ex:Change-org-added
+  a diff:AddedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Organization" ;
+  diff:property "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" ;
+  diff:range "http://www.w3.org/2002/07/owl#Class" .
+
+ex:Change-phone-removed
+  a diff:RemovedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#hasPhone" ;
+  diff:range "http://www.w3.org/2001/XMLSchema#string" .
+
+ex:Change-email-renamed
+  a diff:ModifiedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#hasEmail" ;
+  diff:range "http://www.w3.org/2001/XMLSchema#string" .
+
+ex:Change-age-type-changed
+  a diff:ModifiedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#hasAge" ;
+  diff:range "http://www.w3.org/2001/XMLSchema#nonNegativeInteger" .
+
+ex:Change-legacy-deprecated
+  a diff:ModifiedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#legacyField" ;
+  diff:range "http://www.w3.org/2001/XMLSchema#string" .
+
+ex:Change-address-cardinality
+  a diff:ModifiedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#hasAddress" ;
+  diff:range "https://ggen.dev/examples/diff#Address" .
+
+ex:Change-credit-score-type
+  a diff:ModifiedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#creditScore" ;
+  diff:range "http://www.w3.org/2001/XMLSchema#integer" .
+
+ex:Change-language-added
+  a diff:AddedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#preferredLanguage" ;
+  diff:range "http://www.w3.org/2001/XMLSchema#string" .
+
+ex:Change-org-member-added
+  a diff:AddedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Organization" ;
+  diff:property "https://ggen.dev/examples/diff#hasMember" ;
+  diff:range "https://ggen.dev/examples/diff#Person" .
+
+ex:Change-status-type-changed
+  a diff:ModifiedElement ;
+  diff:entity "https://ggen.dev/examples/diff#Person" ;
+  diff:property "https://ggen.dev/examples/diff#status" ;
+  diff:range "https://ggen.dev/examples/diff#PersonStatus" .
+
+# ============================================================================
+# MIGRATION STEPS — Ordered steps for applying the v1.0 -> v2.0 migration
+# ============================================================================
+
+ex:MigrationStep-1
+  a diff:MigrationStep ;
+  diff:stepOrder 1 ;
+  diff:stepDescription "Audit all Person instances for invalid data: negative ages, non-numeric credit scores, unexpected status values" ;
+  diff:stepCode "SELECT ?person ?age ?score ?status WHERE { ?person a ex:Person . OPTIONAL { ?person ex:hasAge ?age } . OPTIONAL { ?person ex:creditScore ?score } . OPTIONAL { ?person ex:status ?status } . FILTER(?age < 0 || !REGEX(STR(?score), '^[0-9]+$') || !ISIRI(?status)) }" ;
+  diff:stepVerification "ASK { ?person ex:hasAge ?age . FILTER(?age < 0) }" .
+
+ex:MigrationStep-2
+  a diff:MigrationStep ;
+  diff:stepOrder 2 ;
+  diff:stepDescription "Back up production data before applying any schema changes" ;
+  diff:stepCode "ggen backup --ontology crm --version 1.0.0" ;
+  diff:stepVerification "ASK { ?backup a diff:MigrationStep . FILTER(STR(?backup) != '') }" .
+
+ex:MigrationStep-3
+  a diff:MigrationStep ;
+  diff:stepOrder 3 ;
+  diff:stepDescription "Replace ex:hasPhone with ex:hasContact across all templates and queries" ;
+  diff:stepCode "ggen diff migrate --property ex:hasPhone --to-property ex:hasContact --extract-field phone" ;
+  diff:stepVerification "ASK { ?person a ex:Person . FILTER NOT EXISTS { ?person ex:hasPhone ?any } }" .
+
+ex:MigrationStep-4
+  a diff:MigrationStep ;
+  diff:stepOrder 4 ;
+  diff:stepDescription "Rename ex:hasEmail to ex:emailAddress in all templates and queries" ;
+  diff:stepCode "ggen diff migrate --rename-property ex:hasEmail --to ex:emailAddress" ;
+  diff:stepVerification "ASK { ?person a ex:Person . FILTER NOT EXISTS { ?person ex:hasEmail ?any } . ?person ex:emailAddress ?email }" .
+
+ex:MigrationStep-5
+  a diff:MigrationStep ;
+  diff:stepOrder 5 ;
+  diff:stepDescription "Parse credit scores from string to integer, validate range 300-850" ;
+  diff:stepCode "ggen diff migrate --type-change ex:creditScore --from xsd:string --to xsd:int --validate-range '300,850'" ;
+  diff:stepVerification "ASK { ?person ex:creditScore ?score . FILTER(?score < 300 || ?score > 850) }" .
+
+ex:MigrationStep-6
+  a diff:MigrationStep ;
+  diff:stepOrder 6 ;
+  diff:stepDescription "Create ex:PersonStatus instances and map string status values to them" ;
+  diff:stepCode "ggen diff migrate --type-change ex:status --from xsd:string --to ex:PersonStatus --create-instances 'active,inactive,suspended,pending,archived'" ;
+  diff:stepVerification "ASK { ?person ex:status ?s . FILTER(!ISIRI(?s)) }" .
+
+ex:MigrationStep-7
+  a diff:MigrationStep ;
+  diff:stepOrder 7 ;
+  diff:stepDescription "Change ex:hasAddress cardinality from 1..1 to 0..*, update database constraints" ;
+  diff:stepCode "ggen diff migrate --cardinality ex:hasAddress --from '1..1' --to '0..*'" ;
+  diff:stepVerification "ASK { ?person a ex:Person . FILTER NOT EXISTS { ?person ex:hasAddress ?any } }" .
+
+ex:MigrationStep-8
+  a diff:MigrationStep ;
+  diff:stepOrder 8 ;
+  diff:stepDescription "Run full test suite and verify all generated artifacts compile" ;
+  diff:stepCode "ggen generate && cargo test && go test ./..." ;
+  diff:stepVerification "ASK { ?report a diff:ImpactAssessment . ?report diff:toVersion '2.0.0' }" .

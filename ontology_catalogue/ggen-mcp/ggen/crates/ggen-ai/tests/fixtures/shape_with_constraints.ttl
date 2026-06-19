@@ -1,0 +1,41 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape with various constraints
+ex:UserShape
+    a sh:NodeShape ;
+    sh:targetClass ex:User ;
+    sh:property [
+        sh:path ex:username ;
+        rdfs:comment "Username string" ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:maxLength 50
+    ] ;
+    sh:property [
+        sh:path ex:password ;
+        rdfs:comment "Password string" ;
+        sh:datatype xsd:string ;
+        sh:minLength 8
+    ] ;
+    sh:property [
+        sh:path ex:email ;
+        rdfs:comment "Email with pattern validation" ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    ] ;
+    sh:property [
+        sh:path ex:status ;
+        rdfs:comment "User status enumeration" ;
+        sh:datatype xsd:string ;
+        sh:in ( "active" "inactive" "suspended" )
+    ] ;
+    sh:property [
+        sh:path ex:age ;
+        rdfs:comment "User age with bounds" ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1
+    ] .

@@ -1,0 +1,9 @@
+SELECT DISTINCT ?type ?visibility ?name ?description ?derive ?struct
+WHERE {
+    ?type a ggen:Type .
+    ?type ggen:name ?name .
+    OPTIONAL { ?type ggen:visibility ?visibility }
+    OPTIONAL { ?type ggen:description ?description }
+    OPTIONAL { ?type ggen:derive ?derive }
+    OPTIONAL { ?type ggen:isStruct ?struct }
+} ORDER BY ?name

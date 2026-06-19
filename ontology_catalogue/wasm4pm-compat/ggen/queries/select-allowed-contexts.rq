@@ -1,0 +1,25 @@
+# select-allowed-contexts.rq
+# Extract allowed context rules from audit-machinery.ttl
+# Output: context name, scope, exception reason, related forbidden patterns
+
+PREFIX audit:   <https://wasm4pm-compat.rs/audit#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+SELECT
+  ?contextName
+  ?contextScope
+  ?exceptionReason
+  ?forbiddenPatternName
+WHERE {
+  ?context a audit:AllowedContext .
+  ?context audit:contextName ?contextName .
+  ?context audit:contextScope ?contextScope .
+  ?context audit:exceptionReason ?exceptionReason .
+
+  OPTIONAL {
+    ?pattern audit:allowedIn ?context .
+    ?pattern audit:patternName ?forbiddenPatternName .
+  }
+}
+ORDER BY ?contextName ?forbiddenPatternName

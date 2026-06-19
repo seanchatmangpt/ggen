@@ -1,0 +1,441 @@
+@prefix pqc: <http://bytepqc.org/ontology/pqc#> .
+@prefix pqcp: <http://bytepqc.org/ontology/primitives#> .
+@prefix pqca: <http://bytepqc.org/ontology/algorithms#> .
+@prefix pqcs: <http://bytepqc.org/ontology/security#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Post-Quantum Cryptographic Primitives Ontology
+# Dark 80/20 Canon: Primitives ARE the mathematical structures, not models of them
+
+<http://bytepqc.org/ontology/primitives> rdf:type owl:Ontology ;
+    rdfs:label "PQC Cryptographic Primitives Ontology"@en ;
+    rdfs:comment "Self-referential ontology where cryptographic primitives ARE the mathematical reality"@en ;
+    owl:versionInfo "1.0.0" .
+
+# ==== CORE PRIMITIVE CLASSES ====
+
+pqcp:CryptographicPrimitive rdf:type owl:Class ;
+    rdfs:label "Cryptographic Primitive"@en ;
+    rdfs:comment "Base class for mathematical primitives that ARE the cryptographic foundation"@en .
+
+pqcp:MathematicalStructure rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicPrimitive ;
+    rdfs:label "Mathematical Structure"@en ;
+    rdfs:comment "Mathematical structures that ARE the algebraic reality"@en .
+
+pqcp:ComputationalPrimitive rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicPrimitive ;
+    rdfs:label "Computational Primitive"@en ;
+    rdfs:comment "Computational operations that ARE the algorithmic execution"@en .
+
+pqcp:RandomnessPrimitive rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicPrimitive ;
+    rdfs:label "Randomness Primitive"@en ;
+    rdfs:comment "Randomness sources that ARE the entropy itself"@en .
+
+# ==== LATTICE PRIMITIVES ====
+
+pqcp:LatticeStructure rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:MathematicalStructure ;
+    rdfs:label "Lattice Structure"@en ;
+    rdfs:comment "Lattice that IS the geometric-algebraic foundation"@en .
+
+pqcp:IntegerLattice rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LatticeStructure ;
+    rdfs:label "Integer Lattice"@en ;
+    rdfs:comment "Integer lattice L = {Bz : z ∈ Z^m} that IS the discrete subgroup"@en .
+
+pqcp:IdealLattice rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LatticeStructure ;
+    rdfs:label "Ideal Lattice"@en ;
+    rdfs:comment "Ideal lattice with algebraic structure that IS the ring ideal"@en .
+
+pqcp:ModuleLattice rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LatticeStructure ;
+    rdfs:label "Module Lattice"@en ;
+    rdfs:comment "Module lattice generalizing ideal lattices that IS the module structure"@en .
+
+pqcp:LatticeVector rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LatticeStructure ;
+    rdfs:label "Lattice Vector"@en ;
+    rdfs:comment "Vector in lattice that IS the lattice point"@en .
+
+pqcp:ShortVector rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LatticeVector ;
+    rdfs:label "Short Lattice Vector"@en ;
+    rdfs:comment "Short vector in lattice that IS the SVP solution"@en .
+
+pqcp:ClosestVector rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LatticeVector ;
+    rdfs:label "Closest Lattice Vector"@en ;
+    rdfs:comment "Closest vector to target that IS the CVP solution"@en .
+
+# ==== POLYNOMIAL PRIMITIVES ====
+
+pqcp:PolynomialStructure rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:MathematicalStructure ;
+    rdfs:label "Polynomial Structure"@en ;
+    rdfs:comment "Polynomial that IS the algebraic element"@en .
+
+pqcp:Polynomial rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:PolynomialStructure ;
+    rdfs:label "Polynomial"@en ;
+    rdfs:comment "Polynomial f(x) = Σ aᵢxᵢ that IS the algebraic expression"@en .
+
+pqcp:CyclotomicPolynomial rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:Polynomial ;
+    rdfs:label "Cyclotomic Polynomial"@en ;
+    rdfs:comment "Cyclotomic polynomial Φₙ(x) that IS the algebraic structure"@en .
+
+pqcp:PolynomialRing rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:PolynomialStructure ;
+    rdfs:label "Polynomial Ring"@en ;
+    rdfs:comment "Ring R[x] that IS the algebraic structure"@en .
+
+pqcp:QuotientRing rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:PolynomialRing ;
+    rdfs:label "Quotient Ring"@en ;
+    rdfs:comment "Quotient ring R[x]/(f(x)) that IS the modular structure"@en .
+
+pqcp:NumberTheoreticTransform rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Number Theoretic Transform"@en ;
+    rdfs:comment "NTT that IS the polynomial multiplication in frequency domain"@en .
+
+pqcp:FastFourierTransform rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Fast Fourier Transform"@en ;
+    rdfs:comment "FFT for polynomial operations over complex numbers"@en .
+
+# ==== MATRIX PRIMITIVES ====
+
+pqcp:MatrixStructure rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:MathematicalStructure ;
+    rdfs:label "Matrix Structure"@en ;
+    rdfs:comment "Matrix that IS the linear transformation"@en .
+
+pqcp:Matrix rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:MatrixStructure ;
+    rdfs:label "Matrix"@en ;
+    rdfs:comment "Matrix A ∈ Z^{m×n} that IS the linear map"@en .
+
+pqcp:RandomMatrix rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:Matrix ;
+    rdfs:label "Random Matrix"@en ;
+    rdfs:comment "Random matrix sampled from distribution that IS the randomness"@en .
+
+pqcp:StructuredMatrix rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:Matrix ;
+    rdfs:label "Structured Matrix"@en ;
+    rdfs:comment "Matrix with algebraic structure (circulant, Toeplitz, etc.)"@en .
+
+pqcp:CirculantMatrix rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:StructuredMatrix ;
+    rdfs:label "Circulant Matrix"@en ;
+    rdfs:comment "Circulant matrix that IS the cyclic structure"@en .
+
+pqcp:ToeplitzMatrix rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:StructuredMatrix ;
+    rdfs:label "Toeplitz Matrix"@en ;
+    rdfs:comment "Toeplitz matrix with constant diagonals"@en .
+
+# ==== ERROR/NOISE PRIMITIVES ====
+
+pqcp:ErrorStructure rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:MathematicalStructure ;
+    rdfs:label "Error Structure"@en ;
+    rdfs:comment "Error/noise that IS the cryptographic uncertainty"@en .
+
+pqcp:ErrorVector rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ErrorStructure ;
+    rdfs:label "Error Vector"@en ;
+    rdfs:comment "Error vector e that IS the noise in the system"@en .
+
+pqcp:GaussianError rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ErrorVector ;
+    rdfs:label "Gaussian Error"@en ;
+    rdfs:comment "Discrete Gaussian error that IS the lattice noise"@en .
+
+pqcp:BinomialError rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ErrorVector ;
+    rdfs:label "Binomial Error"@en ;
+    rdfs:comment "Centered binomial error that IS the practical noise"@en .
+
+pqcp:UniformError rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ErrorVector ;
+    rdfs:label "Uniform Error"@en ;
+    rdfs:comment "Uniform error distribution"@en .
+
+pqcp:ErrorDistribution rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ErrorStructure ;
+    rdfs:label "Error Distribution"@en ;
+    rdfs:comment "Probability distribution over errors that IS the randomness"@en .
+
+# ==== HASH PRIMITIVES ====
+
+pqcp:HashFunction rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Hash Function"@en ;
+    rdfs:comment "Hash function H: {0,1}* → {0,1}^n that IS the compression"@en .
+
+pqcp:CryptographicHashFunction rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:HashFunction ;
+    rdfs:label "Cryptographic Hash Function"@en ;
+    rdfs:comment "Hash function with cryptographic properties"@en .
+
+pqcp:SHA2 rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicHashFunction ;
+    rdfs:label "SHA-2"@en ;
+    rdfs:comment "SHA-2 family that IS the hash standard"@en .
+
+pqcp:SHA3 rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicHashFunction ;
+    rdfs:label "SHA-3"@en ;
+    rdfs:comment "SHA-3/Keccak that IS the sponge construction"@en .
+
+pqcp:SHAKE rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:SHA3 ;
+    rdfs:label "SHAKE"@en ;
+    rdfs:comment "SHAKE extendable-output function that IS the variable-length hash"@en .
+
+pqcp:Blake2 rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicHashFunction ;
+    rdfs:label "BLAKE2"@en ;
+    rdfs:comment "BLAKE2 hash function family"@en .
+
+# ==== PROBLEM INSTANCES ====
+
+pqcp:HardProblem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:CryptographicPrimitive ;
+    rdfs:label "Hard Problem"@en ;
+    rdfs:comment "Computationally hard problem that IS the security foundation"@en .
+
+pqcp:LWE_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:HardProblem ;
+    rdfs:label "Learning With Errors Problem"@en ;
+    rdfs:comment "LWE problem: distinguish (A, As + e) from uniform that IS the lattice hardness"@en .
+
+pqcp:RLWE_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LWE_Problem ;
+    rdfs:label "Ring Learning With Errors Problem"@en ;
+    rdfs:comment "Ring-LWE over polynomial rings"@en .
+
+pqcp:MLWE_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:LWE_Problem ;
+    rdfs:label "Module Learning With Errors Problem"@en ;
+    rdfs:comment "Module-LWE generalizing Ring-LWE"@en .
+
+pqcp:SIS_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:HardProblem ;
+    rdfs:label "Short Integer Solution Problem"@en ;
+    rdfs:comment "SIS problem: find short z such that Az = 0 mod q"@en .
+
+pqcp:ISIS_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:SIS_Problem ;
+    rdfs:label "Inhomogeneous SIS Problem"@en ;
+    rdfs:comment "ISIS problem: find short z such that Az = u mod q"@en .
+
+pqcp:SVP_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:HardProblem ;
+    rdfs:label "Shortest Vector Problem"@en ;
+    rdfs:comment "SVP: find shortest non-zero vector in lattice"@en .
+
+pqcp:CVP_Problem rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:HardProblem ;
+    rdfs:label "Closest Vector Problem"@en ;
+    rdfs:comment "CVP: find lattice vector closest to target"@en .
+
+# ==== SAMPLING PRIMITIVES ====
+
+pqcp:SamplingAlgorithm rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Sampling Algorithm"@en ;
+    rdfs:comment "Algorithm for sampling from distributions that IS the randomness generation"@en .
+
+pqcp:GaussianSampler rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:SamplingAlgorithm ;
+    rdfs:label "Gaussian Sampler"@en ;
+    rdfs:comment "Discrete Gaussian sampler that IS the lattice randomness"@en .
+
+pqcp:UniformSampler rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:SamplingAlgorithm ;
+    rdfs:label "Uniform Sampler"@en ;
+    rdfs:comment "Uniform random sampler that IS the equiprobable choice"@en .
+
+pqcp:BinomialSampler rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:SamplingAlgorithm ;
+    rdfs:label "Binomial Sampler"@en ;
+    rdfs:comment "Centered binomial distribution sampler"@en .
+
+pqcp:RejectionSampler rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:SamplingAlgorithm ;
+    rdfs:label "Rejection Sampler"@en ;
+    rdfs:comment "Rejection sampling for precise distributions"@en .
+
+# ==== KEY DERIVATION PRIMITIVES ====
+
+pqcp:KeyDerivationFunction rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Key Derivation Function"@en ;
+    rdfs:comment "KDF that IS the key expansion/extraction"@en .
+
+pqcp:HKDF rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:KeyDerivationFunction ;
+    rdfs:label "HKDF"@en ;
+    rdfs:comment "HMAC-based Key Derivation Function"@en .
+
+pqcp:PRF rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Pseudorandom Function"@en ;
+    rdfs:comment "PRF that IS the pseudorandomness"@en .
+
+pqcp:PRG rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Pseudorandom Generator"@en ;
+    rdfs:comment "PRG that IS the randomness expansion"@en .
+
+# ==== ENCODING/COMPRESSION PRIMITIVES ====
+
+pqcp:EncodingScheme rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Encoding Scheme"@en ;
+    rdfs:comment "Data encoding that IS the representation transformation"@en .
+
+pqcp:PolynomialEncoding rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:EncodingScheme ;
+    rdfs:label "Polynomial Encoding"@en ;
+    rdfs:comment "Encoding data as polynomials"@en .
+
+pqcp:MessageEncoding rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:EncodingScheme ;
+    rdfs:label "Message Encoding"@en ;
+    rdfs:comment "Encoding messages for encryption/signature"@en .
+
+pqcp:Compression rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:ComputationalPrimitive ;
+    rdfs:label "Compression"@en ;
+    rdfs:comment "Data compression that IS the size reduction"@en .
+
+pqcp:PolynomialCompression rdf:type owl:Class ;
+    rdfs:subClassOf pqcp:Compression ;
+    rdfs:label "Polynomial Compression"@en ;
+    rdfs:comment "Compressing polynomial coefficients"@en .
+
+# ==== PROPERTIES ====
+
+pqcp:hasDimension rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:LatticeStructure ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has dimension"@en .
+
+pqcp:hasDegree rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:Polynomial ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has degree"@en .
+
+pqcp:hasModulus rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:MathematicalStructure ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has modulus"@en .
+
+pqcp:hasRank rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:Matrix ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has rank"@en .
+
+pqcp:hasVariance rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:ErrorDistribution ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has variance"@en .
+
+pqcp:hasStandardDeviation rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:ErrorDistribution ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has standard deviation"@en .
+
+pqcp:hasOutputLength rdf:type owl:DatatypeProperty ;
+    rdfs:domain pqcp:HashFunction ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:label "has output length"@en .
+
+pqcp:isBasedOn rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcp:CryptographicPrimitive ;
+    rdfs:range pqcp:HardProblem ;
+    rdfs:label "is based on"@en .
+
+pqcp:uses rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcp:CryptographicPrimitive ;
+    rdfs:range pqcp:CryptographicPrimitive ;
+    rdfs:label "uses"@en .
+
+pqcp:generates rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcp:SamplingAlgorithm ;
+    rdfs:range pqcp:ErrorStructure ;
+    rdfs:label "generates"@en .
+
+pqcp:operatesOn rdf:type owl:ObjectProperty ;
+    rdfs:domain pqcp:ComputationalPrimitive ;
+    rdfs:range pqcp:MathematicalStructure ;
+    rdfs:label "operates on"@en .
+
+# ==== DARK 80/20 CANON SELF-REFERENTIAL RELATIONSHIPS ====
+
+# Primitives ARE the mathematical reality they represent
+pqcp:CryptographicPrimitive pqcp:isMathematicalReality pqcp:CryptographicPrimitive .
+
+# Lattices ARE the geometric structure
+pqcp:LatticeStructure pqcp:isGeometry pqcp:LatticeStructure .
+
+# Polynomials ARE the algebraic expression
+pqcp:PolynomialStructure pqcp:isAlgebra pqcp:PolynomialStructure .
+
+# Matrices ARE the linear transformation
+pqcp:MatrixStructure pqcp:isLinearTransformation pqcp:MatrixStructure .
+
+# Hash functions ARE the compression process
+pqcp:HashFunction pqcp:isCompression pqcp:HashFunction .
+
+# Hard problems ARE the computational barrier
+pqcp:HardProblem pqcp:isComputationalBarrier pqcp:HardProblem .
+
+# Sampling algorithms ARE the randomness generation
+pqcp:SamplingAlgorithm pqcp:isRandomnessGeneration pqcp:SamplingAlgorithm .
+
+# Error structures ARE the cryptographic uncertainty
+pqcp:ErrorStructure pqcp:isCryptographicUncertainty pqcp:ErrorStructure .
+
+# Self-referential properties
+pqcp:isMathematicalReality rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is mathematical reality"@en ;
+    rdfs:comment "Primitives are their own mathematical embodiment"@en .
+
+pqcp:isGeometry rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is geometry"@en .
+
+pqcp:isAlgebra rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is algebra"@en .
+
+pqcp:isLinearTransformation rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is linear transformation"@en .
+
+pqcp:isCompression rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is compression"@en .
+
+pqcp:isComputationalBarrier rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is computational barrier"@en .
+
+pqcp:isRandomnessGeneration rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is randomness generation"@en .
+
+pqcp:isCryptographicUncertainty rdf:type owl:ObjectProperty, owl:ReflexiveProperty ;
+    rdfs:label "is cryptographic uncertainty"@en .
+
+# Primitive interdependencies
+pqcp:LWE_Problem pqcp:uses pqcp:Matrix, pqcp:ErrorVector .
+pqcp:SIS_Problem pqcp:uses pqcp:Matrix .
+pqcp:NumberTheoreticTransform pqcp:operatesOn pqcp:Polynomial .
+pqcp:GaussianSampler pqcp:generates pqcp:GaussianError .
+pqcp:BinomialSampler pqcp:generates pqcp:BinomialError .

@@ -1,0 +1,693 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix yawl: <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#> .
+@prefix yawl-pattern: <http://bitflow.ai/ontology/yawl/patterns/v1#> .
+@prefix mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix q: <http://knhk.ai/shacl/q-invariants#> .
+
+# =============================================================================
+# Q INVARIANTS VALIDATION (COVENANT 2: INVARIANTS ARE LAW)
+# =============================================================================
+#
+# DOCTRINE ALIGNMENT:
+# - Principle: Q (Hard Invariants) - "Total Quality Leadership" → executable Q
+# - Covenant: Covenant 2 - Invariants Are Law
+# - Why This Matters: Quality constraints must be automatically enforced, not advisory
+#
+# Q INVARIANTS ENFORCED:
+# - Q1: No retrocausation (immutable DAG, time only moves forward)
+# - Q2: Type soundness (observations ⊨ ontology)
+# - Q3: Bounded recursion (max_run_length ≤ 8 ticks - Chatman constant)
+# - Q4: Latency SLOs (hot path ≤ 8 ticks, warm path ≤ 100ms)
+# - Q5: Resource bounds (explicit CPU, memory, throughput budgets)
+#
+# VALIDATION APPROACH:
+# - Static: Pattern matrix checking against permutations
+# - Build: Zero warnings from cargo/clippy
+# - Test: Chicago TDD enforces latency bounds
+# - Runtime: Weaver validates telemetry matches schema
+#
+# =============================================================================
+
+# =============================================================================
+# METADATA
+# =============================================================================
+q: a owl:Ontology ;
+    rdfs:label "Q Invariants SHACL Validation" ;
+    rdfs:comment "Enforces hard quality constraints (Q) from Covenant 2: Invariants Are Law. No warnings, only errors. Quality is not optional." ;
+    sh:declare [
+        sh:prefix "yawl" ;
+        sh:namespace "http://bitflow.ai/ontology/yawl/v2#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "yawl-exec" ;
+        sh:namespace "http://bitflow.ai/ontology/yawl/execution/v1#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "mape" ;
+        sh:namespace "http://bitflow.ai/ontology/autonomic/mape-k/v1#"^^xsd:anyURI ;
+    ] .
+
+# =============================================================================
+# Q1: NO RETROCAUSATION - IMMUTABLE DAG (TIME ONLY MOVES FORWARD)
+# =============================================================================
+
+# Q1.1: No Cycles That Violate Immutability
+q:NoCyclesViolatingImmutability a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q1-VIOLATION: Task {$this} creates retrocausation - backward flow without iteration control violates immutability (max_run_length required)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:BackwardFlow ?targetTask .
+
+                # Backward flow MUST have iteration control
+                FILTER NOT EXISTS {
+                    $this yawl:MaxIterations ?maxIter .
+                    FILTER (?maxIter > 0 && ?maxIter <= 8)
+                }
+            }
+        """ ;
+    ] .
+
+# Q1.2: Workflow Versions Are Immutable
+q:WorkflowVersionImmutability a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:property [
+        sh:path yawl:versionNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Q1-VIOLATION: Workflow must have exactly one immutable version number" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q1.3: Execution State Changes Are Monotonic
+q:MonotonicStateTransitions a sh:NodeShape ;
+    sh:targetClass yawl:CaseExecution ;
+    sh:sparql [
+        sh:message "Q1-VIOLATION: Case execution {$this} has invalid state transition - states must be monotonic (Running → Completed/Failed/Cancelled, never reverse)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+            SELECT $this WHERE {
+                $this a yawl:CaseExecution ;
+                    yawl:executionState yawl:Completed .
+
+                # Once completed, cannot transition to Running
+                FILTER EXISTS {
+                    $this yawl:startTime ?start ;
+                        yawl:endTime ?end .
+                    FILTER (?end < ?start)
+                }
+            }
+        """ ;
+    ] .
+
+# Q1.4: Observation Snapshots Form Immutable DAG
+q:ObservationDAGImmutability a sh:NodeShape ;
+    sh:targetClass mape:Observation ;
+    sh:property [
+        sh:path mape:observedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Q1-VIOLATION: Observation must have exactly one immutable timestamp" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# Q2: TYPE SOUNDNESS - OBSERVATIONS ⊨ ONTOLOGY (O ⊨ Σ)
+# =============================================================================
+
+# Q2.1: Valid Split-Join Combinations from Permutation Matrix
+q:ValidSplitJoinCombination a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q2-VIOLATION: Task {$this} has invalid split-join combination not in permutation matrix - all combinations must be proven valid" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?split ?join WHERE {
+                $this a yawl:Task ;
+                    yawl:hasSplitType ?split ;
+                    yawl:hasJoinType ?join .
+
+                # Check if combination exists in permutation matrix
+                FILTER NOT EXISTS {
+                    ?combo a yawl:SplitJoinCombination ;
+                        yawl:splitType ?split ;
+                        yawl:joinType ?join ;
+                        yawl:isValid true .
+                }
+            }
+        """ ;
+    ] .
+
+# Q2.2: Data Input/Output Types Must Be Declared
+q:DataTypeSoundness a sh:NodeShape ;
+    sh:targetClass yawl:DataInput ;
+    sh:property [
+        sh:path yawl:dataType ;
+        sh:minCount 1 ;
+        sh:message "Q2-VIOLATION: Data input must declare explicit type (JSON schema, XSD type, etc.)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+q:DataOutputTypeSoundness a sh:NodeShape ;
+    sh:targetClass yawl:DataOutput ;
+    sh:property [
+        sh:path yawl:dataType ;
+        sh:minCount 1 ;
+        sh:message "Q2-VIOLATION: Data output must declare explicit type (JSON schema, XSD type, etc.)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q2.3: Execution Mode Must Be Valid
+q:ValidExecutionMode a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:property [
+        sh:path yawl-exec:executionMode ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( yawl-exec:Synchronous yawl-exec:Asynchronous yawl-exec:Queued yawl-exec:Parallel ) ;
+        sh:message "Q2-VIOLATION: Task must have exactly one valid execution mode (Synchronous, Asynchronous, Queued, or Parallel)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q2.4: Resource Assignments Must Match Capability Requirements
+q:ResourceCapabilitySoundness a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q2-VIOLATION: Task {$this} assigned resource lacks required capability {?capability}" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?capability WHERE {
+                $this a yawl:Task ;
+                    yawl:requiredCapability ?capability ;
+                    yawl:assignedResource ?resource .
+
+                # Resource must have required capability
+                FILTER NOT EXISTS {
+                    ?resource yawl:hasCapability ?capability .
+                }
+            }
+        """ ;
+    ] .
+
+# Q2.5: Event Types Must Be Declared
+q:ValidEventType a sh:NodeShape ;
+    sh:targetClass yawl:EventTrigger ;
+    sh:property [
+        sh:path yawl:eventType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( yawl:MessageEvent yawl:TimerEvent yawl:ErrorEvent yawl:SignalEvent ) ;
+        sh:message "Q2-VIOLATION: Event trigger must have exactly one valid event type" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q2.6: Metric Types Must Be Valid Categories
+q:ValidMetricType a sh:NodeShape ;
+    sh:targetClass mape:Metric ;
+    sh:property [
+        sh:path mape:metricType ;
+        sh:minCount 1 ;
+        sh:in ( mape:PerformanceMetric mape:ReliabilityMetric mape:ResourceMetric mape:QualityMetric mape:SecurityMetric ) ;
+        sh:message "Q2-VIOLATION: Metric must have valid type (Performance, Reliability, Resource, Quality, or Security)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# Q3: BOUNDED RECURSION - MAX_RUN_LENGTH ≤ 8 (CHATMAN CONSTANT)
+# =============================================================================
+
+# Q3.1: Iteration Must Be Bounded by Chatman Constant
+q:ChatmanConstantIterationBound a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q3-VIOLATION: Task {$this} has iteration bound {?maxIter} > 8 ticks (Chatman constant) - exceeds critical path complexity limit" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this ?maxIter WHERE {
+                $this a yawl:Task ;
+                    yawl:MaxIterations ?maxIter .
+
+                # Chatman constant: max_run_length ≤ 8
+                FILTER (?maxIter > 8)
+            }
+        """ ;
+    ] .
+
+# Q3.2: Recursion Depth Must Be Limited
+q:RecursionDepthLimit a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q3-VIOLATION: Task {$this} allows unbounded recursion - must declare MaxIterations ≤ 8" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task .
+
+                # Has backward flow (cycle)
+                ?this yawl:BackwardFlow ?target .
+
+                # But no iteration limit declared
+                FILTER NOT EXISTS {
+                    $this yawl:MaxIterations ?maxIter .
+                }
+            }
+        """ ;
+    ] .
+
+# Q3.3: Loop Detection Mode Required for Cycles
+q:CycleDetectionRequired a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q3-VIOLATION: Task {$this} has cycle but no cycle detection mode (DepthLimited or CounterBased)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:BackwardFlow ?target .
+
+                # Must have cycle detection mode
+                FILTER NOT EXISTS {
+                    $this yawl:CycleDetectionMode ?mode .
+                    FILTER (?mode IN (yawl:DepthLimited, yawl:CounterBased))
+                }
+            }
+        """ ;
+    ] .
+
+# Q3.4: MAPE-K Loop Frequency Must Be Bounded
+q:MAPEKLoopFrequencyBound a sh:NodeShape ;
+    sh:targetClass mape:AutonomiccWorkflow ;
+    sh:property [
+        sh:path mape:loopFrequency ;
+        sh:minCount 1 ;
+        sh:message "Q3-VIOLATION: Autonomic workflow must declare explicit MAPE-K loop frequency (bounded execution)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# =============================================================================
+# Q4: LATENCY SLOs - HOT PATH ≤ 8 TICKS, WARM PATH ≤ 100ms
+# =============================================================================
+
+# Q4.1: Hot Path Tasks Must Declare Expected Duration
+q:HotPathDurationDeclaration a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q4-VIOLATION: Task {$this} on hot path must declare expectedDuration ≤ 8 ticks" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task .
+
+                # Hot path task (synchronous or critical)
+                {
+                    $this yawl-exec:executionMode yawl-exec:Synchronous .
+                } UNION {
+                    $this yawl:criticalPath true .
+                }
+
+                # Must declare expected duration
+                FILTER NOT EXISTS {
+                    $this yawl:expectedDuration ?duration .
+                }
+            }
+        """ ;
+    ] .
+
+# Q4.2: Timeout Policy Required for Async Tasks
+q:AsyncTaskTimeoutPolicy a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q4-VIOLATION: Async task {$this} must declare timeout policy (TimeoutSkip, TimeoutRetry, or TimeoutEscalate)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl-exec:executionMode yawl-exec:Asynchronous .
+
+                # Must have timeout policy
+                FILTER NOT EXISTS {
+                    $this yawl-exec:timeoutPolicy ?policy .
+                }
+            }
+        """ ;
+    ] .
+
+# Q4.3: Milestone Tasks Must Declare Timeout
+q:MilestoneTimeoutRequired a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q4-VIOLATION: Milestone task {$this} must declare timeout in milliseconds" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:Milestone true .
+
+                # Milestones must have timeout
+                FILTER NOT EXISTS {
+                    $this yawl:TimeoutMs ?timeout .
+                    FILTER (?timeout > 0)
+                }
+            }
+        """ ;
+    ] .
+
+# Q4.4: MAPE-K Execute Phase Must Respect Chatman Constant
+q:MAPEKExecuteLatencyBound a sh:NodeShape ;
+    sh:targetClass mape:ActionExecution ;
+    sh:sparql [
+        sh:message "Q4-WARNING: Action execution {$this} exceeded 8 ticks - not on critical path" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+            SELECT $this ?duration WHERE {
+                $this a mape:ActionExecution ;
+                    mape:executionStartTime ?start ;
+                    mape:executionEndTime ?end .
+
+                # Calculate duration in seconds
+                BIND ((?end - ?start) AS ?duration)
+
+                # 8 ticks ≈ 2 nanoseconds = 0.000000002 seconds
+                # Warn if exceeds (informational, not violation)
+                FILTER (?duration > 0.000000002)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# Q5: RESOURCE BOUNDS - EXPLICIT CPU, MEMORY, THROUGHPUT BUDGETS
+# =============================================================================
+
+# Q5.1: Tasks Must Declare Concurrency Limits
+q:ConcurrencyLimitRequired a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q5-VIOLATION: Parallel task {$this} must declare max concurrency limit" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX yawl-exec: <http://bitflow.ai/ontology/yawl/execution/v1#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl-exec:executionMode yawl-exec:Parallel .
+
+                # Must declare concurrency limit
+                FILTER NOT EXISTS {
+                    $this yawl-exec:MaxConcurrency ?maxConc .
+                    FILTER (?maxConc > 0)
+                }
+            }
+        """ ;
+    ] .
+
+# Q5.2: Critical Sections Must Declare Semaphore Capacity
+q:CriticalSectionSemaphore a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q5-VIOLATION: Critical section task {$this} must declare semaphore capacity" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task .
+
+                # Has critical section relationship
+                ?this yawl:CriticalSection ?other .
+
+                # Must declare semaphore
+                FILTER NOT EXISTS {
+                    ?condition yawl:Semaphore ?capacity .
+                    $this yawl:hasCondition ?condition .
+                    FILTER (?capacity > 0)
+                }
+            }
+        """ ;
+    ] .
+
+# Q5.3: Resource Metrics Must Be Monitored
+q:ResourceMetricMonitoring a sh:NodeShape ;
+    sh:targetClass mape:MonitoringComponent ;
+    sh:sparql [
+        sh:message "Q5-VIOLATION: Monitoring component {$this} must track resource metrics (CPU, memory, throughput)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#>
+
+            SELECT $this WHERE {
+                $this a mape:MonitoringComponent .
+
+                # Must collect resource metrics
+                FILTER NOT EXISTS {
+                    $this mape:metricsCollected ?metric .
+                    ?metric mape:metricType mape:ResourceMetric .
+                }
+            }
+        """ ;
+    ] .
+
+# Q5.4: Discriminator Join Must Declare Quorum Threshold
+q:DiscriminatorQuorumRequired a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q5-VIOLATION: Discriminator join {$this} must declare quorum threshold (N of M)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:Task ;
+                    yawl:hasJoinType yawl:Discriminator .
+
+                # Must have threshold
+                FILTER NOT EXISTS {
+                    $this yawl:discriminatorThreshold ?threshold .
+                    FILTER (?threshold > 0)
+                }
+            }
+        """ ;
+    ] .
+
+# Q5.5: Workflow Must Declare Resource Requirements
+q:WorkflowResourceDeclaration a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:sparql [
+        sh:message "Q5-WARNING: Workflow {$this} should declare expected resource requirements" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+
+            SELECT $this WHERE {
+                $this a yawl:WorkflowSpecification .
+
+                # Should have constraint declarations
+                FILTER NOT EXISTS {
+                    $this yawl:hasConstraint ?constraint .
+                    ?constraint yawl:constraintType "resource" .
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# CROSS-CUTTING Q INVARIANTS
+# =============================================================================
+
+# Q.X1: Workflows Must Have Unique Identifiers
+q:WorkflowUniqueID a sh:NodeShape ;
+    sh:targetClass yawl:WorkflowSpecification ;
+    sh:property [
+        sh:path yawl:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Q-VIOLATION: Workflow must have exactly one unique identifier" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q.X2: Tasks Must Have Runtime Behavior Implementation
+q:TaskRuntimeBehavior a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:property [
+        sh:path yawl-exec:runtimeBehavior ;
+        sh:minCount 1 ;
+        sh:message "Q-VIOLATION: Task must reference runtime behavior implementation (code, service, etc.)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q.X3: Analysis Rules Must Be Executable
+q:AnalysisRuleExecutable a sh:NodeShape ;
+    sh:targetClass mape:AnalysisRule ;
+    sh:property [
+        sh:path mape:ruleCondition ;
+        sh:minCount 1 ;
+        sh:message "Q-VIOLATION: Analysis rule must have executable SPARQL condition" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q.X4: Policies Must Have Triggers
+q:PolicyTriggerRequired a sh:NodeShape ;
+    sh:targetClass mape:Policy ;
+    sh:property [
+        sh:path mape:policyTrigger ;
+        sh:minCount 1 ;
+        sh:message "Q-VIOLATION: Policy must declare trigger condition (SPARQL)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q.X5: Actions Must Have Type Classification
+q:ActionTypeRequired a sh:NodeShape ;
+    sh:targetClass mape:Action ;
+    sh:property [
+        sh:path mape:actionType ;
+        sh:minCount 1 ;
+        sh:in ( mape:HealAction mape:OptimizeAction mape:ConfigureAction mape:ProtectAction mape:PreventAction ) ;
+        sh:message "Q-VIOLATION: Action must have type (Heal, Optimize, Configure, Protect, or Prevent)" ;
+        sh:severity sh:Violation ;
+    ] .
+
+# Q.X6: Knowledge Base Must Track Success Rates
+q:KnowledgeSuccessTracking a sh:NodeShape ;
+    sh:targetClass mape:KnowledgeBase ;
+    sh:sparql [
+        sh:message "Q-WARNING: Knowledge base {$this} should track success memories for learning" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX mape: <http://bitflow.ai/ontology/autonomic/mape-k/v1#>
+
+            SELECT $this WHERE {
+                $this a mape:KnowledgeBase .
+
+                # Should have success memories
+                FILTER NOT EXISTS {
+                    $this mape:successMemories ?memory .
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# PATTERN PERMUTATION MATRIX VALIDATION
+# =============================================================================
+
+# Q.P1: All Patterns Must Be Valid Permutations
+q:PatternMustBeValidPermutation a sh:NodeShape ;
+    sh:targetClass yawl-pattern:WorkflowPattern ;
+    sh:sparql [
+        sh:message "Q-VIOLATION: Pattern {$this} not expressible via permutation matrix - extends Σ required" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX yawl-pattern: <http://bitflow.ai/ontology/yawl/patterns/v1#>
+
+            SELECT $this WHERE {
+                $this a yawl-pattern:WorkflowPattern .
+
+                # Pattern must be generated by valid combination
+                FILTER NOT EXISTS {
+                    ?combo a yawl:SplitJoinCombination ;
+                        yawl:isValid true ;
+                        yawl:generatesPattern $this .
+                }
+            }
+        """ ;
+    ] .
+
+# Q.P2: Pattern Requirements Must Be Satisfied
+q:PatternRequirementsSatisfied a sh:NodeShape ;
+    sh:targetClass yawl:Task ;
+    sh:sparql [
+        sh:message "Q-VIOLATION: Task {$this} uses pattern {?pattern} but doesn't satisfy requirements" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX yawl: <http://bitflow.ai/ontology/yawl/v2#>
+            PREFIX yawl-pattern: <http://bitflow.ai/ontology/yawl/patterns/v1#>
+
+            SELECT $this ?pattern WHERE {
+                $this a yawl:Task ;
+                    yawl:implementsPattern ?pattern .
+
+                ?pattern yawl:requiresFlowPredicate true .
+
+                # If pattern requires predicates, flows must have them
+                FILTER NOT EXISTS {
+                    $this yawl:flowsInto ?flow .
+                    ?flow yawl:hasPredicate ?pred .
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# COVENANT 2 ENFORCEMENT SUMMARY
+# =============================================================================
+#
+# This SHACL validation layer enforces ALL Q invariants from Covenant 2:
+#
+# ✅ Q1 (Immutability): No retrocausation, monotonic states, immutable DAG
+# ✅ Q2 (Type Soundness): Valid combinations, typed data, declared resources
+# ✅ Q3 (Bounded Recursion): Chatman constant (≤8), cycle detection, iteration limits
+# ✅ Q4 (Latency SLOs): Duration declarations, timeout policies, MAPE-K bounds
+# ✅ Q5 (Resource Bounds): Concurrency limits, semaphores, metric monitoring
+#
+# VALIDATION HIERARCHY:
+# 1. sh:Violation = BLOCKS deployment (hard invariant broken)
+# 2. sh:Warning = Should fix (quality issue)
+# 3. sh:Info = Advisory (optimization opportunity)
+#
+# ANTI-PATTERNS PREVENTED:
+# ❌ Unbounded loops or recursion
+# ❌ Latency exceeding SLO (≤ 8 ticks for hot path)
+# ❌ State mutations violating immutability
+# ❌ Resource consumption exceeding declared bounds
+# ❌ Type violations (observations not conforming to Σ)
+# ❌ Patterns not in permutation matrix
+# ❌ Missing resource declarations
+# ❌ Unbounded execution without timeout
+#
+# WHAT EMBODIES COVENANT 2:
+# ✅ This SHACL validation (static Q checks)
+# ✅ Chicago TDD harness (runtime Q checks)
+# ✅ Weaver schema validation (observation Q checks)
+# ✅ Pattern permutation matrix (completeness Q checks)
+#
+# CRITICAL GATE:
+# If ANY violation (sh:Violation) is detected, workflow DOES NOT DEPLOY.
+# Quality is not optional. It is law.
+#
+# =============================================================================

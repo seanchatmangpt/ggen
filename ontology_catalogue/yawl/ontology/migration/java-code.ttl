@@ -1,0 +1,417 @@
+@prefix java: <http://yawl.io/java#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# Java Code RDF Vocabulary
+# Represents Java source code structure as RDF for SPARQL pattern analysis.
+# Used by the Java 11 → 25 migration pipeline.
+# =============================================================================
+
+java: a owl:Ontology ;
+    rdfs:label "Java Code Vocabulary" ;
+    rdfs:comment "RDF vocabulary for representing Java source code structure, enabling SPARQL-based pattern detection and migration analysis." ;
+    owl:versionInfo "1.0.0" .
+
+# ---------------------------------------------------------------------------
+# Core source units
+# ---------------------------------------------------------------------------
+
+java:CompilationUnit a owl:Class ;
+    rdfs:label "Compilation Unit" ;
+    rdfs:comment "A single Java source file (.java). Contains exactly one public type declaration." .
+
+java:Package a owl:Class ;
+    rdfs:label "Package" ;
+    rdfs:comment "A Java package grouping related types." .
+
+java:ImportDeclaration a owl:Class ;
+    rdfs:label "Import Declaration" ;
+    rdfs:comment "A Java import statement at the top of a compilation unit." .
+
+# ---------------------------------------------------------------------------
+# Type declarations
+# ---------------------------------------------------------------------------
+
+java:TypeDeclaration a owl:Class ;
+    rdfs:label "Type Declaration" ;
+    rdfs:comment "Abstract base for any Java type (class, interface, enum, annotation, record)." .
+
+java:ClassDeclaration a owl:Class ;
+    rdfs:subClassOf java:TypeDeclaration ;
+    rdfs:label "Class Declaration" .
+
+java:InterfaceDeclaration a owl:Class ;
+    rdfs:subClassOf java:TypeDeclaration ;
+    rdfs:label "Interface Declaration" .
+
+java:EnumDeclaration a owl:Class ;
+    rdfs:subClassOf java:TypeDeclaration ;
+    rdfs:label "Enum Declaration" .
+
+java:RecordDeclaration a owl:Class ;
+    rdfs:subClassOf java:TypeDeclaration ;
+    rdfs:label "Record Declaration" ;
+    rdfs:comment "Java 16+ record type — immutable data carrier." .
+
+java:AnnotationDeclaration a owl:Class ;
+    rdfs:subClassOf java:TypeDeclaration ;
+    rdfs:label "Annotation Type Declaration" .
+
+# ---------------------------------------------------------------------------
+# Members
+# ---------------------------------------------------------------------------
+
+java:Member a owl:Class ;
+    rdfs:label "Member" ;
+    rdfs:comment "Any member of a type: field, method, constructor, nested type." .
+
+java:FieldDeclaration a owl:Class ;
+    rdfs:subClassOf java:Member ;
+    rdfs:label "Field Declaration" .
+
+java:MethodDeclaration a owl:Class ;
+    rdfs:subClassOf java:Member ;
+    rdfs:label "Method Declaration" .
+
+java:ConstructorDeclaration a owl:Class ;
+    rdfs:subClassOf java:Member ;
+    rdfs:label "Constructor Declaration" .
+
+java:Parameter a owl:Class ;
+    rdfs:label "Parameter" ;
+    rdfs:comment "A formal parameter of a method or constructor." .
+
+# ---------------------------------------------------------------------------
+# Statements and expressions (pattern-level granularity)
+# ---------------------------------------------------------------------------
+
+java:Statement a owl:Class ;
+    rdfs:label "Statement" .
+
+java:SynchronizedStatement a owl:Class ;
+    rdfs:subClassOf java:Statement ;
+    rdfs:label "Synchronized Statement" ;
+    rdfs:comment "A synchronized(lock) { ... } block." .
+
+java:TryCatchStatement a owl:Class ;
+    rdfs:subClassOf java:Statement ;
+    rdfs:label "Try-Catch Statement" .
+
+java:ForStatement a owl:Class ;
+    rdfs:subClassOf java:Statement ;
+    rdfs:label "Traditional For Statement" .
+
+java:EnhancedForStatement a owl:Class ;
+    rdfs:subClassOf java:Statement ;
+    rdfs:label "Enhanced For Statement" ;
+    rdfs:comment "for (T item : collection) — enhanced for loop." .
+
+java:SwitchStatement a owl:Class ;
+    rdfs:subClassOf java:Statement ;
+    rdfs:label "Switch Statement" ;
+    rdfs:comment "Traditional switch statement (pre-Java 14)." .
+
+java:SwitchExpression a owl:Class ;
+    rdfs:subClassOf java:Statement ;
+    rdfs:label "Switch Expression" ;
+    rdfs:comment "Java 14+ switch expression with arrow cases." .
+
+java:Expression a owl:Class ;
+    rdfs:label "Expression" .
+
+java:MethodCallExpression a owl:Class ;
+    rdfs:subClassOf java:Expression ;
+    rdfs:label "Method Call Expression" .
+
+java:ObjectCreationExpression a owl:Class ;
+    rdfs:subClassOf java:Expression ;
+    rdfs:label "Object Creation Expression" ;
+    rdfs:comment "new Foo(...) expression." .
+
+java:InstanceofExpression a owl:Class ;
+    rdfs:subClassOf java:Expression ;
+    rdfs:label "Instanceof Expression" ;
+    rdfs:comment "x instanceof Foo — type check." .
+
+java:PatternInstanceofExpression a owl:Class ;
+    rdfs:subClassOf java:InstanceofExpression ;
+    rdfs:label "Pattern Matching Instanceof" ;
+    rdfs:comment "Java 16+ x instanceof Foo f — with binding variable." .
+
+java:LambdaExpression a owl:Class ;
+    rdfs:subClassOf java:Expression ;
+    rdfs:label "Lambda Expression" ;
+    rdfs:comment "Java 8+ (x) -> body lambda." .
+
+java:AnonymousClassCreation a owl:Class ;
+    rdfs:subClassOf java:ObjectCreationExpression ;
+    rdfs:label "Anonymous Class Creation" ;
+    rdfs:comment "new Interface() { ... } — anonymous inner class." .
+
+java:TextBlock a owl:Class ;
+    rdfs:subClassOf java:Expression ;
+    rdfs:label "Text Block" ;
+    rdfs:comment "Java 15+ triple-quoted multi-line string." .
+
+# ---------------------------------------------------------------------------
+# Type references
+# ---------------------------------------------------------------------------
+
+java:TypeRef a owl:Class ;
+    rdfs:label "Type Reference" ;
+    rdfs:comment "A reference to a Java type by name." .
+
+# ---------------------------------------------------------------------------
+# Annotations
+# ---------------------------------------------------------------------------
+
+java:Annotation a owl:Class ;
+    rdfs:label "Annotation" ;
+    rdfs:comment "A Java annotation application (@Override, @Deprecated, etc.)." .
+
+# ---------------------------------------------------------------------------
+# Properties: structural
+# ---------------------------------------------------------------------------
+
+java:inFile a owl:ObjectProperty ;
+    rdfs:label "in file" ;
+    rdfs:domain java:TypeDeclaration ;
+    rdfs:range java:CompilationUnit .
+
+java:inPackage a owl:ObjectProperty ;
+    rdfs:label "in package" ;
+    rdfs:domain java:CompilationUnit ;
+    rdfs:range java:Package .
+
+java:imports a owl:ObjectProperty ;
+    rdfs:label "imports" ;
+    rdfs:domain java:CompilationUnit ;
+    rdfs:range java:ImportDeclaration .
+
+java:hasMember a owl:ObjectProperty ;
+    rdfs:label "has member" ;
+    rdfs:domain java:TypeDeclaration ;
+    rdfs:range java:Member .
+
+java:hasMethod a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasMember ;
+    rdfs:label "has method" ;
+    rdfs:range java:MethodDeclaration .
+
+java:hasField a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasMember ;
+    rdfs:label "has field" ;
+    rdfs:range java:FieldDeclaration .
+
+java:hasConstructor a owl:ObjectProperty ;
+    rdfs:subPropertyOf java:hasMember ;
+    rdfs:label "has constructor" ;
+    rdfs:range java:ConstructorDeclaration .
+
+java:hasParameter a owl:ObjectProperty ;
+    rdfs:label "has parameter" ;
+    rdfs:domain java:MethodDeclaration ;
+    rdfs:range java:Parameter .
+
+java:containsStatement a owl:ObjectProperty ;
+    rdfs:label "contains statement" ;
+    rdfs:domain java:MethodDeclaration ;
+    rdfs:range java:Statement .
+
+java:containsExpression a owl:ObjectProperty ;
+    rdfs:label "contains expression" ;
+    rdfs:domain java:MethodDeclaration ;
+    rdfs:range java:Expression .
+
+java:hasAnnotation a owl:ObjectProperty ;
+    rdfs:label "has annotation" ;
+    rdfs:range java:Annotation .
+
+java:superClass a owl:ObjectProperty ;
+    rdfs:label "super class" ;
+    rdfs:domain java:ClassDeclaration ;
+    rdfs:range java:TypeRef .
+
+java:implementsInterface a owl:ObjectProperty ;
+    rdfs:label "implements interface" ;
+    rdfs:domain java:ClassDeclaration ;
+    rdfs:range java:TypeRef .
+
+java:extendsInterface a owl:ObjectProperty ;
+    rdfs:label "extends interface" ;
+    rdfs:domain java:InterfaceDeclaration ;
+    rdfs:range java:TypeRef .
+
+java:returnType a owl:ObjectProperty ;
+    rdfs:label "return type" ;
+    rdfs:domain java:MethodDeclaration ;
+    rdfs:range java:TypeRef .
+
+java:fieldType a owl:ObjectProperty ;
+    rdfs:label "field type" ;
+    rdfs:domain java:FieldDeclaration ;
+    rdfs:range java:TypeRef .
+
+java:paramType a owl:ObjectProperty ;
+    rdfs:label "parameter type" ;
+    rdfs:domain java:Parameter ;
+    rdfs:range java:TypeRef .
+
+java:callee a owl:ObjectProperty ;
+    rdfs:label "callee" ;
+    rdfs:comment "The method being called in a method call expression." ;
+    rdfs:domain java:MethodCallExpression ;
+    rdfs:range java:MethodDeclaration .
+
+java:calleeType a owl:DatatypeProperty ;
+    rdfs:label "callee type" ;
+    rdfs:comment "Fully qualified class name of the receiver in a method call." ;
+    rdfs:domain java:MethodCallExpression ;
+    rdfs:range xsd:string .
+
+java:calleeName a owl:DatatypeProperty ;
+    rdfs:label "callee name" ;
+    rdfs:comment "Simple method name of the call (e.g., 'start', 'submit')." ;
+    rdfs:domain java:MethodCallExpression ;
+    rdfs:range xsd:string .
+
+java:constructedType a owl:DatatypeProperty ;
+    rdfs:label "constructed type" ;
+    rdfs:comment "Fully qualified type being instantiated in new Foo(...) expression." ;
+    rdfs:domain java:ObjectCreationExpression ;
+    rdfs:range xsd:string .
+
+java:checkedType a owl:DatatypeProperty ;
+    rdfs:label "checked type" ;
+    rdfs:comment "The type being checked in an instanceof expression." ;
+    rdfs:domain java:InstanceofExpression ;
+    rdfs:range xsd:string .
+
+java:anonymousBaseType a owl:DatatypeProperty ;
+    rdfs:label "anonymous base type" ;
+    rdfs:comment "The interface or class an anonymous class creation extends/implements." ;
+    rdfs:domain java:AnonymousClassCreation ;
+    rdfs:range xsd:string .
+
+# ---------------------------------------------------------------------------
+# Properties: naming and metadata
+# ---------------------------------------------------------------------------
+
+java:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:comment "Simple name of a type, method, field, or parameter." ;
+    rdfs:range xsd:string .
+
+java:qualifiedName a owl:DatatypeProperty ;
+    rdfs:label "qualified name" ;
+    rdfs:comment "Fully qualified name (e.g., org.yawlfoundation.yawl.engine.YNetRunner)." ;
+    rdfs:range xsd:string .
+
+java:filePath a owl:DatatypeProperty ;
+    rdfs:label "file path" ;
+    rdfs:comment "Relative path to the source file." ;
+    rdfs:domain java:CompilationUnit ;
+    rdfs:range xsd:string .
+
+java:lineNumber a owl:DatatypeProperty ;
+    rdfs:label "line number" ;
+    rdfs:comment "Source line number of the declaration or statement." ;
+    rdfs:range xsd:integer .
+
+java:columnNumber a owl:DatatypeProperty ;
+    rdfs:label "column number" ;
+    rdfs:range xsd:integer .
+
+java:sourceText a owl:DatatypeProperty ;
+    rdfs:label "source text" ;
+    rdfs:comment "Verbatim source text of the element (for template rendering)." ;
+    rdfs:range xsd:string .
+
+java:modifiers a owl:DatatypeProperty ;
+    rdfs:label "modifiers" ;
+    rdfs:comment "Space-separated modifier keywords: public, private, static, final, etc." ;
+    rdfs:range xsd:string .
+
+java:isStatic a owl:DatatypeProperty ;
+    rdfs:label "is static" ;
+    rdfs:range xsd:boolean .
+
+java:isFinal a owl:DatatypeProperty ;
+    rdfs:label "is final" ;
+    rdfs:range xsd:boolean .
+
+java:isAbstract a owl:DatatypeProperty ;
+    rdfs:label "is abstract" ;
+    rdfs:range xsd:boolean .
+
+java:isSynchronized a owl:DatatypeProperty ;
+    rdfs:label "is synchronized" ;
+    rdfs:comment "True if the method or statement uses the synchronized keyword." ;
+    rdfs:range xsd:boolean .
+
+java:methodCount a owl:DatatypeProperty ;
+    rdfs:label "method count" ;
+    rdfs:domain java:ClassDeclaration ;
+    rdfs:range xsd:integer .
+
+java:fieldCount a owl:DatatypeProperty ;
+    rdfs:label "field count" ;
+    rdfs:domain java:ClassDeclaration ;
+    rdfs:range xsd:integer .
+
+java:hasOnlyGettersSetters a owl:DatatypeProperty ;
+    rdfs:label "has only getters setters" ;
+    rdfs:comment "True if a class has only getter/setter methods and a matching set of private fields — a Record candidate." ;
+    rdfs:domain java:ClassDeclaration ;
+    rdfs:range xsd:boolean .
+
+java:hasNoMutableFields a owl:DatatypeProperty ;
+    rdfs:label "has no mutable fields" ;
+    rdfs:comment "True if all fields are declared final — supports immutability (Record)." ;
+    rdfs:domain java:ClassDeclaration ;
+    rdfs:range xsd:boolean .
+
+java:importedName a owl:DatatypeProperty ;
+    rdfs:label "imported name" ;
+    rdfs:comment "The fully qualified name in an import statement." ;
+    rdfs:domain java:ImportDeclaration ;
+    rdfs:range xsd:string .
+
+java:annotationName a owl:DatatypeProperty ;
+    rdfs:label "annotation name" ;
+    rdfs:comment "Simple name of the annotation (e.g., Override, Deprecated)." ;
+    rdfs:domain java:Annotation ;
+    rdfs:range xsd:string .
+
+java:switchOnType a owl:DatatypeProperty ;
+    rdfs:label "switch on type" ;
+    rdfs:comment "The type of the expression being switched on (String, int, enum, Object)." ;
+    rdfs:domain java:SwitchStatement ;
+    rdfs:range xsd:string .
+
+java:caseCount a owl:DatatypeProperty ;
+    rdfs:label "case count" ;
+    rdfs:comment "Number of case branches in a switch statement." ;
+    rdfs:domain java:SwitchStatement ;
+    rdfs:range xsd:integer .
+
+java:usesFallthrough a owl:DatatypeProperty ;
+    rdfs:label "uses fallthrough" ;
+    rdfs:comment "True if the switch uses C-style fallthrough (no break between some cases)." ;
+    rdfs:domain java:SwitchStatement ;
+    rdfs:range xsd:boolean .
+
+java:stringArgument a owl:DatatypeProperty ;
+    rdfs:label "string argument" ;
+    rdfs:comment "The format string argument in a String.format() call." ;
+    rdfs:domain java:MethodCallExpression ;
+    rdfs:range xsd:string .
+
+java:isMultiLine a owl:DatatypeProperty ;
+    rdfs:label "is multi-line" ;
+    rdfs:comment "True if a string literal or text block spans multiple lines." ;
+    rdfs:range xsd:boolean .

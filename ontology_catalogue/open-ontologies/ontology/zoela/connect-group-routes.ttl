@@ -1,0 +1,542 @@
+@prefix zoe:     <https://zoela.org/ontology/> .
+@prefix schema:  <https://schema.org/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl:     <http://www.w3.org/ns/odrl/2/> .
+
+# ============================================================================
+# ZOE LA Mobile — Connect Group Routes Ontology
+# ============================================================================
+# Autonomic community-formation route: turning rows into circles through
+# lawful matching, consent-aware invites, attendance evidence, follow-up,
+# and receipts.
+#
+# Connect Group ≠ group directory.
+# Connect Group = community-formation ROUTE.
+#
+# The product is CodeManufactory; ZOE LA Mobile is proof that CodeManufactory works.
+# ============================================================================
+
+<https://zoela.org/ontology/connect-group-routes>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Connect Group Routes"@en ;
+    rdfs:comment "Autonomic community-formation route: turning rows into circles through lawful matching, consent-aware invites, attendance evidence, follow-up, and receipts."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://zoela.org/ontology/connect-groups> ;
+    owl:imports <https://zoela.org/ontology/routes> ;
+    owl:imports <https://zoela.org/ontology/consent> ;
+    owl:imports <https://zoela.org/ontology/ocel> .
+
+# ============================================================================
+# § 1  New Classes
+# ============================================================================
+
+# 1.1  GroupInterest — Interest submission from a person seeking a group
+
+zoe:GroupInterest a owl:Class ;
+    rdfs:label   "Group Interest"@en ;
+    rdfs:comment "An expression of interest by a person seeking to join a Connect Group. Captures schedule/location preferences and drives the autonomic matching pipeline."@en ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:subClassOf prov:Activity .
+
+# 1.2  GroupInvite — Invite sent to a person after matching
+
+zoe:GroupInvite a owl:Class ;
+    rdfs:label   "Group Invite"@en ;
+    rdfs:comment "An invite issued to a person to join a specific Connect Group after an autonomic or manual match. Gated by CommunicationConsent and notification budget."@en ;
+    rdfs:subClassOf schema:Action ;
+    rdfs:subClassOf prov:Activity .
+
+# 1.3  GroupAttendance — Evidence of attendance at a meeting
+
+zoe:GroupAttendance a owl:Class ;
+    rdfs:label   "Group Attendance"@en ;
+    rdfs:comment "An attendance record for a person at a Connect Group meeting. Required as evidence for stage 6 (First Meeting Attended). First-meeting flag drives follow-up trigger."@en ;
+    rdfs:subClassOf prov:Activity .
+
+# 1.4  GroupMembership — Active membership (canonical zoe: namespace)
+# Note: connect-groups.ttl declares zoe:GroupMembership under the legacy onto: namespace.
+# This declaration anchors it in the canonical https://zoela.org/ontology/ namespace
+# with the prov:Activity parentage required by the ConnectGroupJoinRoute.
+
+zoe:GroupMembership a owl:Class ;
+    rdfs:label   "Group Membership"@en ;
+    rdfs:comment "Active membership of a person in a Connect Group. Terminal artifact of the ConnectGroupJoinRoute. Carries start date, status, and links back to the route receipt."@en ;
+    rdfs:subClassOf prov:Activity .
+
+# ============================================================================
+# § 2  Datatype Properties — GroupInterest
+# ============================================================================
+
+zoe:interestForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Interest For Group"@en ;
+    rdfs:comment "Links a GroupInterest to the specific ConnectGroup the person is interested in, if known. May be null when the system performs open matching."@en ;
+    skos:notation "interest_for_group" .
+
+zoe:interestFromPerson a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   zoe:PersonProfile ;
+    rdfs:label   "Interest From Person"@en ;
+    rdfs:comment "Links a GroupInterest to the PersonProfile who submitted it."@en ;
+    skos:notation "interest_from_person" .
+
+zoe:interestSchedulePreference a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Interest Schedule Preference"@en ;
+    rdfs:comment "Free-text or structured schedule preference (e.g. 'Tuesday evenings', 'Sunday mornings') captured at interest submission."@en ;
+    skos:notation "interest_schedule_preference" .
+
+zoe:interestLocationPreference a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Interest Location Preference"@en ;
+    rdfs:comment "Preferred geographic area or campus for Connect Group placement (e.g. 'Hollywood campus', 'Silver Lake')."@en ;
+    skos:notation "interest_location_preference" .
+
+zoe:interestNotes a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Interest Notes"@en ;
+    rdfs:comment "Optional free-text notes from the person expressing interest, e.g. life stage, ministry interests, or accessibility requirements."@en ;
+    skos:notation "interest_notes" .
+
+zoe:interestSubmittedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Interest Submitted At"@en ;
+    rdfs:comment "ISO-8601 timestamp when the GroupInterest was submitted. Used as the OCEL event timestamp for stage 1."@en ;
+    skos:notation "interest_submitted_at" .
+
+zoe:interestStatus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInterest ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Interest Status"@en ;
+    rdfs:comment "Lifecycle status of the GroupInterest. Allowed values: pending, matched, waitlisted, refused."@en ;
+    skos:notation "interest_status" .
+
+# ============================================================================
+# § 3  Datatype Properties — GroupInvite
+# ============================================================================
+
+zoe:inviteForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Invite For Group"@en ;
+    rdfs:comment "The ConnectGroup to which the person is being invited."@en ;
+    skos:notation "invite_for_group" .
+
+zoe:inviteToPerson a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   zoe:PersonProfile ;
+    rdfs:label   "Invite To Person"@en ;
+    rdfs:comment "The PersonProfile receiving this invite."@en ;
+    skos:notation "invite_to_person" .
+
+zoe:inviteSentAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Invite Sent At"@en ;
+    rdfs:comment "ISO-8601 timestamp when the invite was dispatched. Maps to stage 4 OCEL event timestamp."@en ;
+    skos:notation "invite_sent_at" .
+
+zoe:inviteExpiresAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Invite Expires At"@en ;
+    rdfs:comment "ISO-8601 timestamp after which an unaccepted invite is automatically expired and the person may be re-matched."@en ;
+    skos:notation "invite_expires_at" .
+
+zoe:inviteStatus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Invite Status"@en ;
+    rdfs:comment "Lifecycle status of the GroupInvite. Allowed values: sent, accepted, declined, expired."@en ;
+    skos:notation "invite_status" .
+
+zoe:inviteAcceptedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Invite Accepted At"@en ;
+    rdfs:comment "ISO-8601 timestamp when the person accepted the invite. Null if not yet accepted."@en ;
+    skos:notation "invite_accepted_at" .
+
+zoe:inviteDeclinedAt a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupInvite ;
+    rdfs:range   xsd:dateTime ;
+    rdfs:label   "Invite Declined At"@en ;
+    rdfs:comment "ISO-8601 timestamp when the person declined the invite. Null if not declined."@en ;
+    skos:notation "invite_declined_at" .
+
+# ============================================================================
+# § 4  Datatype Properties — GroupAttendance
+# ============================================================================
+
+zoe:attendanceForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupAttendance ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Attendance For Group"@en ;
+    rdfs:comment "Links an attendance record to the ConnectGroup meeting at which attendance is recorded."@en ;
+    skos:notation "attendance_for_group" .
+
+zoe:attendanceByPerson a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupAttendance ;
+    rdfs:range   zoe:PersonProfile ;
+    rdfs:label   "Attendance By Person"@en ;
+    rdfs:comment "The PersonProfile whose attendance is being recorded."@en ;
+    skos:notation "attendance_by_person" .
+
+zoe:attendanceMeetingDate a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupAttendance ;
+    rdfs:range   xsd:date ;
+    rdfs:label   "Attendance Meeting Date"@en ;
+    rdfs:comment "Calendar date of the Connect Group meeting for which attendance is recorded."@en ;
+    skos:notation "attendance_meeting_date" .
+
+zoe:attendanceIsFirst a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupAttendance ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Attendance Is First"@en ;
+    rdfs:comment "True when this is the person's first attendance at any meeting of this Connect Group. Triggers stage 6 → stage 7 follow-up transition."@en ;
+    skos:notation "attendance_is_first" .
+
+zoe:attendanceStatus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupAttendance ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Attendance Status"@en ;
+    rdfs:comment "Status of this attendance record. Allowed values: attended, absent, excused."@en ;
+    skos:notation "attendance_status" .
+
+# ============================================================================
+# § 5  Datatype Properties — GroupMembership
+# ============================================================================
+
+zoe:membershipForGroup a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   zoe:ConnectGroup ;
+    rdfs:label   "Membership For Group"@en ;
+    rdfs:comment "Links a GroupMembership record to the ConnectGroup the person is a member of."@en ;
+    skos:notation "membership_for_group" .
+
+zoe:membershipByPerson a owl:ObjectProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   zoe:PersonProfile ;
+    rdfs:label   "Membership By Person"@en ;
+    rdfs:comment "The PersonProfile who holds this group membership."@en ;
+    skos:notation "membership_by_person" .
+
+zoe:membershipStartDate a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   xsd:date ;
+    rdfs:label   "Membership Start Date"@en ;
+    rdfs:comment "Calendar date on which active membership began. Set when stage 8 (Membership Active) completes."@en ;
+    skos:notation "membership_start_date" .
+
+zoe:membershipStatus a owl:DatatypeProperty ;
+    rdfs:domain  zoe:GroupMembership ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Membership Status"@en ;
+    rdfs:comment "Lifecycle status of the membership record. Allowed values: active, inactive, waitlisted."@en ;
+    skos:notation "membership_status" .
+
+# ============================================================================
+# § 6  New Properties on ServiceRoute and RouteStage
+# ============================================================================
+
+# routeVersion — version string for the route declaration
+zoe:routeVersion a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Route Version"@en ;
+    rdfs:comment "Semantic version string for the route declaration (e.g. '1.0'). Updated when the stage structure changes."@en ;
+    skos:notation "route_version" .
+
+# isAutonomicRoute — marks routes that execute without human orchestration
+zoe:isAutonomicRoute a owl:DatatypeProperty ;
+    rdfs:domain  zoe:ServiceRoute ;
+    rdfs:range   xsd:boolean ;
+    rdfs:label   "Is Autonomic Route"@en ;
+    rdfs:comment "True when this route is designed to advance through stages autonomically without requiring manual operator intervention at each step."@en ;
+    skos:notation "is_autonomic_route" .
+
+# routeStageForRoute — alternative link from stage back to route (forward-declared in this file)
+zoe:routeStageForRoute a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   zoe:ServiceRoute ;
+    rdfs:label   "Route Stage For Route"@en ;
+    rdfs:comment "Links a RouteStage to the ServiceRoute that contains it. Complementary to zoe:hasRoute; used in this file for clarity."@en ;
+    skos:notation "route_stage_for_route" .
+
+# stageOcelEventType — OCEL event type identifier emitted at stage completion
+zoe:stageOcelEventType a owl:DatatypeProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Stage OCEL Event Type"@en ;
+    rdfs:comment "The OCEL-2.0 activity identifier emitted when this stage completes. Used by wasm4pm for process discovery and conformance replay."@en ;
+    skos:notation "stage_ocel_event_type" .
+
+# autonomicActionClass — A0-A4 risk classification for the stage's autonomic action
+zoe:autonomicActionClass a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   skos:Concept ;
+    rdfs:label   "Autonomic Action Class"@en ;
+    rdfs:comment "A0-A4 risk classification (from AutonomicActionClassScheme) for the autonomic action performed at this stage. Determines whether human approval, reversal capability, or andon signal is required."@en ;
+    skos:notation "autonomic_action_class" .
+
+# requiresGate — gate that must pass before this stage can execute
+zoe:requiresGate a owl:ObjectProperty ;
+    rdfs:domain  zoe:RouteStage ;
+    rdfs:range   zoe:AdmissionGate ;
+    rdfs:label   "Requires Gate"@en ;
+    rdfs:comment "An AdmissionGate that must pass before this stage may execute. A stage may require multiple gates; all must pass."@en ;
+    skos:notation "requires_gate" .
+
+# gateCode — machine-readable identifier for admission gates
+zoe:gateCode a owl:DatatypeProperty ;
+    rdfs:domain  zoe:AdmissionGate ;
+    rdfs:range   xsd:string ;
+    rdfs:label   "Gate Code"@en ;
+    rdfs:comment "Machine-readable identifier for an AdmissionGate, used in runtime gate evaluation (e.g. 'consent', 'capacity', 'schedule')."@en ;
+    skos:notation "gate_code" .
+
+# ============================================================================
+# § 7  AdmissionGate Class
+# ============================================================================
+
+zoe:AdmissionGate a owl:Class ;
+    rdfs:label   "Admission Gate"@en ;
+    rdfs:comment "A named gate condition that must evaluate to true before a route stage may execute. Gates enforce consent, capacity, schedule, policy, role, and notification-budget constraints."@en ;
+    rdfs:subClassOf owl:Thing ;
+    rdfs:subClassOf odrl:Constraint .
+
+# ============================================================================
+# § 8  Autonomic Action Class ConceptScheme (A0-A4)
+# ============================================================================
+
+zoe:AutonomicActionClassScheme a skos:ConceptScheme ;
+    rdfs:label   "Autonomic Action Classes"@en ;
+    rdfs:comment "A0-A4 risk classification for autonomic actions performed at route stages."@en ;
+    skos:prefLabel "Autonomic Action Classes"@en ;
+    skos:hasTopConcept zoe:A0Observe, zoe:A1SafeAction, zoe:A2ReversibleAction, zoe:A3HumanRequired, zoe:A4Refusal .
+
+zoe:A0Observe a skos:Concept ;
+    skos:inScheme  zoe:AutonomicActionClassScheme ;
+    rdfs:label     "A0 — Observe Only"@en ;
+    rdfs:comment   "No state change. Log only."@en ;
+    skos:prefLabel "A0 — Observe Only"@en ;
+    skos:notation  "A0" .
+
+zoe:A1SafeAction a skos:Concept ;
+    skos:inScheme  zoe:AutonomicActionClassScheme ;
+    rdfs:label     "A1 — Safe Autonomic Action"@en ;
+    rdfs:comment   "State change. Safe. No reversal needed. No human approval."@en ;
+    skos:prefLabel "A1 — Safe Autonomic Action"@en ;
+    skos:notation  "A1" .
+
+zoe:A2ReversibleAction a skos:Concept ;
+    skos:inScheme  zoe:AutonomicActionClassScheme ;
+    rdfs:label     "A2 — Reversible Autonomic Action"@en ;
+    rdfs:comment   "State change. Reversible. May require notification."@en ;
+    skos:prefLabel "A2 — Reversible Autonomic Action"@en ;
+    skos:notation  "A2" .
+
+zoe:A3HumanRequired a skos:Concept ;
+    skos:inScheme  zoe:AutonomicActionClassScheme ;
+    rdfs:label     "A3 — Human Approval Required"@en ;
+    rdfs:comment   "Human authority, care, or judgment required before execution."@en ;
+    skos:prefLabel "A3 — Human Approval Required"@en ;
+    skos:notation  "A3" .
+
+zoe:A4Refusal a skos:Concept ;
+    skos:inScheme  zoe:AutonomicActionClassScheme ;
+    rdfs:label     "A4 — Refusal / Andon"@en ;
+    rdfs:comment   "Action refused. Evidence-bearing refusal emitted."@en ;
+    skos:prefLabel "A4 — Refusal / Andon"@en ;
+    skos:notation  "A4" .
+
+# ============================================================================
+# § 9  Route Category — ConnectGroupJoinRouteCategory
+# ============================================================================
+
+zoe:ConnectGroupJoinRouteCategory a skos:Concept ;
+    skos:inScheme   zoe:RouteCategoryScheme ;
+    skos:notation   "CG-JOIN-ROUTE" ;
+    rdfs:label      "Connect Group Join Route Category"@en ;
+    skos:prefLabel  "Connect Group Join Route Category"@en ;
+    skos:definition "Route category for the autonomic ConnectGroupJoinRoute pipeline: interest → preferences → match → invite → acceptance → first meeting → follow-up → active membership."@en ;
+    rdfs:comment    "Route category anchoring the ConnectGroupJoinRouteInstance."@en .
+
+# ============================================================================
+# § 10  ConnectGroupJoinRoute — ServiceRoute instance
+# ============================================================================
+
+zoe:ConnectGroupJoinRouteInstance a zoe:ServiceRoute ;
+    rdfs:label         "Connect Group Join Route"@en ;
+    rdfs:comment       "Autonomic community-formation route from interest expression to active membership. 8 stages with POWL partial-order edges for wasm4pm conformance mining."@en ;
+    zoe:routeCategory  zoe:ConnectGroupJoinRouteCategory ;
+    zoe:routeVersion   "1.0" ;
+    zoe:isAutonomicRoute true .
+
+# ============================================================================
+# § 11  ConnectGroupJoinRoute — 8 POWL Stages
+# ============================================================================
+
+# Stage 1 — Interest Expressed (entry)
+zoe:CGStage1InterestExpressed a zoe:RouteStage ;
+    rdfs:label              "Interest Expressed"@en ;
+    rdfs:comment            "Person submits connect group interest with schedule/location preferences."@en ;
+    zoe:stageCode           "cg-interest-expressed" ;
+    zoe:stageOrder          1 ;
+    zoe:isEntryStage        true ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:autonomicActionClass zoe:A1SafeAction ;
+    zoe:stageOcelEventType  "connect_group.interest_expressed" .
+
+# Stage 2 — Preferences Collected
+zoe:CGStage2PreferencesCollected a zoe:RouteStage ;
+    rdfs:label              "Preferences Collected"@en ;
+    rdfs:comment            "Schedule, location, and generation segment preferences captured."@en ;
+    zoe:stageCode           "cg-preferences-collected" ;
+    zoe:stageOrder          2 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage1InterestExpressed ;
+    zoe:autonomicActionClass zoe:A1SafeAction ;
+    zoe:stageOcelEventType  "connect_group.preferences_collected" .
+
+# Stage 3 — Eligible Groups Found (autonomic match)
+zoe:CGStage3EligibleGroupsFound a zoe:RouteStage ;
+    rdfs:label              "Eligible Groups Found"@en ;
+    rdfs:comment            "Autonomic matching against open groups by schedule/location/capacity. Waitlist if full."@en ;
+    zoe:stageCode           "cg-eligible-groups-found" ;
+    zoe:stageOrder          3 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage2PreferencesCollected ;
+    zoe:requiresGate        zoe:CapacityGate ;
+    zoe:requiresGate        zoe:ScheduleGate ;
+    zoe:autonomicActionClass zoe:A2ReversibleAction ;
+    zoe:stageOcelEventType  "connect_group.eligible_groups_found" .
+
+# Stage 4 — Invite Sent (consent-gated)
+zoe:CGStage4InviteSent a zoe:RouteStage ;
+    rdfs:label              "Invite Sent"@en ;
+    rdfs:comment            "Autonomic invite sent if consent exists. Refusal emitted if consent missing."@en ;
+    zoe:stageCode           "cg-invite-sent" ;
+    zoe:stageOrder          4 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage3EligibleGroupsFound ;
+    zoe:requiresGate        zoe:ConsentGate ;
+    zoe:requiresGate        zoe:NotificationBudgetGate ;
+    zoe:autonomicActionClass zoe:A2ReversibleAction ;
+    zoe:stageOcelEventType  "connect_group.invite_sent" .
+
+# Stage 5 — Invite Accepted
+zoe:CGStage5InviteAccepted a zoe:RouteStage ;
+    rdfs:label              "Invite Accepted"@en ;
+    rdfs:comment            "Person accepts group invite. Spot reserved."@en ;
+    zoe:stageCode           "cg-invite-accepted" ;
+    zoe:stageOrder          5 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage4InviteSent ;
+    zoe:requiresGate        zoe:CapacityGate ;
+    zoe:autonomicActionClass zoe:A1SafeAction ;
+    zoe:stageOcelEventType  "connect_group.invite_accepted" .
+
+# Stage 6 — First Meeting Attended
+zoe:CGStage6FirstMeetingAttended a zoe:RouteStage ;
+    rdfs:label              "First Meeting Attended"@en ;
+    rdfs:comment            "Attendance recorded at first group meeting. Evidence created."@en ;
+    zoe:stageCode           "cg-first-meeting-attended" ;
+    zoe:stageOrder          6 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage5InviteAccepted ;
+    zoe:autonomicActionClass zoe:A1SafeAction ;
+    zoe:stageOcelEventType  "connect_group.first_meeting_attended" .
+
+# Stage 7 — Follow-Up Completed
+zoe:CGStage7FollowUpCompleted a zoe:RouteStage ;
+    rdfs:label              "Follow-Up Completed"@en ;
+    rdfs:comment            "Follow-up completed after first meeting. Missed first meeting triggers automatic follow-up."@en ;
+    zoe:stageCode           "cg-followup-completed" ;
+    zoe:stageOrder          7 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     false ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage6FirstMeetingAttended ;
+    zoe:autonomicActionClass zoe:A1SafeAction ;
+    zoe:stageOcelEventType  "connect_group.followup_completed" .
+
+# Stage 8 — Membership Active (terminal)
+zoe:CGStage8MembershipActive a zoe:RouteStage ;
+    rdfs:label              "Membership Active"@en ;
+    rdfs:comment            "Route complete. Receipt emitted. Person is active member of connect group."@en ;
+    zoe:stageCode           "cg-membership-active" ;
+    zoe:stageOrder          8 ;
+    zoe:isEntryStage        false ;
+    zoe:isTerminalStage     true ;
+    zoe:routeStageForRoute  zoe:ConnectGroupJoinRouteInstance ;
+    zoe:predecessorStage    zoe:CGStage7FollowUpCompleted ;
+    zoe:autonomicActionClass zoe:A1SafeAction ;
+    zoe:stageOcelEventType  "connect_group.membership_active" .
+
+# ============================================================================
+# § 12  Admission Gate Named Individuals
+# ============================================================================
+
+zoe:RouteEnabledGate a zoe:AdmissionGate ;
+    rdfs:label   "Route Enabled Gate"@en ;
+    rdfs:comment "Verifies the ConnectGroupJoinRoute is currently active and accepting new instances."@en ;
+    zoe:gateCode "route-enabled" .
+
+zoe:ConsentGate a zoe:AdmissionGate ;
+    rdfs:label   "Consent Gate"@en ;
+    rdfs:comment "Verifies active CommunicationConsent exists for the person before an invite is dispatched."@en ;
+    zoe:gateCode "consent" .
+
+zoe:CapacityGate a zoe:AdmissionGate ;
+    rdfs:label   "Capacity Gate"@en ;
+    rdfs:comment "Verifies the target ConnectGroup has available capacity (currentSize < maxCapacity) before matching or spot reservation."@en ;
+    zoe:gateCode "capacity" .
+
+zoe:ScheduleGate a zoe:AdmissionGate ;
+    rdfs:label   "Schedule Gate"@en ;
+    rdfs:comment "Verifies at least one candidate group meeting schedule aligns with the person's stated schedule preferences."@en ;
+    zoe:gateCode "schedule" .
+
+zoe:PolicyGate a zoe:AdmissionGate ;
+    rdfs:label   "Policy Gate"@en ;
+    rdfs:comment "Verifies the route execution does not violate any active policy constraints (age segment, campus boundaries, safeguarding rules)."@en ;
+    zoe:gateCode "policy" .
+
+zoe:NotificationBudgetGate a zoe:AdmissionGate ;
+    rdfs:label   "Notification Budget Gate"@en ;
+    rdfs:comment "Verifies the person has not exceeded the notification rate limit before dispatching an invite. Prevents communication fatigue."@en ;
+    zoe:gateCode "notification-budget" .
+
+zoe:RoleGate a zoe:AdmissionGate ;
+    rdfs:label   "Role Gate"@en ;
+    rdfs:comment "Verifies the executing agent holds the required role (e.g. GroupLeaderRole, PastorRole) before a privileged stage action is performed."@en ;
+    zoe:gateCode "role" .
+
+# ============================================================================
+# End of ontology/zoela/connect-group-routes.ttl
+# ============================================================================

@@ -1,0 +1,5 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix stream: <https://cns.dev/stream#> .
+
+stream:ProcessorShape a sh:NodeShape ; sh:targetClass stream:Processor .
+stream:WindowShape a sh:NodeShape ; sh:targetClass stream:Window .

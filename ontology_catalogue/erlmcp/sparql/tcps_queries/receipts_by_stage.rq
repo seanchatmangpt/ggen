@@ -1,0 +1,84 @@
+# Query: Receipts Grouped by Production Stage
+#
+# Business Logic:
+# - Extracts all quality receipts for a specific SKU
+# - Groups by production stage (e.g., "build", "test", "deploy", "monitor")
+# - Shows pass/fail status for traceability and audit
+# - Ordered by stage sequence and receipt timestamp
+# - Used for: SKU status tracking, audit trails, root cause analysis
+#
+# Parameters:
+# - ?sku_id: SKU identifier (REQUIRED - bind before query)
+# - ?stage_filter: Optional stage name to filter results
+# - ?status_filter: Optional status to filter ("PASS", "FAIL", "PENDING")
+#
+# Returns:
+# - receipt_id: Unique receipt identifier
+# - sku_id: SKU being validated
+# - stage: Production stage name
+# - stage_sequence: Numeric order of stages (1, 2, 3...)
+# - status: Receipt validation result (PASS/FAIL/PENDING)
+# - receipt_timestamp: When receipt was generated
+# - validator: System/person that created receipt
+# - validation_data: Additional metadata (optional)
+# - failure_reason: Why receipt failed (if status = FAIL)
+#
+# Usage Example:
+# BIND("SKU-12345" AS ?sku_id)
+# BIND("test" AS ?stage_filter)  # Optional: filter to test stage
+# BIND("FAIL" AS ?status_filter)  # Optional: show only failures
+
+PREFIX tcps: <http://example.org/tcps#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?receipt_id ?sku_id ?stage ?stage_sequence
+       ?status ?receipt_timestamp ?validator
+       ?validation_data ?failure_reason
+WHERE {
+  # Bind SKU parameter (must be provided by caller)
+  # Example: BIND("SKU-12345" AS ?sku_id)
+
+  # Get all receipts for this SKU
+  ?receipt rdf:type tcps:Receipt ;
+           tcps:receiptId ?receipt_id ;
+           tcps:skuId ?sku_id ;
+           tcps:stage ?stage ;
+           tcps:status ?status ;
+           tcps:receiptTimestamp ?receipt_timestamp .
+
+  # Get stage sequence number for ordering
+  # Stages should be defined in ontology with sequence numbers
+  ?stage_def rdf:type tcps:ProductionStage ;
+             tcps:stageName ?stage ;
+             tcps:sequenceNumber ?stage_sequence .
+
+  # Optional: Validator information
+  OPTIONAL {
+    ?receipt tcps:validator ?validator .
+  }
+
+  # Optional: Additional validation metadata
+  OPTIONAL {
+    ?receipt tcps:validationData ?validation_data .
+  }
+
+  # Optional: Failure reason (only present if status = FAIL)
+  OPTIONAL {
+    ?receipt tcps:failureReason ?failure_reason .
+    FILTER(?status = "FAIL")
+  }
+
+  # Optional: Filter by specific stage
+  # Example: BIND("test" AS ?stage_filter)
+  FILTER(!BOUND(?stage_filter) || ?stage = ?stage_filter)
+
+  # Optional: Filter by status
+  # Example: BIND("FAIL" AS ?status_filter)
+  FILTER(!BOUND(?status_filter) || ?status = ?status_filter)
+}
+ORDER BY
+  # Primary sort: Stage sequence (follow production flow)
+  ASC(?stage_sequence)
+  # Secondary sort: Receipt timestamp (chronological within stage)
+  ASC(?receipt_timestamp)

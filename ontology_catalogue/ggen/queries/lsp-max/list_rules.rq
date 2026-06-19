@@ -1,0 +1,24 @@
+PREFIX lsp: <http://ggen.io/ontology/lsp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?server_name ?pack_id ?pack_version ?rule_id ?rule_name
+       ?severity ?pattern ?message ?rationale ?eval_budget
+WHERE {
+    ?server a lsp:Server ;
+            lsp:serverName ?server_name ;
+            lsp:hasRulePack ?pack .
+
+    ?pack lsp:packId ?pack_id ;
+          lsp:packVersion ?pack_version ;
+          lsp:hasRule ?rule .
+
+    ?rule lsp:ruleId ?rule_id ;
+          lsp:ruleName ?rule_name ;
+          lsp:severity ?severity ;
+          lsp:pattern ?pattern ;
+          lsp:message ?message ;
+          lsp:rationale ?rationale .
+
+    OPTIONAL { ?rule lsp:evalBudget ?eval_budget . }
+}
+ORDER BY ?server_name ?pack_id ?rule_id

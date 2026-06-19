@@ -1,0 +1,338 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix kgen: <https://kgen.io/ontology#> .
+
+# Complex RDF dataset for testing semantic graph operations
+# Features: multiple classes, relationships, blank nodes, literals with languages/datatypes
+
+# Organizations and People
+ex:TechCorp rdf:type foaf:Organization ;
+    foaf:name "TechCorp Industries"@en ;
+    foaf:name "TechCorp Industrias"@es ;
+    rdfs:label "Global Technology Corporation" ;
+    foaf:homepage <http://techcorp.example.com> ;
+    ex:founded "1995-03-15"^^xsd:date ;
+    ex:employees 15000 ;
+    ex:revenue "2.5E9"^^xsd:decimal ;
+    ex:hasOffice ex:Office_NYC, ex:Office_London, ex:Office_Tokyo .
+
+ex:Office_NYC rdf:type ex:Office ;
+    rdfs:label "New York Office" ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "123 Tech Avenue" ;
+        ex:city "New York" ;
+        ex:state "NY" ;
+        ex:country "USA" ;
+        ex:zipCode "10001"
+    ] ;
+    ex:employeeCount 5000 ;
+    ex:primaryLanguage "en" .
+
+ex:Office_London rdf:type ex:Office ;
+    rdfs:label "London Office" ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "456 Innovation Street" ;
+        ex:city "London" ;
+        ex:country "UK" ;
+        ex:postCode "SW1A 1AA"
+    ] ;
+    ex:employeeCount 3000 ;
+    ex:primaryLanguage "en-GB" .
+
+ex:Office_Tokyo rdf:type ex:Office ;
+    rdfs:label "Tokyo Office"@en ;
+    rdfs:label "東京オフィス"@ja ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "789 テクノロジー通り" ;
+        ex:city "Tokyo" ;
+        ex:country "Japan"
+    ] ;
+    ex:employeeCount 2500 ;
+    ex:primaryLanguage "ja" .
+
+# Key Personnel
+ex:JohnSmith rdf:type foaf:Person ;
+    foaf:name "John Smith" ;
+    foaf:givenName "John" ;
+    foaf:familyName "Smith" ;
+    foaf:mbox <mailto:john.smith@techcorp.example.com> ;
+    ex:employeeId "EMP001" ;
+    ex:position "Chief Technology Officer" ;
+    ex:worksAt ex:Office_NYC ;
+    ex:salary "250000.00"^^xsd:decimal ;
+    ex:hireDate "2010-01-15"^^xsd:date ;
+    ex:hasSkill ex:Skill_AI, ex:Skill_ML, ex:Skill_Leadership ;
+    foaf:knows ex:AliceJohnson, ex:BobWilson ;
+    ex:manages ex:TeamAlpha, ex:TeamBeta .
+
+ex:AliceJohnson rdf:type foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:givenName "Alice" ;
+    foaf:familyName "Johnson" ;
+    foaf:mbox <mailto:alice.johnson@techcorp.example.com> ;
+    ex:employeeId "EMP002" ;
+    ex:position "Senior Software Engineer" ;
+    ex:worksAt ex:Office_London ;
+    ex:salary "120000.00"^^xsd:decimal ;
+    ex:hireDate "2015-06-01"^^xsd:date ;
+    ex:hasSkill ex:Skill_Python, ex:Skill_JavaScript, ex:Skill_Docker ;
+    foaf:knows ex:JohnSmith, ex:BobWilson ;
+    ex:memberOf ex:TeamAlpha .
+
+ex:BobWilson rdf:type foaf:Person ;
+    foaf:name "Bob Wilson" ;
+    foaf:givenName "Bob" ;
+    foaf:familyName "Wilson" ;
+    foaf:mbox <mailto:bob.wilson@techcorp.example.com> ;
+    ex:employeeId "EMP003" ;
+    ex:position "Data Scientist" ;
+    ex:worksAt ex:Office_Tokyo ;
+    ex:salary "135000.00"^^xsd:decimal ;
+    ex:hireDate "2018-03-20"^^xsd:date ;
+    ex:hasSkill ex:Skill_Python, ex:Skill_R, ex:Skill_Statistics ;
+    foaf:knows ex:JohnSmith, ex:AliceJohnson ;
+    ex:memberOf ex:TeamBeta .
+
+# Teams and Projects
+ex:TeamAlpha rdf:type ex:Team ;
+    rdfs:label "Alpha Development Team" ;
+    ex:teamLead ex:JohnSmith ;
+    ex:focusArea "Artificial Intelligence" ;
+    ex:budget "5000000.00"^^xsd:decimal ;
+    ex:workingOnProject ex:Project_KGEN, ex:Project_CloudAI ;
+    ex:hasMember ex:AliceJohnson .
+
+ex:TeamBeta rdf:type ex:Team ;
+    rdfs:label "Beta Research Team" ;
+    ex:teamLead ex:JohnSmith ;
+    ex:focusArea "Machine Learning Research" ;
+    ex:budget "3500000.00"^^xsd:decimal ;
+    ex:workingOnProject ex:Project_DeepAnalytics ;
+    ex:hasMember ex:BobWilson .
+
+ex:Project_KGEN rdf:type ex:Project ;
+    dc:title "KGEN - Knowledge Graph Engine" ;
+    dc:description "Advanced knowledge graph processing and generation system"@en ;
+    dc:description "Sistema avanzado de procesamiento y generación de grafos de conocimiento"@es ;
+    ex:startDate "2022-01-01"^^xsd:date ;
+    ex:endDate "2024-12-31"^^xsd:date ;
+    ex:status "active" ;
+    ex:priority "high" ;
+    ex:budget "2000000.00"^^xsd:decimal ;
+    ex:usedTechnology ex:Tech_RDF, ex:Tech_SPARQL, ex:Tech_JavaScript ;
+    kgen:semanticComplexity "high" ;
+    kgen:performanceTarget "150ms" ;
+    kgen:indexingCapability "semantic" .
+
+ex:Project_CloudAI rdf:type ex:Project ;
+    dc:title "Cloud AI Platform" ;
+    dc:description "Scalable AI services in the cloud" ;
+    ex:startDate "2023-06-01"^^xsd:date ;
+    ex:status "planning" ;
+    ex:priority "medium" ;
+    ex:budget "1500000.00"^^xsd:decimal ;
+    ex:usedTechnology ex:Tech_Python, ex:Tech_Docker, ex:Tech_Kubernetes .
+
+ex:Project_DeepAnalytics rdf:type ex:Project ;
+    dc:title "Deep Analytics Engine" ;
+    dc:description "Advanced data analytics using deep learning" ;
+    ex:startDate "2023-09-01"^^xsd:date ;
+    ex:status "development" ;
+    ex:priority "high" ;
+    ex:budget "1800000.00"^^xsd:decimal ;
+    ex:usedTechnology ex:Tech_Python, ex:Tech_TensorFlow, ex:Tech_R .
+
+# Skills and Technologies
+ex:Skill_AI rdf:type ex:Skill ;
+    rdfs:label "Artificial Intelligence" ;
+    ex:category "technology" ;
+    ex:complexity "high" ;
+    ex:demandLevel "very-high" .
+
+ex:Skill_ML rdf:type ex:Skill ;
+    rdfs:label "Machine Learning" ;
+    ex:category "technology" ;
+    ex:complexity "high" ;
+    ex:demandLevel "very-high" ;
+    ex:relatedSkill ex:Skill_AI, ex:Skill_Statistics .
+
+ex:Skill_Python rdf:type ex:Skill ;
+    rdfs:label "Python Programming" ;
+    ex:category "programming" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+ex:Skill_JavaScript rdf:type ex:Skill ;
+    rdfs:label "JavaScript Programming" ;
+    ex:category "programming" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+ex:Skill_R rdf:type ex:Skill ;
+    rdfs:label "R Statistical Computing" ;
+    ex:category "programming" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "medium" .
+
+ex:Skill_Statistics rdf:type ex:Skill ;
+    rdfs:label "Statistical Analysis" ;
+    ex:category "analytics" ;
+    ex:complexity "high" ;
+    ex:demandLevel "high" .
+
+ex:Skill_Leadership rdf:type ex:Skill ;
+    rdfs:label "Leadership & Management" ;
+    ex:category "management" ;
+    ex:complexity "high" ;
+    ex:demandLevel "high" .
+
+ex:Skill_Docker rdf:type ex:Skill ;
+    rdfs:label "Docker Containerization" ;
+    ex:category "devops" ;
+    ex:complexity "medium" ;
+    ex:demandLevel "high" .
+
+ex:Tech_RDF rdf:type ex:Technology ;
+    rdfs:label "Resource Description Framework" ;
+    ex:category "semantic-web" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "growing" .
+
+ex:Tech_SPARQL rdf:type ex:Technology ;
+    rdfs:label "SPARQL Query Language" ;
+    ex:category "semantic-web" ;
+    ex:maturityLevel "stable" ;
+    ex:relatedTech ex:Tech_RDF .
+
+ex:Tech_JavaScript rdf:type ex:Technology ;
+    rdfs:label "JavaScript" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "very-high" .
+
+ex:Tech_Python rdf:type ex:Technology ;
+    rdfs:label "Python" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "very-high" .
+
+ex:Tech_Docker rdf:type ex:Technology ;
+    rdfs:label "Docker" ;
+    ex:category "containerization" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" .
+
+ex:Tech_Kubernetes rdf:type ex:Technology ;
+    rdfs:label "Kubernetes" ;
+    ex:category "orchestration" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" .
+
+ex:Tech_TensorFlow rdf:type ex:Technology ;
+    rdfs:label "TensorFlow" ;
+    ex:category "machine-learning" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "high" .
+
+ex:Tech_R rdf:type ex:Technology ;
+    rdfs:label "R Statistical Computing" ;
+    ex:category "programming-language" ;
+    ex:maturityLevel "stable" ;
+    ex:adoptionRate "medium" .
+
+# Complex relationships and blank nodes for advanced testing
+ex:CollaborationNetwork rdf:type ex:Network ;
+    rdfs:label "TechCorp Collaboration Network" ;
+    ex:hasNode [
+        rdf:type ex:NetworkNode ;
+        ex:represents ex:JohnSmith ;
+        ex:centrality "0.85"^^xsd:decimal ;
+        ex:connections 25
+    ] ;
+    ex:hasNode [
+        rdf:type ex:NetworkNode ;
+        ex:represents ex:AliceJohnson ;
+        ex:centrality "0.72"^^xsd:decimal ;
+        ex:connections 18
+    ] ;
+    ex:hasNode [
+        rdf:type ex:NetworkNode ;
+        ex:represents ex:BobWilson ;
+        ex:centrality "0.63"^^xsd:decimal ;
+        ex:connections 12
+    ] ;
+    ex:networkDensity "0.42"^^xsd:decimal ;
+    ex:lastAnalyzed "2024-01-15T10:30:00Z"^^xsd:dateTime .
+
+# Time series data for performance testing
+ex:PerformanceMetrics rdf:type ex:Metrics ;
+    rdfs:label "KGEN Performance Metrics" ;
+    ex:hasDataPoint [
+        ex:timestamp "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+        ex:indexingRate "2500"^^xsd:integer ;
+        ex:memoryUsage "125.5"^^xsd:decimal ;
+        ex:queryTime "45"^^xsd:integer
+    ] ;
+    ex:hasDataPoint [
+        ex:timestamp "2024-01-02T00:00:00Z"^^xsd:dateTime ;
+        ex:indexingRate "2650"^^xsd:integer ;
+        ex:memoryUsage "128.2"^^xsd:decimal ;
+        ex:queryTime "42"^^xsd:integer
+    ] ;
+    ex:hasDataPoint [
+        ex:timestamp "2024-01-03T00:00:00Z"^^xsd:dateTime ;
+        ex:indexingRate "2720"^^xsd:integer ;
+        ex:memoryUsage "130.1"^^xsd:decimal ;
+        ex:queryTime "38"^^xsd:integer
+    ] .
+
+# Multilingual content for language indexing
+ex:MultilingualContent rdf:type ex:ContentRepository ;
+    rdfs:label "Global Content Repository" ;
+    ex:hasDocument [
+        dc:title "Getting Started Guide"@en ;
+        dc:title "Guía de Inicio"@es ;
+        dc:title "入門ガイド"@ja ;
+        dc:title "Guide de Démarrage"@fr ;
+        ex:contentLength 5000 ;
+        ex:lastModified "2024-01-10T15:30:00Z"^^xsd:dateTime
+    ] ;
+    ex:hasDocument [
+        dc:title "Technical Specifications"@en ;
+        dc:title "Especificaciones Técnicas"@es ;
+        dc:title "技術仕様"@ja ;
+        ex:contentLength 12000 ;
+        ex:lastModified "2024-01-12T09:15:00Z"^^xsd:dateTime
+    ] .
+
+# Complex datatype examples
+ex:NumericData rdf:type ex:Dataset ;
+    rdfs:label "Complex Numeric Dataset" ;
+    ex:integerValue 42 ;
+    ex:decimalValue "123.456789"^^xsd:decimal ;
+    ex:floatValue "9.87654E-4"^^xsd:float ;
+    ex:doubleValue "1.23456789012345E10"^^xsd:double ;
+    ex:booleanValue true ;
+    ex:dateValue "2024-01-15"^^xsd:date ;
+    ex:timeValue "14:30:00.123"^^xsd:time ;
+    ex:dateTimeValue "2024-01-15T14:30:00.123Z"^^xsd:dateTime ;
+    ex:durationValue "P1Y2M3DT4H5M6.789S"^^xsd:duration ;
+    ex:hexBinaryValue "48656C6C6F"^^xsd:hexBinary ;
+    ex:base64BinaryValue "SGVsbG8gV29ybGQ="^^xsd:base64Binary .
+
+# Test completeness marker
+ex:TestDataset rdf:type kgen:TestDataset ;
+    rdfs:label "Complex RDF Test Dataset for Semantic Graph Operations" ;
+    kgen:version "1.0.0" ;
+    kgen:tripleCount 200 ;  # Approximate count
+    kgen:complexityLevel "high" ;
+    kgen:features "multilingual, blank-nodes, complex-datatypes, relationships, time-series" ;
+    kgen:generatedAt "2024-01-15T12:00:00Z"^^xsd:dateTime ;
+    kgen:purpose "Testing semantic graph indexing, diffing, and performance" .

@@ -1,0 +1,487 @@
+@prefix evidence: <http://cns-litigation.org/evidence#> .
+@prefix correlation: <http://cns-litigation.org/correlation#> .
+@prefix bar: <http://cns-litigation.org/bar#> .
+@prefix legal: <http://cns-litigation.org/legal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# Evidence Correlation System for Professional Misconduct Claims
+# Advanced correlation algorithms for misconduct evidence analysis
+
+evidence:EvidenceCorrelationOntology a owl:Ontology ;
+    rdfs:label "Evidence Correlation System for Misconduct Claims" ;
+    rdfs:comment "Advanced correlation algorithms and ontology for professional misconduct evidence analysis" ;
+    owl:versionInfo "2.0" ;
+    owl:created "2025-07-29T22:44:00Z" .
+
+# Evidence Classification Hierarchy
+evidence:Evidence a owl:Class ;
+    rdfs:label "Legal Evidence" ;
+    rdfs:comment "Any material relevant to proving or disproving misconduct allegations" .
+
+evidence:DocumentaryEvidence a owl:Class ;
+    rdfs:subClassOf evidence:Evidence ;
+    rdfs:label "Documentary Evidence" ;
+    rdfs:comment "Written or recorded materials as evidence" .
+
+evidence:TestimonialEvidence a owl:Class ;
+    rdfs:subClassOf evidence:Evidence ;
+    rdfs:label "Testimonial Evidence" ;
+    rdfs:comment "Witness statements and testimony" .
+
+evidence:DigitalEvidence a owl:Class ;
+    rdfs:subClassOf evidence:Evidence ;
+    rdfs:label "Digital Evidence" ;
+    rdfs:comment "Electronic records and digital artifacts" .
+
+evidence:PhysicalEvidence a owl:Class ;
+    rdfs:subClassOf evidence:Evidence ;
+    rdfs:label "Physical Evidence" ;
+    rdfs:comment "Tangible objects as evidence" .
+
+evidence:CircumstantialEvidence a owl:Class ;
+    rdfs:subClassOf evidence:Evidence ;
+    rdfs:label "Circumstantial Evidence" ;
+    rdfs:comment "Evidence that implies facts through inference" .
+
+# Documentary Evidence Subtypes
+evidence:ClientFile a owl:Class ;
+    rdfs:subClassOf evidence:DocumentaryEvidence ;
+    rdfs:label "Client File" ;
+    evidence:confidentialityLevel "high" ;
+    evidence:privilegeStatus "potentially_privileged" .
+
+evidence:BillingRecord a owl:Class ;
+    rdfs:subClassOf evidence:DocumentaryEvidence ;
+    rdfs:label "Billing Record" ;
+    evidence:confidentialityLevel "medium" ;
+    evidence:relevanceScore 0.85 .
+
+evidence:TrustAccountRecord a owl:Class ;
+    rdfs:subClassOf evidence:DocumentaryEvidence ;
+    rdfs:label "Trust Account Record" ;
+    evidence:confidentialityLevel "high" ;
+    evidence:relevanceScore 0.95 ;
+    evidence:auditRequired true .
+
+evidence:Correspondence a owl:Class ;
+    rdfs:subClassOf evidence:DocumentaryEvidence ;
+    rdfs:label "Correspondence" ;
+    evidence:confidentialityLevel "medium" ;
+    evidence:privilegeStatus "potentially_privileged" .
+
+evidence:CourtFiling a owl:Class ;
+    rdfs:subClassOf evidence:DocumentaryEvidence ;
+    rdfs:label "Court Filing" ;
+    evidence:confidentialityLevel "low" ;
+    evidence:publicRecord true ;
+    evidence:relevanceScore 0.90 .
+
+evidence:FeeAgreement a owl:Class ;
+    rdfs:subClassOf evidence:DocumentaryEvidence ;
+    rdfs:label "Fee Agreement" ;
+    evidence:confidentialityLevel "medium" ;
+    evidence:relevanceScore 0.80 .
+
+# Digital Evidence Subtypes
+evidence:EmailCommunication a owl:Class ;
+    rdfs:subClassOf evidence:DigitalEvidence ;
+    rdfs:label "Email Communication" ;
+    evidence:metadataImportant true ;
+    evidence:authenticationRequired true .
+
+evidence:PhoneRecord a owl:Class ;
+    rdfs:subClassOf evidence:DigitalEvidence ;
+    rdfs:label "Phone Record" ;
+    evidence:metadataImportant true ;
+    evidence:privacyProtected true .
+
+evidence:BankRecord a owl:Class ;
+    rdfs:subClassOf evidence:DigitalEvidence ;
+    rdfs:label "Bank Record" ;
+    evidence:confidentialityLevel "high" ;
+    evidence:authenticationRequired true ;
+    evidence:relevanceScore 0.92 .
+
+evidence:DatabaseEntry a owl:Class ;
+    rdfs:subClassOf evidence:DigitalEvidence ;
+    rdfs:label "Database Entry" ;
+    evidence:integrityVerifiable true ;
+    evidence:metadataImportant true .
+
+# Testimonial Evidence Subtypes
+evidence:ClientTestimony a owl:Class ;
+    rdfs:subClassOf evidence:TestimonialEvidence ;
+    rdfs:label "Client Testimony" ;
+    evidence:credibilityWeight 0.85 ;
+    evidence:biasRisk "medium" .
+
+evidence:WitnessTestimony a owl:Class ;
+    rdfs:subClassOf evidence:TestimonialEvidence ;
+    rdfs:label "Witness Testimony" ;
+    evidence:credibilityWeight 0.80 ;
+    evidence:biasRisk "low" .
+
+evidence:ExpertTestimony a owl:Class ;
+    rdfs:subClassOf evidence:TestimonialEvidence ;
+    rdfs:label "Expert Testimony" ;
+    evidence:credibilityWeight 0.90 ;
+    evidence:expertiseRequired true .
+
+evidence:OpposingCounselTestimony a owl:Class ;
+    rdfs:subClassOf evidence:TestimonialEvidence ;
+    rdfs:label "Opposing Counsel Testimony" ;
+    evidence:credibilityWeight 0.75 ;
+    evidence:biasRisk "high" .
+
+# Correlation Engine Classes
+correlation:CorrelationEngine a owl:Class ;
+    rdfs:label "Evidence Correlation Engine" ;
+    rdfs:comment "System for identifying relationships between evidence items" .
+
+correlation:TemporalCorrelation a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationEngine ;
+    rdfs:label "Temporal Correlation Engine" ;
+    rdfs:comment "Correlates evidence based on temporal relationships" ;
+    correlation:algorithmType "time_series_analysis" ;
+    correlation:accuracyRate 0.89 .
+
+correlation:SemanticCorrelation a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationEngine ;
+    rdfs:label "Semantic Correlation Engine" ;
+    rdfs:comment "Correlates evidence based on semantic content" ;
+    correlation:algorithmType "natural_language_processing" ;
+    correlation:accuracyRate 0.82 .
+
+correlation:NetworkCorrelation a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationEngine ;
+    rdfs:label "Network Correlation Engine" ;
+    rdfs:comment "Correlates evidence based on relationship networks" ;
+    correlation:algorithmType "graph_analysis" ;
+    correlation:accuracyRate 0.87 .
+
+correlation:PatternCorrelation a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationEngine ;
+    rdfs:label "Pattern Correlation Engine" ;
+    rdfs:comment "Correlates evidence based on behavioral patterns" ;
+    correlation:algorithmType "pattern_recognition" ;
+    correlation:accuracyRate 0.84 .
+
+correlation:FinancialCorrelation a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationEngine ;
+    rdfs:label "Financial Correlation Engine" ;
+    rdfs:comment "Correlates financial evidence and transactions" ;
+    correlation:algorithmType "financial_flow_analysis" ;
+    correlation:accuracyRate 0.93 .
+
+# Correlation Relationship Types
+correlation:CorrelationRelationship a owl:Class ;
+    rdfs:label "Evidence Correlation Relationship" ;
+    rdfs:comment "Relationship between evidence items identified by correlation" .
+
+correlation:CausalRelationship a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationRelationship ;
+    rdfs:label "Causal Relationship" ;
+    rdfs:comment "One evidence item caused or led to another" ;
+    correlation:strengthRequired 0.85 .
+
+correlation:TemporalRelationship a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationRelationship ;
+    rdfs:label "Temporal Relationship" ;
+    rdfs:comment "Evidence items related by timing" ;
+    correlation:temporalTypes (
+        "simultaneous"
+        "sequential"
+        "overlapping"
+        "causally_linked"
+    ) .
+
+correlation:ContextualRelationship a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationRelationship ;
+    rdfs:label "Contextual Relationship" ;
+    rdfs:comment "Evidence items related by context or subject matter" ;
+    correlation:contextTypes (
+        "same_client"
+        "same_matter"
+        "same_time_period"
+        "same_location"
+    ) .
+
+correlation:ContradictoryRelationship a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationRelationship ;
+    rdfs:label "Contradictory Relationship" ;
+    rdfs:comment "Evidence items that contradict each other" ;
+    correlation:resolutionRequired true ;
+    correlation:credibilityAnalysisRequired true .
+
+correlation:CorroborativeRelationship a owl:Class ;
+    rdfs:subClassOf correlation:CorrelationRelationship ;
+    rdfs:label "Corroborative Relationship" ;
+    rdfs:comment "Evidence items that support each other" ;
+    correlation:strengthMultiplier 1.25 .
+
+# Advanced Correlation Algorithms
+correlation:TimeSeriesCorrelation a correlation:TemporalCorrelation ;
+    rdfs:label "Time Series Correlation Algorithm" ;
+    correlation:algorithmDescription "Analyzes temporal patterns and sequences in evidence" ;
+    correlation:inputRequirements (
+        "timestamp_data"
+        "event_sequence"
+        "duration_information"
+    ) ;
+    correlation:outputTypes (
+        "sequence_patterns"
+        "temporal_clusters"
+        "causality_chains"
+    ) ;
+    correlation:statisticalMethods (
+        "cross_correlation"
+        "granger_causality"
+        "dynamic_time_warping"
+    ) .
+
+correlation:SemanticSimilarity a correlation:SemanticCorrelation ;
+    rdfs:label "Semantic Similarity Algorithm" ;
+    correlation:algorithmDescription "Identifies semantic relationships in textual evidence" ;
+    correlation:nlpTechniques (
+        "named_entity_recognition"
+        "topic_modeling"
+        "sentiment_analysis"
+        "semantic_clustering"
+    ) ;
+    correlation:accuracyMetrics [
+        correlation:precision 0.84 ;
+        correlation:recall 0.78 ;
+        correlation:f1Score 0.81
+    ] .
+
+correlation:GraphAnalysis a correlation:NetworkCorrelation ;
+    rdfs:label "Graph Analysis Algorithm" ;
+    correlation:algorithmDescription "Analyzes relationship networks in evidence" ;
+    correlation:graphMethods (
+        "centrality_analysis"
+        "community_detection"
+        "path_analysis"
+        "influence_propagation"
+    ) ;
+    correlation:networkMetrics (
+        "degree_centrality"
+        "betweenness_centrality"
+        "clustering_coefficient"
+        "shortest_path_length"
+    ) .
+
+correlation:MoneyFlowAnalysis a correlation:FinancialCorrelation ;
+    rdfs:label "Money Flow Analysis Algorithm" ;
+    correlation:algorithmDescription "Traces financial flows and patterns" ;
+    correlation:financialMethods (
+        "transaction_flow_mapping"
+        "account_analysis"
+        "pattern_detection"
+        "anomaly_identification"
+    ) ;
+    correlation:complianceChecks (
+        "trust_account_rules"
+        "fee_reasonableness"
+        "commingling_detection"
+        "misappropriation_flags"
+    ) .
+
+# Evidence Quality Assessment
+evidence:QualityAssessment a owl:Class ;
+    rdfs:label "Evidence Quality Assessment" ;
+    rdfs:comment "Assessment of evidence quality and reliability" .
+
+evidence:Authenticity a evidence:QualityAssessment ;
+    rdfs:label "Evidence Authenticity" ;
+    evidence:assessmentCriteria (
+        "source_verification"
+        "chain_of_custody"
+        "digital_signature"
+        "expert_authentication"
+    ) ;
+    evidence:scoreRange "0.0-1.0" .
+
+evidence:Reliability a evidence:QualityAssessment ;
+    rdfs:label "Evidence Reliability" ;
+    evidence:assessmentCriteria (
+        "source_credibility"
+        "consistency_with_other_evidence"
+        "bias_assessment"
+        "corroboration_level"
+    ) ;
+    evidence:scoreRange "0.0-1.0" .
+
+evidence:Relevance a evidence:QualityAssessment ;
+    rdfs:label "Evidence Relevance" ;
+    evidence:assessmentCriteria (
+        "material_to_allegations"
+        "probative_value"
+        "logical_connection"
+        "temporal_relevance"
+    ) ;
+    evidence:scoreRange "0.0-1.0" .
+
+evidence:Completeness a evidence:QualityAssessment ;
+    rdfs:label "Evidence Completeness" ;
+    evidence:assessmentCriteria (
+        "full_documentation"
+        "no_gaps_in_timeline"
+        "comprehensive_coverage"
+        "supporting_context"
+    ) ;
+    evidence:scoreRange "0.0-1.0" .
+
+# Correlation Scoring System
+correlation:CorrelationScore a owl:Class ;
+    rdfs:label "Correlation Strength Score" ;
+    rdfs:comment "Quantitative measure of correlation strength between evidence items" .
+
+correlation:StrongCorrelation a correlation:CorrelationScore ;
+    rdfs:label "Strong Correlation" ;
+    correlation:scoreRange "0.80-1.00" ;
+    correlation:confidenceLevel "high" ;
+    correlation:actionRequired "include_in_primary_evidence" .
+
+correlation:ModerateCorrelation a correlation:CorrelationScore ;
+    rdfs:label "Moderate Correlation" ;
+    correlation:scoreRange "0.60-0.79" ;
+    correlation:confidenceLevel "medium" ;
+    correlation:actionRequired "include_as_supporting_evidence" .
+
+correlation:WeakCorrelation a correlation:CorrelationScore ;
+    rdfs:label "Weak Correlation" ;
+    correlation:scoreRange "0.40-0.59" ;
+    correlation:confidenceLevel "low" ;
+    correlation:actionRequired "consider_for_background" .
+
+correlation:NoCorrelation a correlation:CorrelationScore ;
+    rdfs:label "No Significant Correlation" ;
+    correlation:scoreRange "0.00-0.39" ;
+    correlation:confidenceLevel "none" ;
+    correlation:actionRequired "exclude_from_case" .
+
+# Correlation Workflow
+correlation:CorrelationWorkflow a owl:Class ;
+    rdfs:label "Evidence Correlation Workflow" ;
+    rdfs:comment "Systematic workflow for evidence correlation analysis" .
+
+correlation:DataIngestion a correlation:CorrelationWorkflow ;
+    rdfs:label "Evidence Data Ingestion" ;
+    correlation:processSteps (
+        "evidence_collection"
+        "metadata_extraction"
+        "format_standardization"
+        "quality_assessment"
+        "indexing_and_storage"
+    ) ;
+    correlation:outputData "structured_evidence_dataset" .
+
+correlation:PreProcessing a correlation:CorrelationWorkflow ;
+    rdfs:label "Evidence Pre-Processing" ;
+    correlation:processSteps (
+        "data_cleaning"
+        "normalization"
+        "feature_extraction"
+        "relationship_identification"
+        "temporal_alignment"
+    ) ;
+    correlation:outputData "processed_evidence_features" .
+
+correlation:CorrelationAnalysis a correlation:CorrelationWorkflow ;
+    rdfs:label "Correlation Analysis Execution" ;
+    correlation:processSteps (
+        "algorithm_selection"
+        "correlation_computation"
+        "relationship_scoring"
+        "statistical_validation"
+        "result_ranking"
+    ) ;
+    correlation:outputData "correlation_results" .
+
+correlation:ResultsValidation a correlation:CorrelationWorkflow ;
+    rdfs:label "Correlation Results Validation" ;
+    correlation:processSteps (
+        "expert_review"
+        "cross_validation"
+        "sensitivity_analysis"
+        "false_positive_filtering"
+        "confidence_scoring"
+    ) ;
+    correlation:outputData "validated_correlations" .
+
+# Properties for Evidence Correlation
+evidence:hasEvidence a owl:ObjectProperty ;
+    rdfs:domain bar:MisconductCase ;
+    rdfs:range evidence:Evidence .
+
+evidence:correlatesWith a owl:ObjectProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range evidence:Evidence ;
+    owl:symmetric true .
+
+correlation:hasCorrelationStrength a owl:DatatypeProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range xsd:decimal .
+
+correlation:hasCorrelationType a owl:ObjectProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range correlation:CorrelationRelationship .
+
+evidence:hasQualityScore a owl:DatatypeProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range xsd:decimal .
+
+evidence:hasRelevanceScore a owl:DatatypeProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range xsd:decimal .
+
+evidence:isAuthenticated a owl:DatatypeProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range xsd:boolean .
+
+evidence:hasChainOfCustody a owl:ObjectProperty ;
+    rdfs:domain evidence:Evidence ;
+    rdfs:range legal:ChainOfCustodyRecord .
+
+correlation:algorithmType a owl:DatatypeProperty ;
+    rdfs:domain correlation:CorrelationEngine ;
+    rdfs:range xsd:string .
+
+correlation:accuracyRate a owl:DatatypeProperty ;
+    rdfs:domain correlation:CorrelationEngine ;
+    rdfs:range xsd:decimal .
+
+# Example Correlation Instance
+evidence:TrustAccountCase a bar:MisconductCase ;
+    rdfs:label "Trust Account Violation Case Example" ;
+    evidence:hasEvidence evidence:TrustAccountRecords ;
+    evidence:hasEvidence evidence:BankStatements ;
+    evidence:hasEvidence evidence:ClientLedgers ;
+    evidence:hasEvidence evidence:EmailCorrespondence .
+
+evidence:TrustAccountRecords a evidence:TrustAccountRecord ;
+    evidence:hasQualityScore "0.95"^^xsd:decimal ;
+    evidence:hasRelevanceScore "0.98"^^xsd:decimal ;
+    evidence:isAuthenticated true ;
+    evidence:correlatesWith evidence:BankStatements .
+
+evidence:BankStatements a evidence:BankRecord ;
+    evidence:hasQualityScore "0.92"^^xsd:decimal ;
+    evidence:hasRelevanceScore "0.96"^^xsd:decimal ;
+    evidence:isAuthenticated true ;
+    correlation:hasCorrelationStrength "0.89"^^xsd:decimal .
+
+# Correlation Statistics
+correlation:SystemPerformance a owl:Class ;
+    rdfs:label "Correlation System Performance Metrics" ;
+    correlation:totalEvidenceProcessed 150000 ;
+    correlation:successfulCorrelations 89000 ;
+    correlation:averageProcessingTime "4.2 seconds" ;
+    correlation:falsePositiveRate 0.08 ;
+    correlation:falseNegativeRate 0.12 ;
+    correlation:overallAccuracy 0.87 .

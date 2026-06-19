@@ -1,0 +1,34 @@
+@prefix : <http://iot.example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:ReadingShape a sh:NodeShape ;
+    sh:targetClass :Reading ;
+    sh:property [
+        sh:path :temperature ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -50 ;
+        sh:maxInclusive 70 ;
+        sh:message "Temperature must be between -50°C and 70°C"
+    ] ;
+    sh:property [
+        sh:path :humidity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Humidity must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path :pressure ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 900 ;
+        sh:maxInclusive 1100 ;
+        sh:message "Pressure must be between 900 and 1100 hPa"
+    ] ;
+    sh:property [
+        sh:path :battery ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Battery must be between 0% and 100%"
+    ] .

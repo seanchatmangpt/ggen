@@ -1,0 +1,128 @@
+@prefix mcp: <https://modelcontextprotocol.io/> .
+@prefix ggen: <https://ggen-mcp.dev/domain#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# MCP Tool Definitions
+# ============================================================================
+
+# read_spreadsheet Tool
+ggen:ReadSpreadsheetTool a mcp:Tool ;
+    rdfs:label "read_spreadsheet" ;
+    rdfs:comment "Read data from a spreadsheet file" ;
+    mcp:hasParameter ggen:ReadSpreadsheet_path ;
+    mcp:hasParameter ggen:ReadSpreadsheet_sheet ;
+    mcp:inputSchema "{\"type\": \"object\", \"properties\": {}}" ;
+    ggen:guardSet "read_validation" .
+
+ggen:ReadSpreadsheet_path a mcp:Parameter ;
+    rdfs:label "path" ;
+    mcp:paramType "string" ;
+    mcp:required true ;
+    rdfs:comment "Path to the spreadsheet file" .
+
+ggen:ReadSpreadsheet_sheet a mcp:Parameter ;
+    rdfs:label "sheet" ;
+    mcp:paramType "string" ;
+    mcp:required false ;
+    rdfs:comment "Sheet name or index" .
+
+# write_spreadsheet Tool
+ggen:WriteSpreadsheetTool a mcp:Tool ;
+    rdfs:label "write_spreadsheet" ;
+    rdfs:comment "Write data to a spreadsheet file" ;
+    mcp:hasParameter ggen:WriteSpreadsheet_path ;
+    mcp:hasParameter ggen:WriteSpreadsheet_data ;
+    ggen:guardSet "write_validation" ;
+    ggen:outputsProposal true .
+
+ggen:WriteSpreadsheet_path a mcp:Parameter ;
+    rdfs:label "path" ;
+    mcp:paramType "string" ;
+    mcp:required true ;
+    rdfs:comment "Path to the spreadsheet file" .
+
+ggen:WriteSpreadsheet_data a mcp:Parameter ;
+    rdfs:label "data" ;
+    mcp:paramType "object" ;
+    mcp:required true ;
+    rdfs:comment "Data to write to spreadsheet" .
+
+# list_workbooks Tool
+ggen:ListWorkbooksTool a mcp:Tool ;
+    rdfs:label "list_workbooks" ;
+    rdfs:comment "List all available workbooks" ;
+    mcp:inputSchema "{\"type\": \"object\", \"properties\": {}}" ;
+    ggen:requiresFeature "workbook_discovery" .
+
+# analyze_formulas Tool
+ggen:AnalyzeFormulasTool a mcp:Tool ;
+    rdfs:label "analyze_formulas" ;
+    rdfs:comment "Analyze formulas in a spreadsheet" ;
+    mcp:hasParameter ggen:AnalyzeFormulas_path ;
+    ggen:guardSet "analysis_validation" .
+
+ggen:AnalyzeFormulas_path a mcp:Parameter ;
+    rdfs:label "path" ;
+    mcp:paramType "string" ;
+    mcp:required true ;
+    rdfs:comment "Path to the spreadsheet file" .
+
+# ============================================================================
+# MCP Guards
+# ============================================================================
+
+ggen:PathValidationGuard a mcp:Guard ;
+    rdfs:label "PathValidationGuard" ;
+    rdfs:comment "Validates file paths are within workspace" ;
+    mcp:guardsParameter "path" ;
+    mcp:validationRule "path_within_workspace" .
+
+ggen:DataSizeGuard a mcp:Guard ;
+    rdfs:label "DataSizeGuard" ;
+    rdfs:comment "Validates data size is within limits" ;
+    mcp:guardsParameter "data" ;
+    mcp:validationRule "data_size_limit" ;
+    mcp:maxSize 1048576 .
+
+# ============================================================================
+# MCP Prompts
+# ============================================================================
+
+ggen:AnalysisPrompt a mcp:Prompt ;
+    rdfs:label "spreadsheet_analysis" ;
+    rdfs:comment "Prompt for spreadsheet analysis" ;
+    mcp:promptTemplate "Analyze the spreadsheet at {path} and provide insights" ;
+    mcp:hasArgument ggen:AnalysisPrompt_path .
+
+ggen:AnalysisPrompt_path a mcp:Argument ;
+    rdfs:label "path" ;
+    mcp:argumentType "string" ;
+    mcp:required true .
+
+# ============================================================================
+# MCP Resources
+# ============================================================================
+
+ggen:WorkbookResource a mcp:Resource ;
+    rdfs:label "workbook" ;
+    rdfs:comment "Spreadsheet workbook resource" ;
+    mcp:resourceUri "workbook://{path}" ;
+    mcp:mimeType "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" .
+
+# ============================================================================
+# MCP Server Configuration
+# ============================================================================
+
+ggen:SpreadsheetMcpServer a mcp:Server ;
+    rdfs:label "SpreadsheetMCPServer" ;
+    rdfs:comment "MCP server for spreadsheet operations" ;
+    mcp:version "1.0.0" ;
+    mcp:providesTool ggen:ReadSpreadsheetTool ;
+    mcp:providesTool ggen:WriteSpreadsheetTool ;
+    mcp:providesTool ggen:ListWorkbooksTool ;
+    mcp:providesTool ggen:AnalyzeFormulasTool ;
+    mcp:providesPrompt ggen:AnalysisPrompt ;
+    mcp:providesResource ggen:WorkbookResource .

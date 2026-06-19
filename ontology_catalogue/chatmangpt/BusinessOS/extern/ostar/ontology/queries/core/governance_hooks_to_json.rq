@@ -1,0 +1,18 @@
+PREFIX ostar: <https://chatmangpt.com/ontologies/o-star/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Regenerate config/hooks/governance-autonomics.json from ontology.
+# Returns all GovernanceHook instances with their condition/effect SPARQL strings.
+
+SELECT ?id ?name ?conditionQuery ?effectQuery ?priority ?enabled ?version
+WHERE {
+  ?hook a ostar:GovernanceHook ;
+        rdfs:label ?name ;
+        ostar:hookCondition ?conditionQuery ;
+        ostar:hookEffect ?effectQuery ;
+        ostar:hookPriority ?priority ;
+        ostar:hookEnabled ?enabled ;
+        ostar:hookVersion ?version .
+  BIND(STR(?hook) AS ?id)
+}
+ORDER BY DESC(?priority)

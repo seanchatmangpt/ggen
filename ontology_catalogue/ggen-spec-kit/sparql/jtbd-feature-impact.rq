@@ -1,0 +1,62 @@
+# ============================================================================
+# JTBD Query: Feature-to-Job Impact Analysis
+# ============================================================================
+# Purpose: Calculate job impact score for each feature based on outcome
+#          priority, importance, and frequency. Rank features by ROI.
+#
+# Output: Feature, jobs addressed, weighted impact score, recommendation
+# Use: Roadmap prioritization, resource allocation, feature justification
+#
+# Example Output:
+# Feature      | Jobs Addressed | Outcomes | Avg Priority | Impact Score | Recommendation
+# deps-add     | 2              | 4        | 1.5          | 95           | High ROI - Ship Now
+# deps-audit   | 1              | 2        | 2.0          | 85           | High ROI - Ship Now
+# otel-demo    | 1              | 1        | 5.0          | 45           | Medium ROI - Next Sprint
+# guides-list  | 3              | 3        | 3.0          | 60           | Medium ROI - Next Sprint
+# ============================================================================
+
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+  ?featureName
+  ?featureBranch
+  ?featureStatus
+  (COUNT(DISTINCT ?job) AS ?jobsAddressed)
+  (COUNT(DISTINCT ?outcome) AS ?outcomesDelivered)
+  (AVG(?outcomePriority) AS ?avgOutcomePriority)
+  (AVG(?outcomeImportance) AS ?avgOutcomeImportance)
+  (AVG(?outcomeOpportunityScore) AS ?avgOpportunityScore)
+  ((10 - AVG(?outcomePriority)) * AVG(?outcomeImportance) *
+   (1 + (COUNT(DISTINCT ?job) * 0.2)) AS ?impactScore)
+  (IF(?impactScore >= 80, "High ROI - Ship Now",
+      IF(?impactScore >= 60, "Medium ROI - Next Sprint",
+         IF(?impactScore >= 40, "Low ROI - Backlog",
+            "Consider Deprioritizing"))) AS ?recommendation)
+WHERE {
+  # All features
+  ?feature a sk:Feature ;
+           sk:featureName ?featureName .
+
+  OPTIONAL { ?feature sk:featureBranch ?featureBranch }
+  OPTIONAL { ?feature sk:status ?featureStatus }
+
+  # Jobs addressed by this feature
+  OPTIONAL {
+    ?feature sk:addressesJob ?job .
+  }
+
+  # Outcomes delivered by this feature
+  OPTIONAL {
+    ?feature sk:deliversOutcome ?outcome .
+
+    OPTIONAL { ?outcome sk:outcomePriority ?outcomePriority }
+    OPTIONAL { ?outcome sk:outcomeImportance ?outcomeImportance }
+    OPTIONAL { ?outcome sk:outcomeOpportunityScore ?outcomeOpportunityScore }
+  }
+
+  # Filter to features with JTBD linkage
+  FILTER(BOUND(?job) || BOUND(?outcome))
+}
+GROUP BY ?featureName ?featureBranch ?featureStatus
+ORDER BY DESC(?impactScore)

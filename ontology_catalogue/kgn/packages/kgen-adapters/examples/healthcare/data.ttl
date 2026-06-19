@@ -1,0 +1,67 @@
+@prefix : <http://healthcare.example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Patients
+:Patient001 a :Patient ;
+    :patientId "P001" ;
+    :age 45 ;
+    :hasCondition :Diabetes, :Hypertension ;
+    :prescribedTreatment :Metformin, :Lisinopril .
+
+:Patient002 a :Patient ;
+    :patientId "P002" ;
+    :age 67 ;
+    :hasCondition :Hypertension, :KidneyDisease ;
+    :prescribedTreatment :Amlodipine .
+
+:Patient003 a :Patient ;
+    :patientId "P003" ;
+    :age 35 ;
+    :hasCondition :Asthma ;
+    :prescribedTreatment :Albuterol, :Prednisone .
+
+# Diseases
+:Diabetes a :Disease ;
+    :hasSymptom :Thirst, :FrequentUrination, :Fatigue .
+
+:Hypertension a :Disease ;
+    :hasSymptom :Headache, :Dizziness .
+
+:KidneyDisease a :Disease ;
+    :hasSymptom :Swelling, :Fatigue .
+
+:Asthma a :Disease ;
+    :hasSymptom :Wheezing, :ShortnessOfBreath .
+
+# Symptoms
+:Thirst a :Symptom .
+:FrequentUrination a :Symptom .
+:Fatigue a :Symptom .
+:Headache a :Symptom .
+:Dizziness a :Symptom .
+:Swelling a :Symptom .
+:Wheezing a :Symptom .
+:ShortnessOfBreath a :Symptom .
+
+# Medications
+:Metformin a :Medication ;
+    :dosage "500mg twice daily" ;
+    :contraindicated :KidneyDisease .
+
+:Lisinopril a :Medication ;
+    :dosage "10mg once daily" ;
+    :contraindicated :Pregnancy .
+
+:Amlodipine a :Medication ;
+    :dosage "5mg once daily" .
+
+:Albuterol a :Medication ;
+    :dosage "2 puffs every 4 hours as needed" .
+
+:Prednisone a :Medication ;
+    :dosage "20mg once daily" ;
+    :contraindicated :ActiveInfection .
+
+# Conditions
+:Pregnancy a :Condition .
+:ActiveInfection a :Condition .

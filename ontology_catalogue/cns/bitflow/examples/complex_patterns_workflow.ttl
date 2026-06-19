@@ -1,0 +1,250 @@
+@prefix : <http://bitflow.ai/ontology/yawl/v2#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix wcp: <http://www.workflowpatterns.com/patterns#> .
+@prefix ex: <http://bitflow.ai/examples/patterns#> .
+
+# ========================================
+# Complex Patterns Workflow Example
+# Demonstrates patterns 31-43
+# ========================================
+
+ex:ComplexPatternsWorkflow a :WorkflowSpecification ;
+    rdfs:label "Complex Patterns Demonstration" ;
+    rdfs:comment "Showcases advanced workflow patterns 31-43" ;
+    :hasInputCondition ex:Start ;
+    :hasOutputCondition ex:End .
+
+ex:Start a :Condition ;
+    rdfs:label "Start" ;
+    :flowsTo ex:InitializeProcess .
+
+# Basic setup task
+ex:InitializeProcess a :AtomicTask ;
+    rdfs:label "Initialize Process" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :AND ;
+    :maxExecutionTicks 3 ;
+    :priority 200 ;
+    :flowsTo ex:ThreadSplitTask, ex:CriticalSectionEntry .
+
+# Pattern 42: Thread Split
+ex:ThreadSplitTask a :MultipleInstanceTask ;
+    rdfs:label "Thread Split Processing" ;
+    wcp:patternType "thread_split" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :AND ;
+    :threadGroup "ProcessingThreads" ;
+    :threadCount 4 ;
+    :maxExecutionTicks 5 ;
+    :flowsTo ex:ThreadWork1, ex:ThreadWork2, ex:ThreadWork3, ex:ThreadWork4 .
+
+# Thread work tasks
+ex:ThreadWork1 a :AtomicTask ;
+    rdfs:label "Thread Work 1" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :threadGroup "ProcessingThreads" ;
+    :maxExecutionTicks 8 ;
+    :useSIMD true ;
+    :flowsTo ex:ThreadMergePoint .
+
+ex:ThreadWork2 a :AtomicTask ;
+    rdfs:label "Thread Work 2" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :threadGroup "ProcessingThreads" ;
+    :maxExecutionTicks 8 ;
+    :useSIMD true ;
+    :flowsTo ex:ThreadMergePoint .
+
+ex:ThreadWork3 a :AtomicTask ;
+    rdfs:label "Thread Work 3" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :threadGroup "ProcessingThreads" ;
+    :maxExecutionTicks 8 ;
+    :flowsTo ex:ThreadMergePoint .
+
+ex:ThreadWork4 a :AtomicTask ;
+    rdfs:label "Thread Work 4" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :threadGroup "ProcessingThreads" ;
+    :maxExecutionTicks 8 ;
+    :flowsTo ex:ThreadMergePoint .
+
+# Pattern 41: Thread Merge
+ex:ThreadMergePoint a :AtomicTask ;
+    rdfs:label "Thread Merge" ;
+    wcp:patternType "thread_merge" ;
+    :hasJoinType :AND ;
+    :hasSplitType :XOR ;
+    :threadGroup "ProcessingThreads" ;
+    :threadMergeType :Barrier ;
+    :maxExecutionTicks 3 ;
+    :flowsTo ex:PartialJoinGate .
+
+# Pattern 39: Critical Section
+ex:CriticalSectionEntry a :AtomicTask ;
+    rdfs:label "Critical Section Entry" ;
+    wcp:patternType "critical_section" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :criticalSection "SharedResourceAccess" ;
+    :maxExecutionTicks 2 ;
+    :flowsTo ex:CriticalWork .
+
+ex:CriticalWork a :AtomicTask ;
+    rdfs:label "Critical Work" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :criticalSection "SharedResourceAccess" ;
+    :maxExecutionTicks 6 ;
+    :flowsTo ex:CriticalSectionExit .
+
+ex:CriticalSectionExit a :AtomicTask ;
+    rdfs:label "Critical Section Exit" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :criticalSection "SharedResourceAccess" ;
+    :maxExecutionTicks 2 ;
+    :flowsTo ex:PartialJoinGate .
+
+# Pattern 31: Blocking Partial Join
+ex:PartialJoinGate a :AtomicTask ;
+    rdfs:label "Blocking Partial Join" ;
+    wcp:patternType "blocking_partial_join" ;
+    :hasJoinType :OR ;
+    :hasSplitType :AND ;
+    :joinThreshold 2 ;  # Wait for 2 out of multiple inputs
+    :maxExecutionTicks 4 ;
+    :priority 150 ;
+    :flowsTo ex:DynamicMITask .
+
+# Pattern 36: Dynamic Partial Join for Multiple Instances
+ex:DynamicMITask a :MultipleInstanceTask ;
+    rdfs:label "Dynamic MI Processing" ;
+    wcp:patternType "dynamic_partial_join_mi" ;
+    :hasJoinType :OR ;
+    :hasSplitType :AND ;
+    :minInstances 2 ;
+    :maxInstances 10 ;
+    :dynamicThreshold "0.6"^^xsd:decimal ;  # 60% completion threshold
+    :maxExecutionTicks 8 ;
+    :flowsTo ex:CancellingJoinTask .
+
+# Pattern 32: Cancelling Partial Join
+ex:CancellingJoinTask a :AtomicTask ;
+    rdfs:label "Cancelling Partial Join" ;
+    wcp:patternType "cancelling_partial_join" ;
+    :hasJoinType :OR ;
+    :hasSplitType :XOR ;
+    :joinThreshold 3 ;
+    :cancelsRemaining true ;
+    :cancellationRegion "LateArrivals" ;
+    :maxExecutionTicks 5 ;
+    :flowsTo ex:GeneralizedANDTask .
+
+# Pattern 33: Generalized AND-Join
+ex:GeneralizedANDTask a :AtomicTask ;
+    rdfs:label "Generalized AND Join" ;
+    wcp:patternType "generalized_and_join" ;
+    :hasJoinType :AND ;
+    :hasSplitType :XOR ;
+    :hasJoinCondition ex:ComplexCondition1 ;
+    :hasJoinCondition ex:ComplexCondition2 ;
+    :maxExecutionTicks 6 ;
+    :flowsTo ex:FinalDecision .
+
+# Join conditions
+ex:ComplexCondition1 a :Condition ;
+    rdfs:label "Complex Condition 1" ;
+    :evaluationExpression "data.value > 100 && status == 'active'" .
+
+ex:ComplexCondition2 a :Condition ;
+    rdfs:label "Complex Condition 2" ;
+    :evaluationExpression "timestamp < deadline" .
+
+# Decision point
+ex:FinalDecision a :AtomicTask ;
+    rdfs:label "Final Decision" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :maxExecutionTicks 3 ;
+    :flowsTo ex:NormalTermination, ex:ExplicitTermination .
+
+# Pattern 43: Explicit Termination
+ex:ExplicitTermination a :AtomicTask ;
+    rdfs:label "Explicit Termination" ;
+    wcp:patternType "explicit_termination" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :terminatesWorkflow true ;
+    :maxExecutionTicks 2 ;
+    :flowsTo ex:End .
+
+# Normal termination path
+ex:NormalTermination a :AtomicTask ;
+    rdfs:label "Normal Completion" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :maxExecutionTicks 2 ;
+    :flowsTo ex:End .
+
+ex:End a :Condition ;
+    rdfs:label "End" .
+
+# Additional pattern examples
+
+# Pattern 34: Static Partial Join for Multiple Instances
+ex:StaticPartialJoinMI a :MultipleInstanceTask ;
+    rdfs:label "Static Partial Join MI" ;
+    wcp:patternType "static_partial_join_mi" ;
+    :hasJoinType :OR ;
+    :hasSplitType :AND ;
+    :minInstances 5 ;
+    :maxInstances 5 ;
+    :joinThreshold 3 ;  # Complete when 3 out of 5 finish
+    :maxExecutionTicks 7 .
+
+# Pattern 35: Cancelling Partial Join for Multiple Instances
+ex:CancellingPartialJoinMI a :MultipleInstanceTask ;
+    rdfs:label "Cancelling Partial Join MI" ;
+    wcp:patternType "cancelling_partial_join_mi" ;
+    :hasJoinType :OR ;
+    :hasSplitType :AND ;
+    :maxInstances 8 ;
+    :joinThreshold 4 ;
+    :cancelsRemaining true ;
+    :cancellationRegion "MIRegion" ;
+    :maxExecutionTicks 8 .
+
+# Pattern 37: Acyclic Synchronizing Merge
+ex:AcyclicSyncMerge a :AtomicTask ;
+    rdfs:label "Acyclic Sync Merge" ;
+    wcp:patternType "acyclic_sync_merge" ;
+    :hasJoinType :OR ;
+    :hasSplitType :XOR ;
+    :synchronizesOn ex:SyncCondition ;
+    :maxExecutionTicks 5 .
+
+# Pattern 38: General Synchronizing Merge
+ex:GeneralSyncMerge a :AtomicTask ;
+    rdfs:label "General Sync Merge" ;
+    wcp:patternType "general_sync_merge" ;
+    :hasJoinType :OR ;
+    :hasSplitType :XOR ;
+    :allowsCycles true ;
+    :maxExecutionTicks 6 .
+
+# Pattern 40: Interleaved Routing
+ex:InterleavedRouting a :AtomicTask ;
+    rdfs:label "Interleaved Routing" ;
+    wcp:patternType "interleaved_routing" ;
+    :hasJoinType :XOR ;
+    :hasSplitType :XOR ;
+    :interleavingGroup "RoutingGroup1" ;
+    :maxExecutionTicks 4 .

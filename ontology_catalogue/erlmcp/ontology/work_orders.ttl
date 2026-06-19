@@ -1,0 +1,566 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix tcps: <http://erlmcp.org/ontology/tcps#> .
+@prefix tcps-core: <http://erlmcp.org/ontology/tcps/core#> .
+@prefix tcps-flow: <http://erlmcp.org/ontology/tcps/flow#> .
+
+<http://erlmcp.org/ontology/tcps/work-orders>
+    a owl:Ontology ;
+    dcterms:title "TCPS Work Order Management Ontology"@en ;
+    dcterms:description """
+        Comprehensive ontology for Toyota Code Production System (TCPS) work order
+        management with pull signal processing.
+
+        This ontology defines:
+        - Work orders as demand-driven pull signals
+        - Pull signal types (GitHub, CVE, marketplace, internal)
+        - Bucket classification (reliability, security, cost, compliance, features, technical_debt)
+        - Work order lifecycle states
+        - SLA tracking and enforcement
+        - Dependency relationships
+        - Queue management
+        - Integration with Kanban WIP limits and Kaizen metrics
+
+        Work orders represent customer demand (pull signals) that trigger production
+        in the TCPS system, ensuring just-in-time software delivery.
+    """@en ;
+    dcterms:created "2026-01-26"^^xsd:date ;
+    dcterms:creator "TCPS Development Team"@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://erlmcp.org/ontology/tcps/core> ,
+                <http://erlmcp.org/ontology/tcps/flow> ;
+    rdfs:seeAlso <http://erlmcp.org/ontology/tcps/core> ,
+                 <http://erlmcp.org/ontology/tcps/flow> .
+
+###############################################################################
+# WorkOrder - Pull Signal for Production
+###############################################################################
+
+tcps:WorkOrder
+    a owl:Class ;
+    rdfs:subClassOf tcps-flow:PullSignal ;
+    rdfs:label "Work Order"@en ;
+    rdfs:comment """
+        A WorkOrder is a pull signal representing customer demand for production.
+        It triggers the creation and delivery of a SKU through the TCPS pipeline.
+
+        Work orders are created from various pull signal sources:
+        - GitHub issues/PRs (feature requests, bugs)
+        - Security advisories (CVE alerts)
+        - Marketplace events (installations, refunds)
+        - Internal requests (technical debt, refactoring)
+
+        Each work order is:
+        1. Classified into a bucket (reliability, security, cost, compliance, features, technical_debt)
+        2. Assigned a priority (1-10, with 10 being critical)
+        3. Given an SLA deadline based on bucket
+        4. Tracked through lifecycle states (queued, in_progress, blocked, completed, cancelled)
+        5. Subject to WIP limits via Kanban integration
+        6. Measured for Kaizen continuous improvement
+
+        Work orders flow through production stages:
+        requirements → design → implementation → testing → integration → deployment → published
+    """@en ;
+    skos:example """
+        WO-2026-001:
+          Pull Signal: GitHub issue #42 "Authentication bug"
+          Bucket: reliability
+          Priority: 8
+          Status: in_progress
+          Current Stage: implementation
+          SLA Deadline: 2026-02-02T10:00:00Z (7 days)
+          Dependencies: []
+          SKU: (to be created)
+    """@en .
+
+tcps:workOrderId
+    a owl:DatatypeProperty ;
+    rdfs:label "work order ID"@en ;
+    rdfs:comment "Unique identifier for the work order (format: WO-timestamp-random)"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:string .
+
+tcps:workOrderDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "work order description"@en ;
+    rdfs:comment "Human-readable description of what the work order will produce"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# PullSignal - Source of Work Order Demand
+###############################################################################
+
+tcps:PullSignalType
+    a owl:Class ;
+    rdfs:label "Pull Signal Type"@en ;
+    rdfs:comment """
+        Classification of pull signal sources that trigger work orders.
+        Each type has different routing rules and priority calculations.
+    """@en .
+
+tcps:GitHubIssue a tcps:PullSignalType ;
+    rdfs:label "GitHub Issue"@en ;
+    rdfs:comment "Pull signal from GitHub issue (bug, feature request, etc.)"@en .
+
+tcps:GitHubPR a tcps:PullSignalType ;
+    rdfs:label "GitHub Pull Request"@en ;
+    rdfs:comment "Pull signal from GitHub pull request (code contribution)"@en .
+
+tcps:CVEAdvisory a tcps:PullSignalType ;
+    rdfs:label "CVE Security Advisory"@en ;
+    rdfs:comment "Pull signal from security vulnerability advisory (critical priority)"@en .
+
+tcps:MarketplaceInstall a tcps:PullSignalType ;
+    rdfs:label "Marketplace Installation"@en ;
+    rdfs:comment "Pull signal from marketplace install event (demand for features)"@en .
+
+tcps:MarketplaceRefund a tcps:PullSignalType ;
+    rdfs:label "Marketplace Refund"@en ;
+    rdfs:comment "Pull signal from marketplace refund (quality issue to investigate)"@en .
+
+tcps:InternalRequest a tcps:PullSignalType ;
+    rdfs:label "Internal Request"@en ;
+    rdfs:comment "Pull signal from internal team (technical debt, refactoring)"@en .
+
+tcps:pullSignalType
+    a owl:ObjectProperty ;
+    rdfs:label "pull signal type"@en ;
+    rdfs:comment "Type of pull signal that triggered this work order"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps:PullSignalType .
+
+tcps:pullSignalSource
+    a owl:DatatypeProperty ;
+    rdfs:label "pull signal source"@en ;
+    rdfs:comment "Original source identifier (URL, CVE ID, event ID, etc.)"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# Bucket - Work Order Classification
+###############################################################################
+
+tcps:Bucket
+    a owl:Class ;
+    rdfs:label "Work Order Bucket"@en ;
+    rdfs:comment """
+        Classification bucket for work orders based on their purpose and impact.
+        Each bucket has different:
+        - SLA requirements
+        - WIP limits
+        - Priority ranges
+        - Quality gates
+
+        Bucket philosophy follows Toyota's value stream mapping:
+        - Organize work by customer value type
+        - Apply appropriate quality standards
+        - Optimize flow for each value stream
+    """@en .
+
+tcps:ReliabilityBucket a tcps:Bucket ;
+    rdfs:label "Reliability Bucket"@en ;
+    rdfs:comment """
+        Work orders focused on system reliability and bug fixes.
+        SLA: 7 days
+        Priority range: 5-9
+        Quality gates: Test coverage, performance benchmarks
+    """@en .
+
+tcps:SecurityBucket a tcps:Bucket ;
+    rdfs:label "Security Bucket"@en ;
+    rdfs:comment """
+        Work orders for security vulnerabilities and compliance.
+        SLA: 24 hours (critical)
+        Priority range: 8-10
+        Quality gates: Security scanning, penetration testing
+    """@en .
+
+tcps:CostBucket a tcps:Bucket ;
+    rdfs:label "Cost Optimization Bucket"@en ;
+    rdfs:comment """
+        Work orders for performance optimization and resource efficiency.
+        SLA: 30 days
+        Priority range: 3-7
+        Quality gates: Benchmark improvements, resource usage metrics
+    """@en .
+
+tcps:ComplianceBucket a tcps:Bucket ;
+    rdfs:label "Compliance Bucket"@en ;
+    rdfs:comment """
+        Work orders for regulatory compliance and legal requirements.
+        SLA: 7 days
+        Priority range: 4-8
+        Quality gates: Compliance verification, audit trails
+    """@en .
+
+tcps:FeaturesBucket a tcps:Bucket ;
+    rdfs:label "Features Bucket"@en ;
+    rdfs:comment """
+        Work orders for new features and enhancements.
+        SLA: 30 days
+        Priority range: 2-6
+        Quality gates: User acceptance, integration tests
+    """@en .
+
+tcps:TechnicalDebtBucket a tcps:Bucket ;
+    rdfs:label "Technical Debt Bucket"@en ;
+    rdfs:comment """
+        Work orders for refactoring and code quality improvements.
+        SLA: best effort (no strict deadline)
+        Priority range: 1-4
+        Quality gates: Code quality metrics, maintainability index
+    """@en .
+
+tcps:bucket
+    a owl:ObjectProperty ;
+    rdfs:label "bucket"@en ;
+    rdfs:comment "Classification bucket for this work order"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps:Bucket .
+
+###############################################################################
+# WorkOrder Lifecycle States
+###############################################################################
+
+tcps:WorkOrderStatus
+    a owl:Class ;
+    rdfs:label "Work Order Status"@en ;
+    rdfs:comment "Current state in the work order lifecycle"@en .
+
+tcps:Pending a tcps:WorkOrderStatus ;
+    rdfs:label "Pending"@en ;
+    rdfs:comment "Work order created but not yet queued (awaiting validation)"@en .
+
+tcps:Queued a tcps:WorkOrderStatus ;
+    rdfs:label "Queued"@en ;
+    rdfs:comment "Work order queued and waiting for WIP capacity"@en .
+
+tcps:InProgress a tcps:WorkOrderStatus ;
+    rdfs:label "In Progress"@en ;
+    rdfs:comment "Work order actively being worked on"@en .
+
+tcps:Blocked a tcps:WorkOrderStatus ;
+    rdfs:label "Blocked"@en ;
+    rdfs:comment "Work order blocked by dependencies or issues"@en .
+
+tcps:Completed a tcps:WorkOrderStatus ;
+    rdfs:label "Completed"@en ;
+    rdfs:comment "Work order completed and SKU published"@en .
+
+tcps:Cancelled a tcps:WorkOrderStatus ;
+    rdfs:label "Cancelled"@en ;
+    rdfs:comment "Work order cancelled before completion"@en .
+
+tcps:status
+    a owl:ObjectProperty ;
+    rdfs:label "status"@en ;
+    rdfs:comment "Current lifecycle status of the work order"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps:WorkOrderStatus .
+
+###############################################################################
+# Priority and SLA
+###############################################################################
+
+tcps:priority
+    a owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:comment """
+        Work order priority (1-10, where 10 is critical).
+        Determines queue ordering and resource allocation.
+
+        Priority calculation based on:
+        - Pull signal type (CVE = 10)
+        - Bucket (security > reliability > features > technical debt)
+        - Labels (critical, high, medium, low)
+        - Customer impact
+    """@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:integer ;
+    owl:minInclusive 1 ;
+    owl:maxInclusive 10 .
+
+tcps:slaDeadline
+    a owl:DatatypeProperty ;
+    rdfs:label "SLA deadline"@en ;
+    rdfs:comment """
+        Service Level Agreement deadline for work order completion.
+        Based on bucket:
+        - Security: 24 hours
+        - Reliability: 7 days
+        - Compliance: 7 days
+        - Features: 30 days
+        - Cost: 30 days
+        - Technical Debt: no strict deadline
+    """@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+tcps:slaStatus
+    a owl:DatatypeProperty ;
+    rdfs:label "SLA status"@en ;
+    rdfs:comment """
+        Current SLA compliance status:
+        - on_time: within SLA
+        - warning: < 25% time remaining
+        - breached: past deadline
+    """@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# Production Stages
+###############################################################################
+
+tcps:ProductionStage
+    a owl:Class ;
+    rdfs:label "Production Stage"@en ;
+    rdfs:comment """
+        Stages in the software production process.
+        Each stage has quality gates that must pass before advancing.
+    """@en .
+
+tcps:RequirementsStage a tcps:ProductionStage ;
+    rdfs:label "Requirements Stage"@en ;
+    rdfs:comment "Requirements analysis and specification"@en .
+
+tcps:DesignStage a tcps:ProductionStage ;
+    rdfs:label "Design Stage"@en ;
+    rdfs:comment "Architecture and design"@en .
+
+tcps:ImplementationStage a tcps:ProductionStage ;
+    rdfs:label "Implementation Stage"@en ;
+    rdfs:comment "Code implementation"@en .
+
+tcps:TestingStage a tcps:ProductionStage ;
+    rdfs:label "Testing Stage"@en ;
+    rdfs:comment "Testing and validation"@en .
+
+tcps:IntegrationStage a tcps:ProductionStage ;
+    rdfs:label "Integration Stage"@en ;
+    rdfs:comment "Integration with system"@en .
+
+tcps:DeploymentStage a tcps:ProductionStage ;
+    rdfs:label "Deployment Stage"@en ;
+    rdfs:comment "Deployment to production"@en .
+
+tcps:PublishedStage a tcps:ProductionStage ;
+    rdfs:label "Published Stage"@en ;
+    rdfs:comment "Published and available to customers"@en .
+
+tcps:currentStage
+    a owl:ObjectProperty ;
+    rdfs:label "current stage"@en ;
+    rdfs:comment "Current production stage of the work order"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps:ProductionStage .
+
+tcps:stagesCompleted
+    a owl:DatatypeProperty ;
+    rdfs:label "stages completed"@en ;
+    rdfs:comment "List of stages completed so far (comma-separated)"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# Dependencies
+###############################################################################
+
+tcps:dependsOn
+    a owl:ObjectProperty ;
+    rdfs:label "depends on"@en ;
+    rdfs:comment """
+        Work order dependency relationship.
+        This work order cannot start until the dependent work order is completed.
+        Prevents circular dependencies.
+    """@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps:WorkOrder .
+
+tcps:blocks
+    a owl:ObjectProperty ;
+    rdfs:label "blocks"@en ;
+    rdfs:comment """
+        Inverse of dependsOn.
+        This work order blocks the specified work order from starting.
+    """@en ;
+    owl:inverseOf tcps:dependsOn ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps:WorkOrder .
+
+###############################################################################
+# Timestamps
+###############################################################################
+
+tcps:createdAt
+    a owl:DatatypeProperty ;
+    rdfs:label "created at"@en ;
+    rdfs:comment "Timestamp when work order was created"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+tcps:startedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "started at"@en ;
+    rdfs:comment "Timestamp when work order was started (moved to in_progress)"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+tcps:completedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "completed at"@en ;
+    rdfs:comment "Timestamp when work order was completed"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+tcps:cancelledAt
+    a owl:DatatypeProperty ;
+    rdfs:label "cancelled at"@en ;
+    rdfs:comment "Timestamp when work order was cancelled"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:dateTime .
+
+###############################################################################
+# Relationships
+###############################################################################
+
+tcps:producedSKU
+    a owl:ObjectProperty ;
+    rdfs:label "produced SKU"@en ;
+    rdfs:comment "SKU produced by this work order"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps-core:SKU .
+
+tcps:generatedReceipt
+    a owl:ObjectProperty ;
+    rdfs:label "generated receipt"@en ;
+    rdfs:comment "Receipt documenting work order event (creation, progress, completion, etc.)"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps-core:Receipt .
+
+tcps:triggeredAndon
+    a owl:ObjectProperty ;
+    rdfs:label "triggered Andon"@en ;
+    rdfs:comment "Andon event triggered during work order execution (quality issue)"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range tcps-core:AndonEvent .
+
+###############################################################################
+# Metrics
+###############################################################################
+
+tcps:leadTimeHours
+    a owl:DatatypeProperty ;
+    rdfs:label "lead time (hours)"@en ;
+    rdfs:comment "Total lead time from creation to completion in hours"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:decimal .
+
+tcps:cycleTimeHours
+    a owl:DatatypeProperty ;
+    rdfs:label "cycle time (hours)"@en ;
+    rdfs:comment "Active work time (started to completed) in hours"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:decimal .
+
+tcps:cancellationReason
+    a owl:DatatypeProperty ;
+    rdfs:label "cancellation reason"@en ;
+    rdfs:comment "Reason for work order cancellation"@en ;
+    rdfs:domain tcps:WorkOrder ;
+    rdfs:range xsd:string .
+
+###############################################################################
+# Example Instances
+###############################################################################
+
+# Example 1: Security Work Order from CVE
+tcps:WO-2026-001 a tcps:WorkOrder ;
+    tcps:workOrderId "WO-2026-001" ;
+    tcps:workOrderDescription "Fix SQL injection vulnerability in user authentication" ;
+    tcps:pullSignalType tcps:CVEAdvisory ;
+    tcps:pullSignalSource "CVE-2026-1234" ;
+    tcps:bucket tcps:SecurityBucket ;
+    tcps:priority 10 ;
+    tcps:status tcps:InProgress ;
+    tcps:currentStage tcps:ImplementationStage ;
+    tcps:stagesCompleted "requirements,design" ;
+    tcps:createdAt "2026-01-26T10:00:00Z"^^xsd:dateTime ;
+    tcps:startedAt "2026-01-26T10:15:00Z"^^xsd:dateTime ;
+    tcps:slaDeadline "2026-01-27T10:00:00Z"^^xsd:dateTime ;
+    tcps:slaStatus "on_time" ;
+    rdfs:label "Security Work Order: CVE-2026-1234" ;
+    rdfs:comment "Critical security vulnerability requiring immediate attention" .
+
+# Example 2: Feature Work Order from GitHub
+tcps:WO-2026-002 a tcps:WorkOrder ;
+    tcps:workOrderId "WO-2026-002" ;
+    tcps:workOrderDescription "Add dark mode support to UI" ;
+    tcps:pullSignalType tcps:GitHubIssue ;
+    tcps:pullSignalSource "https://github.com/erlmcp/erlmcp/issues/42" ;
+    tcps:bucket tcps:FeaturesBucket ;
+    tcps:priority 5 ;
+    tcps:status tcps:Queued ;
+    tcps:createdAt "2026-01-25T14:00:00Z"^^xsd:dateTime ;
+    tcps:slaDeadline "2026-02-24T14:00:00Z"^^xsd:dateTime ;
+    tcps:slaStatus "on_time" ;
+    rdfs:label "Feature Work Order: Dark Mode UI" ;
+    rdfs:comment "User-requested feature enhancement" .
+
+# Example 3: Bug Fix Work Order with Dependency
+tcps:WO-2026-003 a tcps:WorkOrder ;
+    tcps:workOrderId "WO-2026-003" ;
+    tcps:workOrderDescription "Fix race condition in concurrent request handling" ;
+    tcps:pullSignalType tcps:GitHubIssue ;
+    tcps:pullSignalSource "https://github.com/erlmcp/erlmcp/issues/99" ;
+    tcps:bucket tcps:ReliabilityBucket ;
+    tcps:priority 8 ;
+    tcps:status tcps:Blocked ;
+    tcps:dependsOn tcps:WO-2026-001 ;  # Depends on security fix
+    tcps:createdAt "2026-01-26T11:00:00Z"^^xsd:dateTime ;
+    tcps:slaDeadline "2026-02-02T11:00:00Z"^^xsd:dateTime ;
+    tcps:slaStatus "on_time" ;
+    rdfs:label "Reliability Work Order: Race Condition Fix" ;
+    rdfs:comment "Production bug requiring authentication fix first" .
+
+# Example 4: Completed Work Order
+tcps:WO-2026-004 a tcps:WorkOrder ;
+    tcps:workOrderId "WO-2026-004" ;
+    tcps:workOrderDescription "Optimize database query performance" ;
+    tcps:pullSignalType tcps:InternalRequest ;
+    tcps:pullSignalSource "internal-perf-001" ;
+    tcps:bucket tcps:CostBucket ;
+    tcps:priority 6 ;
+    tcps:status tcps:Completed ;
+    tcps:currentStage tcps:PublishedStage ;
+    tcps:stagesCompleted "requirements,design,implementation,testing,integration,deployment" ;
+    tcps:producedSKU tcps:SKU-2026-004 ;
+    tcps:createdAt "2026-01-20T08:00:00Z"^^xsd:dateTime ;
+    tcps:startedAt "2026-01-20T09:00:00Z"^^xsd:dateTime ;
+    tcps:completedAt "2026-01-23T16:00:00Z"^^xsd:dateTime ;
+    tcps:slaDeadline "2026-02-19T08:00:00Z"^^xsd:dateTime ;
+    tcps:slaStatus "on_time" ;
+    tcps:leadTimeHours "80.0"^^xsd:decimal ;
+    tcps:cycleTimeHours "79.0"^^xsd:decimal ;
+    rdfs:label "Cost Optimization Work Order: Database Performance" ;
+    rdfs:comment "Successfully optimized queries, reducing latency by 40%" .
+
+# Example 5: Cancelled Work Order
+tcps:WO-2026-005 a tcps:WorkOrder ;
+    tcps:workOrderId "WO-2026-005" ;
+    tcps:workOrderDescription "Implement GraphQL API endpoint" ;
+    tcps:pullSignalType tcps:GitHubIssue ;
+    tcps:pullSignalSource "https://github.com/erlmcp/erlmcp/issues/77" ;
+    tcps:bucket tcps:FeaturesBucket ;
+    tcps:priority 4 ;
+    tcps:status tcps:Cancelled ;
+    tcps:createdAt "2026-01-22T10:00:00Z"^^xsd:dateTime ;
+    tcps:cancelledAt "2026-01-24T14:00:00Z"^^xsd:dateTime ;
+    tcps:cancellationReason "Duplicate of WO-2026-002, requirements changed" ;
+    rdfs:label "Cancelled Work Order: GraphQL API" ;
+    rdfs:comment "Cancelled due to changed requirements" .

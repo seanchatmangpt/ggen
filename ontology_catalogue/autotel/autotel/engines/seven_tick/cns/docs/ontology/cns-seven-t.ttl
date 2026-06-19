@@ -1,0 +1,642 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sevenT: <https://schema.chatman.ai/seven-t#> .
+@prefix perf: <https://schema.chatman.ai/performance#> .
+@prefix test: <https://schema.chatman.ai/testing#> .
+
+#################################################################
+# CNS 7T Integration Ontology
+# Focus: 7T engine components, CNS command mapping, integration patterns
+#################################################################
+
+# ============================================================================
+# 7T ENGINE CLASSES
+# ============================================================================
+
+sevenT:SevenTEngine a rdfs:Class ;
+    rdfs:label "7T Engine" ;
+    rdfs:comment "A 7-tick optimized engine component" ;
+    rdfs:subClassOf owl:Thing .
+
+sevenT:CommandMapping a rdfs:Class ;
+    rdfs:label "Command Mapping" ;
+    rdfs:comment "Mapping between 7T functions and CNS commands" ;
+    rdfs:subClassOf owl:Thing .
+
+sevenT:IntegrationPattern a rdfs:Class ;
+    rdfs:label "Integration Pattern" ;
+    rdfs:comment "Pattern for integrating 7T components with CNS" ;
+    rdfs:subClassOf owl:Thing .
+
+sevenT:StateManager a rdfs:Class ;
+    rdfs:label "State Manager" ;
+    rdfs:comment "State management for 7T components" ;
+    rdfs:subClassOf owl:Thing .
+
+sevenT:Dataset a rdfs:Class ;
+    rdfs:label "Dataset" ;
+    rdfs:comment "Dataset for machine learning operations" ;
+    rdfs:subClassOf owl:Thing .
+
+sevenT:ProcessModel a rdfs:Class ;
+    rdfs:label "Process Model" ;
+    rdfs:comment "Process model for process mining" ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# 7T ENGINE COMPONENTS
+# ============================================================================
+
+sevenT:TPOTEngine a sevenT:SevenTEngine ;
+    rdfs:label "7T TPOT Engine" ;
+    rdfs:comment "Machine Learning Pipeline Optimization Engine" ;
+    sevenT:headerFile "7t_tpot.h" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "machine_learning" ;
+    sevenT:features sevenT:DatasetManagement ;
+    sevenT:features sevenT:PipelineOptimization ;
+    sevenT:features sevenT:AlgorithmRegistry ;
+    sevenT:features sevenT:PerformanceBenchmarking .
+
+sevenT:ProcessMiningEngine a sevenT:SevenTEngine ;
+    rdfs:label "7T Process Mining Engine" ;
+    rdfs:comment "Process Mining Engine" ;
+    sevenT:headerFile "pm7t.h" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "process_mining" ;
+    sevenT:features sevenT:EventLogManagement ;
+    sevenT:features sevenT:ProcessDiscovery ;
+    sevenT:features sevenT:ConformanceChecking ;
+    sevenT:features sevenT:PerformanceAnalysis ;
+    sevenT:features sevenT:BottleneckDetection .
+
+sevenT:TelemetryEngine a sevenT:SevenTEngine ;
+    rdfs:label "7T Telemetry Engine" ;
+    rdfs:comment "High-Performance Observability Engine" ;
+    sevenT:headerFile "telemetry7t.h" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "telemetry" ;
+    sevenT:features sevenT:SpanManagement ;
+    sevenT:features sevenT:PerformanceTracking ;
+    sevenT:features sevenT:ContextPropagation ;
+    sevenT:features sevenT:OptimizedTracing .
+
+sevenT:BenchmarkFramework a sevenT:SevenTEngine ;
+    rdfs:label "7T Benchmark Framework" ;
+    rdfs:comment "Performance Measurement Framework" ;
+    sevenT:headerFile "7t_benchmark_framework.h" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "benchmarking" ;
+    sevenT:features sevenT:CycleAccurateTiming ;
+    sevenT:features sevenT:StatisticalAnalysis ;
+    sevenT:features sevenT:HardwareDetection ;
+    sevenT:features sevenT:RegressionDetection .
+
+sevenT:UnitTestFramework a sevenT:SevenTEngine ;
+    rdfs:label "7T Unit Test Framework" ;
+    rdfs:comment "Testing Infrastructure" ;
+    sevenT:headerFile "7t_unit_test_framework.h" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "testing" ;
+    sevenT:features sevenT:AssertionMacros ;
+    sevenT:features sevenT:PerformanceAssertions ;
+    sevenT:features sevenT:TestSuiteManagement ;
+    sevenT:features sevenT:MockStubSupport .
+
+# ============================================================================
+# 7T FEATURES
+# ============================================================================
+
+sevenT:DatasetManagement a sevenT:IntegrationPattern ;
+    rdfs:label "Dataset Management" ;
+    rdfs:comment "Dataset management with cache-aligned structures" ;
+    sevenT:cycleCost 5 ;
+    sevenT:usage "Dataset loading and caching" .
+
+sevenT:PipelineOptimization a sevenT:IntegrationPattern ;
+    rdfs:label "Pipeline Optimization" ;
+    rdfs:comment "Pipeline optimization with < 7 tick dispatch" ;
+    sevenT:cycleCost 7 ;
+    sevenT:usage "ML pipeline optimization" .
+
+sevenT:AlgorithmRegistry a sevenT:IntegrationPattern ;
+    rdfs:label "Algorithm Registry" ;
+    rdfs:comment "Registry of machine learning algorithms" ;
+    sevenT:cycleCost 3 ;
+    sevenT:usage "Algorithm selection and registration" .
+
+sevenT:PerformanceBenchmarking a sevenT:IntegrationPattern ;
+    rdfs:label "Performance Benchmarking" ;
+    rdfs:comment "Performance tracking integrated" ;
+    sevenT:cycleCost 10 ;
+    sevenT:usage "Performance measurement" .
+
+sevenT:EventLogManagement a sevenT:IntegrationPattern ;
+    rdfs:label "Event Log Management" ;
+    rdfs:comment "Event log management with efficient storage" ;
+    sevenT:cycleCost 5 ;
+    sevenT:usage "Event log processing" .
+
+sevenT:ProcessDiscovery a sevenT:IntegrationPattern ;
+    rdfs:label "Process Discovery" ;
+    rdfs:comment "Multiple discovery algorithms" ;
+    sevenT:cycleCost 15 ;
+    sevenT:usage "Process model discovery" .
+
+sevenT:ConformanceChecking a sevenT:IntegrationPattern ;
+    rdfs:label "Conformance Checking" ;
+    rdfs:comment "Conformance checking with 4-metric evaluation" ;
+    sevenT:cycleCost 20 ;
+    sevenT:usage "Process conformance analysis" .
+
+sevenT:PerformanceAnalysis a sevenT:IntegrationPattern ;
+    rdfs:label "Performance Analysis" ;
+    rdfs:comment "Comprehensive analysis capabilities" ;
+    sevenT:cycleCost 25 ;
+    sevenT:usage "Performance analysis" .
+
+sevenT:BottleneckDetection a sevenT:IntegrationPattern ;
+    rdfs:label "Bottleneck Detection" ;
+    rdfs:comment "Bottleneck detection algorithms" ;
+    sevenT:cycleCost 30 ;
+    sevenT:usage "Bottleneck identification" .
+
+sevenT:SpanManagement a sevenT:IntegrationPattern ;
+    rdfs:label "Span Management" ;
+    rdfs:comment "< 7 tick span creation/management" ;
+    sevenT:cycleCost 7 ;
+    sevenT:usage "Telemetry span management" .
+
+sevenT:PerformanceTracking a sevenT:IntegrationPattern ;
+    rdfs:label "Performance Tracking" ;
+    rdfs:comment "Hierarchical span tracking" ;
+    sevenT:cycleCost 10 ;
+    sevenT:usage "Performance monitoring" .
+
+sevenT:ContextPropagation a sevenT:IntegrationPattern ;
+    rdfs:label "Context Propagation" ;
+    rdfs:comment "Context propagation for distributed tracing" ;
+    sevenT:cycleCost 5 ;
+    sevenT:usage "Trace context management" .
+
+sevenT:OptimizedTracing a sevenT:IntegrationPattern ;
+    rdfs:label "Optimized Tracing" ;
+    rdfs:comment "7-tick optimized tracing" ;
+    sevenT:cycleCost 7 ;
+    sevenT:usage "High-performance tracing" .
+
+sevenT:CycleAccurateTiming a sevenT:IntegrationPattern ;
+    rdfs:label "Cycle Accurate Timing" ;
+    rdfs:comment "Cycle-accurate timing measurements" ;
+    sevenT:cycleCost 1 ;
+    sevenT:usage "Precise timing" .
+
+sevenT:StatisticalAnalysis a sevenT:IntegrationPattern ;
+    rdfs:label "Statistical Analysis" ;
+    rdfs:comment "Statistical analysis of performance data" ;
+    sevenT:cycleCost 50 ;
+    sevenT:usage "Performance statistics" .
+
+sevenT:HardwareDetection a sevenT:IntegrationPattern ;
+    rdfs:label "Hardware Detection" ;
+    rdfs:comment "Hardware detection and optimization" ;
+    sevenT:cycleCost 20 ;
+    sevenT:usage "Platform optimization" .
+
+sevenT:RegressionDetection a sevenT:IntegrationPattern ;
+    rdfs:label "Regression Detection" ;
+    rdfs:comment "Performance regression detection" ;
+    sevenT:cycleCost 100 ;
+    sevenT:usage "Regression analysis" .
+
+sevenT:AssertionMacros a sevenT:IntegrationPattern ;
+    rdfs:label "Assertion Macros" ;
+    rdfs:comment "Assertion macros for testing" ;
+    sevenT:cycleCost 5 ;
+    sevenT:usage "Test assertions" .
+
+sevenT:PerformanceAssertions a sevenT:IntegrationPattern ;
+    rdfs:label "Performance Assertions" ;
+    rdfs:comment "Performance assertions for 7-tick compliance" ;
+    sevenT:cycleCost 10 ;
+    sevenT:usage "Performance validation" .
+
+sevenT:TestSuiteManagement a sevenT:IntegrationPattern ;
+    rdfs:label "Test Suite Management" ;
+    rdfs:comment "Test suite management and execution" ;
+    sevenT:cycleCost 25 ;
+    sevenT:usage "Test orchestration" .
+
+sevenT:MockStubSupport a sevenT:IntegrationPattern ;
+    rdfs:label "Mock/Stub Support" ;
+    rdfs:comment "Mock and stub support for testing" ;
+    sevenT:cycleCost 15 ;
+    sevenT:usage "Test isolation" .
+
+# ============================================================================
+# CNS COMMAND MAPPINGS
+# ============================================================================
+
+sevenT:MLCommandMapping a sevenT:CommandMapping ;
+    rdfs:label "Machine Learning Command Mapping" ;
+    rdfs:comment "Mapping of 7T TPOT functions to CNS ML commands" ;
+    sevenT:mapsFunction "create_iris_dataset()" ;
+    sevenT:mapsToCommand "cns ml dataset -t iris" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "machine_learning" .
+
+sevenT:ProcessCommandMapping a sevenT:CommandMapping ;
+    rdfs:label "Process Mining Command Mapping" ;
+    rdfs:comment "Mapping of 7T PM functions to CNS PM commands" ;
+    sevenT:mapsFunction "pm7t_import_xes()" ;
+    sevenT:mapsToCommand "cns pm import -t xes" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "process_mining" .
+
+sevenT:TelemetryCommandMapping a sevenT:CommandMapping ;
+    rdfs:label "Telemetry Command Mapping" ;
+    rdfs:comment "Mapping of 7T telemetry functions to CNS trace commands" ;
+    sevenT:mapsFunction "telemetry7t_span_begin()" ;
+    sevenT:mapsToCommand "cns trace start" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "telemetry" .
+
+sevenT:BenchmarkCommandMapping a sevenT:CommandMapping ;
+    rdfs:label "Benchmark Command Mapping" ;
+    rdfs:comment "Mapping of 7T benchmark functions to CNS bench commands" ;
+    sevenT:mapsFunction "benchmark_execute_single()" ;
+    sevenT:mapsToCommand "cns bench run" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "benchmarking" .
+
+sevenT:TestCommandMapping a sevenT:CommandMapping ;
+    rdfs:label "Test Command Mapping" ;
+    rdfs:comment "Mapping of 7T test functions to CNS test commands" ;
+    sevenT:mapsFunction "test_run_suite()" ;
+    sevenT:mapsToCommand "cns test run" ;
+    sevenT:cycleBudget 7 ;
+    sevenT:category "testing" .
+
+# ============================================================================
+# STATE MANAGERS
+# ============================================================================
+
+sevenT:MLStateManager a sevenT:StateManager ;
+    rdfs:label "ML State Manager" ;
+    rdfs:comment "State management for machine learning operations" ;
+    sevenT:managesState "current dataset" ;
+    sevenT:managesState "pipeline configuration" ;
+    sevenT:cycleBudget 10 ;
+    sevenT:category "machine_learning" .
+
+sevenT:PMStateManager a sevenT:StateManager ;
+    rdfs:label "Process Mining State Manager" ;
+    rdfs:comment "State management for process mining operations" ;
+    sevenT:managesState "event log" ;
+    sevenT:managesState "traces" ;
+    sevenT:managesState "process model" ;
+    sevenT:cycleBudget 15 ;
+    sevenT:category "process_mining" .
+
+sevenT:TraceStateManager a sevenT:StateManager ;
+    rdfs:label "Trace State Manager" ;
+    rdfs:comment "State management for telemetry operations" ;
+    sevenT:managesState "span history" ;
+    sevenT:managesState "telemetry context" ;
+    sevenT:cycleBudget 5 ;
+    sevenT:category "telemetry" .
+
+# ============================================================================
+# DATASETS
+# ============================================================================
+
+sevenT:IrisDataset a sevenT:Dataset ;
+    rdfs:label "Iris Dataset" ;
+    rdfs:comment "Iris flower dataset for ML testing" ;
+    sevenT:datasetType "classification" ;
+    sevenT:recordCount 150 ;
+    sevenT:featureCount 4 ;
+    sevenT:cycleCost 5 ;
+    sevenT:category "machine_learning" .
+
+sevenT:BostonDataset a sevenT:Dataset ;
+    rdfs:label "Boston Dataset" ;
+    rdfs:comment "Boston housing dataset for ML testing" ;
+    sevenT:datasetType "regression" ;
+    sevenT:recordCount 506 ;
+    sevenT:featureCount 13 ;
+    sevenT:cycleCost 8 ;
+    sevenT:category "machine_learning" .
+
+sevenT:CancerDataset a sevenT:Dataset ;
+    rdfs:label "Cancer Dataset" ;
+    rdfs:comment "Breast cancer dataset for ML testing" ;
+    sevenT:datasetType "classification" ;
+    sevenT:recordCount 569 ;
+    sevenT:featureCount 30 ;
+    sevenT:cycleCost 10 ;
+    sevenT:category "machine_learning" .
+
+# ============================================================================
+# PROCESS MODELS
+# ============================================================================
+
+sevenT:AlphaAlgorithm a sevenT:ProcessModel ;
+    rdfs:label "Alpha Algorithm" ;
+    rdfs:comment "Alpha algorithm for process discovery" ;
+    sevenT:algorithmType "discovery" ;
+    sevenT:cycleCost 50 ;
+    sevenT:category "process_mining" .
+
+sevenT:HeuristicAlgorithm a sevenT:ProcessModel ;
+    rdfs:label "Heuristic Algorithm" ;
+    rdfs:comment "Heuristic algorithm for process discovery" ;
+    sevenT:algorithmType "discovery" ;
+    sevenT:cycleCost 75 ;
+    sevenT:category "process_mining" .
+
+sevenT:InductiveAlgorithm a sevenT:ProcessModel ;
+    rdfs:label "Inductive Algorithm" ;
+    rdfs:comment "Inductive algorithm for process discovery" ;
+    sevenT:algorithmType "discovery" ;
+    sevenT:cycleCost 100 ;
+    sevenT:category "process_mining" .
+
+# ============================================================================
+# 7T PROPERTIES
+# ============================================================================
+
+sevenT:headerFile a rdf:Property ;
+    rdfs:label "header file" ;
+    rdfs:comment "Header file for 7T engine" ;
+    rdfs:domain sevenT:SevenTEngine ;
+    rdfs:range rdfs:Literal .
+
+sevenT:cycleBudget a rdf:Property ;
+    rdfs:label "cycle budget" ;
+    rdfs:comment "Cycle budget for 7T component" ;
+    rdfs:domain sevenT:SevenTEngine ;
+    rdfs:range xsd:integer .
+
+sevenT:category a rdf:Property ;
+    rdfs:label "category" ;
+    rdfs:comment "Category of 7T component" ;
+    rdfs:domain sevenT:SevenTEngine ;
+    rdfs:range rdfs:Literal .
+
+sevenT:features a rdf:Property ;
+    rdfs:label "features" ;
+    rdfs:comment "Features of 7T engine" ;
+    rdfs:domain sevenT:SevenTEngine ;
+    rdfs:range sevenT:IntegrationPattern .
+
+sevenT:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:comment "Cycle cost of integration pattern" ;
+    rdfs:domain sevenT:IntegrationPattern ;
+    rdfs:range xsd:integer .
+
+sevenT:usage a rdf:Property ;
+    rdfs:label "usage" ;
+    rdfs:comment "Usage description of integration pattern" ;
+    rdfs:domain sevenT:IntegrationPattern ;
+    rdfs:range rdfs:Literal .
+
+sevenT:mapsFunction a rdf:Property ;
+    rdfs:label "maps function" ;
+    rdfs:comment "7T function being mapped" ;
+    rdfs:domain sevenT:CommandMapping ;
+    rdfs:range rdfs:Literal .
+
+sevenT:mapsToCommand a rdf:Property ;
+    rdfs:label "maps to command" ;
+    rdfs:comment "CNS command being mapped to" ;
+    rdfs:domain sevenT:CommandMapping ;
+    rdfs:range rdfs:Literal .
+
+sevenT:managesState a rdf:Property ;
+    rdfs:label "manages state" ;
+    rdfs:comment "State managed by state manager" ;
+    rdfs:domain sevenT:StateManager ;
+    rdfs:range rdfs:Literal .
+
+sevenT:datasetType a rdf:Property ;
+    rdfs:label "dataset type" ;
+    rdfs:comment "Type of dataset" ;
+    rdfs:domain sevenT:Dataset ;
+    rdfs:range rdfs:Literal .
+
+sevenT:recordCount a rdf:Property ;
+    rdfs:label "record count" ;
+    rdfs:comment "Number of records in dataset" ;
+    rdfs:domain sevenT:Dataset ;
+    rdfs:range xsd:integer .
+
+sevenT:featureCount a rdf:Property ;
+    rdfs:label "feature count" ;
+    rdfs:comment "Number of features in dataset" ;
+    rdfs:domain sevenT:Dataset ;
+    rdfs:range xsd:integer .
+
+sevenT:algorithmType a rdf:Property ;
+    rdfs:label "algorithm type" ;
+    rdfs:comment "Type of algorithm" ;
+    rdfs:domain sevenT:ProcessModel ;
+    rdfs:range rdfs:Literal .
+
+# ============================================================================
+# 7T RELATIONSHIPS
+# ============================================================================
+
+cns:SPARQLEngine sevenT:integratesWith sevenT:TelemetryEngine ;
+    sevenT:integratesWith sevenT:BenchmarkFramework ;
+    sevenT:integratesWith sevenT:UnitTestFramework .
+
+cns:SHACLEngine sevenT:integratesWith sevenT:TelemetryEngine ;
+    sevenT:integratesWith sevenT:BenchmarkFramework ;
+    sevenT:integratesWith sevenT:UnitTestFramework .
+
+cns:CJinjaEngine sevenT:integratesWith sevenT:TelemetryEngine ;
+    sevenT:integratesWith sevenT:BenchmarkFramework ;
+    sevenT:integratesWith sevenT:UnitTestFramework .
+
+cns:TelemetryEngine sevenT:integratesWith sevenT:TelemetryEngine ;
+    sevenT:integratesWith sevenT:BenchmarkFramework ;
+    sevenT:integratesWith sevenT:UnitTestFramework .
+
+# ============================================================================
+# SHACL SHAPES FOR 7T VALIDATION
+# ============================================================================
+
+sevenT:SevenTEngineShape a sh:NodeShape ;
+    sh:targetClass sevenT:SevenTEngine ;
+    sh:property [
+        sh:path sevenT:headerFile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every 7T engine must have a header file" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:cycleBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every 7T engine must have a cycle budget" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:category ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every 7T engine must have a category" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:features ;
+        sh:minCount 1 ;
+        sh:message "Every 7T engine must have at least one feature" ;
+    ] .
+
+sevenT:CommandMappingShape a sh:NodeShape ;
+    sh:targetClass sevenT:CommandMapping ;
+    sh:property [
+        sh:path sevenT:mapsFunction ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every command mapping must map a function" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:mapsToCommand ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every command mapping must map to a command" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:cycleBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every command mapping must have a cycle budget" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:category ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every command mapping must have a category" ;
+    ] .
+
+sevenT:IntegrationPatternShape a sh:NodeShape ;
+    sh:targetClass sevenT:IntegrationPattern ;
+    sh:property [
+        sh:path sevenT:cycleCost ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every integration pattern must have a cycle cost" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:usage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every integration pattern must have a usage description" ;
+    ] .
+
+sevenT:StateManagerShape a sh:NodeShape ;
+    sh:targetClass sevenT:StateManager ;
+    sh:property [
+        sh:path sevenT:managesState ;
+        sh:minCount 1 ;
+        sh:message "Every state manager must manage at least one state" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:cycleBudget ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every state manager must have a cycle budget" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:category ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every state manager must have a category" ;
+    ] .
+
+sevenT:DatasetShape a sh:NodeShape ;
+    sh:targetClass sevenT:Dataset ;
+    sh:property [
+        sh:path sevenT:datasetType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every dataset must have a dataset type" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:recordCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every dataset must have a record count" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:featureCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every dataset must have a feature count" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:cycleCost ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every dataset must have a cycle cost" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:category ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every dataset must have a category" ;
+    ] .
+
+sevenT:ProcessModelShape a sh:NodeShape ;
+    sh:targetClass sevenT:ProcessModel ;
+    sh:property [
+        sh:path sevenT:algorithmType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every process model must have an algorithm type" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:cycleCost ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Every process model must have a cycle cost" ;
+    ] ;
+    sh:property [
+        sh:path sevenT:category ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every process model must have a category" ;
+    ] . 

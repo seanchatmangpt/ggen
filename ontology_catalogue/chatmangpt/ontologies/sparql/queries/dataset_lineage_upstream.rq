@@ -1,0 +1,132 @@
+# SPARQL Query: Find Upstream Sources (Ancestors)
+#
+# Purpose: Identify all source datasets that contribute to a given dataset
+# Follows wasDerivedFrom chain upward, stops at datasets with no further parents
+#
+# Input Parameters:
+#   - datasetUri: Full URI of the dataset to trace (e.g., https://businessos.local/datasets/finance/ledger-v2)
+#   - maxDepth: Maximum levels to traverse (1-5, default 5)
+#
+# Output Columns:
+#   - level: Depth where source was found (1 = immediate parent, 5 = 5th ancestor)
+#   - sourceUri: URI of upstream source dataset
+#   - sourceLabel: Human-readable label
+#   - sourceType: RDF type (class) of source
+#   - isLeafSource: TRUE if this source has no further parents (is a true source)
+#   - createdAtTime: When source was created
+#   - domain: Data domain (e.g., "Finance", "HR")
+#
+# Behavior:
+#   - Returns ONLY leaf nodes (true sources) when filtering on isLeafSource = true
+#   - Includes intermediate nodes when filtering on isLeafSource = false
+#   - Excludes the starting dataset from results
+#   - Eliminates cycles (no infinite loops)
+#
+# Performance: ~10s timeout
+# Tested: Oxigraph 0.3+
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT
+  ?level
+  ?sourceUri
+  ?sourceLabel
+  ?sourceType
+  ?isLeafSource
+  ?createdAtTime
+  ?domain
+
+WHERE {
+  # STEP 1: Bind the starting dataset URI
+  BIND(<https://businessos.local/datasets/finance/ledger-v2> AS ?targetDataset)
+  BIND(5 AS ?maxDepth)
+
+  # STEP 2: Find all direct parents (level 1)
+  {
+    BIND(1 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?sourceUri .
+    FILTER (?sourceUri != ?targetDataset)
+
+    ?sourceUri a ?sourceType .
+    OPTIONAL { ?sourceUri rdfs:label ?sourceLabel }
+    OPTIONAL { ?sourceUri prov:generatedAtTime ?createdAtTime }
+
+    # Determine if this is a leaf source (has no further parents)
+    BIND(NOT EXISTS { ?sourceUri prov:wasDerivedFrom ?ancestor } AS ?isLeafSource)
+
+    # Extract domain from URI (everything after /datasets/)
+    BIND(REPLACE(STR(?sourceUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+  }
+  UNION
+  # STEP 3: Find all level-2 ancestors
+  {
+    BIND(2 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?sourceUri .
+    FILTER (?sourceUri != ?targetDataset && ?sourceUri != ?parent1)
+
+    ?sourceUri a ?sourceType .
+    OPTIONAL { ?sourceUri rdfs:label ?sourceLabel }
+    OPTIONAL { ?sourceUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?sourceUri prov:wasDerivedFrom ?ancestor } AS ?isLeafSource)
+    BIND(REPLACE(STR(?sourceUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+  }
+  UNION
+  # STEP 4: Find all level-3 ancestors
+  {
+    BIND(3 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?sourceUri .
+    FILTER (?sourceUri != ?targetDataset && ?sourceUri != ?parent1 && ?sourceUri != ?parent2)
+
+    ?sourceUri a ?sourceType .
+    OPTIONAL { ?sourceUri rdfs:label ?sourceLabel }
+    OPTIONAL { ?sourceUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?sourceUri prov:wasDerivedFrom ?ancestor } AS ?isLeafSource)
+    BIND(REPLACE(STR(?sourceUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+  }
+  UNION
+  # STEP 5: Find all level-4 ancestors
+  {
+    BIND(4 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?parent3 .
+    ?parent3 prov:wasDerivedFrom ?sourceUri .
+    FILTER (?sourceUri != ?targetDataset && ?sourceUri != ?parent1 &&
+            ?sourceUri != ?parent2 && ?sourceUri != ?parent3)
+
+    ?sourceUri a ?sourceType .
+    OPTIONAL { ?sourceUri rdfs:label ?sourceLabel }
+    OPTIONAL { ?sourceUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?sourceUri prov:wasDerivedFrom ?ancestor } AS ?isLeafSource)
+    BIND(REPLACE(STR(?sourceUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+  }
+  UNION
+  # STEP 6: Find all level-5 ancestors (maximum)
+  {
+    BIND(5 as ?level)
+    ?targetDataset prov:wasDerivedFrom ?parent1 .
+    ?parent1 prov:wasDerivedFrom ?parent2 .
+    ?parent2 prov:wasDerivedFrom ?parent3 .
+    ?parent3 prov:wasDerivedFrom ?parent4 .
+    ?parent4 prov:wasDerivedFrom ?sourceUri .
+    FILTER (?sourceUri != ?targetDataset && ?sourceUri != ?parent1 &&
+            ?sourceUri != ?parent2 && ?sourceUri != ?parent3 && ?sourceUri != ?parent4)
+
+    ?sourceUri a ?sourceType .
+    OPTIONAL { ?sourceUri rdfs:label ?sourceLabel }
+    OPTIONAL { ?sourceUri prov:generatedAtTime ?createdAtTime }
+    BIND(NOT EXISTS { ?sourceUri prov:wasDerivedFrom ?ancestor } AS ?isLeafSource)
+    BIND(REPLACE(STR(?sourceUri), ".*datasets/([^/]+)/.*", "$1") AS ?domain)
+  }
+}
+
+ORDER BY ?level ?sourceUri
+
+LIMIT 500

@@ -1,0 +1,269 @@
+# Sample RDF Test Data for CAS Engine Testing
+# This file contains various RDF ontologies for testing variable extraction
+
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# =============================================================================
+# Person Entity Ontology
+# =============================================================================
+
+ex:Person a ex:EntityClass ;
+    ex:className "Person" ;
+    ex:tableName "persons" ;
+    ex:description "Person entity with contact information" ;
+    ex:generateService "true" ;
+    ex:generateController "true" ;
+    ex:generateTests "true" .
+
+ex:Person ex:hasProperty ex:personId ;
+    ex:hasProperty ex:fullName ;
+    ex:hasProperty ex:email ;
+    ex:hasProperty ex:age ;
+    ex:hasProperty ex:department ;
+    ex:hasProperty ex:phoneNumber .
+
+ex:personId a ex:Property ;
+    ex:propertyName "id" ;
+    ex:propertyType "number" ;
+    ex:dbType "int" ;
+    ex:required "true" ;
+    ex:primaryKey "true" .
+
+ex:fullName a ex:Property ;
+    ex:propertyName "fullName" ;
+    ex:propertyType "string" ;
+    ex:dbType "varchar(255)" ;
+    ex:required "true" ;
+    ex:indexed "true" ;
+    ex:description "Person's full name" .
+
+ex:email a ex:Property ;
+    ex:propertyName "email" ;
+    ex:propertyType "string" ;
+    ex:dbType "varchar(255)" ;
+    ex:required "true" ;
+    ex:unique "true" ;
+    ex:description "Person's email address" .
+
+ex:age a ex:Property ;
+    ex:propertyName "age" ;
+    ex:propertyType "number" ;
+    ex:dbType "int" ;
+    ex:required "false" ;
+    ex:description "Person's age in years" .
+
+ex:department a ex:Property ;
+    ex:propertyName "department" ;
+    ex:propertyType "string" ;
+    ex:dbType "varchar(100)" ;
+    ex:required "false" ;
+    ex:description "Person's department" .
+
+ex:phoneNumber a ex:Property ;
+    ex:propertyName "phoneNumber" ;
+    ex:propertyType "string" ;
+    ex:dbType "varchar(20)" ;
+    ex:required "false" ;
+    ex:description "Person's phone number" .
+
+# =============================================================================
+# Project Entity Ontology
+# =============================================================================
+
+ex:Project a ex:EntityClass ;
+    ex:className "Project" ;
+    ex:tableName "projects" ;
+    ex:description "Project management entity" ;
+    ex:generateService "true" ;
+    ex:generateController "true" ;
+    ex:generateTests "false" .
+
+ex:Project ex:hasProperty ex:projectId ;
+    ex:hasProperty ex:projectName ;
+    ex:hasProperty ex:description ;
+    ex:hasProperty ex:status ;
+    ex:hasProperty ex:budget ;
+    ex:hasProperty ex:startDate ;
+    ex:hasProperty ex:endDate ;
+    ex:hasProperty ex:ownerId .
+
+ex:projectId a ex:Property ;
+    ex:propertyName "id" ;
+    ex:propertyType "string" ;
+    ex:dbType "uuid" ;
+    ex:required "true" ;
+    ex:primaryKey "true" .
+
+ex:projectName a ex:Property ;
+    ex:propertyName "projectName" ;
+    ex:propertyType "string" ;
+    ex:dbType "varchar(200)" ;
+    ex:required "true" ;
+    ex:indexed "true" ;
+    ex:description "Name of the project" .
+
+ex:description a ex:Property ;
+    ex:propertyName "description" ;
+    ex:propertyType "string" ;
+    ex:dbType "text" ;
+    ex:required "false" ;
+    ex:description "Project description" .
+
+ex:status a ex:Property ;
+    ex:propertyName "status" ;
+    ex:propertyType "enum" ;
+    ex:dbType "varchar(50)" ;
+    ex:enumValues "draft,active,completed,cancelled,on-hold" ;
+    ex:required "true" ;
+    ex:defaultValue "draft" ;
+    ex:description "Current project status" .
+
+ex:budget a ex:Property ;
+    ex:propertyName "budget" ;
+    ex:propertyType "decimal" ;
+    ex:dbType "decimal(10,2)" ;
+    ex:required "false" ;
+    ex:description "Project budget amount" .
+
+ex:startDate a ex:Property ;
+    ex:propertyName "startDate" ;
+    ex:propertyType "date" ;
+    ex:dbType "date" ;
+    ex:required "true" ;
+    ex:description "Project start date" .
+
+ex:endDate a ex:Property ;
+    ex:propertyName "endDate" ;
+    ex:propertyType "date" ;
+    ex:dbType "date" ;
+    ex:required "false" ;
+    ex:description "Project end date" .
+
+ex:ownerId a ex:Property ;
+    ex:propertyName "ownerId" ;
+    ex:propertyType "string" ;
+    ex:dbType "uuid" ;
+    ex:required "true" ;
+    ex:foreignKey "persons.id" ;
+    ex:description "ID of the project owner" .
+
+# =============================================================================
+# Task Entity Ontology (Complex relationships)
+# =============================================================================
+
+ex:Task a ex:EntityClass ;
+    ex:className "Task" ;
+    ex:tableName "tasks" ;
+    ex:description "Task entity with project relationship" ;
+    ex:generateService "true" ;
+    ex:generateController "false" ;
+    ex:generateTests "true" .
+
+ex:Task ex:hasProperty ex:taskId ;
+    ex:hasProperty ex:title ;
+    ex:hasProperty ex:taskDescription ;
+    ex:hasProperty ex:priority ;
+    ex:hasProperty ex:assigneeId ;
+    ex:hasProperty ex:projectId ;
+    ex:hasProperty ex:dueDate ;
+    ex:hasProperty ex:estimatedHours ;
+    ex:hasProperty ex:actualHours .
+
+ex:taskId a ex:Property ;
+    ex:propertyName "id" ;
+    ex:propertyType "number" ;
+    ex:dbType "bigint" ;
+    ex:required "true" ;
+    ex:primaryKey "true" ;
+    ex:autoIncrement "true" .
+
+ex:title a ex:Property ;
+    ex:propertyName "title" ;
+    ex:propertyType "string" ;
+    ex:dbType "varchar(300)" ;
+    ex:required "true" ;
+    ex:indexed "true" ;
+    ex:description "Task title" .
+
+ex:taskDescription a ex:Property ;
+    ex:propertyName "description" ;
+    ex:propertyType "string" ;
+    ex:dbType "text" ;
+    ex:required "false" ;
+    ex:description "Detailed task description" .
+
+ex:priority a ex:Property ;
+    ex:propertyName "priority" ;
+    ex:propertyType "enum" ;
+    ex:dbType "varchar(20)" ;
+    ex:enumValues "low,medium,high,urgent,critical" ;
+    ex:required "true" ;
+    ex:defaultValue "medium" ;
+    ex:description "Task priority level" .
+
+ex:assigneeId a ex:Property ;
+    ex:propertyName "assigneeId" ;
+    ex:propertyType "string" ;
+    ex:dbType "uuid" ;
+    ex:required "false" ;
+    ex:foreignKey "persons.id" ;
+    ex:description "ID of the assigned person" .
+
+ex:projectId a ex:Property ;
+    ex:propertyName "projectId" ;
+    ex:propertyType "string" ;
+    ex:dbType "uuid" ;
+    ex:required "true" ;
+    ex:foreignKey "projects.id" ;
+    ex:description "ID of the parent project" .
+
+ex:dueDate a ex:Property ;
+    ex:propertyName "dueDate" ;
+    ex:propertyType "datetime" ;
+    ex:dbType "timestamp" ;
+    ex:required "false" ;
+    ex:description "Task due date and time" .
+
+ex:estimatedHours a ex:Property ;
+    ex:propertyName "estimatedHours" ;
+    ex:propertyType "decimal" ;
+    ex:dbType "decimal(5,2)" ;
+    ex:required "false" ;
+    ex:description "Estimated hours to complete" .
+
+ex:actualHours a ex:Property ;
+    ex:propertyName "actualHours" ;
+    ex:propertyType "decimal" ;
+    ex:dbType "decimal(5,2)" ;
+    ex:required "false" ;
+    ex:description "Actual hours spent" .
+
+# =============================================================================
+# Metadata and Configuration
+# =============================================================================
+
+ex:GenerationConfig a ex:Configuration ;
+    ex:outputPath "src/entities" ;
+    ex:baseClass "BaseEntity" ;
+    ex:includeTimestamps "true" ;
+    ex:includeSoftDelete "true" ;
+    ex:generateInterfaces "true" ;
+    ex:generateDTOs "true" ;
+    ex:generateRepositories "true" ;
+    ex:generateServices "true" ;
+    ex:generateControllers "true" ;
+    ex:generateTests "true" ;
+    ex:testFramework "jest" ;
+    ex:apiStyle "REST" ;
+    ex:authRequired "true" .
+
+# Schema versioning
+ex:SchemaVersion a ex:Version ;
+    ex:major "1" ;
+    ex:minor "0" ;
+    ex:patch "0" ;
+    ex:hash "abc123def456" ;
+    ex:generatedAt "2024-01-01T12:00:00Z" .

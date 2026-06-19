@@ -1,0 +1,73 @@
+# @name: phi_access_audit
+# @category: healthcare/audit
+# @description: SPARQL SELECT querying PHI access logs with complete audit trail
+# @params: ?patient_uri, ?start_date (optional), ?end_date (optional)
+# @returns: SELECT result set with columns: access_event, accessed_by, phi_category, access_action, access_outcome, access_timestamp, access_location, access_reason
+# @version: 1.0
+# @stability: stable
+# @compliance: HIPAA 164.304(b)(1) Audit Controls, GDPR Article 15
+# @timeout_ms: 20000
+#
+# Use Case: HIPAA privacy request response
+# "Show all access to patient's PHI records for the past 90 days"
+#
+# Example binding:
+#   ?patient_uri = <http://businessos.dev/id/patients/MRN-12345>
+#   ?start_date = "2025-12-26T00:00:00Z"^^xsd:dateTime (optional)
+#   ?end_date = "2026-03-26T23:59:59Z"^^xsd:dateTime (optional)
+#
+# Returns all PHI access events with:
+#   - Who accessed (agent/user URI)
+#   - What category of PHI (Identifier, Clinical, Payment, Contact, Biometric)
+#   - When (timestamp with microsecond precision for ordering)
+#   - Action (read, write, delete, export, share)
+#   - Outcome (success, failure, denied)
+#   - Location (IP address, facility code, system ID)
+#   - Reason (treatment, payment, operations, research, law_enforcement)
+#
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX chatman_health: <https://ontology.chatmangpt.com/healthcare#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?access_event ?accessed_by ?agent_name ?phi_category ?access_action ?access_outcome ?access_timestamp ?access_location ?access_reason
+WHERE {
+  # Patient filter (required parameter)
+  BIND(?patient_uri AS ?patient)
+
+  # Access event must reference this patient's PHI
+  ?access_event a chatman_health:PHIAccessEvent ;
+    chatman_health:accessTarget ?phiRecord ;
+    chatman_health:accessedBy ?accessed_by ;
+    chatman_health:accessAction ?access_action ;
+    chatman_health:accessOutcome ?access_outcome ;
+    chatman_health:accessTimestamp ?access_timestamp ;
+    chatman_health:accessLocation ?access_location ;
+    chatman_health:accessReason ?access_reason ;
+    chatman_health:trackedPHI ?phi_category .
+
+  # PHI record must belong to the patient
+  ?phiRecord chatman_health:belongsToPatient ?patient ;
+    a ?phi_category .
+
+  # Agent information (user or system that performed access)
+  ?accessed_by foaf:name ?agent_name .
+
+  # OPTIONAL: Date range filtering
+  # If ?start_date not bound, default to 90 days ago
+  # If ?end_date not bound, default to now
+  BIND(COALESCE(?start_date, NOW() - "PT90D"^^xsd:duration) AS ?actual_start)
+  BIND(COALESCE(?end_date, NOW()) AS ?actual_end)
+
+  # Enforce date range
+  FILTER(?access_timestamp >= ?actual_start && ?access_timestamp <= ?actual_end)
+
+  # Ensure timestamp is valid (not in future)
+  FILTER(?access_timestamp <= NOW())
+}
+ORDER BY DESC(?access_timestamp)

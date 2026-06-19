@@ -1,0 +1,767 @@
+@prefix ba: <http://bytestar.ai/ontology/> .
+@prefix cap: <http://bytestar.ai/ontology/capacity/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix doe: <http://bytestar.ai/ontology/doctrine-of-8/> .
+
+# ============================================
+# ByteStar Capacity Planning Ontology
+# ============================================
+# Comprehensive capacity planning and resource management framework
+# for predictive scaling, resource optimization, and performance guarantees
+# Reuses and extends ba-performance-measurement.ttl and ba-bytecore-hardware.ttl
+
+cap:capacity-planning-ontology a owl:Ontology ;
+    dct:title "ByteStar Capacity Planning Ontology" ;
+    dct:description "Comprehensive capacity planning framework providing predictive scaling, resource optimization, and performance management across ByteStar infrastructure" ;
+    dct:version "5.0.0" ;
+    dct:created "2025-01-XX"^^xsd:date ;
+    dct:creator "ByteStar Operations Team" ;
+    owl:versionInfo "Phase 5 - Operations Framework" ;
+    dct:subject "Capacity Planning, Resource Management, Scaling, Optimization" ;
+    owl:imports ba:performance-measurement ,
+                ba:bytecore-hardware ,
+                ba:deployment-pipeline ,
+                ba:audit-system .
+
+# ============================================
+# CORE CAPACITY PLANNING CLASSES
+# ============================================
+
+# Main Capacity Architecture
+cap:CapacityPlanningSystem a owl:Class ;
+    rdfs:label "Capacity Planning System" ;
+    rdfs:comment "Comprehensive system for capacity planning and resource management" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    skos:definition "Capacity planning system provides predictive analysis and automated resource management for optimal system performance" .
+
+cap:CapacityPlanner a owl:Class ;
+    rdfs:label "Capacity Planner" ;
+    rdfs:comment "Engine for capacity planning analysis and recommendations" ;
+    rdfs:subClassOf ba:PlanningEngine ;
+    skos:definition "Capacity planner analyzes resource utilization trends and generates scaling recommendations" .
+
+cap:ResourceManager a owl:Class ;
+    rdfs:label "Resource Manager" ;
+    rdfs:comment "System for managing and allocating computing resources" ;
+    rdfs:subClassOf ba:ManagementSystem ;
+    skos:definition "Resource manager handles allocation, provisioning, and optimization of computing resources" .
+
+cap:CapacityModel a owl:Class ;
+    rdfs:label "Capacity Model" ;
+    rdfs:comment "Mathematical model for capacity planning calculations" ;
+    rdfs:subClassOf ba:AnalyticalModel ;
+    skos:definition "Capacity model provides mathematical framework for predicting resource needs and performance outcomes" .
+
+cap:DemandForecast a owl:Class ;
+    rdfs:label "Demand Forecast" ;
+    rdfs:comment "Prediction of future resource demand" ;
+    rdfs:subClassOf ba:Forecast ;
+    skos:definition "Demand forecast predicts future resource requirements based on historical trends and growth patterns" .
+
+# ============================================
+# RESOURCE TYPES AND CATEGORIES
+# ============================================
+
+cap:ComputeResource a owl:Class ;
+    rdfs:label "Compute Resource" ;
+    rdfs:comment "CPU and processing power resources" ;
+    rdfs:subClassOf ba:HardwareResource ;
+    skos:definition "Compute resource includes CPU cores, processing power, and computational capacity" .
+
+cap:MemoryResource a owl:Class ;
+    rdfs:label "Memory Resource" ;
+    rdfs:comment "Memory and caching resources" ;
+    rdfs:subClassOf ba:HardwareResource ;
+    skos:definition "Memory resource includes RAM, cache, and temporary storage capacity" .
+
+cap:StorageResource a owl:Class ;
+    rdfs:label "Storage Resource" ;
+    rdfs:comment "Persistent storage resources" ;
+    rdfs:subClassOf ba:HardwareResource ;
+    skos:definition "Storage resource includes disk space, SSD capacity, and persistent data storage" .
+
+cap:NetworkResource a owl:Class ;
+    rdfs:label "Network Resource" ;
+    rdfs:comment "Network bandwidth and connectivity resources" ;
+    rdfs:subClassOf ba:HardwareResource ;
+    skos:definition "Network resource includes bandwidth, latency capacity, and network connectivity" .
+
+cap:SpecializedResource a owl:Class ;
+    rdfs:label "Specialized Resource" ;
+    rdfs:comment "Specialized hardware like GPUs, FPGAs, or PQC accelerators" ;
+    rdfs:subClassOf ba:HardwareResource ;
+    skos:definition "Specialized resource includes GPUs, FPGAs, cryptographic accelerators, and other specialized hardware" .
+
+cap:SoftwareResource a owl:Class ;
+    rdfs:label "Software Resource" ;
+    rdfs:comment "Software licenses and application capacity" ;
+    rdfs:subClassOf ba:Resource ;
+    skos:definition "Software resource includes application licenses, concurrent user limits, and software capacity" .
+
+# ============================================
+# CAPACITY METRICS AND MEASUREMENTS
+# ============================================
+
+cap:CapacityMetric a owl:Class ;
+    rdfs:label "Capacity Metric" ;
+    rdfs:comment "Metrics for measuring resource capacity and utilization" ;
+    rdfs:subClassOf ba:PerformanceMetric ;
+    skos:definition "Capacity metric quantifies resource availability, utilization, and performance characteristics" .
+
+cap:UtilizationRate a owl:Class ;
+    rdfs:label "Utilization Rate" ;
+    rdfs:comment "Percentage of resource capacity currently in use" ;
+    rdfs:subClassOf cap:CapacityMetric ;
+    skos:definition "Utilization rate measures the percentage of available resource capacity currently being consumed" .
+
+cap:AvailableCapacity a owl:Class ;
+    rdfs:label "Available Capacity" ;
+    rdfs:comment "Remaining unused resource capacity" ;
+    rdfs:subClassOf cap:CapacityMetric ;
+    skos:definition "Available capacity represents the unused portion of total resource capacity" .
+
+cap:PeakCapacity a owl:Class ;
+    rdfs:label "Peak Capacity" ;
+    rdfs:comment "Maximum resource capacity under peak load" ;
+    rdfs:subClassOf cap:CapacityMetric ;
+    skos:definition "Peak capacity represents the maximum resource utilization observed during peak demand periods" .
+
+cap:BaselineCapacity a owl:Class ;
+    rdfs:label "Baseline Capacity" ;
+    rdfs:comment "Normal operating resource capacity requirements" ;
+    rdfs:subClassOf cap:CapacityMetric ;
+    skos:definition "Baseline capacity represents the normal resource requirements for steady-state operations" .
+
+cap:GrowthRate a owl:Class ;
+    rdfs:label "Growth Rate" ;
+    rdfs:comment "Rate of resource demand growth over time" ;
+    rdfs:subClassOf cap:CapacityMetric ;
+    skos:definition "Growth rate measures the percentage increase in resource demand over specified time periods" .
+
+# ============================================
+# SCALING AND PROVISIONING
+# ============================================
+
+cap:AutoScaling a owl:Class ;
+    rdfs:label "Auto Scaling" ;
+    rdfs:comment "Automatic scaling system for dynamic resource allocation" ;
+    rdfs:subClassOf ba:AutomationSystem ;
+    skos:definition "Auto scaling automatically adjusts resource allocation based on demand and performance metrics" .
+
+cap:HorizontalScaling a owl:Class ;
+    rdfs:label "Horizontal Scaling" ;
+    rdfs:comment "Scaling by adding more resource instances" ;
+    rdfs:subClassOf cap:AutoScaling ;
+    skos:definition "Horizontal scaling increases capacity by adding more instances or nodes to the system" .
+
+cap:VerticalScaling a owl:Class ;
+    rdfs:label "Vertical Scaling" ;
+    rdfs:comment "Scaling by increasing resource capacity of existing instances" ;
+    rdfs:subClassOf cap:AutoScaling ;
+    skos:definition "Vertical scaling increases capacity by upgrading the resource capacity of existing instances" .
+
+cap:PredictiveScaling a owl:Class ;
+    rdfs:label "Predictive Scaling" ;
+    rdfs:comment "Proactive scaling based on demand forecasts" ;
+    rdfs:subClassOf cap:AutoScaling ;
+    skos:definition "Predictive scaling adjusts resources proactively based on forecasted demand patterns" .
+
+cap:ReactiveScaling a owl:Class ;
+    rdfs:label "Reactive Scaling" ;
+    rdfs:comment "Scaling in response to current resource utilization" ;
+    rdfs:subClassOf cap:AutoScaling ;
+    skos:definition "Reactive scaling adjusts resources in response to current utilization thresholds" .
+
+cap:ResourceProvisioning a owl:Class ;
+    rdfs:label "Resource Provisioning" ;
+    rdfs:comment "System for provisioning and allocating resources" ;
+    rdfs:subClassOf ba:ProvisioningSystem ;
+    skos:definition "Resource provisioning handles the allocation and configuration of computing resources" .
+
+cap:ProvisioningPolicy a owl:Class ;
+    rdfs:label "Provisioning Policy" ;
+    rdfs:comment "Policies governing resource provisioning decisions" ;
+    rdfs:subClassOf ba:Policy ;
+    skos:definition "Provisioning policy defines rules and constraints for resource allocation and scaling decisions" .
+
+# ============================================
+# OPTIMIZATION AND EFFICIENCY
+# ============================================
+
+cap:ResourceOptimization a owl:Class ;
+    rdfs:label "Resource Optimization" ;
+    rdfs:comment "System for optimizing resource allocation and efficiency" ;
+    rdfs:subClassOf ba:OptimizationEngine ;
+    skos:definition "Resource optimization identifies and implements improvements to resource utilization and efficiency" .
+
+cap:CostOptimization a owl:Class ;
+    rdfs:label "Cost Optimization" ;
+    rdfs:comment "Optimization focused on minimizing resource costs" ;
+    rdfs:subClassOf cap:ResourceOptimization ;
+    skos:definition "Cost optimization reduces infrastructure costs while maintaining performance and availability requirements" .
+
+cap:PerformanceOptimization a owl:Class ;
+    rdfs:label "Performance Optimization" ;
+    rdfs:comment "Optimization focused on maximizing system performance" ;
+    rdfs:subClassOf cap:ResourceOptimization ;
+    skos:definition "Performance optimization maximizes system performance within resource and cost constraints" .
+
+cap:EfficiencyAnalyzer a owl:Class ;
+    rdfs:label "Efficiency Analyzer" ;
+    rdfs:comment "System analyzing resource efficiency and waste" ;
+    rdfs:subClassOf ba:AnalysisEngine ;
+    skos:definition "Efficiency analyzer identifies resource waste and opportunities for improved utilization" .
+
+cap:RightSizing a owl:Class ;
+    rdfs:label "Right Sizing" ;
+    rdfs:comment "Process of matching resource allocation to actual needs" ;
+    rdfs:subClassOf cap:ResourceOptimization ;
+    skos:definition "Right sizing ensures resource allocation matches actual utilization patterns and requirements" .
+
+cap:ResourcePooling a owl:Class ;
+    rdfs:label "Resource Pooling" ;
+    rdfs:comment "Sharing resources across multiple workloads" ;
+    rdfs:subClassOf cap:ResourceOptimization ;
+    skos:definition "Resource pooling enables efficient sharing of resources across different applications and workloads" .
+
+# ============================================
+# FORECASTING AND PREDICTION
+# ============================================
+
+cap:ForecastingEngine a owl:Class ;
+    rdfs:label "Forecasting Engine" ;
+    rdfs:comment "Engine for predicting future resource requirements" ;
+    rdfs:subClassOf ba:PredictionEngine ;
+    skos:definition "Forecasting engine uses historical data and trends to predict future resource needs" .
+
+cap:TrendAnalysis a owl:Class ;
+    rdfs:label "Trend Analysis" ;
+    rdfs:comment "Analysis of resource usage trends over time" ;
+    rdfs:subClassOf ba:TrendAnalysis ;
+    skos:definition "Trend analysis identifies patterns and trends in resource utilization over time" .
+
+cap:SeasonalityAnalysis a owl:Class ;
+    rdfs:label "Seasonality Analysis" ;
+    rdfs:comment "Analysis of seasonal patterns in resource demand" ;
+    rdfs:subClassOf cap:TrendAnalysis ;
+    skos:definition "Seasonality analysis identifies recurring patterns in resource demand based on time cycles" .
+
+cap:AnomalyPrediction a owl:Class ;
+    rdfs:label "Anomaly Prediction" ;
+    rdfs:comment "Prediction of resource usage anomalies" ;
+    rdfs:subClassOf ba:AnomalyPredictor ;
+    skos:definition "Anomaly prediction identifies potential unusual resource demand patterns before they occur" .
+
+cap:CapacityForecast a owl:Class ;
+    rdfs:label "Capacity Forecast" ;
+    rdfs:comment "Forecast of future capacity requirements" ;
+    rdfs:subClassOf cap:DemandForecast ;
+    skos:definition "Capacity forecast predicts future resource capacity needs based on demand projections" .
+
+cap:GrowthProjection a owl:Class ;
+    rdfs:label "Growth Projection" ;
+    rdfs:comment "Projection of resource demand growth" ;
+    rdfs:subClassOf cap:CapacityForecast ;
+    skos:definition "Growth projection estimates future resource requirements based on business and usage growth patterns" .
+
+# ============================================
+# SLA AND PERFORMANCE GUARANTEES
+# ============================================
+
+cap:CapacitySLA a owl:Class ;
+    rdfs:label "Capacity SLA" ;
+    rdfs:comment "Service level agreement for capacity and performance" ;
+    rdfs:subClassOf ba:ServiceLevelAgreement ;
+    skos:definition "Capacity SLA defines guaranteed levels of resource availability and performance" .
+
+cap:PerformanceGuarantee a owl:Class ;
+    rdfs:label "Performance Guarantee" ;
+    rdfs:comment "Guaranteed performance levels under specified conditions" ;
+    rdfs:subClassOf ba:PerformanceTarget ;
+    skos:definition "Performance guarantee provides assured performance levels within defined resource and load conditions" .
+
+cap:ResourceReservation a owl:Class ;
+    rdfs:label "Resource Reservation" ;
+    rdfs:comment "Reserved resource capacity for guaranteed availability" ;
+    rdfs:subClassOf ba:ResourceAllocation ;
+    skos:definition "Resource reservation sets aside specific resource capacity to guarantee availability for critical workloads" .
+
+cap:QualityOfService a owl:Class ;
+    rdfs:label "Quality of Service" ;
+    rdfs:comment "QoS management for resource allocation" ;
+    rdfs:subClassOf ba:QualityOfService ;
+    skos:definition "Quality of service ensures resource allocation meets defined performance and availability standards" .
+
+cap:CapacityBuffer a owl:Class ;
+    rdfs:label "Capacity Buffer" ;
+    rdfs:comment "Additional capacity reserved for peak loads and contingencies" ;
+    rdfs:subClassOf cap:ResourceReservation ;
+    skos:definition "Capacity buffer provides additional resource headroom to handle unexpected demand spikes and ensure reliability" .
+
+# ============================================
+# MONITORING AND ALERTING
+# ============================================
+
+cap:CapacityMonitoring a owl:Class ;
+    rdfs:label "Capacity Monitoring" ;
+    rdfs:comment "Specialized monitoring for capacity and resource utilization" ;
+    rdfs:subClassOf ba:MonitoringSystem ;
+    skos:definition "Capacity monitoring tracks resource utilization, availability, and performance metrics" .
+
+cap:ThresholdMonitoring a owl:Class ;
+    rdfs:label "Threshold Monitoring" ;
+    rdfs:comment "Monitoring based on capacity utilization thresholds" ;
+    rdfs:subClassOf cap:CapacityMonitoring ;
+    skos:definition "Threshold monitoring triggers alerts when resource utilization crosses predefined limits" .
+
+cap:CapacityAlert a owl:Class ;
+    rdfs:label "Capacity Alert" ;
+    rdfs:comment "Alert for capacity-related issues or thresholds" ;
+    rdfs:subClassOf ba:Alert ;
+    skos:definition "Capacity alert notifies operators of resource constraints, utilization issues, or capacity planning needs" .
+
+cap:PredictiveAlert a owl:Class ;
+    rdfs:label "Predictive Alert" ;
+    rdfs:comment "Alert based on predicted capacity issues" ;
+    rdfs:subClassOf cap:CapacityAlert ;
+    skos:definition "Predictive alert warns of anticipated capacity constraints before they impact system performance" .
+
+cap:CapacityDashboard a owl:Class ;
+    rdfs:label "Capacity Dashboard" ;
+    rdfs:comment "Dashboard for capacity planning and resource visualization" ;
+    rdfs:subClassOf ba:Dashboard ;
+    skos:definition "Capacity dashboard provides visual representation of resource utilization, trends, and capacity planning metrics" .
+
+# ============================================
+# CORE PROPERTIES
+# ============================================
+
+# Resource Capacity Properties
+cap:totalCapacity a owl:DatatypeProperty ;
+    rdfs:label "total capacity" ;
+    rdfs:comment "Total available resource capacity" ;
+    rdfs:domain ba:HardwareResource ;
+    rdfs:range xsd:decimal .
+
+cap:usedCapacity a owl:DatatypeProperty ;
+    rdfs:label "used capacity" ;
+    rdfs:comment "Currently used resource capacity" ;
+    rdfs:domain ba:HardwareResource ;
+    rdfs:range xsd:decimal .
+
+cap:availableCapacity a owl:DatatypeProperty ;
+    rdfs:label "available capacity" ;
+    rdfs:comment "Currently available resource capacity" ;
+    rdfs:domain ba:HardwareResource ;
+    rdfs:range xsd:decimal .
+
+cap:reservedCapacity a owl:DatatypeProperty ;
+    rdfs:label "reserved capacity" ;
+    rdfs:comment "Resource capacity reserved for specific purposes" ;
+    rdfs:domain cap:ResourceReservation ;
+    rdfs:range xsd:decimal .
+
+# Utilization Properties
+cap:utilizationPercentage a owl:DatatypeProperty ;
+    rdfs:label "utilization percentage" ;
+    rdfs:comment "Resource utilization as percentage of total capacity" ;
+    rdfs:domain cap:UtilizationRate ;
+    rdfs:range xsd:decimal .
+
+cap:peakUtilization a owl:DatatypeProperty ;
+    rdfs:label "peak utilization" ;
+    rdfs:comment "Peak utilization observed over time period" ;
+    rdfs:domain cap:PeakCapacity ;
+    rdfs:range xsd:decimal .
+
+cap:averageUtilization a owl:DatatypeProperty ;
+    rdfs:label "average utilization" ;
+    rdfs:comment "Average utilization over time period" ;
+    rdfs:domain cap:BaselineCapacity ;
+    rdfs:range xsd:decimal .
+
+# Growth and Forecast Properties
+cap:growthRate a owl:DatatypeProperty ;
+    rdfs:label "growth rate" ;
+    rdfs:comment "Percentage growth rate per time period" ;
+    rdfs:domain cap:GrowthRate ;
+    rdfs:range xsd:decimal .
+
+cap:forecastPeriod a owl:DatatypeProperty ;
+    rdfs:label "forecast period" ;
+    rdfs:comment "Time period for capacity forecast" ;
+    rdfs:domain cap:CapacityForecast ;
+    rdfs:range xsd:duration .
+
+cap:forecastAccuracy a owl:DatatypeProperty ;
+    rdfs:label "forecast accuracy" ;
+    rdfs:comment "Accuracy of capacity forecast" ;
+    rdfs:domain cap:CapacityForecast ;
+    rdfs:range xsd:decimal .
+
+cap:projectedDemand a owl:DatatypeProperty ;
+    rdfs:label "projected demand" ;
+    rdfs:comment "Projected future resource demand" ;
+    rdfs:domain cap:GrowthProjection ;
+    rdfs:range xsd:decimal .
+
+# Scaling Properties
+cap:scalingThreshold a owl:DatatypeProperty ;
+    rdfs:label "scaling threshold" ;
+    rdfs:comment "Utilization threshold triggering scaling action" ;
+    rdfs:domain cap:AutoScaling ;
+    rdfs:range xsd:decimal .
+
+cap:scalingFactor a owl:DatatypeProperty ;
+    rdfs:label "scaling factor" ;
+    rdfs:comment "Factor by which to scale resources" ;
+    rdfs:domain cap:AutoScaling ;
+    rdfs:range xsd:decimal .
+
+cap:cooldownPeriod a owl:DatatypeProperty ;
+    rdfs:label "cooldown period" ;
+    rdfs:comment "Wait time between scaling operations" ;
+    rdfs:domain cap:AutoScaling ;
+    rdfs:range xsd:duration .
+
+cap:minInstances a owl:DatatypeProperty ;
+    rdfs:label "min instances" ;
+    rdfs:comment "Minimum number of instances to maintain" ;
+    rdfs:domain cap:HorizontalScaling ;
+    rdfs:range xsd:int .
+
+cap:maxInstances a owl:DatatypeProperty ;
+    rdfs:label "max instances" ;
+    rdfs:comment "Maximum number of instances allowed" ;
+    rdfs:domain cap:HorizontalScaling ;
+    rdfs:range xsd:int .
+
+# Cost Properties
+cap:costPerUnit a owl:DatatypeProperty ;
+    rdfs:label "cost per unit" ;
+    rdfs:comment "Cost per unit of resource capacity" ;
+    rdfs:domain ba:HardwareResource ;
+    rdfs:range xsd:decimal .
+
+cap:totalCost a owl:DatatypeProperty ;
+    rdfs:label "total cost" ;
+    rdfs:comment "Total cost of resource allocation" ;
+    rdfs:domain cap:ResourceManager ;
+    rdfs:range xsd:decimal .
+
+cap:costEfficiency a owl:DatatypeProperty ;
+    rdfs:label "cost efficiency" ;
+    rdfs:comment "Resource cost efficiency ratio" ;
+    rdfs:domain cap:CostOptimization ;
+    rdfs:range xsd:decimal .
+
+# Performance Properties
+cap:responseTime a owl:DatatypeProperty ;
+    rdfs:label "response time" ;
+    rdfs:comment "System response time under current load" ;
+    rdfs:domain cap:PerformanceOptimization ;
+    rdfs:range xsd:duration .
+
+cap:throughput a owl:DatatypeProperty ;
+    rdfs:label "throughput" ;
+    rdfs:comment "System throughput under current capacity" ;
+    rdfs:domain cap:PerformanceOptimization ;
+    rdfs:range xsd:decimal .
+
+cap:resourceEfficiency a owl:DatatypeProperty ;
+    rdfs:label "resource efficiency" ;
+    rdfs:comment "Efficiency of resource utilization" ;
+    rdfs:domain cap:EfficiencyAnalyzer ;
+    rdfs:range xsd:decimal .
+
+# SLA Properties
+cap:guaranteedCapacity a owl:DatatypeProperty ;
+    rdfs:label "guaranteed capacity" ;
+    rdfs:comment "Guaranteed available resource capacity" ;
+    rdfs:domain cap:CapacitySLA ;
+    rdfs:range xsd:decimal .
+
+cap:availabilityTarget a owl:DatatypeProperty ;
+    rdfs:label "availability target" ;
+    rdfs:comment "Target availability percentage" ;
+    rdfs:domain cap:CapacitySLA ;
+    rdfs:range xsd:decimal .
+
+cap:performanceTarget a owl:DatatypeProperty ;
+    rdfs:label "performance target" ;
+    rdfs:comment "Target performance level" ;
+    rdfs:domain cap:PerformanceGuarantee ;
+    rdfs:range xsd:decimal .
+
+# ============================================
+# OBJECT PROPERTIES
+# ============================================
+
+# Planning Relationships
+cap:plans a owl:ObjectProperty ;
+    rdfs:label "plans" ;
+    rdfs:comment "Resource planned by capacity planner" ;
+    rdfs:domain cap:CapacityPlanner ;
+    rdfs:range ba:HardwareResource .
+
+cap:manages a owl:ObjectProperty ;
+    rdfs:label "manages" ;
+    rdfs:comment "Resource managed by resource manager" ;
+    rdfs:domain cap:ResourceManager ;
+    rdfs:range ba:HardwareResource .
+
+cap:forecasts a owl:ObjectProperty ;
+    rdfs:label "forecasts" ;
+    rdfs:comment "Resource demand forecasted" ;
+    rdfs:domain cap:ForecastingEngine ;
+    rdfs:range cap:DemandForecast .
+
+# Scaling Relationships
+cap:scales a owl:ObjectProperty ;
+    rdfs:label "scales" ;
+    rdfs:comment "Resource scaled by auto scaling system" ;
+    rdfs:domain cap:AutoScaling ;
+    rdfs:range ba:HardwareResource .
+
+cap:provisions a owl:ObjectProperty ;
+    rdfs:label "provisions" ;
+    rdfs:comment "Resource provisioned by provisioning system" ;
+    rdfs:domain cap:ResourceProvisioning ;
+    rdfs:range ba:HardwareResource .
+
+cap:optimizes a owl:ObjectProperty ;
+    rdfs:label "optimizes" ;
+    rdfs:comment "Resource optimized by optimization engine" ;
+    rdfs:domain cap:ResourceOptimization ;
+    rdfs:range ba:HardwareResource .
+
+# Monitoring Relationships
+cap:monitors a owl:ObjectProperty ;
+    rdfs:label "monitors" ;
+    rdfs:comment "Resource monitored by capacity monitoring" ;
+    rdfs:domain cap:CapacityMonitoring ;
+    rdfs:range ba:HardwareResource .
+
+cap:triggers a owl:ObjectProperty ;
+    rdfs:label "triggers" ;
+    rdfs:comment "Alert triggered by condition" ;
+    rdfs:domain ba:Condition ;
+    rdfs:range cap:CapacityAlert .
+
+# Reservation Relationships
+cap:reserves a owl:ObjectProperty ;
+    rdfs:label "reserves" ;
+    rdfs:comment "Resource reserved by reservation system" ;
+    rdfs:domain cap:ResourceReservation ;
+    rdfs:range ba:HardwareResource .
+
+cap:guarantees a owl:ObjectProperty ;
+    rdfs:label "guarantees" ;
+    rdfs:comment "Performance guaranteed by guarantee system" ;
+    rdfs:domain cap:PerformanceGuarantee ;
+    rdfs:range ba:PerformanceTarget .
+
+# Analysis Relationships
+cap:analyzes a owl:ObjectProperty ;
+    rdfs:label "analyzes" ;
+    rdfs:comment "Resource analyzed by efficiency analyzer" ;
+    rdfs:domain cap:EfficiencyAnalyzer ;
+    rdfs:range ba:HardwareResource .
+
+cap:basedOn a owl:ObjectProperty ;
+    rdfs:label "based on" ;
+    rdfs:comment "Forecast based on historical data" ;
+    rdfs:domain cap:CapacityForecast ;
+    rdfs:range ba:HistoricalData .
+
+# ============================================
+# SHACL VALIDATION SHAPES
+# ============================================
+
+cap:CapacityThresholdShape a sh:NodeShape ;
+    sh:targetClass cap:AutoScaling ;
+    rdfs:label "Capacity Threshold Validation" ;
+    rdfs:comment "Validates scaling thresholds are within safe ranges" ;
+    sh:property [
+        sh:path cap:scalingThreshold ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Scaling threshold must be between 0% and 100%"
+    ] ;
+    sh:property [
+        sh:path cap:scalingFactor ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.1 ; # Minimum 10% scaling increment
+        sh:maxInclusive 3.0 ; # Maximum 300% scaling increment
+        sh:message "Scaling factor must be between 1.1 and 3.0"
+    ] .
+
+cap:ResourceUtilizationShape a sh:NodeShape ;
+    sh:targetClass cap:UtilizationRate ;
+    rdfs:label "Resource Utilization Validation" ;
+    rdfs:comment "Validates resource utilization measurements" ;
+    sh:property [
+        sh:path cap:utilizationPercentage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Utilization percentage must be between 0% and 100%"
+    ] .
+
+cap:ForecastAccuracyShape a sh:NodeShape ;
+    sh:targetClass cap:CapacityForecast ;
+    rdfs:label "Forecast Accuracy Validation" ;
+    rdfs:comment "Validates forecast accuracy requirements" ;
+    sh:property [
+        sh:path cap:forecastAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.7 ; # Minimum 70% accuracy
+        sh:maxInclusive 1.0 ;
+        sh:message "Forecast accuracy must be at least 70%"
+    ] ;
+    sh:property [
+        sh:path cap:forecastPeriod ;
+        sh:datatype xsd:duration ;
+        sh:maxInclusive "P1Y"^^xsd:duration ; # Maximum 1 year forecast
+        sh:message "Forecast period must not exceed 1 year"
+    ] .
+
+cap:SLAComplianceShape a sh:NodeShape ;
+    sh:targetClass cap:CapacitySLA ;
+    rdfs:label "SLA Compliance Validation" ;
+    rdfs:comment "Validates capacity SLA targets are achievable" ;
+    sh:property [
+        sh:path cap:availabilityTarget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.95 ; # Minimum 95% availability
+        sh:maxInclusive 1.0 ;
+        sh:message "Availability target must be at least 95%"
+    ] ;
+    sh:property [
+        sh:path cap:guaranteedCapacity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Guaranteed capacity must be non-negative"
+    ] .
+
+cap:CostEfficiencyShape a sh:NodeShape ;
+    sh:targetClass cap:CostOptimization ;
+    rdfs:label "Cost Efficiency Validation" ;
+    rdfs:comment "Validates cost optimization targets" ;
+    sh:property [
+        sh:path cap:costEfficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.5 ; # Minimum 50% efficiency
+        sh:maxInclusive 1.0 ;
+        sh:message "Cost efficiency must be at least 50%"
+    ] .
+
+# ============================================
+# INSTANCES AND EXAMPLES
+# ============================================
+
+# Main ByteStar Capacity Planning System
+cap:ByteStarCapacityPlanning a cap:CapacityPlanningSystem ;
+    rdfs:label "ByteStar Capacity Planning System" ;
+    rdfs:comment "Central capacity planning system for ByteStar infrastructure" ;
+    ba:operationalStatus "ACTIVE" .
+
+# Resource Managers
+cap:ByteStarComputeManager a cap:ResourceManager ;
+    rdfs:label "ByteStar Compute Manager" ;
+    rdfs:comment "Manager for CPU and compute resources" ;
+    cap:totalCost 50000.0 ; # $50k/month
+    cap:manages cap:ByteStarComputePool .
+
+cap:ByteStarStorageManager a cap:ResourceManager ;
+    rdfs:label "ByteStar Storage Manager" ;
+    rdfs:comment "Manager for storage resources" ;
+    cap:totalCost 25000.0 ; # $25k/month
+    cap:manages cap:ByteStarStoragePool .
+
+# Resource Pools
+cap:ByteStarComputePool a cap:ComputeResource ;
+    rdfs:label "ByteStar Compute Pool" ;
+    rdfs:comment "Shared compute resource pool" ;
+    cap:totalCapacity 1000.0 ; # 1000 CPU cores
+    cap:usedCapacity 750.0 ; # 750 cores used
+    cap:availableCapacity 250.0 ; # 250 cores available
+    cap:costPerUnit 50.0 . # $50/core/month
+
+cap:ByteStarStoragePool a cap:StorageResource ;
+    rdfs:label "ByteStar Storage Pool" ;
+    rdfs:comment "Shared storage resource pool" ;
+    cap:totalCapacity 10000.0 ; # 10TB
+    cap:usedCapacity 6500.0 ; # 6.5TB used
+    cap:availableCapacity 3500.0 ; # 3.5TB available
+    cap:costPerUnit 0.10 . # $0.10/GB/month
+
+# Auto Scaling Configuration
+cap:ByteStarAutoScaling a cap:HorizontalScaling ;
+    rdfs:label "ByteStar Auto Scaling" ;
+    rdfs:comment "Horizontal auto scaling for compute instances" ;
+    cap:scalingThreshold 0.8 ; # Scale at 80% utilization
+    cap:scalingFactor 1.5 ; # Scale by 50%
+    cap:cooldownPeriod "PT5M"^^xsd:duration ; # 5 minute cooldown
+    cap:minInstances 3 ;
+    cap:maxInstances 20 .
+
+# Capacity Forecasting
+cap:ByteStarForecasting a cap:ForecastingEngine ;
+    rdfs:label "ByteStar Forecasting Engine" ;
+    rdfs:comment "Predictive capacity forecasting" ;
+    cap:forecasts cap:ByteStarCapacityForecast .
+
+cap:ByteStarCapacityForecast a cap:CapacityForecast ;
+    rdfs:label "ByteStar 6-Month Capacity Forecast" ;
+    rdfs:comment "6-month capacity demand forecast" ;
+    cap:forecastPeriod "P6M"^^xsd:duration ;
+    cap:forecastAccuracy 0.85 ; # 85% accuracy
+    cap:projectedDemand 1200.0 . # Projected 1200 cores needed
+
+# Growth Analysis
+cap:ByteStarGrowthAnalysis a cap:GrowthProjection ;
+    rdfs:label "ByteStar Growth Projection" ;
+    rdfs:comment "Resource demand growth analysis" ;
+    cap:growthRate 0.15 ; # 15% quarterly growth
+    cap:projectedDemand 1300.0 . # 1300 cores in 6 months
+
+# Capacity SLA
+cap:ByteStarCapacitySLA a cap:CapacitySLA ;
+    rdfs:label "ByteStar Capacity SLA" ;
+    rdfs:comment "Service level agreement for resource capacity" ;
+    cap:guaranteedCapacity 800.0 ; # Guaranteed 800 cores
+    cap:availabilityTarget 0.999 ; # 99.9% availability
+    cap:performanceTarget 5.0 . # 5ms response time
+
+# Optimization Systems
+cap:ByteStarCostOptimization a cap:CostOptimization ;
+    rdfs:label "ByteStar Cost Optimization" ;
+    rdfs:comment "Cost optimization for resource allocation" ;
+    cap:costEfficiency 0.85 ; # 85% cost efficiency
+    cap:optimizes cap:ByteStarComputePool, cap:ByteStarStoragePool .
+
+cap:ByteStarEfficiencyAnalyzer a cap:EfficiencyAnalyzer ;
+    rdfs:label "ByteStar Efficiency Analyzer" ;
+    rdfs:comment "Resource efficiency analysis system" ;
+    cap:resourceEfficiency 0.78 ; # 78% resource efficiency
+    cap:analyzes cap:ByteStarComputePool .
+
+# Monitoring and Alerting
+cap:ByteStarCapacityMonitoring a cap:CapacityMonitoring ;
+    rdfs:label "ByteStar Capacity Monitoring" ;
+    rdfs:comment "Real-time capacity monitoring" ;
+    cap:monitors cap:ByteStarComputePool, cap:ByteStarStoragePool .
+
+cap:ByteStarCapacityAlert a cap:PredictiveAlert ;
+    rdfs:label "ByteStar Capacity Alert" ;
+    rdfs:comment "Predictive capacity constraint alert" ;
+    rdfs:comment "Alert for projected capacity shortage in 30 days" .

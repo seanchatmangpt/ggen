@@ -1,0 +1,237 @@
+@prefix aat:     <urn:ontostar:aat:live:> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# AAT-Live LIVE Correlation Rules Ontology
+# ============================================================================
+#
+# Formally models the 16 AAT-Live LIVE correlation rules used between
+# wasm4pm and mcpp. Each rule specifies the required OTel span(s),
+# required trace attributes, coverage status, and the Rust check ID from
+# mcpp-server/src/aat/correlation.rs.
+#
+# Source of truth (read-only):
+#   wasm4pm/packages/observability/src/live-coverage.ts — LIVE_COVERAGE array
+#   mcpp/crates/mcpp-server/src/aat/correlation.rs       — CheckOutcome impls
+#
+# Coverage status values (xsd:string):
+#   'covered' — wasm4pm bridge emits required span with required attributes
+#   'partial' — span emitted but some required attributes may be missing
+#   'none'    — no wasm4pm bridge covers this rule yet
+# ============================================================================
+
+aat:Ontology a owl:Ontology ;
+  rdfs:label    "AAT-Live LIVE Correlation Rules"@en ;
+  rdfs:comment  "Formal OWL model of the 16 AAT-Live runtime correlation checks enforced between wasm4pm observability bridges and the mcpp-server AAT engine."@en ;
+  dcterms:creator "Sean Chatman" ;
+  dcterms:created "2026-05-17"^^xsd:date ;
+  dcterms:license <https://opensource.org/licenses/MIT> ;
+  owl:versionInfo "1.0.0" .
+
+# ── Core class ──────────────────────────────────────────────────────────────
+
+aat:LiveRule a owl:Class ;
+  rdfs:label   "Live Correlation Rule"@en ;
+  rdfs:comment "An AAT-Live correlation check that inspects captured OTel TraceRecords to verify runtime behaviour matches the declared process model. Each rule maps to a LIVE-NN identifier and a Rust CheckOutcome in mcpp-server."@en .
+
+# ── Data properties ─────────────────────────────────────────────────────────
+
+aat:requiredSpan a owl:DatatypeProperty ;
+  rdfs:label   "required span"@en ;
+  rdfs:comment "The OTel span name (or pipe-separated alternatives) that must be present in the correlated trace set for this rule to evaluate. Matches the closed-vocabulary identifiers from the Weaver registry."@en ;
+  rdfs:domain  aat:LiveRule ;
+  rdfs:range   xsd:string .
+
+aat:requiredAttribute a owl:DatatypeProperty ;
+  rdfs:label   "required attribute"@en ;
+  rdfs:comment "A single OTel attribute key that must be present and non-empty on the relevant span/event for this rule to pass. One triple per required attribute."@en ;
+  rdfs:domain  aat:LiveRule ;
+  rdfs:range   xsd:string .
+
+aat:coverageStatus a owl:DatatypeProperty ;
+  rdfs:label   "coverage status"@en ;
+  rdfs:comment "The current wasm4pm bridge coverage status: 'covered' (fully implemented), 'partial' (span emitted but some attributes missing or runtime-dependent), or 'none' (no bridge yet)."@en ;
+  rdfs:domain  aat:LiveRule ;
+  rdfs:range   xsd:string .
+
+aat:rustCheckId a owl:DatatypeProperty ;
+  rdfs:label   "Rust check ID"@en ;
+  rdfs:comment "The symbolic identifier of the corresponding CheckOutcome variant in mcpp-server/src/aat/correlation.rs (e.g. LiveTraceIncomplete)."@en ;
+  rdfs:domain  aat:LiveRule ;
+  rdfs:range   xsd:string .
+
+aat:coveredBy a owl:DatatypeProperty ;
+  rdfs:label   "covered by"@en ;
+  rdfs:comment "The wasm4pm module and function that implements the bridge for this rule, as declared in the LIVE_COVERAGE array in live-coverage.ts. Null when status is 'none'."@en ;
+  rdfs:domain  aat:LiveRule ;
+  rdfs:range   xsd:string .
+
+# ── Named individuals (LIVE-01 through LIVE-16) ──────────────────────────────
+
+aat:LIVE-01 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-01"@en ;
+  rdfs:comment        "All 5 spine spans present in correlated set"@en ;
+  aat:requiredSpan    "aat.run | mcp.tool_call | powl.route.evaluate | proof.aggregate | mcpp.verdict.emit" ;
+  aat:requiredAttribute "run.id" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "LiveTraceIncomplete" ;
+  aat:coveredBy       "observability/spine-bridge.ts → emitSpineRecord()" .
+
+aat:LIVE-02 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-02"@en ;
+  rdfs:comment        "proof.aggregate carries conformance dimensions"@en ;
+  aat:requiredSpan    "proof.aggregate" ;
+  aat:requiredAttribute "mcpp.conformance.fitness" ;
+  aat:requiredAttribute "mcpp.conformance.precision" ;
+  aat:requiredAttribute "run.id" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "LiveAcceptedWithoutProof" ;
+  aat:coveredBy       "contracts/ocel-bridge.ts → algorithm.complete vmap + observability/spine-bridge.ts" .
+
+aat:LIVE-03 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-03"@en ;
+  rdfs:comment        "Refused verdict carries refusal class"@en ;
+  aat:requiredSpan    "refused" ;
+  aat:requiredAttribute "mcpp.refusal_class" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "LiveReceiptLeakage" ;
+  aat:coveredBy       "contracts/ocel-bridge.ts → refused verdict vmap" .
+
+aat:LIVE-04 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-04"@en ;
+  rdfs:comment        "Actor cannot emit Accepted (authority check)"@en ;
+  aat:requiredSpan    "varies" ;
+  aat:requiredAttribute "mcpp.actor.role" ;
+  aat:requiredAttribute "mcpp.actor.can_emit_accepted" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "LiveActorAuthorityLeak" ;
+  aat:coveredBy       "observability/streaming-bridge.ts → toMcppLiveCorrelationEvent()" .
+
+aat:LIVE-05 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-05"@en ;
+  rdfs:comment        "Route conformance gap: erlang.actor.spawn with activity enablement proof"@en ;
+  aat:requiredSpan    "erlang.actor.spawn" ;
+  aat:requiredAttribute "mcpp.activity.id" ;
+  aat:requiredAttribute "powl.activity.id" ;
+  aat:requiredAttribute "powl.activity.predecessors_satisfied" ;
+  aat:requiredAttribute "powl.activity.objects_valid" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "LiveRouteConformanceGap" ;
+  aat:coveredBy       "observability/spine-bridge.ts → emitErlangActorSpawn()" .
+
+aat:LIVE-06 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-06"@en ;
+  rdfs:comment        "Part unbound: wasm.part.invoke with part manifest binding"@en ;
+  aat:requiredSpan    "wasm.part.invoke" ;
+  aat:requiredAttribute "wasm.part.id" ;
+  aat:requiredAttribute "wasm.part.manifest_hash" ;
+  aat:requiredAttribute "mcpp.part_hash" ;
+  aat:requiredAttribute "mcpp.route_hash" ;
+  aat:coverageStatus  "none" ;
+  aat:rustCheckId     "LivePartUnbound" .
+
+aat:LIVE-07 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-07"@en ;
+  rdfs:comment        "Silent AtomVM skip detection"@en ;
+  aat:requiredSpan    "atomvm.detect | atomvm.supported_skip" ;
+  aat:requiredAttribute "mcpp.atomvm.state" ;
+  aat:requiredAttribute "mcpp.atomvm.evidence_ref" ;
+  aat:coverageStatus  "partial" ;
+  aat:rustCheckId     "SilentAtomVmSkip" ;
+  aat:coveredBy       "observability/atomvm-bridge.ts → emitAtomVmDetect/emitAtomVmSupportedSkip (real AtomVM detection requires embedded runtime)" .
+
+aat:LIVE-08 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-08"@en ;
+  rdfs:comment        "Non-LLM origin marker on streaming records"@en ;
+  aat:requiredSpan    "varies" ;
+  aat:requiredAttribute "service.name" ;
+  aat:requiredAttribute "mcpp.llm_origin" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "LiveLLMRuntimeLeak" ;
+  aat:coveredBy       "observability/streaming-bridge.ts → service.name: \"wasm4pm.streaming\" + mcpp.llm_origin: false" .
+
+aat:LIVE-09 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-09"@en ;
+  rdfs:comment        "Gap closure lawful: gap events with correlation_id + alternate_evidence_received"@en ;
+  aat:requiredSpan    "powl.gap.detected | powl.gap.closed | powl.gap.exhausted | powl.gap.alternate_evidence_received" ;
+  aat:requiredAttribute "powl.gap.correlation_id" ;
+  aat:requiredAttribute "powl.gap.activity_id" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "GapClosureLawful" ;
+  aat:coveredBy       "swarm/gap-events.ts → emitGapDetected/Closed/Exhausted/AlternateEvidence (14 tests)" .
+
+aat:LIVE-10 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-10"@en ;
+  rdfs:comment        "Cross-enterprise relay: a2a.message with relay signature verification"@en ;
+  aat:requiredSpan    "a2a.message | a2a.message.relay_send | a2a.message.relay_receive | a2a.message.relay_forward" ;
+  aat:requiredAttribute "relay.cross_enterprise" ;
+  aat:requiredAttribute "relay.id" ;
+  aat:requiredAttribute "relay.signature" ;
+  aat:requiredAttribute "relay.signature_verified" ;
+  aat:requiredAttribute "relay.freshness_valid" ;
+  aat:coverageStatus  "partial" ;
+  aat:rustCheckId     "CrossEnterpriseRelayValid" ;
+  aat:coveredBy       "observability/relay-bridge.ts → emitA2aMessage/RelaySend/RelayReceive/RelayForward (all 5 required attributes; cryptographic verification performed by BEAM runtime)" .
+
+aat:LIVE-11 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-11"@en ;
+  rdfs:comment        "Real BEAM spawn latency: erlang.actor.spawn → powl.route.evaluate delta ≤ 500ms"@en ;
+  aat:requiredSpan    "erlang.actor.spawn | powl.route.evaluate" ;
+  aat:requiredAttribute "ts_ns" ;
+  aat:coverageStatus  "partial" ;
+  aat:rustCheckId     "RealBEAMSpawnLatency" ;
+  aat:coveredBy       "observability/spine-bridge.ts → computeSpawnLatencyMs() (delta ≤ 500ms check; real BEAM spawn requires BEAM runtime)" .
+
+aat:LIVE-12 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-12"@en ;
+  rdfs:comment        "OTel export success span with positive span_count after flush"@en ;
+  aat:requiredSpan    "otel.trace.export_success" ;
+  aat:requiredAttribute "otel.exporter.span_count" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "OTelTraceExportComplete" ;
+  aat:coveredBy       "observability/otel-exporter.ts → doFlush() with events.length > 0 guard (span_count is always >0 when span exists)" .
+
+aat:LIVE-13 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-13"@en ;
+  rdfs:comment        "Receipt signed by live aggregator: receipt.emit with signer=proof_aggregator"@en ;
+  aat:requiredSpan    "receipt.emit" ;
+  aat:requiredAttribute "mcpp.receipt.signer" ;
+  aat:requiredAttribute "mcpp.receipt.signature" ;
+  aat:coverageStatus  "covered" ;
+  aat:rustCheckId     "ReceiptSignedByLiveAggregator" ;
+  aat:coveredBy       "contracts/receipt-emit-bridge.ts → emitReceiptEmit() (signer: \"proof_aggregator\", signature: output_hash)" .
+
+aat:LIVE-14 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-14"@en ;
+  rdfs:comment        "Distributed aggregator origin: mcpp.verdict.emit in ModeC_Distributed with proof_aggregator role"@en ;
+  aat:requiredSpan    "mcpp.verdict.emit | erlang.actor.spawn" ;
+  aat:requiredAttribute "mcpp.runtime.mode" ;
+  aat:requiredAttribute "mcpp.actor.role" ;
+  aat:requiredAttribute "mcpp.actor.can_emit_accepted" ;
+  aat:coverageStatus  "partial" ;
+  aat:rustCheckId     "DistributedAggregatorOrigin" ;
+  aat:coveredBy       "observability/spine-bridge.ts → emitMcppVerdict (runtimeMode field covers mcpp.runtime.mode; full ModeC_Distributed requires BEAM runtime)" .
+
+aat:LIVE-15 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-15"@en ;
+  rdfs:comment        "Healthcare privacy compliance: patient data with consent present"@en ;
+  aat:requiredSpan    "any" ;
+  aat:requiredAttribute "mcpp.healthcare.patient_data" ;
+  aat:requiredAttribute "mcpp.consent_present" ;
+  aat:coverageStatus  "partial" ;
+  aat:rustCheckId     "HealthcarePrivacyCompliance" ;
+  aat:coveredBy       "observability/healthcare-bridge.ts → emitHealthcarePrivacyCheck" .
+
+aat:LIVE-16 a owl:NamedIndividual, aat:LiveRule ;
+  rdfs:label          "LIVE-16"@en ;
+  rdfs:comment        "MedWatch temporal filing compliance gate"@en ;
+  aat:requiredSpan    "any" ;
+  aat:requiredAttribute "fda.medwatch.filing" ;
+  aat:requiredAttribute "mcpp.healthcare.awareness_timestamp" ;
+  aat:coverageStatus  "partial" ;
+  aat:rustCheckId     "TemporalFilingComplianceGate" ;
+  aat:coveredBy       "observability/healthcare-bridge.ts → emitMedWatchFiling" .

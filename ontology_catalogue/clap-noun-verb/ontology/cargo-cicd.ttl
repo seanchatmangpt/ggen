@@ -1,0 +1,292 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix cnv: <http://clap-noun-verb.io/ontology#> .
+@prefix cicd: <http://cargo-cicd.io/ontology#> .
+
+# ============================================================================
+# Cargo CI/CD Ontology
+# ============================================================================
+# Domain ontology for cargo-cicd noun-verb CLI application
+# Defines command structure, dependencies, and metadata for Rust/Cargo tooling
+#
+# This ontology extends the clap-noun-verb base ontology with domain-specific
+# concepts for CI/CD operations, workspace management, and release engineering.
+
+cicd: a owl:Ontology ;
+    rdfs:label "Cargo CI/CD CLI Ontology"@en ;
+    rdfs:comment "Defines domain model for cargo-cicd noun-verb CLI application"@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-06-02"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "26.6.1" ;
+    owl:imports <http://clap-noun-verb.io/ontology#> .
+
+# ============================================================================
+# NOUN CLASSES - Domain Entities
+# ============================================================================
+
+# NOUN: target
+cicd:TargetNoun a cnv:Noun ;
+    cnv:hasNounName "target"@en ;
+    cnv:nounAbout "Manage build targets, architectures, and platform configurations"@en ;
+    cnv:hasVerbs cicd:TargetShowVerb, cicd:TargetListVerb, cicd:TargetInstallVerb .
+
+# NOUN: test
+cicd:TestNoun a cnv:Noun ;
+    cnv:hasNounName "test"@en ;
+    cnv:nounAbout "Run test suites, manage test coverage, and validate crate health"@en ;
+    cnv:hasVerbs cicd:TestRunVerb, cicd:TestCoverageVerb, cicd:TestDocVerb .
+
+# NOUN: trybuild
+cicd:TrybuildNoun a cnv:Noun ;
+    cnv:hasNounName "trybuild"@en ;
+    cnv:nounAbout "Manage UI test snapshots and compile-fail test cases"@en ;
+    cnv:hasVerbs cicd:TrybuildPruneVerb, cicd:TrybuildAcceptVerb .
+
+# NOUN: git
+cicd:GitNoun a cnv:Noun ;
+    cnv:hasNounName "git"@en ;
+    cnv:nounAbout "Manage git workflows, branches, tags, and release preparation"@en ;
+    cnv:hasVerbs cicd:GitChangedVerb, cicd:GitCloseVerb, cicd:GitReleaseVerb .
+
+# NOUN: workspace
+cicd:WorkspaceNoun a cnv:Noun ;
+    cnv:hasNounName "workspace"@en ;
+    cnv:nounAbout "Analyze workspace structure, crate dependencies, and member validation"@en ;
+    cnv:hasVerbs cicd:WorkspaceDoctorVerb, cicd:WorkspaceGraphVerb, cicd:WorkspacePublishVerb .
+
+# ============================================================================
+# VERB CLASSES - Actions
+# ============================================================================
+
+# VERBS for target noun
+cicd:TargetShowVerb a cnv:Verb ;
+    cnv:hasVerbName "show"@en ;
+    cnv:verbAbout "Display all installed targets and their details"@en ;
+    cnv:belongsToNoun cicd:TargetNoun ;
+    cnv:returnType "List<String>"@en ;
+    cnv:outputFormat "json" .
+
+cicd:TargetListVerb a cnv:Verb ;
+    cnv:hasVerbName "list"@en ;
+    cnv:verbAbout "List available targets for installation"@en ;
+    cnv:belongsToNoun cicd:TargetNoun ;
+    cnv:returnType "Vec<Target>"@en ;
+    cnv:outputFormat "table" .
+
+cicd:TargetInstallVerb a cnv:Verb ;
+    cnv:hasVerbName "install"@en ;
+    cnv:verbAbout "Install a new Rust target toolchain"@en ;
+    cnv:belongsToNoun cicd:TargetNoun ;
+    cnv:returnType "InstallResult"@en ;
+    cnv:outputFormat "json" ;
+    cnv:hasArguments cicd:TargetArg .
+
+# VERBS for test noun
+cicd:TestRunVerb a cnv:Verb ;
+    cnv:hasVerbName "run"@en ;
+    cnv:verbAbout "Run test suites with configurable concurrency and filters"@en ;
+    cnv:belongsToNoun cicd:TestNoun ;
+    cnv:returnType "TestResults"@en ;
+    cnv:outputFormat "json" ;
+    cnv:hasArguments cicd:FilterArg, cicd:ConcurrencyArg .
+
+cicd:TestCoverageVerb a cnv:Verb ;
+    cnv:hasVerbName "coverage"@en ;
+    cnv:verbAbout "Generate and report test coverage metrics"@en ;
+    cnv:belongsToNoun cicd:TestNoun ;
+    cnv:returnType "CoverageReport"@en ;
+    cnv:outputFormat "json" .
+
+cicd:TestDocVerb a cnv:Verb ;
+    cnv:hasVerbName "doc"@en ;
+    cnv:verbAbout "Run rustdoc tests and verify documentation examples"@en ;
+    cnv:belongsToNoun cicd:TestNoun ;
+    cnv:returnType "DocTestResults"@en ;
+    cnv:outputFormat "json" .
+
+# VERBS for trybuild noun
+cicd:TrybuildPruneVerb a cnv:Verb ;
+    cnv:hasVerbName "prune"@en ;
+    cnv:verbAbout "Remove stale UI test snapshots and compile-fail artifacts"@en ;
+    cnv:belongsToNoun cicd:TrybuildNoun ;
+    cnv:returnType "PruneStats"@en ;
+    cnv:outputFormat "json" .
+
+cicd:TrybuildAcceptVerb a cnv:Verb ;
+    cnv:hasVerbName "accept"@en ;
+    cnv:verbAbout "Accept current UI test output as the new baseline"@en ;
+    cnv:belongsToNoun cicd:TrybuildNoun ;
+    cnv:returnType "AcceptResult"@en ;
+    cnv:outputFormat "json" ;
+    cnv:hasArguments cicd:TrybuildPathArg .
+
+# VERBS for git noun
+cicd:GitChangedVerb a cnv:Verb ;
+    cnv:hasVerbName "changed"@en ;
+    cnv:verbAbout "Show changed crates since last release tag"@en ;
+    cnv:belongsToNoun cicd:GitNoun ;
+    cnv:returnType "Vec<String>"@en ;
+    cnv:outputFormat "table" ;
+    cnv:hasArguments cicd:SinceArg .
+
+cicd:GitCloseVerb a cnv:Verb ;
+    cnv:hasVerbName "close"@en ;
+    cnv:verbAbout "Close a release branch and merge to main"@en ;
+    cnv:belongsToNoun cicd:GitNoun ;
+    cnv:returnType "GitResult"@en ;
+    cnv:outputFormat "json" ;
+    cnv:hasArguments cicd:BranchArg .
+
+cicd:GitReleaseVerb a cnv:Verb ;
+    cnv:hasVerbName "release"@en ;
+    cnv:verbAbout "Prepare and tag a new release"@en ;
+    cnv:belongsToNoun cicd:GitNoun ;
+    cnv:returnType "ReleaseInfo"@en ;
+    cnv:outputFormat "json" ;
+    cnv:hasArguments cicd:VersionArg .
+
+# VERBS for workspace noun
+cicd:WorkspaceDoctorVerb a cnv:Verb ;
+    cnv:hasVerbName "doctor"@en ;
+    cnv:verbAbout "Diagnose workspace health and report issues"@en ;
+    cnv:belongsToNoun cicd:WorkspaceNoun ;
+    cnv:returnType "DiagnosticReport"@en ;
+    cnv:outputFormat "json" .
+
+cicd:WorkspaceGraphVerb a cnv:Verb ;
+    cnv:hasVerbName "graph"@en ;
+    cnv:verbAbout "Visualize workspace member dependency graph"@en ;
+    cnv:belongsToNoun cicd:WorkspaceNoun ;
+    cnv:returnType "DependencyGraph"@en ;
+    cnv:outputFormat "dot" .
+
+cicd:WorkspacePublishVerb a cnv:Verb ;
+    cnv:hasVerbName "publish"@en ;
+    cnv:verbAbout "Publish all workspace members to crates.io in dependency order"@en ;
+    cnv:belongsToNoun cicd:WorkspaceNoun ;
+    cnv:returnType "PublishResults"@en ;
+    cnv:outputFormat "json" ;
+    cnv:hasArguments cicd:DryRunArg, cicd:TokenArg .
+
+# ============================================================================
+# ARGUMENT CLASSES - CLI Parameters
+# ============================================================================
+
+cicd:TargetArg a cnv:Argument ;
+    cnv:argName "target"@en ;
+    cnv:argDescription "Target triple (e.g., x86_64-unknown-linux-gnu)"@en ;
+    cnv:argType "String" ;
+    cnv:isRequired true .
+
+cicd:FilterArg a cnv:Argument ;
+    cnv:argName "filter"@en ;
+    cnv:argDescription "Filter test names (substring match)"@en ;
+    cnv:argType "Option<String>" ;
+    cnv:isRequired false ;
+    cnv:shortForm "f"@en .
+
+cicd:ConcurrencyArg a cnv:Argument ;
+    cnv:argName "jobs"@en ;
+    cnv:argDescription "Number of parallel test threads"@en ;
+    cnv:argType "Option<usize>" ;
+    cnv:isRequired false ;
+    cnv:shortForm "j"@en .
+
+cicd:TrybuildPathArg a cnv:Argument ;
+    cnv:argName "path"@en ;
+    cnv:argDescription "Path to specific test to accept"@en ;
+    cnv:argType "Option<PathBuf>" ;
+    cnv:isRequired false .
+
+cicd:SinceArg a cnv:Argument ;
+    cnv:argName "since"@en ;
+    cnv:argDescription "Compare against this tag/commit (default: last release)"@en ;
+    cnv:argType "Option<String>" ;
+    cnv:isRequired false .
+
+cicd:BranchArg a cnv:Argument ;
+    cnv:argName "branch"@en ;
+    cnv:argDescription "Branch name to close"@en ;
+    cnv:argType "String" ;
+    cnv:isRequired true .
+
+cicd:VersionArg a cnv:Argument ;
+    cnv:argName "version"@en ;
+    cnv:argDescription "Version string (semantic versioning)"@en ;
+    cnv:argType "String" ;
+    cnv:isRequired true ;
+    cnv:validation "semver"@en .
+
+cicd:DryRunArg a cnv:Argument ;
+    cnv:argName "dry-run"@en ;
+    cnv:argDescription "Perform a dry run without publishing"@en ;
+    cnv:argType "bool" ;
+    cnv:isRequired false ;
+    cnv:shortForm "n"@en .
+
+cicd:TokenArg a cnv:Argument ;
+    cnv:argName "token"@en ;
+    cnv:argDescription "crates.io API token (env var: CARGO_REGISTRY_TOKEN)"@en ;
+    cnv:argType "String" ;
+    cnv:isRequired false ;
+    cnv:valueSource "env:CARGO_REGISTRY_TOKEN"@en .
+
+# ============================================================================
+# OUTPUT TYPE DEFINITIONS
+# ============================================================================
+
+cicd:TestResults a owl:Class ;
+    rdfs:label "Test Results"@en ;
+    rdfs:comment "Aggregated test execution results with counts and failures"@en ;
+    rdfs:subClassOf cnv:OutputType .
+
+cicd:CoverageReport a owl:Class ;
+    rdfs:label "Coverage Report"@en ;
+    rdfs:comment "Code coverage metrics per crate"@en ;
+    rdfs:subClassOf cnv:OutputType .
+
+cicd:DiagnosticReport a owl:Class ;
+    rdfs:label "Diagnostic Report"@en ;
+    rdfs:comment "Workspace health check results"@en ;
+    rdfs:subClassOf cnv:OutputType .
+
+cicd:DependencyGraph a owl:Class ;
+    rdfs:label "Dependency Graph"@en ;
+    rdfs:comment "Workspace member dependency relationships"@en ;
+    rdfs:subClassOf cnv:OutputType .
+
+cicd:PublishResults a owl:Class ;
+    rdfs:label "Publish Results"@en ;
+    rdfs:comment "Per-crate publication outcomes"@en ;
+    rdfs:subClassOf cnv:OutputType .
+
+# ============================================================================
+# RELATIONSHIPS & METADATA
+# ============================================================================
+
+# Workspace validation constraints
+cicd:requiresWorkspaceLockfile a rdf:Property ;
+    rdfs:label "requires workspace lockfile"@en ;
+    rdfs:domain cicd:WorkspaceDoctorVerb ;
+    rdfs:range xsd:boolean .
+
+cicd:requiresGitRepository a rdf:Property ;
+    rdfs:label "requires git repository"@en ;
+    rdfs:domain cicd:GitNoun ;
+    rdfs:range xsd:boolean .
+
+cicd:affectsReleaseVersion a rdf:Property ;
+    rdfs:label "affects release version"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:boolean .
+
+# Documentation requirements
+cicd:documentationRequired a rdf:Property ;
+    rdfs:label "documentation required"@en ;
+    rdfs:comment "Whether this command requires update to CHANGELOG or release notes"@en ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:boolean .

@@ -1,0 +1,438 @@
+# =============================================================================
+# Task Management Application - Instance Data
+# =============================================================================
+# A complete task management app with Users, Tasks, Projects, and Tags
+# Source of truth for generating OpenAPI, TypeScript, Drizzle, shadcn/ui
+# =============================================================================
+
+@prefix task: <https://ggen.io/examples/taskapp#> .
+@prefix napi: <https://ggen.io/ontology/nextjs-api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# API Specification
+# =============================================================================
+
+task:TaskAppAPI a napi:Specification ;
+    napi:title "Task Management API" ;
+    napi:version "1.0.0" ;
+    napi:description "RESTful API for task management" .
+
+# =============================================================================
+# USER ENTITY
+# =============================================================================
+
+task:User a napi:Entity ;
+    napi:name "User" ;
+    rdfs:comment "Application user" ;
+    napi:hasProperty task:User_id, task:User_name, task:User_email,
+                     task:User_avatar, task:User_createdAt ;
+    napi:hasEndpoint task:ListUsers, task:CreateUser, task:GetUser,
+                     task:UpdateUser, task:DeleteUser .
+
+task:User_id a napi:Property ;
+    napi:name "id" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:isPrimaryKey true .
+
+task:User_name a napi:Property ;
+    napi:name "name" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:minLength 1 ;
+    napi:maxLength 100 .
+
+task:User_email a napi:Property ;
+    napi:name "email" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:format "email" ;
+    napi:isUnique true .
+
+task:User_avatar a napi:Property ;
+    napi:name "avatar" ;
+    napi:type "string" ;
+    napi:required false .
+
+task:User_createdAt a napi:Property ;
+    napi:name "createdAt" ;
+    napi:type "datetime" ;
+    napi:required true .
+
+# =============================================================================
+# TASK ENTITY
+# =============================================================================
+
+task:Task a napi:Entity ;
+    napi:name "Task" ;
+    rdfs:comment "A task item" ;
+    napi:hasProperty task:Task_id, task:Task_title, task:Task_description,
+                     task:Task_status, task:Task_priority, task:Task_dueDate,
+                     task:Task_userId, task:Task_projectId, task:Task_createdAt ;
+    napi:hasEndpoint task:ListTasks, task:CreateTask, task:GetTask,
+                     task:UpdateTask, task:DeleteTask .
+
+task:Task_id a napi:Property ;
+    napi:name "id" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:isPrimaryKey true .
+
+task:Task_title a napi:Property ;
+    napi:name "title" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:minLength 1 ;
+    napi:maxLength 200 .
+
+task:Task_description a napi:Property ;
+    napi:name "description" ;
+    napi:type "string" ;
+    napi:required false ;
+    napi:maxLength 2000 .
+
+task:Task_status a napi:Property ;
+    napi:name "status" ;
+    napi:type "enum" ;
+    napi:required true ;
+    napi:enumValues "todo,in_progress,done" .
+
+task:Task_priority a napi:Property ;
+    napi:name "priority" ;
+    napi:type "enum" ;
+    napi:required true ;
+    napi:enumValues "low,medium,high" .
+
+task:Task_dueDate a napi:Property ;
+    napi:name "dueDate" ;
+    napi:type "datetime" ;
+    napi:required false .
+
+task:Task_userId a napi:Property ;
+    napi:name "userId" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:references task:User .
+
+task:Task_projectId a napi:Property ;
+    napi:name "projectId" ;
+    napi:type "string" ;
+    napi:required false ;
+    napi:references task:Project .
+
+task:Task_createdAt a napi:Property ;
+    napi:name "createdAt" ;
+    napi:type "datetime" ;
+    napi:required true .
+
+# =============================================================================
+# PROJECT ENTITY
+# =============================================================================
+
+task:Project a napi:Entity ;
+    napi:name "Project" ;
+    rdfs:comment "A project for organizing tasks" ;
+    napi:hasProperty task:Project_id, task:Project_name, task:Project_description,
+                     task:Project_color, task:Project_userId, task:Project_createdAt ;
+    napi:hasEndpoint task:ListProjects, task:CreateProject, task:GetProject,
+                     task:UpdateProject, task:DeleteProject .
+
+task:Project_id a napi:Property ;
+    napi:name "id" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:isPrimaryKey true .
+
+task:Project_name a napi:Property ;
+    napi:name "name" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:minLength 1 ;
+    napi:maxLength 100 .
+
+task:Project_description a napi:Property ;
+    napi:name "description" ;
+    napi:type "string" ;
+    napi:required false ;
+    napi:maxLength 1000 .
+
+task:Project_color a napi:Property ;
+    napi:name "color" ;
+    napi:type "string" ;
+    napi:required false ;
+    napi:pattern "^#[0-9A-Fa-f]{6}$" .
+
+task:Project_userId a napi:Property ;
+    napi:name "userId" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:references task:User .
+
+task:Project_createdAt a napi:Property ;
+    napi:name "createdAt" ;
+    napi:type "datetime" ;
+    napi:required true .
+
+# =============================================================================
+# TAG ENTITY
+# =============================================================================
+
+task:Tag a napi:Entity ;
+    napi:name "Tag" ;
+    rdfs:comment "A tag for categorizing tasks" ;
+    napi:hasProperty task:Tag_id, task:Tag_name, task:Tag_color ;
+    napi:hasEndpoint task:ListTags, task:CreateTag, task:GetTag,
+                     task:UpdateTag, task:DeleteTag .
+
+task:Tag_id a napi:Property ;
+    napi:name "id" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:isPrimaryKey true .
+
+task:Tag_name a napi:Property ;
+    napi:name "name" ;
+    napi:type "string" ;
+    napi:required true ;
+    napi:isUnique true ;
+    napi:minLength 1 ;
+    napi:maxLength 50 .
+
+task:Tag_color a napi:Property ;
+    napi:name "color" ;
+    napi:type "string" ;
+    napi:required false ;
+    napi:pattern "^#[0-9A-Fa-f]{6}$" .
+
+# =============================================================================
+# USER ENDPOINTS
+# =============================================================================
+
+task:ListUsers a napi:Endpoint ;
+    napi:path "/api/users" ;
+    napi:method "GET" ;
+    napi:operationId "listUsers" ;
+    napi:description "List all users" ;
+    napi:returns task:User .
+
+task:CreateUser a napi:Endpoint ;
+    napi:path "/api/users" ;
+    napi:method "POST" ;
+    napi:operationId "createUser" ;
+    napi:description "Create a new user" ;
+    napi:accepts task:User ;
+    napi:returns task:User .
+
+task:GetUser a napi:Endpoint ;
+    napi:path "/api/users/[id]" ;
+    napi:method "GET" ;
+    napi:operationId "getUser" ;
+    napi:description "Get user by ID" ;
+    napi:returns task:User .
+
+task:UpdateUser a napi:Endpoint ;
+    napi:path "/api/users/[id]" ;
+    napi:method "PUT" ;
+    napi:operationId "updateUser" ;
+    napi:description "Update user" ;
+    napi:accepts task:User ;
+    napi:returns task:User .
+
+task:DeleteUser a napi:Endpoint ;
+    napi:path "/api/users/[id]" ;
+    napi:method "DELETE" ;
+    napi:operationId "deleteUser" ;
+    napi:description "Delete user" .
+
+# =============================================================================
+# TASK ENDPOINTS
+# =============================================================================
+
+task:ListTasks a napi:Endpoint ;
+    napi:path "/api/tasks" ;
+    napi:method "GET" ;
+    napi:operationId "listTasks" ;
+    napi:description "List all tasks" ;
+    napi:returns task:Task .
+
+task:CreateTask a napi:Endpoint ;
+    napi:path "/api/tasks" ;
+    napi:method "POST" ;
+    napi:operationId "createTask" ;
+    napi:description "Create a new task" ;
+    napi:accepts task:Task ;
+    napi:returns task:Task .
+
+task:GetTask a napi:Endpoint ;
+    napi:path "/api/tasks/[id]" ;
+    napi:method "GET" ;
+    napi:operationId "getTask" ;
+    napi:description "Get task by ID" ;
+    napi:returns task:Task .
+
+task:UpdateTask a napi:Endpoint ;
+    napi:path "/api/tasks/[id]" ;
+    napi:method "PUT" ;
+    napi:operationId "updateTask" ;
+    napi:description "Update task" ;
+    napi:accepts task:Task ;
+    napi:returns task:Task .
+
+task:DeleteTask a napi:Endpoint ;
+    napi:path "/api/tasks/[id]" ;
+    napi:method "DELETE" ;
+    napi:operationId "deleteTask" ;
+    napi:description "Delete task" .
+
+# =============================================================================
+# PROJECT ENDPOINTS
+# =============================================================================
+
+task:ListProjects a napi:Endpoint ;
+    napi:path "/api/projects" ;
+    napi:method "GET" ;
+    napi:operationId "listProjects" ;
+    napi:description "List all projects" ;
+    napi:returns task:Project .
+
+task:CreateProject a napi:Endpoint ;
+    napi:path "/api/projects" ;
+    napi:method "POST" ;
+    napi:operationId "createProject" ;
+    napi:description "Create a new project" ;
+    napi:accepts task:Project ;
+    napi:returns task:Project .
+
+task:GetProject a napi:Endpoint ;
+    napi:path "/api/projects/[id]" ;
+    napi:method "GET" ;
+    napi:operationId "getProject" ;
+    napi:description "Get project by ID" ;
+    napi:returns task:Project .
+
+task:UpdateProject a napi:Endpoint ;
+    napi:path "/api/projects/[id]" ;
+    napi:method "PUT" ;
+    napi:operationId "updateProject" ;
+    napi:description "Update project" ;
+    napi:accepts task:Project ;
+    napi:returns task:Project .
+
+task:DeleteProject a napi:Endpoint ;
+    napi:path "/api/projects/[id]" ;
+    napi:method "DELETE" ;
+    napi:operationId "deleteProject" ;
+    napi:description "Delete project" .
+
+# =============================================================================
+# TAG ENDPOINTS
+# =============================================================================
+
+task:ListTags a napi:Endpoint ;
+    napi:path "/api/tags" ;
+    napi:method "GET" ;
+    napi:operationId "listTags" ;
+    napi:description "List all tags" ;
+    napi:returns task:Tag .
+
+task:CreateTag a napi:Endpoint ;
+    napi:path "/api/tags" ;
+    napi:method "POST" ;
+    napi:operationId "createTag" ;
+    napi:description "Create a new tag" ;
+    napi:accepts task:Tag ;
+    napi:returns task:Tag .
+
+task:GetTag a napi:Endpoint ;
+    napi:path "/api/tags/[id]" ;
+    napi:method "GET" ;
+    napi:operationId "getTag" ;
+    napi:description "Get tag by ID" ;
+    napi:returns task:Tag .
+
+task:UpdateTag a napi:Endpoint ;
+    napi:path "/api/tags/[id]" ;
+    napi:method "PUT" ;
+    napi:operationId "updateTag" ;
+    napi:description "Update tag" ;
+    napi:accepts task:Tag ;
+    napi:returns task:Tag .
+
+task:DeleteTag a napi:Endpoint ;
+    napi:path "/api/tags/[id]" ;
+    napi:method "DELETE" ;
+    napi:operationId "deleteTag" ;
+    napi:description "Delete tag" .
+
+# =============================================================================
+# PAGES
+# =============================================================================
+
+task:DashboardPage a napi:Page ;
+    napi:pagePath "/" ;
+    napi:pageTitle "Dashboard" ;
+    napi:pageType "dashboard" ;
+    napi:usesComponent task:TaskListComponent, task:HeaderComponent .
+
+task:TasksPage a napi:Page ;
+    napi:pagePath "/tasks" ;
+    napi:pageTitle "Tasks" ;
+    napi:pageType "list" ;
+    napi:usesComponent task:TaskListComponent, task:TaskFormComponent .
+
+task:TaskDetailPage a napi:Page ;
+    napi:pagePath "/tasks/[id]" ;
+    napi:pageTitle "Task Details" ;
+    napi:pageType "detail" ;
+    napi:usesComponent task:TaskCardComponent, task:TaskFormComponent .
+
+task:ProjectsPage a napi:Page ;
+    napi:pagePath "/projects" ;
+    napi:pageTitle "Projects" ;
+    napi:pageType "list" ;
+    napi:usesComponent task:ProjectListComponent .
+
+task:SettingsPage a napi:Page ;
+    napi:pagePath "/settings" ;
+    napi:pageTitle "Settings" ;
+    napi:pageType "detail" ;
+    napi:usesComponent task:UserAvatarComponent .
+
+# =============================================================================
+# COMPONENTS
+# =============================================================================
+
+task:TaskCardComponent a napi:Component ;
+    napi:componentName "TaskCard" ;
+    napi:componentType "Card" .
+
+task:TaskListComponent a napi:Component ;
+    napi:componentName "TaskList" ;
+    napi:componentType "List" .
+
+task:TaskFormComponent a napi:Component ;
+    napi:componentName "TaskForm" ;
+    napi:componentType "Form" .
+
+task:ProjectCardComponent a napi:Component ;
+    napi:componentName "ProjectCard" ;
+    napi:componentType "Card" .
+
+task:ProjectListComponent a napi:Component ;
+    napi:componentName "ProjectList" ;
+    napi:componentType "List" .
+
+task:UserAvatarComponent a napi:Component ;
+    napi:componentName "UserAvatar" ;
+    napi:componentType "Display" .
+
+task:HeaderComponent a napi:Component ;
+    napi:componentName "Header" ;
+    napi:componentType "Layout" .
+
+task:SidebarComponent a napi:Component ;
+    napi:componentName "Sidebar" ;
+    napi:componentType "Layout" .

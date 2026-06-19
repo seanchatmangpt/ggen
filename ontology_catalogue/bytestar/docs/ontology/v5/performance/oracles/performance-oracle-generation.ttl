@@ -1,0 +1,834 @@
+@prefix : <http://bytestar.org/ontology/performance-oracles#> .
+@prefix ba: <http://bytestar.org/ontology/byteactor#> .
+@prefix doctrine: <http://bytestar.org/ontology/doctrine-of-8#> .
+@prefix perf: <http://bytestar.org/ontology/performance-measurement#> .
+@prefix benchmark: <http://bytestar.org/ontology/performance-benchmark#> .
+@prefix regression: <http://bytestar.org/ontology/regression-detection#> .
+@prefix opt: <http://bytestar.org/ontology/optimization-engine#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<http://bytestar.org/ontology/performance-oracles> rdf:type owl:Ontology ;
+    dct:title "Performance Oracle Generation Tools"@en ;
+    dct:description """AI-driven performance oracle generation system for predicting
+    crystal operation performance characteristics under Doctrine of 8. Includes
+    machine learning models, statistical oracles, hybrid prediction systems, and
+    automated oracle validation with continuous learning capabilities."""@en ;
+    dct:creator "ByteStar AI Performance Team"@en ;
+    dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    owl:versionInfo "5.0.0-performance-oracles"@en ;
+    owl:imports <http://bytestar.org/ontology/doctrine-of-8> ,
+                <http://bytestar.org/ontology/performance-measurement> ,
+                <http://bytestar.org/ontology/performance-benchmark> ,
+                <http://bytestar.org/ontology/regression-detection> ,
+                <http://bytestar.org/ontology/optimization-engine> .
+
+#################################################################
+#    Performance Oracle Core Classes
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#PerformanceOracle
+:PerformanceOracle rdf:type owl:Class ;
+                  rdfs:subClassOf benchmark:PerformanceOracle ;
+                  rdfs:label "Enhanced Performance Oracle"@en ;
+                  rdfs:comment """AI-enhanced oracle system predicting performance
+                  characteristics with high accuracy and confidence."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#OracleGenerator
+:OracleGenerator rdf:type owl:Class ;
+                rdfs:subClassOf ba:SystemComponent ;
+                rdfs:label "Oracle Generator"@en ;
+                rdfs:comment """Generator creating performance oracles from
+                historical data and system characteristics."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#PredictionEngine
+:PredictionEngine rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceOracle ;
+                 rdfs:label "Prediction Engine"@en ;
+                 rdfs:comment """Engine generating performance predictions
+                 using multiple algorithms and models."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#OracleValidator
+:OracleValidator rdf:type owl:Class ;
+                rdfs:subClassOf benchmark:PerformanceValidator ;
+                rdfs:label "Oracle Validator"@en ;
+                rdfs:comment """Validator ensuring oracle accuracy and
+                reliability through continuous validation."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#LearningOracle
+:LearningOracle rdf:type owl:Class ;
+               rdfs:subClassOf :PerformanceOracle ;
+               rdfs:label "Learning Oracle"@en ;
+               rdfs:comment """Oracle with continuous learning capabilities
+               that improves over time with new data."""@en .
+
+#################################################################
+#    Oracle Types & Specializations
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#StatisticalOracle
+:StatisticalOracle rdf:type owl:Class ;
+                  rdfs:subClassOf :PerformanceOracle ;
+                  rdfs:label "Statistical Oracle"@en ;
+                  rdfs:comment """Oracle based on statistical models and
+                  mathematical analysis of performance data."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#MachineLearningOracle
+:MachineLearningOracle rdf:type owl:Class ;
+                      rdfs:subClassOf :PerformanceOracle ;
+                      rdfs:label "Machine Learning Oracle"@en ;
+                      rdfs:comment """Oracle powered by machine learning
+                      algorithms and neural networks."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#HybridOracle
+:HybridOracle rdf:type owl:Class ;
+             rdfs:subClassOf :PerformanceOracle ;
+             rdfs:label "Hybrid Oracle"@en ;
+             rdfs:comment """Oracle combining statistical methods with
+             machine learning for enhanced accuracy."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#RealTimeOracle
+:RealTimeOracle rdf:type owl:Class ;
+               rdfs:subClassOf :PerformanceOracle ;
+               rdfs:label "Real-Time Oracle"@en ;
+               rdfs:comment """Oracle providing real-time performance
+               predictions with sub-tick response times."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#PredictiveOracle
+:PredictiveOracle rdf:type owl:Class ;
+                 rdfs:subClassOf :PerformanceOracle ;
+                 rdfs:label "Predictive Oracle"@en ;
+                 rdfs:comment """Oracle predicting future performance
+                 based on current trends and patterns."""@en .
+
+#################################################################
+#    Machine Learning Models
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#NeuralNetworkOracle
+:NeuralNetworkOracle rdf:type owl:Class ;
+                    rdfs:subClassOf :MachineLearningOracle ;
+                    rdfs:label "Neural Network Oracle"@en ;
+                    rdfs:comment """Oracle using neural networks for
+                    complex performance pattern recognition."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#DeepLearningOracle
+:DeepLearningOracle rdf:type owl:Class ;
+                   rdfs:subClassOf :NeuralNetworkOracle ;
+                   rdfs:label "Deep Learning Oracle"@en ;
+                   rdfs:comment """Oracle using deep neural networks
+                   for sophisticated performance modeling."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ReinforcementLearningOracle
+:ReinforcementLearningOracle rdf:type owl:Class ;
+                            rdfs:subClassOf :MachineLearningOracle ;
+                            rdfs:label "Reinforcement Learning Oracle"@en ;
+                            rdfs:comment """Oracle using reinforcement learning
+                            to optimize performance predictions."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#EnsembleOracle
+:EnsembleOracle rdf:type owl:Class ;
+               rdfs:subClassOf :MachineLearningOracle ;
+               rdfs:label "Ensemble Oracle"@en ;
+               rdfs:comment """Oracle combining multiple ML models
+               for robust performance predictions."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#TransformerOracle
+:TransformerOracle rdf:type owl:Class ;
+                  rdfs:subClassOf :DeepLearningOracle ;
+                  rdfs:label "Transformer Oracle"@en ;
+                  rdfs:comment """Oracle using transformer architecture
+                  for sequence-based performance modeling."""@en .
+
+#################################################################
+#    Statistical Oracle Types
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#RegressionOracle
+:RegressionOracle rdf:type owl:Class ;
+                 rdfs:subClassOf :StatisticalOracle ;
+                 rdfs:label "Regression Oracle"@en ;
+                 rdfs:comment """Oracle using regression analysis for
+                 performance relationship modeling."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#TimeSeriesOracle
+:TimeSeriesOracle rdf:type owl:Class ;
+                 rdfs:subClassOf :StatisticalOracle ;
+                 rdfs:label "Time Series Oracle"@en ;
+                 rdfs:comment """Oracle using time series analysis
+                 for temporal performance prediction."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#BayesianOracle
+:BayesianOracle rdf:type owl:Class ;
+               rdfs:subClassOf :StatisticalOracle ;
+               rdfs:label "Bayesian Oracle"@en ;
+               rdfs:comment """Oracle using Bayesian inference for
+               probabilistic performance modeling."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#StochasticOracle
+:StochasticOracle rdf:type owl:Class ;
+                 rdfs:subClassOf :StatisticalOracle ;
+                 rdfs:label "Stochastic Oracle"@en ;
+                 rdfs:comment """Oracle using stochastic processes
+                 for probabilistic performance prediction."""@en .
+
+#################################################################
+#    Prediction Types & Outputs
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#PerformancePrediction
+:PerformancePrediction rdf:type owl:Class ;
+                      rdfs:subClassOf benchmark:PerformancePrediction ;
+                      rdfs:label "Enhanced Performance Prediction"@en ;
+                      rdfs:comment """Enhanced prediction with confidence
+                      intervals and uncertainty quantification."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#LatencyPrediction
+:LatencyPrediction rdf:type owl:Class ;
+                  rdfs:subClassOf :PerformancePrediction ;
+                  rdfs:label "Latency Prediction"@en ;
+                  rdfs:comment """Prediction of operation latency
+                  with statistical confidence bounds."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ThroughputPrediction
+:ThroughputPrediction rdf:type owl:Class ;
+                     rdfs:subClassOf :PerformancePrediction ;
+                     rdfs:label "Throughput Prediction"@en ;
+                     rdfs:comment """Prediction of system throughput
+                     under varying load conditions."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ResourceUsagePrediction
+:ResourceUsagePrediction rdf:type owl:Class ;
+                        rdfs:subClassOf :PerformancePrediction ;
+                        rdfs:label "Resource Usage Prediction"@en ;
+                        rdfs:comment """Prediction of resource consumption
+                        patterns and requirements."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#BottleneckPrediction
+:BottleneckPrediction rdf:type owl:Class ;
+                     rdfs:subClassOf :PerformancePrediction ;
+                     rdfs:label "Bottleneck Prediction"@en ;
+                     rdfs:comment """Prediction of potential performance
+                     bottlenecks before they manifest."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ScalabilityPrediction
+:ScalabilityPrediction rdf:type owl:Class ;
+                      rdfs:subClassOf :PerformancePrediction ;
+                      rdfs:label "Scalability Prediction"@en ;
+                      rdfs:comment """Prediction of system behavior
+                      under scaling conditions."""@en .
+
+#################################################################
+#    Oracle Training & Learning
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#OracleTrainingEngine
+:OracleTrainingEngine rdf:type owl:Class ;
+                     rdfs:subClassOf ba:SystemComponent ;
+                     rdfs:label "Oracle Training Engine"@en ;
+                     rdfs:comment """Engine for training and updating
+                     performance oracle models."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ContinuousLearningSystem
+:ContinuousLearningSystem rdf:type owl:Class ;
+                         rdfs:subClassOf :OracleTrainingEngine ;
+                         rdfs:label "Continuous Learning System"@en ;
+                         rdfs:comment """System enabling continuous learning
+                         and model adaptation from new data."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#FederatedLearningSystem
+:FederatedLearningSystem rdf:type owl:Class ;
+                        rdfs:subClassOf :ContinuousLearningSystem ;
+                        rdfs:label "Federated Learning System"@en ;
+                        rdfs:comment """System for distributed learning
+                        across multiple oracle instances."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#TransferLearningEngine
+:TransferLearningEngine rdf:type owl:Class ;
+                       rdfs:subClassOf :OracleTrainingEngine ;
+                       rdfs:label "Transfer Learning Engine"@en ;
+                       rdfs:comment """Engine for transferring knowledge
+                       between different oracle models."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ModelRepository
+:ModelRepository rdf:type owl:Class ;
+                rdfs:subClassOf ba:SystemComponent ;
+                rdfs:label "Model Repository"@en ;
+                rdfs:comment """Repository storing trained oracle
+                models and their metadata."""@en .
+
+#################################################################
+#    Oracle Validation & Quality Assurance
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#OracleQualityAssurance
+:OracleQualityAssurance rdf:type owl:Class ;
+                       rdfs:subClassOf :OracleValidator ;
+                       rdfs:label "Oracle Quality Assurance"@en ;
+                       rdfs:comment """System ensuring oracle quality
+                       through comprehensive validation."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#AccuracyValidator
+:AccuracyValidator rdf:type owl:Class ;
+                  rdfs:subClassOf :OracleValidator ;
+                  rdfs:label "Accuracy Validator"@en ;
+                  rdfs:comment """Validator measuring and monitoring
+                  oracle prediction accuracy."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#BiasDetector
+:BiasDetector rdf:type owl:Class ;
+             rdfs:subClassOf :OracleValidator ;
+             rdfs:label "Bias Detector"@en ;
+             rdfs:comment """Detector identifying bias in oracle
+             predictions and training data."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#RobustnessValidator
+:RobustnessValidator rdf:type owl:Class ;
+                    rdfs:subClassOf :OracleValidator ;
+                    rdfs:label "Robustness Validator"@en ;
+                    rdfs:comment """Validator testing oracle robustness
+                    under diverse conditions."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#CalibrationValidator
+:CalibrationValidator rdf:type owl:Class ;
+                     rdfs:subClassOf :OracleValidator ;
+                     rdfs:label "Calibration Validator"@en ;
+                     rdfs:comment """Validator ensuring oracle confidence
+                     scores are well-calibrated."""@en .
+
+#################################################################
+#    Feature Engineering & Data Processing
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#FeatureExtractor
+:FeatureExtractor rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemComponent ;
+                 rdfs:label "Feature Extractor"@en ;
+                 rdfs:comment """Component extracting relevant features
+                 from performance data for oracle training."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#DataPreprocessor
+:DataPreprocessor rdf:type owl:Class ;
+                 rdfs:subClassOf ba:SystemComponent ;
+                 rdfs:label "Data Preprocessor"@en ;
+                 rdfs:comment """Component preprocessing performance data
+                 for optimal oracle training."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#FeatureSelector
+:FeatureSelector rdf:type owl:Class ;
+                rdfs:subClassOf :FeatureExtractor ;
+                rdfs:label "Feature Selector"@en ;
+                rdfs:comment """Selector identifying most relevant features
+                for performance prediction."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#DimensionalityReducer
+:DimensionalityReducer rdf:type owl:Class ;
+                      rdfs:subClassOf :DataPreprocessor ;
+                      rdfs:label "Dimensionality Reducer"@en ;
+                      rdfs:comment """Component reducing feature dimensionality
+                      while preserving predictive power."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#DataAugmenter
+:DataAugmenter rdf:type owl:Class ;
+              rdfs:subClassOf :DataPreprocessor ;
+              rdfs:label "Data Augmenter"@en ;
+              rdfs:comment """Component augmenting training data
+              to improve oracle robustness."""@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#generatesPrediction
+:generatesPrediction rdf:type owl:ObjectProperty ;
+                    rdfs:domain :PerformanceOracle ;
+                    rdfs:range :PerformancePrediction ;
+                    rdfs:label "generates prediction"@en ;
+                    rdfs:comment "Relates oracle to predictions generated."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#trainsOracle
+:trainsOracle rdf:type owl:ObjectProperty ;
+             rdfs:domain :OracleTrainingEngine ;
+             rdfs:range :PerformanceOracle ;
+             rdfs:label "trains oracle"@en ;
+             rdfs:comment "Relates training engine to oracles trained."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#validatesOracle
+:validatesOracle rdf:type owl:ObjectProperty ;
+                rdfs:domain :OracleValidator ;
+                rdfs:range :PerformanceOracle ;
+                rdfs:label "validates oracle"@en ;
+                rdfs:comment "Relates validator to oracles validated."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#extractsFeatures
+:extractsFeatures rdf:type owl:ObjectProperty ;
+                 rdfs:domain :FeatureExtractor ;
+                 rdfs:range :PerformanceFeature ;
+                 rdfs:label "extracts features"@en ;
+                 rdfs:comment "Relates extractor to features extracted."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#combinesModels
+:combinesModels rdf:type owl:ObjectProperty ;
+               rdfs:domain :EnsembleOracle ;
+               rdfs:range :PerformanceOracle ;
+               rdfs:label "combines models"@en ;
+               rdfs:comment "Relates ensemble to component models."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#inheritsKnowledge
+:inheritsKnowledge rdf:type owl:ObjectProperty ;
+                  rdfs:domain :TransferLearningEngine ;
+                  rdfs:range :PerformanceOracle ;
+                  rdfs:label "inherits knowledge"@en ;
+                  rdfs:comment "Relates transfer learning to source models."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#storesModel
+:storesModel rdf:type owl:ObjectProperty ;
+            rdfs:domain :ModelRepository ;
+            rdfs:range :PerformanceOracle ;
+            rdfs:label "stores model"@en ;
+            rdfs:comment "Relates repository to models stored."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#detectsBias
+:detectsBias rdf:type owl:ObjectProperty ;
+            rdfs:domain :BiasDetector ;
+            rdfs:range :PredictionBias ;
+            rdfs:label "detects bias"@en ;
+            rdfs:comment "Relates detector to bias detected."@en .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#predictionAccuracy
+:predictionAccuracy rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                   rdfs:domain :PerformancePrediction ;
+                   rdfs:range xsd:double ;
+                   rdfs:label "prediction accuracy"@en ;
+                   rdfs:comment "Accuracy of the performance prediction (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#confidenceScore
+:confidenceScore rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :PerformancePrediction ;
+                rdfs:range xsd:double ;
+                rdfs:label "confidence score"@en ;
+                rdfs:comment "Confidence score for prediction (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#predictionHorizon
+:predictionHorizon rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                  rdfs:domain :PredictiveOracle ;
+                  rdfs:range xsd:duration ;
+                  rdfs:label "prediction horizon"@en ;
+                  rdfs:comment "Time horizon for predictions."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#modelComplexity
+:modelComplexity rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :PerformanceOracle ;
+                rdfs:range xsd:string ;
+                rdfs:label "model complexity"@en ;
+                rdfs:comment "Complexity level of the oracle model."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#trainingDataSize
+:trainingDataSize rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :PerformanceOracle ;
+                 rdfs:range xsd:long ;
+                 rdfs:label "training data size"@en ;
+                 rdfs:comment "Size of training dataset used."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#learningRate
+:learningRate rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain :MachineLearningOracle ;
+             rdfs:range xsd:double ;
+             rdfs:label "learning rate"@en ;
+             rdfs:comment "Learning rate for ML model training."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#networkArchitecture
+:networkArchitecture rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                    rdfs:domain :NeuralNetworkOracle ;
+                    rdfs:range xsd:string ;
+                    rdfs:label "network architecture"@en ;
+                    rdfs:comment "Architecture description of neural network."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ensembleSize
+:ensembleSize rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+             rdfs:domain :EnsembleOracle ;
+             rdfs:range xsd:positiveInteger ;
+             rdfs:label "ensemble size"@en ;
+             rdfs:comment "Number of models in the ensemble."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#updateFrequency
+:updateFrequency rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :ContinuousLearningSystem ;
+                rdfs:range xsd:duration ;
+                rdfs:label "update frequency"@en ;
+                rdfs:comment "Frequency of model updates."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#validationScore
+:validationScore rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                rdfs:domain :OracleValidator ;
+                rdfs:range xsd:double ;
+                rdfs:label "validation score"@en ;
+                rdfs:comment "Overall validation score (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#biasScore
+:biasScore rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+          rdfs:domain :BiasDetector ;
+          rdfs:range xsd:double ;
+          rdfs:label "bias score"@en ;
+          rdfs:comment "Detected bias level (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#calibrationError
+:calibrationError rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                 rdfs:domain :CalibrationValidator ;
+                 rdfs:range xsd:double ;
+                 rdfs:label "calibration error"@en ;
+                 rdfs:comment "Calibration error measurement."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#featureImportance
+:featureImportance rdf:type owl:DatatypeProperty ;
+                  rdfs:domain :PerformanceFeature ;
+                  rdfs:range xsd:double ;
+                  rdfs:label "feature importance"@en ;
+                  rdfs:comment "Importance score of feature (0.0-1.0)."@en .
+
+###  http://bytestar.org/ontology/performance-oracles#responseTicks
+:responseTicks rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+              rdfs:domain :RealTimeOracle ;
+              rdfs:range xsd:nonNegativeInteger ;
+              rdfs:label "response ticks"@en ;
+              rdfs:comment "Response time in ticks for real-time oracle."@en .
+
+#################################################################
+#    Supporting Classes
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#PerformanceFeature
+:PerformanceFeature rdf:type owl:Class ;
+                   rdfs:subClassOf ba:SystemMetric ;
+                   rdfs:label "Performance Feature"@en ;
+                   rdfs:comment """Feature extracted from performance data
+                   for oracle training and prediction."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#PredictionBias
+:PredictionBias rdf:type owl:Class ;
+               rdfs:subClassOf ba:SystemAnomaly ;
+               rdfs:label "Prediction Bias"@en ;
+               rdfs:comment """Systematic bias detected in oracle
+               predictions or training data."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#ModelMetadata
+:ModelMetadata rdf:type owl:Class ;
+              rdfs:subClassOf ba:SystemMetadata ;
+              rdfs:label "Model Metadata"@en ;
+              rdfs:comment """Metadata about oracle models including
+              version, training date, and performance."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#OracleExplanation
+:OracleExplanation rdf:type owl:Class ;
+                  rdfs:subClassOf ba:SystemExplanation ;
+                  rdfs:label "Oracle Explanation"@en ;
+                  rdfs:comment """Explanation of oracle predictions
+                  for transparency and interpretability."""@en .
+
+#################################################################
+#    SHACL Validation Shapes
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#PerformancePredictionShape
+:PerformancePredictionShape rdf:type sh:NodeShape ;
+                           sh:targetClass :PerformancePrediction ;
+                           rdfs:label "Performance Prediction Shape"@en ;
+                           rdfs:comment "Validates performance prediction properties."@en ;
+                           sh:property [
+                               sh:path :predictionAccuracy ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.0 ;
+                               sh:maxInclusive 1.0 ;
+                               sh:message "Prediction accuracy must be between 0.0 and 1.0."@en
+                           ] ;
+                           sh:property [
+                               sh:path :confidenceScore ;
+                               sh:datatype xsd:double ;
+                               sh:minInclusive 0.0 ;
+                               sh:maxInclusive 1.0 ;
+                               sh:minCount 1 ;
+                               sh:maxCount 1 ;
+                               sh:message "Confidence score must be between 0.0 and 1.0."@en
+                           ] .
+
+###  http://bytestar.org/ontology/performance-oracles#MachineLearningOracleShape
+:MachineLearningOracleShape rdf:type sh:NodeShape ;
+                           sh:targetClass :MachineLearningOracle ;
+                           rdfs:label "Machine Learning Oracle Shape"@en ;
+                           rdfs:comment "Validates ML oracle configuration."@en ;
+                           sh:property [
+                               sh:path :learningRate ;
+                               sh:datatype xsd:double ;
+                               sh:minExclusive 0.0 ;
+                               sh:maxInclusive 1.0 ;
+                               sh:message "Learning rate must be between 0.0 and 1.0."@en
+                           ] ;
+                           sh:property [
+                               sh:path :trainingDataSize ;
+                               sh:datatype xsd:long ;
+                               sh:minInclusive 1000 ; # Minimum 1000 samples
+                               sh:message "Training data size must be at least 1000."@en
+                           ] .
+
+###  http://bytestar.org/ontology/performance-oracles#RealTimeOracleShape
+:RealTimeOracleShape rdf:type sh:NodeShape ;
+                    sh:targetClass :RealTimeOracle ;
+                    rdfs:label "Real-Time Oracle Shape"@en ;
+                    rdfs:comment "Validates real-time oracle response requirements."@en ;
+                    sh:property [
+                        sh:path :responseTicks ;
+                        sh:datatype xsd:nonNegativeInteger ;
+                        sh:maxInclusive 1 ; # Sub-tick response for real-time
+                        sh:minCount 1 ;
+                        sh:maxCount 1 ;
+                        sh:message "Real-time oracle must respond in ≤1 tick."@en
+                    ] .
+
+###  http://bytestar.org/ontology/performance-oracles#EnsembleOracleShape
+:EnsembleOracleShape rdf:type sh:NodeShape ;
+                    sh:targetClass :EnsembleOracle ;
+                    rdfs:label "Ensemble Oracle Shape"@en ;
+                    rdfs:comment "Validates ensemble oracle configuration."@en ;
+                    sh:property [
+                        sh:path :ensembleSize ;
+                        sh:datatype xsd:positiveInteger ;
+                        sh:minInclusive 3 ; # Minimum 3 models for meaningful ensemble
+                        sh:maxInclusive 100 ; # Practical upper limit
+                        sh:minCount 1 ;
+                        sh:maxCount 1 ;
+                        sh:message "Ensemble size must be between 3 and 100."@en
+                    ] .
+
+###  http://bytestar.org/ontology/performance-oracles#OracleValidatorShape
+:OracleValidatorShape rdf:type sh:NodeShape ;
+                     sh:targetClass :OracleValidator ;
+                     rdfs:label "Oracle Validator Shape"@en ;
+                     rdfs:comment "Validates oracle validator requirements."@en ;
+                     sh:property [
+                         sh:path :validationScore ;
+                         sh:datatype xsd:double ;
+                         sh:minInclusive 0.7 ; # Minimum acceptable validation score
+                         sh:maxInclusive 1.0 ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:message "Validation score must be at least 0.7."@en
+                     ] .
+
+###  http://bytestar.org/ontology/performance-oracles#BiasDetectorShape
+:BiasDetectorShape rdf:type sh:NodeShape ;
+                  sh:targetClass :BiasDetector ;
+                  rdfs:label "Bias Detector Shape"@en ;
+                  rdfs:comment "Validates bias detector configuration."@en ;
+                  sh:property [
+                      sh:path :biasScore ;
+                      sh:datatype xsd:double ;
+                      sh:minInclusive 0.0 ;
+                      sh:maxInclusive 1.0 ;
+                      sh:message "Bias score must be between 0.0 and 1.0."@en
+                  ] .
+
+###  http://bytestar.org/ontology/performance-oracles#PerformanceFeatureShape
+:PerformanceFeatureShape rdf:type sh:NodeShape ;
+                        sh:targetClass :PerformanceFeature ;
+                        rdfs:label "Performance Feature Shape"@en ;
+                        rdfs:comment "Validates performance feature properties."@en ;
+                        sh:property [
+                            sh:path :featureImportance ;
+                            sh:datatype xsd:double ;
+                            sh:minInclusive 0.0 ;
+                            sh:maxInclusive 1.0 ;
+                            sh:message "Feature importance must be between 0.0 and 1.0."@en
+                        ] .
+
+#################################################################
+#    Oracle System Integration Axioms
+#################################################################
+
+# Axiom: All ML oracles must have training data
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :MachineLearningOracle
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :trainingDataSize ;
+               owl:someValuesFrom [
+                   rdf:type rdfs:Datatype ;
+                   owl:onDatatype xsd:long ;
+                   owl:withRestrictions (
+                       [ xsd:minInclusive 1000 ]
+                   )
+               ]
+           ]
+       )
+   ] .
+
+# Axiom: Real-time oracles must respond within 1 tick
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :RealTimeOracle
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :responseTicks ;
+               owl:someValuesFrom [
+                   rdf:type rdfs:Datatype ;
+                   owl:onDatatype xsd:nonNegativeInteger ;
+                   owl:withRestrictions (
+                       [ xsd:maxInclusive 1 ]
+                   )
+               ]
+           ]
+       )
+   ] .
+
+# Axiom: All oracles must be validated
+[] rdf:type owl:Class ;
+   owl:equivalentClass [
+       rdf:type owl:Class ;
+       owl:intersectionOf (
+           :PerformanceOracle
+           [
+               rdf:type owl:Restriction ;
+               owl:onProperty :validatesOracle ;
+               owl:someValuesFrom :OracleValidator
+           ]
+       )
+   ] .
+
+#################################################################
+#    Predefined Oracle Systems
+#################################################################
+
+###  http://bytestar.org/ontology/performance-oracles#MasterPerformanceOracle
+:MasterPerformanceOracle rdf:type owl:NamedIndividual ,
+                                  :HybridOracle ;
+                        rdfs:label "Master Performance Oracle"@en ;
+                        rdfs:comment """Master oracle combining multiple
+                        prediction approaches for comprehensive analysis."""@en ;
+                        :modelComplexity "HIGH" ;
+                        :predictionHorizon "PT1H"^^xsd:duration . # 1 hour horizon
+
+###  http://bytestar.org/ontology/performance-oracles#CrystalOperationPredictor
+:CrystalOperationPredictor rdf:type owl:NamedIndividual ,
+                                    :DeepLearningOracle ;
+                          rdfs:label "Crystal Operation Predictor"@en ;
+                          rdfs:comment """Specialized deep learning oracle
+                          for crystal operation performance prediction."""@en ;
+                          :networkArchitecture "Transformer-based sequence model" ;
+                          :learningRate "0.001"^^xsd:double ;
+                          :trainingDataSize "1000000"^^xsd:long . # 1M samples
+
+###  http://bytestar.org/ontology/performance-oracles#RealTimeLatencyOracle
+:RealTimeLatencyOracle rdf:type owl:NamedIndividual ,
+                                :RealTimeOracle ;
+                      rdfs:label "Real-Time Latency Oracle"@en ;
+                      rdfs:comment """Ultra-fast oracle providing real-time
+                      latency predictions for critical operations."""@en ;
+                      :responseTicks "0"^^xsd:nonNegativeInteger ; # Sub-tick response
+                      :modelComplexity "LOW" .
+
+###  http://bytestar.org/ontology/performance-oracles#EnsemblePerformancePredictor
+:EnsemblePerformancePredictor rdf:type owl:NamedIndividual ,
+                                       :EnsembleOracle ;
+                             rdfs:label "Ensemble Performance Predictor"@en ;
+                             rdfs:comment """Ensemble oracle combining multiple
+                             models for robust performance prediction."""@en ;
+                             :ensembleSize "7"^^xsd:positiveInteger .
+
+###  http://bytestar.org/ontology/performance-oracles#ContinuousLearningEngine
+:ContinuousLearningEngine rdf:type owl:NamedIndividual ,
+                                   :ContinuousLearningSystem ;
+                         rdfs:label "Continuous Learning Engine"@en ;
+                         rdfs:comment """Engine providing continuous learning
+                         capabilities for oracle improvement."""@en ;
+                         :updateFrequency "PT1H"^^xsd:duration . # Update every hour
+
+###  http://bytestar.org/ontology/performance-oracles#ComprehensiveOracleValidator
+:ComprehensiveOracleValidator rdf:type owl:NamedIndividual ,
+                                       :OracleQualityAssurance ;
+                             rdfs:label "Comprehensive Oracle Validator"@en ;
+                             rdfs:comment """Comprehensive validator ensuring
+                             oracle quality and reliability."""@en ;
+                             :validationScore "0.95"^^xsd:double . # 95% validation score
+
+###  http://bytestar.org/ontology/performance-oracles#AdvancedFeatureExtractor
+:AdvancedFeatureExtractor rdf:type owl:NamedIndividual ,
+                                   :FeatureExtractor ;
+                         rdfs:label "Advanced Feature Extractor"@en ;
+                         rdfs:comment """Advanced extractor for comprehensive
+                         performance feature extraction."""@en .
+
+###  http://bytestar.org/ontology/performance-oracles#IntelligentBiasDetector
+:IntelligentBiasDetector rdf:type owl:NamedIndividual ,
+                                  :BiasDetector ;
+                        rdfs:label "Intelligent Bias Detector"@en ;
+                        rdfs:comment """AI-powered detector for identifying
+                        subtle biases in oracle predictions."""@en ;
+                        :biasScore "0.05"^^xsd:double . # Low bias score
+
+###  http://bytestar.org/ontology/performance-oracles#CentralModelRepository
+:CentralModelRepository rdf:type owl:NamedIndividual ,
+                                 :ModelRepository ;
+                       rdfs:label "Central Model Repository"@en ;
+                       rdfs:comment """Central repository storing all trained
+                       oracle models and metadata."""@en .
+
+#################################################################
+#    Example Predictions & Use Cases
+#################################################################
+
+# Example latency prediction
+:ExampleLatencyPrediction rdf:type owl:NamedIndividual ,
+                                   :LatencyPrediction ;
+                         rdfs:label "Example Latency Prediction"@en ;
+                         :predictionAccuracy "0.92"^^xsd:double ; # 92% accuracy
+                         :confidenceScore "0.88"^^xsd:double ; # 88% confidence
+                         dct:created "2025-08-23T12:00:00Z"^^xsd:dateTime .
+
+# Example throughput prediction
+:ExampleThroughputPrediction rdf:type owl:NamedIndividual ,
+                                      :ThroughputPrediction ;
+                            rdfs:label "Example Throughput Prediction"@en ;
+                            :predictionAccuracy "0.89"^^xsd:double ; # 89% accuracy
+                            :confidenceScore "0.91"^^xsd:double ; # 91% confidence
+                            dct:created "2025-08-23T12:00:01Z"^^xsd:dateTime .
+
+# Example performance feature
+:ExamplePerformanceFeature rdf:type owl:NamedIndividual ,
+                                    :PerformanceFeature ;
+                          rdfs:label "CPU Utilization Feature"@en ;
+                          :featureImportance "0.75"^^xsd:double ; # High importance
+                          skos:definition "CPU utilization as a predictor of latency" .
+
+# Example model metadata
+:ExampleModelMetadata rdf:type owl:NamedIndividual ,
+                               :ModelMetadata ;
+                     rdfs:label "Crystal Predictor Model v2.1"@en ;
+                     dct:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+                     dct:modified "2025-08-23T12:00:00Z"^^xsd:dateTime .

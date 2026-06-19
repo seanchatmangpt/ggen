@@ -1,0 +1,10 @@
+# This fixture has intentional syntax errors for negative testing.
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<https://example.org/BrokenClass> a owl:Class
+    rdfs:label "Missing semicolon after type triple" .
+
+# Unclosed bracket:
+<https://example.org/Another> rdfs:comment [
+    rdfs:label "broken"
+.

@@ -1,0 +1,368 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix legal: <http://cns-litigation.org/legal/> .
+@prefix contradiction: <http://cns-litigation.org/contradiction/> .
+@prefix pattern: <http://cns-litigation.org/pattern/> .
+@prefix filing: <http://cns-litigation.org/filing/> .
+@prefix evidence: <http://cns-litigation.org/evidence/> .
+@prefix jurisdiction: <http://cns-litigation.org/jurisdiction/> .
+
+# RDF Patterns for Contradiction Detection
+# Implements inconsistency detection patterns across legal filings
+
+# Core Ontology Classes
+contradiction:Contradiction a owl:Class ;
+    rdfs:label "Contradiction" ;
+    rdfs:comment "Represents an inconsistency detected between legal statements or claims" ;
+    rdfs:subClassOf legal:LegalConcept .
+
+contradiction:ContradictionType a owl:Class ;
+    rdfs:label "Contradiction Type" ;
+    rdfs:comment "Classification of contradiction types" .
+
+contradiction:ContradictionSeverity a owl:Class ;
+    rdfs:label "Contradiction Severity" ;
+    rdfs:comment "Severity level of detected contradictions" .
+
+# Contradiction Types
+contradiction:CrossFilingInconsistency a contradiction:ContradictionType ;
+    rdfs:label "Cross-Filing Inconsistency" ;
+    rdfs:comment "Contradictions between different legal filings" .
+
+contradiction:TimelineContradiction a contradiction:ContradictionType ;
+    rdfs:label "Timeline Contradiction" ;
+    rdfs:comment "Temporal inconsistencies in event sequences" .
+
+contradiction:JurisdictionalConflict a contradiction:ContradictionType ;
+    rdfs:label "Jurisdictional Conflict" ;
+    rdfs:comment "Conflicts in jurisdictional claims or authority" .
+
+contradiction:EvidenceContradiction a contradiction:ContradictionType ;
+    rdfs:label "Evidence Contradiction" ;
+    rdfs:comment "Inconsistencies in evidence claims or presentation" .
+
+# Severity Levels
+contradiction:Critical a contradiction:ContradictionSeverity ;
+    rdfs:label "Critical" ;
+    contradiction:severityValue 10 ;
+    contradiction:requiresImmediateAction true .
+
+contradiction:High a contradiction:ContradictionSeverity ;
+    rdfs:label "High" ;
+    contradiction:severityValue 8 ;
+    contradiction:requiresImmediateAction true .
+
+contradiction:Medium a contradiction:ContradictionSeverity ;
+    rdfs:label "Medium" ;
+    contradiction:severityValue 5 ;
+    contradiction:requiresImmediateAction false .
+
+contradiction:Low a contradiction:ContradictionSeverity ;
+    rdfs:label "Low" ;
+    contradiction:severityValue 2 ;
+    contradiction:requiresImmediateAction false .
+
+# Properties for Contradiction Detection
+contradiction:contradictsWith a owl:ObjectProperty ;
+    rdfs:label "contradicts with" ;
+    rdfs:comment "Indicates a contradiction relationship between two legal statements" ;
+    rdfs:domain legal:Statement ;
+    rdfs:range legal:Statement ;
+    owl:inverseOf contradiction:contradictsWith .
+
+contradiction:hasContradictionType a owl:ObjectProperty ;
+    rdfs:label "has contradiction type" ;
+    rdfs:domain contradiction:Contradiction ;
+    rdfs:range contradiction:ContradictionType .
+
+contradiction:hasSeverity a owl:ObjectProperty ;
+    rdfs:label "has severity" ;
+    rdfs:domain contradiction:Contradiction ;
+    rdfs:range contradiction:ContradictionSeverity .
+
+contradiction:detectedAt a owl:DatatypeProperty ;
+    rdfs:label "detected at" ;
+    rdfs:domain contradiction:Contradiction ;
+    rdfs:range xsd:dateTime .
+
+contradiction:confidence a owl:DatatypeProperty ;
+    rdfs:label "confidence" ;
+    rdfs:domain contradiction:Contradiction ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Confidence level in contradiction detection (0.0 to 1.0)" .
+
+# Pattern 1: Cross-Filing Inconsistency Detection
+pattern:CrossFilingInconsistencyPattern a pattern:DetectionPattern ;
+    rdfs:label "Cross-Filing Inconsistency Pattern" ;
+    rdfs:comment "Detects contradictions between statements in different filings" ;
+    pattern:patternQuery """
+        SELECT ?filing1 ?filing2 ?statement1 ?statement2 ?contradiction
+        WHERE {
+            ?filing1 a filing:LegalFiling ;
+                     filing:contains ?statement1 .
+            ?filing2 a filing:LegalFiling ;
+                     filing:contains ?statement2 .
+            ?statement1 legal:claims ?claim1 .
+            ?statement2 legal:claims ?claim2 .
+            
+            FILTER(?filing1 != ?filing2)
+            FILTER(
+                (?claim1 legal:opposes ?claim2) ||
+                (?claim1 legal:negates ?claim2) ||
+                (EXISTS { ?claim1 legal:factualContent ?fact1 . 
+                         ?claim2 legal:factualContent ?fact2 .
+                         FILTER(?fact1 != ?fact2 && ?fact1 legal:concernsSameSubject ?fact2) })
+            )
+            
+            BIND(IRI(CONCAT(STR(contradiction:), "cross-filing-", STRUUID())) AS ?contradiction)
+        }
+    """ ;
+    pattern:severity contradiction:High ;
+    pattern:confidence 0.85 .
+
+# Pattern 2: Timeline Contradiction Detection
+pattern:TimelineContradictionPattern a pattern:DetectionPattern ;
+    rdfs:label "Timeline Contradiction Pattern" ;
+    rdfs:comment "Detects temporal inconsistencies in event sequences" ;
+    pattern:patternQuery """
+        SELECT ?event1 ?event2 ?timeline1 ?timeline2 ?contradiction
+        WHERE {
+            ?event1 a legal:Event ;
+                    time:hasBeginning ?start1 ;
+                    time:hasEnd ?end1 ;
+                    legal:partOfTimeline ?timeline1 .
+            ?event2 a legal:Event ;
+                    time:hasBeginning ?start2 ;
+                    time:hasEnd ?end2 ;
+                    legal:partOfTimeline ?timeline2 .
+            
+            # Detect overlapping events that should be mutually exclusive
+            FILTER(
+                (?start1 < ?end2 && ?start2 < ?end1) &&  # Events overlap
+                (?event1 legal:mutuallyExclusiveWith ?event2) &&  # But are declared exclusive
+                (?timeline1 = ?timeline2 || ?timeline1 legal:relatedTo ?timeline2)  # In same/related timeline
+            )
+            
+            BIND(IRI(CONCAT(STR(contradiction:), "timeline-", STRUUID())) AS ?contradiction)
+        }
+    """ ;
+    pattern:severity contradiction:Medium ;
+    pattern:confidence 0.92 .
+
+# Pattern 3: Jurisdictional Conflict Detection
+pattern:JurisdictionalConflictPattern a pattern:DetectionPattern ;
+    rdfs:label "Jurisdictional Conflict Pattern" ;
+    rdfs:comment "Detects conflicts in jurisdictional claims or authority" ;
+    pattern:patternQuery """
+        SELECT ?claim1 ?claim2 ?jurisdiction1 ?jurisdiction2 ?contradiction
+        WHERE {
+            ?claim1 a legal:JurisdictionalClaim ;
+                    jurisdiction:assertsAuthority ?jurisdiction1 ;
+                    legal:overSubject ?subject .
+            ?claim2 a legal:JurisdictionalClaim ;
+                    jurisdiction:assertsAuthority ?jurisdiction2 ;
+                    legal:overSubject ?subject .
+            
+            # Detect conflicting jurisdictional claims
+            FILTER(
+                ?jurisdiction1 != ?jurisdiction2 &&
+                NOT EXISTS { ?jurisdiction1 jurisdiction:deferTo ?jurisdiction2 } &&
+                NOT EXISTS { ?jurisdiction2 jurisdiction:deferTo ?jurisdiction1 } &&
+                (?jurisdiction1 jurisdiction:conflictsWith ?jurisdiction2 ||
+                 ?jurisdiction1 jurisdiction:exclusiveWith ?jurisdiction2)
+            )
+            
+            BIND(IRI(CONCAT(STR(contradiction:), "jurisdiction-", STRUUID())) AS ?contradiction)
+        }
+    """ ;
+    pattern:severity contradiction:Critical ;
+    pattern:confidence 0.95 .
+
+# Pattern 4: Evidence Contradiction Detection
+pattern:EvidenceContradictionPattern a pattern:DetectionPattern ;
+    rdfs:label "Evidence Contradiction Pattern" ;
+    rdfs:comment "Detects inconsistencies in evidence claims or presentation" ;
+    pattern:patternQuery """
+        SELECT ?evidence1 ?evidence2 ?claim1 ?claim2 ?contradiction
+        WHERE {
+            ?evidence1 a evidence:Evidence ;
+                       evidence:supports ?claim1 ;
+                       evidence:hasFactualContent ?fact1 .
+            ?evidence2 a evidence:Evidence ;
+                       evidence:supports ?claim2 ;
+                       evidence:hasFactualContent ?fact2 .
+            
+            # Detect contradictory evidence
+            FILTER(
+                ?evidence1 != ?evidence2 &&
+                (
+                    # Same evidence supporting contradictory claims
+                    (?evidence1 = ?evidence2 && ?claim1 legal:contradicts ?claim2) ||
+                    # Different evidence with contradictory facts about same subject
+                    (?fact1 legal:contradicts ?fact2 && ?fact1 legal:concernsSameSubject ?fact2) ||
+                    # Evidence integrity violations
+                    (?evidence1 evidence:sourceDocument ?doc && 
+                     ?evidence2 evidence:sourceDocument ?doc &&
+                     ?evidence1 evidence:quotesText ?text1 &&
+                     ?evidence2 evidence:quotesText ?text2 &&
+                     ?text1 != ?text2 &&
+                     ?evidence1 evidence:refersSamePortion ?evidence2)
+                )
+            )
+            
+            BIND(IRI(CONCAT(STR(contradiction:), "evidence-", STRUUID())) AS ?contradiction)
+        }
+    """ ;
+    pattern:severity contradiction:High ;
+    pattern:confidence 0.88 .
+
+# Pattern 5: Factual Inconsistency Detection
+pattern:FactualInconsistencyPattern a pattern:DetectionPattern ;
+    rdfs:label "Factual Inconsistency Pattern" ;
+    rdfs:comment "Detects contradictory factual claims within and across filings" ;
+    pattern:patternQuery """
+        SELECT ?fact1 ?fact2 ?source1 ?source2 ?contradiction
+        WHERE {
+            ?fact1 a legal:FactualClaim ;
+                   legal:hasSource ?source1 ;
+                   legal:concernsSubject ?subject ;
+                   legal:assertsProperty ?property ;
+                   legal:hasValue ?value1 .
+            ?fact2 a legal:FactualClaim ;
+                   legal:hasSource ?source2 ;
+                   legal:concernsSubject ?subject ;
+                   legal:assertsProperty ?property ;
+                   legal:hasValue ?value2 .
+            
+            # Detect contradictory factual claims
+            FILTER(
+                ?fact1 != ?fact2 &&
+                ?value1 != ?value2 &&
+                NOT EXISTS { ?property legal:allowsMultipleValues true } &&
+                (?source1 legal:hasAuthority legal:HighAuthority || 
+                 ?source2 legal:hasAuthority legal:HighAuthority)
+            )
+            
+            BIND(IRI(CONCAT(STR(contradiction:), "factual-", STRUUID())) AS ?contradiction)
+        }
+    """ ;
+    pattern:severity contradiction:Medium ;
+    pattern:confidence 0.90 .
+
+# Pattern 6: Procedural Contradiction Detection
+pattern:ProceduralContradictionPattern a pattern:DetectionPattern ;
+    rdfs:label "Procedural Contradiction Pattern" ;
+    rdfs:comment "Detects contradictions in procedural claims and requirements" ;
+    pattern:patternQuery """
+        SELECT ?procedure1 ?procedure2 ?filing1 ?filing2 ?contradiction
+        WHERE {
+            ?filing1 a filing:LegalFiling ;
+                     filing:claimsProcedure ?procedure1 .
+            ?filing2 a filing:LegalFiling ;
+                     filing:claimsProcedure ?procedure2 .
+            ?procedure1 legal:requiresCondition ?condition1 .
+            ?procedure2 legal:requiresCondition ?condition2 .
+            
+            # Detect procedural contradictions
+            FILTER(
+                ?filing1 != ?filing2 &&
+                ?procedure1 legal:appliesTo ?case &&
+                ?procedure2 legal:appliesTo ?case &&
+                (?condition1 legal:excludes ?condition2 ||
+                 ?condition1 legal:prerequisiteFor ?condition2 &&
+                 NOT EXISTS { ?filing1 legal:satisfiesCondition ?condition1 })
+            )
+            
+            BIND(IRI(CONCAT(STR(contradiction:), "procedural-", STRUUID())) AS ?contradiction)
+        }
+    """ ;
+    pattern:severity contradiction:Medium ;
+    pattern:confidence 0.82 .
+
+# Composite Pattern: Multi-dimensional Contradiction Analysis
+pattern:MultiDimensionalContradictionPattern a pattern:DetectionPattern ;
+    rdfs:label "Multi-dimensional Contradiction Pattern" ;
+    rdfs:comment "Comprehensive pattern combining multiple contradiction types" ;
+    pattern:patternQuery """
+        SELECT ?contradiction ?type ?severity ?confidence ?affected_filings
+        WHERE {
+            {
+                # Cross-filing contradictions
+                SELECT ?contradiction (contradiction:CrossFilingInconsistency AS ?type) 
+                       (contradiction:High AS ?severity) (0.85 AS ?confidence)
+                       (GROUP_CONCAT(?filing; separator=",") AS ?affected_filings)
+                WHERE {
+                    ?contradiction a contradiction:Contradiction ;
+                                   contradiction:involvesStatement ?stmt .
+                    ?filing filing:contains ?stmt .
+                }
+                GROUP BY ?contradiction
+            } UNION {
+                # Timeline contradictions
+                SELECT ?contradiction (contradiction:TimelineContradiction AS ?type)
+                       (contradiction:Medium AS ?severity) (0.92 AS ?confidence)
+                       (GROUP_CONCAT(?timeline; separator=",") AS ?affected_filings)
+                WHERE {
+                    ?contradiction a contradiction:Contradiction ;
+                                   contradiction:involvesTimeline ?timeline .
+                }
+                GROUP BY ?contradiction
+            } UNION {
+                # Jurisdictional conflicts
+                SELECT ?contradiction (contradiction:JurisdictionalConflict AS ?type)
+                       (contradiction:Critical AS ?severity) (0.95 AS ?confidence)
+                       (GROUP_CONCAT(?jurisdiction; separator=",") AS ?affected_filings)
+                WHERE {
+                    ?contradiction a contradiction:Contradiction ;
+                                   contradiction:involvesJurisdiction ?jurisdiction .
+                }
+                GROUP BY ?contradiction
+            } UNION {
+                # Evidence contradictions
+                SELECT ?contradiction (contradiction:EvidenceContradiction AS ?type)
+                       (contradiction:High AS ?severity) (0.88 AS ?confidence)
+                       (GROUP_CONCAT(?evidence; separator=",") AS ?affected_filings)
+                WHERE {
+                    ?contradiction a contradiction:Contradiction ;
+                                   contradiction:involvesEvidence ?evidence .
+                }
+                GROUP BY ?contradiction
+            }
+        }
+        ORDER BY DESC(?severity) DESC(?confidence)
+    """ ;
+    pattern:severity contradiction:Critical ;
+    pattern:confidence 0.93 .
+
+# Validation Rules using SHACL-like constraints
+pattern:ContradictionValidationRules a pattern:ValidationSet ;
+    rdfs:label "Contradiction Validation Rules" ;
+    pattern:hasRule [
+        rdfs:label "Minimum Confidence Threshold" ;
+        pattern:constraint "contradiction:confidence >= 0.7" ;
+        pattern:message "Contradiction detection confidence must be at least 70%"
+    ] ;
+    pattern:hasRule [
+        rdfs:label "Severity Assignment Rule" ;
+        pattern:constraint "EXISTS { ?contradiction contradiction:hasSeverity ?severity }" ;
+        pattern:message "Every contradiction must have an assigned severity level"
+    ] ;
+    pattern:hasRule [
+        rdfs:label "Evidence Requirement Rule" ;
+        pattern:constraint "?contradiction contradiction:basedOnEvidence ?evidence" ;
+        pattern:message "Contradictions must be supported by evidence"
+    ] .
+
+# Performance Optimization Patterns
+pattern:OptimizationHints a pattern:OptimizationSet ;
+    rdfs:label "Query Optimization Hints" ;
+    pattern:indexSuggestion "CREATE INDEX ON filing:contains" ;
+    pattern:indexSuggestion "CREATE INDEX ON legal:claims" ;
+    pattern:indexSuggestion "CREATE INDEX ON time:hasBeginning" ;
+    pattern:indexSuggestion "CREATE INDEX ON jurisdiction:assertsAuthority" ;
+    pattern:cacheStrategy "LRU" ;
+    pattern:cacheSize 10000 ;
+    pattern:parallelExecution true .

@@ -1,0 +1,172 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix figex: <http://figex.io/ontology#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# Ontology metadata
+figex:FigexOntology a owl:Ontology ;
+    dc:title "Figex Domain Ontology" ;
+    dc:description "Ontology for Figma .fig file extraction and processing" ;
+    dc:creator "figex v4.0.0" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Classes
+figex:FigmaFile a owl:Class ;
+    rdfs:label "Figma File" ;
+    rdfs:comment "A .fig file containing Figma design data" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty figex:hasPath ;
+        owl:someValuesFrom xsd:string
+    ] .
+
+figex:Canvas a owl:Class ;
+    rdfs:label "Canvas" ;
+    rdfs:comment "A canvas within a Figma file containing design elements" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty figex:hasName ;
+        owl:someValuesFrom xsd:string
+    ] .
+
+figex:Image a owl:Class ;
+    rdfs:label "Image" ;
+    rdfs:comment "An image asset embedded in the Figma file" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty figex:hasFormat ;
+        owl:someValuesFrom xsd:string
+    ] .
+
+figex:Metadata a owl:Class ;
+    rdfs:label "Metadata" ;
+    rdfs:comment "Metadata about the Figma file (size, entries, images)" .
+
+# CLI Command Classes
+figex:Command a owl:Class ;
+    rdfs:label "CLI Command" ;
+    rdfs:comment "A figex CLI command" .
+
+figex:ExtractCommand a owl:Class ;
+    rdfs:label "Extract Command" ;
+    rdfs:comment "Extract contents from .fig file" ;
+    rdfs:subClassOf figex:Command .
+
+figex:InfoCommand a owl:Class ;
+    rdfs:label "Info Command" ;
+    rdfs:comment "Display file information" ;
+    rdfs:subClassOf figex:Command .
+
+figex:ValidateCommand a owl:Class ;
+    rdfs:label "Validate Command" ;
+    rdfs:comment "Validate .fig file structure" ;
+    rdfs:subClassOf figex:Command .
+
+figex:ListCommand a owl:Class ;
+    rdfs:label "List Command" ;
+    rdfs:comment "List canvases in file" ;
+    rdfs:subClassOf figex:Command .
+
+figex:ImagesCommand a owl:Class ;
+    rdfs:label "Images Command" ;
+    rdfs:comment "Extract and process images" ;
+    rdfs:subClassOf figex:Command .
+
+figex:VisionCommand a owl:Class ;
+    rdfs:label "Vision Command" ;
+    rdfs:comment "AI vision analysis of images" ;
+    rdfs:subClassOf figex:Command .
+
+# Properties
+figex:hasPath a owl:DatatypeProperty ;
+    rdfs:label "has path" ;
+    rdfs:domain figex:FigmaFile ;
+    rdfs:range xsd:string ;
+    rdfs:comment "File system path to the .fig file" .
+
+figex:hasSize a owl:DatatypeProperty ;
+    rdfs:label "has size" ;
+    rdfs:domain figex:FigmaFile ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "File size in bytes" .
+
+figex:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the entity" .
+
+figex:hasFormat a owl:DatatypeProperty ;
+    rdfs:label "has format" ;
+    rdfs:domain figex:Image ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Image format (png, jpg, svg)" .
+
+figex:hasCanvas a owl:ObjectProperty ;
+    rdfs:label "has canvas" ;
+    rdfs:domain figex:FigmaFile ;
+    rdfs:range figex:Canvas ;
+    rdfs:comment "File contains canvas" .
+
+figex:hasImage a owl:ObjectProperty ;
+    rdfs:label "has image" ;
+    rdfs:domain figex:FigmaFile ;
+    rdfs:range figex:Image ;
+    rdfs:comment "File contains image" .
+
+figex:hasMetadata a owl:ObjectProperty ;
+    rdfs:label "has metadata" ;
+    rdfs:domain figex:FigmaFile ;
+    rdfs:range figex:Metadata ;
+    rdfs:comment "File has metadata" .
+
+# Command Arguments
+figex:requiresInput a owl:ObjectProperty ;
+    rdfs:label "requires input" ;
+    rdfs:domain figex:Command ;
+    rdfs:comment "Command requires input file path" .
+
+figex:hasOutputOption a owl:ObjectProperty ;
+    rdfs:label "has output option" ;
+    rdfs:domain figex:Command ;
+    rdfs:comment "Command has optional output directory" .
+
+figex:hasFormatOption a owl:ObjectProperty ;
+    rdfs:label "has format option" ;
+    rdfs:domain figex:Command ;
+    rdfs:comment "Command has format selection option" .
+
+# Individuals (Example commands)
+figex:extract a figex:ExtractCommand ;
+    rdfs:label "extract" ;
+    rdfs:comment "Extract all contents from .fig file to output directory" ;
+    figex:requiresInput "Path to .fig file" ;
+    figex:hasOutputOption "Output directory (default: current)" .
+
+figex:info a figex:InfoCommand ;
+    rdfs:label "info" ;
+    rdfs:comment "Display metadata about the .fig file" ;
+    figex:requiresInput "Path to .fig file" .
+
+figex:validate a figex:ValidateCommand ;
+    rdfs:label "validate" ;
+    rdfs:comment "Validate .fig file structure and integrity" ;
+    figex:requiresInput "Path to .fig file" .
+
+figex:list a figex:ListCommand ;
+    rdfs:label "list" ;
+    rdfs:comment "List all canvases in the file" ;
+    figex:requiresInput "Path to .fig file" .
+
+figex:images a figex:ImagesCommand ;
+    rdfs:label "images" ;
+    rdfs:comment "Extract and optionally process images" ;
+    figex:requiresInput "Path to .fig file" ;
+    figex:hasOutputOption "Output directory" ;
+    figex:hasFormatOption "Output format (png, jpg, webp)" .
+
+figex:vision a figex:VisionCommand ;
+    rdfs:label "vision" ;
+    rdfs:comment "Analyze images using AI vision (Ollama)" ;
+    figex:requiresInput "Path to .fig file or image directory" .

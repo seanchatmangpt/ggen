@@ -1,0 +1,28 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Unicode characters test
+<#unicode> ex:name "Unicode: ñ, é, ü, 中文, 😀" ; ex:type "unicode-test" .
+
+# Very long literal
+<#longLiteral> ex:description "This is a very long literal value that goes on and on and on and contains a lot of text to test how the parser handles very long string values in RDF triples. It includes multiple sentences and should be parsed correctly without any issues. The parser should handle this gracefully and not have performance problems with long strings." .
+
+# Empty string literal
+<#empty> ex:value "" ; ex:type "empty-string" .
+
+# Special characters
+<#special> ex:chars "Special: <>\"'&\n\t\r" ; ex:type "special-chars" .
+
+# Numeric datatypes
+<#numbers> 
+  ex:integer "42"^^xsd:integer ;
+  ex:decimal "3.14159"^^xsd:decimal ;
+  ex:boolean "true"^^xsd:boolean ;
+  ex:date "2024-01-01T00:00:00Z"^^xsd:dateTime .
+
+# Language tags
+<#languages> 
+  ex:greeting "Hello"@en ;
+  ex:greeting "Bonjour"@fr ;
+  ex:greeting "Hola"@es ;
+  ex:greeting "こんにちは"@ja .

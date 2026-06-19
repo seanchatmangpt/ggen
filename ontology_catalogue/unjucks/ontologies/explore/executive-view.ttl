@@ -1,0 +1,179 @@
+@prefix kmkt: <https://kgen.io/marketplace#> .
+@prefix kgen: <https://kgen.io/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Executive View Schema for marketplace exploration
+
+kmkt:ExecutiveView a owl:Class ;
+    rdfs:label "Executive View"@en ;
+    rdfs:comment "C-level executive perspective on marketplace with ROI and business metrics"@en .
+
+kmkt:hasKPI a owl:ObjectProperty ;
+    rdfs:label "has KPI"@en ;
+    rdfs:domain kmkt:ExecutiveView ;
+    rdfs:range kmkt:KPI .
+
+kmkt:hasPortfolio a owl:ObjectProperty ;
+    rdfs:label "has portfolio"@en ;
+    rdfs:domain kmkt:ExecutiveView ;
+    rdfs:range kmkt:Portfolio .
+
+kmkt:hasComplianceMatrix a owl:ObjectProperty ;
+    rdfs:label "has compliance matrix"@en ;
+    rdfs:domain kmkt:ExecutiveView ;
+    rdfs:range kmkt:ComplianceMatrix .
+
+kmkt:hasRiskAssessment a owl:ObjectProperty ;
+    rdfs:label "has risk assessment"@en ;
+    rdfs:domain kmkt:ExecutiveView ;
+    rdfs:range kmkt:RiskAssessment .
+
+# KPI Class
+kmkt:KPI a owl:Class ;
+    rdfs:label "Key Performance Indicator"@en ;
+    rdfs:comment "Business metric for executive decision making"@en .
+
+kmkt:metricValue a owl:DatatypeProperty ;
+    rdfs:label "metric value"@en ;
+    rdfs:domain kmkt:KPI ;
+    rdfs:range xsd:decimal .
+
+kmkt:trend a owl:DatatypeProperty ;
+    rdfs:label "trend"@en ;
+    rdfs:domain kmkt:KPI ;
+    rdfs:range xsd:string .
+
+kmkt:target a owl:DatatypeProperty ;
+    rdfs:label "target"@en ;
+    rdfs:domain kmkt:KPI ;
+    rdfs:range xsd:decimal .
+
+kmkt:status a owl:DatatypeProperty ;
+    rdfs:label "status"@en ;
+    rdfs:domain kmkt:KPI ;
+    rdfs:range xsd:string .
+
+# Portfolio Class
+kmkt:Portfolio a owl:Class ;
+    rdfs:label "Knowledge Pack Portfolio"@en ;
+    rdfs:comment "Collection of knowledge packs and their performance"@en .
+
+kmkt:totalPacks a owl:DatatypeProperty ;
+    rdfs:label "total packs"@en ;
+    rdfs:domain kmkt:Portfolio ;
+    rdfs:range xsd:integer .
+
+kmkt:activeProjects a owl:DatatypeProperty ;
+    rdfs:label "active projects"@en ;
+    rdfs:domain kmkt:Portfolio ;
+    rdfs:range xsd:integer .
+
+kmkt:utilizationRate a owl:DatatypeProperty ;
+    rdfs:label "utilization rate"@en ;
+    rdfs:domain kmkt:Portfolio ;
+    rdfs:range xsd:decimal .
+
+# ROI Metrics
+kmkt:ROIMetrics a owl:Class ;
+    rdfs:label "ROI Metrics"@en ;
+    rdfs:comment "Return on investment calculations and projections"@en .
+
+kmkt:monthlyROI a owl:DatatypeProperty ;
+    rdfs:label "monthly ROI"@en ;
+    rdfs:domain kmkt:ROIMetrics ;
+    rdfs:range xsd:decimal .
+
+kmkt:savedHours a owl:DatatypeProperty ;
+    rdfs:label "saved hours"@en ;
+    rdfs:domain kmkt:ROIMetrics ;
+    rdfs:range xsd:integer .
+
+kmkt:savedCost a owl:DatatypeProperty ;
+    rdfs:label "saved cost"@en ;
+    rdfs:domain kmkt:ROIMetrics ;
+    rdfs:range xsd:decimal .
+
+kmkt:paybackPeriod a owl:DatatypeProperty ;
+    rdfs:label "payback period"@en ;
+    rdfs:domain kmkt:ROIMetrics ;
+    rdfs:range xsd:integer .
+
+# Compliance Matrix
+kmkt:ComplianceMatrix a owl:Class ;
+    rdfs:label "Compliance Matrix"@en ;
+    rdfs:comment "Regulatory and standards compliance assessment"@en .
+
+kmkt:overallScore a owl:DatatypeProperty ;
+    rdfs:label "overall score"@en ;
+    rdfs:domain kmkt:ComplianceMatrix ;
+    rdfs:range xsd:decimal .
+
+kmkt:hasFramework a owl:ObjectProperty ;
+    rdfs:label "has framework"@en ;
+    rdfs:domain kmkt:ComplianceMatrix ;
+    rdfs:range kmkt:ComplianceFramework .
+
+kmkt:ComplianceFramework a owl:Class ;
+    rdfs:label "Compliance Framework"@en ;
+    rdfs:comment "Regulatory framework like SOX, GDPR, HIPAA"@en .
+
+kmkt:frameworkName a owl:DatatypeProperty ;
+    rdfs:label "framework name"@en ;
+    rdfs:domain kmkt:ComplianceFramework ;
+    rdfs:range xsd:string .
+
+kmkt:complianceScore a owl:DatatypeProperty ;
+    rdfs:label "compliance score"@en ;
+    rdfs:domain kmkt:ComplianceFramework ;
+    rdfs:range xsd:decimal .
+
+# Risk Assessment
+kmkt:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment"@en ;
+    rdfs:comment "Business and technical risk analysis"@en .
+
+kmkt:overallRisk a owl:DatatypeProperty ;
+    rdfs:label "overall risk"@en ;
+    rdfs:domain kmkt:RiskAssessment ;
+    rdfs:range xsd:string .
+
+kmkt:hasRiskCategory a owl:ObjectProperty ;
+    rdfs:label "has risk category"@en ;
+    rdfs:domain kmkt:RiskAssessment ;
+    rdfs:range kmkt:RiskCategory .
+
+kmkt:RiskCategory a owl:Class ;
+    rdfs:label "Risk Category"@en ;
+    rdfs:comment "Category of business or technical risk"@en .
+
+kmkt:riskLevel a owl:DatatypeProperty ;
+    rdfs:label "risk level"@en ;
+    rdfs:domain kmkt:RiskCategory ;
+    rdfs:range xsd:string .
+
+kmkt:exposure a owl:DatatypeProperty ;
+    rdfs:label "exposure"@en ;
+    rdfs:domain kmkt:RiskCategory ;
+    rdfs:range xsd:decimal .
+
+# Business Impact
+kmkt:BusinessImpact a owl:Class ;
+    rdfs:label "Business Impact"@en ;
+    rdfs:comment "Overall business impact metrics"@en .
+
+kmkt:revenueImpact a owl:DatatypeProperty ;
+    rdfs:label "revenue impact"@en ;
+    rdfs:domain kmkt:BusinessImpact ;
+    rdfs:range xsd:decimal .
+
+kmkt:competitiveAdvantage a owl:DatatypeProperty ;
+    rdfs:label "competitive advantage"@en ;
+    rdfs:domain kmkt:BusinessImpact ;
+    rdfs:range xsd:decimal .
+
+kmkt:teamProductivity a owl:DatatypeProperty ;
+    rdfs:label "team productivity"@en ;
+    rdfs:domain kmkt:BusinessImpact ;
+    rdfs:range xsd:decimal .

@@ -1,0 +1,698 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix revops: <http://gitvan.org/ontology/revops#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# RevOps Ontology - Revenue Operations Business Intelligence
+# ============================================================================
+# Version: 1.0.0
+# Purpose: Define business entities for customer lifecycle, revenue tracking,
+#          churn prediction, expansion opportunities, and business intelligence
+# ============================================================================
+
+revops:
+    a owl:Ontology ;
+    rdfs:label "RevOps Ontology" ;
+    rdfs:comment "Comprehensive ontology for Revenue Operations, customer lifecycle management, and business intelligence" ;
+    dcterms:created "2026-01-09"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# Core Business Entity Classes
+# ============================================================================
+
+revops:Customer
+    a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "Represents a customer account with subscription, payment, and usage data" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:customerId ;
+        owl:cardinality 1
+    ] .
+
+revops:Plan
+    a owl:Class ;
+    rdfs:label "Subscription Plan" ;
+    rdfs:comment "Represents a subscription tier or pricing plan with features and pricing" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:planName ;
+        owl:cardinality 1
+    ] .
+
+revops:Feature
+    a owl:Class ;
+    rdfs:label "Product Feature" ;
+    rdfs:comment "Represents a product feature with adoption and usage metrics" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:featureName ;
+        owl:cardinality 1
+    ] .
+
+revops:ExpansionEvent
+    a owl:Class ;
+    rdfs:label "Expansion Event" ;
+    rdfs:comment "Represents a customer upgrade or expansion (upsell/cross-sell)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:expansionCustomer ;
+        owl:cardinality 1
+    ] .
+
+revops:ChurnEvent
+    a owl:Class ;
+    rdfs:label "Churn Event" ;
+    rdfs:comment "Represents a customer cancellation or churn" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:churnCustomer ;
+        owl:cardinality 1
+    ] .
+
+revops:PaymentEvent
+    a owl:Class ;
+    rdfs:label "Payment Event" ;
+    rdfs:comment "Represents a payment transaction (successful, failed, refunded)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:paymentAmount ;
+        owl:minCardinality 1
+    ] .
+
+revops:SupportTicket
+    a owl:Class ;
+    rdfs:label "Support Ticket" ;
+    rdfs:comment "Represents a customer support interaction" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:ticketCustomer ;
+        owl:cardinality 1
+    ] .
+
+revops:UsageEvent
+    a owl:Class ;
+    rdfs:label "Usage Event" ;
+    rdfs:comment "Represents feature or product usage activity" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:usageCustomer ;
+        owl:cardinality 1
+    ] .
+
+revops:Cohort
+    a owl:Class ;
+    rdfs:label "Customer Cohort" ;
+    rdfs:comment "Represents a group of customers segmented by shared characteristics" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:cohortName ;
+        owl:cardinality 1
+    ] .
+
+revops:ActivityEvent
+    a owl:Class ;
+    rdfs:label "Activity Event" ;
+    rdfs:comment "Represents general customer activity (login, action, engagement)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty revops:activityCustomer ;
+        owl:cardinality 1
+    ] .
+
+# ============================================================================
+# Customer Properties
+# ============================================================================
+
+revops:customerId
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Customer ID" ;
+    rdfs:comment "Unique identifier for the customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:string .
+
+revops:customerName
+    a owl:DatatypeProperty ;
+    rdfs:label "Customer Name" ;
+    rdfs:comment "Full name or company name of the customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:string .
+
+revops:customerEmail
+    a owl:DatatypeProperty ;
+    rdfs:label "Customer Email" ;
+    rdfs:comment "Primary email address for the customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:string .
+
+revops:signupDate
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Signup Date" ;
+    rdfs:comment "Date when the customer signed up" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:dateTime .
+
+revops:isActive
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Is Active" ;
+    rdfs:comment "Whether the customer account is currently active" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:boolean .
+
+revops:monthlyRecurringRevenue
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Monthly Recurring Revenue (MRR)" ;
+    rdfs:comment "Current monthly recurring revenue from this customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:decimal .
+
+revops:lifetimeValue
+    a owl:DatatypeProperty ;
+    rdfs:label "Lifetime Value (LTV)" ;
+    rdfs:comment "Estimated or actual lifetime value of the customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:decimal .
+
+revops:churnRiskScore
+    a owl:DatatypeProperty ;
+    rdfs:label "Churn Risk Score" ;
+    rdfs:comment "Predicted churn risk score (0-100, higher = more risk)" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:integer .
+
+revops:expansionLikelihood
+    a owl:DatatypeProperty ;
+    rdfs:label "Expansion Likelihood" ;
+    rdfs:comment "Likelihood of expansion/upsell (0-100, higher = more likely)" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:integer .
+
+revops:lastActivityDate
+    a owl:DatatypeProperty ;
+    rdfs:label "Last Activity Date" ;
+    rdfs:comment "Timestamp of most recent customer activity" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:dateTime .
+
+revops:daysSinceLastActivity
+    a owl:DatatypeProperty ;
+    rdfs:label "Days Since Last Activity" ;
+    rdfs:comment "Number of days since last customer activity" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:integer .
+
+revops:supportTicketCount
+    a owl:DatatypeProperty ;
+    rdfs:label "Support Ticket Count" ;
+    rdfs:comment "Total number of support tickets opened by customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:integer .
+
+revops:featureUsagePercent
+    a owl:DatatypeProperty ;
+    rdfs:label "Feature Usage Percent" ;
+    rdfs:comment "Percentage of available features actually used by customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:decimal .
+
+revops:lastPaymentFailed
+    a owl:DatatypeProperty ;
+    rdfs:label "Last Payment Failed" ;
+    rdfs:comment "Whether the most recent payment attempt failed" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:boolean .
+
+revops:consecutiveFailedPayments
+    a owl:DatatypeProperty ;
+    rdfs:label "Consecutive Failed Payments" ;
+    rdfs:comment "Number of consecutive failed payment attempts" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:integer .
+
+revops:averagePaymentDays
+    a owl:DatatypeProperty ;
+    rdfs:label "Average Payment Days" ;
+    rdfs:comment "Average number of days to complete payment (payment velocity)" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# Plan Properties
+# ============================================================================
+
+revops:planName
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Plan Name" ;
+    rdfs:comment "Name of the subscription plan" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:string .
+
+revops:monthlyPrice
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Monthly Price" ;
+    rdfs:comment "Monthly subscription price for this plan" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:decimal .
+
+revops:annualPrice
+    a owl:DatatypeProperty ;
+    rdfs:label "Annual Price" ;
+    rdfs:comment "Annual subscription price (if applicable)" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:decimal .
+
+revops:requiredMinCommitment
+    a owl:DatatypeProperty ;
+    rdfs:label "Required Minimum Commitment" ;
+    rdfs:comment "Minimum commitment period in months" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:integer .
+
+revops:planTier
+    a owl:DatatypeProperty ;
+    rdfs:label "Plan Tier" ;
+    rdfs:comment "Tier level (starter, professional, enterprise, etc.)" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:string .
+
+revops:maxUsers
+    a owl:DatatypeProperty ;
+    rdfs:label "Maximum Users" ;
+    rdfs:comment "Maximum number of users allowed on this plan" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:integer .
+
+revops:storageLimit
+    a owl:DatatypeProperty ;
+    rdfs:label "Storage Limit" ;
+    rdfs:comment "Storage limit in GB for this plan" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# Feature Properties
+# ============================================================================
+
+revops:featureName
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Feature Name" ;
+    rdfs:comment "Name of the product feature" ;
+    rdfs:domain revops:Feature ;
+    rdfs:range xsd:string .
+
+revops:adoptionRate
+    a owl:DatatypeProperty ;
+    rdfs:label "Adoption Rate" ;
+    rdfs:comment "Percentage of customers who have adopted this feature" ;
+    rdfs:domain revops:Feature ;
+    rdfs:range xsd:decimal .
+
+revops:monthlyActiveUsers
+    a owl:DatatypeProperty ;
+    rdfs:label "Monthly Active Users" ;
+    rdfs:comment "Number of unique users who used this feature in the last month" ;
+    rdfs:domain revops:Feature ;
+    rdfs:range xsd:integer .
+
+revops:churnCorrelation
+    a owl:DatatypeProperty ;
+    rdfs:label "Churn Correlation" ;
+    rdfs:comment "Correlation coefficient between feature usage and churn (-1 to 1)" ;
+    rdfs:domain revops:Feature ;
+    rdfs:range xsd:decimal .
+
+revops:revenueCorrelation
+    a owl:DatatypeProperty ;
+    rdfs:label "Revenue Correlation" ;
+    rdfs:comment "Correlation coefficient between feature usage and revenue (-1 to 1)" ;
+    rdfs:domain revops:Feature ;
+    rdfs:range xsd:decimal .
+
+revops:averageUsageFrequency
+    a owl:DatatypeProperty ;
+    rdfs:label "Average Usage Frequency" ;
+    rdfs:comment "Average times per month feature is used by active users" ;
+    rdfs:domain revops:Feature ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# Event Properties
+# ============================================================================
+
+# Expansion Event Properties
+revops:expansionCustomer
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Expansion Customer" ;
+    rdfs:comment "Customer who performed the expansion" ;
+    rdfs:domain revops:ExpansionEvent ;
+    rdfs:range revops:Customer .
+
+revops:previousPlan
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Previous Plan" ;
+    rdfs:comment "Plan before the expansion" ;
+    rdfs:domain revops:ExpansionEvent ;
+    rdfs:range revops:Plan .
+
+revops:newPlan
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "New Plan" ;
+    rdfs:comment "Plan after the expansion" ;
+    rdfs:domain revops:ExpansionEvent ;
+    rdfs:range revops:Plan .
+
+revops:expansionValue
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Expansion Value" ;
+    rdfs:comment "Additional monthly revenue from expansion" ;
+    rdfs:domain revops:ExpansionEvent ;
+    rdfs:range xsd:decimal .
+
+revops:expansionTimestamp
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Expansion Timestamp" ;
+    rdfs:comment "When the expansion occurred" ;
+    rdfs:domain revops:ExpansionEvent ;
+    rdfs:range xsd:dateTime .
+
+# Churn Event Properties
+revops:churnCustomer
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Churn Customer" ;
+    rdfs:comment "Customer who churned" ;
+    rdfs:domain revops:ChurnEvent ;
+    rdfs:range revops:Customer .
+
+revops:churnTimestamp
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Churn Timestamp" ;
+    rdfs:comment "When the churn occurred" ;
+    rdfs:domain revops:ChurnEvent ;
+    rdfs:range xsd:dateTime .
+
+revops:churnReason
+    a owl:DatatypeProperty ;
+    rdfs:label "Churn Reason" ;
+    rdfs:comment "Reason provided for churning" ;
+    rdfs:domain revops:ChurnEvent ;
+    rdfs:range xsd:string .
+
+revops:churnRevenueImpact
+    a owl:DatatypeProperty ;
+    rdfs:label "Churn Revenue Impact" ;
+    rdfs:comment "Monthly revenue lost due to churn" ;
+    rdfs:domain revops:ChurnEvent ;
+    rdfs:range xsd:decimal .
+
+# Payment Event Properties
+revops:paymentCustomer
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Payment Customer" ;
+    rdfs:comment "Customer who made the payment" ;
+    rdfs:domain revops:PaymentEvent ;
+    rdfs:range revops:Customer .
+
+revops:paymentAmount
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Payment Amount" ;
+    rdfs:comment "Amount of the payment" ;
+    rdfs:domain revops:PaymentEvent ;
+    rdfs:range xsd:decimal .
+
+revops:paymentTimestamp
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Payment Timestamp" ;
+    rdfs:comment "When the payment was processed" ;
+    rdfs:domain revops:PaymentEvent ;
+    rdfs:range xsd:dateTime .
+
+revops:paymentStatus
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Payment Status" ;
+    rdfs:comment "Status of payment (succeeded, failed, refunded, pending)" ;
+    rdfs:domain revops:PaymentEvent ;
+    rdfs:range xsd:string .
+
+revops:paymentMethod
+    a owl:DatatypeProperty ;
+    rdfs:label "Payment Method" ;
+    rdfs:comment "Payment method used (card, wire, ach, etc.)" ;
+    rdfs:domain revops:PaymentEvent ;
+    rdfs:range xsd:string .
+
+revops:daysToPayment
+    a owl:DatatypeProperty ;
+    rdfs:label "Days to Payment" ;
+    rdfs:comment "Days from invoice to payment completion" ;
+    rdfs:domain revops:PaymentEvent ;
+    rdfs:range xsd:integer .
+
+# Support Ticket Properties
+revops:ticketCustomer
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Ticket Customer" ;
+    rdfs:comment "Customer who opened the support ticket" ;
+    rdfs:domain revops:SupportTicket ;
+    rdfs:range revops:Customer .
+
+revops:ticketId
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Ticket ID" ;
+    rdfs:comment "Unique identifier for the support ticket" ;
+    rdfs:domain revops:SupportTicket ;
+    rdfs:range xsd:string .
+
+revops:ticketCreatedAt
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Ticket Created At" ;
+    rdfs:comment "When the ticket was created" ;
+    rdfs:domain revops:SupportTicket ;
+    rdfs:range xsd:dateTime .
+
+revops:ticketPriority
+    a owl:DatatypeProperty ;
+    rdfs:label "Ticket Priority" ;
+    rdfs:comment "Priority level (low, medium, high, critical)" ;
+    rdfs:domain revops:SupportTicket ;
+    rdfs:range xsd:string .
+
+revops:ticketStatus
+    a owl:DatatypeProperty ;
+    rdfs:label "Ticket Status" ;
+    rdfs:comment "Current status (open, in_progress, resolved, closed)" ;
+    rdfs:domain revops:SupportTicket ;
+    rdfs:range xsd:string .
+
+revops:ticketResolutionTime
+    a owl:DatatypeProperty ;
+    rdfs:label "Ticket Resolution Time" ;
+    rdfs:comment "Time taken to resolve ticket in hours" ;
+    rdfs:domain revops:SupportTicket ;
+    rdfs:range xsd:decimal .
+
+# Usage Event Properties
+revops:usageCustomer
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Usage Customer" ;
+    rdfs:comment "Customer who performed the usage activity" ;
+    rdfs:domain revops:UsageEvent ;
+    rdfs:range revops:Customer .
+
+revops:usageFeature
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Usage Feature" ;
+    rdfs:comment "Feature that was used" ;
+    rdfs:domain revops:UsageEvent ;
+    rdfs:range revops:Feature .
+
+revops:usageTimestamp
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Usage Timestamp" ;
+    rdfs:comment "When the feature was used" ;
+    rdfs:domain revops:UsageEvent ;
+    rdfs:range xsd:dateTime .
+
+revops:usageCount
+    a owl:DatatypeProperty ;
+    rdfs:label "Usage Count" ;
+    rdfs:comment "Number of times feature was used in this event" ;
+    rdfs:domain revops:UsageEvent ;
+    rdfs:range xsd:integer .
+
+# Activity Event Properties
+revops:activityCustomer
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Activity Customer" ;
+    rdfs:comment "Customer who performed the activity" ;
+    rdfs:domain revops:ActivityEvent ;
+    rdfs:range revops:Customer .
+
+revops:activityType
+    a owl:DatatypeProperty ;
+    rdfs:label "Activity Type" ;
+    rdfs:comment "Type of activity (login, action, view, etc.)" ;
+    rdfs:domain revops:ActivityEvent ;
+    rdfs:range xsd:string .
+
+revops:activityTimestamp
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Activity Timestamp" ;
+    rdfs:comment "When the activity occurred" ;
+    rdfs:domain revops:ActivityEvent ;
+    rdfs:range xsd:dateTime .
+
+# ============================================================================
+# Relationship Properties
+# ============================================================================
+
+revops:hasPlan
+    a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "Has Plan" ;
+    rdfs:comment "Current subscription plan of the customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range revops:Plan .
+
+revops:includesFeature
+    a owl:ObjectProperty ;
+    rdfs:label "Includes Feature" ;
+    rdfs:comment "Features included in the plan" ;
+    rdfs:domain revops:Plan ;
+    rdfs:range revops:Feature .
+
+revops:usesFeature
+    a owl:ObjectProperty ;
+    rdfs:label "Uses Feature" ;
+    rdfs:comment "Features actively used by the customer" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range revops:Feature .
+
+revops:belongsToCohort
+    a owl:ObjectProperty ;
+    rdfs:label "Belongs to Cohort" ;
+    rdfs:comment "Cohort(s) the customer belongs to" ;
+    rdfs:domain revops:Customer ;
+    rdfs:range revops:Cohort .
+
+# ============================================================================
+# Cohort Properties
+# ============================================================================
+
+revops:cohortName
+    a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "Cohort Name" ;
+    rdfs:comment "Name of the customer cohort" ;
+    rdfs:domain revops:Cohort ;
+    rdfs:range xsd:string .
+
+revops:cohortCreatedAt
+    a owl:DatatypeProperty ;
+    rdfs:label "Cohort Created At" ;
+    rdfs:comment "When the cohort was created/defined" ;
+    rdfs:domain revops:Cohort ;
+    rdfs:range xsd:dateTime .
+
+revops:cohortSize
+    a owl:DatatypeProperty ;
+    rdfs:label "Cohort Size" ;
+    rdfs:comment "Number of customers in the cohort" ;
+    rdfs:domain revops:Cohort ;
+    rdfs:range xsd:integer .
+
+revops:cohortRetentionRate
+    a owl:DatatypeProperty ;
+    rdfs:label "Cohort Retention Rate" ;
+    rdfs:comment "Percentage of cohort still active" ;
+    rdfs:domain revops:Cohort ;
+    rdfs:range xsd:decimal .
+
+revops:cohortAverageLTV
+    a owl:DatatypeProperty ;
+    rdfs:label "Cohort Average LTV" ;
+    rdfs:comment "Average lifetime value for customers in cohort" ;
+    rdfs:domain revops:Cohort ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# Inference Rules (OWL Axioms)
+# ============================================================================
+
+# High-risk customer definition
+revops:HighRiskCustomer
+    a owl:Class ;
+    rdfs:label "High Risk Customer" ;
+    rdfs:comment "Customer with high probability of churning" ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            revops:Customer
+            [
+                a owl:Restriction ;
+                owl:onProperty revops:churnRiskScore ;
+                owl:someValuesFrom [
+                    a rdfs:Datatype ;
+                    owl:onDatatype xsd:integer ;
+                    owl:withRestrictions ( [ xsd:minInclusive 70 ] )
+                ]
+            ]
+        )
+    ] .
+
+# Expansion candidate definition
+revops:ExpansionCandidate
+    a owl:Class ;
+    rdfs:label "Expansion Candidate" ;
+    rdfs:comment "Customer likely to expand/upgrade" ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            revops:Customer
+            [
+                a owl:Restriction ;
+                owl:onProperty revops:expansionLikelihood ;
+                owl:someValuesFrom [
+                    a rdfs:Datatype ;
+                    owl:onDatatype xsd:integer ;
+                    owl:withRestrictions ( [ xsd:minInclusive 60 ] )
+                ]
+            ]
+        )
+    ] .
+
+# Healthy customer definition
+revops:HealthyCustomer
+    a owl:Class ;
+    rdfs:label "Healthy Customer" ;
+    rdfs:comment "Customer with low churn risk and high engagement" ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            revops:Customer
+            [
+                a owl:Restriction ;
+                owl:onProperty revops:churnRiskScore ;
+                owl:someValuesFrom [
+                    a rdfs:Datatype ;
+                    owl:onDatatype xsd:integer ;
+                    owl:withRestrictions ( [ xsd:maxInclusive 30 ] )
+                ]
+            ]
+            [
+                a owl:Restriction ;
+                owl:onProperty revops:featureUsagePercent ;
+                owl:someValuesFrom [
+                    a rdfs:Datatype ;
+                    owl:onDatatype xsd:decimal ;
+                    owl:withRestrictions ( [ xsd:minInclusive 50.0 ] )
+                ]
+            ]
+        )
+    ] .
+
+# ============================================================================
+# End of RevOps Ontology
+# ============================================================================

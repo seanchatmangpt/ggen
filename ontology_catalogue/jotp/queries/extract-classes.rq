@@ -1,0 +1,25 @@
+PREFIX java: <https://jgen.dev/ontology/java#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract all class declarations with their members, modifiers, and relationships
+SELECT ?class ?name ?package ?modifier ?superclass ?interface ?field ?fieldName ?fieldType ?method ?methodName ?returnType
+WHERE {
+    ?class a/rdfs:subClassOf* java:ClassType .
+    ?class java:hasName ?name .
+
+    OPTIONAL { ?class java:hasPackage ?package }
+    OPTIONAL { ?class java:hasModifier ?modifier }
+    OPTIONAL { ?class java:extendsType ?superclass }
+    OPTIONAL { ?class java:implementsInterface ?interface }
+    OPTIONAL {
+        ?class java:hasField ?field .
+        ?field java:hasName ?fieldName .
+        ?field java:hasType ?fieldType .
+    }
+    OPTIONAL {
+        ?class java:hasMethod ?method .
+        ?method java:hasName ?methodName .
+        OPTIONAL { ?method java:hasReturnType ?returnType }
+    }
+}
+ORDER BY ?package ?name

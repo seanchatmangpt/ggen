@@ -1,0 +1,6 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:john a foaf:Person ;
+    foaf:name "John Doe" ;
+    foaf:email <not-a-valid-uri> .

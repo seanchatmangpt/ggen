@@ -1,0 +1,119 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://rflow.io/ontology/yawl-core#> .
+@prefix job: <http://rflow.io/ontology/job-model#> .
+@prefix ex: <http://example.org/workflow#> .
+
+# Complex Synchronization Workflow
+# A -> (B || C || D) -> E
+
+ex:workflow5 a job:WorkflowJob ;
+    job:hasJobId "wf-005" ;
+    job:hasJobName "Complex Synchronization Workflow" ;
+    job:hasState job:Pending .
+
+ex:activityA a job:ActivityJob ;
+    job:hasJobId "act-A5" ;
+    job:hasJobName "Initial Setup" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:hasPriority 10 .
+
+ex:tripleParallelSplit a job:ActivityJob ;
+    job:hasJobId "split-triple" ;
+    job:hasJobName "Triple Parallel Split" ;
+    job:implementsPattern yawl:andSplit ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:activityA .
+
+ex:activityB a job:ActivityJob ;
+    job:hasJobId "act-B5" ;
+    job:hasJobName "Data Processing Branch" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:tripleParallelSplit ;
+    job:requiresCPU 4.0 ;
+    job:requiresMemory 2048 ;
+    job:hasTimeout "PT2H"^^xsd:duration .
+
+ex:activityC a job:ActivityJob ;
+    job:hasJobId "act-C5" ;
+    job:hasJobName "Validation Branch" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:tripleParallelSplit ;
+    job:requiresCPU 1.0 ;
+    job:requiresMemory 512 ;
+    job:hasTimeout "PT30M"^^xsd:duration .
+
+ex:activityD a job:ActivityJob ;
+    job:hasJobId "act-D5" ;
+    job:hasJobName "Logging Branch" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:tripleParallelSplit ;
+    job:requiresCPU 0.5 ;
+    job:requiresMemory 256 ;
+    job:hasTimeout "PT15M"^^xsd:duration .
+
+ex:tripleSync a job:ActivityJob ;
+    job:hasJobId "sync-triple" ;
+    job:hasJobName "Triple Synchronization" ;
+    job:implementsPattern yawl:andJoin ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:activityB ;
+    job:dependsOn ex:activityC ;
+    job:dependsOn ex:activityD .
+
+ex:activityE a job:ActivityJob ;
+    job:hasJobId "act-E5" ;
+    job:hasJobName "Final Aggregation" ;
+    job:implementsPattern yawl:activity ;
+    job:belongsToWorkflow ex:workflow5 ;
+    job:hasState job:Pending ;
+    job:dependsOn ex:tripleSync ;
+    job:requiresCPU 2.0 ;
+    job:requiresMemory 1024 .
+
+# Pattern relationships
+ex:tripleParallelSplit yawl:enablesPattern ex:activityB ;
+    yawl:enablesPattern ex:activityC ;
+    yawl:enablesPattern ex:activityD .
+
+ex:tripleSync yawl:synchronizesWith ex:activityB ;
+    yawl:synchronizesWith ex:activityC ;
+    yawl:synchronizesWith ex:activityD .
+
+# Resource constraints validation
+ex:activityB job:hasMaxRetries 3 ;
+    job:hasRetryCount 0 .
+
+ex:activityC job:hasMaxRetries 2 ;
+    job:hasRetryCount 0 .
+
+ex:activityD job:hasMaxRetries 1 ;
+    job:hasRetryCount 0 .
+
+# Validation assertions
+ex:workflow5 yawl:isAcyclic true .
+ex:activityA yawl:isAcyclic true .
+ex:tripleParallelSplit yawl:isAcyclic true .
+ex:activityB yawl:isAcyclic true .
+ex:activityC yawl:isAcyclic true .
+ex:activityD yawl:isAcyclic true .
+ex:tripleSync yawl:isAcyclic true .
+ex:activityE yawl:isAcyclic true .
+
+# All activities have valid signatures
+ex:activityA yawl:hasValidSignature true .
+ex:activityB yawl:hasValidSignature true .
+ex:activityC yawl:hasValidSignature true .
+ex:activityD yawl:hasValidSignature true .
+ex:activityE yawl:hasValidSignature true .

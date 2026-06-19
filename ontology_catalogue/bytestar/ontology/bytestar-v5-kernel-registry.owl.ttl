@@ -1,0 +1,100 @@
+@prefix : <https://bytestar.org/ontology/v5/kernel-registry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix core: <https://bytestar.org/ontology/v5/core#> .
+@prefix exec: <https://bytestar.org/ontology/v5/execution#> .
+
+<https://bytestar.org/ontology/v5/kernel-registry>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/v5/execution> ;
+  rdfs:label "ByteStar v5 Kernel Registry" ;
+  rdfs:comment "The definitive, machine-readable registry of all 64 atomic kernels. This provides the AOT Fabricator with the precise metadata required for compilation, validation, and optimization of the ByteActor execution engine." ;
+  owl:versionInfo "5.0.0" .
+
+# #################################################################
+# I. Kernel Metadata Properties
+# #################################################################
+
+:hasCategory a owl:DatatypeProperty ;
+    rdfs:comment "The functional category of the kernel." ;
+    rdfs:domain core:Kernel ;
+    rdfs:range xsd:string .
+
+:isIdempotent a owl:DatatypeProperty ;
+    rdfs:comment "Specifies if the kernel can be executed multiple times with the same input, yielding the same result." ;
+    rdfs:domain core:Kernel ;
+    rdfs:range xsd:boolean .
+
+:isBranchFree a owl:DatatypeProperty ;
+    rdfs:comment "Specifies if the kernel's implementation contains no data-dependent conditional branches." ;
+    rdfs:domain core:Kernel ;
+    rdfs:range xsd:boolean .
+
+:hasInputSignature a owl:DatatypeProperty ;
+    rdfs:comment "A formal description of the kernel's input envelope structure." ;
+    rdfs:domain core:Kernel ;
+    rdfs:range xsd:string .
+
+:hasOutputSignature a owl:DatatypeProperty ;
+    rdfs:comment "A formal description of the kernel's output crystal structure." ;
+    rdfs:domain core:Kernel ;
+    rdfs:range xsd:string .
+
+
+# #################################################################
+# II. The 64 Kernel Individuals (Representative Sample)
+# #################################################################
+
+# This ontology would fully define all 64 kernels. The following are representative examples.
+
+# --- Group A: Ingress, Dispatch & Envelope ---
+exec:K01
+    a owl:NamedIndividual, core:Kernel ;
+    :hasCategory "Movement Control" ;
+    :isIdempotent "false"^^xsd:boolean ;
+    :isBranchFree "true"^^xsd:boolean ;
+    :hasInputSignature "SPSC Ring State" ;
+    :hasOutputSignature "CrystalEnvelope" .
+
+exec:K04
+    a owl:NamedIndividual, core:Kernel ;
+    :hasCategory "Dispatch" ;
+    :isIdempotent "true"^^xsd:boolean ;
+    :isBranchFree "true"^^xsd:boolean ;
+    :hasInputSignature "PatternByte" ;
+    :hasOutputSignature "KernelFunctionPointer" .
+
+# --- Group B: Control/Pattern Kernels ---
+:K17 a owl:NamedIndividual, core:Kernel ;
+    rdfs:label "K17_AND_Join_Readiness_Mask" ;
+    core:hasTickCost "2"^^xsd:integer ;
+    :hasCategory "Synchronization" ;
+    :isIdempotent "true"^^xsd:boolean ;
+    :isBranchFree "true"^^xsd:boolean .
+
+# --- Group C: Tables, Filters & Bitsets ---
+:K29 a owl:NamedIndividual, core:Kernel ;
+    rdfs:label "K29_XOR_Filter_Probe" ;
+    core:hasTickCost "3"^^xsd:integer ;
+    :hasCategory "Probabilistic Data Structure" ;
+    :isIdempotent "true"^^xsd:boolean ;
+    :isBranchFree "true"^^xsd:boolean .
+
+# --- Group D: Security & Cryptography ---
+:K21 a owl:NamedIndividual, core:Kernel ;
+    rdfs:label "K21_PQC_Verify" ;
+    core:hasTickCost "7"^^xsd:integer ; # Higher tick cost for warm-path crypto
+    :hasCategory "Cryptography" ;
+    :isIdempotent "true"^^xsd:boolean ;
+    :isBranchFree "true"^^xsd:boolean ; # The implementation must be constant-time
+    :hasInputSignature "Message, Signature, PublicKey" ;
+    :hasOutputSignature "VerificationResult" .
+
+# --- Group G: Observability & Control ---
+:A55 a owl:NamedIndividual, core:Kernel ;
+    rdfs:label "A55_Metric_Increment" ;
+    core:hasTickCost "1"^^xsd:integer ;
+    :hasCategory "Observability" ;
+    :isIdempotent "false"^^xsd:boolean ;
+    :isBranchFree "true"^^xsd:boolean .

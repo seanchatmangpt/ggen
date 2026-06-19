@@ -1,0 +1,69 @@
+@prefix protocol: <http://erlmcp.org/schema/protocol/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+protocol:JsonRpc a rdfs:Class ;
+    rdfs:label "JSON-RPC Protocol" ;
+    rdfs:comment "JSON-RPC 2.0 protocol implementation" .
+
+protocol:version a rdf:Property ;
+    rdfs:domain protocol:JsonRpc ;
+    rdfs:range xsd:string ;
+    rdfs:label "protocol version" .
+
+protocol:RequestMessage a rdfs:Class ;
+    rdfs:label "Request Message" ;
+    rdfs:comment "JSON-RPC request message" .
+
+protocol:ResponseMessage a rdfs:Class ;
+    rdfs:label "Response Message" ;
+    rdfs:comment "JSON-RPC response message" .
+
+protocol:NotificationMessage a rdfs:Class ;
+    rdfs:label "Notification Message" ;
+    rdfs:comment "JSON-RPC notification message" .
+
+protocol:ErrorMessage a rdfs:Class ;
+    rdfs:label "Error Message" ;
+    rdfs:comment "JSON-RPC error message" .
+
+protocol:hasErrorCode a rdf:Property ;
+    rdfs:domain protocol:ErrorMessage ;
+    rdfs:range xsd:integer .
+
+protocol:hasErrorMessage a rdf:Property ;
+    rdfs:domain protocol:ErrorMessage ;
+    rdfs:range xsd:string .
+
+protocol:hasRequestId a rdf:Property ;
+    rdfs:range xsd:string .
+
+protocol:hasMethodName a rdf:Property ;
+    rdfs:range xsd:string .
+
+protocol:hasParams a rdf:Property ;
+    rdfs:range rdfs:Literal .
+
+protocol:hasResult a rdf:Property ;
+    rdfs:range rdfs:Literal .
+
+protocol:ParseError a protocol:ErrorMessage ;
+    protocol:hasErrorCode -32700 ;
+    protocol:hasErrorMessage "Parse error" .
+
+protocol:InvalidRequest a protocol:ErrorMessage ;
+    protocol:hasErrorCode -32600 ;
+    protocol:hasErrorMessage "Invalid Request" .
+
+protocol:MethodNotFound a protocol:ErrorMessage ;
+    protocol:hasErrorCode -32601 ;
+    protocol:hasErrorMessage "Method not found" .
+
+protocol:InvalidParams a protocol:ErrorMessage ;
+    protocol:hasErrorCode -32602 ;
+    protocol:hasErrorMessage "Invalid params" .
+
+protocol:InternalError a protocol:ErrorMessage ;
+    protocol:hasErrorCode -32603 ;
+    protocol:hasErrorMessage "Internal error" .

@@ -1,0 +1,55 @@
+# Complex TTL test file with various features
+@base <http://example.org/> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Person with multiple properties
+ex:alice a foaf:Person ;
+         foaf:name "Alice Johnson"@en ;
+         foaf:nick "Ali" ;
+         foaf:age 28 ;
+         foaf:height 5.6 ;
+         foaf:birthday "1995-03-15"^^xsd:date ;
+         foaf:homepage <https://alice.example.com> ;
+         foaf:knows ex:bob, ex:charlie ;
+         foaf:interest ex:programming, ex:music .
+
+# Another person
+ex:bob a foaf:Person ;
+       foaf:name "Bob Smith"@en, "Roberto Smith"@es ;
+       foaf:age 32 ;
+       foaf:depiction <https://example.com/bob.jpg> ;
+       foaf:knows ex:alice .
+
+# Anonymous person using blank node
+_:person1 a foaf:Person ;
+          foaf:name "Anonymous" ;
+          foaf:age 25 .
+
+# Collection example
+ex:team rdf:type ex:Team ;
+        rdfs:label "Development Team" ;
+        ex:member ex:alice, ex:bob, _:person1 .
+
+# Complex nested structures
+ex:company a ex:Organization ;
+           rdfs:label "Example Corp" ;
+           ex:employee ex:alice, ex:bob ;
+           ex:location [
+               a ex:Address ;
+               ex:street "123 Main St" ;
+               ex:city "Example City" ;
+               ex:country "USA"
+           ] .
+
+# Multiple data types
+ex:data ex:stringValue "Hello World" ;
+        ex:intValue 42 ;
+        ex:floatValue 3.14159 ;
+        ex:booleanValue true ;
+        ex:dateValue "2023-01-01"^^xsd:date ;
+        ex:timeValue "12:30:00"^^xsd:time ;
+        ex:uriValue <http://example.com/resource> .

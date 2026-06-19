@@ -1,0 +1,335 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tcps-core: <http://erlmcp.org/ontology/tcps/core#> .
+@prefix tcps-quality: <http://erlmcp.org/ontology/tcps/quality#> .
+@prefix tcps-flow: <http://erlmcp.org/ontology/tcps/flow#> .
+@prefix ex: <http://example.org/erlmcp/production#> .
+
+###############################################################################
+# Example Instance Data for TCPS Ontology
+# Demonstrates a complete production workflow for erlmcp MCP server
+###############################################################################
+
+###############################################################################
+# SKU Definitions
+###############################################################################
+
+ex:erlmcp-mcp-server-v0.6.0
+    a tcps-core:SKU ;
+    tcps-core:skuIdentifier "erlmcp:mcp-server" ;
+    tcps-core:skuVersion "0.6.0" ;
+    tcps-core:skuDescription "Erlang Model Context Protocol server implementation" ;
+    tcps-core:inventoryLevel 2 ;
+    tcps-core:reorderPoint 3 ;
+    tcps-core:targetInventory 10 ;
+    tcps-core:leadTime 180.0 .
+
+ex:erlmcp-cli-v0.6.0
+    a tcps-core:SKU ;
+    tcps-core:skuIdentifier "erlmcp:cli" ;
+    tcps-core:skuVersion "0.6.0" ;
+    tcps-core:skuDescription "Command-line interface for erlmcp" ;
+    tcps-core:inventoryLevel 8 ;
+    tcps-core:reorderPoint 5 ;
+    tcps-core:targetInventory 15 ;
+    tcps-core:leadTime 120.0 .
+
+###############################################################################
+# WorkOrders
+###############################################################################
+
+ex:wo-2026-001
+    a tcps-core:WorkOrder ;
+    tcps-core:workOrderId "WO-2026-001" ;
+    tcps-core:produceSKU ex:erlmcp-mcp-server-v0.6.0 ;
+    tcps-core:quantity 5 ;
+    tcps-core:priority "HIGH" ;
+    tcps-core:createdAt "2026-01-26T09:00:00Z"^^xsd:dateTime ;
+    tcps-core:dueBy "2026-01-27T17:00:00Z"^^xsd:dateTime ;
+    tcps-core:status "IN_PROGRESS" ;
+    tcps-core:currentStage tcps-core:TestStage ;
+    tcps-core:customerId "customer-marketplace-001" .
+
+ex:wo-2026-002
+    a tcps-core:WorkOrder ;
+    tcps-core:workOrderId "WO-2026-002" ;
+    tcps-core:produceSKU ex:erlmcp-cli-v0.6.0 ;
+    tcps-core:quantity 3 ;
+    tcps-core:priority "MEDIUM" ;
+    tcps-core:createdAt "2026-01-26T10:30:00Z"^^xsd:dateTime ;
+    tcps-core:dueBy "2026-01-28T12:00:00Z"^^xsd:dateTime ;
+    tcps-core:status "COMPLETED" ;
+    tcps-core:customerId "customer-internal-dev" .
+
+###############################################################################
+# Receipts (Evidence of Completion)
+###############################################################################
+
+ex:receipt-wo001-compile
+    a tcps-core:Receipt ;
+    tcps-core:receiptId "RECEIPT-WO001-COMPILE" ;
+    tcps-core:forWorkOrder ex:wo-2026-001 ;
+    tcps-core:atStage tcps-core:CompileStage ;
+    tcps-core:completedAt "2026-01-26T10:15:00Z"^^xsd:dateTime ;
+    tcps-core:qualityStatus "PASSED" ;
+    tcps-core:operatorId "build-bot-01" ;
+    tcps-core:metrics "{\"duration_seconds\": 45, \"warnings\": 0, \"errors\": 0}" ;
+    tcps-core:evidenceArtifact "s3://erlmcp-artifacts/wo-001/compile/build.log"^^xsd:anyURI ;
+    tcps-core:signature "sha256:a1b2c3d4e5f6..." .
+
+ex:receipt-wo001-test
+    a tcps-core:Receipt ;
+    tcps-core:receiptId "RECEIPT-WO001-TEST" ;
+    tcps-core:forWorkOrder ex:wo-2026-001 ;
+    tcps-core:atStage tcps-core:TestStage ;
+    tcps-core:completedAt "2026-01-26T11:45:00Z"^^xsd:dateTime ;
+    tcps-core:qualityStatus "PASSED" ;
+    tcps-core:operatorId "test-runner-02" ;
+    tcps-core:metrics "{\"coverage\": 0.87, \"tests_total\": 245, \"tests_passed\": 245, \"tests_failed\": 0}" ;
+    tcps-core:evidenceArtifact "s3://erlmcp-artifacts/wo-001/test/coverage.html"^^xsd:anyURI ;
+    tcps-core:signature "sha256:f9e8d7c6b5a4..." .
+
+###############################################################################
+# Jidoka Mechanisms
+###############################################################################
+
+ex:jidoka-dialyzer
+    a tcps-quality:Jidoka ;
+    tcps-quality:jidokaId "JIDOKA-DIALYZER" ;
+    tcps-quality:jidokaName "Dialyzer Type Checker" ;
+    tcps-quality:jidokaType "STATIC_ANALYSIS" ;
+    tcps-quality:detectsDefect "Type errors, inconsistent function specs, unreachable code" ;
+    tcps-quality:automatedAction "HALT_BUILD" ;
+    tcps-quality:appliesToStage tcps-core:CompileStage ;
+    tcps-quality:preventsPropagation true ;
+    tcps-quality:sensitivityLevel "STRICT" ;
+    tcps-quality:averageDetectionTime 12.5 ;
+    tcps-quality:falsePositiveRate 0.02 .
+
+ex:jidoka-coverage
+    a tcps-quality:Jidoka ;
+    tcps-quality:jidokaId "JIDOKA-COVERAGE" ;
+    tcps-quality:jidokaName "Code Coverage Monitor" ;
+    tcps-quality:jidokaType "AUTOMATED_TEST" ;
+    tcps-quality:detectsDefect "Insufficient test coverage below 80% threshold" ;
+    tcps-quality:automatedAction "FAIL_TEST" ;
+    tcps-quality:appliesToStage tcps-core:TestStage ;
+    tcps-quality:preventsPropagation true ;
+    tcps-quality:sensitivityLevel "MODERATE" ;
+    tcps-quality:averageDetectionTime 2.0 ;
+    tcps-quality:falsePositiveRate 0.0 .
+
+###############################################################################
+# Poka-Yoke Mechanisms
+###############################################################################
+
+ex:pokayoke-type-specs
+    a tcps-quality:PokaYoke ;
+    tcps-quality:pokaYokeId "POKAYOKE-TYPESPEC" ;
+    tcps-quality:pokaYokeName "Required Type Specifications" ;
+    tcps-quality:pokaYokeType "PREVENTION" ;
+    tcps-quality:preventsMistake "Functions without type specs cannot compile in strict mode" ;
+    tcps-quality:mechanism "TYPE_SYSTEM" ;
+    tcps-quality:enforcedAt tcps-core:CompileStage ;
+    tcps-quality:isAutomated true ;
+    tcps-quality:effectivenessScore 0.98 .
+
+ex:pokayoke-dep-lock
+    a tcps-quality:PokaYoke ;
+    tcps-quality:pokaYokeId "POKAYOKE-DEPLOCK" ;
+    tcps-quality:pokaYokeName "Dependency Version Locking" ;
+    tcps-quality:pokaYokeType "PREVENTION" ;
+    tcps-quality:preventsMistake "Prevents dependency version drift and supply chain attacks" ;
+    tcps-quality:mechanism "DEPENDENCY_LOCK" ;
+    tcps-quality:enforcedAt tcps-core:CompileStage ;
+    tcps-quality:isAutomated true ;
+    tcps-quality:effectivenessScore 1.0 .
+
+###############################################################################
+# Quality Metrics
+###############################################################################
+
+ex:metric-wo001-coverage
+    a tcps-quality:QualityMetric ;
+    tcps-quality:metricId "METRIC-WO001-COVERAGE" ;
+    tcps-quality:metricName "Test Coverage for WO-2026-001" ;
+    tcps-quality:metricCategory "CODE_COVERAGE" ;
+    tcps-quality:measuredValue 0.87 ;
+    tcps-quality:targetValue 0.80 ;
+    tcps-quality:unit "percentage" ;
+    tcps-quality:collectedAt "2026-01-26T11:45:00Z"^^xsd:dateTime ;
+    tcps-quality:forWorkOrder ex:wo-2026-001 ;
+    tcps-quality:atStage tcps-core:TestStage ;
+    tcps-quality:meetsThreshold true .
+
+ex:metric-wo001-pass-rate
+    a tcps-quality:QualityMetric ;
+    tcps-quality:metricId "METRIC-WO001-PASSRATE" ;
+    tcps-quality:metricName "Test Pass Rate for WO-2026-001" ;
+    tcps-quality:metricCategory "TEST_PASS_RATE" ;
+    tcps-quality:measuredValue 1.0 ;
+    tcps-quality:targetValue 1.0 ;
+    tcps-quality:unit "percentage" ;
+    tcps-quality:collectedAt "2026-01-26T11:45:00Z"^^xsd:dateTime ;
+    tcps-quality:forWorkOrder ex:wo-2026-001 ;
+    tcps-quality:atStage tcps-core:TestStage ;
+    tcps-quality:meetsThreshold true .
+
+###############################################################################
+# Kanban Cards
+###############################################################################
+
+ex:kanban-compile-1
+    a tcps-flow:Kanban ;
+    tcps-flow:kanbanId "KANBAN-COMPILE-001" ;
+    tcps-flow:controlsStage tcps-core:CompileStage ;
+    tcps-flow:kanbanStatus "RETIRED" ;
+    tcps-flow:authorizesWorkOrder ex:wo-2026-001 ;
+    tcps-flow:activatedAt "2026-01-26T09:30:00Z"^^xsd:dateTime ;
+    tcps-flow:retiredAt "2026-01-26T10:15:00Z"^^xsd:dateTime ;
+    tcps-flow:cycleTime 45.0 .
+
+ex:kanban-test-1
+    a tcps-flow:Kanban ;
+    tcps-flow:kanbanId "KANBAN-TEST-001" ;
+    tcps-flow:controlsStage tcps-core:TestStage ;
+    tcps-flow:kanbanStatus "ACTIVE" ;
+    tcps-flow:authorizesWorkOrder ex:wo-2026-001 ;
+    tcps-flow:activatedAt "2026-01-26T10:20:00Z"^^xsd:dateTime .
+
+ex:kanban-test-2
+    a tcps-flow:Kanban ;
+    tcps-flow:kanbanId "KANBAN-TEST-002" ;
+    tcps-flow:controlsStage tcps-core:TestStage ;
+    tcps-flow:kanbanStatus "AVAILABLE" .
+
+###############################################################################
+# WIP Limits
+###############################################################################
+
+ex:wip-compile
+    a tcps-flow:WIPLimit ;
+    tcps-flow:wipLimitId "WIP-COMPILE" ;
+    tcps-flow:appliesTo tcps-core:CompileStage ;
+    tcps-flow:maxWIP 3 ;
+    tcps-flow:currentWIP 1 ;
+    tcps-flow:utilizationRate 0.33 ;
+    tcps-flow:isAtCapacity false ;
+    tcps-flow:violationCount 0 .
+
+ex:wip-test
+    a tcps-flow:WIPLimit ;
+    tcps-flow:wipLimitId "WIP-TEST" ;
+    tcps-flow:appliesTo tcps-core:TestStage ;
+    tcps-flow:maxWIP 5 ;
+    tcps-flow:currentWIP 3 ;
+    tcps-flow:utilizationRate 0.60 ;
+    tcps-flow:isAtCapacity false ;
+    tcps-flow:violationCount 0 .
+
+###############################################################################
+# Heijunka Planning
+###############################################################################
+
+ex:heijunka-week-04
+    a tcps-flow:Heijunka ;
+    tcps-flow:heijunkaId "HEIJUNKA-2026-W04" ;
+    tcps-flow:planningPeriod "WEEKLY" ;
+    tcps-flow:periodStart "2026-01-20T00:00:00Z"^^xsd:dateTime ;
+    tcps-flow:periodEnd "2026-01-26T23:59:59Z"^^xsd:dateTime ;
+    tcps-flow:totalCapacity 60 ;
+    tcps-flow:containsBucket ex:bucket-reliability-w04 ,
+                             ex:bucket-security-w04 ,
+                             ex:bucket-cost-w04 ,
+                             ex:bucket-compliance-w04 .
+
+ex:bucket-reliability-w04
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "BUCKET-RELIABILITY-W04" ;
+    tcps-flow:bucketName "RELIABILITY" ;
+    tcps-flow:bucketDescription "Bug fixes and stability improvements" ;
+    tcps-flow:targetAllocation 0.25 ;
+    tcps-flow:actualAllocation 0.27 ;
+    tcps-flow:allocatedWorkOrders 15 ;
+    tcps-flow:completedWorkOrders 14 ;
+    tcps-flow:bucketPriority 1 .
+
+ex:bucket-security-w04
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "BUCKET-SECURITY-W04" ;
+    tcps-flow:bucketName "SECURITY" ;
+    tcps-flow:bucketDescription "Security patches and vulnerability remediation" ;
+    tcps-flow:targetAllocation 0.30 ;
+    tcps-flow:actualAllocation 0.32 ;
+    tcps-flow:allocatedWorkOrders 18 ;
+    tcps-flow:completedWorkOrders 17 ;
+    tcps-flow:bucketPriority 2 .
+
+ex:bucket-cost-w04
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "BUCKET-COST-W04" ;
+    tcps-flow:bucketName "COST" ;
+    tcps-flow:bucketDescription "Resource optimization and efficiency" ;
+    tcps-flow:targetAllocation 0.25 ;
+    tcps-flow:actualAllocation 0.23 ;
+    tcps-flow:allocatedWorkOrders 15 ;
+    tcps-flow:completedWorkOrders 12 ;
+    tcps-flow:bucketPriority 3 .
+
+ex:bucket-compliance-w04
+    a tcps-flow:HeijunkaBucket ;
+    tcps-flow:bucketId "BUCKET-COMPLIANCE-W04" ;
+    tcps-flow:bucketName "COMPLIANCE" ;
+    tcps-flow:bucketDescription "Regulatory and policy requirements" ;
+    tcps-flow:targetAllocation 0.20 ;
+    tcps-flow:actualAllocation 0.18 ;
+    tcps-flow:allocatedWorkOrders 12 ;
+    tcps-flow:completedWorkOrders 10 ;
+    tcps-flow:bucketPriority 4 .
+
+###############################################################################
+# Pull Signals
+###############################################################################
+
+ex:pull-test-from-compile-001
+    a tcps-flow:PullSignal ;
+    tcps-flow:pullSignalId "PULL-TEST-COMPILE-001" ;
+    tcps-flow:fromStage tcps-core:TestStage ;
+    tcps-flow:toStage tcps-core:CompileStage ;
+    tcps-flow:signalType "CAPACITY_AVAILABLE" ;
+    tcps-flow:requestedQuantity 2 ;
+    tcps-flow:signalTime "2026-01-26T10:15:00Z"^^xsd:dateTime ;
+    tcps-flow:acknowledgedAt "2026-01-26T10:16:00Z"^^xsd:dateTime ;
+    tcps-flow:fulfilledAt "2026-01-26T10:20:00Z"^^xsd:dateTime ;
+    tcps-flow:responseTime 5.0 .
+
+###############################################################################
+# Takt Time
+###############################################################################
+
+ex:takt-erlmcp-mcp-server
+    a tcps-flow:TaktTime ;
+    tcps-flow:taktTimeId "TAKT-ERLMCP-MCP" ;
+    tcps-flow:forSKU ex:erlmcp-mcp-server-v0.6.0 ;
+    tcps-flow:availableTime 2400.0 ;  # 40 hours/week in minutes
+    tcps-flow:customerDemand 8.0 ;     # 8 units per week
+    tcps-flow:taktRate 300.0 ;         # 300 minutes per unit (5 hours)
+    tcps-flow:actualCycleTime 180.0 ;  # 180 minutes actual (3 hours)
+    tcps-flow:meetsCustomerDemand true .
+
+###############################################################################
+# Andon Event (Quality Alert)
+###############################################################################
+
+ex:andon-2026-015
+    a tcps-core:AndonEvent ;
+    tcps-core:andonId "ANDON-2026-015" ;
+    tcps-core:severity "HIGH" ;
+    tcps-core:triggeredAt "2026-01-26T14:30:00Z"^^xsd:dateTime ;
+    tcps-core:affectsWorkOrder ex:wo-2026-001 ;
+    tcps-core:affectsStage tcps-core:TestStage ;
+    tcps-core:reason "Performance regression detected: API response time increased from 50ms to 200ms" ;
+    tcps-core:detectedBy "AUTOMATED" ;
+    tcps-core:actionTaken "NOTIFY_TEAM" ;
+    tcps-core:isResolved false .

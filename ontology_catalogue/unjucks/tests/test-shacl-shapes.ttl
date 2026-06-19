@@ -1,0 +1,243 @@
+@prefix : <http://example.org/shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Test SHACL shapes for comprehensive validation testing
+
+:UserShape a sh:NodeShape ;
+    sh:targetClass ex:User ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:message "User must have a name between 2 and 100 characters"
+    ] ;
+    sh:property [
+        sh:path ex:email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" ;
+        sh:message "User must have a valid email address"
+    ] ;
+    sh:property [
+        sh:path ex:age ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:message "User age must be between 0 and 150"
+    ] .
+
+:RESTServiceShape a sh:NodeShape ;
+    sh:targetClass ex:RESTService ;
+    sh:property [
+        sh:path ex:hasBaseURL ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^https?://.*" ;
+        sh:message "REST service must have a valid base URL"
+    ] ;
+    sh:property [
+        sh:path ex:hasVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d+\\.\\d+\\.\\d+$" ;
+        sh:message "REST service version must follow semantic versioning (x.y.z)"
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 5 ;
+        sh:message "REST service must have a descriptive label of at least 5 characters"
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:message "REST service may have an optional comment"
+    ] .
+
+:EndpointShape a sh:NodeShape ;
+    sh:targetClass ex:Endpoint ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Endpoint must have a label"
+    ] ;
+    sh:property [
+        sh:path ex:hasMethod ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "GET" "POST" "PUT" "DELETE" "PATCH" "HEAD" "OPTIONS" ) ;
+        sh:message "Endpoint method must be a valid HTTP method"
+    ] ;
+    sh:property [
+        sh:path ex:hasPath ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^/.*" ;
+        sh:message "Endpoint path must start with forward slash"
+    ] ;
+    sh:property [
+        sh:path ex:hasStatusCode ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[12345]\\d{2}$" ;
+        sh:message "Status code must be a valid 3-digit HTTP status code"
+    ] .
+
+:PropertyShape a sh:NodeShape ;
+    sh:targetClass ex:Property ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Property must have a label"
+    ] ;
+    sh:property [
+        sh:path ex:hasType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "string" "number" "integer" "boolean" "array" "object" ) ;
+        sh:message "Property type must be a valid data type"
+    ] ;
+    sh:property [
+        sh:path ex:isRequired ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "true" "false" ) ;
+        sh:message "isRequired must be 'true' or 'false'"
+    ] .
+
+:PathParameterShape a sh:NodeShape ;
+    sh:targetClass ex:PathParameter ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Path parameter must have a label"
+    ] ;
+    sh:property [
+        sh:path ex:hasType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "string" "integer" "uuid" ) ;
+        sh:message "Path parameter type must be string, integer, or uuid"
+    ] .
+
+# Test constraint validation shapes
+:StringLengthTestShape a sh:NodeShape ;
+    sh:targetClass ex:StringLengthTest ;
+    sh:property [
+        sh:path ex:shortString ;
+        sh:datatype xsd:string ;
+        sh:minLength 5 ;
+        sh:maxLength 10 ;
+        sh:message "String must be between 5 and 10 characters"
+    ] ;
+    sh:property [
+        sh:path ex:exactString ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 8 ;
+        sh:message "String must be exactly 8 characters"
+    ] .
+
+:NumericRangeTestShape a sh:NodeShape ;
+    sh:targetClass ex:NumericRangeTest ;
+    sh:property [
+        sh:path ex:percentage ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100 ;
+        sh:message "Percentage must be between 0 and 100 inclusive"
+    ] ;
+    sh:property [
+        sh:path ex:positiveNumber ;
+        sh:datatype xsd:integer ;
+        sh:minExclusive 0 ;
+        sh:message "Number must be positive (greater than 0)"
+    ] .
+
+:CardinalityTestShape a sh:NodeShape ;
+    sh:targetClass ex:CardinalityTest ;
+    sh:property [
+        sh:path ex:requiredSingle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Must have exactly one requiredSingle value"
+    ] ;
+    sh:property [
+        sh:path ex:optionalMultiple ;
+        sh:minCount 0 ;
+        sh:maxCount 5 ;
+        sh:message "Can have 0 to 5 optionalMultiple values"
+    ] ;
+    sh:property [
+        sh:path ex:atLeastOne ;
+        sh:minCount 1 ;
+        sh:message "Must have at least one atLeastOne value"
+    ] .
+
+:PatternTestShape a sh:NodeShape ;
+    sh:targetClass ex:PatternTest ;
+    sh:property [
+        sh:path ex:phoneNumber ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\+?[1-9]\\d{1,14}$" ;
+        sh:message "Phone number must be in international format"
+    ] ;
+    sh:property [
+        sh:path ex:hexColor ;
+        sh:datatype xsd:string ;
+        sh:pattern "^#[0-9a-fA-F]{6}$" ;
+        sh:message "Color must be a 6-digit hex code starting with #"
+    ] .
+
+:NodeKindTestShape a sh:NodeShape ;
+    sh:targetClass ex:NodeKindTest ;
+    sh:property [
+        sh:path ex:uriReference ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Must be a URI/IRI reference"
+    ] ;
+    sh:property [
+        sh:path ex:literalValue ;
+        sh:nodeKind sh:Literal ;
+        sh:message "Must be a literal value"
+    ] .
+
+:ClassTestShape a sh:NodeShape ;
+    sh:targetClass ex:ClassTest ;
+    sh:property [
+        sh:path ex:userReference ;
+        sh:class ex:User ;
+        sh:message "Must reference a User instance"
+    ] ;
+    sh:property [
+        sh:path ex:serviceReference ;
+        sh:class ex:RESTService ;
+        sh:message "Must reference a RESTService instance"
+    ] .

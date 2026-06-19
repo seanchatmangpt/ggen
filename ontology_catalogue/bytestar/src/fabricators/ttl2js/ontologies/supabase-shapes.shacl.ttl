@@ -1,0 +1,535 @@
+@prefix : <https://bytestar.org/ontology/supabase-shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bstar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix sup: <https://bytestar.org/ontology/supabase#> .
+@prefix canon: <https://bytestar.org/ontology/supabase-canon#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/supabase-shapes>
+    a owl:Ontology ;
+    rdfs:label "ByteStar Supabase SHACL Validation Shapes" ;
+    rdfs:comment """
+    Bulletproof SHACL shapes for validating ByteStar data integrity in Supabase.
+    These shapes enforce the fundamental ByteStar doctrines at the database level,
+    ensuring that no invalid data can ever be persisted.
+    
+    Validation hierarchy:
+    1. Doctrine enforcement (8/8 constraints, zero-tick rejection)
+    2. Registry constraints (64 kernels, 43 patterns)
+    3. Reference integrity (foreign keys, cascade rules)
+    4. Business logic constraints (admission gates, production readiness)
+    5. Security policy validation (RLS compliance)
+    """ ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://bytestar.org/ontology/supabase-canon> .
+
+#################################################################
+# Core Doctrine Validation Shapes
+#################################################################
+
+:DoctrineOf8Shape a sh:NodeShape ;
+    sh:targetClass bstar:Kernel ;
+    rdfs:label "Doctrine of 8 - Kernel Tick Budget" ;
+    rdfs:comment "Enforces the fundamental 8-tick limit for all kernels" ;
+    sh:property [
+        sh:path bstar:hasTickCost ;
+        sh:name "tick_budget" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 8 ;
+        sh:severity sh:Violation ;
+        sh:message "DOCTRINE VIOLATION: Kernel tick budget must be ≤ 8 (Doctrine of 8)" ;
+    ] ;
+    sh:property [
+        sh:path bstar:hasTickCost ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Every kernel must have exactly one tick cost defined" ;
+    ] .
+
+:WorkflowHopBudgetShape a sh:NodeShape ;
+    sh:targetClass bstar:Workflow ;
+    rdfs:label "Doctrine of 8 - Workflow Hop Budget" ;
+    rdfs:comment "Enforces the fundamental 8-hop limit for all workflows" ;
+    sh:property [
+        sh:path bstar:hasHopCount ;
+        sh:name "current_hop" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 8 ;
+        sh:severity sh:Violation ;
+        sh:message "DOCTRINE VIOLATION: Workflow hop count must be ≤ 8 (Doctrine of 8)" ;
+    ] .
+
+:ZeroTickRejectionShape a sh:NodeShape ;
+    sh:targetClass bstar:Admission ;
+    rdfs:label "Zero-Tick Rejection Doctrine" ;
+    rdfs:comment "Enforces that rejected admissions consume zero hot ticks" ;
+    sh:sparql [
+        sh:message "DOCTRINE VIOLATION: Rejected admissions must consume exactly 0 hot ticks" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            SELECT $this ?hotTicks WHERE {
+                $this bstar:hasDecision false .
+                $this bstar:consumesHotTicks ?hotTicks .
+                FILTER (?hotTicks != 0)
+            }
+        """ ;
+    ] .
+
+#################################################################
+# Registry Constraint Shapes
+#################################################################
+
+:KernelRegistryConstraintShape a sh:NodeShape ;
+    sh:targetClass bstar:Kernel ;
+    rdfs:label "Kernel Registry Size Constraint" ;
+    rdfs:comment "Enforces exactly 64 kernels in the registry (0-63)" ;
+    sh:sparql [
+        sh:message "REGISTRY VIOLATION: Kernel registry must contain exactly 64 kernels (IDs 0-63)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            SELECT $this WHERE {
+                {
+                    SELECT (COUNT(DISTINCT ?kernel) as ?kernelCount) WHERE {
+                        ?kernel a bstar:Kernel .
+                    }
+                }
+                FILTER (?kernelCount != 64)
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path sup:kernelId ;
+        sh:name "kernel_id" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 63 ;
+        sh:severity sh:Violation ;
+        sh:message "Kernel ID must be between 0-63 (registry constraint)" ;
+    ] .
+
+:PatternRegistryConstraintShape a sh:NodeShape ;
+    sh:targetClass bstar:Pattern ;
+    rdfs:label "Pattern Registry Size Constraint" ;
+    rdfs:comment "Enforces exactly 43 patterns in the registry (0-42)" ;
+    sh:sparql [
+        sh:message "REGISTRY VIOLATION: Pattern registry must contain exactly 43 patterns (IDs 0-42)" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            SELECT $this WHERE {
+                {
+                    SELECT (COUNT(DISTINCT ?pattern) as ?patternCount) WHERE {
+                        ?pattern a bstar:Pattern .
+                    }
+                }
+                FILTER (?patternCount != 43)
+            }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path sup:patternId ;
+        sh:name "pattern_id" ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 42 ;
+        sh:severity sh:Violation ;
+        sh:message "Pattern ID must be between 0-42 (registry constraint)" ;
+    ] .
+
+#################################################################
+# ByteActor Validation Shapes
+#################################################################
+
+:ByteActorShape a sh:NodeShape ;
+    sh:targetClass bstar:ByteActor ;
+    rdfs:label "ByteActor Validation" ;
+    rdfs:comment "Complete validation for ByteActor instances in Supabase" ;
+    sh:property [
+        sh:path sup:name ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:severity sh:Violation ;
+        sh:message "ByteActor name must be 1-255 characters" ;
+    ] ;
+    sh:property [
+        sh:path sup:identifier ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:severity sh:Violation ;
+        sh:message "ByteActor identifier must be alphanumeric with underscores/hyphens" ;
+    ] ;
+    sh:property [
+        sh:path sup:status ;
+        sh:in ("active" "idle" "crashed" "terminated") ;
+        sh:severity sh:Violation ;
+        sh:message "ByteActor status must be one of: active, idle, crashed, terminated" ;
+    ] ;
+    sh:property [
+        sh:path bstar:l1Resident ;
+        sh:hasValue true ;
+        sh:severity sh:Violation ;
+        sh:message "All ByteActors must be L1 resident (architecture requirement)" ;
+    ] .
+
+:L1ResidencyShape a sh:NodeShape ;
+    sh:targetClass bstar:ByteActor ;
+    rdfs:label "L1 Cache Residency Requirements" ;
+    rdfs:comment "Validates ByteActor L1 cache residency requirements" ;
+    sh:property [
+        sh:path bstar:l1Holds ;
+        sh:minCount 3 ;
+        sh:severity sh:Violation ;
+        sh:message "ByteActor L1 cache must hold: KernelSet, MPHFTable, and active Envelope" ;
+    ] .
+
+#################################################################
+# Crystal and Pattern Validation
+#################################################################
+
+:CrystalShape a sh:NodeShape ;
+    sh:targetClass bstar:Crystal ;
+    rdfs:label "Crystal Validation" ;
+    rdfs:comment "Validates crystal structure and pattern congruence" ;
+    sh:property [
+        sh:path bstar:patternByte ;
+        sh:datatype xsd:unsignedByte ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 255 ;
+        sh:severity sh:Violation ;
+        sh:message "Pattern byte must be valid unsigned byte (0-255)" ;
+    ] ;
+    sh:property [
+        sh:path bstar:declaresPattern ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class bstar:Pattern ;
+        sh:severity sh:Violation ;
+        sh:message "Crystal must declare exactly one pattern" ;
+    ] ;
+    sh:property [
+        sh:path sup:manifestDigest ;
+        sh:datatype xsd:hexBinary ;
+        sh:minLength 64 ;
+        sh:maxLength 64 ;
+        sh:severity sh:Violation ;
+        sh:message "Manifest digest must be 64-character hex (SHA-256)" ;
+    ] .
+
+:PatternByteCongruenceShape a sh:NodeShape ;
+    sh:targetClass bstar:Crystal ;
+    rdfs:label "Pattern-Byte Congruence Validation" ;
+    rdfs:comment "Validates that crystal pattern byte matches declared pattern" ;
+    sh:sparql [
+        sh:message "CONGRUENCE VIOLATION: Crystal pattern byte must match declared pattern ID" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            PREFIX sup: <https://bytestar.org/ontology/supabase#>
+            SELECT $this ?patternByte ?patternId WHERE {
+                $this bstar:patternByte ?patternByte .
+                $this bstar:declaresPattern ?pattern .
+                ?pattern sup:patternId ?patternId .
+                FILTER (?patternByte != ?patternId)
+            }
+        """ ;
+    ] .
+
+#################################################################
+# Admission Gate Validation
+#################################################################
+
+:AdmissionRequestShape a sh:NodeShape ;
+    sh:targetClass sup:AdmissionRequest ;
+    rdfs:label "Admission Request Validation" ;
+    rdfs:comment "Validates admission request completeness and logic" ;
+    sh:property [
+        sh:path sup:crystalId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:severity sh:Violation ;
+        sh:message "Admission request must reference exactly one crystal" ;
+    ] ;
+    sh:property [
+        sh:path sup:shaclValidationStatus ;
+        sh:in ("pending" "passed" "failed") ;
+        sh:severity sh:Violation ;
+        sh:message "SHACL validation status must be: pending, passed, or failed" ;
+    ] ;
+    sh:property [
+        sh:path sup:pqcValidationStatus ;
+        sh:in ("pending" "passed" "failed") ;
+        sh:severity sh:Violation ;
+        sh:message "PQC validation status must be: pending, passed, or failed" ;
+    ] ;
+    sh:property [
+        sh:path sup:pbCongruenceStatus ;
+        sh:in ("pending" "passed" "failed") ;
+        sh:severity sh:Violation ;
+        sh:message "Pattern-byte congruence status must be: pending, passed, or failed" ;
+    ] .
+
+:ThetaDecisionLogicShape a sh:NodeShape ;
+    sh:targetClass sup:AdmissionRequest ;
+    rdfs:label "Theta Decision Gate Logic" ;
+    rdfs:comment "Validates admission decision logic (all validations must pass)" ;
+    sh:sparql [
+        sh:message "THETA VIOLATION: Admission can only be granted if SHACL, PQC, and congruence validations all pass" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX sup: <https://bytestar.org/ontology/supabase#>
+            SELECT $this WHERE {
+                $this sup:thetaDecision true .
+                {
+                    { $this sup:shaclValidationStatus ?status1 FILTER(?status1 != "passed") } UNION
+                    { $this sup:pqcValidationStatus ?status2 FILTER(?status2 != "passed") } UNION
+                    { $this sup:pbCongruenceStatus ?status3 FILTER(?status3 != "passed") }
+                }
+            }
+        """ ;
+    ] .
+
+#################################################################
+# Production Readiness Validation
+#################################################################
+
+:ProductionReadinessShape a sh:NodeShape ;
+    sh:targetClass bstar:ByteFlow ;
+    rdfs:label "Production Readiness Validation" ;
+    rdfs:comment "Validates ByteFlow production readiness metrics and requirements" ;
+    sh:property [
+        sh:path sup:productionReadiness ;
+        sh:nodeKind sh:BlankNodeOrIRI ;
+        sh:severity sh:Warning ;
+        sh:message "ByteFlow should have production readiness metrics defined" ;
+    ] ;
+    sh:sparql [
+        sh:message "PRODUCTION VIOLATION: ByteFlow with status 'completed' must meet all production requirements" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX sup: <https://bytestar.org/ontology/supabase#>
+            PREFIX bfpr: <https://bytestar.org/ontology/byteflow/production-readiness#>
+            SELECT $this WHERE {
+                $this sup:status "completed" .
+                OPTIONAL {
+                    $this bfpr:meetsPerformanceRequirement ?perf .
+                    $this bfpr:meetsReliabilityRequirement ?rel .
+                    $this bfpr:meetsSecurityRequirement ?sec .
+                    $this bfpr:meetsOperationalRequirement ?ops .
+                }
+                FILTER (!BOUND(?perf) || !BOUND(?rel) || !BOUND(?sec) || !BOUND(?ops))
+            }
+        """ ;
+    ] .
+
+#################################################################
+# Database Constraint Validation
+#################################################################
+
+:SupabaseTableConstraintShape a sh:NodeShape ;
+    sh:targetClass sup:SupabaseTable ;
+    rdfs:label "Supabase Table Schema Validation" ;
+    rdfs:comment "Validates that Supabase table definitions meet requirements" ;
+    sh:property [
+        sh:path sup:hasSchema ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Supabase table must have at least one column defined" ;
+    ] ;
+    sh:sparql [
+        sh:message "TABLE VIOLATION: Every Supabase table must have exactly one primary key column" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX sup: <https://bytestar.org/ontology/supabase#>
+            SELECT $this WHERE {
+                $this a sup:SupabaseTable .
+                {
+                    SELECT $this (COUNT(?pk) as ?pkCount) WHERE {
+                        $this sup:hasSchema ?schema .
+                        ?schema sup:isPrimaryKey true .
+                    }
+                    GROUP BY $this
+                }
+                FILTER (?pkCount != 1)
+            }
+        """ ;
+    ] .
+
+:RLSPolicyValidationShape a sh:NodeShape ;
+    sh:targetClass sup:RLSPolicy ;
+    rdfs:label "RLS Policy Validation" ;
+    rdfs:comment "Validates Row Level Security policy definitions" ;
+    sh:property [
+        sh:path sup:appliesToTable ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sup:SupabaseTable ;
+        sh:severity sh:Violation ;
+        sh:message "RLS policy must apply to exactly one table" ;
+    ] ;
+    sh:property [
+        sh:path sup:policyType ;
+        sh:in ("permissive" "restrictive") ;
+        sh:severity sh:Violation ;
+        sh:message "RLS policy type must be 'permissive' or 'restrictive'" ;
+    ] ;
+    sh:property [
+        sh:path sup:operation ;
+        sh:in ("SELECT" "INSERT" "UPDATE" "DELETE" "ALL") ;
+        sh:severity sh:Violation ;
+        sh:message "RLS policy operation must be SELECT, INSERT, UPDATE, DELETE, or ALL" ;
+    ] ;
+    sh:property [
+        sh:path sup:condition ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "RLS policy must have a non-empty condition" ;
+    ] .
+
+#################################################################
+# Edge Function Validation
+#################################################################
+
+:EdgeFunctionValidationShape a sh:NodeShape ;
+    sh:targetClass sup:EdgeFunction ;
+    rdfs:label "Edge Function Validation" ;
+    rdfs:comment "Validates Supabase Edge Function definitions" ;
+    sh:property [
+        sh:path sup:functionPath ;
+        sh:datatype xsd:string ;
+        sh:pattern "^/[a-z0-9-]+$" ;
+        sh:severity sh:Violation ;
+        sh:message "Edge function path must start with / and contain only lowercase, numbers, hyphens" ;
+    ] ;
+    sh:property [
+        sh:path sup:implementsClass ;
+        sh:minCount 1 ;
+        sh:class owl:Class ;
+        sh:severity sh:Violation ;
+        sh:message "Edge function must implement at least one ByteStar class" ;
+    ] ;
+    sh:property [
+        sh:path sup:hasLogic ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "Edge function must have logic description (minimum 10 characters)" ;
+    ] .
+
+#################################################################
+# Realtime Channel Validation
+#################################################################
+
+:RealtimeChannelValidationShape a sh:NodeShape ;
+    sh:targetClass sup:RealtimeChannel ;
+    rdfs:label "Realtime Channel Validation" ;
+    rdfs:comment "Validates Supabase Realtime channel definitions" ;
+    sh:property [
+        sh:path sup:channelPattern ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z]+:[a-z]+(:.*)?$" ;
+        sh:severity sh:Violation ;
+        sh:message "Channel pattern must follow format: 'type:subtype' or 'type:subtype:*'" ;
+    ] ;
+    sh:property [
+        sh:path sup:implementsClass ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class owl:Class ;
+        sh:severity sh:Violation ;
+        sh:message "Realtime channel must implement exactly one ByteStar class" ;
+    ] .
+
+#################################################################
+# Cross-Reference Integrity Validation
+#################################################################
+
+:CrystalReferenceIntegrityShape a sh:NodeShape ;
+    sh:targetClass bstar:Crystal ;
+    rdfs:label "Crystal Reference Integrity" ;
+    rdfs:comment "Validates that crystal references exist and are valid" ;
+    sh:sparql [
+        sh:message "REFERENCE VIOLATION: Crystal pattern reference must exist in pattern registry" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            SELECT $this ?patternRef WHERE {
+                $this bstar:declaresPattern ?patternRef .
+                FILTER NOT EXISTS {
+                    ?patternRef a bstar:Pattern .
+                }
+            }
+        """ ;
+    ] .
+
+:WorkflowReferenceIntegrityShape a sh:NodeShape ;
+    sh:targetClass bstar:Workflow ;
+    rdfs:label "Workflow Reference Integrity" ;
+    rdfs:comment "Validates workflow crystal and pattern references" ;
+    sh:sparql [
+        sh:message "REFERENCE VIOLATION: Workflow crystal reference must exist and be admitted" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            PREFIX sup: <https://bytestar.org/ontology/supabase#>
+            SELECT $this ?crystalRef WHERE {
+                $this sup:crystalId ?crystalRef .
+                OPTIONAL {
+                    ?crystalRef a bstar:Crystal .
+                    ?admission sup:crystalId ?crystalRef ;
+                               sup:thetaDecision true .
+                }
+                FILTER (!BOUND(?admission))
+            }
+        """ ;
+    ] .
+
+#################################################################
+# Comprehensive System Validation
+#################################################################
+
+:SystemIntegrityShape a sh:NodeShape ;
+    sh:targetNode : ;
+    rdfs:label "Complete System Integrity Validation" ;
+    rdfs:comment "Top-level validation ensuring entire ByteStar-Supabase system integrity" ;
+    sh:sparql [
+        sh:message "SYSTEM VIOLATION: All doctrines, registry constraints, and reference integrity must be satisfied" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX bstar: <https://bytestar.org/ontology/bytestar-core#>
+            PREFIX sup: <https://bytestar.org/ontology/supabase#>
+            SELECT * WHERE {
+                # Check for any doctrine violations
+                {
+                    ?kernel a bstar:Kernel ;
+                           bstar:hasTickCost ?ticks .
+                    FILTER (?ticks > 8)
+                } UNION {
+                    ?workflow a bstar:Workflow ;
+                             bstar:hasHopCount ?hops .
+                    FILTER (?hops > 8)
+                } UNION {
+                    # Check for registry violations
+                    SELECT (COUNT(?kernel) as ?kernelCount) WHERE {
+                        ?kernel a bstar:Kernel .
+                    }
+                    HAVING (?kernelCount != 64)
+                } UNION {
+                    SELECT (COUNT(?pattern) as ?patternCount) WHERE {
+                        ?pattern a bstar:Pattern .
+                    }
+                    HAVING (?patternCount != 43)
+                }
+            }
+        """ ;
+    ] .

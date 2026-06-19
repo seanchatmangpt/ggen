@@ -1,0 +1,30 @@
+PREFIX jpat: <https://jgen.dev/ontology/java/patterns#>
+PREFIX java: <https://jgen.dev/ontology/java#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract all registered design patterns with their templates and metadata
+SELECT ?pattern ?label ?category ?template ?intent ?replacesLegacy ?feature
+WHERE {
+    ?pattern a/rdfs:subClassOf* jpat:Pattern .
+    ?pattern rdfs:label ?label .
+
+    OPTIONAL {
+        { ?pattern a jpat:CreationalPattern . BIND("creational" AS ?category) }
+        UNION
+        { ?pattern a jpat:StructuralPattern . BIND("structural" AS ?category) }
+        UNION
+        { ?pattern a jpat:BehavioralPattern . BIND("behavioral" AS ?category) }
+        UNION
+        { ?pattern a jpat:DataPattern . BIND("data" AS ?category) }
+        UNION
+        { ?pattern a jpat:ErrorPattern . BIND("error" AS ?category) }
+        UNION
+        { ?pattern a jpat:ArchitecturalPattern . BIND("architectural" AS ?category) }
+    }
+
+    OPTIONAL { ?pattern jpat:hasTemplate ?template }
+    OPTIONAL { ?pattern jpat:hasIntent ?intent }
+    OPTIONAL { ?pattern jpat:replacesLegacy ?replacesLegacy }
+    OPTIONAL { ?pattern jpat:usesFeature ?feature }
+}
+ORDER BY ?category ?label

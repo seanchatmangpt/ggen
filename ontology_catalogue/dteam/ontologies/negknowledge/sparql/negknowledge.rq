@@ -1,0 +1,12 @@
+PREFIX neg: <https://chatmangpt.com/ontology/negknowledge#>
+
+SELECT ?id ?attempt ?source ?outcome ?reason
+WHERE {
+  ?entry a neg:NegativeResult ;
+         neg:id ?id ;
+         neg:attempt ?attempt ;
+         neg:source ?source ;
+         neg:outcome ?outcome ;
+         neg:reason ?reason .
+}
+ORDER BY ?id

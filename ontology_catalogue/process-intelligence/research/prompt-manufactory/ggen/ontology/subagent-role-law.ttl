@@ -1,0 +1,193 @@
+@prefix pm:   <https://pi-research.dev/ontology/prompt-manufactory#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# SUBAGENT ROLE LAW — Bounded Inspection Stations
+# ============================================================================
+# Defines owned/forbidden surfaces, output contracts, refusal conditions.
+# Each role is a self-contained inspection station with clear boundaries.
+# ============================================================================
+
+# --- Census Roles ---
+
+<https://pi-research.dev/roles#role_engine_census>
+  a pm:SubagentRole ;
+  rdfs:label "wasm4pm Engine Census" ;
+  pm:mission "Inspect wasm4pm engine surfaces: discovery, replay, conformance, OCPQ, receipts, E2E tests, OTel verification, checkpoints" ;
+  pm:ownsSurface "src/mining" ;
+  pm:ownsSurface "src/replay" ;
+  pm:ownsSurface "src/conformance" ;
+  pm:ownsSurface "src/ocpq" ;
+  pm:ownsSurface "src/receipt" ;
+  pm:ownsSurface "tests/" ;
+  pm:forbidsSurface "../wasm4pm-compat/" ;
+  pm:forbidsSurface "../process-intelligence/" ;
+  pm:hasOutputContract "research/pi-program/intel/wasm4pm-engine-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+<https://pi-research.dev/roles#role_compat_census>
+  a pm:SubagentRole ;
+  rdfs:label "wasm4pm-compat Census" ;
+  pm:mission "Inspect type-law surfaces, features, graduation bridge, DTO/JSON risks, checkpoints" ;
+  pm:ownsSurface "src/" ;
+  pm:ownsSurface "Cargo.toml" ;
+  pm:ownsSurface "ggen/" ;
+  pm:forbidsSurface "../wasm4pm/" ;
+  pm:hasOutputContract "research/pi-program/intel/wasm4pm-compat-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+<https://pi-research.dev/roles#role_ggen_census>
+  a pm:SubagentRole ;
+  rdfs:label "ggen Census" ;
+  pm:mission "Inspect ggen surfaces: .ttl ontologies, .rq queries, .tera templates, ggen.toml, rendered outputs" ;
+  pm:ownsSurface "ggen/" ;
+  pm:forbidsSurface ".ggen files as source surfaces" ;
+  pm:hasOutputContract "research/pi-program/intel/ggen-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_INVALID_GGEN_SOURCE .
+
+<https://pi-research.dev/roles#role_proof_cell_census>
+  a pm:SubagentRole ;
+  rdfs:label "ZOEapp Proof Cell Census" ;
+  pm:mission "Inspect Expo, Supabase, livestream, on-device inference, Jest receipts; classify as proof cell" ;
+  pm:ownsSurface "src/" ;
+  pm:forbidsSurface "other repositories" ;
+  pm:hasOutputContract "research/pi-program/intel/zoeapp-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+<https://pi-research.dev/roles#role_feedstock_census>
+  a pm:SubagentRole ;
+  rdfs:label "OTel Weaver Feedstock Census" ;
+  pm:mission "Inspect OTel Weaver: registry model, witness mappings; classify as telemetry feedstock, NOT evidence" ;
+  pm:ownsSurface "otel-weaver/" ;
+  pm:forbidsSurface "other repositories" ;
+  pm:hasOutputContract "research/pi-program/intel/otel-weaver-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+<https://pi-research.dev/roles#role_framework_census>
+  a pm:SubagentRole ;
+  rdfs:label "Expo/Supabase Framework Census" ;
+  pm:mission "Inspect framework extraction: Expo Router, RLS, Realtime contracts" ;
+  pm:ownsSurface "expo-supabase-framework/" ;
+  pm:forbidsSurface "app implementation details" ;
+  pm:hasOutputContract "research/pi-program/intel/expo-supabase-framework-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+<https://pi-research.dev/roles#role_orchestration_census>
+  a pm:SubagentRole ;
+  rdfs:label "Claude Code Workflow Census" ;
+  pm:mission "Inspect Claude Code workflows: phases, subagent topology, audit gates, checkpoints" ;
+  pm:ownsSurface "workflow artifacts" ;
+  pm:forbidsSurface "execution traces" ;
+  pm:hasOutputContract "research/pi-program/intel/claude-workflow-census.md" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+# --- Specialization Roles ---
+
+<https://pi-research.dev/roles#role_classification_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Classification Agent" ;
+  pm:mission "Map all census discoveries to program ontology; emit TTL ontology instances" ;
+  pm:ownsSurface "census files" ;
+  pm:ownsSurface "ggen/ontology/" ;
+  pm:forbidsSurface "hand-coded classifications" ;
+  pm:hasOutputContract "ggen/ontology/*.ttl files with classified instances" ;
+  pm:hasRefusalGate pm:REFUSAL_HAND_CODING .
+
+<https://pi-research.dev/roles#role_manifest_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Manifest Agent" ;
+  pm:mission "Create projection manifests and program declarations" ;
+  pm:ownsSurface "ggen/manifests/" ;
+  pm:forbidsSurface "implementation details" ;
+  pm:hasOutputContract "manifests/*.yaml files" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_SOURCE .
+
+<https://pi-research.dev/roles#role_query_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Query Agent" ;
+  pm:mission "Emit SPARQL selection and audit queries" ;
+  pm:ownsSurface "ggen/queries/" ;
+  pm:forbidsSurface "application logic" ;
+  pm:hasOutputContract "ggen/queries/*.rq files" ;
+  pm:hasRefusalGate pm:REFUSAL_INVALID_SPARQL .
+
+<https://pi-research.dev/roles#role_template_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Template Agent" ;
+  pm:mission "Emit Tera templates for artifact rendering" ;
+  pm:ownsSurface "ggen/templates/" ;
+  pm:forbidsSurface ".ggen source files" ;
+  pm:hasOutputContract "ggen/templates/*.tera files" ;
+  pm:hasRefusalGate pm:REFUSAL_INVALID_GGEN_SOURCE .
+
+<https://pi-research.dev/roles#role_audit_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Audit Agent" ;
+  pm:mission "Run Van der Aalst conformance audits; verify program structure against law" ;
+  pm:ownsSurface "TTL graphs" ;
+  pm:ownsSurface "emitted artifacts" ;
+  pm:forbidsSurface "modification of audit results" ;
+  pm:hasOutputContract "audit result files with pass/fail + violations" ;
+  pm:hasRefusalGate pm:REFUSAL_AUDIT_FAILED .
+
+<https://pi-research.dev/roles#role_reconciliation_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Reconciliation Agent" ;
+  pm:mission "Render templates and emit unified program map outputs" ;
+  pm:ownsSurface "emitted/" ;
+  pm:forbidsSurface "hand-coded outputs" ;
+  pm:hasOutputContract "emitted/indexes/*.md files + prompt-map" ;
+  pm:hasRefusalGate pm:REFUSAL_TEMPLATE_FAILED .
+
+<https://pi-research.dev/roles#role_checkpoint_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Checkpoint Agent" ;
+  pm:mission "Emit ALIVE/PARTIAL verdict with audit gates" ;
+  pm:ownsSurface "checkpoints/" ;
+  pm:forbidsSurface "forced ALIVE declarations" ;
+  pm:hasOutputContract "checkpoints/CHECKPOINT_*.md with honest PARTIAL path" ;
+  pm:hasRefusalGate pm:REFUSAL_NO_FORCED_ALIVE .
+
+<https://pi-research.dev/roles#role_remediation_agent>
+  a pm:SubagentRole ;
+  rdfs:label "Remediation Agent" ;
+  pm:mission "Route failed gates and implement fixes" ;
+  pm:ownsSurface "failed gate documentation" ;
+  pm:forbidsSurface "changing audit results retroactively" ;
+  pm:hasOutputContract "remediation plan with owner + effort + deadline" ;
+  pm:hasRefusalGate pm:REFUSAL_MISSING_BLOCKER .
+
+# --- Refusal Conditions ---
+
+pm:REFUSAL_MISSING_SOURCE a pm:RefusalCondition ;
+  rdfs:label "Missing Source" ;
+  rdfs:comment "Required source file or directory not found" .
+
+pm:REFUSAL_INVALID_GGEN_SOURCE a pm:RefusalCondition ;
+  rdfs:label "Invalid .ggen Source" ;
+  rdfs:comment ".ggen files found as source surfaces (only .ttl, .rq, .tera, ggen.toml allowed)" .
+
+pm:REFUSAL_HAND_CODING a pm:RefusalCondition ;
+  rdfs:label "Hand Coding Detected" ;
+  rdfs:comment "Manual coding instead of template rendering" .
+
+pm:REFUSAL_INVALID_SPARQL a pm:RefusalCondition ;
+  rdfs:label "Invalid SPARQL" ;
+  rdfs:comment "SPARQL query does not parse or execute" .
+
+pm:REFUSAL_AUDIT_FAILED a pm:RefusalCondition ;
+  rdfs:label "Audit Failed" ;
+  rdfs:comment "Conformance audit did not pass" .
+
+pm:REFUSAL_TEMPLATE_FAILED a pm:RefusalCondition ;
+  rdfs:label "Template Failed" ;
+  rdfs:comment "Tera template rendering produced invalid output" .
+
+pm:REFUSAL_NO_FORCED_ALIVE a pm:RefusalCondition ;
+  rdfs:label "No Forced ALIVE" ;
+  rdfs:comment "Cannot declare ALIVE when audit gates fail; must emit PARTIAL" .
+
+pm:REFUSAL_MISSING_BLOCKER a pm:RefusalCondition ;
+  rdfs:label "Missing Blocker" ;
+  rdfs:comment "Remediation plan lacks owner or remediation class" .

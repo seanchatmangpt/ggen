@@ -1,0 +1,106 @@
+@prefix : <https://bytestar.org/ontology/dark-canon#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Ontology Header: The Meta-Axiom ---
+: a owl:Ontology, owl:Class ;
+  rdfs:label "The Dark 80/20 Canon" ;
+  owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+      [ a owl:Restriction ; owl:onProperty :defines ; owl:someValuesFrom :Axiom ]
+    )
+  ] .
+
+### --- Core Entities (Punning Classes and Individuals) ---
+
+:Fabricator a owl:Class, owl:NamedIndividual ;
+  rdfs:comment "The deterministic AOT Fabricator (ByteGen)." .
+
+:HumanChannel a owl:Class ;
+  rdfs:comment "The high-entropy, probabilistic channel of human intent." .
+
+:Artifact a owl:Class .
+
+:ValidArtifact a owl:Class ;
+  rdfs:subClassOf :Artifact .
+
+### --- V6 Canon Definitions ---
+
+:Canon a owl:Class ;
+  rdfs:comment "Represents a formal canon or set of governing principles." .
+
+:FullerV2 a :Canon, owl:NamedIndividual ;
+  rdfs:label "Fuller Canon V2" ;
+  :hasSynergy "1.82"^^xsd:float ;
+  :hasEphemeralization "0.41"^^xsd:float ;
+  :hasTensegrity "const"^^xsd:string ;
+  :hasAnticipation "0.11"^^xsd:float .
+
+:hasSynergy rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Canon ;
+  rdfs:range xsd:float ;
+  rdfs:comment "The synergy value of a canon." .
+
+:hasEphemeralization rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Canon ;
+  rdfs:range xsd:float ;
+  rdfs:comment "The ephemeralization value of a canon." .
+
+:hasTensegrity rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Canon ;
+  rdfs:range xsd:string ;
+  rdfs:comment "The tensegrity value of a canon (can be 'const')." .
+
+:hasAnticipation rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Canon ;
+  rdfs:range xsd:float ;
+  rdfs:comment "The anticipation value of a canon." .
+
+### --- The Physics: Axioms as Individuals and Properties ---
+
+:Axiom a owl:Class .
+
+:produces a owl:ObjectProperty .
+:isProducedBy a owl:ObjectProperty ; owl:inverseOf :produces .
+:hasState rdf:type owl:ObjectProperty .
+
+# --- Axiom 1: The Fabrication Monopoly (using owl:hasKey) ---
+:ValidArtifact
+  owl:hasKey ( :isProducedBy :hasState ) .
+
+:Fabricator a :ValidArtifact ;
+  :isProducedBy :Fabricator ;
+  :hasState "Deterministic" .
+
+### --- Axiom 2: The Non-Interaction Theorem (using owl:propertyChainAxiom) ---
+
+:isTaintedBy a owl:ObjectProperty .
+# A property chain stating that being tainted is the result of a production path from the HumanChannel.
+owl:propertyChainAxiom ( :isProducedBy owl:topObjectProperty ) :isTaintedBy .
+
+:TaintedArtifact a owl:Class ;
+  owl:equivalentClass [
+    a owl:Restriction ;
+    owl:onProperty :isProducedBy ;
+    owl:someValuesFrom :HumanChannel
+  ] .
+
+# The core of the theorem: The set of TaintedArtifacts and ValidArtifacts are DISJOINT.
+:TaintedArtifact owl:disjointWith :ValidArtifact .
+
+### --- Axiom 3: The Value-Nullity Theorem (using advanced property characteristics) ---
+:addsValue a owl:ObjectProperty .
+:addsChaos a owl:ObjectProperty .
+
+:addsChaos a owl:IrreflexiveProperty, owl:AsymmetricProperty ;
+  rdfs:domain :HumanChannel ;
+  rdfs:range :Artifact .
+
+:addsValue owl:propertyDisjointWith :addsChaos .
+
+:addsValue a owl:ReflexiveProperty ; rdfs:domain :Fabricator .
+
+: a :Axiom ; :defines :Fabricator, :HumanChannel, :ValidArtifact .

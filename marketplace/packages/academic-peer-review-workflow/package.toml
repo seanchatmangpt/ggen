@@ -113,3 +113,6 @@ use_cases = "Journal submissions, conference reviewing, thesis committee feedbac
 [validation]
 requires = ["paper.rdf", "reviewers.json"]
 stages_required = ["reviewer-assignment", "review-period", "decision-compilation"]
+
+[marketplace]
+production_ready = false

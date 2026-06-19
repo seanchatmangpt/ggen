@@ -1,0 +1,24 @@
+[package]
+name    = "anti-llm-cheat-lsp"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[[bin]]
+name = "anti-llm-cheat-lsp"
+path = "src/main.rs"
+
+[dependencies]
+lsp-max              = { path = "../../../../../../../lsp-max" }
+tree-sitter          = "0.26"
+tree-sitter-rust = "0.23"
+tokio                = { version = "1", features = ["full"] }
+tracing              = "0.1"
+tracing-subscriber   = { version = "0.3", features = ["env-filter"] }
+clap                 = { version = "4", features = ["derive"] }
+regex                = "1"
+walkdir              = "2"
+
+[build-dependencies]
+# cc = "1"  # uncomment if grammar crate requires a C source build step

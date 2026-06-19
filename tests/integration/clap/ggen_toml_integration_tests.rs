@@ -8,6 +8,31 @@ use std::fs;
 use tempfile::TempDir;
 use assert_cmd::Command;
 use predicates::prelude::*;
+use serial_test::serial;
+
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally; do not share across crates.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
 
 /// Helper to create ggen command
 fn ggen() -> Command {
@@ -65,6 +90,7 @@ output_dir = "./default-output"
 
 /// Test environment variables override config
 #[test]
+#[serial(GGEN_OUTPUT_DIR)]
 fn test_env_vars_override_config() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -75,18 +101,16 @@ output_dir = "./default-output"
 
     fs::write(temp_dir.path().join("ggen.toml"), config).unwrap();
 
-    // Set environment variable
-    env::set_var("GGEN_OUTPUT_DIR", "/env/output");
+    // Set environment variable; guard restores prior value on Drop.
+    let _guard = EnvVarGuard::set("GGEN_OUTPUT_DIR", "/env/output");
 
     let env_value = env::var("GGEN_OUTPUT_DIR").unwrap();
     assert_eq!(env_value, "/env/output");
-
-    // Clean up
-    env::remove_var("GGEN_OUTPUT_DIR");
 }
 
 /// Test precedence: CLI > Env > Config > Defaults
 #[test]
+#[serial(GGEN_OUTPUT_DIR)]
 fn test_configuration_precedence() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -104,9 +128,9 @@ output_dir = "{}"
     );
     fs::write(temp_dir.path().join("ggen.toml"), config).unwrap();
 
-    // 3. Environment variable
+    // 3. Environment variable; guard restores prior value on Drop.
     let env_value = "from-env";
-    env::set_var("GGEN_OUTPUT_DIR", env_value);
+    let _guard = EnvVarGuard::set("GGEN_OUTPUT_DIR", env_value);
 
     // 4. CLI argument (highest priority)
     let cli_value = "from-cli";
@@ -115,9 +139,6 @@ output_dir = "{}"
     assert_ne!(config_value, default_value);
     assert_ne!(env_value, config_value);
     assert_ne!(cli_value, env_value);
-
-    // Clean up
-    env::remove_var("GGEN_OUTPUT_DIR");
 }
 
 /// Test type validation (string → number)

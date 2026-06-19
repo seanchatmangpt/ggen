@@ -1,0 +1,124 @@
+@prefix tai: <http://tai.cognitive.mesh/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# TAI Cognitive Mesh Link Graph
+# Version: v2026.1.1.0z
+# Location: America/Los_Angeles  
+# Generated: 2025-07-30T20:16:00Z
+
+tai:LinkGraph-2026-1-1-0z rdf:type tai:LinkGraph ;
+    rdfs:label "TAI Link Graph v2026.1.1.0z" ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime ;
+    tai:hasLocation "America/Los_Angeles" .
+
+# Primary Cognitive Substrates
+tai:substrate-alpha rdf:type tai:Substrate ;
+    rdfs:label "Alpha Substrate" ;
+    tai:hasRelevance 0.95 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:substrate-beta rdf:type tai:Substrate ;
+    rdfs:label "Beta Substrate" ;
+    tai:hasRelevance 0.87 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:substrate-gamma rdf:type tai:Substrate ;
+    rdfs:label "Gamma Substrate" ;
+    tai:hasRelevance 0.76 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:substrate-delta rdf:type tai:Substrate ;
+    rdfs:label "Delta Substrate" ;
+    tai:hasRelevance 0.82 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:substrate-epsilon rdf:type tai:Substrate ;
+    rdfs:label "Epsilon Substrate" ;
+    tai:hasRelevance 0.71 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:substrate-zeta rdf:type tai:Substrate ;
+    rdfs:label "Zeta Substrate" ;
+    tai:hasRelevance 0.69 ;
+    tai:isActive false ;
+    tai:hasTimestamp "2025-07-30T20:15:45Z"^^xsd:dateTime .
+
+# Inter-Substrate Relevance Patterns
+tai:link-alpha-beta rdf:type tai:LinkGraph ;
+    rdfs:label "Alpha-Beta Relevance Link" ;
+    tai:connectsSubstrate tai:substrate-alpha, tai:substrate-beta ;
+    tai:hasRelevance 0.91 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:link-beta-gamma rdf:type tai:LinkGraph ;
+    rdfs:label "Beta-Gamma Relevance Link" ;
+    tai:connectsSubstrate tai:substrate-beta, tai:substrate-gamma ;
+    tai:hasRelevance 0.84 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:link-gamma-delta rdf:type tai:LinkGraph ;
+    rdfs:label "Gamma-Delta Relevance Link" ;
+    tai:connectsSubstrate tai:substrate-gamma, tai:substrate-delta ;
+    tai:hasRelevance 0.79 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:link-delta-epsilon rdf:type tai:LinkGraph ;
+    rdfs:label "Delta-Epsilon Relevance Link" ;
+    tai:connectsSubstrate tai:substrate-delta, tai:substrate-epsilon ;
+    tai:hasRelevance 0.73 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:link-alpha-gamma rdf:type tai:LinkGraph ;
+    rdfs:label "Alpha-Gamma Cross-Link" ;
+    tai:connectsSubstrate tai:substrate-alpha, tai:substrate-gamma ;
+    tai:hasRelevance 0.88 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:link-beta-delta rdf:type tai:LinkGraph ;
+    rdfs:label "Beta-Delta Cross-Link" ;
+    tai:connectsSubstrate tai:substrate-beta, tai:substrate-delta ;
+    tai:hasRelevance 0.81 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:link-epsilon-zeta rdf:type tai:LinkGraph ;
+    rdfs:label "Epsilon-Zeta Dormant Link" ;
+    tai:connectsSubstrate tai:substrate-epsilon, tai:substrate-zeta ;
+    tai:hasRelevance 0.45 ;
+    tai:isActive false ;
+    tai:hasTimestamp "2025-07-30T20:15:30Z"^^xsd:dateTime .
+
+# Relevance Clustering Patterns
+tai:cluster-high-relevance rdf:type tai:LinkGraph ;
+    rdfs:label "High Relevance Cluster" ;
+    tai:includesSubstrate tai:substrate-alpha, tai:substrate-beta, tai:substrate-gamma ;
+    tai:hasRelevance 0.89 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:cluster-medium-relevance rdf:type tai:LinkGraph ;
+    rdfs:label "Medium Relevance Cluster" ;
+    tai:includesSubstrate tai:substrate-delta, tai:substrate-epsilon ;
+    tai:hasRelevance 0.77 ;
+    tai:isActive true ;
+    tai:hasTimestamp "2025-07-30T20:16:00Z"^^xsd:dateTime .
+
+tai:cluster-dormant rdf:type tai:LinkGraph ;
+    rdfs:label "Dormant Cluster" ;
+    tai:includesSubstrate tai:substrate-zeta ;
+    tai:hasRelevance 0.69 ;
+    tai:isActive false ;
+    tai:hasTimestamp "2025-07-30T20:15:45Z"^^xsd:dateTime .

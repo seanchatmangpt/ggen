@@ -1,0 +1,248 @@
+# YAWL Pattern: CNS Litigation Response (Van der Aalst #44)
+# Pattern ID: CNS001  
+# Trinity Framework Compliant
+# TTL2DSpy Explorable
+# Generated: 2025-08-09T16:36:28.076733
+
+@prefix cns: <http://cns-litigation.org/ontology#> .
+@prefix yawl: <http://www.yawlsystem.com/yawlschema#> .
+@prefix dag: <http://directed-acyclic-graph.org/ontology#> .
+@prefix trinity: <http://cns.ultrathink/trinity#> .
+@prefix bitagent: <http://cns.ultrathink/bitagent#> .
+@prefix disc: <http://cns.ultrathink/disc#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+cns:CNS001 a yawl:YAWLSpecification ;
+    rdfs:label "CNS Litigation Response" ;
+    yawl:specVersion "4.0" ;
+    trinity:vanDerAalstIndex "44"^^xsd:integer ;
+    trinity:maxTicks "8"^^xsd:integer ;
+    trinity:deterministicState "true"^^xsd:boolean ;
+    trinity:complianceValidated "true"^^xsd:boolean ;
+    yawl:decomposesTo cns:CNS001_net .
+
+
+cns:CNS001_net a yawl:Net ;
+    rdfs:label "CNS Litigation Response Net" ;
+    yawl:inputCondition cns:CNS001_start ;
+    yawl:outputCondition cns:CNS001_end .
+
+cns:CNS001_CNS_START a cns:FlowNode, yawl:StartNode ;
+    cns:hasNodeID "CNS_START" ;
+    cns:hasNodeType cns:start ;
+    trinity:progressTick "0"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "0,0"  ;
+    dag:successors (cns:CNS001_CNS_INTAKE);
+    cns:hasFilePath "workflows/cns/start.yawl.ttl" ;
+    cns:description "CNS Response Start"  .
+
+cns:CNS001_CNS_INTAKE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_INTAKE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "1"^^xsd:integer ;
+    cns:hasProcessingTimeUs "7200000000"^^xsd:integer ;
+    cns:hasPosition "1,0"  ;
+    dag:predecessors (cns:CNS001_CNS_START) ;
+    dag:successors (cns:CNS001_CNS_TRIAGE);
+    cns:hasFilePath "workflows/cns/intake.yawl.ttl" ;
+    cns:description "Document intake" ;
+    cns:agent "intake_coordinator" ;
+    cns:automation "semi_automated"  .
+
+cns:CNS001_CNS_TRIAGE a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_TRIAGE" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "2"^^xsd:integer ;
+    cns:hasProcessingTimeUs "3600000000"^^xsd:integer ;
+    cns:hasPosition "2,0"  ;
+    dag:predecessors (cns:CNS001_CNS_INTAKE) ;
+    dag:successors (cns:CNS001_CNS_JURISDICTION);
+    cns:hasFilePath "workflows/cns/triage.yawl.ttl" ;
+    cns:description "Priority triage" ;
+    cns:agent "triage_classifier" ;
+    cns:automation "fully_automated"  .
+
+cns:CNS001_CNS_JURISDICTION a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_JURISDICTION" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "3"^^xsd:integer ;
+    cns:hasProcessingTimeUs "18000000000"^^xsd:integer ;
+    cns:hasPosition "3,0"  ;
+    dag:predecessors (cns:CNS001_CNS_TRIAGE) ;
+    dag:successors (cns:CNS001_CNS_RESEARCH);
+    cns:hasFilePath "workflows/cns/jurisdiction.yawl.ttl" ;
+    cns:description "Jurisdictional analysis" ;
+    cns:agent "jurisdictional_analyzer" ;
+    cns:automation "ai_assisted"  .
+
+cns:CNS001_CNS_RESEARCH a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_RESEARCH" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "4"^^xsd:integer ;
+    cns:hasProcessingTimeUs "28800000000"^^xsd:integer ;
+    cns:hasPosition "4,0"  ;
+    dag:predecessors (cns:CNS001_CNS_JURISDICTION) ;
+    dag:successors (cns:CNS001_CNS_STRATEGY);
+    cns:hasFilePath "workflows/cns/research.yawl.ttl" ;
+    cns:description "Legal research" ;
+    cns:agent "legal_researcher" ;
+    cns:automation "ai_enhanced"  .
+
+cns:CNS001_CNS_STRATEGY a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_STRATEGY" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "5"^^xsd:integer ;
+    cns:hasProcessingTimeUs "14400000000"^^xsd:integer ;
+    cns:hasPosition "5,0"  ;
+    dag:predecessors (cns:CNS001_CNS_RESEARCH) ;
+    dag:successors (cns:CNS001_CNS_PREPARATION);
+    cns:hasFilePath "workflows/cns/strategy.yawl.ttl" ;
+    cns:description "Strategic planning" ;
+    cns:agent "strategic_planner" ;
+    cns:automation "human_led"  .
+
+cns:CNS001_CNS_PREPARATION a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_PREPARATION" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "6"^^xsd:integer ;
+    cns:hasProcessingTimeUs "43200000000"^^xsd:integer ;
+    cns:hasPosition "6,0"  ;
+    dag:predecessors (cns:CNS001_CNS_STRATEGY) ;
+    dag:successors (cns:CNS001_CNS_QA);
+    cns:hasFilePath "workflows/cns/preparation.yawl.ttl" ;
+    cns:description "Document preparation" ;
+    cns:agent "document_agent" ;
+    cns:automation "template_assisted"  .
+
+cns:CNS001_CNS_QA a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_QA" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "7"^^xsd:integer ;
+    cns:hasProcessingTimeUs "10800000000"^^xsd:integer ;
+    cns:hasPosition "7,0"  ;
+    dag:predecessors (cns:CNS001_CNS_PREPARATION) ;
+    dag:successors (cns:CNS001_CNS_APPROVAL);
+    cns:hasFilePath "workflows/cns/qa.yawl.ttl" ;
+    cns:description "Quality assurance" ;
+    cns:agent "quality_controller" ;
+    cns:automation "hybrid"  .
+
+cns:CNS001_CNS_APPROVAL a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_APPROVAL" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "7200000000"^^xsd:integer ;
+    cns:hasPosition "8,0"  ;
+    dag:predecessors (cns:CNS001_CNS_QA) ;
+    dag:successors (cns:CNS001_CNS_TRANSMISSION);
+    cns:hasFilePath "workflows/cns/approval.yawl.ttl" ;
+    cns:description "Final approval" ;
+    cns:agent "authorizing_officer" ;
+    cns:automation "human"  .
+
+cns:CNS001_CNS_TRANSMISSION a cns:FlowNode, yawl:TaskNode ;
+    cns:hasNodeID "CNS_TRANSMISSION" ;
+    cns:hasNodeType cns:task ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "3600000000"^^xsd:integer ;
+    cns:hasPosition "8,1"  ;
+    dag:predecessors (cns:CNS001_CNS_APPROVAL) ;
+    dag:successors (cns:CNS001_CNS_END);
+    cns:hasFilePath "workflows/cns/transmission.yawl.ttl" ;
+    cns:description "Filing transmission" ;
+    cns:agent "transmission_manager" ;
+    cns:automation "automated"  .
+
+cns:CNS001_CNS_END a cns:FlowNode, yawl:EndNode ;
+    cns:hasNodeID "CNS_END" ;
+    cns:hasNodeType cns:end ;
+    trinity:progressTick "8"^^xsd:integer ;
+    cns:hasProcessingTimeUs "0"^^xsd:integer ;
+    cns:hasPosition "9,0"  ;
+    dag:predecessors (cns:CNS001_CNS_TRANSMISSION);
+    cns:hasFilePath "workflows/cns/end.yawl.ttl" ;
+    cns:description "CNS Response Complete"  .
+
+# DAG Edge Definitions
+
+cns:edge_001 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_START ;
+    dag:hasTarget cns:CNS_INTAKE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_002 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_INTAKE ;
+    dag:hasTarget cns:CNS_TRIAGE ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_003 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_TRIAGE ;
+    dag:hasTarget cns:CNS_JURISDICTION ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_004 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_JURISDICTION ;
+    dag:hasTarget cns:CNS_RESEARCH ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_005 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_RESEARCH ;
+    dag:hasTarget cns:CNS_STRATEGY ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_006 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_STRATEGY ;
+    dag:hasTarget cns:CNS_PREPARATION ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_007 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_PREPARATION ;
+    dag:hasTarget cns:CNS_QA ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_008 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_QA ;
+    dag:hasTarget cns:CNS_APPROVAL ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_009 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_APPROVAL ;
+    dag:hasTarget cns:CNS_TRANSMISSION ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+cns:edge_010 a cns:FlowEdge, dag:DirectedEdge ;
+    dag:hasSource cns:CNS_TRANSMISSION ;
+    dag:hasTarget cns:CNS_END ;
+    cns:hasTransitionCondition cns:AutomaticTransition ;
+    cns:hasWeight "1.0"^^xsd:decimal .
+
+# Trinity Framework Compliance Metadata
+cns:CNS001_compliance a trinity:ComplianceValidation ;
+    trinity:patternId "CNS001" ;
+    trinity:tickCompliance "true"^^xsd:boolean ;
+    trinity:hopCompliance "true"^^xsd:boolean ;
+    trinity:bitCompliance "true"^^xsd:boolean ;
+    trinity:deterministicCompliance "true"^^xsd:boolean ;
+    trinity:validatedAt "2025-08-09T16:36:28.076773"^^xsd:dateTime .
+
+
+# TTL2DSpy Exploration Metadata
+cns:CNS001_exploration a dag:ExplorationGraph ;
+    dag:graphType "directed_acyclic" ;
+    dag:nodeCount "11"^^xsd:integer ;
+    dag:explorable "true"^^xsd:boolean ;
+    dag:ttl2dspyCompatible "true"^^xsd:boolean .

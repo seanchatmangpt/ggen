@@ -1,0 +1,110 @@
+@prefix : <https://bytestar.org/ontology/doctrines#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix lgc: <https://bytestar.org/ontology/bytestar-lgc#> .
+@prefix dc: <https://bytestar.org/ontology/dark-canon#> .
+@prefix arch: <https://bytestar.org/ontology/architecture#> .
+
+<https://bytestar.org/ontology/doctrines>
+    rdf:type owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/doctrines/v1.0> ;
+    rdfs:comment "Ontology defining the core doctrines and principles of the ByteStar V6 ecosystem." ;
+    owl:imports lgc: ,
+                dc: ,
+                arch: .
+
+#################################################################
+#    Classes
+#################################################################
+
+:V6Doctrine rdf:type owl:Class ;
+    rdfs:comment "A core doctrine or principle of the ByteStar V6 ecosystem." .
+
+:FullerCanonAdherence rdf:type owl:Class ;
+    rdfs:subClassOf :V6Doctrine ;
+    rdfs:comment "Adherence to the FullerV2 Canon principles." .
+
+:EightHopCompliance rdf:type owl:Class ;
+    rdfs:subClassOf :V6Doctrine ;
+    rdfs:comment "Compliance with the 8-hop envelope for all workflows." .
+
+:ZeroTickEnforcement rdf:type owl:Class ;
+    rdfs:subClassOf :V6Doctrine ;
+    rdfs:comment "Enforcement of zero-tick rejection for invalid or non-compliant inputs." .
+
+:CapabilityAlgebraicAuth rdf:type owl:Class ;
+    rdfs:subClassOf :V6Doctrine ;
+    rdfs:comment "Authorization based on O(1) capability algebra." .
+
+:ReceiptsFirstPrinciple rdf:type owl:Class ;
+    rdfs:subClassOf :V6Doctrine ;
+    rdfs:comment "The principle that every meaningful action produces a sealed receipt." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:adheresToCanon rdf:type owl:ObjectProperty ;
+    rdfs:domain :FullerCanonAdherence ;
+    rdfs:range dc:Canon ;
+    rdfs:comment "Indicates adherence to a specific canon." .
+
+:ensuresComplianceWith rdf:type owl:ObjectProperty ;
+    rdfs:domain :EightHopCompliance ;
+    rdfs:range lgc:EightHopLaw ;
+    rdfs:comment "Ensures compliance with the 8-hop law." .
+
+:enforcesRejectionPolicy rdf:type owl:ObjectProperty ;
+    rdfs:domain :ZeroTickEnforcement ;
+    rdfs:range lgc:ZeroTickReject ;
+    rdfs:comment "Enforces the zero-tick rejection policy." .
+
+:usesAuthMechanism rdf:type owl:ObjectProperty ;
+    rdfs:domain :CapabilityAlgebraicAuth ;
+    rdfs:range lgc:CapabilityAlgebra ;
+    rdfs:comment "Uses capability algebra as an authorization mechanism." .
+
+:followsPrinciple rdf:type owl:ObjectProperty ;
+    rdfs:domain :ReceiptsFirstPrinciple ;
+    rdfs:range lgc:ReceiptsFirstMethodology ;
+    rdfs:comment "Follows the receipts-first methodology." .
+
+#################################################################
+#    Individuals
+#################################################################
+
+:V6CoreDoctrines rdf:type owl:NamedIndividual ,
+                         :V6Doctrine ;
+    rdfs:label "ByteStar V6 Core Doctrines" ;
+    :includesDoctrine :FullerCanonAdherence_Instance ,
+                      :EightHopCompliance_Instance ,
+                      :ZeroTickEnforcement_Instance ,
+                      :CapabilityAlgebraicAuth_Instance ,
+                      :ReceiptsFirstPrinciple_Instance .
+
+:includesDoctrine rdf:type owl:ObjectProperty ;
+    rdfs:domain :V6CoreDoctrines ;
+    rdfs:range :V6Doctrine ;
+    rdfs:comment "Links the set of V6 Core Doctrines to its individual doctrines." .
+
+:FullerCanonAdherence_Instance rdf:type :FullerCanonAdherence ;
+    :adheresToCanon dc:FullerV2 ;
+    rdfs:comment "Instance representing adherence to the FullerV2 Canon." .
+
+:EightHopCompliance_Instance rdf:type :EightHopCompliance ;
+    :ensuresComplianceWith lgc:EightHopLaw ;
+    rdfs:comment "Instance representing compliance with the 8-hop envelope." .
+
+:ZeroTickEnforcement_Instance rdf:type :ZeroTickEnforcement ;
+    :enforcesRejectionPolicy lgc:ZeroTickReject ;
+    rdfs:comment "Instance representing enforcement of zero-tick rejection." .
+
+:CapabilityAlgebraicAuth_Instance rdf:type :CapabilityAlgebraicAuth ;
+    :usesAuthMechanism lgc:CapabilityAlgebra ;
+    rdfs:comment "Instance representing authorization via capability algebra." .
+
+:ReceiptsFirstPrinciple_Instance rdf:type :ReceiptsFirstPrinciple ;
+    :followsPrinciple lgc:ReceiptsFirstMethodology ;
+    rdfs:comment "Instance representing adherence to the receipts-first principle." .

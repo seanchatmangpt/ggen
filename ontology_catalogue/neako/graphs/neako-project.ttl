@@ -1,0 +1,272 @@
+@prefix neako: <urn:neako#> .
+@prefix sn:    <urn:supanuxt#> .
+@prefix nuxt:  <urn:nuxt#> .
+@prefix supa:  <urn:supabase#> .
+@prefix bff:   <urn:bff#> .
+@prefix proj:  <urn:neako:project#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# NEAKO Project Definition
+#################################################################
+
+proj:NeatroApp a nuxt:NuxtApp ;
+  sn:name "neako-cosmos" ;
+  sn:description "NEAKO Cosmos - Signal-based knowledge network" ;
+  sn:belongsToProject proj:NEAKO .
+
+proj:NeatroSupabase a supa:SupabaseProject ;
+  sn:name "neako-supabase" ;
+  sn:description "NEAKO Supabase backend" ;
+  sn:belongsToProject proj:NEAKO .
+
+proj:NEAKO a sn:Project ;
+  sn:name "NEAKO" ;
+  sn:description "NEAKO Cosmos Application" .
+
+#################################################################
+# Database Schema - Public Schema
+#################################################################
+
+proj:PublicSchema a supa:Schema ;
+  supa:inSchema proj:NeatroSupabase ;
+  sn:name "public" .
+
+# Entities Table
+proj:EntitiesTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "entities" ;
+  sn:description "Core entities in the NEAKO cosmos" .
+
+proj:EntitiesTable supa:hasColumn proj:EntityId, proj:EntityType, proj:EntityName,
+  proj:EntityDescription, proj:EntityOwnerId, proj:EntityCreatedAt, proj:EntityUpdatedAt, proj:EntityTags .
+
+proj:EntityId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:EntityType a supa:Column ; supa:columnName "entity_type" ; supa:dataType "text" .
+proj:EntityName a supa:Column ; supa:columnName "name" ; supa:dataType "text" .
+proj:EntityDescription a supa:Column ; supa:columnName "description" ; supa:dataType "text" .
+proj:EntityOwnerId a supa:Column ; supa:columnName "owner_id" ; supa:dataType "uuid" .
+proj:EntityCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+proj:EntityUpdatedAt a supa:Column ; supa:columnName "updated_at" ; supa:dataType "timestamptz" .
+proj:EntityTags a supa:Column ; supa:columnName "tags" ; supa:dataType "text[]" .
+
+# Signals Table
+proj:SignalsTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "signals" ;
+  sn:description "Signals emitted by entities" .
+
+proj:SignalsTable supa:hasColumn proj:SignalId, proj:SignalType, proj:SignalText,
+  proj:SignalEmitterId, proj:SignalFieldId, proj:SignalThreadId, proj:SignalTargetId,
+  proj:SignalPayload, proj:SignalCreatedAt, proj:SignalTags .
+
+proj:SignalId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:SignalType a supa:Column ; supa:columnName "signal_type" ; supa:dataType "text" .
+proj:SignalText a supa:Column ; supa:columnName "text" ; supa:dataType "text" .
+proj:SignalEmitterId a supa:Column ; supa:columnName "emitter_id" ; supa:dataType "uuid" .
+proj:SignalFieldId a supa:Column ; supa:columnName "field_id" ; supa:dataType "uuid" .
+proj:SignalThreadId a supa:Column ; supa:columnName "thread_id" ; supa:dataType "uuid" .
+proj:SignalTargetId a supa:Column ; supa:columnName "target_id" ; supa:dataType "uuid" .
+proj:SignalPayload a supa:Column ; supa:columnName "payload" ; supa:dataType "jsonb" .
+proj:SignalCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+proj:SignalTags a supa:Column ; supa:columnName "tags" ; supa:dataType "text[]" .
+
+# Fields Table
+proj:FieldsTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "fields" ;
+  sn:description "Contextual fields for signals" .
+
+proj:FieldsTable supa:hasColumn proj:FieldId, proj:FieldName, proj:FieldVisibility,
+  proj:FieldContext, proj:FieldRelevance, proj:FieldCreatedAt .
+
+proj:FieldId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:FieldName a supa:Column ; supa:columnName "name" ; supa:dataType "text" .
+proj:FieldVisibility a supa:Column ; supa:columnName "visibility" ; supa:dataType "text" .
+proj:FieldContext a supa:Column ; supa:columnName "context" ; supa:dataType "text" .
+proj:FieldRelevance a supa:Column ; supa:columnName "relevance" ; supa:dataType "numeric" .
+proj:FieldCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+
+# Threads Table
+proj:ThreadsTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "threads" ;
+  sn:description "Sequential signal threads" .
+
+proj:ThreadsTable supa:hasColumn proj:ThreadId, proj:ThreadName, proj:ThreadDescription,
+  proj:ThreadCreatedAt .
+
+proj:ThreadId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:ThreadName a supa:Column ; supa:columnName "name" ; supa:dataType "text" .
+proj:ThreadDescription a supa:Column ; supa:columnName "description" ; supa:dataType "text" .
+proj:ThreadCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+
+# Constellations Table
+proj:ConstellationsTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "constellations" ;
+  sn:description "Groups of linked complementary signals" .
+
+proj:ConstellationsTable supa:hasColumn proj:ConstellationId, proj:ConstellationName,
+  proj:ConstellationDescription, proj:ConstellationCreatedAt .
+
+proj:ConstellationId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:ConstellationName a supa:Column ; supa:columnName "name" ; supa:dataType "text" .
+proj:ConstellationDescription a supa:Column ; supa:columnName "description" ; supa:dataType "text" .
+proj:ConstellationCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+
+# Signal Links Table
+proj:SignalLinksTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "signal_links" ;
+  sn:description "Links between complementary signals" .
+
+proj:SignalLinksTable supa:hasColumn proj:LinkId, proj:LinkSignalA, proj:LinkSignalB,
+  proj:LinkConstellationId, proj:LinkStrength, proj:LinkReason, proj:LinkCreatedAt .
+
+proj:LinkId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:LinkSignalA a supa:Column ; supa:columnName "signal_a_id" ; supa:dataType "uuid" .
+proj:LinkSignalB a supa:Column ; supa:columnName "signal_b_id" ; supa:dataType "uuid" .
+proj:LinkConstellationId a supa:Column ; supa:columnName "constellation_id" ; supa:dataType "uuid" .
+proj:LinkStrength a supa:Column ; supa:columnName "strength" ; supa:dataType "float" .
+proj:LinkReason a supa:Column ; supa:columnName "reason" ; supa:dataType "text" .
+proj:LinkCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+
+# Agents Table (for simulation)
+proj:AgentsTable a supa:Table ;
+  supa:inSchema proj:PublicSchema ;
+  supa:tableName "agents" ;
+  sn:description "Autonomous agents that emit signals" .
+
+proj:AgentsTable supa:hasColumn proj:AgentId, proj:AgentEntityId, proj:AgentCadence,
+  proj:AgentActive, proj:AgentConfig, proj:AgentCreatedAt .
+
+proj:AgentId a supa:Column ; supa:columnName "id" ; supa:dataType "uuid" .
+proj:AgentEntityId a supa:Column ; supa:columnName "entity_id" ; supa:dataType "uuid" .
+proj:AgentCadence a supa:Column ; supa:columnName "cadence_sec" ; supa:dataType "numeric" .
+proj:AgentActive a supa:Column ; supa:columnName "active" ; supa:dataType "boolean" .
+proj:AgentConfig a supa:Column ; supa:columnName "config" ; supa:dataType "jsonb" .
+proj:AgentCreatedAt a supa:Column ; supa:columnName "created_at" ; supa:dataType "timestamptz" .
+
+#################################################################
+# RLS Policies
+#################################################################
+
+proj:EntitiesSelectPolicy a supa:Policy ;
+  supa:hasPolicy proj:EntitiesTable ;
+  sn:name "entities_select_policy" ;
+  supa:policyCheck "auth.uid() = owner_id OR owner_id IS NULL" .
+
+proj:SignalsSelectPolicy a supa:Policy ;
+  supa:hasPolicy proj:SignalsTable ;
+  sn:name "signals_select_policy" ;
+  supa:policyCheck "EXISTS (SELECT 1 FROM fields WHERE fields.id = signals.field_id AND fields.visibility = 'public')" .
+
+proj:SignalsInsertPolicy a supa:Policy ;
+  supa:hasPolicy proj:SignalsTable ;
+  sn:name "signals_insert_policy" ;
+  supa:policyCheck "EXISTS (SELECT 1 FROM entities WHERE entities.id = signals.emitter_id AND entities.owner_id = auth.uid())" .
+
+#################################################################
+# Edge Functions
+#################################################################
+
+proj:MatchSignalsFunction a supa:EdgeFunction ;
+  sn:name "match-signals" ;
+  sn:description "Find complementary signals and create constellation links" .
+
+proj:AgentSimulationFunction a supa:EdgeFunction ;
+  sn:name "agent-simulation" ;
+  sn:description "Run agent simulation to emit signals" .
+
+#################################################################
+# Realtime Channels
+#################################################################
+
+proj:SignalsChannel a supa:RealtimeChannel ;
+  sn:name "signals" ;
+  sn:description "Realtime signal emissions" .
+
+proj:ConstellationsChannel a supa:RealtimeChannel ;
+  sn:name "constellations" ;
+  sn:description "Realtime constellation formation" .
+
+#################################################################
+# Nuxt Pages
+#################################################################
+
+proj:IndexPage a nuxt:Page ;
+  nuxt:hasPage proj:NeatroApp ;
+  nuxt:path "/" ;
+  sn:name "index" ;
+  sn:description "NEAKO Cosmos home page" .
+
+proj:EntitiesPage a nuxt:Page ;
+  nuxt:hasPage proj:NeatroApp ;
+  nuxt:path "/entities" ;
+  sn:name "entities" ;
+  sn:description "Entity browser" .
+
+proj:SignalsPage a nuxt:Page ;
+  nuxt:hasPage proj:NeatroApp ;
+  nuxt:path "/signals" ;
+  sn:name "signals" ;
+  sn:description "Signal feed" .
+
+proj:ConstellationsPage a nuxt:Page ;
+  nuxt:hasPage proj:NeatroApp ;
+  nuxt:path "/constellations" ;
+  sn:name "constellations" ;
+  sn:description "Constellation explorer" .
+
+proj:FieldsPage a nuxt:Page ;
+  nuxt:hasPage proj:NeatroApp ;
+  nuxt:path "/fields" ;
+  sn:name "fields" ;
+  sn:description "Field management" .
+
+#################################################################
+# Composables
+#################################################################
+
+proj:UseEntityComposable a nuxt:Composable ;
+  nuxt:usesComposable proj:EntitiesPage ;
+  nuxt:file "composables/useEntity.ts" ;
+  sn:name "useEntity" ;
+  sn:readsTable proj:EntitiesTable .
+
+proj:UseSignalComposable a nuxt:Composable ;
+  nuxt:usesComposable proj:SignalsPage ;
+  nuxt:file "composables/useSignal.ts" ;
+  sn:name "useSignal" ;
+  sn:readsTable proj:SignalsTable ;
+  sn:subscribesChannel proj:SignalsChannel .
+
+proj:UseConstellationComposable a nuxt:Composable ;
+  nuxt:usesComposable proj:ConstellationsPage ;
+  nuxt:file "composables/useConstellation.ts" ;
+  sn:name "useConstellation" ;
+  sn:readsTable proj:ConstellationsTable ;
+  sn:subscribesChannel proj:ConstellationsChannel .
+
+#################################################################
+# API Endpoints
+#################################################################
+
+proj:EntitiesAPI a bff:APIEndpoint ;
+  nuxt:exposesEndpoint proj:NeatroApp ;
+  nuxt:httpMethod "GET" ;
+  sn:name "api/entities" ;
+  sn:readsTable proj:EntitiesTable .
+
+proj:SignalsAPI a bff:APIEndpoint ;
+  nuxt:exposesEndpoint proj:NeatroApp ;
+  nuxt:httpMethod "POST" ;
+  sn:name "api/signals" ;
+  sn:writesTable proj:SignalsTable .
+
+proj:MatchAPI a bff:APIEndpoint ;
+  nuxt:exposesEndpoint proj:NeatroApp ;
+  nuxt:httpMethod "POST" ;
+  sn:name "api/match" ;
+  sn:callsEdgeFunction proj:MatchSignalsFunction .

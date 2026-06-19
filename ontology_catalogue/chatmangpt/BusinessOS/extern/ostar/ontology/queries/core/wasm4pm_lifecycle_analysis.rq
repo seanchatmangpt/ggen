@@ -1,0 +1,178 @@
+# SPARQL Query: wasm4pm Lifecycle Analysis
+# Analyzes software release patterns, test coverage trends, deployment history, and governance decisions
+# Used by the lifecycle analysis artifact generator
+
+PREFIX wasm4pm: <urn:wasm4pm:>
+PREFIX doap: <http://usefulinc.com/ns/doap#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Query 1: Release Timeline
+# Fetch all releases in chronological order with metadata
+
+SELECT ?release ?version ?tag ?releaseDate ?notes ?status
+WHERE {
+  ?release a wasm4pm:Release ;
+    wasm4pm:releaseVersion ?version ;
+    wasm4pm:releaseTag ?tag ;
+    dcterms:status ?status .
+  OPTIONAL { ?release wasm4pm:releaseDatetime ?releaseDate }
+  OPTIONAL { ?release wasm4pm:releaseNotes ?notes }
+}
+ORDER BY ?version
+
+---
+
+# Query 2: Release Dependencies (Predecessor/Successor Chain)
+# Build the release timeline as a directed graph
+
+SELECT ?current ?currentVersion ?previous ?previousVersion ?next ?nextVersion
+WHERE {
+  ?current a wasm4pm:Release ;
+    wasm4pm:releaseVersion ?currentVersion .
+  OPTIONAL { ?current wasm4pm:succeeds ?previous . ?previous wasm4pm:releaseVersion ?previousVersion }
+  OPTIONAL { ?current wasm4pm:precedesRelease ?next . ?next wasm4pm:releaseVersion ?nextVersion }
+}
+ORDER BY ?currentVersion
+
+---
+
+# Query 3: Quality Metrics Trend
+# Track test coverage, conformance pass rate, and performance changes across releases
+
+SELECT ?release ?version ?coverage ?conformanceRate ?performanceDelta ?securityStatus
+WHERE {
+  ?release a wasm4pm:Release ;
+    wasm4pm:releaseVersion ?version .
+  OPTIONAL {
+    ?metrics a wasm4pm:QualityMetrics ;
+      wasm4pm:metricsForRelease ?release ;
+      wasm4pm:testCoverage ?coverage ;
+      wasm4pm:conformancePassRate ?conformanceRate ;
+      wasm4pm:performanceDegradation ?performanceDelta ;
+      wasm4pm:securityScanStatus ?securityStatus .
+  }
+}
+ORDER BY ?version
+
+---
+
+# Query 4: Test History
+# Timeline of test executions with pass/fail counts and coverage
+
+SELECT ?testResult ?releaseVersion ?status ?passed ?failed ?total ?coverage ?durationSec ?timestamp
+WHERE {
+  ?testResult a wasm4pm:TestResult ;
+    wasm4pm:testStatus ?status ;
+    wasm4pm:testCasesPassed ?passed ;
+    wasm4pm:testCasesFailed ?failed ;
+    wasm4pm:testDateTime ?timestamp ;
+    wasm4pm:testForRelease ?release .
+  ?release wasm4pm:releaseVersion ?releaseVersion .
+  OPTIONAL { ?testResult wasm4pm:testCasesRun ?total }
+  OPTIONAL { ?testResult wasm4pm:testCoverage ?coverage }
+  OPTIONAL { ?testResult wasm4pm:testDurationSeconds ?durationSec }
+}
+ORDER BY DESC(?timestamp)
+
+---
+
+# Query 5: Deployment History
+# Track which releases were deployed to which environments and when
+
+SELECT ?deployment ?stage ?releaseVersion ?deploymentStatus ?timestamp
+WHERE {
+  ?deployment a wasm4pm:DeploymentStage ;
+    wasm4pm:stageName ?stage ;
+    wasm4pm:deploymentStatus ?deploymentStatus ;
+    wasm4pm:deploymentDateTime ?timestamp ;
+    wasm4pm:deploysRelease ?release .
+  ?release wasm4pm:releaseVersion ?releaseVersion .
+}
+ORDER BY DESC(?timestamp)
+
+---
+
+# Query 6: Governance Decisions
+# All admission/release decisions with reasoning
+
+SELECT ?decision ?decisionType ?releaseVersion ?outcome ?reason ?timestamp ?policy
+WHERE {
+  ?decision a wasm4pm:GovernanceDecision ;
+    wasm4pm:decisionType ?decisionType ;
+    wasm4pm:decisionOutcome ?outcome ;
+    wasm4pm:decisionDateTime ?timestamp ;
+    wasm4pm:decidesOnRelease ?release .
+  ?release wasm4pm:releaseVersion ?releaseVersion .
+  OPTIONAL { ?decision wasm4pm:decisionReason ?reason }
+  OPTIONAL { ?decision wasm4pm:appliedPolicy ?policy }
+}
+ORDER BY DESC(?timestamp)
+
+---
+
+# Query 7: Lifecycle Observations (Events)
+# Raw events detected during observe phase
+
+SELECT ?obs ?obsType ?version ?timestamp ?metadata
+WHERE {
+  ?obs a wasm4pm:LifecycleObservation ;
+    wasm4pm:observationType ?obsType ;
+    wasm4pm:observedVersion ?version ;
+    wasm4pm:observationDateTime ?timestamp .
+}
+ORDER BY DESC(?timestamp)
+
+---
+
+# Query 8: Build Artifacts
+# All artifacts produced per release
+
+SELECT ?artifact ?type ?url ?checksum ?size ?releaseVersion
+WHERE {
+  ?artifact a wasm4pm:BuildArtifact ;
+    wasm4pm:artifactType ?type ;
+    wasm4pm:artifactUrl ?url ;
+    wasm4pm:builtInRelease ?release .
+  ?release wasm4pm:releaseVersion ?releaseVersion .
+  OPTIONAL { ?artifact wasm4pm:artifactChecksum ?checksum }
+  OPTIONAL { ?artifact wasm4pm:artifactSize ?size }
+}
+ORDER BY ?releaseVersion
+
+---
+
+# Query 9: Supply Chain Health
+# Dependency and security scan results
+
+SELECT ?release ?version ?securityStatus ?dependencyStatus ?scanTimestamp
+WHERE {
+  ?release a wasm4pm:Release ;
+    wasm4pm:releaseVersion ?version .
+  OPTIONAL {
+    ?metrics a wasm4pm:QualityMetrics ;
+      wasm4pm:metricsForRelease ?release ;
+      wasm4pm:securityScanStatus ?securityStatus ;
+      wasm4pm:dependencyScanStatus ?dependencyStatus .
+  }
+}
+ORDER BY ?version
+
+---
+
+# Query 10: Release Gap Analysis
+# Calculate time between releases (planning metric)
+
+SELECT ?currentVersion ?previousVersion ?gapDays
+WHERE {
+  ?current a wasm4pm:Release ;
+    wasm4pm:releaseVersion ?currentVersion ;
+    wasm4pm:releaseDatetime ?currentDate ;
+    wasm4pm:succeeds ?previous .
+  ?previous a wasm4pm:Release ;
+    wasm4pm:releaseVersion ?previousVersion ;
+    wasm4pm:releaseDatetime ?previousDate .
+  BIND(CEIL((xsd:dateTime(?currentDate) - xsd:dateTime(?previousDate)) / xsd:dayTimeDuration("P1D")) AS ?gapDays)
+}
+ORDER BY ?currentVersion

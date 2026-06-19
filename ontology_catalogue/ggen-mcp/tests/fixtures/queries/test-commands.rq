@@ -1,0 +1,21 @@
+# SPARQL Query: Extract Command Definitions
+# Used for testing ontology generation harness
+
+PREFIX api: <http://ggen-mcp.dev/test/api#>
+PREFIX ddd: <http://ggen-mcp.dev/ontology/ddd#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?command ?commandName ?description ?paramName ?paramType ?required
+WHERE {
+    ?command a ddd:Command ;
+             ddd:commandName ?commandName ;
+             ddd:description ?description .
+
+    OPTIONAL {
+        ?command ddd:hasParameter ?param .
+        ?param ddd:parameterName ?paramName ;
+               ddd:parameterType ?paramType ;
+               ddd:required ?required .
+    }
+}
+ORDER BY ?commandName ?paramName

@@ -1,0 +1,91 @@
+@prefix : <http://darkmatter.ai/ontology/> .
+@prefix ex: <http://example.com#> .
+
+# -- Primary Capabilities --
+
+ex:Manage a :Capability ;
+    rdfs:label "Manage Capability"@en ;
+    rdfs:comment "Capability for managing projects, tasks, and resources with full CRUD operations."@en ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/manage.schema.yaml" ;
+        :template "docs/weaver/templates/sql" ;
+        :output "supabase/migrations"
+    ] ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/manage.schema.yaml" ;
+        :template "docs/weaver/templates/edge" ;
+        :output "supabase/functions"
+    ] ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/manage.schema.yaml" ;
+        :template "docs/weaver/templates/ui/page" ;
+        :output "app/pages"
+    ] ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/manage.schema.yaml" ;
+        :template "docs/weaver/templates/ui/composables" ;
+        :output "app/composables"
+    ] ;
+    :codegen [
+        :type "db"
+    ] ;
+    :codegen [
+        :type "test" ;
+        :suite "unit"
+    ] ;
+    :codegen [
+        :type "test" ;
+        :suite "prop"
+    ] ;
+    :codegen [
+        :type "test" ;
+        :suite "adversarial"
+    ] .
+
+ex:Measure a :Capability ;
+    rdfs:label "Measure Capability"@en ;
+    rdfs:comment "Analytics and measurement capability for tracking metrics and generating reports."@en ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/measure.schema.yaml" ;
+        :template "docs/weaver/templates/analytics" ;
+        :output "app/components/analytics"
+    ] ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/measure.schema.yaml" ;
+        :template "docs/weaver/templates/dashboard" ;
+        :output "app/pages/dashboard"
+    ] ;
+    :codegen [
+        :type "test" ;
+        :suite "e2e"
+    ] .
+
+ex:Govern a :Capability ;
+    rdfs:label "Govern Capability"@en ;
+    rdfs:comment "Governance and compliance capability for policy management and audit trails."@en ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/govern.schema.yaml" ;
+        :template "docs/weaver/templates/compliance" ;
+        :output "app/lib/compliance"
+    ] ;
+    :codegen [
+        :type "gen" ;
+        :schema "docs/weaver/schemas/govern.schema.yaml" ;
+        :template "docs/weaver/templates/audit" ;
+        :output "supabase/functions/audit"
+    ] ;
+    :codegen [
+        :type "test" ;
+        :suite "chaos"
+    ] ;
+    :codegen [
+        :type "test" ;
+        :suite "stress"
+    ] .

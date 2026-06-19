@@ -1,0 +1,19 @@
+PREFIX pi: <https://process.intelligence/ontology/>
+PREFIX grun: <https://process.intelligence/ggen-unified-run/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# SELECT: All Ontology Graphs (7 TTL artifacts)
+# Returns manufactured artifact ontologies with artifact roles, paths, and metadata
+# Date: 2026-06-01
+
+SELECT ?artifact ?title ?role ?outputPath ?artifactType ?description
+WHERE {
+    ?artifact a pi:ManufacturedArtifact .
+    ?artifact dcterms:title ?title .
+    ?artifact pi:artifactRole ?role .
+    ?artifact pi:outputPath ?outputPath .
+    ?artifact pi:artifactType ?artifactType .
+
+    OPTIONAL { ?artifact dcterms:description ?description }
+}
+ORDER BY ?outputPath

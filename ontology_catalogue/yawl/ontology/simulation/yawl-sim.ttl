@@ -1,0 +1,192 @@
+# =============================================================================
+# yawl-sim.ttl — YAWL Simulation Ontology
+# Self-Play Simulation Loop v3.0
+#
+# Vocabulary: sim: (http://yawlfoundation.org/yawl/simulation#)
+# Defines simulation concepts for self-play, capability gaps, and optimization
+# =============================================================================
+
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:         <http://www.w3.org/2002/07/owl#> .
+@prefix sim:         <http://yawlfoundation.org/yawl/simulation#> .
+
+<http://yawlfoundation.org/yawl/simulation> a owl:Ontology ;
+    rdfs:label "YAWL Simulation Ontology" ;
+    rdfs:comment "Vocabulary for self-play simulation, gap analysis, and optimization" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# CLASSES
+# =============================================================================
+
+sim:SimulationRun a owl:Class ;
+    rdfs:label "Simulation Run" ;
+    rdfs:comment "A single execution of the self-play simulation loop" .
+
+sim:CapabilityGap a owl:Class ;
+    rdfs:label "Capability Gap" ;
+    rdfs:comment "A missing capability that blocks optimal pipeline execution" .
+
+sim:OptimalPipeline a owl:Class ;
+    rdfs:label "Optimal Pipeline" ;
+    rdfs:comment "A discovered 2-hop capability chain that maximizes fitness" .
+
+sim:AgentRole a owl:Class ;
+    rdfs:label "Agent Role" ;
+    rdfs:comment "A specialized agent in the simulation (A1-A5)" .
+
+sim:BridgeCall a owl:Class ;
+    rdfs:label "Bridge Call" ;
+    rdfs:comment "A native bridge invocation during simulation" .
+
+sim:OcelEvent a owl:Class ;
+    rdfs:label "OCEL Event" ;
+    rdfs:comment "An event in the Object-Centric Event Log" .
+
+sim:ConformanceResult a owl:Class ;
+    rdfs:label "Conformance Result" ;
+    rdfs:comment "Token replay fitness and precision metrics" .
+
+sim:GapPriority a owl:Class ;
+    rdfs:label "Gap Priority" ;
+    rdfs:comment "WSJF-ranked priority for capability gap resolution" .
+
+# =============================================================================
+# PROPERTIES
+# =============================================================================
+
+sim:iteration a owl:DatatypeProperty ;
+    rdfs:domain sim:SimulationRun ;
+    rdfs:range xsd:integer ;
+    rdfs:label "iteration" ;
+    rdfs:comment "Current iteration number in self-play loop" .
+
+sim:fitness a owl:DatatypeProperty ;
+    rdfs:domain sim:SimulationRun ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "fitness" ;
+    rdfs:comment "Overall fitness score (target >= 0.85)" .
+
+sim:timestamp a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+sim:discoversGap a owl:ObjectProperty ;
+    rdfs:domain sim:SimulationRun ;
+    rdfs:range sim:CapabilityGap ;
+    rdfs:label "discovers gap" .
+
+sim:producesPipeline a owl:ObjectProperty ;
+    rdfs:domain sim:SimulationRun ;
+    rdfs:range sim:OptimalPipeline ;
+    rdfs:label "produces pipeline" .
+
+sim:requiresCapability a owl:ObjectProperty ;
+    rdfs:domain sim:CapabilityGap ;
+    rdfs:range sim:BridgeCall ;
+    rdfs:label "requires capability" .
+
+sim:demandScore a owl:DatatypeProperty ;
+    rdfs:domain sim:CapabilityGap ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "demand score" ;
+    rdfs:comment "Frequency of gap occurrence in simulation" .
+
+sim:complexity a owl:DatatypeProperty ;
+    rdfs:domain sim:CapabilityGap ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "complexity" ;
+    rdfs:comment "Estimated implementation complexity" .
+
+sim:wsjfRank a owl:DatatypeProperty ;
+    rdfs:domain sim:CapabilityGap ;
+    rdfs:range xsd:integer ;
+    rdfs:label "WSJF rank" ;
+    rdfs:comment "Priority ranking (1 = highest)" .
+
+sim:step1 a owl:ObjectProperty ;
+    rdfs:domain sim:OptimalPipeline ;
+    rdfs:range sim:BridgeCall ;
+    rdfs:label "step 1" .
+
+sim:step2 a owl:ObjectProperty ;
+    rdfs:domain sim:OptimalPipeline ;
+    rdfs:range sim:BridgeCall ;
+    rdfs:label "step 2" .
+
+sim:bridgeType a owl:DatatypeProperty ;
+    rdfs:domain sim:OptimalPipeline ;
+    rdfs:range xsd:string ;
+    rdfs:label "bridge type" ;
+    rdfs:comment "The connecting type between step1 and step2" .
+
+sim:agentRole a owl:DatatypeProperty ;
+    rdfs:domain sim:AgentRole ;
+    rdfs:range xsd:string ;
+    rdfs:label "agent role" ;
+    rdfs:comment "A1-Ontology, A2-BridgeCompiler, A3-Simulation, A4-ProcessMining, A5-LoopController" .
+
+sim:nativeSymbol a owl:DatatypeProperty ;
+    rdfs:domain sim:BridgeCall ;
+    rdfs:range xsd:string ;
+    rdfs:label "native symbol" .
+
+sim:returnsType a owl:DatatypeProperty ;
+    rdfs:domain sim:BridgeCall ;
+    rdfs:range xsd:string ;
+    rdfs:label "returns type" .
+
+sim:acceptsType a owl:DatatypeProperty ;
+    rdfs:domain sim:BridgeCall ;
+    rdfs:range xsd:string ;
+    rdfs:label "accepts type" .
+
+sim:eventId a owl:DatatypeProperty ;
+    rdfs:domain sim:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "event ID" .
+
+sim:eventType a owl:DatatypeProperty ;
+    rdfs:domain sim:OcelEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "event type" .
+
+sim:objectId a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "object ID" .
+
+sim:fitnessScore a owl:DatatypeProperty ;
+    rdfs:domain sim:ConformanceResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "fitness score" .
+
+sim:precisionScore a owl:DatatypeProperty ;
+    rdfs:domain sim:ConformanceResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "precision score" .
+
+# =============================================================================
+# AGENT ROLE INSTANCES
+# =============================================================================
+
+sim:AgentA1 a sim:AgentRole ;
+    rdfs:label "Ontology and Query Agent" ;
+    sim:agentRole "A1-Ontology" .
+
+sim:AgentA2 a sim:AgentRole ;
+    rdfs:label "Bridge Compiler Agent" ;
+    sim:agentRole "A2-BridgeCompiler" .
+
+sim:AgentA3 a sim:AgentRole ;
+    rdfs:label "YAWL Simulation Agent" ;
+    sim:agentRole "A3-Simulation" .
+
+sim:AgentA4 a sim:AgentRole ;
+    rdfs:label "Process Mining and Gap Analysis Agent" ;
+    sim:agentRole "A4-ProcessMining" .
+
+sim:AgentA5 a sim:AgentRole ;
+    rdfs:label "Self-Play Loop Controller" ;
+    sim:agentRole "A5-LoopController" .

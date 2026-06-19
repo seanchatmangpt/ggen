@@ -1,0 +1,15 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <http://example.org/> .
+
+ex:Entity a rdfs:Class ;
+    rdfs:label "Example Entity" ;
+    rdfs:comment "A simple entity for testing" .
+
+ex:Command a rdfs:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A command entity" .
+
+ex:name a rdf:Property ;
+    rdfs:domain ex:Entity ;
+    rdfs:range rdfs:Literal .

@@ -1,0 +1,130 @@
+# SPARQL Query: Select Commits with Classification and Gap Mapping
+# Purpose: Map each git commit to its classification (GAP_CLOSURE, AUXILIARY, CHECKPOINT, etc.),
+# the gap ID it closes (if applicable), manufacturing receipt evidence, and commit metadata.
+# Output: commit-to-gap mapping with semantic classification for audit analysis.
+# Usage: ggen query select-commit-gap-map.rq --format json
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX audit:  <https://wasm4pm-compat.rs/audit#>
+PREFIX prov:   <http://www.w3.org/ns/prov#>
+
+SELECT DISTINCT
+  ?commitHash
+  ?classification
+  ?gapId
+  ?gapCategory
+  ?receipt
+  ?commitMessage
+  ?commitAuthor
+  ?commitTimestamp
+  ?parentCommit
+  ?lawName
+  ?closureMethod
+
+WHERE {
+  # ============================================================================
+  # CORE PATTERN: Match CommitEvidence and classify based on relationships
+  # ============================================================================
+
+  ?commit a audit:CommitEvidence .
+  ?commit audit:commitHash ?commitHash .
+  ?commit audit:commitMessage ?commitMessage .
+  ?commit audit:commitAuthor ?commitAuthor .
+  ?commit audit:commitTimestamp ?commitTimestamp .
+  ?commit audit:parentCommit ?parentCommit .
+
+  # Optional: receipt evidence carrier
+  OPTIONAL {
+    ?commit audit:carriesReceipt ?receipt .
+  }
+
+  # ============================================================================
+  # CLASSIFICATION BRANCH 1: Gap Closure Claims
+  # ============================================================================
+
+  OPTIONAL {
+    ?closureClaim audit:closingCommit ?commitHash .
+    ?closureClaim a audit:ClosureClaim .
+    ?closureClaim audit:closesGap ?gap .
+    ?gap audit:gapId ?gapId .
+    ?gap audit:gapCategory ?gapCategory .
+    ?gap audit:relatedLaw ?relatedLaw .
+    ?relatedLaw audit:lawName ?lawName .
+    ?closureClaim audit:closureMethod ?closureMethod .
+
+    BIND("GAP_CLOSURE" AS ?classification)
+  }
+
+  # ============================================================================
+  # CLASSIFICATION BRANCH 2: Auxiliary Commits Supporting Gap Closure
+  # ============================================================================
+
+  OPTIONAL {
+    ?auxCommit a audit:AuxiliaryCommit .
+    ?auxCommit audit:advancesAuditReadiness ?advancesDescription .
+    ?auxCommit prov:wasDerivedFrom ?commit .
+
+    ?closureClaim audit:supportsGapClosure ?auxCommit .
+    ?closureClaim audit:closesGap ?gap2 .
+    ?gap2 audit:gapId ?gapId2 .
+    ?gap2 audit:gapCategory ?gapCategory2 .
+
+    BIND("AUXILIARY" AS ?classification2)
+    BIND(?gapId2 AS ?gapId)
+    BIND(?gapCategory2 AS ?gapCategory)
+    BIND(?closureMethod AS ?closureMethod)
+  }
+
+  # ============================================================================
+  # CLASSIFICATION BRANCH 3: Checkpoint/Milestone Commits
+  # ============================================================================
+
+  OPTIONAL {
+    ?checkpoint a audit:CheckpointClaim .
+    ?checkpoint audit:checkpointCommit ?commitHash .
+    ?checkpoint audit:checkpointName ?checkpointName .
+
+    BIND("CHECKPOINT" AS ?classification3)
+    BIND(?checkpointName AS ?gapId)
+  }
+
+  # ============================================================================
+  # CLASSIFICATION BRANCH 4: Audit Machinery / Test Fixture Commits
+  # ============================================================================
+
+  OPTIONAL {
+    ?executable a audit:AuditExecutable .
+    ?executable audit:fixtureFile ?fixtureFile .
+    ?executable audit:instantiatedBy ?template .
+
+    ?template audit:templateKind ?templateKind .
+
+    FILTER(
+      CONTAINS(?commitMessage, "fixture") ||
+      CONTAINS(?commitMessage, "test") ||
+      CONTAINS(?commitMessage, "audit") ||
+      CONTAINS(?templateKind, "fixture") ||
+      CONTAINS(?templateKind, "compile")
+    )
+
+    BIND("AUDIT_MACHINERY" AS ?classification4)
+  }
+
+  # ============================================================================
+  # UNMATCHED COMMITS: Default classification
+  # ============================================================================
+
+  BIND(
+    COALESCE(?classification, ?classification2, ?classification3, ?classification4, "UNCLASSIFIED")
+    AS ?classification
+  )
+
+  # ============================================================================
+  # CONSTRAINT: Ensure at least one classification path matched or include unclassified
+  # ============================================================================
+}
+
+ORDER BY DESC(?commitTimestamp) ?commitHash

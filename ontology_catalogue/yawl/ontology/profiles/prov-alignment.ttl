@@ -1,0 +1,427 @@
+# YAWL to W3C PROV-O Alignment Profile
+# Formal provenance and execution tracking alignment
+#
+# This profile proves YAWL's extension-only architecture by declaring
+# YAWL execution model concepts as semantic extensions of W3C PROV-O classes.
+# All mappings demonstrate how workflow execution can be tracked and audited
+# using standard provenance ontology.
+#
+# PROV-O Reference: https://www.w3.org/TR/prov-o/
+#
+# Namespace Mappings:
+#   yawls:  http://www.yawlfoundation.org/yawlschema#
+#   prov:   http://www.w3.org/ns/prov#
+#   owl:    http://www.w3.org/2002/07/owl#
+#   rdfs:   http://www.w3.org/2000/01/rdf-schema#
+#   dct:    http://purl.org/dc/terms/
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix yawls: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix : <http://www.yawlfoundation.org/yawlschema/prov-alignment#> .
+
+<http://www.yawlfoundation.org/yawlschema/prov-alignment> a owl:Ontology ;
+    rdfs:label "YAWL PROV-O Alignment Profile" ;
+    rdfs:comment "Formal alignment of YAWL workflow execution model with W3C PROV-O provenance tracking" ;
+    owl:imports <http://www.yawlfoundation.org/yawlschema> ;
+    owl:imports <http://www.w3.org/ns/prov#> ;
+    dct:created "2026-02-23"^^xsd:date ;
+    dct:creator "YAWL Foundation Architecture Team" ;
+    dct:description """
+        This alignment profile formally maps YAWL's runtime execution concepts to
+        W3C PROV-O for standardized provenance tracking. PROV-O provides the
+        foundational model for tracking what happened (activities), who was involved
+        (agents), and what entities were affected (entities).
+
+        YAWL extends PROV-O by mapping workflow-specific execution concepts to
+        provenance classes, enabling complete audit trails and process mining
+        without proprietary extensions.
+
+        Key alignment:
+        - Case = prov:Entity (the artifact being processed)
+        - Task Execution = prov:Activity (work units)
+        - Participant = prov:Agent (who did the work)
+        - Task Start = prov:wasStartedBy
+        - Task Complete = prov:wasEndedBy
+        - Case Data = prov:hadMember (of Entity)
+    """@en ;
+    rdfs:seeAlso <https://www.w3.org/TR/prov-o/> ;
+    rdfs:seeAlso <http://www.yawlfoundation.org/yawlschema> .
+
+#################################################################
+# CLASS ALIGNMENTS - YAWL RUNTIME ENTITIES
+#################################################################
+
+# YAWL Case (runtime instance) extends PROV Entity
+# Note: CaseData is not formally defined in yawl-ontology.ttl but is implicit
+# in the specification/execution model. We align the concept here.
+
+:YAWLCase a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "YAWL Case" ;
+    rdfs:comment """
+        A YAWL Case represents a runtime instance of a workflow specification.
+        In PROV-O terms, it is a prov:Entity—the artifact being processed through
+        the workflow. A Case has:
+        - Identity: unique case ID
+        - Attributes: case data (variables)
+        - Lifecycle: creation time, completion time
+        - Derivation: derived from specification template
+        - WasGeneratedBy: created by initial input condition firing
+        - WasInformedBy: informed by upstream cases (data dependencies)
+
+        Mapping:
+        Case ≡ prov:Entity
+        caseID ⊆ prov:hadPrimarySource
+        caseData ⊆ prov:hadMember (collection)
+        caseStatus (ENABLED, EXECUTING, COMPLETED) ⊆ prov:wasGeneratedBy
+    """@en ;
+    owl:equivalentClass prov:Entity ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Entity> ;
+    prov:definition "A case is a concrete instance of work flowing through a workflow" .
+
+# YAWL Task Execution extends PROV Activity
+yawls:Task rdfs:subClassOf prov:Activity ;
+    rdfs:comment """
+        A YAWL Task, when executed in a case context, becomes a prov:Activity—
+        a unit of work performed during the workflow. The activity:
+        - Has an agent (resource/participant performing it)
+        - Has a start and end time
+        - Uses inputs (input variables, case data)
+        - Generated outputs (output variables, case data mutations)
+        - Can be associated with a sub-activity (decomposesTo)
+
+        Mapping:
+        TaskExecution ≡ prov:Activity
+        taskStart → prov:startedAtTime
+        taskEnd → prov:endedAtTime
+        resource → prov:wasAssociatedWith (agent)
+        inputVariables → prov:used (entity)
+        outputVariables → prov:wasGeneratedBy (entity)
+        decomposesTo → prov:wasInformedBy (sub-activity)
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Activity> .
+
+# YAWL Participant extends PROV Agent
+yawls:Participant rdfs:subClassOf prov:Agent ;
+    rdfs:comment """
+        A YAWL Participant is a prov:Agent—an entity responsible for performing
+        workflow tasks. Agents in PROV-O can be:
+        - A person (schema:Person)
+        - A system/software (prov:SoftwareAgent)
+        - An organization (prov:Organization)
+
+        YAWL extends Agent with resource management attributes:
+        - Privileges (what they can do)
+        - Capabilities (skills)
+        - Availability (when they work)
+        - Assignment rules (how they get tasks)
+
+        Mapping:
+        Participant ≡ prov:Agent (subtype prov:Person)
+        participantID → prov:hadPrimarySource
+        privileges → custom extension
+        capabilities → custom extension
+        wasAssociatedWith ← Task execution that involved this participant
+    """@en ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Agent> .
+
+# YAWL Role extends PROV Agent (organizational grouping)
+yawls:Role rdfs:subClassOf prov:Agent ;
+    rdfs:comment """
+        A YAWL Role is a prov:Agent representing a group of participants sharing
+        common characteristics (skills, privileges). In provenance terms:
+        - A Role is a composite agent
+        - Any participant in the role acts as that agent
+        - Actions attributed to the role apply to all members
+
+        Mapping:
+        Role ≡ prov:Agent (organizational unit)
+        roleName → prov:label
+        participants → prov:hadMember (collection of agents)
+        privileges → custom extension
+        wasAssociatedWith ← Tasks assigned to this role
+    """@en ;
+    rdfs:subClassOf prov:Agent ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Agent> .
+
+#################################################################
+# CLASS ALIGNMENTS - YAWL STRUCTURAL ELEMENTS
+#################################################################
+
+# YAWL Condition as PROV Entity State
+yawls:Condition rdfs:comment """
+    A YAWL Condition can be viewed as a prov:Entity in a specific state during
+    workflow execution. When a token is in a condition:
+    - Entity = current state of the condition (has tokens)
+    - wasGeneratedBy = the task that fired into this condition
+    - wasInformedBy = previous condition that fed into the producing task
+
+    This enables condition state changes to be tracked in audit logs.
+"""@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Entity> .
+
+# YAWL Variable as PROV Entity Attribute
+yawls:Variable rdfs:comment """
+    A YAWL Variable holding data can be viewed as a prov:Entity attribute—
+    information carried by the main case entity through execution.
+
+    When a variable changes value:
+    - The change is wasGeneratedBy the task that assigned it
+    - The new value wasInformedBy the previous value
+    - Traceability: full history of variable mutations tracked
+"""@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Entity> .
+
+#################################################################
+# PROPERTY ALIGNMENTS - EXECUTION RELATIONSHIPS
+#################################################################
+
+# Task Start aligns with PROV StartedAtTime
+:taskStartedAtTime a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:startedAtTime ;
+    rdfs:domain yawls:Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment """
+        When a YAWL Task begins execution, its start time is recorded as
+        prov:startedAtTime. This enables timeline reconstruction of workflow
+        execution for compliance, SLA monitoring, and process improvement.
+    """@en .
+
+# Task Completion aligns with PROV EndedAtTime
+:taskEndedAtTime a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:endedAtTime ;
+    rdfs:domain yawls:Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment """
+        When a YAWL Task completes, its end time is recorded as prov:endedAtTime.
+        The duration (endedAtTime - startedAtTime) enables performance metrics.
+    """@en .
+
+# Task Performance aligns with PROV WasAssociatedWith
+yawls:executedBy rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:domain yawls:Task ;
+    rdfs:range yawls:Participant ;
+    rdfs:comment """
+        A YAWL Task was executed by a Participant, mapped to PROV's
+        prov:wasAssociatedWith relationship. This creates an audit trail:
+        'Task X was done by Person Y on Date Z'.
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#wasAssociatedWith> .
+
+# Task Uses Data aligns with PROV Used
+:taskUsedData a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:domain yawls:Task ;
+    rdfs:range yawls:Variable ;
+    rdfs:comment """
+        A YAWL Task uses input variables during execution, mapped to PROV's
+        prov:used relationship. This tracks data dependencies and enables
+        impact analysis: 'If this data changed, which tasks are affected?'
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#used> .
+
+# Task Generates Data aligns with PROV WasGeneratedBy
+:taskGeneratedData a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasGeneratedBy ;
+    rdfs:domain yawls:Variable ;
+    rdfs:range yawls:Task ;
+    rdfs:comment """
+        Output variables generated by a YAWL Task are mapped to PROV's
+        prov:wasGeneratedBy relationship. This tracks data provenance:
+        'This output was generated by that task'.
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#wasGeneratedBy> .
+
+# Task Informs Next Task aligns with PROV WasInformedBy
+:taskWasInformedBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasInformedBy ;
+    rdfs:domain yawls:Task ;
+    rdfs:range yawls:Task ;
+    rdfs:comment """
+        A YAWL Task is informed by previous tasks when control or data flows
+        from them. This is mapped to prov:wasInformedBy for causal analysis:
+        'This task couldn't start until that one finished'.
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#wasInformedBy> .
+
+# Case Generation aligns with PROV WasGeneratedBy
+:caseWasGeneratedBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasGeneratedBy ;
+    rdfs:domain :YAWLCase ;
+    rdfs:range yawls:InputCondition ;
+    rdfs:comment """
+        A YAWL Case is generated by the InputCondition firing at workflow start.
+        This is mapped to prov:wasGeneratedBy to establish case creation provenance.
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#wasGeneratedBy> .
+
+# Case Lifetime aligns with PROV StartedAtTime and EndedAtTime
+:caseStartedAtTime a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:startedAtTime ;
+    rdfs:domain :YAWLCase ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Time when case instance was created" ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#startedAtTime> .
+
+:caseEndedAtTime a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:endedAtTime ;
+    rdfs:domain :YAWLCase ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Time when case instance completed or was terminated" ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#endedAtTime> .
+
+#################################################################
+# SPECIALIZED PROV PATTERNS FOR WORKFLOW TRACING
+#################################################################
+
+# Delegation: Task assigned to participant through role
+:TaskAssignmentDelegation a owl:Class ;
+    rdfs:subClassOf prov:Delegation ;
+    rdfs:label "Task Assignment Delegation" ;
+    rdfs:comment """
+        When a task is assigned to a participant via a role, this represents
+        a prov:Delegation relationship: the role (agent A) delegates to the
+        participant (agent B) to perform the task.
+
+        This enables tracking responsibility chains: which role was responsible,
+        and which individual executed it.
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Delegation> .
+
+# Bundle: Case execution history
+:CaseExecutionBundle a owl:Class ;
+    rdfs:subClassOf prov:Bundle ;
+    rdfs:label "Case Execution Bundle" ;
+    rdfs:comment """
+        The complete execution trace of a case (all task executions, data changes,
+        events) forms a prov:Bundle—a named graph of provenance assertions grouped
+        together. This enables archiving, audit, and replay of case execution.
+
+        Bundle contents:
+        - All task activities
+        - All variable entities
+        - All participant agents
+        - All relationships (wasAssociatedWith, used, wasGeneratedBy, etc.)
+    """@en ;
+    rdfs:seeAlso <http://www.w3.org/ns/prov#Bundle> .
+
+#################################################################
+# WORKFLOW EXECUTION TIMELINE
+#################################################################
+
+:WorkflowExecutionTimeline a owl:Class ;
+    rdfs:label "Workflow Execution Timeline" ;
+    rdfs:comment """
+        PROV-O enables reconstruction of workflow execution timelines:
+
+        t₀: Case created (caseStartedAtTime)
+            → prov:wasGeneratedBy InputCondition
+
+        t₁: Task A enabled and started (taskStartedAtTime)
+            → prov:wasAssociatedWith Participant1
+            → prov:used InputVariable1
+
+        t₂: Task A completes, outputs generated (taskEndedAtTime)
+            → prov:wasGeneratedBy OutputVariable1
+
+        t₃: Task B enabled (flow from Task A)
+            → prov:wasInformedBy Task A
+            → prov:used OutputVariable1
+
+        t₄: Case completes (caseEndedAtTime)
+            → prov:wasGeneratedBy OutputCondition
+
+        This timeline enables:
+        - Performance analysis (task duration, bottlenecks)
+        - Audit logs (who did what when)
+        - Compliance reporting (SLA violations, required steps taken)
+        - Root cause analysis (if something failed, what led to it)
+    """@en .
+
+#################################################################
+# EXAMPLE: ORDER FULFILLMENT CASE WITH PROV-O ALIGNMENT
+#################################################################
+
+:OrderCase123 a :YAWLCase ;
+    rdf:type prov:Entity ;
+    rdfs:label "Order Case #123" ;
+    rdfs:comment "Example case instance with PROV-O annotations" ;
+    prov:hadPrimarySource "ORDER-123"^^xsd:string ;
+    prov:startedAtTime "2026-02-23T10:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2026-02-23T10:45:00Z"^^xsd:dateTime ;
+    :hasOrderData :OrderData123 .
+
+:OrderData123 a prov:Entity ;
+    rdfs:label "Order Data for Case #123" ;
+    rdfs:comment "Case variables: order ID, customer, amount, etc." ;
+    prov:wasGeneratedBy :CheckInventoryTaskExecution ;
+    prov:value "orderID: O123, customerID: C456, amount: $500.00"^^xsd:string .
+
+:CheckInventoryTaskExecution a prov:Activity ;
+    rdf:type yawls:Task ;
+    rdfs:label "Check Inventory Task Execution" ;
+    prov:startedAtTime "2026-02-23T10:02:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2026-02-23T10:05:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :InventoryClerk ;
+    prov:used :OrderData123 ;
+    prov:wasGeneratedBy :OrderCase123 ;
+    prov:wasInformedBy :OrderCreation .
+
+:InventoryClerk a prov:Agent ;
+    rdf:type yawls:Participant ;
+    rdfs:label "John (Inventory Clerk)" ;
+    prov:hadPrimarySource "PART-0001"^^xsd:string .
+
+:ProcessPaymentTaskExecution a prov:Activity ;
+    rdf:type yawls:Task ;
+    rdfs:label "Process Payment Task Execution" ;
+    prov:startedAtTime "2026-02-23T10:06:00Z"^^xsd:dateTime ;
+    prov:endedAtTime "2026-02-23T10:10:00Z"^^xsd:dateTime ;
+    prov:wasAssociatedWith :PaymentProcessor ;
+    prov:used :OrderData123 ;
+    prov:wasInformedBy :CheckInventoryTaskExecution .
+
+:PaymentProcessor a prov:Agent ;
+    rdf:type yawls:Participant ;
+    rdfs:label "Jane (Payment Processor)" .
+
+#################################################################
+# COMPLIANCE & AUDIT BENEFITS
+#################################################################
+
+:ProvOComplianceBenefits rdfs:comment """
+    Using PROV-O for YAWL workflow tracking enables:
+
+    1. COMPLIANCE: Non-repudiation audit trails (who did what when)
+       - Task execution records with timestamps and agents
+       - Data provenance (which system modified which data)
+       - Proof of procedure execution (required tasks completed)
+
+    2. PROCESS MINING: Analysis of actual execution paths
+       - Discover bottlenecks (tasks with long duration)
+       - Identify rework (same task executed multiple times)
+       - Pattern analysis (which resources are underutilized)
+
+    3. ROOT CAUSE ANALYSIS: Causal dependency chains
+       - If output X is wrong, trace back to task that generated it
+       - If task Y failed, understand what it depended on
+       - Impact analysis: which other tasks are affected by a failure
+
+    4. PERFORMANCE METRICS: Timeline-based analytics
+       - Cycle time (case start to case end)
+       - Task duration, wait time between tasks
+       - Resource utilization (how much time each agent spent)
+
+    5. REGULATORY REPORTING: Standardized format
+       - Financial audits (order to cash process)
+       - Healthcare compliance (patient data handling)
+       - Security investigations (who accessed sensitive data)
+"""@en .
+
+# End of YAWL PROV-O Alignment Profile

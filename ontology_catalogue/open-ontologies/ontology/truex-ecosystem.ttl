@@ -1,0 +1,409 @@
+@prefix truex: <https://open-ontologies.org/profile/truex#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# TRUEX ECOSYSTEM: CLOSURE-OBLIGATION LAW SURFACE
+# =============================================================================
+
+# ─── 1. Classes ──────────────────────────────────────────────────────────────
+
+truex:TruexEcosystem a rdfs:Class ;
+    rdfs:label "Truex Ecosystem" ;
+    rdfs:comment "A manufacturing factory for execution-admissibility infrastructure." .
+
+truex:ClosureTheorem a rdfs:Class ;
+    rdfs:label "Closure Theorem" ;
+    rdfs:comment "The root mathematical proof target for the manufacturing pass." .
+
+truex:Obligation a rdfs:Class ;
+    rdfs:label "Closure Obligation" ;
+    rdfs:comment "A non-negotiable requirement that must be discharged for closure." .
+
+truex:Package a rdfs:Class ;
+    rdfs:label "Truex Package" ;
+    rdfs:comment "A modular unit of the Truex ecosystem." .
+
+truex:Artifact a rdfs:Class ;
+    rdfs:label "Manufacturing Artifact" ;
+    rdfs:comment "A physical file emitted during the manufacturing pass." .
+
+truex:Rule a rdfs:Class ;
+    rdfs:label "Admissibility Rule" .
+
+truex:Failure a rdfs:Class ;
+    rdfs:label "Refusal Condition" ;
+    rdfs:comment "A classified failure state that prevents receipt issuance." .
+
+truex:E2ETest a rdfs:Class ;
+    rdfs:label "End-to-End Test" ;
+    rdfs:comment "A behavioral validation scenario for the Truex ecosystem." .
+
+truex:DerivationRule a rdfs:Class ;
+    rdfs:label "Derivation Rule" ;
+    rdfs:comment "A formal logic rule that derives OCEL objects or events from raw boundary evidence." .
+
+# ─── 2. Properties ───────────────────────────────────────────────────────────
+
+truex:hasClosureTheorem a rdf:Property ;
+    rdfs:domain truex:TruexEcosystem ;
+    rdfs:range truex:ClosureTheorem .
+
+truex:testInput a rdf:Property ;
+    rdfs:domain truex:E2ETest ;
+    rdfs:range xsd:string .
+
+truex:expectedResult a rdf:Property ;
+    rdfs:domain truex:E2ETest ;
+    rdfs:range xsd:string .
+
+truex:refusalReason a rdf:Property ;
+    rdfs:domain truex:E2ETest ;
+    rdfs:range xsd:string .
+
+truex:requiresObligation a rdf:Property ;
+    rdfs:domain truex:ClosureTheorem ;
+    rdfs:range truex:Obligation .
+
+truex:discharges a rdf:Property ;
+    rdfs:domain [ rdf:type [ rdf:unionOf (truex:Package truex:Artifact) ] ] ;
+    rdfs:range truex:Obligation .
+
+truex:packageName a rdf:Property ;
+    rdfs:domain truex:Package ;
+    rdfs:range xsd:string .
+
+truex:path a rdf:Property ;
+    rdfs:domain truex:Artifact ;
+    rdfs:range xsd:string .
+
+truex:purpose a rdf:Property ;
+    rdfs:domain truex:Package ;
+    rdfs:range xsd:string .
+
+truex:requiresArtifact a rdf:Property ;
+    rdfs:domain truex:Obligation ;
+    rdfs:range truex:Artifact .
+
+truex:evaluationLogic a rdf:Property ;
+    rdfs:domain [ rdf:type [ rdf:unionOf (truex:DerivationRule truex:Failure) ] ] ;
+    rdfs:range xsd:string .
+
+truex:workspaceMapping a rdf:Property ;
+    rdfs:domain truex:Package ;
+    rdfs:range xsd:string .
+
+truex:activityPrefix a rdf:Property ;
+    rdfs:domain truex:DerivationRule ;
+    rdfs:range xsd:string .
+
+truex:rawField a rdf:Property ;
+    rdfs:domain truex:DerivationRule ;
+    rdfs:range xsd:string .
+
+truex:ocelField a rdf:Property ;
+    rdfs:domain truex:DerivationRule ;
+    rdfs:range xsd:string .
+
+truex:NonAdmissibleScaffold a rdfs:Class ;
+    rdfs:label "Non-Admissible Scaffold" ;
+    rdfs:comment "Artifacts or code paths that are not semantically bound to a closure obligation." .
+
+# ─── 3. Ecosystem Instance ───────────────────────────────────────────────────
+
+truex:TheEcosystem a truex:TruexEcosystem ;
+    rdfs:label "The Truex Factory" ;
+    truex:version "1.0.0" ;
+    truex:hasClosureTheorem truex:TruexEcosystemClosed .
+
+# ─── 4. Closure Theorem ──────────────────────────────────────────────────────
+
+truex:TruexEcosystemClosed a truex:ClosureTheorem ;
+    rdfs:label "TruexEcosystemClosed" ;
+    truex:requiresObligation truex:AllRequiredPackagesEmitted ;
+    truex:requiresObligation truex:AllSchemasMaterialized ;
+    truex:requiresObligation truex:VerifierIndependent ;
+    truex:requiresObligation truex:RawBoundaryMandatory ;
+    truex:requiresObligation truex:SummaryOnlyProofRefused ;
+    truex:requiresObligation truex:OCELLaunderingRefused ;
+    truex:requiresObligation truex:ValidPathAdmitted ;
+    truex:requiresObligation truex:FraudulentPathRefused ;
+    truex:requiresObligation truex:AdmissibleGraphProjection ;
+    truex:requiresObligation truex:ReleaseReceiptEmitted .
+
+# ─── 5. Obligations ──────────────────────────────────────────────────────────
+
+truex:AllRequiredPackagesEmitted a truex:Obligation ; rdfs:label "AllRequiredPackagesEmitted" .
+truex:AdmissibleGraphProjection  a truex:Obligation ; rdfs:label "AdmissibleGraphProjection" .
+truex:AllSchemasMaterialized    a truex:Obligation ; 
+    rdfs:label "AllSchemasMaterialized" ;
+    truex:requiresArtifact truex:ReceiptSchema, truex:BoundarySchema .
+
+truex:VerifierIndependent       a truex:Obligation ; rdfs:label "VerifierIndependent" .
+truex:RawBoundaryMandatory      a truex:Obligation ; rdfs:label "RawBoundaryMandatory" .
+
+truex:SummaryOnlyProofRefused   a truex:Obligation ; 
+    rdfs:label "SummaryOnlyProofRefused" ;
+    truex:requiresArtifact truex:SummaryOnlyRefusalTest .
+
+truex:OCELLaunderingRefused     a truex:Obligation ; 
+    rdfs:label "OCELLaunderingRefused" ;
+    truex:requiresArtifact truex:OcelLaunderingTest .
+
+truex:ValidPathAdmitted         a truex:Obligation ; 
+    rdfs:label "ValidPathAdmitted" ;
+    truex:requiresArtifact truex:ValidCheckoutExample .
+
+truex:FraudulentPathRefused    a truex:Obligation ; 
+    rdfs:label "FraudulentPathRefused" ;
+    truex:requiresArtifact truex:FraudulentCheckoutExample .
+
+truex:ReleaseReceiptEmitted     a truex:Obligation ; 
+    rdfs:label "ReleaseReceiptEmitted" ;
+    truex:requiresArtifact truex:ManufactureReceipt .
+
+# ─── 6. Packages & Discharge Mappings ────────────────────────────────────────
+
+truex:Ocel2 a truex:Package ;
+    rdfs:label "ocel2" ;
+    truex:packageName "@truex/ocel2" ;
+    truex:purpose "OCEL 2.0 logical model + validators." ;
+    truex:workspaceMapping "packages/truex/ocel2" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Canonical a truex:Package ;
+    rdfs:label "canonical" ;
+    truex:packageName "@truex/canonical" ;
+    truex:purpose "Canonical OCEL ordering and stable digest generation." ;
+    truex:workspaceMapping "packages/truex/canonical" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Receipt a truex:Package ;
+    rdfs:label "receipt" ;
+    truex:packageName "@truex/receipt" ;
+    truex:purpose "Truex receipt schema and hash-chain management." ;
+    truex:workspaceMapping "packages/truex/receipt" ;
+    truex:discharges truex:AllRequiredPackagesEmitted ;
+    truex:discharges truex:ReleaseReceiptEmitted .
+
+truex:Verifier a truex:Package ;
+    rdfs:label "verifier" ;
+    truex:packageName "@truex/verifier" ;
+    truex:purpose "Independent receipt verification and refusal authority." ;
+    truex:workspaceMapping "packages/truex/verifier" ;
+    truex:discharges truex:AllRequiredPackagesEmitted ;
+    truex:discharges truex:VerifierIndependent ;
+    truex:discharges truex:SummaryOnlyProofRefused ;
+    truex:discharges truex:OCELLaunderingRefused .
+
+truex:Capture a truex:Package ;
+    rdfs:label "capture" ;
+    truex:packageName "@truex/capture" ;
+    truex:purpose "Proxyable state mutation capture and evidence collection." ;
+    truex:workspaceMapping "packages/truex/capture" ;
+    truex:discharges truex:AllRequiredPackagesEmitted ;
+    truex:discharges truex:RawBoundaryMandatory ;
+    truex:discharges truex:ValidPathAdmitted ;
+    truex:discharges truex:FraudulentPathRefused .
+
+truex:Otel a truex:Package ;
+    rdfs:label "otel" ;
+    truex:packageName "@truex/otel" ;
+    truex:purpose "OpenTelemetry (OTLP) egress adapter." ;
+    truex:workspaceMapping "packages/truex/otel" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Replay a truex:Package ;
+    rdfs:label "replay" ;
+    truex:packageName "@truex/replay" ;
+    truex:purpose "Replay artifact generation (Markdown, Mermaid, Audit)." ;
+    truex:workspaceMapping "packages/truex/replay" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Conformance a truex:Package ;
+    rdfs:label "conformance" ;
+    truex:packageName "@truex/conformance" ;
+    truex:purpose "Golden corpus and adversarial conformance tests." ;
+    truex:workspaceMapping "packages/truex/conformance" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Examples a truex:Package ;
+    rdfs:label "examples" ;
+    truex:packageName "@truex/examples" ;
+    truex:purpose "Valid and fraudulent checkout demonstrations." ;
+    truex:workspaceMapping "packages/truex/examples" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Cli a truex:Package ;
+    rdfs:label "cli" ;
+    truex:packageName "@truex/cli" ;
+    truex:purpose "Command-line interface for Truex (verify, admit, replay)." ;
+    truex:workspaceMapping "packages/truex/cli" ;
+    truex:discharges truex:AllRequiredPackagesEmitted .
+
+truex:Vkg a truex:Package ;
+    rdfs:label "vkg" ;
+    truex:packageName "@truex/vkg" ;
+    truex:purpose "Virtual knowledge graph projection over execution traces and state mutations." ;
+    truex:workspaceMapping "packages/truex/vkg" ;
+    truex:discharges truex:AllRequiredPackagesEmitted, truex:AdmissibleGraphProjection .
+
+# ─── 7. Required Artifacts & discharge ───────────────────────────────────────
+
+truex:ReceiptSchema a truex:Artifact ;
+    rdfs:label "Truex Receipt Schema" ;
+    truex:path "schemas/truex-receipt.v1.schema.json" ;
+    truex:discharges truex:AllSchemasMaterialized .
+
+truex:BoundarySchema a truex:Artifact ;
+    rdfs:label "Truex Boundary Schema" ;
+    truex:path "schemas/truex-boundary.v1.schema.json" ;
+    truex:discharges truex:AllSchemasMaterialized .
+
+truex:EcosystemDoc a truex:Artifact ;
+    rdfs:label "Truex Ecosystem Documentation" ;
+    truex:path "docs/truex-ecosystem.md" ;
+    truex:discharges truex:TruexEcosystemClosed .
+
+truex:SummaryOnlyRefusalTest a truex:Artifact ;
+    rdfs:label "Summary-Only Refusal Test" ;
+    truex:path "tests/truex-summary-only-refusal.test.ts" ;
+    truex:discharges truex:SummaryOnlyProofRefused .
+
+truex:OcelLaunderingTest a truex:Artifact ;
+    rdfs:label "OCEL Laundering Test" ;
+    truex:path "tests/truex-ocel-laundering.test.ts" ;
+    truex:discharges truex:OCELLaunderingRefused .
+
+truex:ValidCheckoutExample a truex:Artifact ;
+    rdfs:label "Valid Checkout Example" ;
+    truex:path "examples/valid-checkout/" ;
+    truex:discharges truex:ValidPathAdmitted .
+
+truex:FraudulentCheckoutExample a truex:Artifact ;
+    rdfs:label "Fraudulent Checkout Example" ;
+    truex:path "examples/fraudulent-checkout/" ;
+    truex:discharges truex:FraudulentPathRefused .
+
+truex:ManufactureReceipt a truex:Artifact ;
+    rdfs:label "Manufacturing Pass Receipt" ;
+    truex:path "receipts/manufacture-receipt.json" ;
+    truex:discharges truex:ReleaseReceiptEmitted .
+
+# ─── 8. Rules ───────────────────────────────────────────────────────────────
+
+truex:NoReceiptNoClosure a truex:Rule ;
+    rdfs:label "No Receipt, No Closure" ;
+    rdfs:comment "Physical invariant: closure is not admitted without a cryptographic receipt." .
+
+truex:VerifierIndependentRule a truex:Rule ;
+    rdfs:label "Independent Verifier" ;
+    rdfs:comment "The verifier must be logically and physically distinct from the producer." .
+
+truex:RawBoundaryEvidenceRule a truex:Rule ;
+    rdfs:label "Raw Boundary Mandatory" ;
+    rdfs:comment "Closure requires raw boundary evidence (stdout/stderr/exit), not summary hashes." .
+
+# ─── 9. Failure Taxonomy (Refusal Conditions) ────────────────────────────────
+
+truex:OCELLaundering a truex:Failure ;
+    rdfs:label "OCELLaundering" ;
+    skos:definition "Formatting OCEL from summary data without raw boundary derivation." .
+
+truex:SummaryOnlyProof a truex:Failure ;
+    rdfs:label "SummaryOnlyProof" ;
+    skos:definition "Attempting closure with only high-level hashes (stdout_hash) without raw evidence." .
+
+truex:CloneTrace a truex:Failure ;
+    rdfs:label "CloneTrace" ;
+    skos:definition "Using expected OCEL as observed evidence (cloning)." .
+
+truex:MissingBoundary a truex:Failure ;
+    rdfs:label "MissingBoundary" ;
+    skos:definition "Absence of required physical execution evidence." .
+
+truex:NonDerivableExecution a truex:Failure ;
+    rdfs:label "NonDerivableExecution" ;
+    skos:definition "The claimed execution path cannot be physically derived from raw boundary evidence." .
+
+truex:StateTransitionMismatch a truex:Failure ;
+    rdfs:label "StateTransitionMismatch" ;
+    skos:definition "Observed object state transitions do not match the expected state graph mutations." .
+
+truex:ArtifactOriginMismatch a truex:Failure ;
+    rdfs:label "ArtifactOriginMismatch" ;
+    skos:definition "Emitted artifact hash or path does not match the derivation origin in the boundary evidence." .
+
+truex:TemporalOrderingViolation a truex:Failure ;
+    rdfs:label "TemporalOrderingViolation" ;
+    skos:definition "Observed event sequence violates the causal/temporal laws defined in the expected path." .
+
+truex:BoundaryProjectionFailure a truex:Failure ;
+    rdfs:label "BoundaryProjectionFailure" ;
+    skos:definition "Failed to project raw boundary evidence into a valid OCEL structure." .
+
+# ─── 10. Derivation Calculus Rules ──────────────────────────────────────────
+
+truex:RawExitCodeDerivesExecutionStatus a truex:DerivationRule ;
+    rdfs:label "RawExitCodeDerivesExecutionStatus" ;
+    rdfs:comment "Physical exit codes (0 vs non-zero) must derive the corresponding OCEL event status." ;
+    truex:activityPrefix "ExecutionComplete" ;
+    truex:rawField "exit_code" ;
+    truex:ocelField "exit_code" .
+
+truex:StdoutHashDerivesArtifactEmission a truex:DerivationRule ;
+    rdfs:label "StdoutHashDerivesArtifactEmission" ;
+    rdfs:comment "Presence of specific output strings or hashes in stdout derives the creation of artifact objects." ;
+    truex:rawField "stdout" ;
+    truex:ocelField "stdout_hash" .
+
+truex:FilesystemMutationDerivesArtifactObject a truex:DerivationRule ;
+    rdfs:label "FilesystemMutationDerivesArtifactObject" ;
+    rdfs:comment "Observed filesystem mutations in the boundary evidence must derive the lifecycle of artifact objects." .
+
+truex:MaximalDerivation a truex:DerivationRule ;
+    rdfs:label "MaximalDerivation" ;
+    rdfs:comment "Proof that the OCEL path contains all admissible consequences derivable from raw evidence, with no selective omissions." .
+
+truex:Verifier truex:enforcesRule truex:RawExitCodeDerivesExecutionStatus, 
+                                  truex:StdoutHashDerivesArtifactEmission,
+                                  truex:FilesystemMutationDerivesArtifactObject,
+                                  truex:MaximalDerivation .
+
+
+# ─── 11. End-to-End Test Scenarios ──────────────────────────────────────────
+
+truex:ValidCheckoutTest a truex:E2ETest ;
+    rdfs:label "ValidCheckoutTest" ;
+    truex:testInput "{\"raw_evidence\":{\"exit_code\":0,\"stdout\":\"Success\"},\"observed_ocel\":{\"ocel:events\":[{\"ocel:activity\":\"ExecutionComplete_Checkout\",\"ocel:vmap\":{\"exit_code\":0}}]},\"raw_evidence_hash\":\"4939c1dbc64f610745c001f895854b2e5a1be33ca845b81b4b7a56a9f42a9c3d\"}" ;
+    truex:expectedResult "Admitted" ;
+    truex:discharges truex:ValidPathAdmitted .
+
+truex:LaunderedHashTest a truex:E2ETest ;
+    rdfs:label "LaunderedHashTest" ;
+    truex:testInput "{\"raw_evidence\":{\"exit_code\":0,\"stdout\":\"Real Output\"},\"observed_ocel\":{\"ocel:events\":[{\"ocel:activity\":\"ExecutionComplete_Checkout\",\"ocel:vmap\":{\"exit_code\":0}}]},\"raw_evidence_hash\":\"fake_hash_laundering\"}" ;
+    truex:expectedResult "Refused" ;
+    truex:refusalReason "OCELLaundering" ;
+    truex:discharges truex:OCELLaunderingRefused .
+
+truex:NonDerivableExitCodeTest a truex:E2ETest ;
+    rdfs:label "NonDerivableExitCodeTest" ;
+    truex:testInput "{\"raw_evidence\":{\"exit_code\":1,\"stdout\":\"error\"},\"observed_ocel\":{\"ocel:events\":[{\"ocel:activity\":\"ExecutionComplete_OA-1\",\"ocel:vmap\":{\"exit_code\":0}}]},\"raw_evidence_hash\":\"d30e046fc9cc2eaea7e3eb777035adb3cbd0b46af953c066dcf680007ce3f4a5\"}" ;
+    truex:expectedResult "Refused" ;
+    truex:refusalReason "OCELLaundering" ;
+    truex:discharges truex:NonDerivableExecution .
+
+truex:MissingRawEvidenceTest a truex:E2ETest ;
+    rdfs:label "MissingRawEvidenceTest" ;
+    truex:testInput "{\"raw_evidence\":null,\"stdout_hash\":\"abc\"}" ;
+    truex:expectedResult "Refused" ;
+    truex:refusalReason "SummaryOnlyProof" ;
+    truex:discharges truex:SummaryOnlyProofRefused .
+
+truex:Verifier truex:validatedBy truex:ValidCheckoutTest, 
+                                  truex:LaunderedHashTest, 
+                                  truex:NonDerivableExitCodeTest,
+                                  truex:MissingRawEvidenceTest .

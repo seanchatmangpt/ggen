@@ -17,3 +17,6 @@ required = ["java26-core"]
 
 [features]
 description = "Generates from your domain TTL: sealed interface, N record variants, JUnit 5 tests"
+
+[marketplace]
+production_ready = false

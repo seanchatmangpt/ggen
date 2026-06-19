@@ -1,0 +1,91 @@
+# Example: deps-add Feature with JTBD Mapping
+# Demonstrates how to specify features with jobs, outcomes, and personas
+
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix jtbd: <http://github.com/github/spec-kit/jtbd#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Feature Definition
+# =============================================================================
+
+:deps-add-feature a sk:Feature ;
+    sk:featureName "deps-add" ;
+    sk:featureDescription "Add semantic dependencies to RDF project with automatic validation" ;
+    jtbd:accomplishesJob :specify-dependency-job ;
+    jtbd:deliversOutcome :faster-dependency-addition ;
+    jtbd:targetPersona :rdf-designer ;
+    jtbd:resolvesPainpoint :manual-sparql-editing ;
+    jtbd:emotionalBenefit "Work confidently knowing dependencies are valid" ;
+    jtbd:usageExample "specify deps add foaf http://xmlns.com/foaf/0.1/" ;
+    jtbd:relatedFeatures "deps-remove|deps-list|deps-sync" ;
+    jtbd:prerequisites "Initialized spec-kit project" ;
+    sk:featureStatus "Released" .
+
+# =============================================================================
+# Job Definition
+# =============================================================================
+
+:specify-dependency-job a jtbd:Job ;
+    jtbd:jobTitle "Specify dependency management" ;
+    jtbd:jobContext "When I need to add external ontologies to my RDF project without breaking semantic integrity" ;
+    jtbd:jobFrequency "High" ;
+    jtbd:jobImportance "Critical" ;
+    jtbd:jobDescription "RDF designers frequently need to declare dependencies on external ontologies (FOAF, Schema.org, etc.) to reuse established vocabularies" .
+
+# =============================================================================
+# Outcome Definition
+# =============================================================================
+
+:faster-dependency-addition a jtbd:Outcome ;
+    jtbd:outcomeDescription "Add dependencies 50% faster than manual editing" ;
+    jtbd:outcomeMetric "Time per dependency addition" ;
+    jtbd:successCriteria "Time to add dependency" ;
+    jtbd:targetValue "< 10 seconds" ;
+    jtbd:currentValue "8 seconds" ;
+    jtbd:priority "High" .
+
+# =============================================================================
+# Persona Definition
+# =============================================================================
+
+:rdf-designer a jtbd:Persona ;
+    jtbd:personaName "RDF Designer" ;
+    jtbd:personaDescription "Knowledge engineer building ontologies and RDF specifications" ;
+    jtbd:personaGoals "Create maintainable, valid RDF specifications efficiently" ;
+    jtbd:personaFrustrations "Manual SPARQL editing, dependency conflicts, validation errors" .
+
+# =============================================================================
+# Pain Point Definition
+# =============================================================================
+
+:manual-sparql-editing a jtbd:Painpoint ;
+    jtbd:painpointDescription "Manual SPARQL editing is error-prone and time-consuming" ;
+    jtbd:painpointFrequency "Daily" ;
+    jtbd:painpointSeverity "High" ;
+    jtbd:painpointContext "Every time I need to add an external ontology, I have to manually edit Turtle files and risk syntax errors" .
+
+# =============================================================================
+# Additional Features for Same Job
+# =============================================================================
+
+:deps-remove-feature a sk:Feature ;
+    sk:featureName "deps-remove" ;
+    sk:featureDescription "Remove dependencies from RDF project" ;
+    jtbd:accomplishesJob :specify-dependency-job ;
+    jtbd:targetPersona :rdf-designer ;
+    sk:featureStatus "Released" .
+
+:deps-list-feature a sk:Feature ;
+    sk:featureName "deps-list" ;
+    sk:featureDescription "List all project dependencies" ;
+    jtbd:accomplishesJob :specify-dependency-job ;
+    jtbd:targetPersona :rdf-designer ;
+    sk:featureStatus "Released" .
+
+:deps-sync-feature a sk:Feature ;
+    sk:featureName "deps-sync" ;
+    sk:featureDescription "Synchronize and validate all dependencies" ;
+    jtbd:accomplishesJob :specify-dependency-job ;
+    jtbd:targetPersona :rdf-designer ;
+    sk:featureStatus "In Progress" .

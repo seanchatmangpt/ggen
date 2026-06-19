@@ -1,0 +1,95 @@
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Patterns 19, 25: Cancellation Workflow
+# Demonstrates: Cancel Activity, Cancelling Discriminator
+
+<#CancellationPattern> a yawl:Specification ;
+    yawl:uri <http://example.org/workflows/cancellation> ;
+    yawl:name "Cancellation Pattern" ;
+    yawl:documentation "Reference workflow demonstrating cancellation patterns (19, 25)" ;
+    yawl:hasDecomposition <#CancellationNet> .
+
+<#CancellationNet> a yawl:Net ;
+    yawl:id "cancellation_net" ;
+    yawl:name "Cancellation Net" ;
+    yawl:isRootNet true ;
+    yawl:hasInputCondition <#start> ;
+    yawl:hasOutputCondition <#end> ;
+    yawl:hasTask <#startProcess> ;
+    yawl:hasTask <#longRunningTask> ;
+    yawl:hasTask <#monitorTask> ;
+    yawl:hasTask <#cancelTask> ;
+    yawl:hasTask <#cleanup> .
+
+<#start> a yawl:InputCondition ;
+    yawl:id "start" ;
+    yawl:name "Start" .
+
+<#startProcess> a yawl:Task ;
+    yawl:id "start_process" ;
+    yawl:name "Start Process" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeAnd ;  # Parallel split
+    yawl:flowsInto <#flow1> ;
+    yawl:flowsInto <#flow2> .
+
+# Long-running task that may be cancelled
+<#longRunningTask> a yawl:Task ;
+    yawl:id "long_running_task" ;
+    yawl:name "Long Running Task" ;
+    yawl:documentation "Pattern 19: Can be cancelled by cancel task" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow3> .
+
+# Monitor task
+<#monitorTask> a yawl:Task ;
+    yawl:id "monitor_task" ;
+    yawl:name "Monitor Task" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow4> .
+
+# Pattern 19: Cancel Activity
+<#cancelTask> a yawl:Task ;
+    yawl:id "cancel_task" ;
+    yawl:name "Cancel Task" ;
+    yawl:documentation "Pattern 19: Cancel Activity - removes tokens from long_running_task" ;
+    yawl:hasJoin yawl:ControlTypeXor ;
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:hasRemovesTokens <#longRunningTask> ;  # Cancellation
+    yawl:flowsInto <#flow5> .
+
+# Cleanup
+<#cleanup> a yawl:Task ;
+    yawl:id "cleanup" ;
+    yawl:name "Cleanup" ;
+    yawl:documentation "Pattern 25: Cancelling Discriminator - continue after first completion or cancellation" ;
+    yawl:hasJoin yawl:ControlTypeXor ;  # Discriminator
+    yawl:hasSplit yawl:ControlTypeXor ;
+    yawl:flowsInto <#flow6> .
+
+<#end> a yawl:OutputCondition ;
+    yawl:id "end" ;
+    yawl:name "End" .
+
+# Flows
+<#flow1> a yawl:FlowsInto ;
+    yawl:nextElementRef <#longRunningTask> .
+
+<#flow2> a yawl:FlowsInto ;
+    yawl:nextElementRef <#monitorTask> .
+
+<#flow3> a yawl:FlowsInto ;
+    yawl:nextElementRef <#cleanup> .
+
+<#flow4> a yawl:FlowsInto ;
+    yawl:nextElementRef <#cancelTask> .
+
+<#flow5> a yawl:FlowsInto ;
+    yawl:nextElementRef <#cleanup> .
+
+<#flow6> a yawl:FlowsInto ;
+    yawl:nextElementRef <#end> .

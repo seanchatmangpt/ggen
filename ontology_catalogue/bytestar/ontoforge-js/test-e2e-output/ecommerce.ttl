@@ -1,0 +1,170 @@
+
+@prefix ecom: <http://ecommerce.ontoforge.com/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Core E-commerce Classes
+ecom:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A registered user of the e-commerce platform" .
+
+ecom:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product available for purchase" .
+
+ecom:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "A product category" .
+
+ecom:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" .
+
+ecom:OrderItem a owl:Class ;
+    rdfs:label "Order Item" ;
+    rdfs:comment "An item within an order" .
+
+ecom:Payment a owl:Class ;
+    rdfs:label "Payment" ;
+    rdfs:comment "Payment information for an order" .
+
+ecom:Address a owl:Class ;
+    rdfs:label "Address" ;
+    rdfs:comment "A shipping or billing address" .
+
+ecom:Review a owl:Class ;
+    rdfs:label "Review" ;
+    rdfs:comment "A product review by a user" .
+
+# User Properties
+ecom:firstName a owl:DatatypeProperty ;
+    rdfs:label "first name" ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:lastName a owl:DatatypeProperty ;
+    rdfs:label "last name" ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:phoneNumber a owl:DatatypeProperty ;
+    rdfs:label "phone number" ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:label "date of birth" ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:date .
+
+# Product Properties
+ecom:productName a owl:DatatypeProperty ;
+    rdfs:label "product name" ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:price a owl:DatatypeProperty ;
+    rdfs:label "price" ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:decimal .
+
+ecom:sku a owl:DatatypeProperty ;
+    rdfs:label "SKU" ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:stockQuantity a owl:DatatypeProperty ;
+    rdfs:label "stock quantity" ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:integer .
+
+# Object Properties
+ecom:belongsToCategory a owl:ObjectProperty ;
+    rdfs:label "belongs to category" ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:Category .
+
+ecom:placedBy a owl:ObjectProperty ;
+    rdfs:label "placed by" ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:User .
+
+ecom:contains a owl:ObjectProperty ;
+    rdfs:label "contains" ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:OrderItem .
+
+ecom:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "reviewed by" ;
+    rdfs:domain ecom:Review ;
+    rdfs:range ecom:User .
+
+ecom:reviewsProduct a owl:ObjectProperty ;
+    rdfs:label "reviews product" ;
+    rdfs:domain ecom:Review ;
+    rdfs:range ecom:Product .
+
+# SHACL Shapes for Validation
+ecom:UserShape a sh:NodeShape ;
+    sh:targetClass ecom:User ;
+    sh:property [
+        sh:path ecom:firstName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 50
+    ] ;
+    sh:property [
+        sh:path ecom:lastName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 50
+    ] ;
+    sh:property [
+        sh:path ecom:email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    ] .
+
+ecom:ProductShape a sh:NodeShape ;
+    sh:targetClass ecom:Product ;
+    sh:property [
+        sh:path ecom:productName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 200
+    ] ;
+    sh:property [
+        sh:path ecom:price ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.01
+    ] ;
+    sh:property [
+        sh:path ecom:stockQuantity ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0
+    ] .
+  

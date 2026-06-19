@@ -1,0 +1,20 @@
+
+PREFIX proto: <https://chatmangpt.com/ontologies/o-star/protocol:>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?endpointPath ?httpMethod ?summary ?description ?pathTemplate ?requestSchema ?responseSchema ?tags ?version
+WHERE {
+  ?ep a proto:OpenAPIEndpoint ;
+      rdfs:label ?endpointPath .
+
+  OPTIONAL { ?ep proto:httpMethod ?httpMethod }
+  OPTIONAL { ?ep proto:openApiSummary ?summary }
+  OPTIONAL { ?ep proto:openApiDescription ?description }
+  OPTIONAL { ?ep proto:pathTemplate ?pathTemplate }
+  OPTIONAL { ?ep proto:requestSchema ?requestSchema }
+  OPTIONAL { ?ep proto:responseSchema ?responseSchema }
+  OPTIONAL { ?ep proto:openApiTags ?tags }
+  OPTIONAL { ?ep proto:openApiVersion ?version }
+}
+ORDER BY ?pathTemplate ?httpMethod

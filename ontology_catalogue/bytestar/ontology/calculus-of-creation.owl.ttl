@@ -1,0 +1,84 @@
+@prefix : <https://bytestar.org/ontology/v5/calculus-of-creation#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bytestar.org/ontology/v5/calculus-of-creation>
+  a owl:Ontology ;
+  rdfs:label "The Calculus of Creation Ontology" ;
+  rdfs:comment "This ontology formalizes the thesis that ByteGen eliminates the intent-implementation gap by replacing translation with fabrication." ;
+  owl:versionInfo "5.0.0" .
+
+# --- Core Concepts ---
+
+:Specification a owl:Class .
+:Implementation a owl:Class .
+:Process a owl:Class .
+
+:FormalSpecification a owl:Class ;
+    rdfs:subClassOf :Specification ;
+    rdfs:label "Agile Protocol Specification (APS)" ;
+    rdfs:comment "A formal, machine-provable specification (e.g., OWL/SHACL). The calculus." .
+
+:InformalSpecification a owl:Class ;
+    rdfs:subClassOf :Specification ;
+    rdfs:label "Plaintext Specification" ;
+    rdfs:comment "A high-entropy, ambiguous specification based on natural language." .
+
+:Fabrication a owl:Class ;
+    rdfs:subClassOf :Process ;
+    rdfs:label "AOT Fabrication / Instantiation" ;
+    rdfs:comment "A deterministic, zero-entropy process that instantiates a physical reality from a formal specification." .
+
+:Translation a owl:Class ;
+    rdfs:subClassOf :Process ;
+    rdfs:label "Classical Translation / Programming" ;
+    rdfs:comment "A probabilistic, high-entropy process that attempts to translate an informal specification into an implementation." .
+
+# --- Properties ---
+
+:hasInput a owl:ObjectProperty ;
+    rdfs:domain :Process .
+
+:hasOutput a owl:ObjectProperty ;
+    rdfs:domain :Process ;
+    rdfs:range :Implementation .
+
+:informationLoss a owl:DatatypeProperty ;
+    rdfs:comment "Represents the Kullback-Leibler divergence between intent and reality. H(I) - I(K;I)" ;
+    rdfs:domain :Process ;
+    rdfs:range xsd:float .
+
+# --- Axioms ---
+
+# Axiom 1: The two types of processes are fundamentally different and disjoint.
+:Fabrication owl:disjointWith :Translation .
+
+# Axiom 2: A Fabrication process consumes a FormalSpecification and has zero information loss.
+:Fabrication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasInput ;
+    owl:allValuesFrom :FormalSpecification
+] , [
+    a owl:Restriction ;
+    owl:onProperty :informationLoss ;
+    owl:hasValue "0.0"^^xsd:float
+] .
+
+# Axiom 3: A Translation process consumes an InformalSpecification and has non-zero information loss.
+:Translation rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasInput ;
+    owl:allValuesFrom :InformalSpecification
+] , [
+    a owl:Restriction ;
+    owl:onProperty :informationLoss ;
+    owl:someValuesFrom [ 
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:float ;
+        owl:withRestrictions ( [ xsd:minExclusive "0.0"^^xsd:float ] )
+    ]
+] .
+
+# Axiom 4: ByteGen is the one and only instance of a Fabrication process.
+:ByteGen a :Fabrication .

@@ -1,0 +1,145 @@
+# Fortune 500 Enterprise Template Registry - RDF/Turtle Metadata
+# Semantic representation of enterprise templates for advanced querying
+
+@prefix unjucks: <http://unjucks.dev/ontology/> .
+@prefix template: <http://unjucks.dev/templates/> .
+@prefix compliance: <http://standards.org/compliance/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Template Registry
+template:fortune5 a unjucks:TemplateRegistry ;
+    rdfs:label "Fortune 500 Enterprise Templates" ;
+    unjucks:category "enterprise" ;
+    unjucks:complianceLevel "soc2" ;
+    unjucks:version "1.0.0" .
+
+# Microservice Template
+template:microservice a unjucks:Template ;
+    rdfs:label "Fortune 500 Microservice" ;
+    unjucks:category "microservice" ;
+    unjucks:jtbd "Deploy a production-ready microservice that meets Fortune 500 enterprise standards" ;
+    unjucks:hasCompliance compliance:SOC2, compliance:ISO27001, compliance:PCI-DSS ;
+    unjucks:hasVariable template:microservice-serviceName,
+                        template:microservice-servicePort,
+                        template:microservice-databaseType,
+                        template:microservice-authProvider ;
+    unjucks:hasInjectionPoint template:microservice-helm-values,
+                             template:microservice-middleware,
+                             template:microservice-routes ;
+    unjucks:generatesDependency template:kubernetes,
+                               template:docker,
+                               template:observability .
+
+# API Gateway Template  
+template:api-gateway a unjucks:Template ;
+    rdfs:label "Enterprise API Gateway" ;
+    unjucks:category "api-gateway" ;
+    unjucks:jtbd "Deploy a scalable API gateway with authentication, rate limiting, and load balancing" ;
+    unjucks:hasCompliance compliance:SOC2, compliance:ISO27001, compliance:OWASP ;
+    unjucks:hasVariable template:api-gateway-gatewayName,
+                        template:api-gateway-gatewayType,
+                        template:api-gateway-authStrategy ;
+    unjucks:providesCapability unjucks:LoadBalancing,
+                              unjucks:RateLimiting,
+                              unjucks:Authentication,
+                              unjucks:TLSTermination .
+
+# Data Pipeline Template
+template:data-pipeline a unjucks:Template ;
+    rdfs:label "Enterprise Data Pipeline" ;
+    unjucks:category "data-pipeline" ;
+    unjucks:jtbd "Build robust data pipeline with governance, lineage tracking, and compliance" ;
+    unjucks:hasCompliance compliance:GDPR, compliance:CCPA, compliance:HIPAA ;
+    unjucks:hasVariable template:data-pipeline-orchestrator,
+                        template:data-pipeline-streamingEngine,
+                        template:data-pipeline-processingEngine ;
+    unjucks:providesCapability unjucks:DataGovernance,
+                              unjucks:StreamProcessing,
+                              unjucks:BatchProcessing,
+                              unjucks:DataLineage .
+
+# Compliance Template
+template:compliance a unjucks:Template ;
+    rdfs:label "SOC2/HIPAA Compliant Service" ;
+    unjucks:category "compliance" ;
+    unjucks:jtbd "Deploy services that automatically meet enterprise compliance requirements" ;
+    unjucks:hasCompliance compliance:SOC2, compliance:HIPAA, compliance:ISO27001 ;
+    unjucks:hasVariable template:compliance-complianceStandard,
+                        template:compliance-dataClassification,
+                        template:compliance-auditRetention ;
+    unjucks:providesCapability unjucks:AuditLogging,
+                              unjucks:DataEncryption,
+                              unjucks:AccessControl,
+                              unjucks:ComplianceReporting .
+
+# Monitoring Template
+template:monitoring a unjucks:Template ;
+    rdfs:label "Enterprise Observability Stack" ;
+    unjucks:category "monitoring" ;
+    unjucks:jtbd "Deploy comprehensive observability solution with metrics, logs, and traces" ;
+    unjucks:hasCompliance compliance:SOC2, compliance:ISO27001, compliance:ITIL ;
+    unjucks:hasVariable template:monitoring-metricsBackend,
+                        template:monitoring-logsBackend,
+                        template:monitoring-tracingBackend ;
+    unjucks:providesCapability unjucks:MetricsCollection,
+                              unjucks:LogAggregation,
+                              unjucks:DistributedTracing,
+                              unjucks:Alerting .
+
+# Compliance Standards
+compliance:SOC2 a unjucks:ComplianceStandard ;
+    rdfs:label "SOC 2 Type II" ;
+    unjucks:requires unjucks:Security, unjucks:Availability, unjucks:Confidentiality .
+
+compliance:HIPAA a unjucks:ComplianceStandard ;
+    rdfs:label "Health Insurance Portability and Accountability Act" ;
+    unjucks:requires unjucks:PhysicalSafeguards, unjucks:TechnicalSafeguards, unjucks:AdministrativeSafeguards .
+
+compliance:ISO27001 a unjucks:ComplianceStandard ;
+    rdfs:label "ISO/IEC 27001 Information Security Management" ;
+    unjucks:requires unjucks:InformationSecurityPolicy, unjucks:RiskManagement, unjucks:IncidentResponse .
+
+# Template Capabilities
+unjucks:LoadBalancing a unjucks:Capability ;
+    rdfs:label "Load Balancing" ;
+    unjucks:description "Distributes incoming requests across multiple backend services" .
+
+unjucks:RateLimiting a unjucks:Capability ;
+    rdfs:label "Rate Limiting" ;
+    unjucks:description "Controls the rate of incoming requests to prevent abuse" .
+
+unjucks:DataGovernance a unjucks:Capability ;
+    rdfs:label "Data Governance" ;
+    unjucks:description "Ensures data quality, lineage tracking, and compliance controls" .
+
+unjucks:AuditLogging a unjucks:Capability ;
+    rdfs:label "Audit Logging" ;
+    unjucks:description "Comprehensive audit trail for all data access and modifications" .
+
+# Template Variables (sample)
+template:microservice-serviceName a unjucks:TemplateVariable ;
+    rdfs:label "Service Name" ;
+    unjucks:type "string" ;
+    unjucks:required true ;
+    unjucks:validation "^[a-z0-9-]+$" .
+
+template:microservice-databaseType a unjucks:TemplateVariable ;
+    rdfs:label "Database Type" ;
+    unjucks:type "string" ;
+    unjucks:required true ;
+    unjucks:options "postgresql", "mongodb", "redis", "mysql" .
+
+# Injection Points
+template:microservice-helm-values a unjucks:InjectionPoint ;
+    rdfs:label "Helm Values Injection" ;
+    unjucks:pattern "# HELM VALUES INJECTION" ;
+    unjucks:type "after" ;
+    unjucks:description "Inject Helm values for existing deployments" .
+
+template:microservice-middleware a unjucks:InjectionPoint ;
+    rdfs:label "Middleware Injection" ;
+    unjucks:pattern "// MIDDLEWARE INJECTION" ;
+    unjucks:type "after" ;
+    unjucks:description "Add middleware to existing Express apps" .

@@ -1,0 +1,525 @@
+@prefix pb: <https://bytestar.org/ontology/v5/crystals/blueprints/fabricated-execution-plan#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix pcl: <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice#> .
+@prefix mbp: <https://bytestar.org/ontology/v5/crystals/blueprints/mission-blueprint#> .
+@prefix wpr: <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://bytestar.org/ontology/v5/crystals/blueprints/fabricated-execution-plan>
+  a owl:Ontology ;
+  rdfs:label "Fabricated Execution Plan (.pb) Artifacts" ;
+  rdfs:comment "Defines fabricated execution plan artifacts generated from mission blueprints through AOT compilation, including executable task crystals, performance budgets, and runtime coordination structures." ;
+  owl:imports 
+    <https://bytestar.org/ontology/bytestar-core> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/mission-blueprint> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry> ;
+  owl:versionInfo "5.0.0" ;
+  pb:aotCompiled "true"^^xsd:boolean ;
+  pb:doctrineOfEightCompliant "true"^^xsd:boolean .
+
+#################################################################
+# Fabricated Execution Plan Core Structure
+#################################################################
+
+pb:FabricatedExecutionPlan a owl:Class ;
+  rdfs:label "Fabricated Execution Plan" ;
+  rdfs:comment "Concrete, executable plan generated through AOT compilation of mission blueprints into optimized polycrystal lattice structures." ;
+  rdfs:subClassOf bcore:PolycrystalLattice ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:generatedFrom ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasExecutableArtifact ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasRuntimeCoordinator ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+pb:ExecutableArtifact a owl:Class ;
+  rdfs:label "Executable Artifact" ;
+  rdfs:comment "Compiled artifact ready for execution within the ByteStar runtime environment." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasArtifactType ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasChecksum ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:isSigned ;
+    owl:hasValue "true"^^xsd:boolean
+  ] .
+
+pb:RuntimeCoordinator a owl:Class ;
+  rdfs:label "Runtime Coordinator" ;
+  rdfs:comment "Coordination component responsible for managing execution plan runtime behavior." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:coordinatesExecution ;
+    owl:allValuesFrom pb:ExecutionInstance
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasCoordinationStrategy ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+#################################################################
+# AOT Compilation Artifacts
+#################################################################
+
+pb:AOTCompilationResult a owl:Class ;
+  rdfs:label "AOT Compilation Result" ;
+  rdfs:comment "Result of ahead-of-time compilation process transforming mission blueprints into executable plans." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasCompilationTimestamp ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasOptimizationLevel ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+pb:ArtifactType a owl:Class ;
+  rdfs:label "Artifact Type" ;
+  rdfs:comment "Type of executable artifact generated during compilation." ;
+  owl:oneOf ( 
+    pb:TaskCrystalBinary pb:CoordinationTable pb:PerformanceBudgetTable
+    pb:DependencyGraph pb:HAMLayout pb:MemoryLayout
+  ) .
+
+pb:TaskCrystalBinary a pb:ArtifactType ;
+  rdfs:label "Task Crystal Binary" ;
+  pb:artifactDescription "Compiled task crystal with embedded execution logic" ;
+  pb:memoryAlignment "64"^^xsd:integer .
+
+pb:CoordinationTable a pb:ArtifactType ;
+  rdfs:label "Coordination Table" ;
+  pb:artifactDescription "Lookup table for runtime coordination decisions" ;
+  pb:accessPattern "MPHF"^^xsd:string .
+
+pb:PerformanceBudgetTable a pb:ArtifactType ;
+  rdfs:label "Performance Budget Table" ;
+  pb:artifactDescription "Pre-computed performance budget allocations" ;
+  pb:updateFrequency "static"^^xsd:string .
+
+pb:DependencyGraph a pb:ArtifactType ;
+  rdfs:label "Dependency Graph" ;
+  pb:artifactDescription "Compiled dependency relationships for execution ordering" ;
+  pb:traversalAlgorithm "topological"^^xsd:string .
+
+pb:HAMLayout a pb:ArtifactType ;
+  rdfs:label "HAM Layout" ;
+  pb:artifactDescription "Hardware abstraction model memory layout specification" ;
+  pb:cacheOptimized "true"^^xsd:boolean .
+
+pb:MemoryLayout a pb:ArtifactType ;
+  rdfs:label "Memory Layout" ;
+  pb:artifactDescription "Optimized memory layout for L1 cache residency" ;
+  pb:alignment "cacheline"^^xsd:string .
+
+#################################################################
+# Execution Instance Management
+#################################################################
+
+pb:ExecutionInstance a owl:Class ;
+  rdfs:label "Execution Instance" ;
+  rdfs:comment "Runtime instance of a fabricated execution plan with active state management." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasExecutionState ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasProgressTracker ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasResourceAllocation ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+pb:ExecutionState a owl:Class ;
+  rdfs:label "Execution State" ;
+  rdfs:comment "Current state of execution instance." ;
+  owl:oneOf ( 
+    pb:Initialized pb:Running pb:Suspended pb:Completed 
+    pb:Faulted pb:Cancelled pb:Degraded 
+  ) .
+
+pb:Initialized a pb:ExecutionState ;
+  rdfs:label "Initialized" ;
+  pb:stateDescription "Execution instance initialized but not started" .
+
+pb:Running a pb:ExecutionState ;
+  rdfs:label "Running" ;
+  pb:stateDescription "Execution instance actively running" .
+
+pb:Suspended a pb:ExecutionState ;
+  rdfs:label "Suspended" ;
+  pb:stateDescription "Execution instance temporarily suspended" .
+
+pb:Completed a pb:ExecutionState ;
+  rdfs:label "Completed" ;
+  pb:stateDescription "Execution instance completed successfully" .
+
+pb:Faulted a pb:ExecutionState ;
+  rdfs:label "Faulted" ;
+  pb:stateDescription "Execution instance encountered unrecoverable fault" .
+
+pb:Cancelled a pb:ExecutionState ;
+  rdfs:label "Cancelled" ;
+  pb:stateDescription "Execution instance cancelled by user or system" .
+
+pb:Degraded a pb:ExecutionState ;
+  rdfs:label "Degraded" ;
+  pb:stateDescription "Execution instance running in degraded mode" .
+
+pb:ProgressTracker a owl:Class ;
+  rdfs:label "Progress Tracker" ;
+  rdfs:comment "Tracks execution progress against performance budgets and success criteria." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasCompletionPercentage ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasBudgetUtilization ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+#################################################################
+# Runtime Coordination Strategies
+#################################################################
+
+pb:CoordinationStrategy a owl:Class ;
+  rdfs:label "Coordination Strategy" ;
+  rdfs:comment "Strategy for coordinating execution of task crystals within the lattice." ;
+  owl:oneOf ( 
+    pb:SequentialExecution pb:ParallelExecution pb:PipelineExecution
+    pb:AdaptiveExecution pb:FaultTolerantExecution 
+  ) .
+
+pb:SequentialExecution a pb:CoordinationStrategy ;
+  rdfs:label "Sequential Execution" ;
+  pb:strategyDescription "Tasks execute in strict sequential order" ;
+  pb:parallelismDegree "1"^^xsd:integer .
+
+pb:ParallelExecution a pb:CoordinationStrategy ;
+  rdfs:label "Parallel Execution" ;
+  pb:strategyDescription "Independent tasks execute in parallel" ;
+  pb:parallelismDegree "8"^^xsd:integer .
+
+pb:PipelineExecution a pb:CoordinationStrategy ;
+  rdfs:label "Pipeline Execution" ;
+  pb:strategyDescription "Tasks execute in pipeline stages" ;
+  pb:pipelineDepth "4"^^xsd:integer .
+
+pb:AdaptiveExecution a pb:CoordinationStrategy ;
+  rdfs:label "Adaptive Execution" ;
+  pb:strategyDescription "Execution adapts based on runtime conditions" ;
+  pb:adaptationMetric "latency"^^xsd:string .
+
+pb:FaultTolerantExecution a pb:CoordinationStrategy ;
+  rdfs:label "Fault Tolerant Execution" ;
+  pb:strategyDescription "Execution continues despite task failures" ;
+  pb:faultTolerance "supervisor-restart"^^xsd:string .
+
+#################################################################
+# Resource Allocation and Management
+#################################################################
+
+pb:ResourceAllocation a owl:Class ;
+  rdfs:label "Resource Allocation" ;
+  rdfs:comment "Allocation of system resources to execution instance." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasCpuAllocation ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasMemoryAllocation ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasHAMHopBinding ;
+    owl:allValuesFrom pcl:HAMHop
+  ] .
+
+pb:CpuAllocation a owl:Class ;
+  rdfs:label "CPU Allocation" ;
+  rdfs:comment "CPU resource allocation with core affinity and tick budgets." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:coreAffinity ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:tickBudget ;
+    owl:maxInclusive "8"^^xsd:integer
+  ] .
+
+pb:MemoryAllocation a owl:Class ;
+  rdfs:label "Memory Allocation" ;
+  rdfs:comment "Memory resource allocation with cache residency requirements." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:l1CacheSize ;
+    owl:maxInclusive "32768"^^xsd:integer
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:l3CacheSize ;
+    owl:maxInclusive "8388608"^^xsd:integer
+  ] .
+
+#################################################################
+# Performance Monitoring and Metrics
+#################################################################
+
+pb:PerformanceMonitor a owl:Class ;
+  rdfs:label "Performance Monitor" ;
+  rdfs:comment "Monitors execution performance against budget allocations." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasMetricCollection ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+pb:MetricCollection a owl:Class ;
+  rdfs:label "Metric Collection" ;
+  rdfs:comment "Collection of performance metrics gathered during execution." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasLatencyMetric ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasThroughputMetric ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty pb:hasCacheHitRate ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+#################################################################
+# Object Properties
+#################################################################
+
+pb:generatedFrom a owl:ObjectProperty ;
+  rdfs:label "generated from" ;
+  rdfs:domain pb:FabricatedExecutionPlan ;
+  rdfs:range mbp:MissionBlueprint .
+
+pb:hasExecutableArtifact a owl:ObjectProperty ;
+  rdfs:label "has executable artifact" ;
+  rdfs:domain pb:FabricatedExecutionPlan ;
+  rdfs:range pb:ExecutableArtifact .
+
+pb:hasRuntimeCoordinator a owl:ObjectProperty ;
+  rdfs:label "has runtime coordinator" ;
+  rdfs:domain pb:FabricatedExecutionPlan ;
+  rdfs:range pb:RuntimeCoordinator .
+
+pb:hasArtifactType a owl:ObjectProperty ;
+  rdfs:label "has artifact type" ;
+  rdfs:domain pb:ExecutableArtifact ;
+  rdfs:range pb:ArtifactType .
+
+pb:coordinatesExecution a owl:ObjectProperty ;
+  rdfs:label "coordinates execution" ;
+  rdfs:domain pb:RuntimeCoordinator ;
+  rdfs:range pb:ExecutionInstance .
+
+pb:hasCoordinationStrategy a owl:ObjectProperty ;
+  rdfs:label "has coordination strategy" ;
+  rdfs:domain pb:RuntimeCoordinator ;
+  rdfs:range pb:CoordinationStrategy .
+
+pb:hasExecutionState a owl:ObjectProperty ;
+  rdfs:label "has execution state" ;
+  rdfs:domain pb:ExecutionInstance ;
+  rdfs:range pb:ExecutionState .
+
+pb:hasProgressTracker a owl:ObjectProperty ;
+  rdfs:label "has progress tracker" ;
+  rdfs:domain pb:ExecutionInstance ;
+  rdfs:range pb:ProgressTracker .
+
+pb:hasResourceAllocation a owl:ObjectProperty ;
+  rdfs:label "has resource allocation" ;
+  rdfs:domain pb:ExecutionInstance ;
+  rdfs:range pb:ResourceAllocation .
+
+pb:hasCpuAllocation a owl:ObjectProperty ;
+  rdfs:label "has CPU allocation" ;
+  rdfs:domain pb:ResourceAllocation ;
+  rdfs:range pb:CpuAllocation .
+
+pb:hasMemoryAllocation a owl:ObjectProperty ;
+  rdfs:label "has memory allocation" ;
+  rdfs:domain pb:ResourceAllocation ;
+  rdfs:range pb:MemoryAllocation .
+
+pb:hasHAMHopBinding a owl:ObjectProperty ;
+  rdfs:label "has HAM hop binding" ;
+  rdfs:domain pb:ResourceAllocation ;
+  rdfs:range pcl:HAMHop .
+
+pb:hasMetricCollection a owl:ObjectProperty ;
+  rdfs:label "has metric collection" ;
+  rdfs:domain pb:PerformanceMonitor ;
+  rdfs:range pb:MetricCollection .
+
+#################################################################
+# Data Properties
+#################################################################
+
+pb:aotCompiled a owl:DatatypeProperty ;
+  rdfs:label "AOT compiled" ;
+  rdfs:range xsd:boolean .
+
+pb:doctrineOfEightCompliant a owl:DatatypeProperty ;
+  rdfs:label "Doctrine of 8 compliant" ;
+  rdfs:range xsd:boolean .
+
+pb:hasChecksum a owl:DatatypeProperty ;
+  rdfs:label "has checksum" ;
+  rdfs:range xsd:string .
+
+pb:isSigned a owl:DatatypeProperty ;
+  rdfs:label "is signed" ;
+  rdfs:range xsd:boolean .
+
+pb:hasCompilationTimestamp a owl:DatatypeProperty ;
+  rdfs:label "has compilation timestamp" ;
+  rdfs:range xsd:dateTime .
+
+pb:hasOptimizationLevel a owl:DatatypeProperty ;
+  rdfs:label "has optimization level" ;
+  rdfs:range xsd:string .
+
+pb:artifactDescription a owl:DatatypeProperty ;
+  rdfs:label "artifact description" ;
+  rdfs:range xsd:string .
+
+pb:memoryAlignment a owl:DatatypeProperty ;
+  rdfs:label "memory alignment" ;
+  rdfs:range xsd:integer .
+
+pb:accessPattern a owl:DatatypeProperty ;
+  rdfs:label "access pattern" ;
+  rdfs:range xsd:string .
+
+pb:updateFrequency a owl:DatatypeProperty ;
+  rdfs:label "update frequency" ;
+  rdfs:range xsd:string .
+
+pb:traversalAlgorithm a owl:DatatypeProperty ;
+  rdfs:label "traversal algorithm" ;
+  rdfs:range xsd:string .
+
+pb:cacheOptimized a owl:DatatypeProperty ;
+  rdfs:label "cache optimized" ;
+  rdfs:range xsd:boolean .
+
+pb:alignment a owl:DatatypeProperty ;
+  rdfs:label "alignment" ;
+  rdfs:range xsd:string .
+
+pb:stateDescription a owl:DatatypeProperty ;
+  rdfs:label "state description" ;
+  rdfs:range xsd:string .
+
+pb:hasCompletionPercentage a owl:DatatypeProperty ;
+  rdfs:label "has completion percentage" ;
+  rdfs:range xsd:decimal .
+
+pb:hasBudgetUtilization a owl:DatatypeProperty ;
+  rdfs:label "has budget utilization" ;
+  rdfs:range xsd:decimal .
+
+pb:strategyDescription a owl:DatatypeProperty ;
+  rdfs:label "strategy description" ;
+  rdfs:range xsd:string .
+
+pb:parallelismDegree a owl:DatatypeProperty ;
+  rdfs:label "parallelism degree" ;
+  rdfs:range xsd:integer .
+
+pb:pipelineDepth a owl:DatatypeProperty ;
+  rdfs:label "pipeline depth" ;
+  rdfs:range xsd:integer .
+
+pb:adaptationMetric a owl:DatatypeProperty ;
+  rdfs:label "adaptation metric" ;
+  rdfs:range xsd:string .
+
+pb:faultTolerance a owl:DatatypeProperty ;
+  rdfs:label "fault tolerance" ;
+  rdfs:range xsd:string .
+
+pb:coreAffinity a owl:DatatypeProperty ;
+  rdfs:label "core affinity" ;
+  rdfs:range xsd:integer .
+
+pb:tickBudget a owl:DatatypeProperty ;
+  rdfs:label "tick budget" ;
+  rdfs:range xsd:integer .
+
+pb:l1CacheSize a owl:DatatypeProperty ;
+  rdfs:label "L1 cache size" ;
+  rdfs:range xsd:integer .
+
+pb:l3CacheSize a owl:DatatypeProperty ;
+  rdfs:label "L3 cache size" ;
+  rdfs:range xsd:integer .
+
+pb:hasLatencyMetric a owl:DatatypeProperty ;
+  rdfs:label "has latency metric" ;
+  rdfs:range xsd:decimal .
+
+pb:hasThroughputMetric a owl:DatatypeProperty ;
+  rdfs:label "has throughput metric" ;
+  rdfs:range xsd:decimal .
+
+pb:hasCacheHitRate a owl:DatatypeProperty ;
+  rdfs:label "has cache hit rate" ;
+  rdfs:range xsd:decimal .
+
+pb:executionId a owl:DatatypeProperty ;
+  rdfs:label "execution ID" ;
+  rdfs:range xsd:string .
+
+pb:startTimestamp a owl:DatatypeProperty ;
+  rdfs:label "start timestamp" ;
+  rdfs:range xsd:dateTime .
+
+pb:endTimestamp a owl:DatatypeProperty ;
+  rdfs:label "end timestamp" ;
+  rdfs:range xsd:dateTime .

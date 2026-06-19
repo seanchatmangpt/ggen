@@ -1,0 +1,247 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix genre: <http://chatmangpt.com/ontology/genre#> .
+
+genre:GenreScheme
+  a skos:ConceptScheme ;
+  dcterms:title "Signal Genre Classification"@en ;
+  dcterms:description "SKOS ConceptScheme for signal genres used in documentation, communication, and artifact production."@en ;
+  dcterms:created "2026-03-25"^^xsd:date ;
+  dcterms:creator "ChatmanGPT"@en ;
+  dcterms:language "en" ;
+  skos:hasTopConcept
+    genre:Specification,
+    genre:Narrative,
+    genre:Analytical,
+    genre:Deliberative,
+    genre:Educational ;
+  .
+
+# TOP CONCEPTS - BROAD CATEGORIES
+
+genre:Specification
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Specification"@en ;
+  skos:definition "Formal requirement documentation that prescribes what must be built or delivered."@en ;
+  skos:example "API specification, system requirements document, data schema"@en ;
+  skos:narrower genre:APISpec, genre:ADR ;
+  .
+
+genre:Narrative
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Narrative"@en ;
+  skos:definition "Story-based documentation that describes events, processes, or experiences."@en ;
+  skos:example "Incident report, meeting transcript, process walkthrough"@en ;
+  skos:narrower genre:Transcript, genre:Report, genre:Note ;
+  .
+
+genre:Analytical
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Analytical"@en ;
+  skos:definition "Evidence-based documentation that examines data, trends, and findings."@en ;
+  skos:example "Analysis report, gap analysis, trend summary"@en ;
+  skos:narrower genre:Analysis, genre:Summary ;
+  .
+
+genre:Deliberative
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Deliberative"@en ;
+  skos:definition "Decision-focused documentation proposing action or choice."@en ;
+  skos:example "Decision record, proposal, recommendation"@en ;
+  skos:narrower genre:Decision, genre:Proposal, genre:Pitch ;
+  .
+
+genre:Educational
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Educational"@en ;
+  skos:definition "Learning-focused documentation that explains concepts or teaches skills."@en ;
+  skos:example "Tutorial, how-to guide, explanation, reference documentation"@en ;
+  skos:narrower genre:Tutorial, genre:HowTo, genre:Explanation, genre:Reference ;
+  .
+
+# SPECIFICATION CONCEPTS
+
+genre:APISpec
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "API Specification"@en ;
+  skos:altLabel "Interface Spec"@en ;
+  skos:definition "Formal definition of endpoint contracts, request/response formats, and error handling."@en ;
+  skos:example "OpenAPI/Swagger document, GraphQL schema, RPC method specification"@en ;
+  skos:broader genre:Specification ;
+  .
+
+genre:ADR
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Architecture Decision Record"@en ;
+  skos:altLabel "ADR"@en ;
+  skos:definition "Documented decision about architecture or design with context, consequence, and alternatives."@en ;
+  skos:example "ADR-001: Use PostgreSQL for transactional consistency"@en ;
+  skos:broader genre:Specification ;
+  .
+
+# NARRATIVE CONCEPTS
+
+genre:Transcript
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Transcript"@en ;
+  skos:definition "Word-for-word record of spoken or written exchange."@en ;
+  skos:example "Meeting minutes, conversation log, interview notes"@en ;
+  skos:broader genre:Narrative ;
+  .
+
+genre:Report
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Report"@en ;
+  skos:definition "Formal account of events, findings, or status with structure and conclusions."@en ;
+  skos:example "Incident post-mortem, status report, test report"@en ;
+  skos:broader genre:Narrative ;
+  skos:narrower genre:BattleCard ;
+  .
+
+genre:Note
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Note"@en ;
+  skos:altLabel "Memo"@en ;
+  skos:definition "Brief informal record of information, ideas, or action items."@en ;
+  skos:example "Whiteboard notes, quick reference, scratch notes"@en ;
+  skos:broader genre:Narrative ;
+  .
+
+genre:BattleCard
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "BattleCard"@en ;
+  skos:definition "Concise competitive or operational reference card for field use."@en ;
+  skos:example "Sales battlecard, operations runbook, support troubleshooting guide"@en ;
+  skos:broader genre:Report ;
+  .
+
+# ANALYTICAL CONCEPTS
+
+genre:Analysis
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Analysis"@en ;
+  skos:definition "In-depth examination of data, patterns, or problems with detailed findings."@en ;
+  skos:example "Gap analysis, root cause analysis, market analysis"@en ;
+  skos:broader genre:Analytical ;
+  .
+
+genre:Summary
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Summary"@en ;
+  skos:definition "Condensed overview of key points, findings, or status."@en ;
+  skos:example "Executive summary, test results summary, trend summary"@en ;
+  skos:broader genre:Analytical ;
+  .
+
+genre:Alert
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Alert"@en ;
+  skos:definition "Time-sensitive notification of critical issue or change."@en ;
+  skos:example "Production incident alert, security vulnerability notice"@en ;
+  skos:broader genre:Analytical ;
+  .
+
+# DELIBERATIVE CONCEPTS
+
+genre:Decision
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Decision"@en ;
+  skos:altLabel "Decision Record"@en ;
+  skos:definition "Documentation of a choice made with supporting rationale."@en ;
+  skos:example "Technology choice decision, process change decision"@en ;
+  skos:broader genre:Deliberative ;
+  .
+
+genre:Proposal
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Proposal"@en ;
+  skos:definition "Detailed suggestion for action or change with justification and impact."@en ;
+  skos:example "Feature proposal, organizational change proposal, budget proposal"@en ;
+  skos:broader genre:Deliberative ;
+  .
+
+genre:Pitch
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Pitch"@en ;
+  skos:definition "Concise persuasive presentation of idea, product, or opportunity."@en ;
+  skos:example "Sales pitch, investor pitch, product pitch"@en ;
+  skos:broader genre:Deliberative ;
+  .
+
+genre:Email
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Email"@en ;
+  skos:definition "Asynchronous written communication with specific recipient and purpose."@en ;
+  skos:example "Request email, status update email, cold outreach email"@en ;
+  skos:broader genre:Deliberative ;
+  .
+
+# EDUCATIONAL CONCEPTS
+
+genre:Tutorial
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Tutorial"@en ;
+  skos:definition "Step-by-step guided learning experience with examples and practice."@en ;
+  skos:example "Getting started tutorial, hands-on workshop, video walkthrough"@en ;
+  skos:broader genre:Educational ;
+  .
+
+genre:HowTo
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "How-To Guide"@en ;
+  skos:altLabel "Procedural Guide"@en ;
+  skos:definition "Practical instructions for accomplishing a specific task or goal."@en ;
+  skos:example "How to deploy to production, how to troubleshoot error X"@en ;
+  skos:broader genre:Educational ;
+  .
+
+genre:Explanation
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Explanation"@en ;
+  skos:definition "Conceptual exposition that clarifies why something works the way it does."@en ;
+  skos:example "Architecture explanation, algorithm explanation, design rationale"@en ;
+  skos:broader genre:Educational ;
+  .
+
+genre:Reference
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Reference"@en ;
+  skos:altLabel "Reference Documentation"@en ;
+  skos:definition "Organized lookup resource for API, parameters, configurations, or concepts."@en ;
+  skos:example "API reference, configuration reference, glossary"@en ;
+  skos:broader genre:Educational ;
+  .
+
+genre:Review
+  a skos:Concept ;
+  skos:inScheme genre:GenreScheme ;
+  skos:prefLabel "Review"@en ;
+  skos:definition "Evaluative documentation assessing quality, compliance, or correctness."@en ;
+  skos:example "Code review, design review, security review, quality review"@en ;
+  skos:broader genre:Educational ;
+  .

@@ -1,0 +1,140 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix icd:  <https://w3id.org/mcpp/skos/icd-10-sample-v1/> .
+
+# ----------------------------------------------------------------------
+# ICD-10 sample SKOS scheme (v26.5.17 Slice F)
+#
+# Sample subset of WHO ICD-10 codes used by the healthcare ADE fixtures.
+# NOT a clinically authoritative replication — full ICD-10 loaded
+# out-of-band in production.
+# ----------------------------------------------------------------------
+
+icd:Scheme a skos:ConceptScheme ;
+    skos:prefLabel "ICD-10 (sample subset, v1)"@en ;
+    skos:notation  "icd-10-sample-v1" ;
+    skos:definition "Sample subset of WHO ICD-10 disease classifications used by mcpp v26.5.17 healthcare fixtures."@en .
+
+# ── Gastrointestinal ──────────────────────────────────────────────────
+
+icd:K52.1 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Toxic gastroenteritis and colitis"@en ;
+    skos:notation  "K52.1" .
+
+icd:K71.0 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Toxic liver disease with cholestasis"@en ;
+    skos:notation  "K71.0" .
+
+icd:K71.6 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Toxic liver disease with hepatitis, not elsewhere classified"@en ;
+    skos:notation  "K71.6" .
+
+# ── Dermatology ───────────────────────────────────────────────────────
+
+icd:L51.2 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Toxic epidermal necrolysis (Lyell)"@en ;
+    skos:notation  "L51.2" .
+
+icd:L27.0 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Generalized skin eruption due to drugs and medicaments"@en ;
+    skos:notation  "L27.0" .
+
+icd:L27.1 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Localized skin eruption due to drugs and medicaments"@en ;
+    skos:notation  "L27.1" .
+
+# ── Cardiovascular ────────────────────────────────────────────────────
+
+icd:I49.8 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Other specified cardiac arrhythmias"@en ;
+    skos:notation  "I49.8" .
+
+icd:I95.2 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Hypotension due to drugs"@en ;
+    skos:notation  "I95.2" .
+
+# ── Respiratory ───────────────────────────────────────────────────────
+
+icd:J70.2 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Acute drug-induced interstitial lung disorders"@en ;
+    skos:notation  "J70.2" .
+
+icd:J70.3 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Chronic drug-induced interstitial lung disorders"@en ;
+    skos:notation  "J70.3" .
+
+# ── Endocrine ─────────────────────────────────────────────────────────
+
+icd:E03.2 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Hypothyroidism due to medicaments and other exogenous substances"@en ;
+    skos:notation  "E03.2" .
+
+icd:E66.1 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Drug-induced obesity"@en ;
+    skos:notation  "E66.1" .
+
+# ── Neurological ──────────────────────────────────────────────────────
+
+icd:G21.0 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Malignant neuroleptic syndrome"@en ;
+    skos:notation  "G21.0" .
+
+icd:G21.1 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Other drug-induced secondary parkinsonism"@en ;
+    skos:notation  "G21.1" .
+
+icd:G44.4 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Drug-induced headache, not elsewhere classified"@en ;
+    skos:notation  "G44.4" .
+
+# ── Psychiatric ───────────────────────────────────────────────────────
+
+icd:F19.0 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Multiple drug use and use of other psychoactive substances, acute intoxication"@en ;
+    skos:notation  "F19.0" .
+
+# ── Renal ─────────────────────────────────────────────────────────────
+
+icd:N14.0 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Analgesic nephropathy"@en ;
+    skos:notation  "N14.0" .
+
+icd:N14.1 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Nephropathy induced by other drugs, medicaments and biological substances"@en ;
+    skos:notation  "N14.1" .
+
+# ── Hematologic ───────────────────────────────────────────────────────
+
+icd:D61.1 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Drug-induced aplastic anemia"@en ;
+    skos:notation  "D61.1" .
+
+icd:D69.5 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Secondary thrombocytopenia"@en ;
+    skos:notation  "D69.5" .
+
+# ── Anaphylaxis ───────────────────────────────────────────────────────
+
+icd:T88.6 a skos:Concept ;
+    skos:inScheme  icd:Scheme ;
+    skos:prefLabel "Anaphylactic shock due to adverse effect of correct drug or medicament properly administered"@en ;
+    skos:notation  "T88.6" .

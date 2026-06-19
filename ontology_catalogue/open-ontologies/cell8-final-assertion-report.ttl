@@ -1,0 +1,122 @@
+@prefix earl:  <http://www.w3.org/ns/earl#> .
+@prefix gate:  <urn:ontostar:gate:> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[] a earl:Assertion ;
+   earl:subject gate:A1_WorkflowDeclared ;
+   earl:test gate:A1_WorkflowDeclaredShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A2_ScopeClosed ;
+   earl:test gate:A2_ScopeClosedShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A3_OCELComplete ;
+   earl:test gate:A3_OCELCompleteShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A4_POWLReplayPass ;
+   earl:test gate:A4_POWLReplayPassShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A5_ThresholdPass ;
+   earl:test gate:A5_ThresholdPassShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A6_RequiredStagesPresent ;
+   earl:test gate:A6_RequiredStagesPresentShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A7_NoBypassRevocation ;
+   earl:test gate:A7_NoBypassRevocationShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A8_ReceiptValid ;
+   earl:test gate:A8_ReceiptValidShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A9_ProvenanceChain ;
+   earl:test gate:A9_ProvenanceChainShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A10_ExternalAttestation ;
+   earl:test gate:A10_ExternalAttestationShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A11_TemporalValidity ;
+   earl:test gate:A11_TemporalValidityShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A12_DependencyClosure ;
+   earl:test gate:A12_DependencyClosureShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+
+[] a earl:Assertion ;
+   earl:subject gate:A13_ReplayProof ;
+   earl:test gate:A13_ReplayProofShape ;
+   earl:result [
+     a earl:TestResult ;
+     earl:outcome earl:passed ;
+     dct:issued "2026-06-02T21:54:42.627892Z"^^xsd:dateTime
+   ] .
+

@@ -1,0 +1,80 @@
+@prefix tai: <http://tai.cognitive.mesh/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+# TAI Cognitive Mesh Ontology v2026.1.1.0z
+# Location: America/Los_Angeles
+# Temporal Coherence: High-frequency cognitive substrate
+
+tai:CognitiveMesh rdf:type owl:Class ;
+    rdfs:label "Cognitive Mesh" ;
+    rdfs:comment "A dynamic network of interconnected cognitive substrates processing temporal attention patterns" .
+
+tai:Substrate rdf:type owl:Class ;
+    rdfs:label "Cognitive Substrate" ;
+    rdfs:subClassOf tai:CognitiveMesh ;
+    rdfs:comment "Individual processing node within the cognitive mesh" .
+
+tai:LinkGraph rdf:type owl:Class ;
+    rdfs:label "Link Graph" ;
+    rdfs:comment "Network of weighted connections between cognitive substrates" .
+
+tai:AttentionCycle rdf:type owl:Class ;
+    rdfs:label "Attention Cycle" ;
+    rdfs:comment "Temporal pattern of cognitive focus allocation" .
+
+tai:Wave rdf:type owl:Class ;
+    rdfs:label "Cognitive Wave" ;
+    rdfs:comment "Propagating pattern of activation across substrates" .
+
+tai:Signal rdf:type owl:Class ;
+    rdfs:label "Neural Signal" ;
+    rdfs:comment "Discrete information packet transmitted between substrates" .
+
+tai:Cut rdf:type owl:Class ;
+    rdfs:label "Cognitive Cut" ;
+    rdfs:comment "Boundary or constraint in the cognitive mesh" .
+
+tai:FossilLink rdf:type owl:Class ;
+    rdfs:label "Fossil Link" ;
+    rdfs:comment "Expired connection preserved for historical analysis" .
+
+# Properties
+tai:hasRelevance rdf:type owl:ObjectProperty ;
+    rdfs:domain tai:Substrate ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Relevance weight between substrates (0.0-1.0)" .
+
+tai:hasPulseFrequency rdf:type owl:DatatypeProperty ;
+    rdfs:domain tai:AttentionCycle ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Frequency of attention pulse in Hz" .
+
+tai:hasAmplitude rdf:type owl:DatatypeProperty ;
+    rdfs:domain tai:Wave ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Wave amplitude representing activation strength" .
+
+tai:hasTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Temporal marker for events and states" .
+
+tai:hasLocation rdf:type owl:ObjectProperty ;
+    rdfs:range geo:Point ;
+    rdfs:comment "Geographical location reference" .
+
+tai:isActive rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Current activation state" .
+
+tai:isForbidden rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Constraint violation flag" .
+
+tai:hasExpiration rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Expiration timestamp for temporal elements" .

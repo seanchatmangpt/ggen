@@ -1,0 +1,1218 @@
+@prefix ba: <https://bytestar.org/ontology/> .
+@prefix mp: <https://bytestar.org/ontology/marketplace/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+# ================================================================
+# ByteStar N-Dimensional Marketplace Settlement Ontology (.settle)
+# Defines comprehensive settlement with vector conservation laws
+# Version: 5.0.0 - Marketplace Crystals
+# Domain: Atomic settlement with mathematical conservation proofs
+# ================================================================
+
+<https://bytestar.org/ontology/marketplace/settle> a owl:Ontology ;
+    owl:versionIRI <https://bytestar.org/ontology/v5/marketplace/settle> ;
+    owl:versionInfo "5.0.0" ;
+    dcterms:title "ByteStar N-Dimensional Marketplace Settlement Ontology" ;
+    dcterms:description "Comprehensive settlement system with vector conservation laws, mathematical proofs, atomic finality, and cross-organizational dispute resolution" ;
+    dcterms:created "2025-08-23T00:00:00Z"^^xsd:dateTime ;
+    dcterms:creator "ByteStar Development Team" ;
+    owl:imports <https://bytestar.org/ontology/marketplace/asset> ,
+                <https://bytestar.org/ontology/marketplace/offer> ,
+                <https://bytestar.org/ontology/marketplace/order> ,
+                <https://bytestar.org/ontology/resource-allocation> ,
+                <https://bytestar.org/ontology/performance-measurement> ,
+                <https://bytestar.org/ontology/optimization-engine> .
+
+# ================================================================
+# CORE SETTLEMENT CLASSES (80% REUSE + 20% NEW)
+# ================================================================
+
+## Primary Settlement Framework
+mp:Settlement a owl:Class ;
+    rdfs:label "Settlement" ;
+    rdfs:comment "Atomic settlement of completed orders with vector conservation guarantees" ;
+    rdfs:subClassOf ba:ResourceAllocation ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSettlementId ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:settlesOrder ;
+        owl:minCardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSettlementVector ;
+        owl:cardinality 1
+    ] .
+
+mp:AtomicSettlement a mp:Settlement ;
+    rdfs:label "Atomic Settlement" ;
+    rdfs:comment "Settlement that executes atomically with all-or-nothing guarantee" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAtomicityGuarantee ;
+        owl:cardinality 1
+    ] .
+
+mp:MultiPartySettlement a mp:Settlement ;
+    rdfs:label "Multi-Party Settlement" ;
+    rdfs:comment "Settlement involving multiple organizations with coordinated execution" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:involvesParty ;
+        owl:minCardinality 2
+    ] .
+
+mp:CrossChainSettlement a mp:Settlement ;
+    rdfs:label "Cross-Chain Settlement" ;
+    rdfs:comment "Settlement across different blockchain or ledger systems" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:involvesChain ;
+        owl:minCardinality 2
+    ] .
+
+# ================================================================
+# VECTOR CONSERVATION MATHEMATICS
+# ================================================================
+
+mp:ConservationLaw a owl:Class ;
+    rdfs:label "Conservation Law" ;
+    rdfs:comment "Mathematical law governing conservation of quantities in settlement" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasConservationType ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasConservationEquation ;
+        owl:cardinality 1
+    ] .
+
+mp:VectorConservation a mp:ConservationLaw ;
+    rdfs:label "Vector Conservation" ;
+    rdfs:comment "Conservation of N-dimensional asset vectors in settlement" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:conservesVector ;
+        owl:minCardinality 1
+    ] .
+
+mp:EnergyConservation a mp:ConservationLaw ;
+    rdfs:label "Energy Conservation" ;
+    rdfs:comment "Conservation of computational energy across settlement" .
+
+mp:ValueConservation a mp:ConservationLaw ;
+    rdfs:label "Value Conservation" ;
+    rdfs:comment "Conservation of total economic value in settlement" .
+
+mp:MassConservation a mp:ConservationLaw ;
+    rdfs:label "Mass Conservation" ;
+    rdfs:comment "Conservation of asset quantity (mass) in settlement" .
+
+mp:MomentumConservation a mp:ConservationLaw ;
+    rdfs:label "Momentum Conservation" ;
+    rdfs:comment "Conservation of trading momentum across settlement" .
+
+## Mathematical Proofs
+mp:ConservationProof a owl:Class ;
+    rdfs:label "Conservation Proof" ;
+    rdfs:comment "Mathematical proof that conservation laws are satisfied" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:provesLaw ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasProofMethod ;
+        owl:cardinality 1
+    ] .
+
+mp:VectorSumProof a mp:ConservationProof ;
+    rdfs:label "Vector Sum Proof" ;
+    rdfs:comment "Proof that sum of input vectors equals sum of output vectors" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasInputVectorSum ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOutputVectorSum ;
+        owl:cardinality 1
+    ] .
+
+mp:NoetherTheorem a mp:ConservationProof ;
+    rdfs:label "Noether Theorem" ;
+    rdfs:comment "Application of Noether's theorem to prove conservation laws" .
+
+mp:InvarianceProof a mp:ConservationProof ;
+    rdfs:label "Invariance Proof" ;
+    rdfs:comment "Proof based on system invariance under transformations" .
+
+# ================================================================
+# SETTLEMENT VECTOR & STATE MANAGEMENT
+# ================================================================
+
+mp:SettlementVector a owl:Class ;
+    rdfs:label "Settlement Vector" ;
+    rdfs:comment "N-dimensional vector representing settlement transformations" ;
+    rdfs:subClassOf mp:AssetVector ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasInputVector ;
+        owl:minCardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOutputVector ;
+        owl:minCardinality 1
+    ] .
+
+mp:SettlementTransformation a owl:Class ;
+    rdfs:label "Settlement Transformation" ;
+    rdfs:comment "Transformation matrix for vector space settlement operations" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasTransformationMatrix ;
+        owl:cardinality 1
+    ] .
+
+mp:SettlementState a owl:Class ;
+    rdfs:label "Settlement State" ;
+    rdfs:comment "Current state of settlement process" ;
+    rdfs:subClassOf skos:Concept .
+
+## Settlement State Hierarchy
+mp:Pending a mp:SettlementState ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Settlement initiated, pending validation" ;
+    skos:prefLabel "pending" .
+
+mp:Validating a mp:SettlementState ;
+    rdfs:label "Validating" ;
+    rdfs:comment "Settlement undergoing validation checks" ;
+    skos:prefLabel "validating" .
+
+mp:ConservationVerified a mp:SettlementState ;
+    rdfs:label "Conservation Verified" ;
+    rdfs:comment "Conservation laws verified, ready for execution" ;
+    skos:prefLabel "verified" .
+
+mp:Settling a mp:SettlementState ;
+    rdfs:label "Settling" ;
+    rdfs:comment "Settlement in progress" ;
+    skos:prefLabel "settling" .
+
+mp:Settled a mp:SettlementState ;
+    rdfs:label "Settled" ;
+    rdfs:comment "Settlement completed successfully" ;
+    skos:prefLabel "settled" .
+
+mp:Failed a mp:SettlementState ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Settlement failed and reverted" ;
+    skos:prefLabel "failed" .
+
+mp:Disputed a mp:SettlementState ;
+    rdfs:label "Disputed" ;
+    rdfs:comment "Settlement under dispute resolution" ;
+    skos:prefLabel "disputed" .
+
+# ================================================================
+# FINALITY & IMMUTABILITY
+# ================================================================
+
+mp:SettlementFinality a owl:Class ;
+    rdfs:label "Settlement Finality" ;
+    rdfs:comment "Guarantee that settlement is final and immutable" ;
+    rdfs:subClassOf ba:QualityOfService ;  # Reuse from resource-allocation
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasFinalityGuarantee ;
+        owl:cardinality 1
+    ] .
+
+mp:ImmutabilityProof a owl:Class ;
+    rdfs:label "Immutability Proof" ;
+    rdfs:comment "Cryptographic proof that settlement cannot be altered" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasHashProof ;
+        owl:cardinality 1
+    ] .
+
+mp:FinalityEngine a owl:Class ;
+    rdfs:label "Finality Engine" ;
+    rdfs:comment "Engine ensuring settlement finality across distributed systems" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:enforcesFinalityFor ;
+        owl:minCardinality 1
+    ] .
+
+mp:ConsensusFinality a mp:SettlementFinality ;
+    rdfs:label "Consensus Finality" ;
+    rdfs:comment "Finality achieved through distributed consensus" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasConsensusThreshold ;
+        owl:cardinality 1
+    ] .
+
+mp:CryptographicFinality a mp:SettlementFinality ;
+    rdfs:label "Cryptographic Finality" ;
+    rdfs:comment "Finality achieved through cryptographic proofs" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasCryptographicProof ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# SETTLEMENT PARTICIPANTS & ROLES
+# ================================================================
+
+mp:SettlementParty a owl:Class ;
+    rdfs:label "Settlement Party" ;
+    rdfs:comment "Organization participating in settlement" ;
+    rdfs:subClassOf mp:Organization ;  # Reuse from asset.ttl
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasPartyRole ;
+        owl:cardinality 1
+    ] .
+
+mp:PartyRole a owl:Class ;
+    rdfs:label "Party Role" ;
+    rdfs:comment "Role of party in settlement process" ;
+    rdfs:subClassOf skos:Concept .
+
+mp:Payor a mp:PartyRole ;
+    rdfs:label "Payor" ;
+    rdfs:comment "Party making payment or transferring assets" ;
+    skos:prefLabel "payor" .
+
+mp:Payee a mp:PartyRole ;
+    rdfs:label "Payee" ;
+    rdfs:comment "Party receiving payment or assets" ;
+    skos:prefLabel "payee" .
+
+mp:SettlementAgent a mp:PartyRole ;
+    rdfs:label "Settlement Agent" ;
+    rdfs:comment "Trusted agent facilitating settlement" ;
+    skos:prefLabel "agent" .
+
+mp:Custodian a mp:PartyRole ;
+    rdfs:label "Custodian" ;
+    rdfs:comment "Party holding assets during settlement" ;
+    skos:prefLabel "custodian" .
+
+mp:Validator a mp:PartyRole ;
+    rdfs:label "Validator" ;
+    rdfs:comment "Party validating settlement conditions" ;
+    skos:prefLabel "validator" .
+
+# ================================================================
+# DISPUTE RESOLUTION FRAMEWORK
+# ================================================================
+
+mp:DisputeResolution a owl:Class ;
+    rdfs:label "Dispute Resolution" ;
+    rdfs:comment "Framework for resolving settlement disputes" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDisputeId ;
+        owl:cardinality 1
+    ] .
+
+mp:Dispute a owl:Class ;
+    rdfs:label "Dispute" ;
+    rdfs:comment "Contested settlement requiring resolution" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDisputeReason ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasDisputeState ;
+        owl:cardinality 1
+    ] .
+
+mp:DisputeState a owl:Class ;
+    rdfs:label "Dispute State" ;
+    rdfs:comment "Current state of dispute resolution process" ;
+    rdfs:subClassOf skos:Concept .
+
+mp:Raised a mp:DisputeState ;
+    rdfs:label "Raised" ;
+    rdfs:comment "Dispute has been raised" ;
+    skos:prefLabel "raised" .
+
+mp:UnderReview a mp:DisputeState ;
+    rdfs:label "Under Review" ;
+    rdfs:comment "Dispute is being reviewed" ;
+    skos:prefLabel "review" .
+
+mp:InArbitration a mp:DisputeState ;
+    rdfs:label "In Arbitration" ;
+    rdfs:comment "Dispute is in arbitration process" ;
+    skos:prefLabel "arbitration" .
+
+mp:Resolved a mp:DisputeState ;
+    rdfs:label "Resolved" ;
+    rdfs:comment "Dispute has been resolved" ;
+    skos:prefLabel "resolved" .
+
+mp:Escalated a mp:DisputeState ;
+    rdfs:label "Escalated" ;
+    rdfs:comment "Dispute has been escalated to higher authority" ;
+    skos:prefLabel "escalated" .
+
+## Dispute Resolution Mechanisms
+mp:Arbitration a owl:Class ;
+    rdfs:label "Arbitration" ;
+    rdfs:comment "Formal arbitration process for dispute resolution" ;
+    rdfs:subClassOf mp:DisputeResolution ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasArbiter ;
+        owl:cardinality 1
+    ] .
+
+mp:Mediation a owl:Class ;
+    rdfs:label "Mediation" ;
+    rdfs:comment "Mediated settlement of disputes" ;
+    rdfs:subClassOf mp:DisputeResolution ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMediator ;
+        owl:cardinality 1
+    ] .
+
+mp:SmartContractArbitration a owl:Class ;
+    rdfs:label "Smart Contract Arbitration" ;
+    rdfs:comment "Automated arbitration using smart contracts" ;
+    rdfs:subClassOf mp:Arbitration .
+
+mp:OracleResolution a owl:Class ;
+    rdfs:label "Oracle Resolution" ;
+    rdfs:comment "Dispute resolution using external oracles" ;
+    rdfs:subClassOf mp:DisputeResolution ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasOracle ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# HAM RADIO RULES COMPLIANCE (HOPS 5, 6, 7)
+# ================================================================
+
+mp:HamRulesCompliance a owl:Class ;
+    rdfs:label "HAM Rules Compliance" ;
+    rdfs:comment "Compliance with HAM radio rules for Hops 5, 6, 7" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasHopLevel ;
+        owl:cardinality 1
+    ] .
+
+mp:Hop5Compliance a mp:HamRulesCompliance ;
+    rdfs:label "Hop 5 Compliance" ;
+    rdfs:comment "Compliance with HAM rules for Hop 5 (Regional Settlement)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasRegionalAuthority ;
+        owl:cardinality 1
+    ] .
+
+mp:Hop6Compliance a mp:HamRulesCompliance ;
+    rdfs:label "Hop 6 Compliance" ;
+    rdfs:comment "Compliance with HAM rules for Hop 6 (National Settlement)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasNationalAuthority ;
+        owl:cardinality 1
+    ] .
+
+mp:Hop7Compliance a mp:HamRulesCompliance ;
+    rdfs:label "Hop 7 Compliance" ;
+    rdfs:comment "Compliance with HAM rules for Hop 7 (International Settlement)" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasInternationalAuthority ;
+        owl:cardinality 1
+    ] .
+
+mp:FrequencyCompliance a owl:Class ;
+    rdfs:label "Frequency Compliance" ;
+    rdfs:comment "Compliance with frequency allocation rules" ;
+    rdfs:subClassOf mp:HamRulesCompliance ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasAllocatedFrequency ;
+        owl:cardinality 1
+    ] .
+
+mp:PowerLimitCompliance a owl:Class ;
+    rdfs:label "Power Limit Compliance" ;
+    rdfs:comment "Compliance with transmission power limits" ;
+    rdfs:subClassOf mp:HamRulesCompliance ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasMaxPowerLimit ;
+        owl:cardinality 1
+    ] .
+
+# ================================================================
+# SETTLEMENT PERFORMANCE & MONITORING
+# ================================================================
+
+mp:SettlementPerformance a owl:Class ;
+    rdfs:label "Settlement Performance" ;
+    rdfs:comment "Performance metrics for settlement processes" ;
+    rdfs:subClassOf ba:PerformanceMeasurement ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasSettlementLatency ;
+        owl:cardinality 1
+    ] .
+
+mp:SettlementMonitor a owl:Class ;
+    rdfs:label "Settlement Monitor" ;
+    rdfs:comment "Real-time monitoring of settlement processes" ;
+    rdfs:subClassOf ba:PerformanceMonitor ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:monitorsSettlement ;
+        owl:minCardinality 1
+    ] .
+
+mp:ConservationValidator a owl:Class ;
+    rdfs:label "Conservation Validator" ;
+    rdfs:comment "Validator ensuring conservation laws are satisfied" ;
+    rdfs:subClassOf ba:PerformanceValidator ;  # Reuse from performance-measurement
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:validatesConservation ;
+        owl:minCardinality 1
+    ] .
+
+# ================================================================
+# SETTLEMENT NETWORKS & PROTOCOLS
+# ================================================================
+
+mp:SettlementNetwork a owl:Class ;
+    rdfs:label "Settlement Network" ;
+    rdfs:comment "Network of interconnected settlement systems" ;
+    rdfs:subClassOf ba:SystemComponent ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasNetworkNode ;
+        owl:minCardinality 2
+    ] .
+
+mp:SettlementProtocol a owl:Class ;
+    rdfs:label "Settlement Protocol" ;
+    rdfs:comment "Protocol for settlement communication and coordination" ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mp:hasProtocolVersion ;
+        owl:cardinality 1
+    ] .
+
+mp:AtomicSwapProtocol a mp:SettlementProtocol ;
+    rdfs:label "Atomic Swap Protocol" ;
+    rdfs:comment "Protocol for atomic cross-chain asset swaps" .
+
+mp:HTLCProtocol a mp:SettlementProtocol ;
+    rdfs:label "HTLC Protocol" ;
+    rdfs:comment "Hash Time-Locked Contract protocol" .
+
+mp:MultiSigProtocol a mp:SettlementProtocol ;
+    rdfs:label "Multi-Signature Protocol" ;
+    rdfs:comment "Multi-signature settlement protocol" .
+
+# ================================================================
+# OBJECT PROPERTIES
+# ================================================================
+
+## Core Settlement Properties
+mp:settlesOrder a owl:ObjectProperty ;
+    rdfs:label "settles order" ;
+    rdfs:comment "Order being settled" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:Order .
+
+mp:hasSettlementVector a owl:ObjectProperty ;
+    rdfs:label "has settlement vector" ;
+    rdfs:comment "N-dimensional vector for settlement transformation" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:SettlementVector .
+
+mp:hasSettlementState a owl:ObjectProperty ;
+    rdfs:label "has settlement state" ;
+    rdfs:comment "Current state of settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:SettlementState .
+
+mp:hasAtomicityGuarantee a owl:ObjectProperty ;
+    rdfs:label "has atomicity guarantee" ;
+    rdfs:comment "Guarantee for atomic settlement execution" ;
+    rdfs:domain mp:AtomicSettlement ;
+    rdfs:range mp:AtomicGuarantee .
+
+## Party Properties
+mp:involvesParty a owl:ObjectProperty ;
+    rdfs:label "involves party" ;
+    rdfs:comment "Party involved in settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:SettlementParty .
+
+mp:hasPartyRole a owl:ObjectProperty ;
+    rdfs:label "has party role" ;
+    rdfs:comment "Role of party in settlement" ;
+    rdfs:domain mp:SettlementParty ;
+    rdfs:range mp:PartyRole .
+
+## Conservation Properties
+mp:hasConservationLaw a owl:ObjectProperty ;
+    rdfs:label "has conservation law" ;
+    rdfs:comment "Conservation law governing settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:ConservationLaw .
+
+mp:conservesVector a owl:ObjectProperty ;
+    rdfs:label "conserves vector" ;
+    rdfs:comment "Vector conserved by conservation law" ;
+    rdfs:domain mp:VectorConservation ;
+    rdfs:range mp:AssetVector .
+
+mp:provesLaw a owl:ObjectProperty ;
+    rdfs:label "proves law" ;
+    rdfs:comment "Conservation law proven by proof" ;
+    rdfs:domain mp:ConservationProof ;
+    rdfs:range mp:ConservationLaw .
+
+mp:hasInputVector a owl:ObjectProperty ;
+    rdfs:label "has input vector" ;
+    rdfs:comment "Input vector for settlement transformation" ;
+    rdfs:domain mp:SettlementVector ;
+    rdfs:range mp:AssetVector .
+
+mp:hasOutputVector a owl:ObjectProperty ;
+    rdfs:label "has output vector" ;
+    rdfs:comment "Output vector for settlement transformation" ;
+    rdfs:domain mp:SettlementVector ;
+    rdfs:range mp:AssetVector .
+
+## Finality Properties
+mp:hasSettlementFinality a owl:ObjectProperty ;
+    rdfs:label "has settlement finality" ;
+    rdfs:comment "Finality guarantee for settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:SettlementFinality .
+
+mp:enforcesFinalityFor a owl:ObjectProperty ;
+    rdfs:label "enforces finality for" ;
+    rdfs:comment "Settlement for which finality is enforced" ;
+    rdfs:domain mp:FinalityEngine ;
+    rdfs:range mp:Settlement .
+
+mp:hasCryptographicProof a owl:ObjectProperty ;
+    rdfs:label "has cryptographic proof" ;
+    rdfs:comment "Cryptographic proof of finality" ;
+    rdfs:domain mp:CryptographicFinality ;
+    rdfs:range mp:ImmutabilityProof .
+
+## Dispute Properties
+mp:hasDispute a owl:ObjectProperty ;
+    rdfs:label "has dispute" ;
+    rdfs:comment "Dispute associated with settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:Dispute .
+
+mp:hasDisputeState a owl:ObjectProperty ;
+    rdfs:label "has dispute state" ;
+    rdfs:comment "Current state of dispute" ;
+    rdfs:domain mp:Dispute ;
+    rdfs:range mp:DisputeState .
+
+mp:hasArbiter a owl:ObjectProperty ;
+    rdfs:label "has arbiter" ;
+    rdfs:comment "Arbiter for dispute resolution" ;
+    rdfs:domain mp:Arbitration ;
+    rdfs:range mp:Organization .
+
+mp:hasMediator a owl:ObjectProperty ;
+    rdfs:label "has mediator" ;
+    rdfs:comment "Mediator for dispute resolution" ;
+    rdfs:domain mp:Mediation ;
+    rdfs:range mp:Organization .
+
+mp:hasOracle a owl:ObjectProperty ;
+    rdfs:label "has oracle" ;
+    rdfs:comment "Oracle providing dispute resolution data" ;
+    rdfs:domain mp:OracleResolution ;
+    rdfs:range mp:Oracle .
+
+## HAM Compliance Properties
+mp:hasHamCompliance a owl:ObjectProperty ;
+    rdfs:label "has HAM compliance" ;
+    rdfs:comment "HAM radio rules compliance" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:HamRulesCompliance .
+
+mp:hasRegionalAuthority a owl:ObjectProperty ;
+    rdfs:label "has regional authority" ;
+    rdfs:comment "Regional authority for HAM compliance" ;
+    rdfs:domain mp:Hop5Compliance ;
+    rdfs:range mp:Authority .
+
+mp:hasNationalAuthority a owl:ObjectProperty ;
+    rdfs:label "has national authority" ;
+    rdfs:comment "National authority for HAM compliance" ;
+    rdfs:domain mp:Hop6Compliance ;
+    rdfs:range mp:Authority .
+
+mp:hasInternationalAuthority a owl:ObjectProperty ;
+    rdfs:label "has international authority" ;
+    rdfs:comment "International authority for HAM compliance" ;
+    rdfs:domain mp:Hop7Compliance ;
+    rdfs:range mp:Authority .
+
+## Monitoring Properties
+mp:monitorsSettlement a owl:ObjectProperty ;
+    rdfs:label "monitors settlement" ;
+    rdfs:comment "Settlement being monitored" ;
+    rdfs:domain mp:SettlementMonitor ;
+    rdfs:range mp:Settlement .
+
+mp:validatesConservation a owl:ObjectProperty ;
+    rdfs:label "validates conservation" ;
+    rdfs:comment "Conservation law being validated" ;
+    rdfs:domain mp:ConservationValidator ;
+    rdfs:range mp:ConservationLaw .
+
+mp:hasSettlementPerformance a owl:ObjectProperty ;
+    rdfs:label "has settlement performance" ;
+    rdfs:comment "Performance metrics for settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:SettlementPerformance .
+
+## Network Properties
+mp:hasNetworkNode a owl:ObjectProperty ;
+    rdfs:label "has network node" ;
+    rdfs:comment "Node in settlement network" ;
+    rdfs:domain mp:SettlementNetwork ;
+    rdfs:range mp:SettlementNode .
+
+mp:usesProtocol a owl:ObjectProperty ;
+    rdfs:label "uses protocol" ;
+    rdfs:comment "Protocol used for settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range mp:SettlementProtocol .
+
+mp:involvesChain a owl:ObjectProperty ;
+    rdfs:label "involves chain" ;
+    rdfs:comment "Blockchain or ledger involved in cross-chain settlement" ;
+    rdfs:domain mp:CrossChainSettlement ;
+    rdfs:range mp:Blockchain .
+
+# ================================================================
+# DATA PROPERTIES
+# ================================================================
+
+## Core Settlement Data Properties
+mp:hasSettlementId a owl:DatatypeProperty ;
+    rdfs:label "has settlement ID" ;
+    rdfs:comment "Unique identifier for settlement" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range xsd:string .
+
+mp:hasSettlementTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has settlement timestamp" ;
+    rdfs:comment "Timestamp when settlement was initiated" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range xsd:dateTime .
+
+mp:hasCompletionTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has completion timestamp" ;
+    rdfs:comment "Timestamp when settlement was completed" ;
+    rdfs:domain mp:Settlement ;
+    rdfs:range xsd:dateTime .
+
+## Conservation Mathematics Properties
+mp:hasConservationType a owl:DatatypeProperty ;
+    rdfs:label "has conservation type" ;
+    rdfs:comment "Type of conservation law (ENERGY, VALUE, MASS, MOMENTUM)" ;
+    rdfs:domain mp:ConservationLaw ;
+    rdfs:range xsd:string .
+
+mp:hasConservationEquation a owl:DatatypeProperty ;
+    rdfs:label "has conservation equation" ;
+    rdfs:comment "Mathematical equation expressing conservation law" ;
+    rdfs:domain mp:ConservationLaw ;
+    rdfs:range xsd:string .
+
+mp:hasProofMethod a owl:DatatypeProperty ;
+    rdfs:label "has proof method" ;
+    rdfs:comment "Method used for conservation proof" ;
+    rdfs:domain mp:ConservationProof ;
+    rdfs:range xsd:string .
+
+mp:hasInputVectorSum a owl:DatatypeProperty ;
+    rdfs:label "has input vector sum" ;
+    rdfs:comment "Sum of input vectors as JSON array" ;
+    rdfs:domain mp:VectorSumProof ;
+    rdfs:range xsd:string .
+
+mp:hasOutputVectorSum a owl:DatatypeProperty ;
+    rdfs:label "has output vector sum" ;
+    rdfs:comment "Sum of output vectors as JSON array" ;
+    rdfs:domain mp:VectorSumProof ;
+    rdfs:range xsd:string .
+
+mp:hasTransformationMatrix a owl:DatatypeProperty ;
+    rdfs:label "has transformation matrix" ;
+    rdfs:comment "Matrix for vector space transformations as JSON" ;
+    rdfs:domain mp:SettlementTransformation ;
+    rdfs:range xsd:string .
+
+## Finality Properties
+mp:hasFinalityGuarantee a owl:DatatypeProperty ;
+    rdfs:label "has finality guarantee" ;
+    rdfs:comment "Level of finality guarantee (PROBABILISTIC, ABSOLUTE)" ;
+    rdfs:domain mp:SettlementFinality ;
+    rdfs:range xsd:string .
+
+mp:hasHashProof a owl:DatatypeProperty ;
+    rdfs:label "has hash proof" ;
+    rdfs:comment "Cryptographic hash proving immutability" ;
+    rdfs:domain mp:ImmutabilityProof ;
+    rdfs:range xsd:string .
+
+mp:hasConsensusThreshold a owl:DatatypeProperty ;
+    rdfs:label "has consensus threshold" ;
+    rdfs:comment "Threshold for consensus finality (0.0-1.0)" ;
+    rdfs:domain mp:ConsensusFinality ;
+    rdfs:range xsd:decimal .
+
+mp:hasFinalityTime a owl:DatatypeProperty ;
+    rdfs:label "has finality time" ;
+    rdfs:comment "Time required to achieve finality in ticks" ;
+    rdfs:domain mp:SettlementFinality ;
+    rdfs:range xsd:decimal .
+
+## Dispute Properties
+mp:hasDisputeId a owl:DatatypeProperty ;
+    rdfs:label "has dispute ID" ;
+    rdfs:comment "Unique identifier for dispute" ;
+    rdfs:domain mp:Dispute ;
+    rdfs:range xsd:string .
+
+mp:hasDisputeReason a owl:DatatypeProperty ;
+    rdfs:label "has dispute reason" ;
+    rdfs:comment "Reason for raising dispute" ;
+    rdfs:domain mp:Dispute ;
+    rdfs:range xsd:string .
+
+mp:hasDisputeValue a owl:DatatypeProperty ;
+    rdfs:label "has dispute value" ;
+    rdfs:comment "Value in dispute" ;
+    rdfs:domain mp:Dispute ;
+    rdfs:range xsd:decimal .
+
+mp:hasResolutionTimestamp a owl:DatatypeProperty ;
+    rdfs:label "has resolution timestamp" ;
+    rdfs:comment "Timestamp when dispute was resolved" ;
+    rdfs:domain mp:Dispute ;
+    rdfs:range xsd:dateTime .
+
+## HAM Compliance Properties
+mp:hasHopLevel a owl:DatatypeProperty ;
+    rdfs:label "has hop level" ;
+    rdfs:comment "HAM radio hop level (5, 6, or 7)" ;
+    rdfs:domain mp:HamRulesCompliance ;
+    rdfs:range xsd:integer .
+
+mp:hasAllocatedFrequency a owl:DatatypeProperty ;
+    rdfs:label "has allocated frequency" ;
+    rdfs:comment "Allocated frequency in MHz" ;
+    rdfs:domain mp:FrequencyCompliance ;
+    rdfs:range xsd:decimal .
+
+mp:hasMaxPowerLimit a owl:DatatypeProperty ;
+    rdfs:label "has max power limit" ;
+    rdfs:comment "Maximum transmission power in watts" ;
+    rdfs:domain mp:PowerLimitCompliance ;
+    rdfs:range xsd:decimal .
+
+mp:hasCallSign a owl:DatatypeProperty ;
+    rdfs:label "has call sign" ;
+    rdfs:comment "HAM radio call sign for settlement party" ;
+    rdfs:domain mp:HamRulesCompliance ;
+    rdfs:range xsd:string .
+
+## Performance Properties
+mp:hasSettlementLatency a owl:DatatypeProperty ;
+    rdfs:label "has settlement latency" ;
+    rdfs:comment "Time to complete settlement in ticks (per Doctrine of 8)" ;
+    rdfs:domain mp:SettlementPerformance ;
+    rdfs:range xsd:decimal .
+
+mp:hasSettlementThroughput a owl:DatatypeProperty ;
+    rdfs:label "has settlement throughput" ;
+    rdfs:comment "Settlements processed per second" ;
+    rdfs:domain mp:SettlementPerformance ;
+    rdfs:range xsd:decimal .
+
+mp:hasSettlementSuccessRate a owl:DatatypeProperty ;
+    rdfs:label "has settlement success rate" ;
+    rdfs:comment "Percentage of successful settlements" ;
+    rdfs:domain mp:SettlementPerformance ;
+    rdfs:range xsd:decimal .
+
+## Network Properties
+mp:hasProtocolVersion a owl:DatatypeProperty ;
+    rdfs:label "has protocol version" ;
+    rdfs:comment "Version of settlement protocol" ;
+    rdfs:domain mp:SettlementProtocol ;
+    rdfs:range xsd:string .
+
+mp:hasNetworkId a owl:DatatypeProperty ;
+    rdfs:label "has network ID" ;
+    rdfs:comment "Unique identifier for settlement network" ;
+    rdfs:domain mp:SettlementNetwork ;
+    rdfs:range xsd:string .
+
+mp:hasConfirmationCount a owl:DatatypeProperty ;
+    rdfs:label "has confirmation count" ;
+    rdfs:comment "Number of confirmations for cross-chain settlement" ;
+    rdfs:domain mp:CrossChainSettlement ;
+    rdfs:range xsd:integer .
+
+# ================================================================
+# MATHEMATICAL CONSERVATION CONSTRAINTS
+# ================================================================
+
+## Vector Sum Conservation (Sum of inputs = Sum of outputs)
+mp:VectorSumConservationConstraint a owl:Class ;
+    rdfs:label "Vector Sum Conservation Constraint" ;
+    rdfs:comment "SPARQL constraint ensuring vector sum conservation" .
+
+## Energy Conservation (Total energy in = Total energy out)
+mp:EnergyConservationConstraint a owl:Class ;
+    rdfs:label "Energy Conservation Constraint" ;
+    rdfs:comment "SPARQL constraint ensuring energy conservation" .
+
+## Value Conservation (Total value in = Total value out)
+mp:ValueConservationConstraint a owl:Class ;
+    rdfs:label "Value Conservation Constraint" ;
+    rdfs:comment "SPARQL constraint ensuring value conservation" .
+
+# ================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================
+
+mp:SettlementValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Settlement ;
+    rdfs:label "Settlement Validation" ;
+    rdfs:comment "Validates settlement completeness and correctness" ;
+    sh:property [
+        sh:path mp:hasSettlementId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^SETTLE-[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$" ;
+        sh:message "Settlement must have a valid settlement ID with SETTLE- prefix"
+    ] ;
+    sh:property [
+        sh:path mp:settlesOrder ;
+        sh:minCount 1 ;
+        sh:class mp:Order ;
+        sh:message "Settlement must settle at least one order"
+    ] ;
+    sh:property [
+        sh:path mp:hasSettlementVector ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:SettlementVector ;
+        sh:message "Settlement must have exactly one settlement vector"
+    ] .
+
+mp:VectorConservationValidationShape a sh:NodeShape ;
+    sh:targetClass mp:VectorConservation ;
+    rdfs:label "Vector Conservation Validation" ;
+    rdfs:comment "Validates vector conservation laws" ;
+    sh:property [
+        sh:path mp:conservesVector ;
+        sh:minCount 1 ;
+        sh:class mp:AssetVector ;
+        sh:message "Vector conservation must conserve at least one vector"
+    ] ;
+    sh:sparql [
+        sh:message "Sum of input vectors must equal sum of output vectors" ;
+        sh:prefixes mp: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a mp:VectorConservation .
+                $this mp:conservesVector ?vector .
+                ?vector mp:hasInputVector ?input .
+                ?vector mp:hasOutputVector ?output .
+                # Vector sum conservation check would go here
+                # This is a placeholder for mathematical validation
+            }
+        """
+    ] .
+
+mp:SettlementFinalityValidationShape a sh:NodeShape ;
+    sh:targetClass mp:SettlementFinality ;
+    rdfs:label "Settlement Finality Validation" ;
+    rdfs:comment "Validates settlement finality guarantees" ;
+    sh:property [
+        sh:path mp:hasFinalityGuarantee ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "PROBABILISTIC" "ABSOLUTE" ) ;
+        sh:message "Finality guarantee must be PROBABILISTIC or ABSOLUTE"
+    ] ;
+    sh:property [
+        sh:path mp:hasFinalityTime ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Finality time must not exceed 8 ticks per Doctrine of 8"
+    ] .
+
+mp:ConsensusThresholdValidationShape a sh:NodeShape ;
+    sh:targetClass mp:ConsensusFinality ;
+    rdfs:label "Consensus Threshold Validation" ;
+    rdfs:comment "Validates consensus threshold values" ;
+    sh:property [
+        sh:path mp:hasConsensusThreshold ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.5 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Consensus threshold must be between 0.5 and 1.0"
+    ] .
+
+mp:HamComplianceValidationShape a sh:NodeShape ;
+    sh:targetClass mp:HamRulesCompliance ;
+    rdfs:label "HAM Compliance Validation" ;
+    rdfs:comment "Validates HAM radio rules compliance" ;
+    sh:property [
+        sh:path mp:hasHopLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:in ( 5 6 7 ) ;
+        sh:message "Hop level must be 5, 6, or 7"
+    ] ;
+    sh:property [
+        sh:path mp:hasCallSign ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{1,2}[0-9][A-Z]{1,3}$" ;
+        sh:message "Call sign must follow HAM radio format"
+    ] .
+
+mp:FrequencyComplianceValidationShape a sh:NodeShape ;
+    sh:targetClass mp:FrequencyCompliance ;
+    rdfs:label "Frequency Compliance Validation" ;
+    rdfs:comment "Validates frequency allocation compliance" ;
+    sh:property [
+        sh:path mp:hasAllocatedFrequency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1.8 ;
+        sh:maxInclusive 1300.0 ;
+        sh:message "Frequency must be within HAM radio bands (1.8-1300 MHz)"
+    ] .
+
+mp:PowerLimitValidationShape a sh:NodeShape ;
+    sh:targetClass mp:PowerLimitCompliance ;
+    rdfs:label "Power Limit Validation" ;
+    rdfs:comment "Validates transmission power limits" ;
+    sh:property [
+        sh:path mp:hasMaxPowerLimit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1500.0 ;
+        sh:message "Power limit must not exceed 1500 watts"
+    ] .
+
+mp:SettlementPerformanceValidationShape a sh:NodeShape ;
+    sh:targetClass mp:SettlementPerformance ;
+    rdfs:label "Settlement Performance Validation" ;
+    rdfs:comment "Validates settlement performance per Doctrine of 8" ;
+    sh:property [
+        sh:path mp:hasSettlementLatency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Settlement latency must not exceed 8 ticks per Doctrine of 8"
+    ] ;
+    sh:property [
+        sh:path mp:hasSettlementSuccessRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Settlement success rate must be between 0% and 100%"
+    ] .
+
+mp:MultiPartySettlementValidationShape a sh:NodeShape ;
+    sh:targetClass mp:MultiPartySettlement ;
+    rdfs:label "Multi-Party Settlement Validation" ;
+    rdfs:comment "Validates multi-party settlement requirements" ;
+    sh:property [
+        sh:path mp:involvesParty ;
+        sh:minCount 2 ;
+        sh:class mp:SettlementParty ;
+        sh:message "Multi-party settlement must involve at least 2 parties"
+    ] .
+
+mp:DisputeValidationShape a sh:NodeShape ;
+    sh:targetClass mp:Dispute ;
+    rdfs:label "Dispute Validation" ;
+    rdfs:comment "Validates dispute information" ;
+    sh:property [
+        sh:path mp:hasDisputeReason ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:message "Dispute must have a detailed reason (minimum 10 characters)"
+    ] ;
+    sh:property [
+        sh:path mp:hasDisputeState ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:DisputeState ;
+        sh:message "Dispute must have exactly one state"
+    ] .
+
+# ================================================================
+# MATHEMATICAL CONSERVATION PROOFS (SPARQL RULES)
+# ================================================================
+
+## Vector Sum Conservation Rule
+mp:VectorSumConservationRule a sh:SPARQLRule ;
+    rdfs:label "Vector Sum Conservation Rule" ;
+    rdfs:comment "Validates that sum of input vectors equals sum of output vectors" ;
+    sh:construct """
+        CONSTRUCT {
+            ?settlement mp:hasConservationViolation ?violation .
+            ?violation a mp:ConservationViolation ;
+                mp:violatesLaw mp:VectorConservation ;
+                mp:hasViolationMessage "Vector sum not conserved" .
+        }
+        WHERE {
+            ?settlement a mp:Settlement .
+            ?settlement mp:hasSettlementVector ?vector .
+            ?vector mp:hasInputVector ?input .
+            ?vector mp:hasOutputVector ?output .
+            
+            # This would require mathematical computation
+            # Placeholder for vector sum validation
+            FILTER (false)  # Simplified for ontology structure
+        }
+    """ .
+
+## Energy Conservation Rule
+mp:EnergyConservationRule a sh:SPARQLRule ;
+    rdfs:label "Energy Conservation Rule" ;
+    rdfs:comment "Validates that total energy is conserved" ;
+    sh:construct """
+        CONSTRUCT {
+            ?settlement mp:hasConservationViolation ?violation .
+            ?violation a mp:ConservationViolation ;
+                mp:violatesLaw mp:EnergyConservation ;
+                mp:hasViolationMessage "Energy not conserved" .
+        }
+        WHERE {
+            ?settlement a mp:Settlement .
+            ?settlement mp:hasConservationLaw mp:EnergyConservation .
+            
+            # Energy conservation validation
+            FILTER (false)  # Placeholder
+        }
+    """ .
+
+# ================================================================
+# SUPPORTING CLASSES FOR FUTURE EXTENSION
+# ================================================================
+
+mp:Oracle a owl:Class ;
+    rdfs:label "Oracle" ;
+    rdfs:comment "External oracle providing dispute resolution data" .
+
+mp:Authority a owl:Class ;
+    rdfs:label "Authority" ;
+    rdfs:comment "Regulatory authority for compliance" .
+
+mp:Blockchain a owl:Class ;
+    rdfs:label "Blockchain" ;
+    rdfs:comment "Blockchain or distributed ledger system" .
+
+mp:SettlementNode a owl:Class ;
+    rdfs:label "Settlement Node" ;
+    rdfs:comment "Node in settlement network" .
+
+mp:ConservationViolation a owl:Class ;
+    rdfs:label "Conservation Violation" ;
+    rdfs:comment "Violation of conservation laws" .
+
+# ================================================================
+# INTEGRATION WITH BYTESTAR ECOSYSTEM
+# ================================================================
+
+## Settlement integrates with Resource Allocation
+mp:Settlement rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:allocatesResource ;
+    owl:someValuesFrom ba:Resource
+] .
+
+## Settlement integrates with Performance Measurement
+mp:SettlementPerformance rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasMeasuredValue ;
+    owl:someValuesFrom xsd:decimal
+] .
+
+## Settlement integrates with Optimization Engine
+mp:ConservationValidator rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty ba:hasObjective ;
+    owl:someValuesFrom ba:OptimizationObjective
+] .
+
+# ================================================================
+# END OF SETTLEMENT ONTOLOGY
+# ================================================================

@@ -1,0 +1,103 @@
+# Federal Civil Rights - TTL Schema
+@prefix cns: <http://cns.litigation/ontology#> .
+@prefix fed: <http://eeoc.gov/ontology#> .
+@prefix yawl: <http://yawlwms.org/ontology#> .
+@prefix otel: <http://opentelemetry.io/ontology#> .
+
+# EEOC Federal Jurisdiction
+fed:EEOC a cns:JurisdictionEntity ;
+    cns:address "131 M Street, NE, Washington, DC 20507" ;
+    cns:filingMethods ( cns:OnlinePortal cns:PhoneIntake cns:InPersonVisit ) ;
+    cns:requiredForms ( fed:ChargeOfDiscrimination fed:IntakeQuestionnaire ) ;
+    cns:filingFees "0" ;
+    cns:processingTime "180 days" ;
+    cns:timeLimit "300 days from incident" .
+
+# Civil Rights Retaliation Protection
+fed:CivilRightsRetaliation a cns:FilingType ;
+    cns:jurisdiction "Federal" ;
+    cns:protectedBases ( "Race" "Gender" "Religion" "National Origin" "Age" "Disability" ) ;
+    cns:protectedActivity ( "Filing EEOC charge" "Opposition to discrimination" "Participation in investigation" ) ;
+    cns:adverseAction ( "Termination" "Demotion" "Harassment" "Constructive discharge" ) ;
+    cns:causationStandard "But-for causation" .
+
+# Post-Employment Coercion Federal
+fed:PostEmploymentCoercionFederal a cns:FilingType ;
+    cns:jurisdiction "Federal" ;
+    cns:applicableLaws ( "Title VII" "ADA" "ADEA" ) ;
+    cns:coercionTypes ( "Blacklisting" "Reference manipulation" "Industry retaliation" ) ;
+    cns:remedies ( "Reinstatement" "Back pay" "Front pay" "Compensatory damages" ) .
+
+# Workflow Pattern - Van der Aalst Pattern 10: Arbitrary Cycles
+fed:CivilRightsWorkflow a yawl:Workflow ;
+    yawl:pattern yawl:ArbitraryCycles ;
+    yawl:steps (
+        fed:InitialIntake
+        fed:JurisdictionValidation
+        fed:DiscriminationAnalysis
+        fed:RetaliationAssessment
+        fed:EvidenceCompilation
+        fed:ChargePreparation
+        fed:EEOCSubmission
+        fed:InvestigationCooperation
+        fed:RightToSueObtain
+        fed:FederalCourtFiling
+        fed:AuditCompliance
+    ) .
+
+fed:InitialIntake a yawl:Task ;
+    cns:progressTick 0 ;
+    cns:dagIRI "fed:civil_rights/intake" ;
+    otel:spanName "fed.civil_rights.intake" .
+
+fed:JurisdictionValidation a yawl:Task ;
+    cns:progressTick 1 ;
+    cns:dagIRI "fed:civil_rights/jurisdiction" ;
+    cns:condition "15+ employees OR federal contractor" ;
+    otel:spanName "fed.civil_rights.jurisdiction" .
+
+fed:DiscriminationAnalysis a yawl:Task ;
+    cns:progressTick 2 ;
+    cns:dagIRI "fed:civil_rights/discrimination" ;
+    otel:spanName "fed.civil_rights.discrimination" .
+
+fed:RetaliationAssessment a yawl:Task ;
+    cns:progressTick 3 ;
+    cns:dagIRI "fed:civil_rights/retaliation" ;
+    cns:condition "Protected activity + adverse action + causation" ;
+    otel:spanName "fed.civil_rights.retaliation" .
+
+fed:EvidenceCompilation a yawl:Task ;
+    cns:progressTick 4 ;
+    cns:dagIRI "fed:civil_rights/evidence" ;
+    otel:spanName "fed.civil_rights.evidence" .
+
+fed:ChargePreparation a yawl:Task ;
+    cns:progressTick 5 ;
+    cns:dagIRI "fed:civil_rights/charge_prep" ;
+    otel:spanName "fed.civil_rights.charge_prep" .
+
+fed:EEOCSubmission a yawl:Task ;
+    cns:progressTick 6 ;
+    cns:dagIRI "fed:civil_rights/eeoc_submit" ;
+    otel:spanName "fed.civil_rights.eeoc_submit" .
+
+fed:InvestigationCooperation a yawl:Task ;
+    cns:progressTick 7 ;
+    cns:dagIRI "fed:civil_rights/investigation" ;
+    otel:spanName "fed.civil_rights.investigation" .
+
+fed:RightToSueObtain a yawl:Task ;
+    cns:progressTick 8 ;
+    cns:dagIRI "fed:civil_rights/right_to_sue" ;
+    otel:spanName "fed.civil_rights.right_to_sue" .
+
+fed:FederalCourtFiling a yawl:Task ;
+    cns:progressTick 9 ;
+    cns:dagIRI "fed:civil_rights/federal_court" ;
+    otel:spanName "fed.civil_rights.federal_court" .
+
+fed:AuditCompliance a yawl:Task ;
+    cns:progressTick 10 ;
+    cns:dagIRI "fed:civil_rights/audit" ;
+    otel:spanName "fed.civil_rights.audit" .

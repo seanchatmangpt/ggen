@@ -1,0 +1,226 @@
+# Valid User Aggregate - DDD Pattern
+# Demonstrates a complete aggregate root with value objects, commands, and events
+
+@prefix user: <http://ggen-mcp.dev/domain/user#> .
+@prefix ddd: <http://ggen-mcp.dev/ontology/ddd#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+user:UserDomainOntology a owl:Ontology ;
+    rdfs:label "User Domain Ontology"@en ;
+    rdfs:comment "DDD User aggregate with value objects, commands, and events"@en ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# AGGREGATE ROOT
+# =============================================================================
+
+user:User a owl:Class ;
+    rdfs:subClassOf ddd:AggregateRoot ;
+    rdfs:label "User"@en ;
+    rdfs:comment "User aggregate root - manages user identity and profile"@en ;
+    ddd:hasProperty user:userId, user:email, user:username, user:profile ;
+    ddd:hasInvariant [
+        rdfs:label "Email must be valid" ;
+        ddd:check "self.email.is_valid()" ;
+        ddd:message "User email must be a valid email address"
+    ] ;
+    ddd:hasInvariant [
+        rdfs:label "Username must be unique" ;
+        ddd:check "!self.username.0.is_empty() && self.username.0.len() >= 3" ;
+        ddd:message "Username must be at least 3 characters"
+    ] .
+
+# =============================================================================
+# VALUE OBJECTS
+# =============================================================================
+
+user:UserId a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "User ID"@en ;
+    rdfs:comment "Unique identifier for user"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "uuid::Uuid" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Must be valid UUID" ;
+        ddd:check "self.0.get_version().is_some()" ;
+        ddd:message "User ID must be a valid UUID"
+    ] .
+
+user:Email a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Email"@en ;
+    rdfs:comment "Validated email address"@en ;
+    ddd:hasProperty [ rdfs:label "local" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "domain" ; ddd:type "String" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Valid email format" ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        ddd:check "self.is_valid_format()" ;
+        ddd:message "Email must be valid format (local@domain.tld)"
+    ] .
+
+user:Username a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "Username"@en ;
+    rdfs:comment "Unique username for user"@en ;
+    ddd:hasProperty [ rdfs:label "value" ; ddd:type "String" ] ;
+    ddd:hasInvariant [
+        rdfs:label "Valid username pattern" ;
+        sh:pattern "^[a-zA-Z0-9_-]{3,32}$" ;
+        ddd:check "self.is_valid_pattern()" ;
+        ddd:message "Username must be 3-32 alphanumeric characters, underscore, or dash"
+    ] .
+
+user:UserProfile a owl:Class ;
+    rdfs:subClassOf ddd:ValueObject ;
+    rdfs:label "User Profile"@en ;
+    rdfs:comment "User profile information"@en ;
+    ddd:hasProperty [ rdfs:label "first_name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "last_name" ; ddd:type "String" ] ;
+    ddd:hasProperty [ rdfs:label "bio" ; ddd:type "Option<String>" ] ;
+    ddd:hasProperty [ rdfs:label "avatar_url" ; ddd:type "Option<String>" ] .
+
+# =============================================================================
+# PROPERTIES
+# =============================================================================
+
+user:userId a owl:ObjectProperty ;
+    rdfs:domain user:User ;
+    rdfs:range user:UserId ;
+    rdfs:label "user ID"@en .
+
+user:email a owl:ObjectProperty ;
+    rdfs:domain user:User ;
+    rdfs:range user:Email ;
+    rdfs:label "email"@en .
+
+user:username a owl:ObjectProperty ;
+    rdfs:domain user:User ;
+    rdfs:range user:Username ;
+    rdfs:label "username"@en .
+
+user:profile a owl:ObjectProperty ;
+    rdfs:domain user:User ;
+    rdfs:range user:UserProfile ;
+    rdfs:label "profile"@en .
+
+# =============================================================================
+# COMMANDS
+# =============================================================================
+
+user:CreateUserCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Create User Command"@en ;
+    rdfs:comment "Command to create a new user"@en ;
+    ddd:hasProperty [ rdfs:label "email" ; ddd:type "Email" ] ;
+    ddd:hasProperty [ rdfs:label "username" ; ddd:type "Username" ] ;
+    ddd:hasProperty [ rdfs:label "profile" ; ddd:type "UserProfile" ] .
+
+user:UpdateUserProfileCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Update User Profile Command"@en ;
+    rdfs:comment "Command to update user profile"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] ;
+    ddd:hasProperty [ rdfs:label "profile" ; ddd:type "UserProfile" ] .
+
+user:ChangeEmailCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Change Email Command"@en ;
+    rdfs:comment "Command to change user email"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] ;
+    ddd:hasProperty [ rdfs:label "new_email" ; ddd:type "Email" ] .
+
+user:DeleteUserCommand a owl:Class ;
+    rdfs:subClassOf ddd:Command ;
+    rdfs:label "Delete User Command"@en ;
+    rdfs:comment "Command to delete a user"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] .
+
+# =============================================================================
+# DOMAIN EVENTS
+# =============================================================================
+
+user:UserCreatedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "User Created Event"@en ;
+    rdfs:comment "Event emitted when user is created"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] ;
+    ddd:hasProperty [ rdfs:label "email" ; ddd:type "Email" ] ;
+    ddd:hasProperty [ rdfs:label "username" ; ddd:type "Username" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+user:UserProfileUpdatedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "User Profile Updated Event"@en ;
+    rdfs:comment "Event emitted when user profile is updated"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] ;
+    ddd:hasProperty [ rdfs:label "profile" ; ddd:type "UserProfile" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+user:EmailChangedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "Email Changed Event"@en ;
+    rdfs:comment "Event emitted when user email is changed"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] ;
+    ddd:hasProperty [ rdfs:label "old_email" ; ddd:type "Email" ] ;
+    ddd:hasProperty [ rdfs:label "new_email" ; ddd:type "Email" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+user:UserDeletedEvent a owl:Class ;
+    rdfs:subClassOf ddd:DomainEvent ;
+    rdfs:label "User Deleted Event"@en ;
+    rdfs:comment "Event emitted when user is deleted"@en ;
+    ddd:hasProperty [ rdfs:label "user_id" ; ddd:type "UserId" ] ;
+    ddd:hasProperty [ rdfs:label "timestamp" ; ddd:type "chrono::DateTime<chrono::Utc>" ] .
+
+# =============================================================================
+# REPOSITORY
+# =============================================================================
+
+user:UserRepository a owl:Class ;
+    rdfs:subClassOf ddd:Repository ;
+    rdfs:label "User Repository"@en ;
+    rdfs:comment "Repository for user aggregate persistence"@en ;
+    ddd:forAggregate user:User .
+
+# =============================================================================
+# SHACL SHAPES
+# =============================================================================
+
+user:UserShape a sh:NodeShape ;
+    sh:targetClass user:User ;
+    sh:property [
+        sh:path user:userId ;
+        sh:class user:UserId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "User must have exactly one ID"@en
+    ] ;
+    sh:property [
+        sh:path user:email ;
+        sh:class user:Email ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "User must have exactly one email"@en
+    ] ;
+    sh:property [
+        sh:path user:username ;
+        sh:class user:Username ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "User must have exactly one username"@en
+    ] ;
+    sh:property [
+        sh:path user:profile ;
+        sh:class user:UserProfile ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:description "User must have exactly one profile"@en
+    ] .

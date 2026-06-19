@@ -1,0 +1,86 @@
+@prefix : <https://bytestar.org/ontology/byteethos/production-shapes#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bepr: <https://bytestar.org/ontology/byteethos/production-readiness#> .
+
+<https://bytestar.org/ontology/byteethos/production-shapes>
+  a owl:Ontology ;
+  rdfs:label "ByteEthos Production Readiness SHACL Shapes" ;
+  rdfs:comment "SHACL shapes for validating ByteEthos deployments against production readiness criteria." ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports
+    bepr: .
+
+#################################################################
+# ByteEthos Production Readiness Validation
+#################################################################
+
+:EthosProductionDeploymentShape a sh:NodeShape ;
+  sh:targetClass bcore:ByteEthos ;
+  sh:property [
+    sh:path bepr:hasStatus ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class bepr:ProductionReadinessStatus ;
+    sh:message "ByteEthos deployment must have a defined production readiness status." ;
+  ] ;
+  sh:property [
+    sh:path bepr:hasMetric ;
+    sh:minCount 1 ;
+    sh:message "ByteEthos deployment must report at least one production readiness metric." ;
+  ] ;
+  sh:property [
+    sh:path bepr:conformsTo ;
+    sh:minCount 1 ;
+    sh:message "ByteEthos deployment must conform to at least one compliance standard." ;
+  ] ;
+  sh:property [
+    sh:path bepr:meetsRequirement ;
+    sh:minCount 1 ;
+    sh:message "ByteEthos deployment must meet at least one operational requirement." ;
+  ] ;
+  sh:property [
+    sh:path bepr:hasSecurityPosture ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class bepr:SecurityPosture ;
+    sh:message "ByteEthos deployment must have a defined security posture." ;
+  ] .
+
+# Example: Metric Value Conformance
+:MetricValueConformanceShape a sh:NodeShape ;
+  sh:targetClass bepr:ProductionReadinessMetric ;
+  sh:property [
+    sh:path bepr:metricValue ;
+    sh:lessThanOrEquals bepr:targetValue ;
+    sh:message "Metric value must be less than or equal to its target value." ;
+    sh:severity sh:Violation ;
+  ] ;
+  sh:property [
+    sh:path bepr:metricValue ;
+    sh:greaterThanOrEquals bepr:thresholdValue ;
+    sh:message "Metric value must be greater than or equal to its threshold value." ;
+    sh:severity sh:Violation ;
+  ] .
+
+# Example: Security Posture Level
+:SecurityPostureLevelShape a sh:NodeShape ;
+  sh:targetClass bepr:SecurityPosture ;
+  sh:property [
+    sh:path bepr:postureLevel ;
+    sh:in ("High" "Medium" "Low") ;
+    sh:message "Security posture level must be 'High', 'Medium', or 'Low'." ;
+  ] .
+
+# Example: Compliance Standard Name
+:ComplianceStandardNameShape a sh:NodeShape ;
+  sh:targetClass bepr:ComplianceStandard ;
+  sh:property [
+    sh:path bepr:standardName ;
+    sh:minCount 1 ;
+    sh:message "Compliance standard must have a name." ;
+  ] .

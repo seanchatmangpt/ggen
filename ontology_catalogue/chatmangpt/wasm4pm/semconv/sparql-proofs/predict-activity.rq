@@ -1,0 +1,123 @@
+# SPARQL CONSTRUCT: Transform Activity Prediction JSON to RDF
+# Maps pictl prediction result into pm:ActivityPrediction triples
+# Input: JSON with confidence, next_activities[], top_k, model_name, case_context
+# Output: RDF graph documenting prediction results with probabilities and rankings
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#> .
+
+CONSTRUCT {
+  # Activity Prediction result
+  ?prediction a pm:ActivityPrediction ;
+    rdfs:label ?prediction_label ;
+    pm:predictionConfidence ?overall_confidence ;
+    pm:executionTime ?execution_time ;
+    pm:caseId ?case_id ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    prov:wasGeneratedBy [
+      a prov:Activity ;
+      rdfs:label "Activity Prediction" ;
+      prov:used ?predictive_model
+    ] ;
+    rdfs:comment ?prediction_context .
+
+  # Case context
+  ?case_context a pm:Case ;
+    rdfs:label ?case_label ;
+    pm:currentActivityCount ?activity_sequence_length ;
+    pm:caseStatus ?case_status ;
+    pm:estimatedOutcome ?outcome_estimate ;
+    pm:riskLevel ?risk_level .
+
+  # Predicted activity candidates
+  ?predicted_activity a pm:Activity ;
+    rdfs:label ?activity_label ;
+    pm:predictionRank ?rank ;
+    pm:predictionProbability ?probability ;
+    pm:confidence ?confidence ;
+    pm:alternativeProbability ?alternative_prob .
+
+  # Prediction model metadata
+  ?model a pm:PredictiveModel ;
+    rdfs:label ?model_label ;
+    pm:modelType "ActivityPrediction" ;
+    pm:modelAccuracy ?model_accuracy ;
+    pm:trainingEventCount ?training_event_count ;
+    pm:modelVersion ?model_version ;
+    pm:lastUpdated ?model_update_time .
+
+  # Ranking statistics
+  ?rankings a prov:Report ;
+    rdfs:label "Prediction Rankings" ;
+    pm:topCandidate ?top_activity ;
+    pm:topCandidateProbability ?top_probability ;
+    pm:entropyScore ?entropy ;
+    pm:predictionUncertainty ?uncertainty ;
+    pm:rankCount ?rank_count .
+
+  # Confidence assessment
+  ?confidence_report a prov:Report ;
+    rdfs:label "Confidence Assessment" ;
+    pm:predictionConfidence ?overall_confidence ;
+    pm:confidenceSource ?confidence_source ;
+    pm:statisticalSupport ?statistical_support ;
+    pm:recommendedAction ?recommendation .
+}
+WHERE {
+  # Source bindings (from application layer JSON processing):
+  # $prediction_result = { confidence: 0.78, next_activities: [...], top_k: 5,
+  #                        model_name: "LSTM-Seq2Seq", case_context: {...} }
+
+  # Generate prediction IRI
+  BIND(IRI(CONCAT("http://pictl.org/prediction/activity/", SUBSTR(STR(NOW()), 1, 10), "/", RAND())) AS ?prediction)
+  BIND(NOW() AS ?timestamp)
+
+  # Placeholder URIs
+  BIND(IRI("http://pictl.org/case/12345") AS ?case_id)
+  BIND(IRI("http://pictl.org/model/lstm-seq2seq-v2") AS ?predictive_model)
+
+  # Prediction metadata
+  BIND("Next Activity Prediction for Case 12345" AS ?prediction_label)
+  BIND(0.78 AS ?overall_confidence)
+  BIND("PT0.5S"^^xsd:duration AS ?execution_time)
+  BIND("Case 12345 - Processing Order" AS ?case_label)
+  BIND(7 AS ?activity_sequence_length)
+  BIND("active" AS ?case_status)
+  BIND("approval" AS ?outcome_estimate)
+  BIND("medium" AS ?risk_level)
+  BIND("Based on LSTM model trained on 50k+ events" AS ?prediction_context)
+
+  # Top predicted activity (rank 1)
+  BIND(IRI("http://pictl.org/activity/Review") AS ?predicted_activity)
+  BIND("Review Application" AS ?activity_label)
+  BIND(1 AS ?rank)
+  BIND(0.62 AS ?probability)
+  BIND(0.78 AS ?confidence)
+  BIND(0.25 AS ?alternative_prob)
+
+  # Model details
+  BIND(IRI("http://pictl.org/model/lstm-seq2seq-v2") AS ?model)
+  BIND("LSTM Sequence-to-Sequence Activity Predictor v2.0" AS ?model_label)
+  BIND(0.85 AS ?model_accuracy)
+  BIND(50000 AS ?training_event_count)
+  BIND("2.0" AS ?model_version)
+  BIND(xsd:dateTime("2026-04-01T12:00:00Z") AS ?model_update_time)
+
+  # Rankings
+  BIND(IRI(CONCAT("http://pictl.org/rankings/", RAND())) AS ?rankings)
+  BIND(IRI("http://pictl.org/activity/Review") AS ?top_activity)
+  BIND(0.62 AS ?top_probability)
+  BIND(1.8 AS ?entropy)
+  BIND(0.22 AS ?uncertainty)
+  BIND(5 AS ?rank_count)
+
+  # Confidence assessment
+  BIND(IRI(CONCAT("http://pictl.org/confidence/", RAND())) AS ?confidence_report)
+  BIND("Model prediction with ensemble agreement" AS ?confidence_source)
+  BIND("High (3/3 ensemble models agree on top candidate)" AS ?statistical_support)
+  BIND("Proceed with recommendation; monitor for low-confidence cases" AS ?recommendation)
+}

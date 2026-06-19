@@ -1,0 +1,47 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cyber: <http://cybersecurity.org/ontology#> .
+@prefix security: <http://security.standards.org/> .
+
+# Core Security Classes
+cyber:ThreatActor a owl:Class ;
+    rdfs:label "Threat Actor" ;
+    rdfs:comment "An entity that poses a threat to cybersecurity" .
+
+cyber:Vulnerability a owl:Class ;
+    rdfs:label "Vulnerability" ;
+    rdfs:comment "A weakness that can be exploited by a threat" .
+
+cyber:SecurityControl a owl:Class ;
+    rdfs:label "Security Control" ;
+    rdfs:comment "A safeguard or countermeasure to avoid, detect, counteract, or minimize security risks" .
+
+cyber:SecurityIncident a owl:Class ;
+    rdfs:label "Security Incident" ;
+    rdfs:comment "An occurrence that actually or potentially jeopardizes confidentiality, integrity, or availability" .
+
+# Attack Types
+cyber:Malware a owl:Class ;
+    rdfs:label "Malware" ;
+    rdfs:comment "Malicious software designed to damage or disrupt systems" .
+
+cyber:PhishingAttack a owl:Class ;
+    rdfs:label "Phishing Attack" ;
+    rdfs:comment "A social engineering attack to steal user data" .
+
+cyber:DDoSAttack a owl:Class ;
+    rdfs:label "DDoS Attack" ;
+    rdfs:comment "Distributed Denial of Service attack" .
+
+# Security Tools
+security:Firewall a owl:Class ;
+    rdfs:label "Firewall" ;
+    rdfs:comment "Network security device that monitors and filters traffic" .
+
+security:AntiVirus a owl:Class ;
+    rdfs:label "AntiVirus" ;
+    rdfs:comment "Software designed to detect and destroy computer viruses" .
+
+security:SIEM a owl:Class ;
+    rdfs:label "SIEM" ;
+    rdfs:comment "Security Information and Event Management system" .

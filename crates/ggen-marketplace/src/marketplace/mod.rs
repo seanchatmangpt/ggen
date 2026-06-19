@@ -36,6 +36,7 @@ pub mod atomic;
 pub mod builders;
 pub mod bundle;
 pub mod cache;
+pub mod compatibility;
 pub mod composition_receipt;
 pub mod error;
 pub mod install;

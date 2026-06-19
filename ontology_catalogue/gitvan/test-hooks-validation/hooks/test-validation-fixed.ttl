@@ -1,0 +1,29 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Test Validation Fixed Hook
+# Generated on: 2025-09-20T20:41:07.403Z
+
+ex:test-validation-fixed rdf:type gh:Hook ;
+    gv:title "Test Validation Fixed" ;
+    gh:hasPredicate ex:test-validation-fixed-predicate ;
+    gh:orderedPipelines ex:test-validation-fixed-pipeline .
+
+ex:test-validation-fixed-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        ASK WHERE {
+            ?item rdf:type gv:ExampleItem .
+        }
+    """ ;
+    gh:description "Evaluates a boolean condition using SPARQL ASK" .
+
+ex:test-validation-fixed-pipeline rdf:type op:Pipeline ;
+    op:steps (ex:test-validation-fixed-step1) .
+
+ex:test-validation-fixed-step1 rdf:type gv:TemplateStep ;
+    gv:text "Hook test-validation-fixed triggered at {{ 'now' | date('YYYY-MM-DD HH:mm:ss') }}" ;
+    gv:filePath "./output/test-validation-fixed-output.txt" .

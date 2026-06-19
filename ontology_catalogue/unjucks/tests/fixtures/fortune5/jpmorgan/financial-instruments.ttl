@@ -1,0 +1,155 @@
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
+@prefix fibo-fbc-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix fibo-fbc-de: <https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/> .
+@prefix fibo-be-le: <https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# JPMorgan FIBO Financial Instrument Definitions - Enterprise Scale Test Data
+# Fortune 5 Scenario - 100K+ triples for Basel III risk calculation
+
+# Corporate Bonds
+<Instrument/JPM-BOND-001> a fibo-fbc-fi:FinancialInstrument ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/CorporateBond> ;
+    fibo-fbc-fi:hasIssuer <Entity/JPMorgan-Chase> ;
+    fibo-fbc-fi:hasMaturityDate "2029-12-15"^^xsd:date ;
+    fibo-fbc-fi:hasFaceValue "1000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasCouponRate "0.045"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskWeight "0.20"^^xsd:decimal ;
+    fibo-fbc-fi:hasCreditRating "A+"^^xsd:string ;
+    fibo-fbc-fi:hasISIN "US46625H1005"^^xsd:string .
+
+<Instrument/JPM-BOND-002> a fibo-fbc-fi:FinancialInstrument ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/CorporateBond> ;
+    fibo-fbc-fi:hasIssuer <Entity/Apple-Inc> ;
+    fibo-fbc-fi:hasMaturityDate "2027-05-20"^^xsd:date ;
+    fibo-fbc-fi:hasFaceValue "500000"^^xsd:decimal ;
+    fibo-fbc-fi:hasCouponRate "0.038"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskWeight "0.10"^^xsd:decimal ;
+    fibo-fbc-fi:hasCreditRating "AAA"^^xsd:string ;
+    fibo-fbc-fi:hasISIN "US037833100"^^xsd:string .
+
+# Equity Instruments
+<Instrument/JPM-EQUITY-001> a fibo-fbc-de:EquityInstrument ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/CommonStock> ;
+    fibo-fbc-fi:hasIssuer <Entity/Microsoft-Corp> ;
+    fibo-fbc-fi:hasCurrentPrice "425.67"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskWeight "1.00"^^xsd:decimal ;
+    fibo-fbc-fi:hasBetaCoefficient "0.85"^^xsd:decimal ;
+    fibo-fbc-fi:hasMarketCap "3150000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasTicker "MSFT"^^xsd:string .
+
+<Instrument/JPM-EQUITY-002> a fibo-fbc-de:EquityInstrument ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/CommonStock> ;
+    fibo-fbc-fi:hasIssuer <Entity/Amazon-Inc> ;
+    fibo-fbc-fi:hasCurrentPrice "145.32"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskWeight "1.00"^^xsd:decimal ;
+    fibo-fbc-fi:hasBetaCoefficient "1.15"^^xsd:decimal ;
+    fibo-fbc-fi:hasMarketCap "1520000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasTicker "AMZN"^^xsd:string .
+
+# Derivative Instruments
+<Instrument/JPM-DERIV-001> a fibo-fbc-fi:DerivativeInstrument ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/InterestRateSwap> ;
+    fibo-fbc-fi:hasNotionalAmount "50000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasMaturityDate "2026-03-15"^^xsd:date ;
+    fibo-fbc-fi:hasRiskWeight "0.50"^^xsd:decimal ;
+    fibo-fbc-fi:hasCounterparty <Entity/Goldman-Sachs> ;
+    fibo-fbc-fi:hasFixedRate "0.0525"^^xsd:decimal ;
+    fibo-fbc-fi:hasFloatingRate "SOFR+0.0025"^^xsd:string .
+
+<Instrument/JPM-DERIV-002> a fibo-fbc-fi:DerivativeInstrument ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/CreditDefaultSwap> ;
+    fibo-fbc-fi:hasNotionalAmount "25000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasMaturityDate "2025-12-20"^^xsd:date ;
+    fibo-fbc-fi:hasRiskWeight "0.75"^^xsd:decimal ;
+    fibo-fbc-fi:hasCounterparty <Entity/Bank-of-America> ;
+    fibo-fbc-fi:hasPremium "0.0150"^^xsd:decimal ;
+    fibo-fbc-fi:hasReferenceEntity <Entity/Ford-Motor> .
+
+# Government Securities
+<Instrument/JPM-GOVT-001> a fibo-fbc-fi:GovernmentSecurity ;
+    fibo-fbc-fi:hasInstrumentType <InstrumentType/TreasuryBond> ;
+    fibo-fbc-fi:hasIssuer <Entity/US-Treasury> ;
+    fibo-fbc-fi:hasMaturityDate "2034-02-15"^^xsd:date ;
+    fibo-fbc-fi:hasFaceValue "10000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasCouponRate "0.0425"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskWeight "0.00"^^xsd:decimal ;
+    fibo-fbc-fi:hasCreditRating "AAA"^^xsd:string ;
+    fibo-fbc-fi:hasCUSIP "912810TM6"^^xsd:string .
+
+# Financial Entities
+<Entity/JPMorgan-Chase> a fibo-be-le:LegalEntity ;
+    rdfs:label "JPMorgan Chase & Co."^^xsd:string ;
+    fibo-be-le:hasLegalEntityIdentifier "7H6GLXDRUGQFU57RNE97"^^xsd:string ;
+    fibo-be-le:hasJurisdiction "US"^^xsd:string ;
+    fibo-be-le:hasCreditRating "A+"^^xsd:string .
+
+<Entity/Apple-Inc> a fibo-be-le:LegalEntity ;
+    rdfs:label "Apple Inc."^^xsd:string ;
+    fibo-be-le:hasLegalEntityIdentifier "HWUPKR0MPOU8FGXBT394"^^xsd:string ;
+    fibo-be-le:hasJurisdiction "US"^^xsd:string ;
+    fibo-be-le:hasCreditRating "AAA"^^xsd:string .
+
+<Entity/Microsoft-Corp> a fibo-be-le:LegalEntity ;
+    rdfs:label "Microsoft Corporation"^^xsd:string ;
+    fibo-be-le:hasLegalEntityIdentifier "INR2EJN1ERAN0W5ZP974"^^xsd:string ;
+    fibo-be-le:hasJurisdiction "US"^^xsd:string ;
+    fibo-be-le:hasCreditRating "AAA"^^xsd:string .
+
+<Entity/Amazon-Inc> a fibo-be-le:LegalEntity ;
+    rdfs:label "Amazon.com Inc."^^xsd:string ;
+    fibo-be-le:hasLegalEntityIdentifier "2138001X7Y998H8RME02"^^xsd:string ;
+    fibo-be-le:hasJurisdiction "US"^^xsd:string ;
+    fibo-be-le:hasCreditRating "AA"^^xsd:string .
+
+# Portfolios and Risk Positions
+<Portfolio/JPM-TRADING-001> a fibo-fbc-fi:Portfolio ;
+    fibo-fbc-fi:hasPosition <Position/BOND-001-POS> ;
+    fibo-fbc-fi:hasPosition <Position/EQUITY-001-POS> ;
+    fibo-fbc-fi:hasPosition <Position/DERIV-001-POS> ;
+    fibo-fbc-fi:hasValueAtRisk "2500000"^^xsd:decimal ;
+    fibo-fbc-fi:hasExpectedShortfall "3750000"^^xsd:decimal ;
+    fibo-fbc-fi:hasConfidenceLevel "0.99"^^xsd:decimal .
+
+<Position/BOND-001-POS> a fibo-fbc-fi:Position ;
+    fibo-fbc-fi:hasInstrument <Instrument/JPM-BOND-001> ;
+    fibo-fbc-fi:hasQuantity "1000"^^xsd:decimal ;
+    fibo-fbc-fi:hasMarketValue "1050000"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskContribution "210000"^^xsd:decimal .
+
+<Position/EQUITY-001-POS> a fibo-fbc-fi:Position ;
+    fibo-fbc-fi:hasInstrument <Instrument/JPM-EQUITY-001> ;
+    fibo-fbc-fi:hasQuantity "10000"^^xsd:decimal ;
+    fibo-fbc-fi:hasMarketValue "4256700"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskContribution "4256700"^^xsd:decimal .
+
+# Risk Metrics for Basel III Compliance
+<RiskMetric/CAPITAL-ADEQUACY> a fibo-fbc-fi:RiskMetric ;
+    fibo-fbc-fi:hasMetricType "CapitalAdequacyRatio"^^xsd:string ;
+    fibo-fbc-fi:hasTier1Capital "180000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasTier2Capital "35000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasRiskWeightedAssets "1500000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasCapitalRatio "0.143"^^xsd:decimal .
+
+<RiskMetric/LEVERAGE-RATIO> a fibo-fbc-fi:RiskMetric ;
+    fibo-fbc-fi:hasMetricType "LeverageRatio"^^xsd:string ;
+    fibo-fbc-fi:hasTier1Capital "180000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasTotalExposure "3200000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasLeverageRatio "0.056"^^xsd:decimal .
+
+<RiskMetric/LIQUIDITY-COVERAGE> a fibo-fbc-fi:RiskMetric ;
+    fibo-fbc-fi:hasMetricType "LiquidityCoverageRatio"^^xsd:string ;
+    fibo-fbc-fi:hasHighQualityLiquidAssets "450000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasNetCashOutflows "380000000000"^^xsd:decimal ;
+    fibo-fbc-fi:hasLiquidityCoverageRatio "1.184"^^xsd:decimal .
+
+# Market Data and Pricing
+<MarketData/USD-RATES> a fibo-fbc-fi:MarketData ;
+    fibo-fbc-fi:hasSOFRRate "0.0533"^^xsd:decimal ;
+    fibo-fbc-fi:hasFedFundsRate "0.0550"^^xsd:decimal ;
+    fibo-fbc-fi:hasTenYearTreasuryYield "0.0442"^^xsd:decimal ;
+    fibo-fbc-fi:hasEffectiveDate "2024-09-06"^^xsd:date .
+
+# This represents a subset of the 100K+ triples that would be generated
+# for comprehensive enterprise-scale testing of Basel III risk calculations

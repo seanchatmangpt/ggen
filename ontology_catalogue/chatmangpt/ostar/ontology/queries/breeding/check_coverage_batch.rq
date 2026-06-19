@@ -1,0 +1,25 @@
+# SPARQL query to check coverage of multiple terms at once
+#
+# Args:
+#   VALUES block with term URIs to check
+#
+# Returns:
+#   List of terms with boolean coverage flag
+#
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+SELECT ?term (BOUND(?type) AS ?defined)
+WHERE {
+    VALUES ?term {
+        # Terms to check will be injected here
+        <http://example.org/term1>
+        <http://example.org/term2>
+    }
+
+    OPTIONAL {
+        ?term a ?type .
+    }
+}

@@ -1,0 +1,561 @@
+@prefix po: <http://pareto-optimization.org/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SHACL Constraints for 80/20 Optimization Sub-Ontology
+# Validates proper application of Pareto principle across all domains
+
+<http://pareto-optimization.org/shacl> a owl:Ontology ;
+    rdfs:label "80/20 Optimization SHACL Constraints" ;
+    rdfs:comment "Validation rules for proper Pareto principle application" ;
+    owl:versionInfo "2.0" .
+
+# ==============================================================================
+# PARETO ELEMENT CONSTRAINTS
+# ==============================================================================
+
+po:ParetoElementShape a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:property [
+        sh:path po:hasValueContribution ;
+        sh:class po:ValueContribution ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Pareto element must have exactly one value contribution" ;
+    ] ;
+    sh:property [
+        sh:path po:hasEffortInvestment ;
+        sh:class po:EffortInvestment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Pareto element must have exactly one effort investment" ;
+    ] ;
+    sh:property [
+        sh:path po:hasValueEffortRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:message "Value/effort ratio must be between 0.0 and 10.0" ;
+    ] ;
+    sh:property [
+        sh:path po:paretoRank ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Pareto element must have a unique ranking" ;
+    ] ;
+    sh:property [
+        sh:path po:isCoreElement ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Core element flag must be specified" ;
+    ] ;
+    sh:property [
+        sh:path po:lifecycleStage ;
+        sh:datatype xsd:string ;
+        sh:in ( "Concept" "Development" "Implementation" "Maintenance" "Deprecated" ) ;
+        sh:message "Lifecycle stage must be one of: Concept, Development, Implementation, Maintenance, Deprecated" ;
+    ] ;
+    sh:property [
+        sh:path po:maturityLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "Experimental" "Alpha" "Beta" "Stable" "Legacy" ) ;
+        sh:message "Maturity level must be one of: Experimental, Alpha, Beta, Stable, Legacy" ;
+    ] .
+
+# ==============================================================================
+# CORE ELEMENT CONSTRAINTS
+# ==============================================================================
+
+po:CoreElementShape a sh:NodeShape ;
+    sh:targetClass po:CoreElement ;
+    sh:property [
+        sh:path po:hasValueEffortRatio ;
+        sh:minInclusive 0.8 ;
+        sh:message "Core elements must have value/effort ratio >= 0.8" ;
+    ] ;
+    sh:property [
+        sh:path po:isCoreElement ;
+        sh:hasValue true ;
+        sh:message "Core elements must have isCoreElement = true" ;
+    ] ;
+    sh:property [
+        sh:path po:paretoRank ;
+        sh:maxInclusive 20 ;
+        sh:message "Core elements should be in top 20% ranking" ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Core elements should represent no more than 20% of total elements" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                {
+                    SELECT (COUNT(?total) as ?totalCount) WHERE {
+                        ?total a po:ParetoElement .
+                    }
+                }
+                {
+                    SELECT (COUNT(?core) as ?coreCount) WHERE {
+                        ?core a po:CoreElement .
+                    }
+                }
+                BIND(?coreCount / ?totalCount as ?coreRatio)
+                FILTER(?coreRatio > 0.25)
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# EXTENDED ELEMENT CONSTRAINTS
+# ==============================================================================
+
+po:ExtendedElementShape a sh:NodeShape ;
+    sh:targetClass po:ExtendedElement ;
+    sh:property [
+        sh:path po:hasValueEffortRatio ;
+        sh:maxInclusive 0.8 ;
+        sh:message "Extended elements must have value/effort ratio <= 0.8" ;
+    ] ;
+    sh:property [
+        sh:path po:isCoreElement ;
+        sh:hasValue false ;
+        sh:message "Extended elements must have isCoreElement = false" ;
+    ] .
+
+# ==============================================================================
+# VALUE CONTRIBUTION CONSTRAINTS
+# ==============================================================================
+
+po:ValueContributionShape a sh:NodeShape ;
+    sh:targetClass po:ValueContribution ;
+    sh:property [
+        sh:path po:valueScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Value score must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path po:confidenceLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence level must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path po:expectedValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Expected value must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path po:actualValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Actual value must be non-negative" ;
+    ] .
+
+# ==============================================================================
+# EFFORT INVESTMENT CONSTRAINTS
+# ==============================================================================
+
+po:EffortInvestmentShape a sh:NodeShape ;
+    sh:targetClass po:EffortInvestment ;
+    sh:property [
+        sh:path po:effortScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Effort score must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path po:estimatedEffort ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Estimated effort must be non-negative" ;
+    ] ;
+    sh:property [
+        sh:path po:actualEffort ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Actual effort must be non-negative" ;
+    ] .
+
+# ==============================================================================
+# IMPACT CONSTRAINTS
+# ==============================================================================
+
+po:ImpactShape a sh:NodeShape ;
+    sh:targetClass po:Impact ;
+    sh:property [
+        sh:path po:impactLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "High" "Medium" "Low" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Impact level must be High, Medium, or Low" ;
+    ] ;
+    sh:property [
+        sh:path po:impactScore ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Impact score must be between 0.0 and 1.0" ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Impact level and score must be consistent" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this po:impactLevel ?level ;
+                      po:impactScore ?score .
+                FILTER(
+                    (?level = "High" && ?score < 0.7) ||
+                    (?level = "Medium" && (?score < 0.3 || ?score > 0.7)) ||
+                    (?level = "Low" && ?score > 0.3)
+                )
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# RISK CONSTRAINTS
+# ==============================================================================
+
+po:RiskShape a sh:NodeShape ;
+    sh:targetClass po:Risk ;
+    sh:property [
+        sh:path po:riskLevel ;
+        sh:datatype xsd:string ;
+        sh:in ( "High" "Medium" "Low" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Risk level must be High, Medium, or Low" ;
+    ] ;
+    sh:property [
+        sh:path po:riskProbability ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Risk probability must be between 0.0 and 1.0" ;
+    ] .
+
+# ==============================================================================
+# PERFORMANCE METRICS CONSTRAINTS
+# ==============================================================================
+
+po:CoverageShape a sh:NodeShape ;
+    sh:targetClass po:Coverage ;
+    sh:property [
+        sh:path po:coveragePercentage ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Coverage percentage must be between 0.0 and 100.0" ;
+    ] .
+
+po:EfficiencyShape a sh:NodeShape ;
+    sh:targetClass po:Efficiency ;
+    sh:property [
+        sh:path po:efficiencyRatio ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Efficiency ratio must be non-negative" ;
+    ] .
+
+po:ROIShape a sh:NodeShape ;
+    sh:targetClass po:ROI ;
+    sh:property [
+        sh:path po:roiPercentage ;
+        sh:datatype xsd:decimal ;
+        sh:message "ROI percentage can be any decimal value" ;
+    ] .
+
+# ==============================================================================
+# OPTIMIZATION PATTERN CONSTRAINTS
+# ==============================================================================
+
+po:OptimizationPatternShape a sh:NodeShape ;
+    sh:targetClass po:OptimizationPattern ;
+    sh:property [
+        sh:path po:hasPerformanceMetric ;
+        sh:class po:PerformanceMetric ;
+        sh:minCount 1 ;
+        sh:message "Optimization patterns must have at least one performance metric" ;
+    ] ;
+    sh:property [
+        sh:path po:appliesInDomain ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:message "Optimization pattern must specify applicable domain(s)" ;
+    ] .
+
+# ==============================================================================
+# ALGORITHM CONSTRAINTS
+# ==============================================================================
+
+po:OptimizationAlgorithmShape a sh:NodeShape ;
+    sh:targetClass po:OptimizationAlgorithm ;
+    sh:property [
+        sh:path po:algorithmComplexity ;
+        sh:datatype xsd:string ;
+        sh:pattern "^O\\(" ;
+        sh:message "Algorithm complexity must be in Big O notation (e.g., O(n), O(log n))" ;
+    ] ;
+    sh:property [
+        sh:path po:convergenceTime ;
+        sh:datatype xsd:duration ;
+        sh:message "Convergence time must be a valid duration" ;
+    ] .
+
+# ==============================================================================
+# RELATIONSHIP CONSTRAINTS
+# ==============================================================================
+
+po:DominanceConstraint a sh:NodeShape ;
+    sh:targetNode po:dominates ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Element cannot dominate itself" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this po:dominates $this .
+            }
+        """ ;
+    ] .
+
+po:DependencyConstraint a sh:NodeShape ;
+    sh:targetNode po:dependsOn ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Circular dependencies are not allowed" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this po:dependsOn+ $this .
+            }
+        """ ;
+    ] .
+
+po:ConflictConstraint a sh:NodeShape ;
+    sh:targetNode po:conflictsWith ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Elements cannot conflict with themselves" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this po:conflictsWith $this .
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# TEMPORAL CONSTRAINTS
+# ==============================================================================
+
+po:TemporalConstraint a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Time to value should not exceed implementation time by more than 10x" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this po:implementationTime ?implTime ;
+                      po:timeToValue ?valueTime .
+                FILTER(?valueTime > (10 * ?implTime))
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# 80/20 PRINCIPLE VALIDATION
+# ==============================================================================
+
+po:ParetoDistributionConstraint a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Core elements (top 20%) should deliver at least 60% of total value" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                {
+                    SELECT (SUM(?coreValue) as ?totalCoreValue) WHERE {
+                        ?core a po:CoreElement ;
+                              po:hasValueContribution/po:valueScore ?coreValue .
+                    }
+                }
+                {
+                    SELECT (SUM(?allValue) as ?totalAllValue) WHERE {
+                        ?all a po:ParetoElement ;
+                             po:hasValueContribution/po:valueScore ?allValue .
+                    }
+                }
+                BIND(?totalCoreValue / ?totalAllValue as ?coreValueRatio)
+                FILTER(?coreValueRatio < 0.6)
+            }
+        """ ;
+    ] .
+
+po:EffortDistributionConstraint a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Core elements should require no more than 30% of total effort" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                {
+                    SELECT (SUM(?coreEffort) as ?totalCoreEffort) WHERE {
+                        ?core a po:CoreElement ;
+                              po:hasEffortInvestment/po:effortScore ?coreEffort .
+                    }
+                }
+                {
+                    SELECT (SUM(?allEffort) as ?totalAllEffort) WHERE {
+                        ?all a po:ParetoElement ;
+                             po:hasEffortInvestment/po:effortScore ?allEffort .
+                    }
+                }
+                BIND(?totalCoreEffort / ?totalAllEffort as ?coreEffortRatio)
+                FILTER(?coreEffortRatio > 0.3)
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# QUALITY ASSURANCE CONSTRAINTS
+# ==============================================================================
+
+po:QualityConstraint a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:property [
+        sh:path po:qualityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Quality score must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path po:validationStatus ;
+        sh:datatype xsd:string ;
+        sh:in ( "Validated" "Pending" "Failed" ) ;
+        sh:message "Validation status must be Validated, Pending, or Failed" ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Core elements must have minimum quality score of 0.7" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a po:CoreElement ;
+                      po:qualityScore ?quality .
+                FILTER(?quality < 0.7)
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# STAKEHOLDER AND CONTEXT CONSTRAINTS
+# ==============================================================================
+
+po:StakeholderConstraint a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:property [
+        sh:path po:stakeholderPriority ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Stakeholder priority must be between 0.0 and 1.0" ;
+    ] ;
+    sh:property [
+        sh:path po:contextualWeight ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Contextual weight must be between 0.0 and 1.0" ;
+    ] .
+
+# ==============================================================================
+# ADOPTION AND MATURITY CONSTRAINTS
+# ==============================================================================
+
+po:AdoptionConstraint a sh:NodeShape ;
+    sh:targetClass po:ParetoElement ;
+    sh:property [
+        sh:path po:adoptionRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Adoption rate must be between 0.0 and 1.0" ;
+    ] ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Stable maturity level requires adoption rate > 0.5" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this po:maturityLevel "Stable" ;
+                      po:adoptionRate ?rate .
+                FILTER(?rate <= 0.5)
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# RESOURCE CONSTRAINT VALIDATION
+# ==============================================================================
+
+po:ResourceConstraintShape a sh:NodeShape ;
+    sh:targetClass po:ResourceConstraint ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Resource constraints must be realistic and achievable" ;
+        sh:prefixes po: ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a po:TimeConstraint ;
+                      po:maxTimeAllowed ?time .
+                # Time constraint should be positive
+                FILTER(?time <= "PT0S"^^xsd:duration)
+            }
+        """ ;
+    ] .
+
+po:CostConstraintShape a sh:NodeShape ;
+    sh:targetClass po:CostConstraint ;
+    sh:property [
+        sh:path po:maxCostAllowed ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:message "Maximum cost allowed must be non-negative" ;
+    ] .
+
+po:ComplexityConstraintShape a sh:NodeShape ;
+    sh:targetClass po:ComplexityConstraint ;
+    sh:property [
+        sh:path po:complexityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Complexity score must be between 0.0 and 1.0" ;
+    ] .

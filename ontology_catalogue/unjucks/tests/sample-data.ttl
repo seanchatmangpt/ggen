@@ -1,0 +1,26 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Sample data for testing SHACL validation
+ex:person1 a foaf:Person ;
+    foaf:name "John Doe" ;
+    foaf:age 30 ;
+    foaf:email "john@example.org" .
+
+ex:person2 a foaf:Person ;
+    foaf:name "Jane Smith" ;
+    foaf:age 25 ;
+    foaf:email "jane@example.org" .
+
+# Invalid data (missing required properties)
+ex:person3 a foaf:Person ;
+    foaf:name "Bob Wilson" .
+    # Missing age and email
+
+# Invalid data (wrong datatype)
+ex:person4 a foaf:Person ;
+    foaf:name "Alice Brown" ;
+    foaf:age "twenty-five" ;  # Should be integer
+    foaf:email "alice@example.org" .

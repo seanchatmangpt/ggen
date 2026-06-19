@@ -1,0 +1,255 @@
+# SHACL Shapes for Workflow Validation
+# Validates workflow definitions, steps, dependencies, and structure
+# Version: 1.0.0
+# Date: January 10, 2026
+
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# WORKFLOW DEFINITION SHAPES
+# ============================================================================
+
+# Workflow must have id, title, and at least one step
+gv:WorkflowShape a sh:NodeShape ;
+  sh:targetClass gv:Workflow ;
+  rdfs:label "Workflow Shape" ;
+  rdfs:comment "Validates complete workflow definition structure" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:id ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Workflow must have non-empty id" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:title ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Workflow must have non-empty title" ;
+  ] ;
+
+  sh:property [
+    sh:path op:steps ;
+    sh:minCount 1 ;
+    sh:message "Workflow must have at least one step" ;
+  ] .
+
+# Pipeline must contain steps
+op:PipelineShape a sh:NodeShape ;
+  sh:targetClass op:Pipeline ;
+  rdfs:label "Pipeline Shape" ;
+  rdfs:comment "Ensures pipeline has steps" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path op:steps ;
+    sh:minCount 1 ;
+    sh:message "Pipeline must contain at least one step" ;
+  ] .
+
+# ============================================================================
+# WORKFLOW STEP TYPE SHAPES
+# ============================================================================
+
+# Base constraints for all workflow steps
+gv:BaseStepShape a sh:NodeShape ;
+  sh:targetClass gv:WorkflowStep ;
+  rdfs:label "Base Step Shape" ;
+  rdfs:comment "Common constraints for all step types" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:id ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Step must have id" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:dependsOn ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Dependencies must reference other steps by IRI" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:timeout ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 3600000 ;
+    sh:message "Timeout must be between 1ms and 1 hour (3600000ms)" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:outputMapping ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+  ] .
+
+# SPARQL step must have SPARQL query text
+gv:SparqlStepShape a sh:NodeShape ;
+  sh:targetClass gv:SparqlStep ;
+  rdfs:label "SPARQL Step Shape" ;
+  rdfs:comment "Validates SPARQL step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:text ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "SPARQL step must have query text (at least 10 characters)" ;
+  ] .
+
+# Template step must have template and file path
+gv:TemplateStepShape a sh:NodeShape ;
+  sh:targetClass gv:TemplateStep ;
+  rdfs:label "Template Step Shape" ;
+  rdfs:comment "Validates template step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:text ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Template step must have template text" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:filePath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Template step must have output file path" ;
+  ] .
+
+# File step must have path and operation
+gv:FileStepShape a sh:NodeShape ;
+  sh:targetClass gv:FileStep ;
+  rdfs:label "File Step Shape" ;
+  rdfs:comment "Validates file step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:filePath ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "File step must specify path" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:operation ;
+    sh:maxCount 1 ;
+    sh:in ("read" "write" "append" "delete") ;
+    sh:message "File operation must be one of: read, write, append, delete" ;
+  ] .
+
+# HTTP step must have URL and method
+gv:HttpStepShape a sh:NodeShape ;
+  sh:targetClass gv:HttpStep ;
+  rdfs:label "HTTP Step Shape" ;
+  rdfs:comment "Validates HTTP step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:httpUrl ;
+    sh:minCount 1 ;
+    sh:datatype xsd:anyURI ;
+    sh:message "HTTP step must have valid URL" ;
+  ] ;
+
+  sh:property [
+    sh:path gv:httpMethod ;
+    sh:minCount 1 ;
+    sh:in ("GET" "POST" "PUT" "DELETE" "PATCH" "HEAD" "OPTIONS") ;
+    sh:message "HTTP method must be one of: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS" ;
+  ] .
+
+# CLI step must have command
+gv:CliStepShape a sh:NodeShape ;
+  sh:targetClass gv:CliStep ;
+  rdfs:label "CLI Step Shape" ;
+  rdfs:comment "Validates CLI step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:cliCommand ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "CLI step must have command" ;
+  ] .
+
+# Git step must have command
+gv:GitStepShape a sh:NodeShape ;
+  sh:targetClass gv:GitStep ;
+  rdfs:label "Git Step Shape" ;
+  rdfs:comment "Validates Git step has required properties" ;
+  sh:severity sh:Violation ;
+
+  sh:property [
+    sh:path gv:gitCommand ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "Git step must have command" ;
+  ] .
+
+# ============================================================================
+# WORKFLOW DAG VALIDATION SHAPES
+# ============================================================================
+
+# Detect self-dependencies (step cannot depend on itself)
+gv:NoSelfDependencyShape a sh:NodeShape ;
+  sh:targetClass gv:WorkflowStep ;
+  rdfs:label "No Self Dependency Shape" ;
+  rdfs:comment "Step cannot depend on itself" ;
+  sh:severity sh:Violation ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Step cannot depend on itself" ;
+    sh:select """
+      PREFIX gv: <https://gitvan.dev/ontology#>
+      SELECT $this WHERE {
+        $this gv:dependsOn $this .
+      }
+    """ ;
+  ] .
+
+# Detect circular dependencies in workflow
+gv:AcyclicWorkflowShape a sh:NodeShape ;
+  sh:targetClass op:Pipeline ;
+  rdfs:label "Acyclic Workflow Shape" ;
+  rdfs:comment "Workflow must form a DAG (no circular dependencies)" ;
+  sh:severity sh:Violation ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Workflow contains circular dependency" ;
+    sh:prefixes gv: ;
+    sh:select """
+      PREFIX gv: <https://gitvan.dev/ontology#>
+      PREFIX op: <https://gitvan.dev/op#>
+
+      SELECT DISTINCT $this WHERE {
+        $this op:steps ?step .
+        ?step gv:dependsOn* ?intermediate .
+        ?intermediate gv:dependsOn+ ?step .
+      }
+    """ ;
+  ] .

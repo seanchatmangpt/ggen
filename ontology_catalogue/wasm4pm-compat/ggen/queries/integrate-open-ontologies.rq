@@ -1,0 +1,81 @@
+# SPARQL Query: Integrate open-ontologies with wasm4pm-compat canon
+# Purpose: Map open-ontologies entities (OCEL, XES, BPMN, Petri, DFG) to wasm4pm-compat type law
+# Output: Format JSON for Tera template processing
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+PREFIX open:   <https://open-ontologies.github.io/>
+
+SELECT ?standard ?class ?compat_class ?mapping_reason
+WHERE {
+  # OCEL mappings
+  {
+    ?class a open:OcelEntity ;
+           rdfs:label ?label .
+    BIND("ocel" AS ?standard)
+    BIND(IF(?label = "Event", compat:OcelEvent,
+        IF(?label = "Object", compat:OcelObject,
+        IF(?label = "EventObjectLink", compat:EventObjectLink,
+        IF(?label = "ObjectObjectLink", compat:ObjectObjectLink,
+        IF(?label = "ObjectChange", compat:ObjectChange, ?class))))) AS ?compat_class)
+    BIND("Canonical OCEL class mapping" AS ?mapping_reason)
+  }
+  UNION
+  # XES mappings
+  {
+    ?class a open:XesEntity ;
+           rdfs:label ?label .
+    BIND("xes" AS ?standard)
+    BIND(IF(?label = "Trace", compat:Trace,
+        IF(?label = "Event", compat:Event,
+        IF(?label = "Attribute", compat:Attribute, ?class))) AS ?compat_class)
+    BIND("Canonical XES class mapping" AS ?mapping_reason)
+  }
+  UNION
+  # BPMN mappings
+  {
+    ?class a open:BpmnEntity ;
+           rdfs:label ?label .
+    BIND("bpmn" AS ?standard)
+    BIND(IF(?label = "Process", compat:BpmnProcess,
+        IF(?label = "Task", compat:BpmnTask,
+        IF(?label = "Gateway", compat:BpmnGateway,
+        IF(?label = "Event", compat:BpmnEvent, ?class)))) AS ?compat_class)
+    BIND("Canonical BPMN element mapping" AS ?mapping_reason)
+  }
+  UNION
+  # Petri Net mappings
+  {
+    ?class a open:PetriEntity ;
+           rdfs:label ?label .
+    BIND("petri" AS ?standard)
+    BIND(IF(?label = "Place", compat:PetriPlace,
+        IF(?label = "Transition", compat:PetriTransition,
+        IF(?label = "Arc", compat:PetriArc, ?class))) AS ?compat_class)
+    BIND("Canonical Petri Net structure mapping" AS ?mapping_reason)
+  }
+  UNION
+  # DFG mappings
+  {
+    ?class a open:DfgEntity ;
+           rdfs:label ?label .
+    BIND("dfg" AS ?standard)
+    BIND(IF(?label = "Activity", compat:DfgActivity,
+        IF(?label = "Edge", compat:DfgEdge, ?class)) AS ?compat_class)
+    BIND("Canonical Directly-Follows Graph mapping" AS ?mapping_reason)
+  }
+  UNION
+  # Event model base
+  {
+    ?class a open:EventModelEntity ;
+           rdfs:label ?label .
+    BIND("event-model" AS ?standard)
+    BIND(IF(?label = "Timestamp", compat:Timestamp,
+        IF(?label = "Lifecycle", compat:Lifecycle,
+        IF(?label = "Resource", compat:Resource, ?class))) AS ?compat_class)
+    BIND("Canonical event attribute mapping" AS ?mapping_reason)
+  }
+}
+ORDER BY ?standard ?label

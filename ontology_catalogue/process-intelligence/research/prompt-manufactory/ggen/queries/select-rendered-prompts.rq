@@ -1,0 +1,16 @@
+PREFIX pm:   <https://pi-research.dev/ontology/prompt-manufactory#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+# Select rendered prompts for receipt ledger
+# Used by prompt-receipt.md.tera
+
+SELECT ?promptId ?promptType ?outputPath ?timestamp ?sourceInstance
+WHERE {
+  ?receipt a pm:PromptReceipt ;
+    pm:promptId ?promptId ;
+    pm:promptType ?promptType ;
+    pm:outputPath ?outputPath ;
+    dct:issued ?timestamp ;
+    pm:sourceInstance ?sourceInstance .
+}
+ORDER BY DESC(?timestamp)

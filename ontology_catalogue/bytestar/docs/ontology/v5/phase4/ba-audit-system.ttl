@@ -1,0 +1,946 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix baa: <http://bytestar.org/ontology/audit/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix crypto: <http://www.w3.org/2000/10/swap/crypto#> .
+
+# =============================================================================
+# ByteStar Comprehensive Audit System Ontology
+# Version: 5.0.0 - Phase 4
+# =============================================================================
+
+<http://bytestar.org/ontology/audit-system> a owl:Ontology ;
+    owl:versionIRI <http://bytestar.org/ontology/audit-system/5.0.0> ;
+    dct:title "ByteStar Comprehensive Audit System Ontology" ;
+    dct:description "Immutable audit trails with cryptographic integrity, comprehensive event capture, real-time monitoring, forensic analysis, and universal auditing across all ByteStar components under Doctrine of 8 performance constraints" ;
+    dct:creator "ByteStar Architecture Team" ;
+    dct:created "2025-01-15"^^xsd:date ;
+    dct:modified "2025-01-15"^^xsd:date ;
+    owl:imports <http://bytestar.org/ontology/core>,
+                <http://bytestar.org/ontology/security>,
+                <http://bytestar.org/ontology/compliance>,
+                <http://bytestar.org/ontology/performance>,
+                <http://www.w3.org/ns/prov#> .
+
+# =============================================================================
+# Core Audit System Architecture Classes
+# =============================================================================
+
+baa:AuditSystem a owl:Class ;
+    rdfs:label "Audit System" ;
+    rdfs:comment "Comprehensive audit system providing immutable trails and universal auditing" ;
+    rdfs:subClassOf ba:System .
+
+baa:ImmutableAuditTrail a owl:Class ;
+    rdfs:label "Immutable Audit Trail" ;
+    rdfs:comment "Cryptographically secured, tamper-proof audit trail with chain integrity" ;
+    rdfs:subClassOf ba:AuditTrail .
+
+baa:AuditBlock a owl:Class ;
+    rdfs:label "Audit Block" ;
+    rdfs:comment "Individual block in immutable audit chain containing audit records" ;
+    rdfs:subClassOf ba:DataStructure .
+
+baa:AuditChain a owl:Class ;
+    rdfs:label "Audit Chain" ;
+    rdfs:comment "Blockchain-like chain of audit blocks ensuring immutability" ;
+    rdfs:subClassOf ba:DataStructure .
+
+baa:CryptographicAnchor a owl:Class ;
+    rdfs:label "Cryptographic Anchor" ;
+    rdfs:comment "Cryptographic proof point ensuring audit trail integrity" ;
+    rdfs:subClassOf ba:SecurityMechanism .
+
+baa:AuditEvent a owl:Class ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "Individual auditable event in the system" ;
+    rdfs:subClassOf prov:Activity .
+
+baa:AuditRecord a owl:Class ;
+    rdfs:label "Audit Record" ;
+    rdfs:comment "Structured record of an audit event with metadata" ;
+    rdfs:subClassOf prov:Entity .
+
+baa:AuditEvidence a owl:Class ;
+    rdfs:label "Audit Evidence" ;
+    rdfs:comment "Digital evidence supporting audit findings" ;
+    rdfs:subClassOf ba:Evidence .
+
+baa:ChainOfCustody a owl:Class ;
+    rdfs:label "Chain of Custody" ;
+    rdfs:comment "Documented chronological record of evidence handling" ;
+    rdfs:subClassOf ba:Process .
+
+# =============================================================================
+# Audit Event Classification System
+# =============================================================================
+
+baa:SystemAuditEvent a owl:Class ;
+    rdfs:label "System Audit Event" ;
+    rdfs:comment "Events related to system operations and performance" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:SecurityAuditEvent a owl:Class ;
+    rdfs:label "Security Audit Event" ;
+    rdfs:comment "Security-related events requiring audit trails" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:DataAuditEvent a owl:Class ;
+    rdfs:label "Data Audit Event" ;
+    rdfs:comment "Events related to data access, modification, or deletion" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:ComplianceAuditEvent a owl:Class ;
+    rdfs:label "Compliance Audit Event" ;
+    rdfs:comment "Events related to regulatory compliance and controls" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:BusinessAuditEvent a owl:Class ;
+    rdfs:label "Business Audit Event" ;
+    rdfs:comment "Business process and workflow audit events" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:TransactionAuditEvent a owl:Class ;
+    rdfs:label "Transaction Audit Event" ;
+    rdfs:comment "Financial and transactional audit events" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:ConfigurationAuditEvent a owl:Class ;
+    rdfs:label "Configuration Audit Event" ;
+    rdfs:comment "System and application configuration changes" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:PerformanceAuditEvent a owl:Class ;
+    rdfs:label "Performance Audit Event" ;
+    rdfs:comment "Performance metrics and Doctrine of 8 compliance events" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+baa:GovernanceAuditEvent a owl:Class ;
+    rdfs:label "Governance Audit Event" ;
+    rdfs:comment "Governance and policy enforcement events" ;
+    rdfs:subClassOf baa:AuditEvent .
+
+# =============================================================================
+# Audit Event Severity and Risk Classification
+# =============================================================================
+
+baa:CriticalAuditEvent a owl:Class ;
+    rdfs:label "Critical Audit Event" ;
+    rdfs:comment "High-risk events requiring immediate attention" ;
+    rdfs:subClassOf baa:AuditEvent ;
+    baa:severityLevel "CRITICAL" ;
+    baa:responseTimeRequirement 1.0 .
+
+baa:HighPriorityAuditEvent a owl:Class ;
+    rdfs:label "High Priority Audit Event" ;
+    rdfs:comment "Important events requiring prompt investigation" ;
+    rdfs:subClassOf baa:AuditEvent ;
+    baa:severityLevel "HIGH" ;
+    baa:responseTimeRequirement 2.0 .
+
+baa:MediumPriorityAuditEvent a owl:Class ;
+    rdfs:label "Medium Priority Audit Event" ;
+    rdfs:comment "Standard audit events for routine monitoring" ;
+    rdfs:subClassOf baa:AuditEvent ;
+    baa:severityLevel "MEDIUM" ;
+    baa:responseTimeRequirement 5.0 .
+
+baa:LowPriorityAuditEvent a owl:Class ;
+    rdfs:label "Low Priority Audit Event" ;
+    rdfs:comment "Informational events for trend analysis" ;
+    rdfs:subClassOf baa:AuditEvent ;
+    baa:severityLevel "LOW" ;
+    baa:responseTimeRequirement 8.0 .
+
+# =============================================================================
+# Audit Data Lifecycle Management
+# =============================================================================
+
+baa:AuditDataLifecycle a owl:Class ;
+    rdfs:label "Audit Data Lifecycle" ;
+    rdfs:comment "Complete lifecycle management for audit data" ;
+    rdfs:subClassOf ba:LifecycleProcess .
+
+baa:AuditDataRetentionPolicy a owl:Class ;
+    rdfs:label "Audit Data Retention Policy" ;
+    rdfs:comment "Policy governing audit data retention and disposal" ;
+    rdfs:subClassOf ba:Policy .
+
+baa:AuditDataArchival a owl:Class ;
+    rdfs:label "Audit Data Archival" ;
+    rdfs:comment "Long-term storage and archival of audit data" ;
+    rdfs:subClassOf ba:ArchivalProcess .
+
+baa:AuditDataPurging a owl:Class ;
+    rdfs:label "Audit Data Purging" ;
+    rdfs:comment "Secure deletion of audit data after retention period" ;
+    rdfs:subClassOf ba:SecureDeletionProcess .
+
+baa:AuditDataCompression a owl:Class ;
+    rdfs:label "Audit Data Compression" ;
+    rdfs:comment "Compression mechanisms for efficient audit storage" ;
+    rdfs:subClassOf ba:CompressionMechanism .
+
+baa:AuditDataEncryption a owl:Class ;
+    rdfs:label "Audit Data Encryption" ;
+    rdfs:comment "Encryption at rest and in transit for audit data" ;
+    rdfs:subClassOf ba:EncryptionMechanism .
+
+# =============================================================================
+# Real-time Audit Monitoring and Anomaly Detection
+# =============================================================================
+
+baa:RealTimeAuditMonitor a owl:Class ;
+    rdfs:label "Real-time Audit Monitor" ;
+    rdfs:comment "Continuous monitoring system for audit events" ;
+    rdfs:subClassOf ba:Monitor .
+
+baa:AuditAnomalyDetector a owl:Class ;
+    rdfs:label "Audit Anomaly Detector" ;
+    rdfs:comment "ML-powered anomaly detection in audit patterns" ;
+    rdfs:subClassOf ba:AnomalyDetector .
+
+baa:AuditEventCorrelator a owl:Class ;
+    rdfs:label "Audit Event Correlator" ;
+    rdfs:comment "System for correlating related audit events" ;
+    rdfs:subClassOf ba:CorrelationEngine .
+
+baa:AuditThreatDetector a owl:Class ;
+    rdfs:label "Audit Threat Detector" ;
+    rdfs:comment "Threat detection based on audit event patterns" ;
+    rdfs:subClassOf ba:ThreatDetector .
+
+baa:AuditAlertManager a owl:Class ;
+    rdfs:label "Audit Alert Manager" ;
+    rdfs:comment "Management system for audit-related alerts" ;
+    rdfs:subClassOf ba:AlertManager .
+
+baa:AuditIncidentResponder a owl:Class ;
+    rdfs:label "Audit Incident Responder" ;
+    rdfs:comment "Automated incident response for audit anomalies" ;
+    rdfs:subClassOf ba:IncidentResponder .
+
+# =============================================================================
+# Forensic Analysis and Investigation
+# =============================================================================
+
+baa:ForensicAnalysisEngine a owl:Class ;
+    rdfs:label "Forensic Analysis Engine" ;
+    rdfs:comment "Comprehensive forensic analysis capabilities" ;
+    rdfs:subClassOf ba:AnalysisEngine .
+
+baa:ForensicEvidence a owl:Class ;
+    rdfs:label "Forensic Evidence" ;
+    rdfs:comment "Digital evidence for forensic investigations" ;
+    rdfs:subClassOf baa:AuditEvidence .
+
+baa:ForensicTimeline a owl:Class ;
+    rdfs:label "Forensic Timeline" ;
+    rdfs:comment "Chronological timeline of events for investigation" ;
+    rdfs:subClassOf ba:Timeline .
+
+baa:EvidenceHashChain a owl:Class ;
+    rdfs:label "Evidence Hash Chain" ;
+    rdfs:comment "Cryptographic hash chain ensuring evidence integrity" ;
+    rdfs:subClassOf baa:CryptographicAnchor .
+
+baa:ForensicSearch a owl:Class ;
+    rdfs:label "Forensic Search" ;
+    rdfs:comment "Advanced search capabilities for forensic analysis" ;
+    rdfs:subClassOf ba:SearchEngine .
+
+baa:DigitalFingerprint a owl:Class ;
+    rdfs:label "Digital Fingerprint" ;
+    rdfs:comment "Unique digital fingerprint for evidence identification" ;
+    rdfs:subClassOf ba:Identifier .
+
+baa:EvidenceCollection a owl:Class ;
+    rdfs:label "Evidence Collection" ;
+    rdfs:comment "Automated evidence collection process" ;
+    rdfs:subClassOf ba:CollectionProcess .
+
+baa:EvidencePreservation a owl:Class ;
+    rdfs:label "Evidence Preservation" ;
+    rdfs:comment "Mechanisms for preserving digital evidence" ;
+    rdfs:subClassOf ba:PreservationMechanism .
+
+# =============================================================================
+# Audit Reporting and Visualization
+# =============================================================================
+
+baa:AuditReportingEngine a owl:Class ;
+    rdfs:label "Audit Reporting Engine" ;
+    rdfs:comment "Comprehensive audit reporting and analysis" ;
+    rdfs:subClassOf ba:ReportingEngine .
+
+baa:AuditDashboard a owl:Class ;
+    rdfs:label "Audit Dashboard" ;
+    rdfs:comment "Interactive dashboard for audit monitoring" ;
+    rdfs:subClassOf ba:Dashboard .
+
+baa:AuditVisualization a owl:Class ;
+    rdfs:label "Audit Visualization" ;
+    rdfs:comment "Visual representation of audit data and patterns" ;
+    rdfs:subClassOf ba:Visualization .
+
+baa:ComplianceReport a owl:Class ;
+    rdfs:label "Compliance Report" ;
+    rdfs:comment "Regulatory compliance reports generated from audit data" ;
+    rdfs:subClassOf ba:Report .
+
+baa:SecurityReport a owl:Class ;
+    rdfs:label "Security Report" ;
+    rdfs:comment "Security posture reports based on audit analysis" ;
+    rdfs:subClassOf ba:Report .
+
+baa:PerformanceReport a owl:Class ;
+    rdfs:label "Performance Report" ;
+    rdfs:comment "Performance and Doctrine of 8 compliance reports" ;
+    rdfs:subClassOf ba:Report .
+
+baa:ExecutiveAuditSummary a owl:Class ;
+    rdfs:label "Executive Audit Summary" ;
+    rdfs:comment "High-level audit summary for executive stakeholders" ;
+    rdfs:subClassOf ba:Summary .
+
+# =============================================================================
+# Universal ByteStar Component Integration
+# =============================================================================
+
+baa:ByteActorAuditAdapter a owl:Class ;
+    rdfs:label "ByteActor Audit Adapter" ;
+    rdfs:comment "Audit integration for ByteActor systems" ;
+    rdfs:subClassOf baa:AuditAdapter .
+
+baa:ByteCoreAuditAdapter a owl:Class ;
+    rdfs:label "ByteCore Audit Adapter" ;
+    rdfs:comment "Audit integration for ByteCore hardware interfaces" ;
+    rdfs:subClassOf baa:AuditAdapter .
+
+baa:ByteEthosAuditAdapter a owl:Class ;
+    rdfs:label "ByteEthos Audit Adapter" ;
+    rdfs:comment "Audit integration for ByteEthos governance" ;
+    rdfs:subClassOf baa:AuditAdapter .
+
+baa:ByteFlowAuditAdapter a owl:Class ;
+    rdfs:label "ByteFlow Audit Adapter" ;
+    rdfs:comment "Audit integration for ByteFlow orchestration" ;
+    rdfs:subClassOf baa:AuditAdapter .
+
+baa:BytePQCAuditAdapter a owl:Class ;
+    rdfs:label "BytePQC Audit Adapter" ;
+    rdfs:comment "Audit integration for post-quantum cryptography" ;
+    rdfs:subClassOf baa:AuditAdapter .
+
+baa:AuditAdapter a owl:Class ;
+    rdfs:label "Audit Adapter" ;
+    rdfs:comment "Base class for component-specific audit integrations" ;
+    rdfs:subClassOf ba:Adapter .
+
+baa:UniversalAuditInterface a owl:Class ;
+    rdfs:label "Universal Audit Interface" ;
+    rdfs:comment "Standardized interface for all ByteStar component auditing" ;
+    rdfs:subClassOf ba:Interface .
+
+# =============================================================================
+# Cryptographic Integrity Mechanisms
+# =============================================================================
+
+baa:AuditCryptography a owl:Class ;
+    rdfs:label "Audit Cryptography" ;
+    rdfs:comment "Cryptographic mechanisms for audit integrity" ;
+    rdfs:subClassOf ba:CryptographicMechanism .
+
+baa:HashTreeStructure a owl:Class ;
+    rdfs:label "Hash Tree Structure" ;
+    rdfs:comment "Merkle tree structure for audit block verification" ;
+    rdfs:subClassOf ba:DataStructure .
+
+baa:DigitalSignature a owl:Class ;
+    rdfs:label "Digital Signature" ;
+    rdfs:comment "Digital signatures for audit record authenticity" ;
+    rdfs:subClassOf ba:CryptographicSignature .
+
+baa:TimestampAuthority a owl:Class ;
+    rdfs:label "Timestamp Authority" ;
+    rdfs:comment "Trusted timestamp authority for audit events" ;
+    rdfs:subClassOf ba:TrustedAuthority .
+
+baa:IntegrityCheck a owl:Class ;
+    rdfs:label "Integrity Check" ;
+    rdfs:comment "Automated integrity verification for audit data" ;
+    rdfs:subClassOf ba:VerificationMechanism .
+
+baa:NonRepudiationService a owl:Class ;
+    rdfs:label "Non-repudiation Service" ;
+    rdfs:comment "Service ensuring non-repudiation of audit events" ;
+    rdfs:subClassOf ba:SecurityService .
+
+# =============================================================================
+# Audit Data Properties
+# =============================================================================
+
+# Immutability Properties
+baa:blockHash a owl:DatatypeProperty ;
+    rdfs:label "block hash" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of the audit block" .
+
+baa:previousBlockHash a owl:DatatypeProperty ;
+    rdfs:label "previous block hash" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Hash of the previous block in the chain" .
+
+baa:blockTimestamp a owl:DatatypeProperty ;
+    rdfs:label "block timestamp" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when the block was created" .
+
+baa:blockSequence a owl:DatatypeProperty ;
+    rdfs:label "block sequence" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range xsd:nonNegativeInteger ;
+    rdfs:comment "Sequential number of the block in the chain" .
+
+baa:merkleRoot a owl:DatatypeProperty ;
+    rdfs:label "merkle root" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Merkle root hash of all records in the block" .
+
+# Event Properties
+baa:eventType a owl:DatatypeProperty ;
+    rdfs:label "event type" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type classification of the audit event" .
+
+baa:eventTimestamp a owl:DatatypeProperty ;
+    rdfs:label "event timestamp" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Precise timestamp of the event occurrence" .
+
+baa:eventSource a owl:DatatypeProperty ;
+    rdfs:label "event source" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Source system or component generating the event" .
+
+baa:eventSeverity a owl:DatatypeProperty ;
+    rdfs:label "event severity" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Severity level: CRITICAL, HIGH, MEDIUM, LOW" .
+
+baa:eventCategory a owl:DatatypeProperty ;
+    rdfs:label "event category" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Categorical classification of the event" .
+
+baa:eventDescription a owl:DatatypeProperty ;
+    rdfs:label "event description" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable description of the event" .
+
+baa:eventPayload a owl:DatatypeProperty ;
+    rdfs:label "event payload" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Structured data payload of the event" .
+
+baa:eventHash a owl:DatatypeProperty ;
+    rdfs:label "event hash" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic hash of the event data" .
+
+# Performance Properties (Doctrine of 8)
+baa:processingLatency a owl:DatatypeProperty ;
+    rdfs:label "processing latency" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Processing latency in milliseconds (must be ≤ 8ms)" .
+
+baa:auditThroughput a owl:DatatypeProperty ;
+    rdfs:label "audit throughput" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Audit events processed per second" .
+
+baa:storageEfficiency a owl:DatatypeProperty ;
+    rdfs:label "storage efficiency" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Storage efficiency ratio for audit data" .
+
+baa:compressionRatio a owl:DatatypeProperty ;
+    rdfs:label "compression ratio" ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Compression ratio achieved for audit data" .
+
+# Retention Properties
+baa:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "How long audit data must be retained" .
+
+baa:archivalDate a owl:DatatypeProperty ;
+    rdfs:label "archival date" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Date when data was archived" .
+
+baa:purgeDate a owl:DatatypeProperty ;
+    rdfs:label "purge date" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Scheduled date for secure data deletion" .
+
+# Security Properties
+baa:encryptionAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "encryption algorithm" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Encryption algorithm used for data protection" .
+
+baa:signatureAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "signature algorithm" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Digital signature algorithm used" .
+
+baa:keyIdentifier a owl:DatatypeProperty ;
+    rdfs:label "key identifier" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Identifier for the cryptographic key used" .
+
+# =============================================================================
+# Object Properties
+# =============================================================================
+
+# Chain Relationships
+baa:nextBlock a owl:ObjectProperty ;
+    rdfs:label "next block" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range baa:AuditBlock ;
+    rdfs:comment "Reference to the next block in the chain" .
+
+baa:previousBlock a owl:ObjectProperty ;
+    rdfs:label "previous block" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range baa:AuditBlock ;
+    rdfs:comment "Reference to the previous block in the chain" .
+
+baa:containsRecord a owl:ObjectProperty ;
+    rdfs:label "contains record" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range baa:AuditRecord ;
+    rdfs:comment "Audit records contained within the block" .
+
+baa:belongsToChain a owl:ObjectProperty ;
+    rdfs:label "belongs to chain" ;
+    rdfs:domain baa:AuditBlock ;
+    rdfs:range baa:AuditChain ;
+    rdfs:comment "Audit chain this block belongs to" .
+
+# Event Relationships
+baa:recordsEvent a owl:ObjectProperty ;
+    rdfs:label "records event" ;
+    rdfs:domain baa:AuditRecord ;
+    rdfs:range baa:AuditEvent ;
+    rdfs:comment "Event recorded by this audit record" .
+
+baa:generatedEvidence a owl:ObjectProperty ;
+    rdfs:label "generated evidence" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range baa:AuditEvidence ;
+    rdfs:comment "Evidence generated from the audit event" .
+
+baa:correlatedWith a owl:ObjectProperty ;
+    rdfs:label "correlated with" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range baa:AuditEvent ;
+    rdfs:comment "Events correlated with this event" .
+
+baa:triggeredBy a owl:ObjectProperty ;
+    rdfs:label "triggered by" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range baa:AuditEvent ;
+    rdfs:comment "Event that triggered this event" .
+
+# Component Integration Relationships
+baa:auditsComponent a owl:ObjectProperty ;
+    rdfs:label "audits component" ;
+    rdfs:domain baa:AuditAdapter ;
+    rdfs:range ba:Component ;
+    rdfs:comment "Component being audited by this adapter" .
+
+baa:implementsInterface a owl:ObjectProperty ;
+    rdfs:label "implements interface" ;
+    rdfs:domain baa:AuditAdapter ;
+    rdfs:range baa:UniversalAuditInterface ;
+    rdfs:comment "Universal audit interface implemented" .
+
+# Forensic Relationships
+baa:providesEvidence a owl:ObjectProperty ;
+    rdfs:label "provides evidence" ;
+    rdfs:domain baa:ForensicAnalysisEngine ;
+    rdfs:range baa:ForensicEvidence ;
+    rdfs:comment "Evidence provided by forensic analysis" .
+
+baa:maintainsCustody a owl:ObjectProperty ;
+    rdfs:label "maintains custody" ;
+    rdfs:domain baa:ChainOfCustody ;
+    rdfs:range baa:ForensicEvidence ;
+    rdfs:comment "Evidence under chain of custody" .
+
+baa:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by" ;
+    rdfs:domain baa:ForensicEvidence ;
+    rdfs:range baa:IntegrityCheck ;
+    rdfs:comment "Integrity verification for evidence" .
+
+# Monitoring Relationships
+baa:detectedAnomaly a owl:ObjectProperty ;
+    rdfs:label "detected anomaly" ;
+    rdfs:domain baa:AuditAnomalyDetector ;
+    rdfs:range baa:AuditEvent ;
+    rdfs:comment "Anomalous event detected" .
+
+baa:triggeredAlert a owl:ObjectProperty ;
+    rdfs:label "triggered alert" ;
+    rdfs:domain baa:AuditEvent ;
+    rdfs:range baa:AuditAlert ;
+    rdfs:comment "Alert triggered by this event" .
+
+baa:escalatedTo a owl:ObjectProperty ;
+    rdfs:label "escalated to" ;
+    rdfs:domain baa:AuditAlert ;
+    rdfs:range foaf:Agent ;
+    rdfs:comment "Agent to whom alert was escalated" .
+
+# =============================================================================
+# Audit System Instances
+# =============================================================================
+
+# Main ByteStar Audit System
+baa:ByteStarMainAuditSystem a baa:AuditSystem ;
+    rdfs:label "ByteStar Main Audit System" ;
+    rdfs:comment "Primary audit system for all ByteStar operations" ;
+    baa:processingLatency 2.5 ;
+    baa:auditThroughput 50000.0 ;
+    baa:storageEfficiency 0.85 ;
+    ba:operationalStatus "ACTIVE" .
+
+# Component-Specific Audit Chains
+baa:ByteActorAuditChain a baa:AuditChain ;
+    rdfs:label "ByteActor Audit Chain" ;
+    rdfs:comment "Immutable audit chain for ByteActor operations" ;
+    baa:encryptionAlgorithm "AES-256-GCM" ;
+    baa:signatureAlgorithm "ECDSA-P256" .
+
+baa:ByteCoreAuditChain a baa:AuditChain ;
+    rdfs:label "ByteCore Audit Chain" ;
+    rdfs:comment "Hardware-level audit chain for ByteCore" ;
+    baa:encryptionAlgorithm "ChaCha20-Poly1305" ;
+    baa:signatureAlgorithm "Ed25519" .
+
+baa:ByteEthosAuditChain a baa:AuditChain ;
+    rdfs:label "ByteEthos Audit Chain" ;
+    rdfs:comment "Governance audit chain for ByteEthos" ;
+    baa:encryptionAlgorithm "AES-256-GCM" ;
+    baa:signatureAlgorithm "RSA-PSS-4096" .
+
+baa:ByteFlowAuditChain a baa:AuditChain ;
+    rdfs:label "ByteFlow Audit Chain" ;
+    rdfs:comment "Orchestration audit chain for ByteFlow" ;
+    baa:encryptionAlgorithm "AES-256-GCM" ;
+    baa:signatureAlgorithm "ECDSA-P384" .
+
+# Real-time Monitoring Instances
+baa:CriticalEventMonitor a baa:RealTimeAuditMonitor ;
+    rdfs:label "Critical Event Monitor" ;
+    rdfs:comment "Monitors critical audit events requiring immediate response" ;
+    baa:processingLatency 0.5 ;
+    baa:monitoringFrequency "PT1S"^^xsd:duration ;
+    ba:alertThreshold 1.0 .
+
+baa:SecurityEventMonitor a baa:RealTimeAuditMonitor ;
+    rdfs:label "Security Event Monitor" ;
+    rdfs:comment "Specialized monitor for security-related events" ;
+    baa:processingLatency 1.0 ;
+    baa:monitoringFrequency "PT5S"^^xsd:duration ;
+    ba:alertThreshold 0.95 .
+
+baa:ComplianceEventMonitor a baa:RealTimeAuditMonitor ;
+    rdfs:label "Compliance Event Monitor" ;
+    rdfs:comment "Monitor for regulatory compliance events" ;
+    baa:processingLatency 2.0 ;
+    baa:monitoringFrequency "PT30S"^^xsd:duration ;
+    ba:alertThreshold 0.98 .
+
+# =============================================================================
+# SHACL Validation Shapes
+# =============================================================================
+
+baa:AuditBlockShape a sh:NodeShape ;
+    sh:targetClass baa:AuditBlock ;
+    sh:property [
+        sh:path baa:blockHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+        sh:message "Block hash must be a valid SHA-256 hex string" ;
+    ] ;
+    sh:property [
+        sh:path baa:blockTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:blockSequence ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:containsRecord ;
+        sh:class baa:AuditRecord ;
+        sh:minCount 1 ;
+    ] .
+
+baa:AuditEventShape a sh:NodeShape ;
+    sh:targetClass baa:AuditEvent ;
+    sh:property [
+        sh:path baa:eventType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:eventTimestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:eventSource ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:eventSeverity ;
+        sh:datatype xsd:string ;
+        sh:in ( "CRITICAL" "HIGH" "MEDIUM" "LOW" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:eventHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-fA-F0-9]{64}$" ;
+    ] .
+
+baa:PerformanceComplianceShape a sh:NodeShape ;
+    sh:targetClass baa:AuditSystem ;
+    sh:property [
+        sh:path baa:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 8.0 ;
+        sh:message "Audit processing must comply with Doctrine of 8 (≤8ms)" ;
+    ] ;
+    sh:property [
+        sh:path baa:auditThroughput ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 10000.0 ;
+        sh:message "Minimum audit throughput of 10k events/second required" ;
+    ] ;
+    sh:property [
+        sh:path baa:storageEfficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.7 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Storage efficiency must be between 70-100%" ;
+    ] .
+
+baa:CryptographicIntegrityShape a sh:NodeShape ;
+    sh:targetClass baa:AuditChain ;
+    sh:property [
+        sh:path baa:encryptionAlgorithm ;
+        sh:datatype xsd:string ;
+        sh:in ( "AES-256-GCM" "ChaCha20-Poly1305" "AES-256-CBC" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path baa:signatureAlgorithm ;
+        sh:datatype xsd:string ;
+        sh:in ( "ECDSA-P256" "ECDSA-P384" "Ed25519" "RSA-PSS-4096" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+baa:ChainIntegrityShape a sh:NodeShape ;
+    sh:targetClass baa:AuditBlock ;
+    sh:sparql [
+        sh:message "Block sequence must be continuous" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this baa:blockSequence ?seq .
+                $this baa:previousBlock ?prev .
+                ?prev baa:blockSequence ?prevSeq .
+                FILTER(?seq != ?prevSeq + 1)
+            }
+        """ ;
+    ] ;
+    sh:sparql [
+        sh:message "Block hash must match previous block reference" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this baa:previousBlockHash ?prevHash .
+                $this baa:previousBlock ?prev .
+                ?prev baa:blockHash ?actualPrevHash .
+                FILTER(?prevHash != ?actualPrevHash)
+            }
+        """ ;
+    ] .
+
+baa:RetentionPolicyShape a sh:NodeShape ;
+    sh:targetClass baa:AuditRecord ;
+    sh:property [
+        sh:path baa:retentionPeriod ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every audit record must have a retention period" ;
+    ] ;
+    sh:sparql [
+        sh:message "Purge date must respect retention period" ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this baa:purgeDate ?purge .
+                $this baa:eventTimestamp ?created .
+                $this baa:retentionPeriod ?retention .
+                BIND(?created + ?retention as ?minPurge)
+                FILTER(?purge < ?minPurge)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# Audit Performance Metrics and KPIs
+# =============================================================================
+
+baa:AuditLatencyMetric a ba:PerformanceMetric ;
+    rdfs:label "Audit Latency Metric" ;
+    rdfs:comment "End-to-end latency for audit event processing" ;
+    ba:targetValue 5.0 ;
+    ba:unit "milliseconds" ;
+    ba:calculationMethod "timestamp_processed - timestamp_occurred" .
+
+baa:AuditIntegrityMetric a ba:QualityMetric ;
+    rdfs:label "Audit Integrity Metric" ;
+    rdfs:comment "Percentage of audit records with verified integrity" ;
+    ba:targetValue 100.0 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "verified_records / total_records * 100" .
+
+baa:AuditCompletenessMetric a ba:QualityMetric ;
+    rdfs:label "Audit Completeness Metric" ;
+    rdfs:comment "Percentage of system events captured in audit trail" ;
+    ba:targetValue 99.9 ;
+    ba:unit "percentage" ;
+    ba:calculationMethod "audited_events / total_events * 100" .
+
+baa:ForensicReadinessMetric a ba:OperationalMetric ;
+    rdfs:label "Forensic Readiness Metric" ;
+    rdfs:comment "Time to retrieve forensic evidence for investigation" ;
+    ba:targetValue 60.0 ;
+    ba:unit "seconds" ;
+    ba:calculationMethod "evidence_retrieval_time" .
+
+# =============================================================================
+# Automated Audit Compliance Rules
+# =============================================================================
+
+baa:CriticalEventAutoResponse a baa:AuditIncidentResponder ;
+    rdfs:label "Critical Event Auto Response" ;
+    rdfs:comment "Automated response to critical audit events" ;
+    baa:responseTimeRequirement 1.0 ;
+    baa:escalationLevel 5 ;
+    ba:automationLevel "FULL" .
+
+baa:SecurityEventAnalysis a baa:AuditEventCorrelator ;
+    rdfs:label "Security Event Analysis" ;
+    rdfs:comment "Automated analysis and correlation of security events" ;
+    baa:processingLatency 3.0 ;
+    ba:confidenceThreshold 0.85 .
+
+baa:ComplianceViolationDetector a baa:AuditAnomalyDetector ;
+    rdfs:label "Compliance Violation Detector" ;
+    rdfs:comment "Detects potential compliance violations in audit patterns" ;
+    baa:processingLatency 5.0 ;
+    ba:detectionAccuracy 0.95 .
+
+# =============================================================================
+# Audit Data Classification
+# =============================================================================
+
+baa:HighSensitivityAuditData a ba:DataClassification ;
+    rdfs:label "High Sensitivity Audit Data" ;
+    rdfs:comment "Audit data requiring highest protection levels" ;
+    baa:encryptionAlgorithm "AES-256-GCM" ;
+    baa:retentionPeriod "P7Y"^^xsd:duration ;
+    ba:accessLevel "RESTRICTED" .
+
+baa:MediumSensitivityAuditData a ba:DataClassification ;
+    rdfs:label "Medium Sensitivity Audit Data" ;
+    rdfs:comment "Standard audit data with normal protection" ;
+    baa:encryptionAlgorithm "AES-256-CBC" ;
+    baa:retentionPeriod "P3Y"^^xsd:duration ;
+    ba:accessLevel "CONFIDENTIAL" .
+
+baa:LowSensitivityAuditData a ba:DataClassification ;
+    rdfs:label "Low Sensitivity Audit Data" ;
+    rdfs:comment "Routine audit data with basic protection" ;
+    baa:encryptionAlgorithm "AES-128-GCM" ;
+    baa:retentionPeriod "P1Y"^^xsd:duration ;
+    ba:accessLevel "INTERNAL" .
+
+# =============================================================================
+# Universal Audit Integration Protocol
+# =============================================================================
+
+baa:UniversalAuditProtocol a ba:Protocol ;
+    rdfs:label "Universal Audit Protocol" ;
+    rdfs:comment "Standardized protocol for universal ByteStar component auditing" ;
+    ba:protocolVersion "1.0" ;
+    ba:messageFormat "JSON-LD" ;
+    ba:encryptionRequired true ;
+    ba:signatureRequired true .
+
+# Link all ByteStar components to universal audit
+ba:ByteActor baa:providesAuditData baa:ByteStarMainAuditSystem .
+ba:ByteCore baa:providesAuditData baa:ByteStarMainAuditSystem .
+ba:ByteEthos baa:providesAuditData baa:ByteStarMainAuditSystem .
+ba:ByteFlow baa:providesAuditData baa:ByteStarMainAuditSystem .
+ba:BytePQC baa:providesAuditData baa:ByteStarMainAuditSystem .
+
+# =============================================================================
+# End of Ontology
+# =============================================================================

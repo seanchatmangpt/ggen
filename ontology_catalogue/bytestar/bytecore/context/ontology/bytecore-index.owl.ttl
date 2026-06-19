@@ -1,0 +1,36 @@
+@prefix bcore_idx: <https://bytestar.org/ontology/bytecore-index#> .
+@prefix :        <https://bytestar.org/ontology/bytecore-index#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:      <https://bytestar.org/ontology/dark-canon#> .
+@prefix lgc:     <https://bytestar.org/ontology/bytestar-lgc#> .
+
+<https://bytestar.org/ontology/bytecore-index>
+  a owl:Ontology ;
+  owl:versionInfo "4.2.0" ;
+  rdfs:label "ByteCore v3 Module Index Ontology" ;
+  rdfs:comment "The canonical index for ByteCore. It imports the core abstract concepts and all shared ABI specifications. It intentionally does NOT import subsystem-specific registries like kernels or patterns. This ontology and its imported modules adhere to the ByteStar V6 doctrines, including the FullerV2 Canon, 8-Hop Envelope, Zero-Tick Rejection, Capability Algebra, and Receipts-First Methodology." ;
+
+  # I. CORE CANONS (The Foundational Vocabulary)
+  owl:imports <https://bytestar.org/ontology/bytecore/core> ;
+
+  # II. ABI CANONS (The Physical Contracts)
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/envelope> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/crystal> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/pulse> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/ring-spsc> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/tables> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/dispatch> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/pqc> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/nif-boundary> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/abi/kernel> ;
+
+  # III. GOVERNANCE HOOK CANONS (The Logical Contracts)
+  owl:imports <https://bytestar.org/ontology/bytecore/governance/admission-gate> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/governance/cxp-header> ;
+  owl:imports <https://bytestar.org/ontology/bytecore/governance/pb-congruence> ;
+  rdfs:seeAlso dc:FullerV2 ;
+  rdfs:seeAlso lgc:EightHopLaw ;
+  rdfs:seeAlso lgc:ZeroTickReject ;
+  rdfs:seeAlso lgc:CapabilityAlgebra ;
+  rdfs:seeAlso lgc:ReceiptsFirstMethodology .

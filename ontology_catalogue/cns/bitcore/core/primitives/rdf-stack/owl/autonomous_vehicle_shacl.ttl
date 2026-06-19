@@ -1,0 +1,481 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix av: <http://cns.ai/ontology/autonomous-vehicle#> .
+
+# SHACL Constraints for Autonomous Vehicle Safety Validation
+# Critical safety rules enforced at sub-millisecond speeds
+# BitActor integration for ultra-fast constraint checking
+
+#####################################################################
+# Vehicle Safety Constraints
+#####################################################################
+
+av:VehicleShape rdf:type sh:NodeShape ;
+    sh:targetClass av:Vehicle ;
+    sh:property [
+        sh:path av:vehicleID ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 32 ;
+        sh:pattern "^[A-Z0-9]{6,32}$" ;
+        sh:name "Vehicle ID validation" ;
+        sh:description "Vehicle ID must be 6-32 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path av:speed ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 55.56 ; # 200 km/h max speed
+        sh:name "Speed limit validation" ;
+        sh:description "Vehicle speed must be between 0 and 200 km/h"
+    ] ;
+    sh:property [
+        sh:path av:hasPosition ;
+        sh:class av:Position ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "Position requirement" ;
+        sh:description "Every vehicle must have exactly one position"
+    ] ;
+    sh:property [
+        sh:path av:hasVelocity ;
+        sh:class av:Velocity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "Velocity requirement" ;
+        sh:description "Every vehicle must have exactly one velocity"
+    ] .
+
+#####################################################################
+# Position Precision Constraints
+#####################################################################
+
+av:PositionShape rdf:type sh:NodeShape ;
+    sh:targetClass av:Position ;
+    sh:property [
+        sh:path av:latitude ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -90.0 ;
+        sh:maxInclusive 90.0 ;
+        sh:name "Latitude range validation" ;
+        sh:description "Latitude must be valid WGS84 coordinate"
+    ] ;
+    sh:property [
+        sh:path av:longitude ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -180.0 ;
+        sh:maxInclusive 180.0 ;
+        sh:name "Longitude range validation" ;
+        sh:description "Longitude must be valid WGS84 coordinate"
+    ] ;
+    sh:property [
+        sh:path av:positionAccuracy ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ; # 1cm minimum accuracy
+        sh:maxInclusive 10.0 ; # 10m maximum allowed error
+        sh:name "Position accuracy validation" ;
+        sh:description "Position accuracy must be between 1cm and 10m"
+    ] .
+
+#####################################################################
+# Velocity Safety Constraints
+#####################################################################
+
+av:VelocityShape rdf:type sh:NodeShape ;
+    sh:targetClass av:Velocity ;
+    sh:property [
+        sh:path av:velocityX ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -55.56 ; # -200 km/h
+        sh:maxInclusive 55.56 ;  # +200 km/h
+        sh:name "X velocity validation" ;
+        sh:description "X velocity component must be within safe limits"
+    ] ;
+    sh:property [
+        sh:path av:velocityY ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -55.56 ;
+        sh:maxInclusive 55.56 ;
+        sh:name "Y velocity validation" ;
+        sh:description "Y velocity component must be within safe limits"
+    ] ;
+    sh:property [
+        sh:path av:velocityZ ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -5.0 ; # Limited vertical velocity
+        sh:maxInclusive 5.0 ;
+        sh:name "Z velocity validation" ;
+        sh:description "Z velocity component must be limited for ground vehicles"
+    ] .
+
+#####################################################################
+# V2V Message Constraints - Ultra-fast validation
+#####################################################################
+
+av:V2VMessageShape rdf:type sh:NodeShape ;
+    sh:targetClass av:V2VMessage ;
+    sh:property [
+        sh:path av:messageID ;
+        sh:datatype xsd:string ;
+        sh:minLength 8 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[A-Z0-9_-]+$" ;
+        sh:name "Message ID validation" ;
+        sh:description "Message ID must be 8-64 alphanumeric characters"
+    ] ;
+    sh:property [
+        sh:path av:senderID ;
+        sh:datatype xsd:string ;
+        sh:minLength 6 ;
+        sh:maxLength 32 ;
+        sh:name "Sender ID validation" ;
+        sh:description "Sender ID must be valid vehicle identifier"
+    ] ;
+    sh:property [
+        sh:path av:priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 7 ;
+        sh:name "Message priority validation" ;
+        sh:description "Message priority must be 0-7 (802.11p standard)"
+    ] ;
+    sh:property [
+        sh:path av:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:name "Timestamp requirement" ;
+        sh:description "All messages must have a timestamp"
+    ] ;
+    sh:property [
+        sh:path av:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 1000000.0 ; # 1ms maximum latency
+        sh:name "Processing latency constraint" ;
+        sh:description "Message processing must complete within 1ms"
+    ] ;
+    sh:property [
+        sh:path av:ticksUsed ;
+        sh:datatype xsd:integer ;
+        sh:maxInclusive 8 ; # BitActor 8-tick guarantee
+        sh:name "CPU ticks constraint" ;
+        sh:description "Message processing must use ≤8 CPU ticks"
+    ] .
+
+#####################################################################
+# Emergency Message Constraints - Critical safety
+#####################################################################
+
+av:EmergencyBrakeWarningShape rdf:type sh:NodeShape ;
+    sh:targetClass av:EmergencyBrakeWarning ;
+    sh:property [
+        sh:path av:priority ;
+        sh:hasValue 7 ; # Highest priority
+        sh:name "Emergency brake priority" ;
+        sh:description "Emergency brake warnings must have highest priority"
+    ] ;
+    sh:property [
+        sh:path av:transmissionRange ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 300.0 ; # Minimum 300m range
+        sh:name "Emergency transmission range" ;
+        sh:description "Emergency messages must have extended range"
+    ] ;
+    sh:property [
+        sh:path av:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 100000.0 ; # 100μs maximum for emergencies
+        sh:name "Emergency processing latency" ;
+        sh:description "Emergency messages must process within 100μs"
+    ] .
+
+#####################################################################
+# Collision Risk Constraints - Safety critical
+#####################################################################
+
+av:CollisionRiskShape rdf:type sh:NodeShape ;
+    sh:targetClass av:CollisionRisk ;
+    sh:property [
+        sh:path av:riskLevel ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Risk level validation" ;
+        sh:description "Risk level must be normalized between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path av:timeToCollision ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 30.0 ; # 30 second horizon
+        sh:name "Time to collision validation" ;
+        sh:description "Time to collision must be within planning horizon"
+    ] ;
+    sh:property [
+        sh:path av:distanceToCollision ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1000.0 ; # 1km maximum distance
+        sh:name "Distance to collision validation" ;
+        sh:description "Distance to collision must be within sensor range"
+    ] ;
+    sh:property [
+        sh:path av:threatVehicle ;
+        sh:class av:Vehicle ;
+        sh:minCount 1 ;
+        sh:name "Threat vehicle requirement" ;
+        sh:description "Collision risk must identify threat vehicle"
+    ] .
+
+#####################################################################
+# Emergency Vehicle Constraints - Special privileges
+#####################################################################
+
+av:EmergencyVehicleShape rdf:type sh:NodeShape ;
+    sh:targetClass av:EmergencyVehicle ;
+    sh:property [
+        sh:path av:priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 7 ; # Emergency vehicles have high priority
+        sh:maxInclusive 10 ;
+        sh:name "Emergency vehicle priority" ;
+        sh:description "Emergency vehicles must have priority 7-10"
+    ] ;
+    sh:property [
+        sh:path av:speed ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 83.33 ; # 300 km/h emergency limit
+        sh:name "Emergency speed limit" ;
+        sh:description "Emergency vehicles have extended speed limits"
+    ] .
+
+#####################################################################
+# Lane Constraints - Traffic rules
+#####################################################################
+
+av:LaneShape rdf:type sh:NodeShape ;
+    sh:targetClass av:Lane ;
+    sh:property [
+        sh:path av:laneWidth ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 2.5 ; # Minimum 2.5m lane width
+        sh:maxInclusive 4.5 ; # Maximum 4.5m lane width
+        sh:name "Lane width validation" ;
+        sh:description "Lane width must be between 2.5m and 4.5m"
+    ] ;
+    sh:property [
+        sh:path av:speedLimit ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 55.56 ; # 200 km/h maximum
+        sh:name "Lane speed limit validation" ;
+        sh:description "Lane speed limit must be within reasonable bounds"
+    ] .
+
+#####################################################################
+# Trajectory Constraints - Prediction validation
+#####################################################################
+
+av:TrajectoryShape rdf:type sh:NodeShape ;
+    sh:targetClass av:Trajectory ;
+    sh:property [
+        sh:path av:predictionHorizon ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.1 ; # Minimum 100ms prediction
+        sh:maxInclusive 10.0 ; # Maximum 10s prediction
+        sh:name "Prediction horizon validation" ;
+        sh:description "Prediction horizon must be between 100ms and 10s"
+    ] ;
+    sh:property [
+        sh:path av:confidence ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:name "Prediction confidence validation" ;
+        sh:description "Prediction confidence must be between 0.0 and 1.0"
+    ] ;
+    sh:property [
+        sh:path av:trajectoryPoints ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:name "Trajectory points requirement" ;
+        sh:description "Trajectory must contain prediction points"
+    ] .
+
+#####################################################################
+# Emergency Maneuver Constraints - Critical actions
+#####################################################################
+
+av:EmergencyManeuverShape rdf:type sh:NodeShape ;
+    sh:targetClass av:EmergencyManeuver ;
+    sh:property [
+        sh:path av:maneuverUrgency ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10 ;
+        sh:name "Maneuver urgency validation" ;
+        sh:description "Maneuver urgency must be rated 1-10"
+    ] ;
+    sh:property [
+        sh:path av:executionTime ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.001 ; # Minimum 1ms execution
+        sh:maxInclusive 5.0 ; # Maximum 5s execution
+        sh:name "Execution time validation" ;
+        sh:description "Maneuver execution time must be between 1ms and 5s"
+    ] ;
+    sh:property [
+        sh:path av:maneuverType ;
+        sh:datatype xsd:string ;
+        sh:in ( "emergency_brake" "lane_change" "evasive_steering" "emergency_stop" "yield" ) ;
+        sh:name "Maneuver type validation" ;
+        sh:description "Maneuver type must be from approved list"
+    ] .
+
+#####################################################################
+# Basic Safety Message Constraints - Core V2V
+#####################################################################
+
+av:BasicSafetyMessageShape rdf:type sh:NodeShape ;
+    sh:targetClass av:BasicSafetyMessage ;
+    sh:property [
+        sh:path av:priority ;
+        sh:hasValue 3 ; # Standard BSM priority
+        sh:name "BSM priority validation" ;
+        sh:description "Basic Safety Messages must have priority 3"
+    ] ;
+    sh:property [
+        sh:path av:transmissionRange ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 150.0 ; # Minimum 150m range
+        sh:maxInclusive 300.0 ; # Maximum 300m range
+        sh:name "BSM transmission range" ;
+        sh:description "BSM transmission range must be 150-300m"
+    ] ;
+    sh:property [
+        sh:path av:processingLatency ;
+        sh:datatype xsd:decimal ;
+        sh:maxInclusive 500000.0 ; # 500μs maximum for BSM
+        sh:name "BSM processing latency" ;
+        sh:description "BSM processing must complete within 500μs"
+    ] .
+
+#####################################################################
+# BitActor Integration Constraints - Performance guarantees
+#####################################################################
+
+av:BitActorPerformanceShape rdf:type sh:NodeShape ;
+    sh:targetNode av:Vehicle ;
+    sh:property [
+        sh:path av:bitactorID ;
+        sh:datatype xsd:string ;
+        sh:pattern "^bitactor_[0-9a-f]{8}$" ;
+        sh:name "BitActor ID format" ;
+        sh:description "BitActor ID must follow format 'bitactor_########'"
+    ] ;
+    sh:sparql [
+        sh:message "V2V message processing must complete within 8 CPU ticks" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "av" ;
+                sh:namespace "http://cns.ai/ontology/autonomous-vehicle#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this av:sendsMessage ?msg .
+                ?msg av:ticksUsed ?ticks .
+                FILTER (?ticks > 8)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Emergency messages must have sub-millisecond processing" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "av" ;
+                sh:namespace "http://cns.ai/ontology/autonomous-vehicle#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this av:sendsMessage ?msg .
+                ?msg a av:EmergencyBrakeWarning .
+                ?msg av:processingLatency ?latency .
+                FILTER (?latency > 1000000)
+            }
+        """
+    ] .
+
+#####################################################################
+# Collision Avoidance Safety Rules - Critical constraints
+#####################################################################
+
+av:CollisionAvoidanceShape rdf:type sh:NodeShape ;
+    sh:targetNode av:Vehicle ;
+    sh:sparql [
+        sh:message "Vehicle must maintain safe following distance" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "av" ;
+                sh:namespace "http://cns.ai/ontology/autonomous-vehicle#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this av:hasCollisionRisk ?risk .
+                ?risk av:timeToCollision ?ttc .
+                ?risk av:distanceToCollision ?distance .
+                $this av:speed ?speed .
+                BIND(?speed * 2.0 AS ?minDistance)
+                FILTER (?ttc < 3.0 && ?distance < ?minDistance)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "High-risk vehicles must initiate emergency maneuver" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "av" ;
+                sh:namespace "http://cns.ai/ontology/autonomous-vehicle#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this av:hasCollisionRisk ?risk .
+                ?risk av:riskLevel ?level .
+                FILTER (?level > 0.8)
+                FILTER NOT EXISTS { $this av:requiresEmergencyManeuver ?maneuver }
+            }
+        """
+    ] .
+
+#####################################################################
+# Speed Limit Enforcement - Dynamic constraints
+#####################################################################
+
+av:SpeedLimitShape rdf:type sh:NodeShape ;
+    sh:targetNode av:Vehicle ;
+    sh:sparql [
+        sh:message "Vehicle must not exceed lane speed limit" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "av" ;
+                sh:namespace "http://cns.ai/ontology/autonomous-vehicle#"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this av:currentLane ?lane .
+                ?lane av:speedLimit ?limit .
+                $this av:speed ?speed .
+                FILTER (?speed > ?limit)
+                FILTER NOT EXISTS { $this a av:EmergencyVehicle }
+            }
+        """
+    ] .

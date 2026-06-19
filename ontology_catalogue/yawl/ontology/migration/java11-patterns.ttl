@@ -1,0 +1,296 @@
+@prefix j11:  <http://yawl.io/java/pattern/java11#> .
+@prefix java: <http://yawl.io/java#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# Java 11 Pattern Vocabulary
+# Named patterns representing idiomatic Java 11 code constructs.
+# Each pattern is a detection target for migration to Java 25.
+# =============================================================================
+
+j11: a owl:Ontology ;
+    rdfs:label "Java 11 Pattern Vocabulary" ;
+    rdfs:comment "Named patterns in Java 11 code that can be improved or replaced with Java 25 idioms." ;
+    owl:imports <http://yawl.io/java#> ;
+    owl:versionInfo "1.0.0" .
+
+# ---------------------------------------------------------------------------
+# Abstract base
+# ---------------------------------------------------------------------------
+
+j11:Pattern a owl:Class ;
+    rdfs:label "Java 11 Pattern" ;
+    rdfs:comment "Abstract base class for all Java 11 migration patterns." .
+
+j11:hasComplexity a owl:DatatypeProperty ;
+    rdfs:label "has complexity" ;
+    rdfs:comment "Migration complexity: LOW, MEDIUM, HIGH." ;
+    rdfs:domain j11:Pattern ;
+    rdfs:range xsd:string .
+
+j11:affectsFile a owl:ObjectProperty ;
+    rdfs:label "affects file" ;
+    rdfs:domain j11:Pattern ;
+    rdfs:range java:CompilationUnit .
+
+j11:affectsLine a owl:DatatypeProperty ;
+    rdfs:label "affects line" ;
+    rdfs:domain j11:Pattern ;
+    rdfs:range xsd:integer .
+
+j11:sourceSnippet a owl:DatatypeProperty ;
+    rdfs:label "source snippet" ;
+    rdfs:comment "Verbatim Java 11 code snippet exhibiting the pattern." ;
+    rdfs:domain j11:Pattern ;
+    rdfs:range xsd:string .
+
+# ---------------------------------------------------------------------------
+# Concurrency patterns
+# ---------------------------------------------------------------------------
+
+j11:ThreadCreationPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Thread Creation Pattern" ;
+    rdfs:comment "new Thread(runnable).start() or new Thread(() -> { ... }).start(). Migrates to Thread.ofVirtual().start() or StructuredTaskScope." ;
+    skos:example "new Thread(() -> processWorkItem(item)).start();" ;
+    j11:hasComplexity "LOW" .
+
+j11:ThreadPoolPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Thread Pool Pattern" ;
+    rdfs:comment "Executors.newFixedThreadPool(n), newCachedThreadPool(), etc. Replace with Executors.newVirtualThreadPerTaskExecutor() for I/O-bound tasks." ;
+    skos:example "ExecutorService pool = Executors.newFixedThreadPool(10);" ;
+    j11:hasComplexity "MEDIUM" .
+
+j11:ThreadLocalPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "ThreadLocal Pattern" ;
+    rdfs:comment "ThreadLocal<T> field declarations. In virtual thread contexts, replace with ScopedValue<T> for inheritance-safe context propagation." ;
+    skos:example "private static final ThreadLocal<UserContext> CTX = new ThreadLocal<>();" ;
+    j11:hasComplexity "HIGH" .
+
+j11:SynchronizedMethodPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Synchronized Method Pattern" ;
+    rdfs:comment "Method declared with 'synchronized' keyword. Often replaceable with ReentrantLock or java.util.concurrent structures." ;
+    skos:example "public synchronized void process() { ... }" ;
+    j11:hasComplexity "MEDIUM" .
+
+j11:SynchronizedBlockPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Synchronized Block Pattern" ;
+    rdfs:comment "synchronized(lock) { ... } block inside a method. Migrates to explicit Lock or atomic structures." ;
+    skos:example "synchronized(this.lock) { this.state = newState; }" ;
+    j11:hasComplexity "MEDIUM" .
+
+j11:RunnableAnonymousClassPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Runnable Anonymous Class Pattern" ;
+    rdfs:comment "new Runnable() { public void run() { ... } } anonymous class. Replace with lambda () -> { ... }." ;
+    skos:example "new Thread(new Runnable() { public void run() { work(); } }).start();" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Type patterns
+# ---------------------------------------------------------------------------
+
+j11:GetterSetterPojoPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Getter/Setter POJO Pattern" ;
+    rdfs:comment "Class with only private fields + corresponding getters and setters, and an all-args constructor. Replace with record declaration." ;
+    skos:example "class WorkItemData { private String id; private String status; public String getId() {...} public void setId(String id) {...} }" ;
+    j11:hasComplexity "LOW" .
+
+j11:AnonymousClassPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Anonymous Class Pattern" ;
+    rdfs:comment "Anonymous inner class with a single method implementation. Replace with lambda or method reference." ;
+    skos:example "comparator = new Comparator<Task>() { public int compare(Task a, Task b) { return a.getId().compareTo(b.getId()); } };" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Type check patterns
+# ---------------------------------------------------------------------------
+
+j11:InstanceofCastPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Instanceof Cast Pattern" ;
+    rdfs:comment "if (x instanceof Foo) { Foo f = (Foo) x; ... } — two-step type check then cast. Replace with Java 16+ pattern matching: if (x instanceof Foo f) { ... }." ;
+    skos:example "if (element instanceof YTask) { YTask task = (YTask) element; task.fire(); }" ;
+    j11:hasComplexity "LOW" .
+
+j11:ChainedInstanceofPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Chained Instanceof Pattern" ;
+    rdfs:comment "Multiple if/else if (x instanceof A) / (x instanceof B) chains. Replace with Java 21+ switch pattern matching." ;
+    skos:example "if (e instanceof YTask) {...} else if (e instanceof YCondition) {...} else if (e instanceof YFlow) {...}" ;
+    j11:hasComplexity "MEDIUM" .
+
+# ---------------------------------------------------------------------------
+# Control flow patterns
+# ---------------------------------------------------------------------------
+
+j11:SwitchStatementPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Switch Statement Pattern" ;
+    rdfs:comment "Traditional switch(x) { case A: return ...; break; } statement. Replace with switch expression for concise, exhaustive, no-fallthrough variants." ;
+    skos:example "switch(splitType) { case XOR: return evalXOR(tokens); break; case AND: return evalAND(tokens); break; }" ;
+    j11:hasComplexity "LOW" .
+
+j11:SwitchFallthroughPattern a owl:Class ;
+    rdfs:subClassOf j11:SwitchStatementPattern ;
+    rdfs:label "Switch Fallthrough Pattern" ;
+    rdfs:comment "Switch with intentional fallthrough (no break). Must be converted carefully — split into explicit multi-case arrows." ;
+    skos:example "switch(code) { case 'A': case 'B': doSomething(); break; }" ;
+    j11:hasComplexity "MEDIUM" .
+
+# ---------------------------------------------------------------------------
+# String patterns
+# ---------------------------------------------------------------------------
+
+j11:StringFormatPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "String.format() Pattern" ;
+    rdfs:comment "String.format(\"...\", args) calls, especially with multi-line template strings. Replace with text blocks or STR.\"\" string templates (Java 21+)." ;
+    skos:example "String msg = String.format(\"Case %s failed at task %s: %s\", caseId, taskId, reason);" ;
+    j11:hasComplexity "LOW" .
+
+j11:StringConcatLoopPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "String Concatenation in Loop Pattern" ;
+    rdfs:comment "String += inside a for/while loop. Replace with StringBuilder.append() or stream joining." ;
+    skos:example "for (YTask t : tasks) { result += t.getName() + \",\"; }" ;
+    j11:hasComplexity "LOW" .
+
+j11:MultiLineStringPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Multi-Line String Concatenation Pattern" ;
+    rdfs:comment "Multi-line string built with concatenation or \\n escapes. Replace with Java 15+ text block: \"\"\" ... \"\"\"." ;
+    skos:example "String xml = \"<spec>\\n\" + \"  <net id=\\\"\" + id + \"\\\">\\\n\" + \"</net>\\n</spec>\";" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Date/Time patterns
+# ---------------------------------------------------------------------------
+
+j11:DateCalendarPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Date/Calendar Pattern" ;
+    rdfs:comment "java.util.Date, java.util.Calendar usage. Replace with java.time.* API (Instant, LocalDateTime, ZonedDateTime, Duration)." ;
+    skos:example "Date started = new Date(); Calendar cal = Calendar.getInstance();" ;
+    j11:hasComplexity "MEDIUM" .
+
+j11:SimpleDateFormatPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "SimpleDateFormat Pattern" ;
+    rdfs:comment "SimpleDateFormat (not thread-safe). Replace with DateTimeFormatter (thread-safe, immutable)." ;
+    skos:example "SimpleDateFormat sdf = new SimpleDateFormat(\"yyyy-MM-dd\");" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Collection patterns
+# ---------------------------------------------------------------------------
+
+j11:RawTypePattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Raw Type Pattern" ;
+    rdfs:comment "Use of raw generic types (List, Map, Set without type parameters). Replace with properly parameterized generics or var." ;
+    skos:example "List tasks = new ArrayList(); Map params = new HashMap();" ;
+    j11:hasComplexity "LOW" .
+
+j11:LegacyCollectionPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Legacy Collection Pattern" ;
+    rdfs:comment "Usage of Vector, Hashtable, Stack — synchronized legacy collections. Replace with modern equivalents or ConcurrentHashMap." ;
+    skos:example "Vector<String> ids = new Vector<>(); Hashtable<String,Object> props = new Hashtable<>();" ;
+    j11:hasComplexity "LOW" .
+
+j11:MutableCollectionInitPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Mutable Collection Init Pattern" ;
+    rdfs:comment "new ArrayList<>(Arrays.asList(...)) or similar mutable initialization. Replace with List.of(), Map.of(), Set.of() for immutable collections." ;
+    skos:example "List<String> items = new ArrayList<>(Arrays.asList(\"a\", \"b\", \"c\"));" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Optional patterns
+# ---------------------------------------------------------------------------
+
+j11:OptionalGetWithoutCheckPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Optional.get() Without Check Pattern" ;
+    rdfs:comment "Calling optional.get() without preceding isPresent() check. Replace with optional.orElseThrow(), ifPresent(), or ifPresentOrElse()." ;
+    skos:example "Optional<YTask> task = findTask(id); return task.get();" ;
+    j11:hasComplexity "LOW" .
+
+j11:OptionalIsPresent a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Optional.isPresent() if-else Pattern" ;
+    rdfs:comment "if (opt.isPresent()) { use opt.get() } else { ... } pattern. Replace with opt.map(...).orElseGet(() -> ...)." ;
+    skos:example "if (task.isPresent()) { process(task.get()); } else { log.warn(...); }" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Exception handling patterns
+# ---------------------------------------------------------------------------
+
+j11:CheckedExceptionInStreamPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Checked Exception in Stream Pattern" ;
+    rdfs:comment "Lambda inside stream that throws checked exception, wrapped in try-catch or sneaky-throw workaround. Replace with unchecked wrapper functional interfaces." ;
+    skos:example "tasks.stream().map(t -> { try { return t.getSpec(); } catch (IOException e) { throw new RuntimeException(e); } });" ;
+    j11:hasComplexity "MEDIUM" .
+
+j11:EmptyCatchBlockPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Empty Catch Block Pattern" ;
+    rdfs:comment "catch (Exception e) { } — swallowed exception. Replace with proper handling or re-throw." ;
+    skos:example "try { parse(xml); } catch (Exception e) { }" ;
+    j11:hasComplexity "LOW" .
+
+# ---------------------------------------------------------------------------
+# Deprecation patterns
+# ---------------------------------------------------------------------------
+
+j11:DeprecatedThreadMethodPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "Deprecated Thread Method Pattern" ;
+    rdfs:comment "thread.stop(), thread.suspend(), thread.resume() — deprecated/removed Thread methods. Redesign with interrupt-based cooperative cancellation." ;
+    skos:example "workerThread.stop();" ;
+    j11:hasComplexity "HIGH" .
+
+j11:FinalizeMethodPattern a owl:Class ;
+    rdfs:subClassOf j11:Pattern ;
+    rdfs:label "finalize() Method Pattern" ;
+    rdfs:comment "Override of Object.finalize() — deprecated in Java 9, removed in later versions. Replace with try-with-resources or Cleaner API." ;
+    skos:example "@Override protected void finalize() throws Throwable { releaseResources(); }" ;
+    j11:hasComplexity "HIGH" .
+
+# ---------------------------------------------------------------------------
+# YAWL-specific patterns (domain patterns found in this codebase)
+# ---------------------------------------------------------------------------
+
+j11:YawlSynchronizedEnginePattern a owl:Class ;
+    rdfs:subClassOf j11:SynchronizedMethodPattern ;
+    rdfs:label "YAWL Synchronized Engine Pattern" ;
+    rdfs:comment "YAWL engine methods synchronized on engine state. Candidate for structured concurrency with virtual threads for YAWL v6." ;
+    skos:example "public synchronized YIdentifier startCase(YSpecification spec) { ... }" ;
+    j11:hasComplexity "HIGH" .
+
+j11:YawlThreadPoolPattern a owl:Class ;
+    rdfs:subClassOf j11:ThreadPoolPattern ;
+    rdfs:label "YAWL Thread Pool Pattern" ;
+    rdfs:comment "YAWL executor pools for task execution. Replace with virtual thread executor for improved scalability." ;
+    skos:example "private final ExecutorService executor = Executors.newFixedThreadPool(POOL_SIZE);" ;
+    j11:hasComplexity "MEDIUM" .
+
+j11:YawlDatePattern a owl:Class ;
+    rdfs:subClassOf j11:DateCalendarPattern ;
+    rdfs:label "YAWL Date Pattern" ;
+    rdfs:comment "Date/Calendar usage in YAWL work item timestamps and case start/end times." ;
+    skos:example "workItem.setStartTime(new Date());" ;
+    j11:hasComplexity "LOW" .

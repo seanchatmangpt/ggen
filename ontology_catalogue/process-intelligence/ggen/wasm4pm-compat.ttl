@@ -1,0 +1,295 @@
+@prefix compat: <https://process.intelligence/compat/> .
+@prefix wasm4pm: <https://process.intelligence/wasm4pm/> .
+@prefix lifecycle: <https://process.intelligence/lifecycle/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# wasm4pm-compat Witness Law and Type-Law Authority
+
+# === WITNESS LATTICE ELEMENTS ===
+
+compat:WitnessMarker a rdf:Class ;
+  rdfs:label "Witness Marker" ;
+  rdfs:comment "Algebraic witness proof structure in witness lattice" .
+
+compat:VanDerAalst1989 a compat:WitnessMarker ;
+  rdfs:label "Van der Aalst 1989 Petri Net Witness" ;
+  compat:lattice_position "bottom" ;
+  compat:structure "PetriNetMarking" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "workflow-net" .
+
+compat:VanDerAalst1998 a compat:WitnessMarker ;
+  rdfs:label "Van der Aalst 1998 Soundness Witness" ;
+  compat:lattice_position "middle" ;
+  compat:structure "SoundnessProof" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "workflow-net" .
+
+compat:VanDerAalst2016 a compat:WitnessMarker ;
+  rdfs:label "Van der Aalst 2016 OCEL Witness" ;
+  compat:lattice_position "middle" ;
+  compat:structure "ObjectCentricEventLog" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "object-centric" .
+
+compat:Murata1989 a compat:WitnessMarker ;
+  rdfs:label "Murata 1989 Petri Net Theory" ;
+  compat:lattice_position "bottom" ;
+  compat:structure "PetriNetSemantics" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "petri-net" .
+
+compat:Weijters2011 a compat:WitnessMarker ;
+  rdfs:label "Weijters 2011 Heuristics Miner" ;
+  compat:lattice_position "middle" ;
+  compat:structure "CausalNetMarking" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "causal-net" .
+
+compat:Leemans2013 a compat:WitnessMarker ;
+  rdfs:label "Leemans 2013 Inductive Miner" ;
+  compat:lattice_position "middle" ;
+  compat:structure "ProcessTreeNode" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "process-tree" .
+
+compat:Adriansyah2011 a compat:WitnessMarker ;
+  rdfs:label "Adriansyah 2011 Alignment" ;
+  compat:lattice_position "middle" ;
+  compat:structure "AlignmentStep" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "conformance" .
+
+compat:BlueRiverDam a compat:WitnessMarker ;
+  rdfs:label "Blue River Dam Autonomic Actuation" ;
+  compat:lattice_position "top" ;
+  compat:structure "AutonomicMarking" ;
+  compat:authority "wasm4pm-compat" ;
+  compat:formalism "lifecycle" .
+
+# === PROCESS FORMS ===
+
+compat:ProcessForm a rdf:Class ;
+  rdfs:label "Process Form" ;
+  rdfs:comment "Type-law definition of lawful process structure" .
+
+compat:WorkflowNetForm a compat:ProcessForm ;
+  rdfs:label "Workflow Net (WF-net)" ;
+  compat:structure_constraint "1-bounded-net" ;
+  compat:sound_marking "unique-sink" ;
+  compat:admissible_states 4 ;
+  compat:witness_marker compat:VanDerAalst1989 .
+
+compat:BpmnGatewayForm a compat:ProcessForm ;
+  rdfs:label "BPMN 2.0 Gateway" ;
+  compat:structure_constraint "token-routing" ;
+  compat:sound_marking "exclusive-or-and-synchronization" ;
+  compat:admissible_states 7 ;
+  compat:witness_marker compat:VanDerAalst1998 .
+
+compat:OcelForm a compat:ProcessForm ;
+  rdfs:label "Object-Centric Event Log (OCEL)" ;
+  compat:structure_constraint "object-instance-mapping" ;
+  compat:sound_marking "complete-event-trace" ;
+  compat:admissible_states 5 ;
+  compat:witness_marker compat:VanDerAalst2016 .
+
+compat:ProcessTreeForm a compat:ProcessForm ;
+  rdfs:label "Process Tree" ;
+  compat:structure_constraint "block-structured" ;
+  compat:sound_marking "root-completion" ;
+  compat:admissible_states 6 ;
+  compat:witness_marker compat:Leemans2013 .
+
+compat:AlignmentForm a compat:ProcessForm ;
+  rdfs:label "Process-Log Alignment" ;
+  compat:structure_constraint "traceback-moves" ;
+  compat:sound_marking "fitness-threshold" ;
+  compat:admissible_states 3 ;
+  compat:witness_marker compat:Adriansyah2011 .
+
+# === SURFACE MODULES ===
+
+compat:SurfaceModule a rdf:Class ;
+  rdfs:label "Surface Module" ;
+  rdfs:comment "Executable boundary-crossing definition exported to Rust/WIT" .
+
+compat:WitnessMarkerModule a compat:SurfaceModule ;
+  rdfs:label "Witness Marker Surface Module" ;
+  compat:target_language "rust" ;
+  compat:output_format "enum-with-metadata" ;
+  compat:module_name "witness_markers" ;
+  compat:witness_coverage 8 ;
+  compat:law_enforcement "lattice-soundness" .
+
+compat:ProcessFormModule a compat:SurfaceModule ;
+  rdfs:label "Process Form Surface Module" ;
+  compat:target_language "markdown" ;
+  compat:output_format "type-law-documentation" ;
+  compat:module_name "process_forms" ;
+  compat:form_coverage 5 ;
+  compat:law_enforcement "form-admissibility" .
+
+compat:WasmBoundaryModule a compat:SurfaceModule ;
+  rdfs:label "WebAssembly Boundary Module" ;
+  compat:target_language "wit" ;
+  compat:output_format "wit-world" ;
+  compat:module_name "boundary_law" ;
+  compat:boundary_crossings 12 ;
+  compat:law_enforcement "wasm-type-safety" .
+
+# === TYPE LAW ATOMS ===
+
+compat:TypeLawAtom a rdf:Class ;
+  rdfs:label "Type Law Atom" ;
+  rdfs:comment "Primitive non-forgeable type constraint" .
+
+compat:1BoundednessLaw a compat:TypeLawAtom ;
+  rdfs:label "1-Boundedness Invariant" ;
+  compat:scope "petri-net-marking" ;
+  compat:enforcement_point "transition-firing" ;
+  compat:rustified "ConditionCell<1>" ;
+  compat:witness compat:VanDerAalst1989 .
+
+compat:TerminalMarkingLaw a compat:TypeLawAtom ;
+  rdfs:label "Terminal Marking Requirement" ;
+  compat:scope "workflow-net-completion" ;
+  compat:enforcement_point "receipt-generation" ;
+  compat:rustified "FinalMarking" ;
+  compat:witness compat:VanDerAalst1998 .
+
+compat:ObjectInstanceLaw a compat:TypeLawAtom ;
+  rdfs:label "Object Instance Completeness" ;
+  compat:scope "ocel-event-tracing" ;
+  compat:enforcement_point "log-validation" ;
+  compat:rustified "OcelObject" ;
+  compat:witness compat:VanDerAalst2016 .
+
+compat:FitnessThresholdLaw a compat:TypeLawAtom ;
+  rdfs:label "Fitness Threshold (0.95 board admissibility)" ;
+  compat:scope "conformance-check" ;
+  compat:enforcement_point "receipt-admission" ;
+  compat:rustified "Fitness { value: f64, threshold: 0.95 }" ;
+  compat:witness compat:Adriansyah2011 .
+
+compat:RoleBasedSignatureLaw a compat:TypeLawAtom ;
+  rdfs:label "Role-Based Signature Registry" ;
+  compat:scope "receipt-validation" ;
+  compat:enforcement_point "signature-verification" ;
+  compat:rustified "RoleSignature { role: AuthorityRole, pubkey: Ed25519PK }" ;
+  compat:witness compat:BlueRiverDam .
+
+compat:JcsCanonicalLaw a compat:TypeLawAtom ;
+  rdfs:label "JCS Canonicalization (RFC 8785)" ;
+  compat:scope "receipt-serialization" ;
+  compat:enforcement_point "signature-generation" ;
+  compat:rustified "JcsCanonical(Receipt)" ;
+  compat:witness compat:BlueRiverDam .
+
+# === BOUNDARY CROSSING DEFINITIONS ===
+
+compat:BoundaryCrossing a rdf:Class ;
+  rdfs:label "Boundary Crossing" ;
+  rdfs:comment "Type-safe export from process intelligence to WASM execution" .
+
+compat:LogToPetriNetBoundary a compat:BoundaryCrossing ;
+  rdfs:label "XES Log to Petri Net Discovery" ;
+  compat:source_type "XesTrace" ;
+  compat:target_type "PetriNet" ;
+  compat:algorithm "AlphaMiner" ;
+  compat:witness compat:VanDerAalst1989 ;
+  compat:rustified "discover_petri_net(log: XesTrace) -> Result<PetriNet, DiscoveryError>" .
+
+compat:LogToProcessTreeBoundary a compat:BoundaryCrossing ;
+  rdfs:label "XES Log to Process Tree Discovery" ;
+  compat:source_type "XesTrace" ;
+  compat:target_type "ProcessTree" ;
+  compat:algorithm "InductiveMiner" ;
+  compat:witness compat:Leemans2013 ;
+  compat:rustified "discover_process_tree(log: XesTrace) -> Result<ProcessTree, DiscoveryError>" .
+
+compat:OcelToObjectCentricBoundary a compat:BoundaryCrossing ;
+  rdfs:label "OCEL Log to Object-Centric Analysis" ;
+  compat:source_type "OcelEventLog" ;
+  compat:target_type "ObjectCentricModel" ;
+  compat:algorithm "ObjectCentricConformance" ;
+  compat:witness compat:VanDerAalst2016 ;
+  compat:rustified "analyze_object_centric(log: OcelEventLog) -> Result<ObjectModel, AnalysisError>" .
+
+compat:ConstraintEvaluationBoundary a compat:BoundaryCrossing ;
+  rdfs:label "Constraint Satisfaction Evaluation" ;
+  compat:source_type "DeclareConstraintSet" ;
+  compat:target_type "ConstraintSatisfactionVector" ;
+  compat:algorithm "DeclareMiner" ;
+  compat:witness compat:VanDerAalst2016 ;
+  compat:rustified "evaluate_constraints(constraints: DeclareSet, trace: EventTrace) -> SatisfactionVector" .
+
+compat:TokenReplayBoundary a compat:BoundaryCrossing ;
+  rdfs:label "Token Replay Conformance Checking" ;
+  compat:source_type "EventTrace" ;
+  compat:target_type "ConformanceResult" ;
+  compat:algorithm "TokenReplay" ;
+  compat:witness compat:Adriansyah2011 ;
+  compat:rustified "replay_tokens(model: PetriNet, trace: EventTrace) -> ConformanceResult" .
+
+compat:AlignmentBoundary a compat:BoundaryCrossing ;
+  rdfs:label "Process-Log Alignment" ;
+  compat:source_type "EventTrace" ;
+  compat:target_type "AlignmentSequence" ;
+  compat:algorithm "OptimalAlignment" ;
+  compat:witness compat:Adriansyah2011 ;
+  compat:rustified "compute_alignment(model: PetriNet, trace: EventTrace) -> AlignmentSequence" .
+
+compat:ReceiptGraduationBoundary a compat:BoundaryCrossing ;
+  rdfs:label "Receipt Graduation (State to Proof)" ;
+  compat:source_type "ExecutionState" ;
+  compat:target_type "VerificationReceipt" ;
+  compat:algorithm "EvidenceLatticeJoin" ;
+  compat:witness compat:BlueRiverDam ;
+  compat:rustified "graduate_receipt(state: ExecutionState, witness: Witness) -> Receipt" .
+
+compat:AutonomicActuationBoundary a compat:BoundaryCrossing ;
+  rdfs:label "Autonomic Knowledge Actuation" ;
+  compat:source_type "ProcessIntelligenceSignal" ;
+  compat:target_type "AutonomicAction" ;
+  compat:algorithm "MAPE-K" ;
+  compat:witness compat:BlueRiverDam ;
+  compat:rustified "actuate_autonomic(signal: ProcessSignal) -> AutonomicAction" .
+
+compat:WitWorldExportBoundary a compat:BoundaryCrossing ;
+  rdfs:label "WIT World Export" ;
+  compat:source_type "ProcessIntelligenceModule" ;
+  compat:target_type "WitComponent" ;
+  compat:algorithm "TypeLawProjection" ;
+  compat:witness compat:BlueRiverDam ;
+  compat:rustified "export_wit_world(module: ProcessModule) -> WitWorld" .
+
+# === PROJECTION DECLARATIONS ===
+
+compat:Projection a rdf:Class ;
+  rdfs:label "Witness Projection" ;
+  rdfs:comment "Specialized view of witness lattice for export" .
+
+compat:WitnessMarkerProjection a compat:Projection ;
+  rdfs:label "Witness Marker Projection" ;
+  compat:projects compat:WitnessMarker ;
+  compat:target_artifact "witnesses/witness-markers.rs" ;
+  compat:template_engine "tera" ;
+  compat:variables "[witness_name, lattice_position, structure, formalism, authority]" .
+
+compat:ProcessFormProjection a compat:Projection ;
+  rdfs:label "Process Form Projection" ;
+  compat:projects compat:ProcessForm ;
+  compat:target_artifact "forms/process-forms.md" ;
+  compat:template_engine "tera" ;
+  compat:variables "[form_name, constraints, sound_marking, states, witness]" .
+
+compat:BoundaryProjection a compat:Projection ;
+  rdfs:label "Boundary Crossing Projection" ;
+  compat:projects compat:BoundaryCrossing ;
+  compat:target_artifact "boundaries/boundary-law.wit" ;
+  compat:template_engine "tera" ;
+  compat:variables "[crossing_name, source_type, target_type, algorithm, rustified_signature]" .
+

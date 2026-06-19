@@ -1,0 +1,108 @@
+# SPARQL Query: Conformance Metrics Bridge
+# Purpose: Join wasm4pm-compat conformance metric definitions (Metric<KIND, NUM, DEN> with Between01 bounds)
+# with external conformance standard definitions. Maps metrics to their mathematical constraints
+# and external validation rules.
+#
+# Metrics extracted:
+# - Fitness (model-to-log alignment)
+# - Precision (model specificity)
+# - Generalization (model generality)
+# - Simplicity (model complexity)
+# - F-score (harmonic mean)
+#
+# Usage: ggen query extract-conformance-metrics-bridge.rq --format json
+
+PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+PREFIX compat:     <https://wasm4pm-compat.rs/ontology#>
+PREFIX paper:      <https://wasm4pm-compat.rs/paper#>
+PREFIX metrics:    <https://open-ontologies.org/metrics#>
+PREFIX dcterms:    <http://purl.org/dc/terms/>
+PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT
+  ?metricForm
+  ?metricKind
+  ?compatMinBound
+  ?compatMaxBound
+  ?compatNumRestriction
+  ?compatDenomRestriction
+  ?externalMetricDef
+  ?externalMetricLabel
+  ?externalFormulaOrReference
+  ?externalValidationRule
+  ?paperCitation
+WHERE {
+  # ========== COMPAT SIDE: Metric Definitions ==========
+  ?metricForm
+    a compat:ProcessForm ;
+    compat:rustType ?metricType ;
+    compat:sourceFile ?compatSourceFile ;
+    rdfs:comment ?metricComment .
+
+  # Filter for metric-related forms
+  FILTER (
+    CONTAINS(?metricType, 'Metric') ||
+    CONTAINS(?metricComment, 'fitness') ||
+    CONTAINS(?metricComment, 'precision') ||
+    CONTAINS(?metricComment, 'generalization') ||
+    CONTAINS(?metricComment, 'simplicity') ||
+    CONTAINS(?metricComment, 'f-score')
+  )
+
+  # Extract metric kind (Fitness, Precision, Generalization, Simplicity, FScore)
+  OPTIONAL {
+    ?metricForm compat:metricKind ?metricKind .
+  }
+
+  # Extract Between01 bounds and constraints
+  OPTIONAL {
+    ?metricForm compat:lowerBound ?compatMinBound ;
+                compat:upperBound ?compatMaxBound .
+  }
+
+  # Numerator and denominator constraints (for Metric<KIND, NUM, DEN>)
+  OPTIONAL {
+    ?metricForm compat:numeratorType ?compatNumRestriction .
+  }
+
+  OPTIONAL {
+    ?metricForm compat:denominatorType ?compatDenomRestriction .
+  }
+
+  # ========== EXTERNAL SIDE: Metrics Standard ==========
+  # Map compat metric to external definition
+  BIND (
+    IF(?metricKind = 'Fitness', metrics:FitnessMetric,
+    IF(?metricKind = 'Precision', metrics:PrecisionMetric,
+    IF(?metricKind = 'Generalization', metrics:GeneralizationMetric,
+    IF(?metricKind = 'Simplicity', metrics:SimplicityMetric,
+    IF(?metricKind = 'FScore', metrics:FScoreMetric,
+    metrics:Metric)))))
+    AS ?externalMetricType
+  )
+
+  # Match external metric definitions
+  OPTIONAL {
+    ?externalMetricDef
+      a ?externalMetricType ;
+      rdfs:label ?externalMetricLabel ;
+      dcterms:description ?externalMetricDesc ;
+      metrics:formula ?externalFormulaOrReference .
+  }
+
+  # External validation rules
+  OPTIONAL {
+    ?externalValidationRule
+      rdfs:domain ?externalMetricType ;
+      rdf:type owl:Restriction .
+  }
+
+  # Paper citations
+  OPTIONAL {
+    ?metricForm compat:paperCoverage ?paperRef .
+    ?paperRef paper:citationKey ?paperCitation .
+  }
+}
+ORDER BY ?metricKind ?compatSourceFile

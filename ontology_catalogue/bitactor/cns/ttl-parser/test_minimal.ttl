@@ -1,0 +1,1 @@
+@prefix ex: <http://example.org/> . ex:test ex:value "hello" .

@@ -1,0 +1,255 @@
+# Validation Rules for ggen Examples
+# Purpose: SHACL constraints ensuring specification closure for all examples
+# Version: 1.0
+# Updated: 2026-01-07
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://ggen.example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# MODEL VALIDATION RULES
+# ==============================================================================
+
+:ModelShape a sh:NodeShape ;
+    sh:targetClass ex:Model ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Model must have exactly one rdfs:label (e.g., 'User Model')" ;
+    ] ;
+    sh:property [
+        sh:path ex:hasField ;
+        sh:minCount 1 ;
+        sh:message "Model must have at least one field" ;
+    ] .
+
+:FieldShape a sh:NodeShape ;
+    sh:targetClass ex:Field ;
+    sh:closed false ;
+    sh:property [
+        sh:path ex:fieldName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Field must have exactly one fieldName" ;
+    ] ;
+    sh:property [
+        sh:path ex:fieldType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Field must have exactly one fieldType (e.g., 'string', 'i32', 'uuid')" ;
+    ] ;
+    sh:property [
+        sh:path ex:fieldRequired ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "If present, fieldRequired must be a boolean" ;
+    ] .
+
+# ==============================================================================
+# ENDPOINT VALIDATION RULES
+# ==============================================================================
+
+:EndpointShape a sh:NodeShape ;
+    sh:targetClass ex:Endpoint ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Endpoint must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path ex:endpointPath ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Endpoint must have exactly one path (e.g., '/users', 'user list')" ;
+    ] ;
+    sh:property [
+        sh:path ex:endpointMethod ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "GET" "POST" "PUT" "PATCH" "DELETE" "HEAD" ) ;
+        sh:message "Endpoint method must be one of: GET, POST, PUT, PATCH, DELETE, HEAD" ;
+    ] ;
+    sh:property [
+        sh:path ex:endpointDescription ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Endpoint must have a description" ;
+    ] ;
+    sh:property [
+        sh:path ex:endpointResponseModel ;
+        sh:minCount 1 ;
+        sh:message "Endpoint must reference at least one response model" ;
+    ] .
+
+# ==============================================================================
+# SERVICE VALIDATION RULES
+# ==============================================================================
+
+:ServiceShape a sh:NodeShape ;
+    sh:targetClass ex:Service ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Service must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path ex:serviceName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Service must have exactly one name" ;
+    ] ;
+    sh:property [
+        sh:path ex:serviceLanguage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "rust" "python" "typescript" "javascript" "go" ) ;
+        sh:message "Service language must be one of: rust, python, typescript, javascript, go" ;
+    ] ;
+    sh:property [
+        sh:path ex:serviceFramework ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Service must have exactly one framework" ;
+    ] ;
+    sh:property [
+        sh:path ex:servicePort ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:message "Service port must be between 1 and 65535" ;
+    ] .
+
+# ==============================================================================
+# JOB & WORKER VALIDATION RULES
+# ==============================================================================
+
+:JobShape a sh:NodeShape ;
+    sh:targetClass ex:Job ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Job must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Job must have a comment describing its purpose" ;
+    ] .
+
+:WorkerShape a sh:NodeShape ;
+    sh:targetClass ex:Worker ;
+    sh:closed false ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Worker must have exactly one label" ;
+    ] ;
+    sh:property [
+        sh:path ex:hasJob ;
+        sh:minCount 1 ;
+        sh:message "Worker must process at least one job type" ;
+    ] .
+
+# ==============================================================================
+# SPECIFICATION CLOSURE RULES
+# ==============================================================================
+
+# All properties referenced in templates must be defined
+:SpecificationClosureShape a sh:NodeShape ;
+    sh:targetClass ex:Model ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Every field referenced in templates must exist in the RDF (specification closure)" ;
+        sh:prefixes ex: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this a ex:Model ;
+                    ex:hasField ?field .
+                ?field ex:fieldName ?name ;
+                    ex:fieldType ?type .
+                FILTER (!BOUND(?type) || ?type = "")
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# EXAMPLE: RDF-DRIVEN API SPECIFICATION
+# ==============================================================================
+
+# This example shows what a properly validated API spec looks like:
+#
+# ex:UserModel a ex:Model ;
+#     rdfs:label "User Model" ;
+#     ex:hasField ex:UserIdField, ex:UserEmailField ;
+#     .
+#
+# ex:UserIdField a ex:Field ;
+#     ex:fieldName "id" ;
+#     ex:fieldType "uuid" ;
+#     ex:fieldRequired true ;
+#     .
+#
+# ex:UserEmailField a ex:Field ;
+#     ex:fieldName "email" ;
+#     ex:fieldType "string" ;
+#     ex:fieldRequired true ;
+#     ex:fieldValidation "email" ;
+#     .
+#
+# ex:ListUsersEndpoint a ex:Endpoint ;
+#     rdfs:label "List Users" ;
+#     ex:endpointPath "/users" ;
+#     ex:endpointMethod "GET" ;
+#     ex:endpointDescription "List all users" ;
+#     ex:endpointResponseModel ex:UserModel ;
+#     .
+#
+# When this RDF passes SHACL validation, it's specification closure.
+# The templates can then safely SPARQL-query all needed data.
+
+# ==============================================================================
+# BEST PRACTICES
+# ==============================================================================
+
+# 1. SPECIFICATION CLOSURE: Every value used in templates must come from RDF
+#    ❌ BAD: Hardcoded "let count = 10" in template
+#    ✓ GOOD: `ex:maxItems 10` in RDF, then SPARQL in template
+#
+# 2. DETERMINISTIC OUTPUT: Same RDF + Template = Always same output
+#    ❌ BAD: Template uses {{ now }} or random values
+#    ✓ GOOD: Template parameters come from RDF (fixed values)
+#
+# 3. SELF-DOCUMENTING: RDF describes what gets generated
+#    ❌ BAD: RDF is incomplete, README tries to fill gaps
+#    ✓ GOOD: RDF is 100% complete, README just shows examples
+#
+# 4. VALIDATE EARLY: Check specification closure BEFORE generation
+#    ❌ BAD: Generate, then hope the output is correct
+#    ✓ GOOD: Run SHACL validation, confirm closure, THEN generate

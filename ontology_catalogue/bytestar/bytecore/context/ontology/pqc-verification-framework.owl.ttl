@@ -1,0 +1,470 @@
+@prefix : <https://bytestar.org/ontology/bytecore/pqc-verification#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix bpqc: <https://bytestar.org/ontology/bytestar-pqc#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+<https://bytestar.org/ontology/bytecore/pqc-verification>
+  a owl:Ontology ;
+  owl:versionInfo "1.0.0" ;
+  rdfs:label "ByteCore PQC Formal Verification Framework" ;
+  rdfs:comment "Formal verification framework for Post-Quantum Cryptography implementations using ontological reasoning, SPARQL-based proofs, and automated theorem proving integration." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ,
+              <https://bytestar.org/ontology/bytestar-pqc> .
+
+#################################################################
+# I. FORMAL VERIFICATION CORE VOCABULARY
+#################################################################
+
+:FormalVerification a owl:Class ;
+  rdfs:label "Formal Verification" ;
+  rdfs:comment "A mathematical proof process that ensures system properties hold under all possible conditions." .
+
+:CryptographicProperty a owl:Class ;
+  rdfs:label "Cryptographic Property" ;
+  rdfs:comment "A mathematical property that must be proven for cryptographic correctness." .
+
+:SecurityLevel a owl:Class ;
+  rdfs:label "Security Level" ;
+  rdfs:comment "NIST-defined security levels for post-quantum cryptography." ;
+  owl:oneOf ( :Level1 :Level2 :Level3 :Level4 :Level5 ) .
+
+:ProofMethod a owl:Class ;
+  rdfs:label "Proof Method" ;
+  rdfs:comment "Mathematical approach used to verify cryptographic properties." ;
+  owl:oneOf ( :ReductionProof :GameBasedProof :AlgebraicProof :LatticeProof :CodeBasedProof ) .
+
+#################################################################
+# II. PQC ALGORITHM CLASSES
+#################################################################
+
+:PQCAlgorithm a owl:Class ;
+  rdfs:subClassOf bcore:Algorithm ;
+  rdfs:label "Post-Quantum Cryptographic Algorithm" ;
+  rdfs:comment "Cryptographic algorithm resistant to quantum attacks." .
+
+:LatticeBasedAlgorithm a owl:Class ;
+  rdfs:subClassOf :PQCAlgorithm ;
+  rdfs:label "Lattice-Based Algorithm" ;
+  rdfs:comment "PQC algorithm based on lattice problems (LWE, NTRU, etc.)." .
+
+:CodeBasedAlgorithm a owl:Class ;
+  rdfs:subClassOf :PQCAlgorithm ;
+  rdfs:label "Code-Based Algorithm" ;
+  rdfs:comment "PQC algorithm based on error-correcting codes." .
+
+:MultivariateAlgorithm a owl:Class ;
+  rdfs:subClassOf :PQCAlgorithm ;
+  rdfs:label "Multivariate Algorithm" ;
+  rdfs:comment "PQC algorithm based on multivariate polynomial systems." .
+
+:HashBasedAlgorithm a owl:Class ;
+  rdfs:subClassOf :PQCAlgorithm ;
+  rdfs:label "Hash-Based Algorithm" ;
+  rdfs:comment "PQC algorithm based on hash functions and Merkle trees." .
+
+:IsogenyBasedAlgorithm a owl:Class ;
+  rdfs:subClassOf :PQCAlgorithm ;
+  rdfs:label "Isogeny-Based Algorithm" ;
+  rdfs:comment "PQC algorithm based on elliptic curve isogenies." .
+
+#################################################################
+# III. CRYPTOGRAPHIC PROPERTIES TO VERIFY
+#################################################################
+
+:CorrectnessProperty a owl:Class ;
+  rdfs:subClassOf :CryptographicProperty ;
+  rdfs:label "Correctness Property" ;
+  rdfs:comment "Property ensuring algorithm produces correct results." .
+
+:SecurityProperty a owl:Class ;
+  rdfs:subClassOf :CryptographicProperty ;
+  rdfs:label "Security Property" ;
+  rdfs:comment "Property ensuring cryptographic security against attacks." .
+
+:PerformanceProperty a owl:Class ;
+  rdfs:subClassOf :CryptographicProperty ;
+  rdfs:label "Performance Property" ;
+  rdfs:comment "Property ensuring acceptable performance characteristics." .
+
+# Specific security properties
+:IND_CPA a owl:Class ;
+  rdfs:subClassOf :SecurityProperty ;
+  rdfs:label "IND-CPA Security" ;
+  rdfs:comment "Indistinguishability under chosen-plaintext attack." .
+
+:IND_CCA2 a owl:Class ;
+  rdfs:subClassOf :SecurityProperty ;
+  rdfs:label "IND-CCA2 Security" ;
+  rdfs:comment "Indistinguishability under adaptive chosen-ciphertext attack." .
+
+:EUF_CMA a owl:Class ;
+  rdfs:subClassOf :SecurityProperty ;
+  rdfs:label "EUF-CMA Security" ;
+  rdfs:comment "Existential unforgeability under chosen-message attack." .
+
+:QuantumResistance a owl:Class ;
+  rdfs:subClassOf :SecurityProperty ;
+  rdfs:label "Quantum Resistance" ;
+  rdfs:comment "Resistance to quantum computer attacks." .
+
+:SideChannelResistance a owl:Class ;
+  rdfs:subClassOf :SecurityProperty ;
+  rdfs:label "Side-Channel Resistance" ;
+  rdfs:comment "Resistance to side-channel attacks (timing, power, etc.)." .
+
+#################################################################
+# IV. FORMAL PROOF STRUCTURES
+#################################################################
+
+:FormalProof a owl:Class ;
+  rdfs:label "Formal Proof" ;
+  rdfs:comment "A mathematical proof expressed in formal logic." .
+
+:ProofStep a owl:Class ;
+  rdfs:label "Proof Step" ;
+  rdfs:comment "Individual step in a formal proof." .
+
+:Assumption a owl:Class ;
+  rdfs:label "Assumption" ;
+  rdfs:comment "Mathematical assumption underlying a proof." .
+
+:Theorem a owl:Class ;
+  rdfs:label "Theorem" ;
+  rdfs:comment "Proven mathematical statement." .
+
+:Lemma a owl:Class ;
+  rdfs:subClassOf :Theorem ;
+  rdfs:label "Lemma" ;
+  rdfs:comment "Auxiliary theorem used in larger proofs." .
+
+:Corollary a owl:Class ;
+  rdfs:subClassOf :Theorem ;
+  rdfs:label "Corollary" ;
+  rdfs:comment "Theorem that follows directly from another theorem." .
+
+#################################################################
+# V. VERIFICATION CONTEXT AND ENVIRONMENT
+#################################################################
+
+:VerificationContext a owl:Class ;
+  rdfs:label "Verification Context" ;
+  rdfs:comment "Mathematical and computational context for verification." .
+
+:AdversaryModel a owl:Class ;
+  rdfs:label "Adversary Model" ;
+  rdfs:comment "Model of adversarial capabilities and constraints." .
+
+:SecurityModel a owl:Class ;
+  rdfs:label "Security Model" ;
+  rdfs:comment "Formal model defining security guarantees." .
+
+:QuantumAdversary a owl:Class ;
+  rdfs:subClassOf :AdversaryModel ;
+  rdfs:label "Quantum Adversary" ;
+  rdfs:comment "Adversary with access to quantum computers." .
+
+:ClassicalAdversary a owl:Class ;
+  rdfs:subClassOf :AdversaryModel ;
+  rdfs:label "Classical Adversary" ;
+  rdfs:comment "Adversary limited to classical computation." .
+
+#################################################################
+# VI. SIDE-CHANNEL ATTACK MODELS
+#################################################################
+
+:SideChannelAttack a owl:Class ;
+  rdfs:label "Side-Channel Attack" ;
+  rdfs:comment "Attack exploiting physical implementation characteristics." .
+
+:TimingAttack a owl:Class ;
+  rdfs:subClassOf :SideChannelAttack ;
+  rdfs:label "Timing Attack" ;
+  rdfs:comment "Attack based on execution time variations." .
+
+:PowerAnalysisAttack a owl:Class ;
+  rdfs:subClassOf :SideChannelAttack ;
+  rdfs:label "Power Analysis Attack" ;
+  rdfs:comment "Attack based on power consumption patterns." .
+
+:CacheAttack a owl:Class ;
+  rdfs:subClassOf :SideChannelAttack ;
+  rdfs:label "Cache Attack" ;
+  rdfs:comment "Attack exploiting cache access patterns." .
+
+:FaultInjectionAttack a owl:Class ;
+  rdfs:subClassOf :SideChannelAttack ;
+  rdfs:label "Fault Injection Attack" ;
+  rdfs:comment "Attack introducing faults to extract information." .
+
+#################################################################
+# VII. OBJECT PROPERTIES
+#################################################################
+
+:verifies a owl:ObjectProperty ;
+  rdfs:domain :FormalVerification ;
+  rdfs:range :CryptographicProperty ;
+  rdfs:label "verifies" ;
+  rdfs:comment "Links verification process to property being verified." .
+
+:hasSecurityLevel a owl:ObjectProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range :SecurityLevel ;
+  rdfs:label "has security level" ;
+  rdfs:comment "NIST security level of the algorithm." .
+
+:usesProofMethod a owl:ObjectProperty ;
+  rdfs:domain :FormalProof ;
+  rdfs:range :ProofMethod ;
+  rdfs:label "uses proof method" ;
+  rdfs:comment "Mathematical proof technique employed." .
+
+:provenBy a owl:ObjectProperty ;
+  rdfs:domain :CryptographicProperty ;
+  rdfs:range :FormalProof ;
+  rdfs:label "proven by" ;
+  rdfs:comment "Formal proof that establishes the property." .
+
+:hasStep a owl:ObjectProperty ;
+  rdfs:domain :FormalProof ;
+  rdfs:range :ProofStep ;
+  rdfs:label "has step" ;
+  rdfs:comment "Individual step in the proof." .
+
+:dependsOn a owl:ObjectProperty ;
+  rdfs:domain :ProofStep ;
+  rdfs:range :ProofStep ;
+  rdfs:label "depends on" ;
+  rdfs:comment "Proof step dependency." .
+
+:resistantTo a owl:ObjectProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range :SideChannelAttack ;
+  rdfs:label "resistant to" ;
+  rdfs:comment "Algorithm is resistant to this attack type." .
+
+:vulnerableTo a owl:ObjectProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range :SideChannelAttack ;
+  rdfs:label "vulnerable to" ;
+  rdfs:comment "Algorithm is vulnerable to this attack type." .
+
+:assumesAdversary a owl:ObjectProperty ;
+  rdfs:domain :SecurityModel ;
+  rdfs:range :AdversaryModel ;
+  rdfs:label "assumes adversary" ;
+  rdfs:comment "Security model's adversary assumptions." .
+
+:implementedAs a owl:ObjectProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range bcore:Kernel ;
+  rdfs:label "implemented as" ;
+  rdfs:comment "ByteCore kernel implementing the algorithm." .
+
+#################################################################
+# VIII. DATA PROPERTIES
+#################################################################
+
+:securityBits a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "security bits" ;
+  rdfs:comment "Effective security level in bits." .
+
+:quantumSecurityBits a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "quantum security bits" ;
+  rdfs:comment "Security level against quantum attacks in bits." .
+
+:keySize a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "key size" ;
+  rdfs:comment "Key size in bytes." .
+
+:signatureSize a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "signature size" ;
+  rdfs:comment "Signature size in bytes." .
+
+:ciphertextSize a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:label "ciphertext size" ;
+  rdfs:comment "Ciphertext size in bytes." .
+
+:proofComplexity a owl:DatatypeProperty ;
+  rdfs:domain :FormalProof ;
+  rdfs:range xsd:string ;
+  rdfs:label "proof complexity" ;
+  rdfs:comment "Computational complexity of the proof verification." .
+
+:reductionLoss a owl:DatatypeProperty ;
+  rdfs:domain :FormalProof ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "reduction loss" ;
+  rdfs:comment "Security loss factor in reduction proof." .
+
+:constantTimeGuarantee a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "constant time guarantee" ;
+  rdfs:comment "Algorithm guarantees constant-time execution." .
+
+:memoryAccessPattern a owl:DatatypeProperty ;
+  rdfs:domain :PQCAlgorithm ;
+  rdfs:range xsd:string ;
+  rdfs:label "memory access pattern" ;
+  rdfs:comment "Type of memory access pattern (constant, data-dependent, etc.)." .
+
+#################################################################
+# IX. NIST PQC STANDARD ALGORITHMS
+#################################################################
+
+# Digital Signatures
+:Dilithium a :LatticeBasedAlgorithm ;
+  rdfs:label "CRYSTALS-Dilithium" ;
+  :hasSecurityLevel :Level2, :Level3, :Level5 ;
+  :securityBits 128, 192, 256 ;
+  :quantumSecurityBits 128, 192, 256 ;
+  bpqc:pathTier bpqc:WARM ;
+  :constantTimeGuarantee true .
+
+:Falcon a :LatticeBasedAlgorithm ;
+  rdfs:label "Falcon" ;
+  :hasSecurityLevel :Level1, :Level5 ;
+  :securityBits 128, 256 ;
+  :quantumSecurityBits 128, 256 ;
+  bpqc:pathTier bpqc:COLD ;
+  :constantTimeGuarantee false .
+
+:SPHINCS_Plus a :HashBasedAlgorithm ;
+  rdfs:label "SPHINCS+" ;
+  :hasSecurityLevel :Level1, :Level3, :Level5 ;
+  :securityBits 128, 192, 256 ;
+  :quantumSecurityBits 128, 192, 256 ;
+  bpqc:pathTier bpqc:COLD ;
+  :constantTimeGuarantee true .
+
+# Key Encapsulation Mechanisms
+:Kyber a :LatticeBasedAlgorithm ;
+  rdfs:label "CRYSTALS-Kyber" ;
+  :hasSecurityLevel :Level1, :Level3, :Level5 ;
+  :securityBits 128, 192, 256 ;
+  :quantumSecurityBits 128, 192, 256 ;
+  bpqc:pathTier bpqc:HOT ;
+  :constantTimeGuarantee true .
+
+#################################################################
+# X. VERIFICATION RULES AND CONSTRAINTS
+#################################################################
+
+# Rule: All HOT path algorithms must be constant-time
+[] a owl:Restriction ;
+   owl:onProperty bpqc:pathTier ;
+   owl:hasValue bpqc:HOT ;
+   rdfs:subClassOf [
+     a owl:Restriction ;
+     owl:onProperty :constantTimeGuarantee ;
+     owl:hasValue true
+   ] .
+
+# Rule: All algorithms must have proven quantum resistance
+[] a owl:Restriction ;
+   owl:onClass :PQCAlgorithm ;
+   owl:onProperty :resistantTo ;
+   owl:someValuesFrom :QuantumAdversary .
+
+# Rule: WARM path algorithms must have IND-CCA2 security for KEMs
+[] a owl:Restriction ;
+   owl:onProperty bpqc:pathTier ;
+   owl:hasValue bpqc:WARM ;
+   rdfs:subClassOf [
+     a owl:Class ;
+     owl:intersectionOf (
+       [ a owl:Restriction ;
+         owl:onProperty :verifies ;
+         owl:someValuesFrom :IND_CCA2 ]
+       [ rdfs:subClassOf bcore:KEM ]
+     )
+   ] .
+
+# Rule: All signature algorithms must have EUF-CMA security
+[] a owl:Restriction ;
+   owl:onClass bcore:DigitalSignature ;
+   owl:onProperty :verifies ;
+   owl:someValuesFrom :EUF_CMA .
+
+#################################################################
+# XI. METAMODEL FOR AUTOMATED REASONING
+#################################################################
+
+:VerificationRule a owl:Class ;
+  rdfs:label "Verification Rule" ;
+  rdfs:comment "Automated rule for property verification." .
+
+:SPARQLProof a owl:Class ;
+  rdfs:subClassOf :FormalProof ;
+  rdfs:label "SPARQL Proof" ;
+  rdfs:comment "Proof expressed as SPARQL query validation." .
+
+:AutomatedTheoremProver a owl:Class ;
+  rdfs:label "Automated Theorem Prover" ;
+  rdfs:comment "Tool for automated mathematical proof generation." .
+
+:ProofObligation a owl:Class ;
+  rdfs:label "Proof Obligation" ;
+  rdfs:comment "Property that must be proven for verification." .
+
+:hasQuery a owl:DatatypeProperty ;
+  rdfs:domain :SPARQLProof ;
+  rdfs:range xsd:string ;
+  rdfs:label "has query" ;
+  rdfs:comment "SPARQL query implementing the proof." .
+
+:proverTool a owl:ObjectProperty ;
+  rdfs:domain :FormalProof ;
+  rdfs:range :AutomatedTheoremProver ;
+  rdfs:label "prover tool" ;
+  rdfs:comment "ATP tool used to generate/verify proof." .
+
+:generates a owl:ObjectProperty ;
+  rdfs:domain :VerificationRule ;
+  rdfs:range :ProofObligation ;
+  rdfs:label "generates" ;
+  rdfs:comment "Rule generates proof obligations." .
+
+#################################################################
+# XII. INTEGRATION WITH BYTECORE ARCHITECTURE
+#################################################################
+
+# Link PQC algorithms to ByteCore kernels
+:PQCKernel a owl:Class ;
+  rdfs:subClassOf bcore:Kernel ;
+  rdfs:label "PQC Kernel" ;
+  rdfs:comment "ByteCore kernel implementing PQC algorithm." .
+
+:implements a owl:ObjectProperty ;
+  rdfs:domain :PQCKernel ;
+  rdfs:range :PQCAlgorithm ;
+  rdfs:label "implements" ;
+  rdfs:comment "Kernel implements PQC algorithm." .
+
+# Verification integration with pulse system
+:verificationPulse a owl:ObjectProperty ;
+  rdfs:domain bcore:Pulse ;
+  rdfs:range :FormalVerification ;
+  rdfs:label "verification pulse" ;
+  rdfs:comment "Pulse triggering verification process." .
+
+# Crystal-based verification context
+:verificationCrystal a owl:ObjectProperty ;
+  rdfs:domain bcore:Crystal ;
+  rdfs:range :VerificationContext ;
+  rdfs:label "verification crystal" ;
+  rdfs:comment "Crystal containing verification context." .

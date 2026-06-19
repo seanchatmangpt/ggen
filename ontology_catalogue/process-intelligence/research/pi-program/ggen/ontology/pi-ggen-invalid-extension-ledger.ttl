@@ -1,0 +1,355 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix pi:     <https://process.intelligence/ontology/> .
+@prefix inv:    <https://process.intelligence/invalid-ggen/> .
+
+# Invalid Extension Ledger — Classification of All 23 .ggen Files
+# Date: 2026-06-01
+# Authority: PI Research Program — invalid-ggen-census.md
+# VERDICT: All 23 .ggen files are VALID Tera template sources awaiting ggen Tera engine processing
+
+inv:CENSUS_SUMMARY a owl:NamedIndividual, pi:InvalidFilesCensus ;
+    dcterms:title "Invalid .ggen File Census Summary" ;
+    dcterms:description "Classification of all 23 .ggen files in process-intelligence repository" ;
+    pi:totalGgenFiles 23 ;
+    pi:migrationRequired 23 ;
+    pi:legacyInvalid 0 ;
+    pi:renderedWithWrongExtension 0 ;
+    pi:outOfScope 0 ;
+    pi:blockingSource 0 ;
+    pi:verdict "ALL FILES VALID — ZERO LEGACY ISSUES" ;
+    pi:note "All .ggen files are legitimate Tera template sources with clear authority, documented purpose, and defined remediation paths" ;
+    .
+
+# PRIMARY CELL: /ggen/ (12 audit + type definition + rust + config templates)
+
+inv:FILE_001 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-component-boundary.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:remediationRoute "Execute via Tera engine → output `.sh` file" ;
+    pi:purpose "Script validates WIT world segregation, forbids unsafe code, checks crate dependency isolation" ;
+    pi:templatingPattern "Tera-templated shell script" ;
+    pi:outputType "shell script" ;
+    .
+
+inv:FILE_002 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-feature-law.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:remediationRoute "Execute via Tera engine → output `.sh` file" ;
+    pi:purpose "Validates Cargo feature constraints (no execution tool smuggling)" ;
+    .
+
+inv:FILE_003 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-no-engine-in-wasm-feature.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Enforces confinement of discovery/conformance/replay to wasm4pm (not compat)" ;
+    .
+
+inv:FILE_004 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-ts-brand-tokens.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Validates TypeScript board claim DTOs carry witness brand tokens" ;
+    .
+
+inv:FILE_005 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-ts-enum-tagging.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Verifies all TypeScript enums tagged with brand tokens" ;
+    .
+
+inv:FILE_006 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-ts-monomorphization.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Validates Evidence<T, State, W> monomorphization completeness" ;
+    .
+
+inv:FILE_007 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/audits/audit-ts-projection-surface.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Ensures TypeScript surface is projection-safe (no internal types leakage)" ;
+    .
+
+inv:FILE_008 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/templates/wit-world.wit.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Defines two WIT worlds: compat-world (structure-only) and engine-world (execution) with strict boundary segregation" ;
+    pi:outputType "WIT component definition" ;
+    .
+
+inv:FILE_009 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/templates/wasm4pm-compat.wit.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Evidence type definitions, admission gate (11 named law checks), refusal gate with named refusal reasons" ;
+    pi:outputType "WIT interface definition" ;
+    .
+
+inv:FILE_010 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/templates/wasm-boundary.rs.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "WASM DTO projections, lifecycle state enums, board claim safe projections for FFI" ;
+    pi:outputType "Rust source code" ;
+    .
+
+inv:FILE_011 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/templates/specta-exporter.rs.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Rust + Specta bindings for automatic TypeScript export of board claim types" ;
+    pi:outputType "Rust source code" ;
+    .
+
+inv:FILE_012 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "ggen/templates/feature-plan.yaml.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Feature activation plan: adds derives and dependencies only, zero execution tools" ;
+    pi:outputType "TOML fragment (Cargo.toml)" ;
+    .
+
+# TELEMETRY BRIDGE CELL: /otel-weaver/ggen/ (5 audit + 3 rust + 2 doc + 1 config)
+
+inv:FILE_013 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/audits/audit-live-check-findings-routed.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Verifies live check intake verdicts route only to court consequence (not process mining)" ;
+    pi:outputType "shell script" ;
+    .
+
+inv:FILE_014 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/audits/audit-no-telemetry-equals-process.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Rejects if telemetry feedstock conflated with process evidence" ;
+    .
+
+inv:FILE_015 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/audits/audit-registry-diff-routed.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Verifies weaver schema diffs route to observability channel (not receipt channel)" ;
+    .
+
+inv:FILE_016 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/audits/audit-schema-url-present.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Verifies all schema diffs include OpenTelemetry schema URL" ;
+    .
+
+inv:FILE_017 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/audits/audit-weaver-finding-not-receipt.sh.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Rejects if weaver schema diff conflated with process receipt (weaver ≠ process drift)" ;
+    .
+
+inv:FILE_018 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/templates/pi-live-check-intake.rs.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Rust struct + handlers for telemetry intake socket with route-to-court logic" ;
+    pi:outputType "Rust source code" ;
+    .
+
+inv:FILE_019 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/templates/pi-otel-constants.rs.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "OTel attribute key → value mappings (constant definitions)" ;
+    pi:outputType "Rust source code" ;
+    .
+
+inv:FILE_020 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/templates/pi-witness-map.rs.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Witness marker → OTel schema version mapping" ;
+    pi:outputType "Rust source code" ;
+    .
+
+inv:FILE_021 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/templates/pi-telemetry-docs.md.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Human-readable schema documentation with feedstock/court nominal categories" ;
+    pi:outputType "Markdown documentation" ;
+    .
+
+inv:FILE_022 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/templates/pi-registry-diff-report.md.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "Human-readable OTel schema change report" ;
+    pi:outputType "Markdown documentation" ;
+    .
+
+inv:FILE_023 a owl:NamedIndividual, pi:GgenFile ;
+    dcterms:title "otel-weaver/ggen/templates/pi-weaver-registry.yaml.ggen" ;
+    pi:classification "MIGRATION_REQUIRED" ;
+    pi:blockingStatus "YES" ;
+    pi:purpose "OTel schema version catalog (YAML registry)" ;
+    pi:outputType "YAML configuration" ;
+    .
+
+# Remediation Plan
+inv:REMEDIATION_PLAN a owl:NamedIndividual, pi:RemediationPlan ;
+    dcterms:title "ggen Tera Engine Implementation & Integration" ;
+    dcterms:description "Systematic approach to unblock all 23 .ggen files" ;
+    pi:phase1 "Implement ggen Tera Processing Engine (Rust or Python MVP, 2-3 weeks)" ;
+    pi:phase1Detail "Input: .{ext}.ggen Tera template source; Template Variables: from SPARQL queries; Output: deterministic rendered files (.sh, .rs, .wit, .yaml, .md); Receipt: BLAKE3 checksum + cryptographic chain" ;
+    pi:phase2 "Extend ggen.toml with Audit & Template Rules" ;
+    pi:phase2Detail "Add 7 audit rules (primary cell) + 5 audit rules (telemetry cell) + 6 template rules (primary) + 5 template rules (telemetry); Specify output paths, checksums, witness injection" ;
+    pi:phase3 "Configure Audit Gate Pipeline" ;
+    pi:phase3Detail "Define gate execution order: render templates → run audits → block/pass downstream; Specify PASS criteria; Link to checkpoint verdicts" ;
+    pi:phase4 "Integrate with Receipt Chain" ;
+    pi:phase4Detail "Each template rendering produces receipt (per ggen.toml [output] section); Store at ../receipts/template-{name}-receipt.json; Immutability: append-only" ;
+    .
+
+# Vocabulary Classes
+pi:InvalidFilesCensus a owl:Class ;
+    rdfs:label "Invalid Files Census" ;
+    skos:definition "Summary classification of all .ggen files in the ecosystem" ;
+    .
+
+pi:GgenFile a owl:Class ;
+    rdfs:label "Ggen File" ;
+    skos:definition "A .ggen Tera template source file in the ggen ecosystem" ;
+    .
+
+pi:RemediationPlan a owl:Class ;
+    rdfs:label "Remediation Plan" ;
+    skos:definition "Systematic approach to enabling all MIGRATION_REQUIRED files" ;
+    .
+
+# Vocabulary Properties
+pi:classification a owl:DatatypeProperty ;
+    rdfs:label "classification" ;
+    rdfs:range xsd:string ;
+    skos:definition "File classification: MIGRATION_REQUIRED, LEGACY_INVALID_SOURCE, RENDERED_ARTIFACT_WITH_WRONG_EXTENSION, OUT_OF_SCOPE_EXTERNAL_ARTIFACT, or BLOCKING_SOURCE_SURFACE" ;
+    .
+
+pi:blockingStatus a owl:DatatypeProperty ;
+    rdfs:label "blocking status" ;
+    rdfs:range xsd:string ;
+    skos:definition "YES or NO: whether this file blocks downstream processes" ;
+    .
+
+pi:remediationRoute a owl:DatatypeProperty ;
+    rdfs:label "remediation route" ;
+    rdfs:range xsd:string ;
+    skos:definition "Specific steps to remediate or enable this file" ;
+    .
+
+pi:purpose a owl:DatatypeProperty ;
+    rdfs:label "purpose" ;
+    rdfs:range xsd:string ;
+    skos:definition "What this .ggen file generates or validates" ;
+    .
+
+pi:templatingPattern a owl:DatatypeProperty ;
+    rdfs:label "templating pattern" ;
+    rdfs:range xsd:string ;
+    skos:definition "Type of Tera template: shell script, Rust code, YAML, etc." ;
+    .
+
+pi:outputType a owl:DatatypeProperty ;
+    rdfs:label "output type" ;
+    rdfs:range xsd:string ;
+    skos:definition "Language/format of the rendered output artifact" ;
+    .
+
+pi:totalGgenFiles a owl:DatatypeProperty ;
+    rdfs:label "total ggen files" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:migrationRequired a owl:DatatypeProperty ;
+    rdfs:label "migration required" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:legacyInvalid a owl:DatatypeProperty ;
+    rdfs:label "legacy invalid" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:renderedWithWrongExtension a owl:DatatypeProperty ;
+    rdfs:label "rendered with wrong extension" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:outOfScope a owl:DatatypeProperty ;
+    rdfs:label "out of scope" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:blockingSource a owl:DatatypeProperty ;
+    rdfs:label "blocking source" ;
+    rdfs:range xsd:integer ;
+    .
+
+pi:verdict a owl:DatatypeProperty ;
+    rdfs:label "verdict" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:note a owl:DatatypeProperty ;
+    rdfs:label "note" ;
+    rdfs:range xsd:string ;
+    skos:definition "Additional context or recommendations" ;
+    .
+
+pi:phase1 a owl:DatatypeProperty ;
+    rdfs:label "phase 1" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase1Detail a owl:DatatypeProperty ;
+    rdfs:label "phase 1 detail" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase2 a owl:DatatypeProperty ;
+    rdfs:label "phase 2" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase2Detail a owl:DatatypeProperty ;
+    rdfs:label "phase 2 detail" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase3 a owl:DatatypeProperty ;
+    rdfs:label "phase 3" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase3Detail a owl:DatatypeProperty ;
+    rdfs:label "phase 3 detail" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase4 a owl:DatatypeProperty ;
+    rdfs:label "phase 4" ;
+    rdfs:range xsd:string ;
+    .
+
+pi:phase4Detail a owl:DatatypeProperty ;
+    rdfs:label "phase 4 detail" ;
+    rdfs:range xsd:string ;
+    .

@@ -1,0 +1,796 @@
+@prefix : <http://ecommerce.ontoforge.com/ontology#> .
+@prefix ecom: <http://ecommerce.ontoforge.com/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+# Ontology Metadata
+: a owl:Ontology ;
+    dc:title "E-Commerce Production Demo Ontology"@en ;
+    dc:description "Comprehensive production-ready ontology for e-commerce/marketplace system with user management, product catalog, orders, payments, and fulfillment"@en ;
+    dc:creator "OntoForge-JS System Architecture Team" ;
+    dc:date "2025-08-24" ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "Production-ready ontology demonstrating real-world business logic, constraints, and data validation patterns"@en .
+
+#################################################################
+#    Core Classes - User Management System
+#################################################################
+
+ecom:User a owl:Class ;
+    rdfs:label "User"@en ;
+    rdfs:comment "Base class for all system users including customers, vendors, and administrators"@en .
+
+ecom:Customer a owl:Class ;
+    rdfs:subClassOf ecom:User ;
+    rdfs:label "Customer"@en ;
+    rdfs:comment "Individual or business entity that purchases products"@en .
+
+ecom:Vendor a owl:Class ;
+    rdfs:subClassOf ecom:User ;
+    rdfs:label "Vendor"@en ;
+    rdfs:comment "Business entity that sells products through the marketplace"@en .
+
+ecom:Administrator a owl:Class ;
+    rdfs:subClassOf ecom:User ;
+    rdfs:label "Administrator"@en ;
+    rdfs:comment "System administrator with elevated privileges"@en .
+
+ecom:VendorProfile a owl:Class ;
+    rdfs:label "Vendor Profile"@en ;
+    rdfs:comment "Extended profile information for vendors including business details and certifications"@en .
+
+#################################################################
+#    Product Catalog System
+#################################################################
+
+ecom:Product a owl:Class ;
+    rdfs:label "Product"@en ;
+    rdfs:comment "A sellable item in the marketplace with variants, pricing, and inventory"@en .
+
+ecom:ProductCategory a owl:Class ;
+    rdfs:label "Product Category"@en ;
+    rdfs:comment "Hierarchical classification system for organizing products"@en .
+
+ecom:ProductVariant a owl:Class ;
+    rdfs:label "Product Variant"@en ;
+    rdfs:comment "Specific configuration of a product with unique attributes like size, color, or model"@en .
+
+ecom:Brand a owl:Class ;
+    rdfs:label "Brand"@en ;
+    rdfs:comment "Product manufacturer or brand identity"@en .
+
+ecom:ProductImage a owl:Class ;
+    rdfs:label "Product Image"@en ;
+    rdfs:comment "Visual representation of a product including photos and videos"@en .
+
+#################################################################
+#    Order Management System
+#################################################################
+
+ecom:Order a owl:Class ;
+    rdfs:label "Order"@en ;
+    rdfs:comment "Customer purchase request containing one or more order items"@en .
+
+ecom:OrderItem a owl:Class ;
+    rdfs:label "Order Item"@en ;
+    rdfs:comment "Individual line item within an order specifying product, quantity, and pricing"@en .
+
+ecom:ShoppingCart a owl:Class ;
+    rdfs:label "Shopping Cart"@en ;
+    rdfs:comment "Temporary collection of products a customer intends to purchase"@en .
+
+ecom:CartItem a owl:Class ;
+    rdfs:label "Cart Item"@en ;
+    rdfs:comment "Individual item within a shopping cart"@en .
+
+#################################################################
+#    Payment and Financial System
+#################################################################
+
+ecom:Payment a owl:Class ;
+    rdfs:label "Payment"@en ;
+    rdfs:comment "Financial transaction for order settlement"@en .
+
+ecom:PaymentMethod a owl:Class ;
+    rdfs:label "Payment Method"@en ;
+    rdfs:comment "Customer's preferred payment option (credit card, PayPal, etc.)"@en .
+
+ecom:Transaction a owl:Class ;
+    rdfs:label "Transaction"@en ;
+    rdfs:comment "Record of financial exchange between parties"@en .
+
+ecom:Invoice a owl:Class ;
+    rdfs:label "Invoice"@en ;
+    rdfs:comment "Formal payment request document with itemized charges"@en .
+
+#################################################################
+#    Reviews and Rating System
+#################################################################
+
+ecom:Review a owl:Class ;
+    rdfs:label "Review"@en ;
+    rdfs:comment "Customer feedback and rating for purchased products"@en .
+
+ecom:Rating a owl:Class ;
+    rdfs:label "Rating"@en ;
+    rdfs:comment "Numerical score assigned to products, vendors, or service quality"@en .
+
+#################################################################
+#    Inventory and Fulfillment System
+#################################################################
+
+ecom:Inventory a owl:Class ;
+    rdfs:label "Inventory"@en ;
+    rdfs:comment "Stock management record tracking product availability and quantities"@en .
+
+ecom:Warehouse a owl:Class ;
+    rdfs:label "Warehouse"@en ;
+    rdfs:comment "Physical storage facility for inventory management"@en .
+
+ecom:Shipment a owl:Class ;
+    rdfs:label "Shipment"@en ;
+    rdfs:comment "Physical delivery of ordered products to customers"@en .
+
+ecom:Address a owl:Class ;
+    rdfs:label "Address"@en ;
+    rdfs:comment "Physical location for shipping, billing, or business operations"@en .
+
+ecom:ShippingMethod a owl:Class ;
+    rdfs:label "Shipping Method"@en ;
+    rdfs:comment "Delivery option with associated costs and timeframes"@en .
+
+#################################################################
+#    Core Object Properties - User Relationships
+#################################################################
+
+ecom:hasProfile a owl:ObjectProperty ;
+    rdfs:label "has profile"@en ;
+    rdfs:comment "Links a vendor to their extended business profile"@en ;
+    rdfs:domain ecom:Vendor ;
+    rdfs:range ecom:VendorProfile .
+
+ecom:placedBy a owl:ObjectProperty ;
+    rdfs:label "placed by"@en ;
+    rdfs:comment "Indicates which customer placed an order"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Customer .
+
+ecom:hasShippingAddress a owl:ObjectProperty ;
+    rdfs:label "has shipping address"@en ;
+    rdfs:comment "Links an order to its delivery destination"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Address .
+
+ecom:hasBillingAddress a owl:ObjectProperty ;
+    rdfs:label "has billing address"@en ;
+    rdfs:comment "Links a user to their billing information location"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range ecom:Address .
+
+#################################################################
+#    Product Catalog Relationships
+#################################################################
+
+ecom:belongsToCategory a owl:ObjectProperty ;
+    rdfs:label "belongs to category"@en ;
+    rdfs:comment "Assigns a product to one or more classification categories"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:ProductCategory .
+
+ecom:hasVariant a owl:ObjectProperty ;
+    rdfs:label "has variant"@en ;
+    rdfs:comment "Links a base product to its available variants"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:ProductVariant .
+
+ecom:soldBy a owl:ObjectProperty ;
+    rdfs:label "sold by"@en ;
+    rdfs:comment "Indicates which vendor offers a specific product"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:Vendor .
+
+ecom:manufacturedBy a owl:ObjectProperty ;
+    rdfs:label "manufactured by"@en ;
+    rdfs:comment "Links a product to its manufacturing brand"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:Brand .
+
+ecom:hasImage a owl:ObjectProperty ;
+    rdfs:label "has image"@en ;
+    rdfs:comment "Associates visual media with products"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range ecom:ProductImage .
+
+ecom:parentCategory a owl:ObjectProperty ;
+    rdfs:label "parent category"@en ;
+    rdfs:comment "Defines hierarchical relationship between product categories"@en ;
+    rdfs:domain ecom:ProductCategory ;
+    rdfs:range ecom:ProductCategory .
+
+#################################################################
+#    Order Management Relationships
+#################################################################
+
+ecom:containsItem a owl:ObjectProperty ;
+    rdfs:label "contains item"@en ;
+    rdfs:comment "Links an order to its constituent line items"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:OrderItem .
+
+ecom:specifiesProduct a owl:ObjectProperty ;
+    rdfs:label "specifies product"@en ;
+    rdfs:comment "Identifies the product referenced in an order item"@en ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range ecom:ProductVariant .
+
+ecom:hasCart a owl:ObjectProperty ;
+    rdfs:label "has cart"@en ;
+    rdfs:comment "Associates a customer with their shopping cart"@en ;
+    rdfs:domain ecom:Customer ;
+    rdfs:range ecom:ShoppingCart .
+
+ecom:cartContains a owl:ObjectProperty ;
+    rdfs:label "cart contains"@en ;
+    rdfs:comment "Links a shopping cart to its items"@en ;
+    rdfs:domain ecom:ShoppingCart ;
+    rdfs:range ecom:CartItem .
+
+ecom:cartItemProduct a owl:ObjectProperty ;
+    rdfs:label "cart item product"@en ;
+    rdfs:comment "Specifies which product variant is in a cart item"@en ;
+    rdfs:domain ecom:CartItem ;
+    rdfs:range ecom:ProductVariant .
+
+#################################################################
+#    Payment and Financial Relationships
+#################################################################
+
+ecom:paidWith a owl:ObjectProperty ;
+    rdfs:label "paid with"@en ;
+    rdfs:comment "Links an order to its payment method"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:PaymentMethod .
+
+ecom:hasPayment a owl:ObjectProperty ;
+    rdfs:label "has payment"@en ;
+    rdfs:comment "Associates an order with its payment transaction"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Payment .
+
+ecom:generatesTransaction a owl:ObjectProperty ;
+    rdfs:label "generates transaction"@en ;
+    rdfs:comment "Links a payment to its corresponding financial transaction"@en ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range ecom:Transaction .
+
+ecom:hasInvoice a owl:ObjectProperty ;
+    rdfs:label "has invoice"@en ;
+    rdfs:comment "Associates an order with its formal billing document"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Invoice .
+
+#################################################################
+#    Review and Rating Relationships
+#################################################################
+
+ecom:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "reviewed by"@en ;
+    rdfs:comment "Indicates which customer wrote a product review"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range ecom:Customer .
+
+ecom:reviewsProduct a owl:ObjectProperty ;
+    rdfs:label "reviews product"@en ;
+    rdfs:comment "Links a review to the product being evaluated"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range ecom:Product .
+
+ecom:hasRating a owl:ObjectProperty ;
+    rdfs:label "has rating"@en ;
+    rdfs:comment "Associates a review with its numerical score"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range ecom:Rating .
+
+#################################################################
+#    Inventory and Fulfillment Relationships
+#################################################################
+
+ecom:hasInventory a owl:ObjectProperty ;
+    rdfs:label "has inventory"@en ;
+    rdfs:comment "Links a product variant to its inventory record"@en ;
+    rdfs:domain ecom:ProductVariant ;
+    rdfs:range ecom:Inventory .
+
+ecom:storedIn a owl:ObjectProperty ;
+    rdfs:label "stored in"@en ;
+    rdfs:comment "Indicates which warehouse contains specific inventory"@en ;
+    rdfs:domain ecom:Inventory ;
+    rdfs:range ecom:Warehouse .
+
+ecom:hasShipment a owl:ObjectProperty ;
+    rdfs:label "has shipment"@en ;
+    rdfs:comment "Links an order to its physical delivery"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Shipment .
+
+ecom:shippedVia a owl:ObjectProperty ;
+    rdfs:label "shipped via"@en ;
+    rdfs:comment "Specifies the shipping method for an order"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:ShippingMethod .
+
+#################################################################
+#    Data Properties - User Information
+#################################################################
+
+ecom:userId a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "user ID"@en ;
+    rdfs:comment "Unique identifier for system users"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:email a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "email address"@en ;
+    rdfs:comment "User's primary email for communication and authentication"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:firstName a owl:DatatypeProperty ;
+    rdfs:label "first name"@en ;
+    rdfs:comment "User's given name"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:lastName a owl:DatatypeProperty ;
+    rdfs:label "last name"@en ;
+    rdfs:comment "User's family name"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:phoneNumber a owl:DatatypeProperty ;
+    rdfs:label "phone number"@en ;
+    rdfs:comment "User's contact telephone number"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:string .
+
+ecom:dateJoined a owl:DatatypeProperty ;
+    rdfs:label "date joined"@en ;
+    rdfs:comment "Date when user registered with the system"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:dateTime .
+
+ecom:isActive a owl:DatatypeProperty ;
+    rdfs:label "is active"@en ;
+    rdfs:comment "Boolean flag indicating if user account is currently active"@en ;
+    rdfs:domain ecom:User ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+#    Vendor-Specific Data Properties
+#################################################################
+
+ecom:businessName a owl:DatatypeProperty ;
+    rdfs:label "business name"@en ;
+    rdfs:comment "Legal name of the vendor's business entity"@en ;
+    rdfs:domain ecom:Vendor ;
+    rdfs:range xsd:string .
+
+ecom:taxId a owl:DatatypeProperty ;
+    rdfs:label "tax identification"@en ;
+    rdfs:comment "Government-issued tax identification number"@en ;
+    rdfs:domain ecom:Vendor ;
+    rdfs:range xsd:string .
+
+ecom:isVerified a owl:DatatypeProperty ;
+    rdfs:label "is verified"@en ;
+    rdfs:comment "Boolean indicating vendor verification status"@en ;
+    rdfs:domain ecom:Vendor ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+#    Product Data Properties
+#################################################################
+
+ecom:productId a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "product ID"@en ;
+    rdfs:comment "Unique identifier for products"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:productName a owl:DatatypeProperty ;
+    rdfs:label "product name"@en ;
+    rdfs:comment "Display name of the product"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:description a owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:comment "Detailed product description"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:basePrice a owl:DatatypeProperty ;
+    rdfs:label "base price"@en ;
+    rdfs:comment "Starting price for the product in base currency"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:decimal .
+
+ecom:currency a owl:DatatypeProperty ;
+    rdfs:label "currency"@en ;
+    rdfs:comment "ISO currency code for pricing"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:weight a owl:DatatypeProperty ;
+    rdfs:label "weight"@en ;
+    rdfs:comment "Product weight for shipping calculations"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:decimal .
+
+ecom:dimensions a owl:DatatypeProperty ;
+    rdfs:label "dimensions"@en ;
+    rdfs:comment "Product dimensions (length x width x height)"@en ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string .
+
+ecom:sku a owl:DatatypeProperty ;
+    rdfs:label "SKU"@en ;
+    rdfs:comment "Stock Keeping Unit - unique product identifier"@en ;
+    rdfs:domain ecom:ProductVariant ;
+    rdfs:range xsd:string .
+
+ecom:variantPrice a owl:DatatypeProperty ;
+    rdfs:label "variant price"@en ;
+    rdfs:comment "Specific price for this product variant"@en ;
+    rdfs:domain ecom:ProductVariant ;
+    rdfs:range xsd:decimal .
+
+#################################################################
+#    Order Data Properties
+#################################################################
+
+ecom:orderId a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "order ID"@en ;
+    rdfs:comment "Unique identifier for orders"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:string .
+
+ecom:orderDate a owl:DatatypeProperty ;
+    rdfs:label "order date"@en ;
+    rdfs:comment "Date and time when order was placed"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:dateTime .
+
+ecom:orderStatus a owl:DatatypeProperty ;
+    rdfs:label "order status"@en ;
+    rdfs:comment "Current status of the order (pending, processing, shipped, delivered, cancelled)"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:string .
+
+ecom:totalAmount a owl:DatatypeProperty ;
+    rdfs:label "total amount"@en ;
+    rdfs:comment "Total monetary value of the order including taxes and fees"@en ;
+    rdfs:domain ecom:Order ;
+    rdfs:range xsd:decimal .
+
+ecom:quantity a owl:DatatypeProperty ;
+    rdfs:label "quantity"@en ;
+    rdfs:comment "Number of items in an order item or cart item"@en ;
+    rdfs:domain [ owl:unionOf ( ecom:OrderItem ecom:CartItem ) ] ;
+    rdfs:range xsd:positiveInteger .
+
+ecom:unitPrice a owl:DatatypeProperty ;
+    rdfs:label "unit price"@en ;
+    rdfs:comment "Price per individual item"@en ;
+    rdfs:domain [ owl:unionOf ( ecom:OrderItem ecom:CartItem ) ] ;
+    rdfs:range xsd:decimal .
+
+#################################################################
+#    Payment Data Properties
+#################################################################
+
+ecom:paymentId a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "payment ID"@en ;
+    rdfs:comment "Unique identifier for payments"@en ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:string .
+
+ecom:paymentAmount a owl:DatatypeProperty ;
+    rdfs:label "payment amount"@en ;
+    rdfs:comment "Monetary value of the payment"@en ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:decimal .
+
+ecom:paymentDate a owl:DatatypeProperty ;
+    rdfs:label "payment date"@en ;
+    rdfs:comment "Date and time when payment was processed"@en ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:dateTime .
+
+ecom:paymentStatus a owl:DatatypeProperty ;
+    rdfs:label "payment status"@en ;
+    rdfs:comment "Status of payment (pending, completed, failed, refunded)"@en ;
+    rdfs:domain ecom:Payment ;
+    rdfs:range xsd:string .
+
+ecom:transactionId a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "transaction ID"@en ;
+    rdfs:comment "Unique identifier for financial transactions"@en ;
+    rdfs:domain ecom:Transaction ;
+    rdfs:range xsd:string .
+
+#################################################################
+#    Review and Rating Data Properties
+#################################################################
+
+ecom:reviewId a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:label "review ID"@en ;
+    rdfs:comment "Unique identifier for product reviews"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range xsd:string .
+
+ecom:reviewTitle a owl:DatatypeProperty ;
+    rdfs:label "review title"@en ;
+    rdfs:comment "Brief title or summary of the review"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range xsd:string .
+
+ecom:reviewText a owl:DatatypeProperty ;
+    rdfs:label "review text"@en ;
+    rdfs:comment "Detailed review content and customer feedback"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range xsd:string .
+
+ecom:reviewDate a owl:DatatypeProperty ;
+    rdfs:label "review date"@en ;
+    rdfs:comment "Date when review was submitted"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range xsd:dateTime .
+
+ecom:ratingValue a owl:DatatypeProperty ;
+    rdfs:label "rating value"@en ;
+    rdfs:comment "Numerical score (1-5 scale)"@en ;
+    rdfs:domain ecom:Rating ;
+    rdfs:range xsd:integer .
+
+ecom:isVerifiedPurchase a owl:DatatypeProperty ;
+    rdfs:label "is verified purchase"@en ;
+    rdfs:comment "Boolean indicating if reviewer actually purchased the product"@en ;
+    rdfs:domain ecom:Review ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+#    Inventory Data Properties
+#################################################################
+
+ecom:stockQuantity a owl:DatatypeProperty ;
+    rdfs:label "stock quantity"@en ;
+    rdfs:comment "Available inventory count for a product variant"@en ;
+    rdfs:domain ecom:Inventory ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ecom:lowStockThreshold a owl:DatatypeProperty ;
+    rdfs:label "low stock threshold"@en ;
+    rdfs:comment "Minimum quantity before stock alert is triggered"@en ;
+    rdfs:domain ecom:Inventory ;
+    rdfs:range xsd:nonNegativeInteger .
+
+ecom:lastUpdated a owl:DatatypeProperty ;
+    rdfs:label "last updated"@en ;
+    rdfs:comment "Timestamp of last inventory update"@en ;
+    rdfs:domain ecom:Inventory ;
+    rdfs:range xsd:dateTime .
+
+#################################################################
+#    Address Data Properties
+#################################################################
+
+ecom:streetAddress a owl:DatatypeProperty ;
+    rdfs:label "street address"@en ;
+    rdfs:comment "Street number and name"@en ;
+    rdfs:domain ecom:Address ;
+    rdfs:range xsd:string .
+
+ecom:city a owl:DatatypeProperty ;
+    rdfs:label "city"@en ;
+    rdfs:comment "City or locality name"@en ;
+    rdfs:domain ecom:Address ;
+    rdfs:range xsd:string .
+
+ecom:stateProvince a owl:DatatypeProperty ;
+    rdfs:label "state/province"@en ;
+    rdfs:comment "State, province, or administrative region"@en ;
+    rdfs:domain ecom:Address ;
+    rdfs:range xsd:string .
+
+ecom:postalCode a owl:DatatypeProperty ;
+    rdfs:label "postal code"@en ;
+    rdfs:comment "ZIP code or postal identifier"@en ;
+    rdfs:domain ecom:Address ;
+    rdfs:range xsd:string .
+
+ecom:country a owl:DatatypeProperty ;
+    rdfs:label "country"@en ;
+    rdfs:comment "ISO country code"@en ;
+    rdfs:domain ecom:Address ;
+    rdfs:range xsd:string .
+
+#################################################################
+#    SHACL Shapes for Data Validation
+#################################################################
+
+ecom:UserShape a sh:NodeShape ;
+    sh:targetClass ecom:User ;
+    sh:property [
+        sh:path ecom:email ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    ] ;
+    sh:property [
+        sh:path ecom:firstName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+    ] ;
+    sh:property [
+        sh:path ecom:lastName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 50 ;
+    ] .
+
+ecom:ProductShape a sh:NodeShape ;
+    sh:targetClass ecom:Product ;
+    sh:property [
+        sh:path ecom:productName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 3 ;
+        sh:maxLength 200 ;
+    ] ;
+    sh:property [
+        sh:path ecom:basePrice ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.01 ;
+    ] ;
+    sh:property [
+        sh:path ecom:soldBy ;
+        sh:class ecom:Vendor ;
+        sh:minCount 1 ;
+    ] .
+
+ecom:OrderShape a sh:NodeShape ;
+    sh:targetClass ecom:Order ;
+    sh:property [
+        sh:path ecom:orderId ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^ORD-[0-9]{8}-[A-Z0-9]{6}$" ;
+    ] ;
+    sh:property [
+        sh:path ecom:totalAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.01 ;
+    ] ;
+    sh:property [
+        sh:path ecom:orderStatus ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "pending" "processing" "shipped" "delivered" "cancelled" "refunded" ) ;
+    ] .
+
+ecom:RatingShape a sh:NodeShape ;
+    sh:targetClass ecom:Rating ;
+    sh:property [
+        sh:path ecom:ratingValue ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+    ] .
+
+ecom:InventoryShape a sh:NodeShape ;
+    sh:targetClass ecom:Inventory ;
+    sh:property [
+        sh:path ecom:stockQuantity ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ecom:lowStockThreshold ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+#################################################################
+#    Business Logic Constraints
+#################################################################
+
+# Constraint: Orders must have at least one order item
+ecom:OrderItemConstraint a sh:NodeShape ;
+    sh:targetClass ecom:Order ;
+    sh:property [
+        sh:path ecom:containsItem ;
+        sh:class ecom:OrderItem ;
+        sh:minCount 1 ;
+    ] .
+
+# Constraint: Product variants must have unique SKUs
+ecom:SKUConstraint a sh:NodeShape ;
+    sh:targetClass ecom:ProductVariant ;
+    sh:property [
+        sh:path ecom:sku ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$" ;
+    ] .
+
+# Constraint: Reviews can only be written by customers who purchased the product
+ecom:VerifiedReviewConstraint a sh:NodeShape ;
+    sh:targetClass ecom:Review ;
+    sh:sparql [
+        sh:message "Reviews must be written by customers who have purchased the product" ;
+        sh:prefixes : ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ecom:reviewedBy ?customer .
+                $this ecom:reviewsProduct ?product .
+                FILTER NOT EXISTS {
+                    ?order ecom:placedBy ?customer ;
+                           ecom:containsItem ?orderItem .
+                    ?orderItem ecom:specifiesProduct ?variant .
+                    ?variant ^ecom:hasVariant ?product .
+                }
+            }
+        """ ;
+    ] .
+
+# Constraint: Order total must match sum of order items
+ecom:OrderTotalConstraint a sh:NodeShape ;
+    sh:targetClass ecom:Order ;
+    sh:sparql [
+        sh:message "Order total must equal sum of (quantity × unit price) for all order items" ;
+        sh:prefixes : ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this ecom:totalAmount ?total ;
+                      ecom:containsItem ?item .
+                ?item ecom:quantity ?qty ;
+                      ecom:unitPrice ?price .
+                {
+                    SELECT $this (SUM(?qty * ?price) AS ?calculatedTotal) WHERE {
+                        $this ecom:containsItem ?item .
+                        ?item ecom:quantity ?qty ;
+                              ecom:unitPrice ?price .
+                    }
+                    GROUP BY $this
+                }
+                FILTER (?total != ?calculatedTotal)
+            }
+        """ ;
+    ] .

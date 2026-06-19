@@ -21,3 +21,6 @@ instrument_integration = true
 hipaa = true
 gdpr = true
 clia = true
+
+[marketplace]
+production_ready = false

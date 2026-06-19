@@ -1,0 +1,56 @@
+@prefix : <https://bytestar.org/ontology/byteflow/patterns-specification#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bcore:   <https://bytestar.org/ontology/bytestar-core#> .
+
+<https://bytestar.org/ontology/byteflow/patterns-specification>
+  a owl:Ontology ;
+  rdfs:label "ByteFlow Workflow Patterns Specification" ;
+  rdfs:comment "The canonical and complete registry of the 43 workflow patterns that ByteFlow can orchestrate. This is the system's workflow grammar." ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  owl:versionInfo "4.1.0" .
+
+# The 43 Pattern Individuals that are the sole responsibility of ByteFlow
+:P01 a bcore:Pattern ; rdfs:label "P01_Sequence" .
+:P02 a bcore:Pattern ; rdfs:label "P02_Parallel_Split" .
+:P03 a bcore:Pattern ; rdfs:label "P03_Synchronization" .
+:P04 a bcore:Pattern ; rdfs:label "P04_Exclusive_Choice" .
+:P05 a bcore:Pattern ; rdfs:label "P05_Simple_Merge" .
+:P06 a bcore:Pattern ; rdfs:label "P06_Multi_Choice" .
+:P07 a bcore:Pattern ; rdfs:label "P07_Synchronizing_Merge" .
+:P08 a bcore:Pattern ; rdfs:label "P08_Multi_Merge" .
+:P09 a bcore:Pattern ; rdfs:label "P09_Discriminator" .
+:P10 a bcore:Pattern ; rdfs:label "P10_Arbitrary_Cycles" .
+:P11 a bcore:Pattern ; rdfs:label "P11_Implicit_Termination" .
+:P12 a bcore:Pattern ; rdfs:label "P12_MI_without_Synchronization" .
+:P13 a bcore:Pattern ; rdfs:label "P13_MI_with_a_priori_Design_Time_Knowledge" .
+:P14 a bcore:Pattern ; rdfs:label "P14_MI_with_a_priori_Runtime_Knowledge" .
+:P15 a bcore:Pattern ; rdfs:label "P15_MI_without_a_priori_Runtime_Knowledge" .
+:P16 a bcore:Pattern ; rdfs:label "P16_Deferred_Choice" .
+:P17 a bcore:Pattern ; rdfs:label "P17_Interleaved_Parallel_Routing" .
+:P18 a bcore:Pattern ; rdfs:label "P18_Milestone" .
+:P19 a bcore:Pattern ; rdfs:label "P19_Cancel_Task" .
+:P20 a bcore:Pattern ; rdfs:label "P20_Cancel_Region" .
+:P21 a bcore:Pattern ; rdfs:label "P21_Cancel_Case" .
+:P22 a bcore:Pattern ; rdfs:label "P22_Cancel_Multiple_Instance_Task" .
+:P23 a bcore:Pattern ; rdfs:label "P23_Complete_Multiple_Instance_Task" .
+:P24 a bcore:Pattern ; rdfs:label "P24_Acyclic_Synchronizing_Merge" .
+:P25 a bcore:Pattern ; rdfs:label "P25_General_Synchronizing_Merge" .
+:P26 a bcore:Pattern ; rdfs:label "P26_Thread_Merge" .
+:P27 a bcore:Pattern ; rdfs:label "P27_Thread_Split" .
+:P28 a bcore:Pattern ; rdfs:label "P28_N_out_of_M_Join" .
+:P29 a bcore:Pattern ; rdfs:label "P29_N_out_of_M_Split" .
+:P30 a bcore:Pattern ; rdfs:label "P30_Static_Partial_Join_for_MI" .
+:P31 a bcore:Pattern ; rdfs:label "P31_Dynamic_Partial_Join_for_MI" .
+:P32 a bcore:Pattern ; rdfs:label "P32_Cancelling_Partial_Join_for_MI" .
+:P33 a bcore:Pattern ; rdfs:label "P33_Generalized_AND_Join" .
+:P34 a bcore:Pattern ; rdfs:label "P34_MI_Task_with_Early_Exit" .
+:P35 a bcore:Pattern ; rdfs:label "P35_Patient_Synchronizer" .
+:P36 a bcore:Pattern ; rdfs:label "P36_Critical_Section" .
+:P37 a bcore:Pattern ; rdfs:label "P37_Interleaved_Routing" .
+:P38 a bcore:Pattern ; rdfs:label "P38_Two_Phase_Commit" .
+:P39 a bcore:Pattern ; rdfs:label "P39_Long_Running_Task" .
+:P40 a bcore:Pattern ; rdfs:label "P40_Event_Based_Choice" .
+:P41 a bcore:Pattern ; rdfs:label "P41_State_Based_Routing" .
+:P42 a bcore:Pattern ; rdfs:label "P42_Deferred_Ad_Hoc_Routing" .
+:P43 a bcore:Pattern ; rdfs:label "P43_Case_Handling" .

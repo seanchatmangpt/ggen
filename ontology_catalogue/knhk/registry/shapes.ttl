@@ -1,0 +1,10 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix knhk: <https://knhk.io/covenant#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+knhk:CovenantShape a sh:NodeShape ;
+    sh:targetClass knhk:Covenant ;
+    sh:message "All Covenants must carry a label and comment." ;
+    sh:property [ sh:path rdfs:label ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path rdfs:comment ; sh:minCount 1 ; sh:datatype xsd:string ] .

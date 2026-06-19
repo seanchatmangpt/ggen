@@ -1,0 +1,28 @@
+# OCEL Object Uniqueness Validation
+# Ensures that object IDs are unique per object type within the log
+# Same object ID should not refer to different actual objects
+
+PREFIX ocel: <http://www.ocel-standard.org/ocel#>
+PREFIX ostar: <https://chatmangpt.com/ontologies/ostar#>
+
+ASK {
+  # Find duplicate object IDs within the same object type
+  # (This would indicate data quality issues)
+  ?event1 a ocel:Event ;
+            ocel:object-id ?object_id ;
+            ocel:object-type ?object_type ;
+            ocel:event-id ?event_id1 .
+  ?event2 a ocel:Event ;
+            ocel:object-id ?object_id ;
+            ocel:object-type ?object_type ;
+            ocel:event-id ?event_id2 .
+
+  FILTER (?event_id1 != ?event_id2)
+
+  # Additional check: same object appearing simultaneously in conflicting states
+  ?event1 ocel:lifecycle ?state1 .
+  ?event2 ocel:lifecycle ?state2 .
+
+  # Conflicting states at the same time
+  FILTER (?state1 = "create" && ?state2 = "complete")
+}

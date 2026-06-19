@@ -300,15 +300,69 @@ fn clean_sparql_term(value: &str) -> String {
         // IRI: strip angle brackets
         value[1..value.len() - 1].to_string()
     } else if let Some(without_prefix) = value.strip_prefix('"') {
-        // Literal: strip quotes and optional datatype/language tag
-        if let Some(quote_end) = without_prefix.find('"') {
-            without_prefix[..quote_end].to_string()
-        } else {
-            value.to_string()
-        }
+        // Literal: scan to the true closing quote, honoring Turtle/N-Triples
+        // escapes, then unescape the lexical value. The closing quote is the
+        // first `"` NOT preceded by an unescaped backslash — a naive
+        // `find('"')` would truncate at an interior `\"`.
+        unescape_turtle_literal(without_prefix)
     } else {
         value.to_string()
     }
+}
+
+/// Unescape a Turtle/N-Triples STRING_LITERAL_QUOTE body (the text after the
+/// opening `"`), stopping at the unescaped closing `"`. Handles the full
+/// Turtle escape set: `\t \b \n \r \f \" \' \\` and `\uXXXX` / `\UXXXXXXXX`.
+fn unescape_turtle_literal(body: &str) -> String {
+    let mut out = String::with_capacity(body.len());
+    let mut chars = body.chars();
+    while let Some(c) = chars.next() {
+        match c {
+            // Unescaped closing quote terminates the lexical value; the
+            // remainder is the datatype (`^^<...>`) or language tag (`@en`).
+            '"' => break,
+            '\\' => match chars.next() {
+                Some('t') => out.push('\t'),
+                Some('b') => out.push('\u{0008}'),
+                Some('n') => out.push('\n'),
+                Some('r') => out.push('\r'),
+                Some('f') => out.push('\u{000C}'),
+                Some('"') => out.push('"'),
+                Some('\'') => out.push('\''),
+                Some('\\') => out.push('\\'),
+                Some('u') => {
+                    let hex: String = chars.by_ref().take(4).collect();
+                    match u32::from_str_radix(&hex, 16).ok().and_then(char::from_u32) {
+                        Some(ch) => out.push(ch),
+                        None => {
+                            out.push('\\');
+                            out.push('u');
+                            out.push_str(&hex);
+                        }
+                    }
+                }
+                Some('U') => {
+                    let hex: String = chars.by_ref().take(8).collect();
+                    match u32::from_str_radix(&hex, 16).ok().and_then(char::from_u32) {
+                        Some(ch) => out.push(ch),
+                        None => {
+                            out.push('\\');
+                            out.push('U');
+                            out.push_str(&hex);
+                        }
+                    }
+                }
+                // Unknown escape: preserve the backslash and the char verbatim.
+                Some(other) => {
+                    out.push('\\');
+                    out.push(other);
+                }
+                None => out.push('\\'),
+            },
+            other => out.push(other),
+        }
+    }
+    out
 }
 
 impl GenerationPipeline {
@@ -355,15 +409,16 @@ impl GenerationPipeline {
         let graph = Graph::new()?;
 
         // Load primary ontology source
-        let source_path = self.base_path.join(&self.manifest.ontology.source);
-        let content = std::fs::read_to_string(&source_path).map_err(|e| {
-            Error::new(&format!(
-                "Failed to read ontology '{}': {}",
-                source_path.display(),
-                e
-            ))
-        })?;
-        graph.insert_turtle(&content)?;
+        for source_path in self.manifest.ontology.resolved_sources(&self.base_path) {
+            let content = std::fs::read_to_string(&source_path).map_err(|e| {
+                Error::new(&format!(
+                    "Failed to read ontology '{}': {}",
+                    source_path.display(),
+                    e
+                ))
+            })?;
+            graph.insert_turtle(&content)?;
+        }
 
         // Load imports
         for import in &self.manifest.ontology.imports {
@@ -556,8 +611,7 @@ impl GenerationPipeline {
     /// Static version of inject_generated_impl for use in parallel contexts
     fn inject_generated_impl_static(
         row: &BTreeMap<String, String>, rule: &crate::manifest::GenerationRule,
-        context: &mut tera::Context, manifest: &GgenManifest,
-        llm_service: Option<&dyn LlmService>,
+        context: &mut tera::Context, manifest: &GgenManifest, llm_service: Option<&dyn LlmService>,
     ) {
         // Look for skill-specific fields in SPARQL results
         let skill_name = row
@@ -1206,10 +1260,11 @@ impl GenerationPipeline {
         }
 
         // Commit transaction - all files written successfully
-        // We use Arc::try_unwrap to get the owned transaction back if possible, 
+        // We use Arc::try_unwrap to get the owned transaction back if possible,
         // or we just call commit on the Arc if we modify FileTransaction (but we didn't).
         // Since rayon join finished, we should be able to unwrap.
-        let tx = Arc::try_unwrap(transaction).map_err(|_| Error::new("Transaction still has multiple owners"))?;
+        let tx = Arc::try_unwrap(transaction)
+            .map_err(|_| Error::new("Transaction still has multiple owners"))?;
         let _receipt = tx.commit()?;
 
         self.generated_files.extend(all_generated.clone());
@@ -1230,6 +1285,172 @@ impl GenerationPipeline {
         result
     }
 
+    /// Execute custom validation rules (`[[validation.rules]]`) against the
+    /// inferred graph.
+    ///
+    /// Each manifest rule (`name`/`description`/`ask`/`severity`) is mapped onto
+    /// the [`RuleExecutor`] in `crate::validation::sparql_rules` and evaluated
+    /// against the current (post-inference) `ontology_graph`.
+    ///
+    /// ## ASK polarity (executor convention — honored, NOT inverted)
+    /// The executor treats **ASK = true ⇒ VALID (pass)** and **ASK = false ⇒
+    /// VIOLATION**. This matches the manifest field doc ("SPARQL ASK query
+    /// (true = valid)"). Authors who want "a collision EXISTS is a failure" must
+    /// therefore write the ASK as a well-formedness assertion, e.g.
+    /// `ASK { FILTER NOT EXISTS { <collision pattern> } }` (true when no
+    /// collision exists).
+    ///
+    /// An `Error`-severity violation returns `Err` (blocks generation, before any
+    /// files are written). A `Warning`-severity violation is logged and recorded
+    /// but does not block.
+    pub fn execute_validation_rules(&mut self) -> Result<()> {
+        use crate::manifest::types::ValidationSeverity as MSeverity;
+        use crate::validation::sparql_rules::{
+            RuleExecutor, RuleSeverity, ValidationRule as SparqlRule,
+        };
+        use crate::validation::violation::Severity as VSeverity;
+
+        let manifest_rules = self.manifest.validation.rules.clone();
+        if manifest_rules.is_empty() {
+            return Ok(());
+        }
+
+        let graph = self
+            .ontology_graph
+            .as_ref()
+            .ok_or_else(|| Error::new("Ontology graph not loaded. Call load_ontology() first."))?;
+
+        // Adapter: manifest::types::ValidationRule -> sparql_rules::ValidationRule
+        let sparql_rules: Vec<SparqlRule> = manifest_rules
+            .iter()
+            .map(|r| {
+                let severity = match r.severity {
+                    MSeverity::Error => RuleSeverity::Error,
+                    MSeverity::Warning => RuleSeverity::Warning,
+                };
+                SparqlRule::new(
+                    r.name.clone(),
+                    r.ask.clone(),
+                    severity,
+                    r.description.clone(),
+                )
+            })
+            .collect();
+
+        let executor = RuleExecutor::new();
+        let result = executor
+            .execute(graph, &sparql_rules)
+            .map_err(|e| Error::new(&format!("Validation rule execution failed: {}", e)))?;
+
+        // Record per-rule outcomes and surface messages.
+        let mut error_messages: Vec<String> = Vec::new();
+        for v in &result.violations {
+            let (sev, is_error) = match v.severity {
+                VSeverity::Violation => (ValidationSeverity::Error, true),
+                _ => (ValidationSeverity::Warning, false),
+            };
+            self.validation_results.push(ValidationResult {
+                rule_name: v.focus_node.clone(),
+                passed: false,
+                message: Some(v.message.clone()),
+                severity: sev,
+            });
+            if is_error {
+                error_messages.push(format!("{}: {}", v.focus_node, v.message));
+            } else {
+                log::warn!(
+                    "warning[GGEN-VALIDATION]: rule '{}' failed: {}",
+                    v.focus_node,
+                    v.message
+                );
+            }
+        }
+
+        if !error_messages.is_empty() {
+            return Err(Error::new(&format!(
+                "error[GGEN-VALIDATION]: {} custom validation rule(s) failed (Error severity):\n  - {}\n  = generation aborted before writing files",
+                error_messages.len(),
+                error_messages.join("\n  - ")
+            )));
+        }
+
+        Ok(())
+    }
+
+    /// Execute SHACL shape validation rules against the loaded and inferred ontology graph.
+    ///
+    /// If there are any `Error`-severity violations, return an `Err` (aborts generation).
+    pub fn execute_shacl_validation(&mut self) -> Result<()> {
+        use crate::validation::{SparqlValidator, Severity as VSeverity};
+        
+        let shacl_paths = self.manifest.validation.shacl.clone();
+        if shacl_paths.is_empty() {
+            return Ok(());
+        }
+
+        let graph = self
+            .ontology_graph
+            .as_ref()
+            .ok_or_else(|| Error::new("Ontology graph not loaded. Call load_ontology() first."))?;
+
+        // 1. Load all SHACL shape files into a single Graph
+        let shapes_graph = Graph::new()?;
+        for shacl_path in &shacl_paths {
+            let full_path = self.base_path.join(shacl_path);
+            let content = std::fs::read_to_string(&full_path).map_err(|e| {
+                Error::new(&format!(
+                    "Failed to read SHACL shape file '{}': {}",
+                    full_path.display(),
+                    e
+                ))
+            })?;
+            shapes_graph.insert_turtle(&content)?;
+        }
+
+        // 2. Validate the ontology graph against the SHACL shapes
+        let validator = SparqlValidator::new();
+        let result = validator
+            .validate(graph, &shapes_graph)
+            .map_err(|e| Error::new(&format!("SHACL validation failed: {}", e)))?;
+
+        // 3. Process violations and push to validation_results
+        let mut error_messages = Vec::new();
+        for v in &result.violations {
+            let (sev, is_error) = match v.severity {
+                VSeverity::Violation => (ValidationSeverity::Error, true),
+                _ => (ValidationSeverity::Warning, false),
+            };
+            self.validation_results.push(ValidationResult {
+                rule_name: format!("SHACL-{}", v.focus_node),
+                passed: false,
+                message: Some(format!(
+                    "SHACL violation on focus node '{}': {} (shape: {})",
+                    v.focus_node, v.message, v.source_shape
+                )),
+                severity: sev,
+            });
+            if is_error {
+                error_messages.push(format!("Focus node '{}': {}", v.focus_node, v.message));
+            } else {
+                log::warn!(
+                    "warning[GGEN-SHACL-VALIDATION]: violation on focus node '{}': {}",
+                    v.focus_node,
+                    v.message
+                );
+            }
+        }
+
+        if !error_messages.is_empty() {
+            return Err(Error::new(&format!(
+                "error[GGEN-SHACL-VALIDATION]: {} SHACL validation violation(s) failed:\n  - {}\n  = generation aborted before writing files",
+                error_messages.len(),
+                error_messages.join("\n  - ")
+            )));
+        }
+
+        Ok(())
+    }
+
     /// Run the complete pipeline
     ///
     /// # Returns
@@ -1241,6 +1462,14 @@ impl GenerationPipeline {
 
         // 2. Execute inference rules
         self.execute_inference_rules()?;
+
+        // Run SHACL shape validation
+        self.execute_shacl_validation()?;
+
+        // 2b. Execute custom validation rules (SPARQL ASK/SELECT) against the
+        // inferred graph. An Error-severity violation aborts BEFORE any files
+        // are written; a Warning is recorded but does not block.
+        self.execute_validation_rules()?;
 
         // 3. Execute generation rules
         self.execute_generation_rules()?;
@@ -1439,6 +1668,56 @@ mod tests {
 
         let result = GenerationPipeline::expand_output_path("src/{{module}}/{{name}}.rs", &ctx);
         assert_eq!(result, PathBuf::from("src/models/user.rs"));
+    }
+
+    #[test]
+    fn test_clean_sparql_term_iri() {
+        assert_eq!(
+            clean_sparql_term("<http://example.org/x>"),
+            "http://example.org/x"
+        );
+    }
+
+    #[test]
+    fn test_clean_sparql_term_plain_literal() {
+        assert_eq!(clean_sparql_term("\"hello\""), "hello");
+    }
+
+    #[test]
+    fn test_clean_sparql_term_typed_and_lang_tagged() {
+        assert_eq!(
+            clean_sparql_term("\"hello\"^^<http://www.w3.org/2001/XMLSchema#string>"),
+            "hello"
+        );
+        assert_eq!(clean_sparql_term("\"hello\"@en"), "hello");
+    }
+
+    /// Regression: a literal whose lexical value contains an escaped `\"` must
+    /// round-trip to an interior `"` with the full value intact — NOT be
+    /// truncated at the first interior quote leaving a dangling backslash.
+    #[test]
+    fn test_clean_sparql_term_interior_escaped_quote() {
+        // This is oxigraph's N-Triples rendering of the literal
+        //   Sussman, G. J. (1973). "A Computational Model". MIT.
+        let term = "\"Sussman, G. J. (1973). \\\"A Computational Model\\\". MIT.\"";
+        assert_eq!(
+            clean_sparql_term(term),
+            "Sussman, G. J. (1973). \"A Computational Model\". MIT."
+        );
+        // No truncation and no dangling backslash.
+        assert!(!clean_sparql_term(term).ends_with('\\'));
+        assert!(clean_sparql_term(term).contains("MIT."));
+    }
+
+    #[test]
+    fn test_unescape_turtle_full_escape_set() {
+        // Body is everything after the opening quote, up to and including the close.
+        assert_eq!(
+            unescape_turtle_literal("a\\tb\\nc\\\\d\\\"e\"^^<xsd:string>"),
+            "a\tb\nc\\d\"e"
+        );
+        // Unicode escape.
+        assert_eq!(unescape_turtle_literal("\\u0041\""), "A");
     }
 
     #[test]

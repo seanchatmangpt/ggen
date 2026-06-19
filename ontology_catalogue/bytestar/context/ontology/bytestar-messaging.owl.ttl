@@ -1,0 +1,43 @@
+@prefix : <https://bytestar.org/ontology/bytestar-messaging#> .
+@prefix bytestar: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://bytestar.org/ontology/bytestar-messaging>
+  a owl:Ontology ;
+  owl:imports <https://bytestar.org/ontology/bytestar-core> ;
+  rdfs:label "ByteStar Messaging Contracts" ;
+  rdfs:comment "Tickets, pulses, receipts, ledger segments with field-level contracts." .
+
+### Tickets & Pulses
+:BlueprintPack a owl:Class .
+:FabricationOutput a owl:Class .  # union wrapper for (G,K,E) bundles
+:AdmissionTicket a owl:Class .
+:CompletionPulse a owl:Class ; rdfs:subClassOf bytestar:Pulse .
+
+### Ticket fields
+:ticketFor a owl:ObjectProperty ; rdfs:domain :AdmissionTicket ; rdfs:range bytestar:Crystal .
+:hasPB      a owl:DatatypeProperty ; rdfs:domain bytestar:Crystal ; rdfs:range xsd:unsignedByte .
+:hopBudget  a owl:DatatypeProperty ; rdfs:domain :AdmissionTicket ; rdfs:range xsd:integer .
+:pqcVerified a owl:DatatypeProperty ; rdfs:domain :AdmissionTicket ; rdfs:range xsd:boolean .
+:patternCongruent a owl:DatatypeProperty ; rdfs:domain :AdmissionTicket ; rdfs:range xsd:boolean .
+:admitted    a owl:DatatypeProperty ; rdfs:domain :AdmissionTicket ; rdfs:range xsd:boolean .
+
+### Pulse fields (off-path observability)
+:inputId  a owl:DatatypeProperty ; rdfs:domain :CompletionPulse ; rdfs:range xsd:string .
+:outputId a owl:DatatypeProperty ; rdfs:domain :CompletionPulse ; rdfs:range xsd:string .
+:cubePos  a owl:DatatypeProperty ; rdfs:domain :CompletionPulse ; rdfs:range xsd:string .
+:tickSpan a owl:DatatypeProperty ; rdfs:domain :CompletionPulse ; rdfs:range xsd:integer .
+
+### Receipts & rolling seals
+:Receipt a owl:Class ; rdfs:subClassOf bytestar:Receipt .
+:hasSeal a owl:DatatypeProperty ; rdfs:domain :Receipt ; rdfs:range xsd:hexBinary .
+:prevReceipt a owl:ObjectProperty ; rdfs:domain :Receipt ; rdfs:range :Receipt .
+
+### Ledger segment linkage
+:Segment a owl:Class ; rdfs:subClassOf bytestar:LedgerSegment .
+:containsReceipt a owl:ObjectProperty ; rdfs:domain :Segment ; rdfs:range :Receipt .
+
+### Invariants annotations (non-normative)
+:tickSpanBound a owl:DatatypeProperty ; rdfs:domain :CompletionPulse ; rdfs:range xsd:integer .

@@ -1,0 +1,40 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ub: <https://chatmangpt.com/ontology/unibit#> .
+@prefix rust: <https://chatmangpt.com/ontology/rust#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ub:ResidentRegionShape a sh:NodeShape ;
+  sh:targetClass ub:ResidentRegion ;
+  sh:property [
+    sh:path ub:bitCount ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path ub:rustWords ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path rust:alignBits ;
+    sh:hasValue 512 ;
+  ] .
+
+ub:L1RegionShape a sh:NodeShape ;
+  sh:targetNode ub:L1Region ;
+  sh:property [
+    sh:path ub:truth ;
+    sh:hasValue ub:TruthRegion ;
+  ] ;
+  sh:property [
+    sh:path ub:scratch ;
+    sh:hasValue ub:ScratchRegion ;
+  ] ;
+  sh:property [
+    sh:path ub:requiresPinning ;
+    sh:hasValue true ;
+  ] ;
+  sh:property [
+    sh:path ub:requiresPositionValidation ;
+    sh:hasValue true ;
+  ] .

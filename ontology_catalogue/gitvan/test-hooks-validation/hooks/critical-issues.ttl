@@ -1,0 +1,34 @@
+@prefix ex: <http://example.org/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Critical Issue Alert Hook
+ex:critical-issues-hook rdf:type gh:Hook ;
+    gv:title "Critical Issue Alert" ;
+    gh:hasPredicate ex:critical-issues-predicate ;
+    gh:orderedPipelines ex:critical-issues-pipeline .
+
+# ASK Predicate - "Condition" Sensor
+ex:critical-issues-predicate rdf:type gh:ASKPredicate ;
+    gh:queryText """
+        PREFIX gv: <https://gitvan.dev/ontology#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        ASK WHERE {
+            ?item rdf:type gv:TestItem .
+            ?item gv:priority "critical" .
+            ?item gv:status "open" .
+        }
+    """ ;
+    gh:description "Detects if there are any open critical issues in the system" .
+
+# Workflow Pipeline
+ex:critical-issues-pipeline rdf:type op:Pipeline ;
+    op:steps ex:create-alert .
+
+# Step 1: Create Alert
+ex:create-alert rdf:type gv:TemplateStep ;
+    gv:text "🚨 CRITICAL ISSUE DETECTED\n\nTime: {{ 'now' | date('YYYY-MM-DD HH:mm:ss') }}\nStatus: Action Required\n" ;
+    gv:filePath "./logs/critical-alerts.log" .

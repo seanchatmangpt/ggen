@@ -1,0 +1,482 @@
+@prefix knowd: <http://knowd.io/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# KnowD SHACL Validation Shapes
+# ============================================================================
+# These shapes enforce constraints on the KnowD ontology and feature definitions,
+# enabling self-validation of the implementation state.
+# ============================================================================
+
+# ============================================================================
+# Production Feature Validation
+# ============================================================================
+
+knowd:ProductionFeatureShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:ProductionFeature ;
+    sh:name "Production Feature Shape" ;
+    sh:description "Validation rules for production-ready features" ;
+
+    # Every production feature must have a status
+    sh:property [
+        sh:path knowd:status ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "planned" "in-progress" "implemented" "validated" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Production feature must have exactly one status: planned, in-progress, implemented, or validated" ;
+    ] ;
+
+    # Every production feature must have a priority
+    sh:property [
+        sh:path knowd:priority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "P0" "P1" "P2" "P3" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Production feature must have exactly one priority: P0, P1, P2, or P3" ;
+    ] ;
+
+    # Every production feature must have a completeness score
+    sh:property [
+        sh:path knowd:completeness ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Completeness must be a decimal between 0.0 and 1.0" ;
+    ] ;
+
+    # Every production feature must have a description
+    sh:property [
+        sh:path knowd:description ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:severity sh:Warning ;
+        sh:message "Production feature should have a meaningful description (min 10 characters)" ;
+    ] ;
+
+    # Implemented features must have implementation files
+    sh:sparql [
+        sh:message "Features with status 'implemented' must specify where they are implemented" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this
+            WHERE {
+                $this knowd:status "implemented" .
+                FILTER NOT EXISTS { $this knowd:implementedIn ?file }
+            }
+        """
+    ] ;
+
+    # P0 features must be validated before production
+    sh:sparql [
+        sh:message "P0 features must have status 'implemented' or 'validated' for production readiness" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?status
+            WHERE {
+                $this knowd:priority "P0" ;
+                      knowd:status ?status .
+                FILTER (?status NOT IN ("implemented", "validated"))
+            }
+        """
+    ] .
+
+# ============================================================================
+# P0 Completeness Requirement
+# ============================================================================
+
+knowd:P0CompletenessShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:ProductionFeature ;
+    sh:name "P0 Completeness Shape" ;
+    sh:description "P0 features must be 100% complete for production release" ;
+
+    sh:sparql [
+        sh:message "P0 features must be 100% complete (completeness = 1.0) for production release" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?completeness
+            WHERE {
+                $this knowd:priority "P0" ;
+                      knowd:completeness ?completeness .
+                FILTER (?completeness < 1.0)
+            }
+        """
+    ] .
+
+# ============================================================================
+# Security Feature Validation
+# ============================================================================
+
+knowd:SecurityFeatureShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:SecurityFeature ;
+    sh:name "Security Feature Shape" ;
+    sh:description "Additional validation for security features" ;
+
+    # Security features must have high test coverage
+    sh:property [
+        sh:path knowd:coverage ;
+        sh:minInclusive 0.85 ;
+        sh:severity sh:Warning ;
+        sh:message "Security features should have at least 85% test coverage" ;
+    ] ;
+
+    # Security features should be tagged appropriately
+    sh:property [
+        sh:path knowd:tags ;
+        sh:pattern "security" ;
+        sh:severity sh:Info ;
+        sh:message "Security features should include 'security' tag" ;
+    ] .
+
+# ============================================================================
+# Implementation Module Validation
+# ============================================================================
+
+knowd:ImplementationModuleShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:ImplementationModule ;
+    sh:name "Implementation Module Shape" ;
+    sh:description "Validation rules for implementation modules" ;
+
+    # Must implement at least one feature
+    sh:property [
+        sh:path knowd:implements ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Implementation module must implement at least one feature" ;
+    ] ;
+
+    # Must have a source file path
+    sh:property [
+        sh:path knowd:implementedIn ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^internal/" ;
+        sh:severity sh:Violation ;
+        sh:message "Implementation file must be in internal/ directory" ;
+    ] ;
+
+    # Should have corresponding test file
+    sh:property [
+        sh:path knowd:testedBy ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Implementation module should have corresponding test file" ;
+    ] ;
+
+    # Coverage should be tracked
+    sh:property [
+        sh:path knowd:coverage ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:severity sh:Info ;
+        sh:message "Test coverage should be tracked for all modules" ;
+    ] .
+
+# ============================================================================
+# Configuration Validation
+# ============================================================================
+
+knowd:ConfigurationResourceShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:ConfigurationResource ;
+    sh:name "Configuration Resource Shape" ;
+    sh:description "Validation for configuration resources" ;
+
+    # Must have config key
+    sh:property [
+        sh:path knowd:configKey ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Configuration must have exactly one config key" ;
+    ] ;
+
+    # Must have config value
+    sh:property [
+        sh:path knowd:configValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Configuration must have exactly one value" ;
+    ] ;
+
+    # Must specify type
+    sh:property [
+        sh:path knowd:configType ;
+        sh:minCount 1 ;
+        sh:in ( "string" "integer" "boolean" "duration" "url" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Configuration must specify type" ;
+    ] .
+
+# ============================================================================
+# API Endpoint Validation
+# ============================================================================
+
+knowd:APIEndpointShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:APIEndpoint ;
+    sh:name "API Endpoint Shape" ;
+    sh:description "Validation for HTTP API endpoints" ;
+
+    # Must have HTTP method
+    sh:property [
+        sh:path knowd:httpMethod ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "GET" "POST" "PUT" "DELETE" "PATCH" ) ;
+        sh:severity sh:Violation ;
+        sh:message "API endpoint must have valid HTTP method" ;
+    ] ;
+
+    # Must have path
+    sh:property [
+        sh:path knowd:path ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^/v[0-9]+/" ;
+        sh:severity sh:Violation ;
+        sh:message "API path must start with version prefix (e.g., /v1/)" ;
+    ] ;
+
+    # Should have description
+    sh:property [
+        sh:path knowd:description ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "API endpoint should have description" ;
+    ] .
+
+# ============================================================================
+# Hook Definition Validation
+# ============================================================================
+
+knowd:HookShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:Hook ;
+    sh:name "Hook Shape" ;
+    sh:description "Validation for autonomic knowledge hooks" ;
+
+    # Must have hook type
+    sh:property [
+        sh:path knowd:hookType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "sparql-ask" "shacl" "delta" "threshold" "count" "window" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Hook must have valid type" ;
+    ] ;
+
+    # Must have query or condition
+    sh:property [
+        sh:path knowd:hookQuery ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Hook must have query or condition" ;
+    ] ;
+
+    # Must have action
+    sh:property [
+        sh:path knowd:hookAction ;
+        sh:minCount 1 ;
+        sh:in ( "execute" "notify" "reject" "modify" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Hook must specify action to take" ;
+    ] .
+
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+knowd:DependencyConstraint
+    a sh:NodeShape ;
+    sh:targetClass knowd:Feature ;
+    sh:name "Dependency Constraint" ;
+    sh:description "Features cannot depend on lower-priority features" ;
+
+    sh:sparql [
+        sh:message "Feature cannot depend on lower-priority feature (P0 cannot depend on P1/P2/P3)" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?thisPriority ?dep ?depPriority
+            WHERE {
+                $this knowd:priority ?thisPriority ;
+                      knowd:dependsOn ?dep .
+                ?dep knowd:priority ?depPriority .
+                FILTER (
+                    (?thisPriority = "P0" && ?depPriority IN ("P1", "P2", "P3")) ||
+                    (?thisPriority = "P1" && ?depPriority IN ("P2", "P3"))
+                )
+            }
+        """
+    ] .
+
+# ============================================================================
+# Release Readiness Validation
+# ============================================================================
+
+knowd:ReleaseReadinessShape
+    a sh:NodeShape ;
+    sh:name "Production Release Readiness" ;
+    sh:description "Comprehensive validation for production release" ;
+    sh:targetClass knowd:ProductionFeature ;
+
+    # All P0 features must be implemented
+    sh:sparql [
+        sh:message "All P0 features must be implemented for production release" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?status
+            WHERE {
+                $this knowd:priority "P0" ;
+                      knowd:status ?status .
+                FILTER (?status != "implemented" && ?status != "validated")
+            }
+        """
+    ] ;
+
+    # All P0 features must be complete
+    sh:sparql [
+        sh:message "All P0 features must be 100% complete for production release" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?completeness
+            WHERE {
+                $this knowd:priority "P0" ;
+                      knowd:completeness ?completeness .
+                FILTER (?completeness < 1.0)
+            }
+        """
+    ] ;
+
+    # All P0 security features must have high coverage
+    sh:sparql [
+        sh:message "All P0 security features must have >80% test coverage" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?coverage
+            WHERE {
+                $this a knowd:SecurityFeature ;
+                      knowd:priority "P0" ;
+                      knowd:coverage ?coverage .
+                FILTER (?coverage < 0.80)
+            }
+        """
+    ] .
+
+# ============================================================================
+# Test Coverage Validation
+# ============================================================================
+
+knowd:TestCoverageShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:Feature ;
+    sh:name "Test Coverage Requirements" ;
+    sh:description "Minimum test coverage for different feature types" ;
+
+    # Security features need high coverage
+    sh:sparql [
+        sh:message "Security features should have at least 85% test coverage" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?coverage
+            WHERE {
+                $this a knowd:SecurityFeature ;
+                      knowd:coverage ?coverage .
+                FILTER (?coverage < 0.85)
+            }
+        """
+    ] ;
+
+    # All P0 features need good coverage
+    sh:sparql [
+        sh:message "P0 features should have at least 80% test coverage" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            PREFIX knowd: <http://knowd.io/ontology#>
+            SELECT $this ?coverage
+            WHERE {
+                $this knowd:priority "P0" ;
+                      knowd:coverage ?coverage .
+                FILTER (?coverage < 0.80)
+            }
+        """
+    ] .
+
+# ============================================================================
+# Closed Shape for Strict Validation
+# ============================================================================
+
+knowd:StrictProductionFeatureShape
+    a sh:NodeShape ;
+    sh:targetClass knowd:ProductionFeature ;
+    sh:name "Strict Production Feature Validation" ;
+    sh:description "Closed shape - only allows specified properties" ;
+    sh:closed true ;
+    sh:ignoredProperties ( <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ;
+    sh:property [
+        sh:path knowd:status ;
+    ] ;
+    sh:property [
+        sh:path knowd:priority ;
+    ] ;
+    sh:property [
+        sh:path knowd:completeness ;
+    ] ;
+    sh:property [
+        sh:path knowd:description ;
+    ] ;
+    sh:property [
+        sh:path knowd:implementedIn ;
+    ] ;
+    sh:property [
+        sh:path knowd:testedBy ;
+    ] ;
+    sh:property [
+        sh:path knowd:coverage ;
+    ] ;
+    sh:property [
+        sh:path knowd:tags ;
+    ] ;
+    sh:property [
+        sh:path knowd:dependsOn ;
+    ] ;
+    sh:property [
+        sh:path knowd:documentation ;
+    ] ;
+    sh:property [
+        sh:path knowd:lastModified ;
+    ] ;
+    sh:property [
+        sh:path rdfs:label ;
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+    ] .

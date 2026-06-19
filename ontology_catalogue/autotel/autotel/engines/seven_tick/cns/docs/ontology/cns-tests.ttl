@@ -1,0 +1,387 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Tests Ontology - All Test Suites and Benchmarks
+#################################################################
+
+# ============================================================================
+# TEST CLASSES
+# ============================================================================
+
+cns:Test a rdfs:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "A test or benchmark for CNS components" .
+
+cns:Benchmark a rdfs:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "A performance benchmark" .
+
+cns:Engine a rdfs:Class ;
+    rdfs:label "CNS Engine" ;
+    rdfs:comment "A core CNS engine (SPARQL, SHACL, OWL, etc.)" .
+
+# ============================================================================
+# TEST PROPERTIES
+# ============================================================================
+
+cns:hasTest a rdf:Property ;
+    rdfs:label "has test" ;
+    rdfs:domain cns:Engine ;
+    rdfs:range cns:Test .
+
+cns:hasBenchmark a rdf:Property ;
+    rdfs:label "has benchmark" ;
+    rdfs:domain cns:Engine ;
+    rdfs:range cns:Benchmark .
+
+cns:filePath a rdf:Property ;
+    rdfs:label "file path" ;
+    rdfs:domain cns:Test ;
+    rdfs:range rdfs:Literal .
+
+cns:testCount a rdf:Property ;
+    rdfs:label "test count" ;
+    rdfs:domain cns:Test ;
+    rdfs:range xsd:integer .
+
+cns:passRate a rdf:Property ;
+    rdfs:label "pass rate" ;
+    rdfs:domain cns:Test ;
+    rdfs:range xsd:decimal .
+
+cns:benchmarkType a rdf:Property ;
+    rdfs:label "benchmark type" ;
+    rdfs:domain cns:Benchmark ;
+    rdfs:range rdfs:Literal .
+
+cns:performanceTier a rdf:Property ;
+    rdfs:label "performance tier" ;
+    rdfs:domain cns:Benchmark ;
+    rdfs:range rdfs:Literal .
+
+# ============================================================================
+# OWL ENGINE TESTS
+# ============================================================================
+
+cns:OWLTestSuite a cns:Test ;
+    rdfs:label "OWL Test Suite" ;
+    cns:filePath "cns/tests/test_owl.c" ;
+    cns:testCount 54 ;
+    cns:passRate 0.87 ;
+    rdfs:comment "Comprehensive test suite for OWL engine" .
+
+cns:OWLUnitTests a cns:Test ;
+    rdfs:label "OWL Unit Tests" ;
+    cns:filePath "cns/tests/test_owl.c" ;
+    cns:testCount 30 ;
+    cns:passRate 0.93 ;
+    rdfs:comment "Unit tests for OWL reasoning functions" .
+
+cns:OWLPerformanceTests a cns:Test ;
+    rdfs:label "OWL Performance Tests" ;
+    cns:filePath "cns/tests/test_owl.c" ;
+    cns:testCount 15 ;
+    cns:passRate 0.80 ;
+    rdfs:comment "Performance tests for OWL operations" .
+
+cns:OWL7TComplianceTests a cns:Test ;
+    rdfs:label "OWL 7T Compliance Tests" ;
+    cns:filePath "cns/tests/test_owl.c" ;
+    cns:testCount 9 ;
+    cns:passRate 0.78 ;
+    rdfs:comment "7T compliance validation tests" .
+
+# ============================================================================
+# GATEKEEPER TESTS
+# ============================================================================
+
+cns:GatekeeperTestSuite a cns:Test ;
+    rdfs:label "Gatekeeper Test Suite" ;
+    cns:filePath "cns/tests/test_gatekeeper_standalone.c" ;
+    cns:testCount 25 ;
+    cns:passRate 0.92 ;
+    rdfs:comment "Standalone test suite for Gatekeeper" .
+
+cns:GatekeeperCorrectnessTests a cns:Test ;
+    rdfs:label "Gatekeeper Correctness Tests" ;
+    cns:filePath "cns/tests/test_gatekeeper_standalone.c" ;
+    cns:testCount 8 ;
+    cns:passRate 0.88 ;
+    rdfs:comment "Correctness validation tests" .
+
+cns:GatekeeperPerformanceTests a cns:Test ;
+    rdfs:label "Gatekeeper Performance Tests" ;
+    cns:filePath "cns/tests/test_gatekeeper_standalone.c" ;
+    cns:testCount 10 ;
+    cns:passRate 0.90 ;
+    rdfs:comment "Performance validation tests" .
+
+cns:GatekeeperSigmaTests a cns:Test ;
+    rdfs:label "Gatekeeper Sigma Tests" ;
+    cns:filePath "cns/tests/test_gatekeeper_standalone.c" ;
+    cns:testCount 7 ;
+    cns:passRate 0.95 ;
+    rdfs:comment "Six sigma calculation tests" .
+
+# ============================================================================
+# SQL AOT TESTS
+# ============================================================================
+
+cns:SQLAOTTestSuite a cns:Test ;
+    rdfs:label "SQL AOT Test Suite" ;
+    cns:filePath "cns/test_sql_aot.c" ;
+    cns:testCount 18 ;
+    cns:passRate 0.89 ;
+    rdfs:comment "Test suite for SQL AOT engine" .
+
+cns:SQLAOTCompilationTests a cns:Test ;
+    rdfs:label "SQL AOT Compilation Tests" ;
+    cns:filePath "cns/test_sql_aot.c" ;
+    cns:testCount 8 ;
+    cns:passRate 0.88 ;
+    rdfs:comment "SQL compilation tests" .
+
+cns:SQLAOTExecutionTests a cns:Test ;
+    rdfs:label "SQL AOT Execution Tests" ;
+    cns:filePath "cns/test_sql_aot.c" ;
+    cns:testCount 10 ;
+    cns:passRate 0.90 ;
+    rdfs:comment "SQL execution tests" .
+
+# ============================================================================
+# SPARQL TESTS
+# ============================================================================
+
+cns:SPARQLTestSuite a cns:Test ;
+    rdfs:label "SPARQL Test Suite" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 22 ;
+    cns:passRate 0.86 ;
+    rdfs:comment "Test suite for SPARQL engine" .
+
+cns:SPARQLQueryTests a cns:Test ;
+    rdfs:label "SPARQL Query Tests" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 12 ;
+    cns:passRate 0.83 ;
+    rdfs:comment "SPARQL query execution tests" .
+
+cns:SPARQLJoinTests a cns:Test ;
+    rdfs:label "SPARQL Join Tests" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 10 ;
+    cns:passRate 0.90 ;
+    rdfs:comment "SPARQL join operation tests" .
+
+# ============================================================================
+# SHACL TESTS
+# ============================================================================
+
+cns:SHACLTestSuite a cns:Test ;
+    rdfs:label "SHACL Test Suite" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 20 ;
+    cns:passRate 0.85 ;
+    rdfs:comment "Test suite for SHACL engine" .
+
+cns:SHACLValidationTests a cns:Test ;
+    rdfs:label "SHACL Validation Tests" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 15 ;
+    cns:passRate 0.87 ;
+    rdfs:comment "SHACL validation tests" .
+
+cns:SHACLShapeTests a cns:Test ;
+    rdfs:label "SHACL Shape Tests" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 5 ;
+    cns:passRate 0.80 ;
+    rdfs:comment "SHACL shape processing tests" .
+
+# ============================================================================
+# CNS CORE TESTS
+# ============================================================================
+
+cns:CNSCoreTestSuite a cns:Test ;
+    rdfs:label "CNS Core Test Suite" ;
+    cns:filePath "cns/tests/test_cns_core.c" ;
+    cns:testCount 35 ;
+    cns:passRate 0.91 ;
+    rdfs:comment "Test suite for CNS core functionality" .
+
+cns:CNSCommandTests a cns:Test ;
+    rdfs:label "CNS Command Tests" ;
+    cns:filePath "cns/tests/test_cns_commands.c" ;
+    cns:testCount 28 ;
+    cns:passRate 0.89 ;
+    rdfs:comment "CNS command execution tests" .
+
+cns:CNSDispatchTests a cns:Test ;
+    rdfs:label "CNS Dispatch Tests" ;
+    cns:filePath "cns/tests/test_cns_dispatch.c" ;
+    cns:testCount 18 ;
+    cns:passRate 0.94 ;
+    rdfs:comment "CNS command dispatch tests" .
+
+cns:CNSParserTests a cns:Test ;
+    rdfs:label "CNS Parser Tests" ;
+    cns:filePath "cns/tests/test_cns_parser.c" ;
+    cns:testCount 25 ;
+    cns:passRate 0.88 ;
+    rdfs:comment "CNS parser tests" .
+
+cns:CNSTypeTests a cns:Test ;
+    rdfs:label "CNS Type Tests" ;
+    cns:filePath "cns/tests/test_cns_types.c" ;
+    cns:testCount 32 ;
+    cns:passRate 0.93 ;
+    rdfs:comment "CNS type system tests" .
+
+# ============================================================================
+# BENCHMARKS
+# ============================================================================
+
+cns:OWLBenchmark a cns:Benchmark ;
+    rdfs:label "OWL Benchmark" ;
+    cns:filePath "cns/test_owl" ;
+    cns:benchmarkType "performance" ;
+    cns:performanceTier "7T" ;
+    rdfs:comment "Performance benchmark for OWL engine" .
+
+cns:SQLAOTBenchmark a cns:Benchmark ;
+    rdfs:label "SQL AOT Benchmark" ;
+    cns:filePath "cns/sql_aot_benchmark_standalone" ;
+    cns:benchmarkType "performance" ;
+    cns:performanceTier "L2" ;
+    rdfs:comment "Performance benchmark for SQL AOT engine" .
+
+cns:SPARQLBenchmark a cns:Benchmark ;
+    rdfs:label "SPARQL Benchmark" ;
+    cns:filePath "cns/sparql_80_20_benchmark" ;
+    cns:benchmarkType "performance" ;
+    cns:performanceTier "7T" ;
+    rdfs:comment "Performance benchmark for SPARQL engine" .
+
+cns:SHACLBenchmark a cns:Benchmark ;
+    rdfs:label "SHACL Benchmark" ;
+    cns:filePath "cns/shacl_49_cycle_benchmark" ;
+    cns:benchmarkType "performance" ;
+    cns:performanceTier "L2" ;
+    rdfs:comment "Performance benchmark for SHACL engine" .
+
+cns:GatekeeperBenchmark a cns:Benchmark ;
+    rdfs:label "Gatekeeper Benchmark" ;
+    cns:filePath "cns/test_gatekeeper_standalone" ;
+    cns:benchmarkType "quality" ;
+    cns:performanceTier "L3" ;
+    rdfs:comment "Quality benchmark for Gatekeeper" .
+
+cns:WeaverBenchmark a cns:Benchmark ;
+    rdfs:label "Weaver Benchmark" ;
+    cns:filePath "cns/weaver_80_20_simple_final" ;
+    cns:benchmarkType "code_generation" ;
+    cns:performanceTier "L3" ;
+    rdfs:comment "Code generation benchmark for Weaver" .
+
+cns:ComprehensiveBenchmark a cns:Benchmark ;
+    rdfs:label "Comprehensive Benchmark" ;
+    cns:filePath "cns/cns_comprehensive_benchmark" ;
+    cns:benchmarkType "system" ;
+    cns:performanceTier "L3" ;
+    rdfs:comment "System-wide comprehensive benchmark" .
+
+cns:Real7TickBenchmark a cns:Benchmark ;
+    rdfs:label "Real 7-Tick Benchmark" ;
+    cns:filePath "cns/real_7tick_benchmark" ;
+    cns:benchmarkType "performance" ;
+    cns:performanceTier "7T" ;
+    rdfs:comment "Realistic 7-tick performance benchmark" .
+
+# ============================================================================
+# SPECIALIZED BENCHMARKS
+# ============================================================================
+
+cns:SPARQL80_20Benchmark a cns:Benchmark ;
+    rdfs:label "SPARQL 80/20 Benchmark" ;
+    cns:filePath "cns/sparql_80_20_benchmark" ;
+    cns:benchmarkType "optimization" ;
+    cns:performanceTier "7T" ;
+    rdfs:comment "80/20 optimized SPARQL benchmark" .
+
+cns:SHACL49CycleBenchmark a cns:Benchmark ;
+    rdfs:label "SHACL 49-Cycle Benchmark" ;
+    cns:filePath "cns/shacl_49_cycle_benchmark" ;
+    cns:benchmarkType "performance" ;
+    cns:performanceTier "L2" ;
+    rdfs:comment "49-cycle SHACL performance benchmark" .
+
+cns:SQLAOT80_20Benchmark a cns:Benchmark ;
+    rdfs:label "SQL AOT 80/20 Benchmark" ;
+    cns:filePath "cns/sql_aot_benchmark_80_20" ;
+    cns:benchmarkType "optimization" ;
+    cns:performanceTier "L2" ;
+    rdfs:comment "80/20 optimized SQL AOT benchmark" .
+
+cns:Weaver80_20Benchmark a cns:Benchmark ;
+    rdfs:label "Weaver 80/20 Benchmark" ;
+    cns:filePath "cns/weaver_80_20_simple_final" ;
+    cns:benchmarkType "code_generation" ;
+    cns:performanceTier "L3" ;
+    rdfs:comment "80/20 optimized Weaver benchmark" .
+
+# ============================================================================
+# TEST RELATIONSHIPS
+# ============================================================================
+
+# OWL Engine Test Relationships
+cns:OWLEngine cns:hasTest cns:OWLTestSuite ;
+    cns:hasTest cns:OWLUnitTests ;
+    cns:hasTest cns:OWLPerformanceTests ;
+    cns:hasTest cns:OWL7TComplianceTests ;
+    cns:hasBenchmark cns:OWLBenchmark .
+
+# Gatekeeper Engine Test Relationships
+cns:GatekeeperEngine cns:hasTest cns:GatekeeperTestSuite ;
+    cns:hasTest cns:GatekeeperCorrectnessTests ;
+    cns:hasTest cns:GatekeeperPerformanceTests ;
+    cns:hasTest cns:GatekeeperSigmaTests ;
+    cns:hasBenchmark cns:GatekeeperBenchmark .
+
+# SQL AOT Engine Test Relationships
+cns:SQLAOTEngine cns:hasTest cns:SQLAOTTestSuite ;
+    cns:hasTest cns:SQLAOTCompilationTests ;
+    cns:hasTest cns:SQLAOTExecutionTests ;
+    cns:hasBenchmark cns:SQLAOTBenchmark ;
+    cns:hasBenchmark cns:SQLAOT80_20Benchmark .
+
+# SPARQL Engine Test Relationships
+cns:SPARQLEngine cns:hasTest cns:SPARQLTestSuite ;
+    cns:hasTest cns:SPARQLQueryTests ;
+    cns:hasTest cns:SPARQLJoinTests ;
+    cns:hasBenchmark cns:SPARQLBenchmark ;
+    cns:hasBenchmark cns:SPARQL80_20Benchmark .
+
+# SHACL Engine Test Relationships
+cns:SHACLEngine cns:hasTest cns:SHACLTestSuite ;
+    cns:hasTest cns:SHACLValidationTests ;
+    cns:hasTest cns:SHACLShapeTests ;
+    cns:hasBenchmark cns:SHACLBenchmark ;
+    cns:hasBenchmark cns:SHACL49CycleBenchmark .
+
+# Weaver Engine Test Relationships
+cns:WeaverEngine cns:hasBenchmark cns:WeaverBenchmark ;
+    cns:hasBenchmark cns:Weaver80_20Benchmark .
+
+# CNS Core Test Relationships
+cns:CNSEngine cns:hasTest cns:CNSCoreTestSuite ;
+    cns:hasTest cns:CNSCommandTests ;
+    cns:hasTest cns:CNSDispatchTests ;
+    cns:hasTest cns:CNSParserTests ;
+    cns:hasTest cns:CNSTypeTests ;
+    cns:hasBenchmark cns:ComprehensiveBenchmark ;
+    cns:hasBenchmark cns:Real7TickBenchmark . 

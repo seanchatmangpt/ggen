@@ -1,0 +1,158 @@
+# SPARQL CONSTRUCT: Transform ML Classification Result to RDF
+# Maps pictl classification/inference result into pm:OutcomePrediction or pm:AnomalyDetection triples
+# Input: JSON with prediction, features[], confidence, model_accuracy, explanation
+# Output: RDF graph documenting classification result with feature importance and reasoning
+
+PREFIX pm: <http://purl.org/pm/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#> .
+
+CONSTRUCT {
+  # Classification/Prediction Result
+  ?classification a pm:OutcomePrediction ;
+    rdfs:label ?prediction_label ;
+    pm:predictionConfidence ?prediction_confidence ;
+    pm:predictedOutcome ?predicted_class ;
+    pm:probability ?outcome_probability ;
+    pm:executionTime ?execution_time ;
+    prov:wasGeneratedAtTime ?timestamp ;
+    prov:wasGeneratedBy [
+      a prov:Activity ;
+      rdfs:label "ML Classification" ;
+      prov:used ?ml_model ;
+      prov:used ?case_context
+    ] ;
+    rdfs:comment ?classification_explanation .
+
+  # Predicted class/outcome
+  ?predicted_outcome a rdf:Class ;
+    rdfs:label ?class_label ;
+    pm:classIndex ?class_index ;
+    pm:probability ?outcome_probability ;
+    pm:baselineAccuracy ?baseline_accuracy ;
+    pm:confidence ?outcome_confidence ;
+    pm:supportingCases ?supporting_case_count .
+
+  # Feature contributions
+  ?feature a rdf:Property ;
+    rdfs:label ?feature_label ;
+    pm:featureValue ?feature_value ;
+    pm:featureType ?feature_type ;
+    pm:importanceScore ?importance ;
+    pm:impactDirection ?impact_direction ;
+    pm:impactMagnitude ?impact_magnitude ;
+    rdfs:comment ?feature_contribution .
+
+  # Alternative predictions (top-k)
+  ?alternative_prediction a prov:Entity ;
+    rdfs:label ?alternative_label ;
+    pm:classIndex ?alt_class_index ;
+    pm:probability ?alt_probability ;
+    pm:rank ?alt_rank ;
+    pm:ruleset ?alt_ruleset .
+
+  # ML Model metadata
+  ?ml_model a pm:PredictiveModel ;
+    rdfs:label ?model_name ;
+    pm:modelType ?model_type ;
+    pm:modelAccuracy ?model_accuracy ;
+    pm:modelPrecision ?model_precision ;
+    pm:modelRecall ?model_recall ;
+    pm:modelF1Score ?model_f1 ;
+    pm:trainingDataSize ?training_size ;
+    pm:modelVersion ?model_version ;
+    pm:lastUpdated ?model_update_date .
+
+  # Classification assessment
+  ?assessment a prov:Report ;
+    rdfs:label "Classification Assessment" ;
+    pm:predictionConfidence ?prediction_confidence ;
+    pm:explanationString ?full_explanation ;
+    pm:supportingRules ?rules_fired ;
+    pm:uncertaintyLevel ?uncertainty ;
+    pm:recommendation ?next_action .
+
+  # Case context
+  ?case_context a pm:Case ;
+    rdfs:label ?case_label ;
+    pm:caseId ?case_id ;
+    pm:processStage ?stage ;
+    pm:caseAttributes ?attribute_summary ;
+    pm:historicalOutcomes ?historical_pattern .
+}
+WHERE {
+  # Source bindings (from application layer JSON processing):
+  # $classification_result = { prediction: "high_risk", features: [...],
+  #                            confidence: 0.89, model_accuracy: 0.92 }
+
+  # Generate classification IRI
+  BIND(IRI(CONCAT("http://pictl.org/classification/", SUBSTR(STR(NOW()), 1, 10), "/", RAND())) AS ?classification)
+  BIND(NOW() AS ?timestamp)
+
+  # Placeholder URIs
+  BIND(IRI("http://pictl.org/model/xgboost-riskpredictor-v3") AS ?ml_model)
+  BIND(IRI("http://pictl.org/case/98765") AS ?case_context)
+
+  # Classification metadata
+  BIND("Case 98765: Risk Level Classification" AS ?prediction_label)
+  BIND(0.89 AS ?prediction_confidence)
+  BIND(IRI("http://pictl.org/class/high-risk") AS ?predicted_class)
+  BIND(0.78 AS ?outcome_probability)
+  BIND("PT0.2S"^^xsd:duration AS ?execution_time)
+  BIND("High risk classification due to multiple delayed activities and cost overruns" AS ?classification_explanation)
+
+  # Predicted outcome
+  BIND(IRI("http://pictl.org/class/high-risk") AS ?predicted_outcome)
+  BIND("High Risk" AS ?class_label)
+  BIND(1 AS ?class_index)
+  BIND(0.78 AS ?outcome_probability)
+  BIND(0.42 AS ?baseline_accuracy)
+  BIND(0.89 AS ?outcome_confidence)
+  BIND(185 AS ?supporting_case_count)
+
+  # Feature 1: Case Duration
+  BIND(IRI("http://pictl.org/feature/case-duration") AS ?feature)
+  BIND("Case Duration (days)" AS ?feature_label)
+  BIND(65 AS ?feature_value)
+  BIND("numeric" AS ?feature_type)
+  BIND(0.34 AS ?importance)
+  BIND("positive" AS ?impact_direction)
+  BIND("high" AS ?impact_magnitude)
+  BIND("Longer cases correlate with higher risk; this case is 20% above median" AS ?feature_contribution)
+
+  # Alternative predictions
+  BIND(IRI(CONCAT("http://pictl.org/alternative/", RAND())) AS ?alternative_prediction)
+  BIND("Alternative: Medium Risk" AS ?alternative_label)
+  BIND(2 AS ?alt_class_index)
+  BIND(0.18 AS ?alt_probability)
+  BIND(2 AS ?alt_rank)
+  BIND("[R42: If duration < 70 AND cost_overrun < 15%]" AS ?alt_ruleset)
+
+  # Model metadata
+  BIND("XGBoost Risk Predictor v3.0" AS ?model_name)
+  BIND("gradient-boosting" AS ?model_type)
+  BIND(0.92 AS ?model_accuracy)
+  BIND(0.89 AS ?model_precision)
+  BIND(0.88 AS ?model_recall)
+  BIND(0.885 AS ?model_f1)
+  BIND(15000 AS ?training_size)
+  BIND("3.0" AS ?model_version)
+  BIND(xsd:dateTime("2026-03-15T10:00:00Z") AS ?model_update_date)
+
+  # Assessment
+  BIND(IRI(CONCAT("http://pictl.org/assessment/", RAND())) AS ?assessment)
+  BIND("Model predicts high risk with 89% confidence. Top 3 contributing factors: case duration, cost overrun history, activity delay pattern." AS ?full_explanation)
+  BIND("[R15, R23, R42]" AS ?rules_fired)
+  BIND("moderate" AS ?uncertainty)
+  BIND("Escalate for manual review; consider early intervention (risk mitigation)" AS ?next_action)
+
+  # Case context
+  BIND("Case 98765" AS ?case_label)
+  BIND("98765" AS ?case_id)
+  BIND("approval" AS ?stage)
+  BIND("Order value: €150k; Customer: tier-2; Budget overrun: 22%" AS ?attribute_summary)
+  BIND("Previous case (similar customer): also high-risk, completed with 45% cost overrun" AS ?historical_pattern)
+}

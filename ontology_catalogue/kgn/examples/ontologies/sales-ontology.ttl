@@ -1,0 +1,181 @@
+@prefix : <http://example.org/sales/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://example.org/sales/> .
+
+<http://example.org/sales/> rdf:type owl:Ontology ;
+    rdfs:label "Sales Domain Ontology" ;
+    rdfs:comment "Ontology for sales data ingestion and analysis" ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+# Classes
+#################################################################
+
+:Sale rdf:type owl:Class ;
+    rdfs:label "Sale" ;
+    rdfs:comment "A sales transaction" .
+
+:Customer rdf:type owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "A customer entity" .
+
+:Product rdf:type owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product or service" .
+
+:Region rdf:type owl:Class ;
+    rdfs:label "Region" ;
+    rdfs:comment "Geographic sales region" .
+
+:Category rdf:type owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category" .
+
+#################################################################
+# Object Properties
+#################################################################
+
+:customer rdf:type owl:ObjectProperty ;
+    rdfs:domain :Sale ;
+    rdfs:range :Customer ;
+    rdfs:label "has customer" ;
+    rdfs:comment "Links a sale to its customer" .
+
+:product rdf:type owl:ObjectProperty ;
+    rdfs:domain :Sale ;
+    rdfs:range :Product ;
+    rdfs:label "has product" ;
+    rdfs:comment "Links a sale to its product(s)" .
+
+:locatedIn rdf:type owl:ObjectProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range :Region ;
+    rdfs:label "located in" ;
+    rdfs:comment "Customer's region" .
+
+:belongsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :Product ;
+    rdfs:range :Category ;
+    rdfs:label "belongs to category" ;
+    rdfs:comment "Product's category" .
+
+#################################################################
+# Data Properties
+#################################################################
+
+:saleId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Sale ;
+    rdfs:range xsd:string ;
+    rdfs:label "sale ID" ;
+    rdfs:comment "Unique identifier for a sale" .
+
+:customerId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "customer ID" ;
+    rdfs:comment "Unique identifier for a customer" .
+
+:productId rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "product ID" ;
+    rdfs:comment "Unique identifier for a product" .
+
+:name rdf:type owl:DatatypeProperty ;
+    rdfs:domain [ rdf:type owl:Class ;
+                  owl:unionOf ( :Customer :Product ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" ;
+    rdfs:comment "Name of entity" .
+
+:email rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" ;
+    rdfs:comment "Customer email address" .
+
+:region rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "region" ;
+    rdfs:comment "Customer's region name" .
+
+:category rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "category" ;
+    rdfs:comment "Product category name" .
+
+:quantity rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Sale ;
+    rdfs:range xsd:integer ;
+    rdfs:label "quantity" ;
+    rdfs:comment "Number of units sold" .
+
+:amount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Sale ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "amount" ;
+    rdfs:comment "Total sale amount" .
+
+:price rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "price" ;
+    rdfs:comment "Product unit price" .
+
+:date rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Sale ;
+    rdfs:range xsd:date ;
+    rdfs:label "date" ;
+    rdfs:comment "Date of sale" .
+
+:inStock rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "in stock" ;
+    rdfs:comment "Product availability status" .
+
+#################################################################
+# Individuals (Examples)
+#################################################################
+
+:North rdf:type :Region ;
+    rdfs:label "North Region" .
+
+:South rdf:type :Region ;
+    rdfs:label "South Region" .
+
+:East rdf:type :Region ;
+    rdfs:label "East Region" .
+
+:West rdf:type :Region ;
+    rdfs:label "West Region" .
+
+:Central rdf:type :Region ;
+    rdfs:label "Central Region" .
+
+:Electronics rdf:type :Category ;
+    rdfs:label "Electronics" .
+
+:Clothing rdf:type :Category ;
+    rdfs:label "Clothing" .
+
+:Food rdf:type :Category ;
+    rdfs:label "Food" .
+
+:Books rdf:type :Category ;
+    rdfs:label "Books" .
+
+:Home rdf:type :Category ;
+    rdfs:label "Home" .
+
+:Sports rdf:type :Category ;
+    rdfs:label "Sports" .
+
+:Other rdf:type :Category ;
+    rdfs:label "Other" .

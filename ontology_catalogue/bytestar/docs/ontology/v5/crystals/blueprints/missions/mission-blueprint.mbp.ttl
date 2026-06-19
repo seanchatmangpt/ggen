@@ -1,0 +1,449 @@
+@prefix mbp: <https://bytestar.org/ontology/v5/crystals/blueprints/mission-blueprint#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bcore: <https://bytestar.org/ontology/bytestar-core#> .
+@prefix dflss: <https://bytestar.org/ontology/v5/dflss-concepts#> .
+@prefix pcl: <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice#> .
+@prefix wpr: <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://bytestar.org/ontology/v5/crystals/blueprints/mission-blueprint>
+  a owl:Ontology ;
+  rdfs:label "Mission Blueprint (.mbp) TTL Schema with DfLSS Integration" ;
+  rdfs:comment "Defines mission crystal blueprints with DfLSS 6-phase methodology integration, workflow pattern selection, and crystal lattice generation specifications." ;
+  owl:imports 
+    <https://bytestar.org/ontology/bytestar-core> ,
+    <https://bytestar.org/ontology/v5/dflss-concepts> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/polycrystal-lattice> ,
+    <https://bytestar.org/ontology/v5/crystals/blueprints/workflow-pattern-registry> ;
+  owl:versionInfo "5.0.0" ;
+  mbp:dflssIntegrated "true"^^xsd:boolean ;
+  mbp:supportedPhases "6"^^xsd:integer .
+
+#################################################################
+# Mission Blueprint Core Structure
+#################################################################
+
+mbp:MissionBlueprint a owl:Class ;
+  rdfs:label "Mission Blueprint" ;
+  rdfs:comment "High-level mission specification that gets compiled into executable polycrystal lattices through DfLSS methodology." ;
+  rdfs:subClassOf bcore:MissionCrystal ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasDfLSSPhaseMapping ;
+    owl:cardinality "6"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasObjective ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasSuccessCriteria ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+mbp:MissionObjective a owl:Class ;
+  rdfs:label "Mission Objective" ;
+  rdfs:comment "Specific goal or outcome that the mission blueprint aims to achieve." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasMetric ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:alignsWithDfLSSPhase ;
+    owl:allValuesFrom pcl:DfLSSPhase
+  ] .
+
+mbp:SuccessCriteria a owl:Class ;
+  rdfs:label "Success Criteria" ;
+  rdfs:comment "Measurable criteria that define mission completion and success." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasThreshold ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasMetricType ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+#################################################################
+# DfLSS 6-Phase Integration
+#################################################################
+
+mbp:DfLSSPhaseMapping a owl:Class ;
+  rdfs:label "DfLSS Phase Mapping" ;
+  rdfs:comment "Maps mission blueprint elements to DfLSS methodology phases." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:mapsToPhase ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasDeliverable ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+mbp:PhaseDeliverable a owl:Class ;
+  rdfs:label "Phase Deliverable" ;
+  rdfs:comment "Specific output or artifact required for each DfLSS phase." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasCompletionCriteria ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+# Define Phase-Specific Deliverable Types
+mbp:DefineDeliverable a mbp:PhaseDeliverable ;
+  rdfs:label "Define Phase Deliverable" ;
+  mbp:phaseOrder "1"^^xsd:integer ;
+  mbp:deliverableType "ProblemStatement" .
+
+mbp:MeasureDeliverable a mbp:PhaseDeliverable ;
+  rdfs:label "Measure Phase Deliverable" ;
+  mbp:phaseOrder "2"^^xsd:integer ;
+  mbp:deliverableType "BaselineMeasurement" .
+
+mbp:AnalyzeDeliverable a mbp:PhaseDeliverable ;
+  rdfs:label "Analyze Phase Deliverable" ;
+  mbp:phaseOrder "3"^^xsd:integer ;
+  mbp:deliverableType "RootCauseAnalysis" .
+
+mbp:DesignDeliverable a mbp:PhaseDeliverable ;
+  rdfs:label "Design Phase Deliverable" ;
+  mbp:phaseOrder "4"^^xsd:integer ;
+  mbp:deliverableType "SolutionDesign" .
+
+mbp:VerifyDeliverable a mbp:PhaseDeliverable ;
+  rdfs:label "Verify Phase Deliverable" ;
+  mbp:phaseOrder "5"^^xsd:integer ;
+  mbp:deliverableType "ValidationResults" .
+
+mbp:ControlDeliverable a mbp:PhaseDeliverable ;
+  rdfs:label "Control Phase Deliverable" ;
+  mbp:phaseOrder "6"^^xsd:integer ;
+  mbp:deliverableType "ControlPlan" .
+
+#################################################################
+# Workflow Pattern Selection Integration
+#################################################################
+
+mbp:PatternSelector a owl:Class ;
+  rdfs:label "Pattern Selector" ;
+  rdfs:comment "Component responsible for selecting appropriate workflow patterns for mission execution." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:evaluatesPattern ;
+    owl:allValuesFrom wpr:CrystalWorkflowPattern
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasSelectionCriteria ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+mbp:PatternSelectionCriteria a owl:Class ;
+  rdfs:label "Pattern Selection Criteria" ;
+  rdfs:comment "Criteria used for automatic workflow pattern selection." ;
+  owl:oneOf ( 
+    mbp:PerformanceOptimized mbp:FaultTolerance mbp:SecurityRequired 
+    mbp:MemoryConstrained mbp:RealTimeRequired mbp:ScalabilityNeeded 
+  ) .
+
+mbp:PerformanceOptimized a mbp:PatternSelectionCriteria ;
+  rdfs:label "Performance Optimized" ;
+  mbp:preferredPatterns "P28,P29,P30,P34,P35,P38,P39"^^xsd:string .
+
+mbp:FaultTolerance a mbp:PatternSelectionCriteria ;
+  rdfs:label "Fault Tolerance" ;
+  mbp:preferredPatterns "P25,P26,P27,P42,P43"^^xsd:string .
+
+mbp:SecurityRequired a mbp:PatternSelectionCriteria ;
+  rdfs:label "Security Required" ;
+  mbp:preferredPatterns "P31,P32,P33"^^xsd:string .
+
+mbp:MemoryConstrained a mbp:PatternSelectionCriteria ;
+  rdfs:label "Memory Constrained" ;
+  mbp:preferredPatterns "P23,P24,P36,P37,P40,P41"^^xsd:string .
+
+mbp:RealTimeRequired a mbp:PatternSelectionCriteria ;
+  rdfs:label "Real Time Required" ;
+  mbp:preferredPatterns "P28,P29,P34,P35"^^xsd:string .
+
+mbp:ScalabilityNeeded a mbp:PatternSelectionCriteria ;
+  rdfs:label "Scalability Needed" ;
+  mbp:preferredPatterns "P12,P15,P17,P38"^^xsd:string .
+
+#################################################################
+# Crystal Lattice Generation Specification
+#################################################################
+
+mbp:LatticeGenerationSpec a owl:Class ;
+  rdfs:label "Lattice Generation Specification" ;
+  rdfs:comment "Specifications for generating polycrystal lattices from mission blueprints." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:targetLatticeType ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasResourceConstraints ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+mbp:LatticeType a owl:Class ;
+  rdfs:label "Lattice Type" ;
+  rdfs:comment "Type of polycrystal lattice to generate." ;
+  owl:oneOf ( 
+    mbp:LinearLattice mbp:TreeLattice mbp:MeshLattice 
+    mbp:HierarchicalLattice mbp:AdaptiveLattice 
+  ) .
+
+mbp:LinearLattice a mbp:LatticeType ;
+  rdfs:label "Linear Lattice" ;
+  mbp:complexityRating "1"^^xsd:integer ;
+  mbp:optimalForPatterns "P01,P11,P28"^^xsd:string .
+
+mbp:TreeLattice a mbp:LatticeType ;
+  rdfs:label "Tree Lattice" ;
+  mbp:complexityRating "3"^^xsd:integer ;
+  mbp:optimalForPatterns "P02,P04,P06"^^xsd:string .
+
+mbp:MeshLattice a mbp:LatticeType ;
+  rdfs:label "Mesh Lattice" ;
+  mbp:complexityRating "6"^^xsd:integer ;
+  mbp:optimalForPatterns "P17,P38,P43"^^xsd:string .
+
+mbp:HierarchicalLattice a mbp:LatticeType ;
+  rdfs:label "Hierarchical Lattice" ;
+  mbp:complexityRating "5"^^xsd:integer ;
+  mbp:optimalForPatterns "P13,P14,P26"^^xsd:string .
+
+mbp:AdaptiveLattice a mbp:LatticeType ;
+  rdfs:label "Adaptive Lattice" ;
+  mbp:complexityRating "8"^^xsd:integer ;
+  mbp:optimalForPatterns "P42,P43"^^xsd:string .
+
+mbp:ResourceConstraints a owl:Class ;
+  rdfs:label "Resource Constraints" ;
+  rdfs:comment "Resource limitations that affect lattice generation." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:maxMemoryFootprint ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:maxExecutionTime ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hamHopLimit ;
+    owl:allValuesFrom pcl:HAMHop
+  ] .
+
+#################################################################
+# Mission Execution Context
+#################################################################
+
+mbp:ExecutionContext a owl:Class ;
+  rdfs:label "Execution Context" ;
+  rdfs:comment "Runtime context information for mission execution." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasEnvironmentConstraint ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+mbp:EnvironmentConstraint a owl:Class ;
+  rdfs:label "Environment Constraint" ;
+  rdfs:comment "Environmental limitations affecting mission execution." ;
+  owl:oneOf ( 
+    mbp:HighAvailabilityRequired mbp:LowLatencyRequired 
+    mbp:SecurityCritical mbp:ResourceConstrained 
+  ) .
+
+#################################################################
+# Quality Metrics and Monitoring
+#################################################################
+
+mbp:QualityMetric a owl:Class ;
+  rdfs:label "Quality Metric" ;
+  rdfs:comment "Metric for measuring mission blueprint quality and execution success." ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasMetricValue ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty mbp:hasUnit ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+mbp:MetricType a owl:Class ;
+  rdfs:label "Metric Type" ;
+  rdfs:comment "Type of quality metric." ;
+  owl:oneOf ( 
+    mbp:PerformanceMetric mbp:ReliabilityMetric mbp:SecurityMetric 
+    mbp:UsabilityMetric mbp:MaintainabilityMetric 
+  ) .
+
+#################################################################
+# Object Properties
+#################################################################
+
+mbp:hasDfLSSPhaseMapping a owl:ObjectProperty ;
+  rdfs:label "has DfLSS phase mapping" ;
+  rdfs:domain mbp:MissionBlueprint ;
+  rdfs:range mbp:DfLSSPhaseMapping .
+
+mbp:hasObjective a owl:ObjectProperty ;
+  rdfs:label "has objective" ;
+  rdfs:domain mbp:MissionBlueprint ;
+  rdfs:range mbp:MissionObjective .
+
+mbp:hasSuccessCriteria a owl:ObjectProperty ;
+  rdfs:label "has success criteria" ;
+  rdfs:domain mbp:MissionBlueprint ;
+  rdfs:range mbp:SuccessCriteria .
+
+mbp:hasMetric a owl:ObjectProperty ;
+  rdfs:label "has metric" ;
+  rdfs:domain mbp:MissionObjective ;
+  rdfs:range mbp:QualityMetric .
+
+mbp:alignsWithDfLSSPhase a owl:ObjectProperty ;
+  rdfs:label "aligns with DfLSS phase" ;
+  rdfs:domain mbp:MissionObjective ;
+  rdfs:range pcl:DfLSSPhase .
+
+mbp:hasThreshold a owl:ObjectProperty ;
+  rdfs:label "has threshold" ;
+  rdfs:domain mbp:SuccessCriteria ;
+  rdfs:range mbp:QualityMetric .
+
+mbp:hasMetricType a owl:ObjectProperty ;
+  rdfs:label "has metric type" ;
+  rdfs:domain mbp:SuccessCriteria ;
+  rdfs:range mbp:MetricType .
+
+mbp:mapsToPhase a owl:ObjectProperty ;
+  rdfs:label "maps to phase" ;
+  rdfs:domain mbp:DfLSSPhaseMapping ;
+  rdfs:range pcl:DfLSSPhase .
+
+mbp:hasDeliverable a owl:ObjectProperty ;
+  rdfs:label "has deliverable" ;
+  rdfs:domain mbp:DfLSSPhaseMapping ;
+  rdfs:range mbp:PhaseDeliverable .
+
+mbp:hasCompletionCriteria a owl:ObjectProperty ;
+  rdfs:label "has completion criteria" ;
+  rdfs:domain mbp:PhaseDeliverable ;
+  rdfs:range mbp:SuccessCriteria .
+
+mbp:evaluatesPattern a owl:ObjectProperty ;
+  rdfs:label "evaluates pattern" ;
+  rdfs:domain mbp:PatternSelector ;
+  rdfs:range wpr:CrystalWorkflowPattern .
+
+mbp:hasSelectionCriteria a owl:ObjectProperty ;
+  rdfs:label "has selection criteria" ;
+  rdfs:domain mbp:PatternSelector ;
+  rdfs:range mbp:PatternSelectionCriteria .
+
+mbp:targetLatticeType a owl:ObjectProperty ;
+  rdfs:label "target lattice type" ;
+  rdfs:domain mbp:LatticeGenerationSpec ;
+  rdfs:range mbp:LatticeType .
+
+mbp:hasResourceConstraints a owl:ObjectProperty ;
+  rdfs:label "has resource constraints" ;
+  rdfs:domain mbp:LatticeGenerationSpec ;
+  rdfs:range mbp:ResourceConstraints .
+
+mbp:hamHopLimit a owl:ObjectProperty ;
+  rdfs:label "HAM hop limit" ;
+  rdfs:domain mbp:ResourceConstraints ;
+  rdfs:range pcl:HAMHop .
+
+mbp:hasEnvironmentConstraint a owl:ObjectProperty ;
+  rdfs:label "has environment constraint" ;
+  rdfs:domain mbp:ExecutionContext ;
+  rdfs:range mbp:EnvironmentConstraint .
+
+mbp:hasMetricValue a owl:ObjectProperty ;
+  rdfs:label "has metric value" ;
+  rdfs:domain mbp:QualityMetric ;
+  rdfs:range xsd:decimal .
+
+mbp:hasUnit a owl:ObjectProperty ;
+  rdfs:label "has unit" ;
+  rdfs:domain mbp:QualityMetric ;
+  rdfs:range xsd:string .
+
+#################################################################
+# Data Properties
+#################################################################
+
+mbp:dflssIntegrated a owl:DatatypeProperty ;
+  rdfs:label "DfLSS integrated" ;
+  rdfs:range xsd:boolean .
+
+mbp:supportedPhases a owl:DatatypeProperty ;
+  rdfs:label "supported phases" ;
+  rdfs:range xsd:integer .
+
+mbp:phaseOrder a owl:DatatypeProperty ;
+  rdfs:label "phase order" ;
+  rdfs:range xsd:integer .
+
+mbp:deliverableType a owl:DatatypeProperty ;
+  rdfs:label "deliverable type" ;
+  rdfs:range xsd:string .
+
+mbp:preferredPatterns a owl:DatatypeProperty ;
+  rdfs:label "preferred patterns" ;
+  rdfs:range xsd:string .
+
+mbp:complexityRating a owl:DatatypeProperty ;
+  rdfs:label "complexity rating" ;
+  rdfs:range xsd:integer .
+
+mbp:optimalForPatterns a owl:DatatypeProperty ;
+  rdfs:label "optimal for patterns" ;
+  rdfs:range xsd:string .
+
+mbp:maxMemoryFootprint a owl:DatatypeProperty ;
+  rdfs:label "max memory footprint" ;
+  rdfs:range xsd:integer .
+
+mbp:maxExecutionTime a owl:DatatypeProperty ;
+  rdfs:label "max execution time" ;
+  rdfs:range xsd:integer .
+
+mbp:missionId a owl:DatatypeProperty ;
+  rdfs:label "mission ID" ;
+  rdfs:range xsd:string .
+
+mbp:priority a owl:DatatypeProperty ;
+  rdfs:label "priority" ;
+  rdfs:range xsd:integer .
+
+mbp:createdTimestamp a owl:DatatypeProperty ;
+  rdfs:label "created timestamp" ;
+  rdfs:range xsd:dateTime .
+
+mbp:lastModified a owl:DatatypeProperty ;
+  rdfs:label "last modified" ;
+  rdfs:range xsd:dateTime .

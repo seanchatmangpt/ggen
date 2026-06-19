@@ -1,0 +1,15 @@
+PREFIX ocel: <http://www.ocel-standard.org/ocel/2.0/>
+PREFIX ostar: <http://ostar.manufactory/schema/>
+
+# Detect circular dependencies in proof gate execution
+# Gates should not depend on each other's outputs
+
+ASK {
+  # Check if any gate depends on another gate's output
+  ?gate1 ostar:gate_name ?name1 .
+  ?gate1 ostar:depends_on ?gate2 .
+  ?gate2 ostar:gate_name ?name2 .
+
+  # Circular dependency if gate2 also depends on gate1
+  ?gate2 ostar:depends_on ?gate1
+}

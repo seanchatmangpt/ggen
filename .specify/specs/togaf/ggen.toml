@@ -1,0 +1,74 @@
+[project]
+name = "togaf-enterprise-architecture"
+version = "1.0.0"
+description = "Fortune 5 enterprise architecture generated from TOGAF/ArchiMate ontology"
+authors = ["Architecture Board <arch-board@corp.example>"]
+license = "Proprietary"
+
+[ontology]
+source = "togaf-archimate-vocab.ttl"
+standard_only = false
+
+[inference]
+rules = [
+    { name = "togaf-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
+]
+
+[generation]
+output_dir = "."
+
+[validation]
+strict_mode = false
+shacl = ["shapes/togaf-compliance-shapes.ttl"]
+
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
+
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+strict_validation = true
+
+[templates]
+enable_caching = true
+auto_reload = true
+
+[output]
+formatting = "default"
+line_length = 120
+indent = 2
+
+# ─── Phase B: Business Architecture ──────────────────────────────────────────
+[[generation.rules]]
+name = "business-architecture"
+query = { file = "queries/business-arch-extract.rq" }
+template = { file = "../../../marketplace/templates/togaf-archimate-vocab/business-arch.md.tera" }
+output_file = "docs/phase-b-business-arch.md"
+mode = "Overwrite"
+
+# ─── Phase C: Data Architecture ──────────────────────────────────────────────
+[[generation.rules]]
+name = "data-architecture"
+query = { file = "queries/data-arch-extract.rq" }
+template = { file = "../../../marketplace/templates/togaf-archimate-vocab/data-arch.md.tera" }
+output_file = "docs/phase-c-data-arch.md"
+mode = "Overwrite"
+
+# ─── Phase C: Application Architecture ───────────────────────────────────────
+[[generation.rules]]
+name = "application-architecture"
+query = { file = "queries/app-arch-extract.rq" }
+template = { file = "../../../marketplace/templates/togaf-archimate-vocab/app-arch.md.tera" }
+output_file = "docs/phase-c-app-arch.md"
+mode = "Overwrite"
+
+# ─── Phase D: Technology Architecture ────────────────────────────────────────
+[[generation.rules]]
+name = "technology-architecture"
+query = { file = "queries/tech-arch-extract.rq" }
+template = { file = "../../../marketplace/templates/togaf-archimate-vocab/tech-arch.md.tera" }
+output_file = "docs/phase-d-tech-arch.md"
+mode = "Overwrite"

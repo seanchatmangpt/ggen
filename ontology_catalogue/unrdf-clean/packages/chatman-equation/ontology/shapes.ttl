@@ -1,0 +1,373 @@
+# Chatman Equation SHACL Shapes
+# Validation shapes for ensuring conformance to the Chatman Equation ontology
+#
+# Version: 1.0.0
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix chatman: <urn:chatman:> .
+@prefix ce: <urn:chatman:equation:> .
+@prefix shapes: <urn:chatman:shapes:> .
+
+# =============================================================================
+# ARTIFACT SHAPES
+# =============================================================================
+
+shapes:ArtifactShape a sh:NodeShape ;
+    sh:targetClass ce:Artifact ;
+    sh:property [
+        sh:path ce:artifactType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Artifact must have exactly one artifactType" ;
+    ] ;
+    sh:property [
+        sh:path ce:artifactName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Artifact must have exactly one artifactName" ;
+    ] ;
+    sh:property [
+        sh:path ce:inDomain ;
+        sh:class ce:UnificationDomain ;
+        sh:minCount 1 ;
+        sh:message "Every Artifact must belong to at least one UnificationDomain" ;
+    ] ;
+    sh:property [
+        sh:path ce:createdAt ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:message "Artifact may have at most one createdAt timestamp" ;
+    ] ;
+    sh:property [
+        sh:path ce:valueCurvePosition ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "Artifact may have at most one valueCurvePosition" ;
+    ] ;
+    sh:property [
+        sh:path ce:derivedFrom ;
+        sh:class ce:Artifact ;
+        sh:message "derivedFrom must link to another Artifact" ;
+    ] .
+
+# =============================================================================
+# OBSERVATION SHAPES
+# =============================================================================
+
+shapes:ObservationShape a sh:NodeShape ;
+    sh:targetClass ce:Observation ;
+    sh:property [
+        sh:path ce:observes ;
+        sh:class ce:Artifact ;
+        sh:maxCount 1 ;
+        sh:message "Observation should observe at most one Artifact" ;
+    ] ;
+    sh:property [
+        sh:path ce:observedProperty ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Observation must have exactly one observedProperty" ;
+    ] ;
+    sh:property [
+        sh:path ce:observedValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Observation must have exactly one observedValue" ;
+    ] ;
+    sh:property [
+        sh:path ce:observedAt ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Observation must have exactly one observedAt timestamp" ;
+    ] ;
+    sh:property [
+        sh:path ce:observer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Observation must have exactly one observer" ;
+    ] .
+
+# =============================================================================
+# CLOSURE OPERATOR SHAPES
+# =============================================================================
+
+shapes:ClosureOperatorShape a sh:NodeShape ;
+    sh:targetClass ce:ClosureOperator ;
+    sh:property [
+        sh:path ce:appliesTo ;
+        sh:class ce:UnificationDomain ;
+        sh:minCount 1 ;
+        sh:message "Every ClosureOperator must apply to at least one UnificationDomain" ;
+    ] ;
+    sh:property [
+        sh:path ce:isExtensive ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every ClosureOperator must declare isExtensive property" ;
+    ] ;
+    sh:property [
+        sh:path ce:isMonotonic ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every ClosureOperator must declare isMonotonic property" ;
+    ] ;
+    sh:property [
+        sh:path ce:isIdempotent ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every ClosureOperator must declare isIdempotent property" ;
+    ] ;
+    sh:property [
+        sh:path ce:convergenceProperty ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:message "ClosureOperator may have at most one convergenceProperty description" ;
+    ] ;
+    sh:property [
+        sh:path ce:consumes ;
+        sh:class ce:Artifact ;
+        sh:message "consumes must link to Artifacts" ;
+    ] ;
+    sh:property [
+        sh:path ce:produces ;
+        sh:class ce:Artifact ;
+        sh:message "produces must link to Artifacts" ;
+    ] .
+
+# Closure Axiom Validation
+shapes:ClosureAxiomShape a sh:NodeShape ;
+    sh:targetClass ce:ClosureOperator ;
+    sh:sparql [
+        sh:message "Closure Operators should satisfy closure axioms (extensive, monotonic, idempotent)" ;
+        sh:select """
+            PREFIX ce: <urn:chatman:equation:>
+            SELECT $this
+            WHERE {
+                $this a ce:ClosureOperator .
+                OPTIONAL { $this ce:isExtensive ?ext }
+                OPTIONAL { $this ce:isMonotonic ?mono }
+                OPTIONAL { $this ce:isIdempotent ?idem }
+                FILTER (
+                    !BOUND(?ext) || ?ext != true ||
+                    !BOUND(?mono) || ?mono != true ||
+                    !BOUND(?idem) || ?idem != true
+                )
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# UNIFICATION OPERATOR SHAPES
+# =============================================================================
+
+shapes:UnificationOperatorShape a sh:NodeShape ;
+    sh:targetClass ce:UnificationOperator ;
+    sh:node shapes:ClosureOperatorShape ;
+    rdfs:comment "UnificationOperator inherits all constraints from ClosureOperatorShape" .
+
+# =============================================================================
+# DISRUPTION OPERATOR SHAPES
+# =============================================================================
+
+shapes:DisruptionOperatorShape a sh:NodeShape ;
+    sh:targetClass ce:DisruptionOperator ;
+    sh:node shapes:ClosureOperatorShape ;
+    sh:property [
+        sh:path ce:disruptionIndex ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:maxCount 1 ;
+        sh:message "DisruptionOperator may have at most one disruptionIndex between 0.0 and 1.0" ;
+    ] .
+
+# =============================================================================
+# BLUE OCEAN OPERATOR SHAPES
+# =============================================================================
+
+shapes:BlueOceanOperatorShape a sh:NodeShape ;
+    sh:targetClass ce:BlueOceanOperator ;
+    sh:node shapes:ClosureOperatorShape ;
+    sh:sparql [
+        sh:message "BlueOceanOperator should produce artifacts with low competitive density" ;
+        sh:select """
+            PREFIX ce: <urn:chatman:equation:>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this a ce:BlueOceanOperator .
+                $this ce:produces ?artifact .
+                ?obs ce:observes ?artifact ;
+                     ce:observedProperty "competitive_density" ;
+                     ce:observedValue ?density .
+                FILTER (?density > 0.3)
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# STRATEGIC PIVOT OPERATOR SHAPES
+# =============================================================================
+
+shapes:StrategicPivotOperatorShape a sh:NodeShape ;
+    sh:targetClass ce:StrategicPivotOperator ;
+    sh:node shapes:ClosureOperatorShape ;
+    rdfs:comment "StrategicPivotOperator may violate extensivity/monotonicity as it represents discontinuous change" .
+
+# =============================================================================
+# UNIFICATION DOMAIN SHAPES
+# =============================================================================
+
+shapes:UnificationDomainShape a sh:NodeShape ;
+    sh:targetClass ce:UnificationDomain ;
+    sh:property [
+        sh:path ce:competitiveDensity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:maxCount 1 ;
+        sh:message "UnificationDomain competitiveDensity must be between 0.0 and 1.0" ;
+    ] .
+
+# =============================================================================
+# RELATIONSHIP CONSTRAINTS
+# =============================================================================
+
+shapes:UnifiesRelationshipShape a sh:PropertyShape ;
+    sh:path ce:unifies ;
+    sh:class ce:Artifact ;
+    sh:message "unifies must link ClosureOperator to Artifact" .
+
+shapes:TransformsRelationshipShape a sh:PropertyShape ;
+    sh:path ce:transforms ;
+    sh:class ce:Artifact ;
+    sh:message "transforms must link ClosureOperator to Artifact" .
+
+shapes:ObservesRelationshipShape a sh:PropertyShape ;
+    sh:path ce:observes ;
+    sh:class ce:Artifact ;
+    sh:message "observes must link Observation to Artifact" .
+
+shapes:DerivedFromRelationshipShape a sh:PropertyShape ;
+    sh:path ce:derivedFrom ;
+    sh:class ce:Artifact ;
+    sh:message "derivedFrom must link Artifact to Artifact (provenance)" .
+
+# =============================================================================
+# VALUE CONSTRAINTS
+# =============================================================================
+
+shapes:ValueCreatedConstraint a sh:PropertyShape ;
+    sh:path ce:valueCreated ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:message "valueCreated must be a non-negative decimal" .
+
+shapes:DisruptionIndexConstraint a sh:PropertyShape ;
+    sh:path ce:disruptionIndex ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "disruptionIndex must be between 0.0 and 1.0" .
+
+shapes:CompetitiveDensityConstraint a sh:PropertyShape ;
+    sh:path ce:competitiveDensity ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "competitiveDensity must be between 0.0 and 1.0" .
+
+# =============================================================================
+# LINEAGE VALIDATION
+# =============================================================================
+
+shapes:LineageShape a sh:NodeShape ;
+    sh:targetNode lineage:SeanChatman ;
+    sh:property [
+        sh:path prov:wasDerivedFrom ;
+        sh:hasValue lineage:JamesIChatman ;
+        sh:minCount 1 ;
+        sh:message "Sean Chatman lineage must trace to James I. Chatman" ;
+    ] .
+
+# =============================================================================
+# DOMAIN-SPECIFIC VALIDATION RULES
+# =============================================================================
+
+# Market Domain Validation
+shapes:MarketDomainArtifactShape a sh:NodeShape ;
+    sh:targetSubjectsOf ce:inDomain ;
+    sh:sparql [
+        sh:message "Market domain artifacts should have market-relevant observations" ;
+        sh:select """
+            PREFIX ce: <urn:chatman:equation:>
+            SELECT $this
+            WHERE {
+                $this ce:inDomain ce:MarketDomain .
+                FILTER NOT EXISTS {
+                    ?obs ce:observes $this ;
+                         ce:observedProperty ?prop .
+                    FILTER (?prop IN ("market_share", "revenue", "competitive_density", "market_cap_created"))
+                }
+            }
+        """ ;
+    ] .
+
+# Closure Operator Input/Output Validation
+shapes:ClosureOperatorFlowShape a sh:NodeShape ;
+    sh:targetClass ce:ClosureOperator ;
+    sh:sparql [
+        sh:message "ClosureOperators should have both inputs (consumes) and outputs (produces)" ;
+        sh:select """
+            PREFIX ce: <urn:chatman:equation:>
+            SELECT $this
+            WHERE {
+                $this a ce:ClosureOperator .
+                FILTER NOT EXISTS { $this ce:consumes ?input }
+                FILTER NOT EXISTS { $this ce:produces ?output }
+            }
+        """ ;
+    ] .
+
+# Observation Temporal Consistency
+shapes:ObservationTemporalShape a sh:NodeShape ;
+    sh:targetClass ce:Observation ;
+    sh:sparql [
+        sh:message "Observation timestamp should not be in the future" ;
+        sh:select """
+            PREFIX ce: <urn:chatman:equation:>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this ce:observedAt ?timestamp .
+                BIND (NOW() AS ?now)
+                FILTER (?timestamp > ?now)
+            }
+        """ ;
+    ] .
+
+# Artifact Derivation Acyclicity
+shapes:ArtifactAcyclicShape a sh:NodeShape ;
+    sh:targetClass ce:Artifact ;
+    sh:sparql [
+        sh:message "Artifact derivation should be acyclic (no self-derivation loops)" ;
+        sh:select """
+            PREFIX ce: <urn:chatman:equation:>
+            SELECT $this
+            WHERE {
+                $this ce:derivedFrom+ $this .
+            }
+        """ ;
+    ] .
+
+# End of SHACL Shapes

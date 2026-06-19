@@ -1,0 +1,11 @@
+
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:invalid a ex:Person ;
+    ex:age 200 .
+
+ex:duplicate a ex:Person ;
+    ex:name "First Name" ;
+    ex:name "Second Name" ;
+    ex:age -5 .

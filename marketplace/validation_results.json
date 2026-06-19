@@ -1,0 +1,3088 @@
+{
+  "total_packages": 77,
+  "ready_count": 2,
+  "needs_improvement_count": 43,
+  "not_ready_count": 32,
+  "all_results": [
+    {
+      "package_name": "academic-bibliography-manager",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "academic-peer-review-workflow",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "advanced-rust-project",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "agent-cli-copilot",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "agent-context-crafter",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "agent-editor",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "agent-memory-forge",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "agent-reasoning-mcp",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "ai-code-generation",
+      "score": 100.0,
+      "production_ready": true,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "ai-microservice",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "api-endpoint",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "armstrong-compliance-dod",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "arxiv-paper-template",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "asset-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "banking-core",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "business-intelligence-reporting",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "chatman-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: Sean Chatman <sean@chatmangpt.com>"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "clap-noun-verb",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: seanchatmangpt"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "cli-application-template",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "clinical-trials-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "comprehensive-rust-showcase",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "crm-customer-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "cryptocurrency-exchange",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "customer-loyalty-rewards",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "data-pipeline-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace <marketplace@ggen.cli>"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "database-schema-generator",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen.io"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "dlss-curriculum",
+      "score": 100.0,
+      "production_ready": true,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "document-management-system",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "ehr-integration",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "enterprise-erp-core",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "graphql-api-template",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "healthcare-analytics",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "hello-world",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "human-resources-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "ieee-paper-template",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "inventory-management",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "io.ggen.nextjs.ontology-crud",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "iso-20022-payments",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "java26-core",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "java26-pattern-matched-controller",
+      "score": 85.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "java26-record-value-object",
+      "score": 85.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "java26-sealed-domain",
+      "score": 85.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "java26-transactional-service",
+      "score": 85.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "java26-virtual-thread-dao",
+      "score": 85.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "README file present"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "knowledge-graph-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "kyc-aml-compliance",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "laboratory-information-system",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "medical-billing",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "microservices-architecture",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "microservices-architecture-template",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "multi-tenant-saas",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "neurips-paper-template",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "order-management-system",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "payment-admission",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "pharmacy-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "phd-thesis-template",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "product-recommendations",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "project-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "reasoner-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "rest-api-template",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "risk-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "robo-advisor",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "schema-forge-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "sector-api-gateway-8020",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "sector-observability-8020",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "sector-paper-lifecycle-8020",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "sector-rust-microservice-8020",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "sector-support-hooks-8020",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "semantic-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "shacl-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "sparql-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: SPARQL CLI Contributors"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "supply-chain-management",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: GGEN Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "telemedicine-platform",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Healthcare Team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "three-layer-verification-dod",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "trading-platform",
+      "score": 65.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "No repository URL"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen Marketplace"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "workflow-engine-cli",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT OR Apache-2.0"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: Generated Ontology System"
+          }
+        ]
+      ],
+      "quality_checks": []
+    },
+    {
+      "package_name": "wvda-soundness-dod",
+      "score": 80.0,
+      "production_ready": false,
+      "errors": [],
+      "warnings": [],
+      "required_checks": [
+        [
+          "metadata",
+          {
+            "message": "Metadata is complete"
+          }
+        ],
+        [
+          "license",
+          {
+            "message": "License: MIT"
+          }
+        ],
+        [
+          "readme",
+          {
+            "message": "Missing README file in package directory"
+          }
+        ],
+        [
+          "repository",
+          {
+            "message": "Repository URL provided"
+          }
+        ],
+        [
+          "authors",
+          {
+            "message": "Authors: ggen-team"
+          }
+        ]
+      ],
+      "quality_checks": []
+    }
+  ]
+}

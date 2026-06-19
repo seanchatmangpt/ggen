@@ -1,0 +1,712 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sg: <http://cns.ai/ontology/smart-grid#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix qudt: <http://qudt.org/schema/qudt#> .
+
+# Smart Grid Energy Management Ontology
+# Ultra-fast renewable energy coordination and grid stability
+# Target: Sub-millisecond response times with BitActor integration
+
+sg:SmartGridOntology rdf:type owl:Ontology ;
+    rdfs:label "Smart Grid Energy Management System"@en ;
+    rdfs:comment "Semantic model for ultra-fast renewable energy coordination and grid optimization"@en ;
+    owl:versionInfo "1.0" .
+
+#####################################################################
+# Core Grid Infrastructure Classes
+#####################################################################
+
+sg:GridNode rdf:type owl:Class ;
+    rdfs:label "Grid Node"@en ;
+    rdfs:comment "Physical point in the electrical grid"@en .
+
+sg:PowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridNode ;
+    rdfs:label "Power Plant"@en ;
+    rdfs:comment "Electricity generation facility"@en .
+
+sg:RenewablePowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:PowerPlant ;
+    rdfs:label "Renewable Power Plant"@en ;
+    rdfs:comment "Clean energy generation facility"@en .
+
+sg:SolarPowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:RenewablePowerPlant ;
+    rdfs:label "Solar Power Plant"@en .
+
+sg:WindPowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:RenewablePowerPlant ;
+    rdfs:label "Wind Power Plant"@en .
+
+sg:HydroPowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:RenewablePowerPlant ;
+    rdfs:label "Hydroelectric Power Plant"@en .
+
+sg:GeothermalPowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:RenewablePowerPlant ;
+    rdfs:label "Geothermal Power Plant"@en .
+
+sg:ThermalPowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:PowerPlant ;
+    rdfs:label "Thermal Power Plant"@en ;
+    rdfs:comment "Fossil fuel or nuclear power plant"@en .
+
+sg:NuclearPowerPlant rdf:type owl:Class ;
+    rdfs:subClassOf sg:ThermalPowerPlant ;
+    rdfs:label "Nuclear Power Plant"@en .
+
+#####################################################################
+# Grid Infrastructure Components
+#####################################################################
+
+sg:Substation rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridNode ;
+    rdfs:label "Electrical Substation"@en ;
+    rdfs:comment "Voltage transformation and switching facility"@en .
+
+sg:TransmissionLine rdf:type owl:Class ;
+    rdfs:label "Transmission Line"@en ;
+    rdfs:comment "High-voltage power transmission infrastructure"@en .
+
+sg:DistributionLine rdf:type owl:Class ;
+    rdfs:label "Distribution Line"@en ;
+    rdfs:comment "Medium/low voltage power distribution infrastructure"@en .
+
+sg:Transformer rdf:type owl:Class ;
+    rdfs:label "Electrical Transformer"@en ;
+    rdfs:comment "Voltage level conversion device"@en .
+
+sg:CircuitBreaker rdf:type owl:Class ;
+    rdfs:label "Circuit Breaker"@en ;
+    rdfs:comment "Automatic electrical circuit protection device"@en .
+
+sg:SmartMeter rdf:type owl:Class ;
+    rdfs:label "Smart Meter"@en ;
+    rdfs:comment "Advanced metering infrastructure device"@en .
+
+#####################################################################
+# Energy Storage Systems
+#####################################################################
+
+sg:EnergyStorage rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridNode ;
+    rdfs:label "Energy Storage System"@en ;
+    rdfs:comment "Grid-scale energy storage facility"@en .
+
+sg:BatteryStorage rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyStorage ;
+    rdfs:label "Battery Storage System"@en .
+
+sg:PumpedHydroStorage rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyStorage ;
+    rdfs:label "Pumped Hydro Storage"@en .
+
+sg:CompressedAirStorage rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyStorage ;
+    rdfs:label "Compressed Air Energy Storage"@en .
+
+sg:FlywheelStorage rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyStorage ;
+    rdfs:label "Flywheel Energy Storage"@en .
+
+#####################################################################
+# Consumer and Demand Classes
+#####################################################################
+
+sg:EnergyConsumer rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridNode ;
+    rdfs:label "Energy Consumer"@en ;
+    rdfs:comment "Electricity consumption entity"@en .
+
+sg:ResidentialConsumer rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyConsumer ;
+    rdfs:label "Residential Consumer"@en .
+
+sg:CommercialConsumer rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyConsumer ;
+    rdfs:label "Commercial Consumer"@en .
+
+sg:IndustrialConsumer rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyConsumer ;
+    rdfs:label "Industrial Consumer"@en .
+
+sg:ElectricVehicle rdf:type owl:Class ;
+    rdfs:subClassOf sg:EnergyConsumer ;
+    rdfs:label "Electric Vehicle"@en ;
+    rdfs:comment "Mobile energy consumer with V2G capability"@en .
+
+#####################################################################
+# Grid Control and Management
+#####################################################################
+
+sg:GridController rdf:type owl:Class ;
+    rdfs:label "Grid Controller"@en ;
+    rdfs:comment "Automated grid management system"@en .
+
+sg:SCADA rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridController ;
+    rdfs:label "SCADA System"@en ;
+    rdfs:comment "Supervisory Control and Data Acquisition"@en .
+
+sg:EnergyManagementSystem rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridController ;
+    rdfs:label "Energy Management System"@en .
+
+sg:DemandResponseProgram rdf:type owl:Class ;
+    rdfs:label "Demand Response Program"@en ;
+    rdfs:comment "Load reduction incentive program"@en .
+
+sg:LoadBalancer rdf:type owl:Class ;
+    rdfs:label "Load Balancer"@en ;
+    rdfs:comment "Real-time load distribution system"@en .
+
+#####################################################################
+# Measurements and Monitoring
+#####################################################################
+
+sg:ElectricalMeasurement rdf:type owl:Class ;
+    rdfs:label "Electrical Measurement"@en ;
+    rdfs:comment "Real-time electrical parameter reading"@en .
+
+sg:VoltageMeasurement rdf:type owl:Class ;
+    rdfs:subClassOf sg:ElectricalMeasurement ;
+    rdfs:label "Voltage Measurement"@en .
+
+sg:CurrentMeasurement rdf:type owl:Class ;
+    rdfs:subClassOf sg:ElectricalMeasurement ;
+    rdfs:label "Current Measurement"@en .
+
+sg:PowerMeasurement rdf:type owl:Class ;
+    rdfs:subClassOf sg:ElectricalMeasurement ;
+    rdfs:label "Power Measurement"@en .
+
+sg:FrequencyMeasurement rdf:type owl:Class ;
+    rdfs:subClassOf sg:ElectricalMeasurement ;
+    rdfs:label "Frequency Measurement"@en .
+
+sg:EnergyReading rdf:type owl:Class ;
+    rdfs:label "Energy Reading"@en ;
+    rdfs:comment "Cumulative energy consumption or generation"@en .
+
+#####################################################################
+# Grid Events and Alerts
+#####################################################################
+
+sg:GridEvent rdf:type owl:Class ;
+    rdfs:label "Grid Event"@en ;
+    rdfs:comment "Significant occurrence in the electrical grid"@en .
+
+sg:Outage rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridEvent ;
+    rdfs:label "Power Outage"@en .
+
+sg:VoltageAnomalySag rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridEvent ;
+    rdfs:label "Voltage Sag"@en .
+
+sg:VoltageAnomalySwell rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridEvent ;
+    rdfs:label "Voltage Swell"@en .
+
+sg:FrequencyDeviation rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridEvent ;
+    rdfs:label "Frequency Deviation"@en .
+
+sg:Overload rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridEvent ;
+    rdfs:label "Equipment Overload"@en .
+
+sg:GridProtectionTrip rdf:type owl:Class ;
+    rdfs:subClassOf sg:GridEvent ;
+    rdfs:label "Protection System Trip"@en .
+
+#####################################################################
+# Core Properties - Identification
+#####################################################################
+
+sg:gridNodeID rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Grid Node Identifier"@en .
+
+sg:deviceType rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Type"@en .
+
+sg:manufacturer rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Manufacturer"@en .
+
+sg:model rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Model"@en .
+
+sg:serialNumber rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Device Serial Number"@en .
+
+#####################################################################
+# Spatial Properties - Grid Location
+#####################################################################
+
+sg:hasLocation rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range geo:Point ;
+    rdfs:label "Has Geographic Location"@en .
+
+sg:latitude rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Latitude (WGS84)"@en .
+
+sg:longitude rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Longitude (WGS84)"@en .
+
+sg:altitude rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Altitude (meters)"@en .
+
+sg:gridZone rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Grid Zone/Region"@en .
+
+#####################################################################
+# Electrical Properties - Power System Parameters
+#####################################################################
+
+sg:nominalVoltage rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Nominal Voltage (kV)"@en .
+
+sg:ratedPower rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Rated Power (MW)"@en .
+
+sg:maxPower rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Maximum Power Output (MW)"@en .
+
+sg:minPower rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Minimum Power Output (MW)"@en .
+
+sg:currentPower rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Current Power Output (MW)"@en .
+
+sg:efficiency rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Power Generation Efficiency (%)"@en .
+
+sg:powerFactor rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Power Factor"@en .
+
+#####################################################################
+# Energy Storage Properties
+#####################################################################
+
+sg:storageCapacity rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyStorage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Storage Capacity (MWh)"@en .
+
+sg:maxChargeRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyStorage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Maximum Charge Rate (MW)"@en .
+
+sg:maxDischargeRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyStorage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Maximum Discharge Rate (MW)"@en .
+
+sg:currentStateOfCharge rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyStorage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "State of Charge (%)"@en .
+
+sg:roundTripEfficiency rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyStorage ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Round-trip Efficiency (%)"@en .
+
+sg:chargingMode rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyStorage ;
+    rdfs:range xsd:string ;
+    rdfs:label "Charging Mode"@en .
+
+#####################################################################
+# Renewable Energy Properties
+#####################################################################
+
+sg:weatherCondition rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:RenewablePowerPlant ;
+    rdfs:range xsd:string ;
+    rdfs:label "Current Weather Condition"@en .
+
+sg:solarIrradiance rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:SolarPowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Solar Irradiance (W/m²)"@en .
+
+sg:windSpeed rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:WindPowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Wind Speed (m/s)"@en .
+
+sg:windDirection rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:WindPowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Wind Direction (degrees)"@en .
+
+sg:waterFlow rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:HydroPowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Water Flow Rate (m³/s)"@en .
+
+sg:reservoirLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:HydroPowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Reservoir Water Level (m)"@en .
+
+#####################################################################
+# Demand and Consumption Properties
+#####################################################################
+
+sg:currentDemand rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyConsumer ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Current Power Demand (kW)"@en .
+
+sg:peakDemand rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyConsumer ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Peak Power Demand (kW)"@en .
+
+sg:averageDemand rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyConsumer ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Average Power Demand (kW)"@en .
+
+sg:demandResponseCapacity rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyConsumer ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Demand Response Capacity (kW)"@en .
+
+sg:flexibilityFactor rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyConsumer ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Load Flexibility Factor (0-1)"@en .
+
+sg:priorityLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:EnergyConsumer ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Supply Priority Level (1-10)"@en .
+
+#####################################################################
+# Measurement Properties
+#####################################################################
+
+sg:hasMeasurement rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range sg:ElectricalMeasurement ;
+    rdfs:label "Has Measurement"@en .
+
+sg:measurementValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Measurement Value"@en .
+
+sg:measurementUnit rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:string ;
+    rdfs:label "Measurement Unit"@en .
+
+sg:measurementTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Measurement Timestamp"@en .
+
+sg:measurementAccuracy rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Measurement Accuracy (%)"@en .
+
+sg:samplingRate rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Sampling Rate (Hz)"@en .
+
+#####################################################################
+# Grid Events and Alarms
+#####################################################################
+
+sg:hasEvent rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range sg:GridEvent ;
+    rdfs:label "Has Grid Event"@en .
+
+sg:eventType rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "Event Type"@en .
+
+sg:eventSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Event Severity (1-10)"@en .
+
+sg:eventTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Event Timestamp"@en .
+
+sg:eventDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Event Duration (seconds)"@en .
+
+sg:affectedNodes rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Number of Affected Nodes"@en .
+
+sg:recoveryTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Recovery Time (seconds)"@en .
+
+#####################################################################
+# Grid Topology and Connectivity
+#####################################################################
+
+sg:connectsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range sg:GridNode ;
+    rdfs:label "Connects To"@en .
+
+sg:feedsFrom rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range sg:GridNode ;
+    rdfs:label "Feeds From"@en .
+
+sg:hasUpstream rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range sg:GridNode ;
+    rdfs:label "Has Upstream Node"@en .
+
+sg:hasDownstream rdf:type owl:ObjectProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range sg:GridNode ;
+    rdfs:label "Has Downstream Node"@en .
+
+sg:lineLength rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:TransmissionLine, sg:DistributionLine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Line Length (km)"@en .
+
+sg:lineImpedance rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:TransmissionLine, sg:DistributionLine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Line Impedance (Ω)"@en .
+
+sg:thermalRating rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:TransmissionLine, sg:DistributionLine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Thermal Rating (A)"@en .
+
+#####################################################################
+# Control and Automation Properties
+#####################################################################
+
+sg:controlMode rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridController ;
+    rdfs:range xsd:string ;
+    rdfs:label "Control Mode"@en .
+
+sg:setpoint rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridController ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Control Setpoint"@en .
+
+sg:responseTime rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridController ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Control Response Time (ms)"@en .
+
+sg:controlAccuracy rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridController ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Control Accuracy (%)"@en .
+
+sg:operationalStatus rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "Operational Status"@en .
+
+sg:lastMaintenance rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Last Maintenance Date"@en .
+
+#####################################################################
+# BitActor Integration Properties
+#####################################################################
+
+sg:bitactorID rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:string ;
+    rdfs:label "BitActor Instance ID"@en .
+
+sg:processingLatency rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Processing Latency (nanoseconds)"@en .
+
+sg:ticksUsed rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:integer ;
+    rdfs:label "CPU Ticks Used"@en .
+
+sg:simdOptimized rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:ElectricalMeasurement ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "SIMD Optimized Processing"@en .
+
+sg:realTimeProcessing rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridController ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Real-time Processing Enabled"@en .
+
+#####################################################################
+# Grid Stability and Quality Metrics
+#####################################################################
+
+sg:gridFrequency rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Grid Frequency (Hz)"@en .
+
+sg:totalHarmonicDistortion rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Total Harmonic Distortion (%)"@en .
+
+sg:voltageStability rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Voltage Stability Index"@en .
+
+sg:loadFactor rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Load Factor (%)"@en .
+
+sg:reserveMargin rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Reserve Margin (%)"@en .
+
+#####################################################################
+# Economic and Market Properties
+#####################################################################
+
+sg:energyPrice rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:GridNode ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Energy Price ($/MWh)"@en .
+
+sg:marginalCost rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Marginal Cost ($/MWh)"@en .
+
+sg:startupCost rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Startup Cost ($)"@en .
+
+sg:carbonEmissionFactor rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:PowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Carbon Emission Factor (kg CO2/MWh)"@en .
+
+sg:renewableEnergyCredit rdf:type owl:DatatypeProperty ;
+    rdfs:domain sg:RenewablePowerPlant ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Renewable Energy Credit Value ($)"@en .
+
+#####################################################################
+# Instances - Standard Grid Components
+#####################################################################
+
+sg:TransmissionSubstation rdf:type sg:Substation ;
+    sg:nominalVoltage 345.0 ;
+    sg:deviceType "transmission_substation" .
+
+sg:DistributionSubstation rdf:type sg:Substation ;
+    sg:nominalVoltage 69.0 ;
+    sg:deviceType "distribution_substation" .
+
+sg:HighVoltageTransmissionLine rdf:type sg:TransmissionLine ;
+    sg:nominalVoltage 500.0 ;
+    sg:thermalRating 2000.0 .
+
+sg:MediumVoltageDistributionLine rdf:type sg:DistributionLine ;
+    sg:nominalVoltage 13.8 ;
+    sg:thermalRating 400.0 .
+
+#####################################################################
+# Instances - Renewable Energy Types
+#####################################################################
+
+sg:UtilityScaleSolar rdf:type sg:SolarPowerPlant ;
+    sg:maxPower 100.0 ;
+    sg:efficiency 22.0 ;
+    sg:deviceType "utility_scale_pv" .
+
+sg:OffshoreWind rdf:type sg:WindPowerPlant ;
+    sg:maxPower 250.0 ;
+    sg:efficiency 45.0 ;
+    sg:deviceType "offshore_wind_turbine" .
+
+sg:RunOfRiverHydro rdf:type sg:HydroPowerPlant ;
+    sg:maxPower 50.0 ;
+    sg:efficiency 90.0 ;
+    sg:deviceType "run_of_river_hydro" .
+
+#####################################################################
+# Instances - Energy Storage Types
+#####################################################################
+
+sg:LithiumIonBattery rdf:type sg:BatteryStorage ;
+    sg:storageCapacity 100.0 ;
+    sg:maxChargeRate 25.0 ;
+    sg:maxDischargeRate 25.0 ;
+    sg:roundTripEfficiency 85.0 .
+
+sg:FlowBattery rdf:type sg:BatteryStorage ;
+    sg:storageCapacity 200.0 ;
+    sg:maxChargeRate 20.0 ;
+    sg:maxDischargeRate 20.0 ;
+    sg:roundTripEfficiency 75.0 .

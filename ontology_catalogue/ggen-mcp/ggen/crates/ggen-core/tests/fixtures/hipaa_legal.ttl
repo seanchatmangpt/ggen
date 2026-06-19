@@ -1,0 +1,176 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix legal: <http://example.org/legal/hipaa#> .
+
+# ============================================================================
+# HIPAA Legal Ontology
+# ============================================================================
+
+<http://example.org/legal/hipaa> a owl:Ontology ;
+    rdfs:label "HIPAA Legal Compliance Ontology" ;
+    rdfs:comment "Ontology for HIPAA regulatory compliance requirements" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+legal:HIPAACompliance a owl:Class ;
+    rdfs:label "HIPAA Compliance" ;
+    rdfs:comment "Top-level HIPAA compliance framework" ;
+    rdfs:subClassOf owl:Thing .
+
+legal:RegulationRule a owl:Class ;
+    rdfs:label "Regulation Rule" ;
+    rdfs:comment "Individual HIPAA regulation rule" ;
+    rdfs:subClassOf owl:Thing .
+
+legal:ProtectedHealthInformation a owl:Class ;
+    rdfs:label "Protected Health Information (PHI)" ;
+    rdfs:comment "Any health information that can identify an individual" ;
+    rdfs:subClassOf owl:Thing .
+
+legal:AccessControl a owl:Class ;
+    rdfs:label "Access Control" ;
+    rdfs:comment "Access control requirements" ;
+    rdfs:subClassOf owl:Thing .
+
+legal:Audit a owl:Class ;
+    rdfs:label "Audit" ;
+    rdfs:comment "Audit and accountability requirements" ;
+    rdfs:subClassOf owl:Thing .
+
+legal:Encryption a owl:Class ;
+    rdfs:label "Encryption" ;
+    rdfs:comment "Encryption requirements for PHI" ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+legal:hasRegulation a owl:ObjectProperty ;
+    rdfs:label "has Regulation" ;
+    rdfs:comment "Links compliance framework to regulations" ;
+    rdfs:domain legal:HIPAACompliance ;
+    rdfs:range legal:RegulationRule .
+
+legal:requiresAccessControl a owl:ObjectProperty ;
+    rdfs:label "requires Access Control" ;
+    rdfs:comment "Regulation requires access control" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range legal:AccessControl .
+
+legal:requiresEncryption a owl:ObjectProperty ;
+    rdfs:label "requires Encryption" ;
+    rdfs:comment "Regulation requires encryption" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range legal:Encryption .
+
+legal:requiresAudit a owl:ObjectProperty ;
+    rdfs:label "requires Audit" ;
+    rdfs:comment "Regulation requires audit logs" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range legal:Audit .
+
+legal:appliesToResource a owl:ObjectProperty ;
+    rdfs:label "applies To Resource" ;
+    rdfs:comment "Regulation applies to this resource type" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range owl:Thing .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+legal:ruleId a owl:DatatypeProperty ;
+    rdfs:label "rule ID" ;
+    rdfs:comment "Unique identifier for regulation rule" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+legal:ruleTitle a owl:DatatypeProperty ;
+    rdfs:label "rule Title" ;
+    rdfs:comment "Title of the regulation" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+legal:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Detailed description of requirement" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range xsd:string .
+
+legal:section a owl:DatatypeProperty ;
+    rdfs:label "section" ;
+    rdfs:comment "HIPAA section number (e.g., 164.308)" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+legal:severity a owl:DatatypeProperty ;
+    rdfs:label "severity" ;
+    rdfs:comment "Severity level (critical, high, medium, low)" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range xsd:string .
+
+legal:encryptionAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "encryption Algorithm" ;
+    rdfs:comment "Required encryption algorithm" ;
+    rdfs:domain legal:Encryption ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+legal:minimumKeyLength a owl:DatatypeProperty ;
+    rdfs:label "minimum Key Length" ;
+    rdfs:comment "Minimum key length in bits" ;
+    rdfs:domain legal:Encryption ;
+    rdfs:range xsd:integer ;
+    a owl:FunctionalProperty .
+
+legal:auditLogRetention a owl:DatatypeProperty ;
+    rdfs:label "audit Log Retention" ;
+    rdfs:comment "How long to retain audit logs in days" ;
+    rdfs:domain legal:Audit ;
+    rdfs:range xsd:integer .
+
+legal:maximumAccessWindow a owl:DatatypeProperty ;
+    rdfs:label "maximum Access Window" ;
+    rdfs:comment "Maximum time window for access in hours" ;
+    rdfs:domain legal:AccessControl ;
+    rdfs:range xsd:integer .
+
+legal:effectiveDate a owl:DatatypeProperty ;
+    rdfs:label "effective Date" ;
+    rdfs:comment "Date when regulation becomes effective" ;
+    rdfs:domain legal:RegulationRule ;
+    rdfs:range xsd:date ;
+    a owl:FunctionalProperty .
+
+# ============================================================================
+# CARDINALITY CONSTRAINTS
+# ============================================================================
+
+legal:ComplianceConstraint1 a owl:Restriction ;
+    owl:onClass legal:HIPAACompliance ;
+    owl:onProperty legal:hasRegulation ;
+    owl:minCardinality 1 .
+
+legal:RegulationConstraint1 a owl:Restriction ;
+    owl:onClass legal:RegulationRule ;
+    owl:onProperty legal:ruleId ;
+    owl:cardinality 1 .
+
+legal:RegulationConstraint2 a owl:Restriction ;
+    owl:onClass legal:RegulationRule ;
+    owl:onProperty legal:ruleTitle ;
+    owl:cardinality 1 .
+
+legal:EncryptionConstraint1 a owl:Restriction ;
+    owl:onClass legal:Encryption ;
+    owl:onProperty legal:encryptionAlgorithm ;
+    owl:cardinality 1 .

@@ -1,0 +1,240 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix kg: <http://example.org/kg/shapes/> .
+
+# =============================================================================
+# Critical SHACL Validation Shapes (80/20 Rule)
+# These shapes cover the most important validation scenarios for data quality
+# =============================================================================
+
+# Critical Rule 1: Entity Name Requirements
+kg:RequiredNameShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "All entities must have at least one non-empty name"
+    ] .
+
+# Critical Rule 2: Person Validation
+kg:PersonValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:message "Person must have exactly one name between 2-100 characters"
+    ] ;
+    sh:property [
+        sh:path schema:email ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Email must be valid format if provided"
+    ] ;
+    sh:property [
+        sh:path schema:age ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 150 ;
+        sh:message "Age must be between 0 and 150"
+    ] .
+
+# Critical Rule 3: Date/Time Validation
+kg:TemporalValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:property [
+        sh:path dct:created ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "All entities must have exactly one valid creation timestamp"
+    ] ;
+    sh:property [
+        sh:path dct:modified ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Modified date must be valid dateTime if provided"
+    ] ;
+    # Custom SPARQL constraint for temporal consistency
+    sh:sparql [
+        sh:message "Creation date cannot be in the future" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "dct" ;
+                sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?created WHERE {
+                $this dct:created ?created .
+                FILTER(?created > NOW())
+            }
+        """
+    ] .
+
+# Critical Rule 4: URI Pattern Validation
+kg:URIPatternShape
+    a sh:NodeShape ;
+    sh:targetNode sh:IRI ;
+    sh:pattern "^https?://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/.*)?$" ;
+    sh:message "URIs must follow valid HTTP/HTTPS URL format" .
+
+# Critical Rule 5: Organization Validation
+kg:OrganizationValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Organization ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ;
+        sh:message "Organization must have a name of at least 2 characters"
+    ] ;
+    sh:property [
+        sh:path schema:url ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https?://" ;
+        sh:message "Organization URL must be valid HTTP/HTTPS if provided"
+    ] ;
+    sh:property [
+        sh:path schema:employee ;
+        sh:minCount 1 ;
+        sh:class schema:Person ;
+        sh:message "Organization must have at least one employee"
+    ] .
+
+# Critical Rule 6: Event Validation with Temporal Logic
+kg:EventValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Event ;
+    sh:property [
+        sh:path schema:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Event must have a name"
+    ] ;
+    sh:property [
+        sh:path schema:startDate ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:dateTime ]
+        ) ;
+        sh:message "Event start date must be valid date or dateTime"
+    ] ;
+    sh:property [
+        sh:path schema:endDate ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:datatype xsd:date ]
+            [ sh:datatype xsd:dateTime ]
+        ) ;
+        sh:message "Event end date must be valid date or dateTime"
+    ] ;
+    # SPARQL constraint for temporal consistency
+    sh:sparql [
+        sh:message "Event end date must be after start date" ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "schema" ;
+                sh:namespace "http://schema.org/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this ?startDate ?endDate WHERE {
+                $this schema:startDate ?startDate ;
+                      schema:endDate ?endDate .
+                FILTER(?endDate <= ?startDate)
+            }
+        """
+    ] .
+
+# Critical Rule 7: Cardinality Constraints
+kg:CardinalityValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Thing ;
+    sh:property [
+        sh:path schema:identifier ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Entity can have at most one non-empty identifier"
+    ] ;
+    sh:property [
+        sh:path schema:description ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 1000 ;
+        sh:message "Description must be at most 1000 characters if provided"
+    ] .
+
+# Critical Rule 8: Data Type Validation
+kg:DataTypeValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:QuantitativeValue ;
+    sh:property [
+        sh:path schema:value ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:message "Quantitative value must have exactly one decimal value"
+    ] ;
+    sh:property [
+        sh:path schema:unitCode ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{2,3}$" ;
+        sh:message "Unit code must be 2-3 uppercase letters if provided"
+    ] .
+
+# Critical Rule 9: Node Kind Validation
+kg:NodeKindValidationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:property [
+        sh:path foaf:homepage ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Homepage must be an IRI if provided"
+    ] ;
+    sh:property [
+        sh:path schema:description ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:Literal ;
+        sh:message "Description must be a literal value if provided"
+    ] ;
+    sh:property [
+        sh:path schema:worksFor ;
+        sh:nodeKind sh:IRIOrBlankNode ;
+        sh:class schema:Organization ;
+        sh:message "Person can only work for organization resources"
+    ] .
+
+# Critical Rule 10: Closed Shape Validation
+kg:ClosedPersonShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:closed true ;
+    sh:ignoredProperties ( 
+        schema:name 
+        schema:email 
+        schema:age 
+        schema:worksFor
+        dct:created
+        dct:modified
+    ) ;
+    sh:message "Person can only have specified properties (closed shape)" .

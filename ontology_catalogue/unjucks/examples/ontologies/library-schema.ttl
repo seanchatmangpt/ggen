@@ -1,0 +1,136 @@
+@prefix : <http://example.org/library/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Ontology metadata
+: a owl:Ontology ;
+    dc:title "Library Management System" ;
+    dc:description "RDF ontology for a library management system" ;
+    owl:versionInfo "1.0.0" .
+
+# Classes
+:Book a owl:Class ;
+    rdfs:label "Book" ;
+    rdfs:comment "Represents a book in the library" .
+
+:Author a owl:Class ;
+    rdfs:label "Author" ;
+    rdfs:comment "Represents an author who writes books" .
+
+:Member a owl:Class ;
+    rdfs:label "Member" ;
+    rdfs:comment "Represents a library member" .
+
+:Loan a owl:Class ;
+    rdfs:label "Loan" ;
+    rdfs:comment "Represents a book loan transaction" .
+
+# Book properties
+:isbn a owl:DatatypeProperty ;
+    rdfs:label "ISBN" ;
+    rdfs:comment "International Standard Book Number" ;
+    rdfs:domain :Book ;
+    rdfs:range xsd:string .
+
+:title a owl:DatatypeProperty ;
+    rdfs:label "Title" ;
+    rdfs:comment "Book title" ;
+    rdfs:domain :Book ;
+    rdfs:range xsd:string .
+
+:publicationYear a owl:DatatypeProperty ;
+    rdfs:label "Publication Year" ;
+    rdfs:comment "Year the book was published" ;
+    rdfs:domain :Book ;
+    rdfs:range xsd:integer .
+
+:available a owl:DatatypeProperty ;
+    rdfs:label "Available" ;
+    rdfs:comment "Whether the book is available for loan" ;
+    rdfs:domain :Book ;
+    rdfs:range xsd:boolean .
+
+# Author properties
+:firstName a owl:DatatypeProperty ;
+    rdfs:label "First Name" ;
+    rdfs:comment "Author's first name" ;
+    rdfs:domain :Author ;
+    rdfs:range xsd:string .
+
+:lastName a owl:DatatypeProperty ;
+    rdfs:label "Last Name" ;
+    rdfs:comment "Author's last name" ;
+    rdfs:domain :Author ;
+    rdfs:range xsd:string .
+
+:email a owl:DatatypeProperty ;
+    rdfs:label "Email" ;
+    rdfs:comment "Author's email address" ;
+    rdfs:domain :Author ;
+    rdfs:range xsd:string .
+
+# Member properties
+:membershipNumber a owl:DatatypeProperty ;
+    rdfs:label "Membership Number" ;
+    rdfs:comment "Unique membership identifier" ;
+    rdfs:domain :Member ;
+    rdfs:range xsd:string .
+
+:memberName a owl:DatatypeProperty ;
+    rdfs:label "Name" ;
+    rdfs:comment "Member's full name" ;
+    rdfs:domain :Member ;
+    rdfs:range xsd:string .
+
+:memberEmail a owl:DatatypeProperty ;
+    rdfs:label "Email" ;
+    rdfs:comment "Member's email address" ;
+    rdfs:domain :Member ;
+    rdfs:range xsd:string .
+
+:joinDate a owl:DatatypeProperty ;
+    rdfs:label "Join Date" ;
+    rdfs:comment "Date member joined the library" ;
+    rdfs:domain :Member ;
+    rdfs:range xsd:dateTime .
+
+# Loan properties
+:loanDate a owl:DatatypeProperty ;
+    rdfs:label "Loan Date" ;
+    rdfs:comment "Date the book was loaned" ;
+    rdfs:domain :Loan ;
+    rdfs:range xsd:dateTime .
+
+:dueDate a owl:DatatypeProperty ;
+    rdfs:label "Due Date" ;
+    rdfs:comment "Date the book is due to be returned" ;
+    rdfs:domain :Loan ;
+    rdfs:range xsd:dateTime .
+
+:returned a owl:DatatypeProperty ;
+    rdfs:label "Returned" ;
+    rdfs:comment "Whether the book has been returned" ;
+    rdfs:domain :Loan ;
+    rdfs:range xsd:boolean .
+
+# Object properties (relationships)
+:writtenBy a owl:ObjectProperty ;
+    rdfs:label "Written By" ;
+    rdfs:comment "Links a book to its author" ;
+    rdfs:domain :Book ;
+    rdfs:range :Author .
+
+:borrowedBy a owl:ObjectProperty ;
+    rdfs:label "Borrowed By" ;
+    rdfs:comment "Links a loan to the member who borrowed" ;
+    rdfs:domain :Loan ;
+    rdfs:range :Member .
+
+:loanedBook a owl:ObjectProperty ;
+    rdfs:label "Loaned Book" ;
+    rdfs:comment "Links a loan to the book that was loaned" ;
+    rdfs:domain :Loan ;
+    rdfs:range :Book .

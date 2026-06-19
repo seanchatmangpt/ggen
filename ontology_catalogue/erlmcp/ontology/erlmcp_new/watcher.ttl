@@ -1,0 +1,182 @@
+# =============================================================================
+# erlmcp Resource Watcher Ontology
+# =============================================================================
+# Defines filesystem and resource watching
+#
+# Features:
+#   - File system monitoring (create, modify, delete)
+#   - Directory recursive watching
+#   - Pattern-based filtering
+#   - Debouncing and throttling
+#   - Event notification
+#   - Resource state tracking
+# =============================================================================
+
+@prefix watcher: <http://erlmcp.org/schema/watcher/> .
+@prefix otp: <http://erlang.org/otp/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+watcher:ResourceWatcher a rdfs:Class ;
+    rdfs:label "Resource Watcher" ;
+    rdfs:comment "Monitors resources for changes" ;
+    rdfs:subClassOf otp:GenServer .
+
+watcher:WatchedResource a rdfs:Class ;
+    rdfs:label "Watched Resource" ;
+    rdfs:comment "Resource being monitored" .
+
+watcher:ChangeEvent a rdfs:Class ;
+    rdfs:label "Change Event" ;
+    rdfs:comment "Resource change notification" .
+
+watcher:WatchConfig a rdfs:Class ;
+    rdfs:label "Watch Config" ;
+    rdfs:comment "Watcher configuration" .
+
+# -----------------------------------------------------------------------------
+# Event Types
+# -----------------------------------------------------------------------------
+
+watcher:Created a watcher:ChangeEvent ;
+    rdfs:label "Created" ;
+    rdfs:comment "Resource created" .
+
+watcher:Modified a watcher:ChangeEvent ;
+    rdfs:label "Modified" ;
+    rdfs:comment "Resource modified" .
+
+watcher:Deleted a watcher:ChangeEvent ;
+    rdfs:label "Deleted" ;
+    rdfs:comment "Resource deleted" .
+
+watcher:Renamed a watcher:ChangeEvent ;
+    rdfs:label "Renamed" ;
+    rdfs:comment "Resource renamed/moved" .
+
+watcher:AttributeChanged a watcher:ChangeEvent ;
+    rdfs:label "Attribute Changed" ;
+    rdfs:comment "Resource attributes changed" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+watcher:resourcePath a rdf:Property ;
+    rdfs:domain watcher:WatchedResource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource path" .
+
+watcher:recursive a rdf:Property ;
+    rdfs:domain watcher:WatchedResource ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "recursive watch" .
+
+watcher:includePattern a rdf:Property ;
+    rdfs:domain watcher:WatchConfig ;
+    rdfs:range xsd:string ;
+    rdfs:label "include pattern (glob)" .
+
+watcher:excludePattern a rdf:Property ;
+    rdfs:domain watcher:WatchConfig ;
+    rdfs:range xsd:string ;
+    rdfs:label "exclude pattern (glob)" .
+
+watcher:debounceMs a rdf:Property ;
+    rdfs:domain watcher:WatchConfig ;
+    rdfs:range xsd:integer ;
+    rdfs:label "debounce milliseconds" .
+
+watcher:throttleMs a rdf:Property ;
+    rdfs:domain watcher:WatchConfig ;
+    rdfs:range xsd:integer ;
+    rdfs:label "throttle milliseconds" .
+
+watcher:notifySubscribers a rdf:Property ;
+    rdfs:domain watcher:WatchConfig ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "notify subscribers" .
+
+watcher:eventType a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range watcher:ChangeEvent ;
+    rdfs:label "event type" .
+
+watcher:timestamp a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+watcher:oldPath a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "old path (for rename)" .
+
+watcher:newPath a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "new path" .
+
+watcher:fileSize a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:label "file size (bytes)" .
+
+watcher:fileMode a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "file mode (permissions)" .
+
+watcher:checksum a rdf:Property ;
+    rdfs:domain watcher:ChangeEvent ;
+    rdfs:range xsd:string ;
+    rdfs:label "file checksum" .
+
+watcher:subscriber a rdf:Property ;
+    rdfs:domain watcher:WatchedResource ;
+    rdfs:range xsd:string ;
+    rdfs:label "subscriber pid/name" .
+
+# -----------------------------------------------------------------------------
+# Watcher Backends
+# -----------------------------------------------------------------------------
+
+watcher:FSWatcher a rdfs:Class ;
+    rdfs:label "Filesystem Watcher" ;
+    rdfs:comment "Uses inotify/ReadDirChanges" .
+
+watcher:PollWatcher a rdfs:Class ;
+    rdfs:label "Polling Watcher" ;
+    rdfs:comment "Polls for changes" .
+
+watcher:HTTPWatcher a rdfs:Class ;
+    rdfs:label "HTTP Watcher" ;
+    rdfs:comment "Monitors HTTP endpoints" .
+
+watcher:RedisWatcher a rdfs:Class ;
+    rdfs:label "Redis Watcher" ;
+    rdfs:comment "Monitors Redis keys" .
+
+# -----------------------------------------------------------------------------
+# Default Configurations
+# -----------------------------------------------------------------------------
+
+watcher:DefaultConfig a watcher:WatchConfig ;
+    watcher:debounceMs 100 ;
+    watcher:throttleMs 1000 ;
+    watcher:notifySubscribers true .
+
+watcher:FastConfig a watcher:WatchConfig ;
+    watcher:debounceMs 0 ;
+    watcher:throttleMs 100 ;
+    watcher:notifySubscribers true .
+
+watcher:SlowConfig a watcher:WatchConfig ;
+    watcher:debounceMs 1000 ;
+    watcher:throttleMs 5000 ;
+    watcher:notifySubscribers true .

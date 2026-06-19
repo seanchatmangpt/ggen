@@ -1,0 +1,39 @@
+PREFIX java: <https://jgen.dev/ontology/java#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract sealed type hierarchies (interfaces and classes) with permitted subtypes
+SELECT ?sealedType ?typeName ?typeKind ?package ?permittedType ?permittedName ?permittedKind
+       ?method ?methodName ?returnType ?typeParam
+WHERE {
+    {
+        ?sealedType a java:SealedInterface .
+        BIND("interface" AS ?typeKind)
+    } UNION {
+        ?sealedType a java:SealedClass .
+        BIND("class" AS ?typeKind)
+    }
+
+    ?sealedType java:hasName ?typeName .
+    OPTIONAL { ?sealedType java:hasPackage ?package }
+
+    OPTIONAL {
+        ?sealedType java:permits ?permittedType .
+        ?permittedType java:hasName ?permittedName .
+        OPTIONAL {
+            { ?permittedType a java:Record . BIND("record" AS ?permittedKind) }
+            UNION
+            { ?permittedType a java:FinalClass . BIND("final class" AS ?permittedKind) }
+            UNION
+            { ?permittedType a java:ClassType . BIND("class" AS ?permittedKind) }
+        }
+    }
+
+    OPTIONAL {
+        ?sealedType java:hasMethod ?method .
+        ?method java:hasName ?methodName .
+        OPTIONAL { ?method java:hasReturnType ?returnType }
+    }
+
+    OPTIONAL { ?sealedType java:hasTypeParameter ?typeParam }
+}
+ORDER BY ?package ?typeName ?permittedName

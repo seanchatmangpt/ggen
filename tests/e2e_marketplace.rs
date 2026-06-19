@@ -1,11 +1,37 @@
 use anyhow::Result;
+use serial_test::serial;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
 
+/// Saves the prior value of an env var and restores it (or removes it) on Drop.
+/// Defined locally per binary; do not share across crates.
+struct EnvVarGuard {
+    key: &'static str,
+    previous: Option<std::ffi::OsString>,
+}
+
+impl EnvVarGuard {
+    fn set(key: &'static str, value: &str) -> Self {
+        let previous = std::env::var_os(key);
+        std::env::set_var(key, value);
+        Self { key, previous }
+    }
+}
+
+impl Drop for EnvVarGuard {
+    fn drop(&mut self) {
+        match &self.previous {
+            None => std::env::remove_var(self.key),
+            Some(v) => std::env::set_var(self.key, v),
+        }
+    }
+}
+
 /// End-to-end test for the complete marketplace workflow
 #[test]
+#[serial(GGEN_REGISTRY_URL)]
 fn test_marketplace_e2e_workflow() -> Result<()> {
     // Setup: Create a temporary project directory
     let project_dir = TempDir::new()?;
@@ -17,7 +43,7 @@ fn test_marketplace_e2e_workflow() -> Result<()> {
     let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
 
     // Set environment variable for local registry
-    env::set_var("GGEN_REGISTRY_URL", &file_url);
+    let _registry_guard = EnvVarGuard::set("GGEN_REGISTRY_URL", &file_url);
 
     // Step 1: Search for gpacks
     println!("Step 1: Searching for gpacks...");

@@ -1,0 +1,500 @@
+@prefix ggen:    <https://open-ontologies.org/ggen#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <https://schema.org/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix sioc:    <http://rdfs.org/sioc/ns#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix as:      <https://www.w3.org/ns/activitystreams#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix odrl:    <http://www.w3.org/ns/odrl/2/> .
+@prefix time:    <http://www.w3.org/2006/time#> .
+
+# ============================================================================
+# Public-Role Materialization Shapes (SHACL)
+# ============================================================================
+#
+# Profile-layer SHACL shapes that close the second admission condition under
+# the Public Vocabulary Materialization Policy:
+#
+#   admissible_materialization ⟺
+#     (1) class specializes a public anchor
+#     (2) SHACL shape declares required properties      ← THIS FILE
+#     (3) ODRL policy declares access (P0-B.7)
+#     (4) public/PROV/OCEL role requires persistence
+#
+# Each shape targets the public-vocabulary anchor class. Via rdfs:subClassOf+
+# inheritance, every ZOE specialization of that anchor inherits the contract.
+#
+# Doctrine: shapes belong in the profile layer, NOT in ontology/zoela/.
+# They are runtime-target requirements, not church-domain truth.
+#
+# Companion file: ontology/profiles/zoela-supabase-materialization.ttl
+# Each shape is referenced from its materialization kind via ggen:requiresShape.
+# ============================================================================
+
+<https://open-ontologies.org/ggen/profiles/public-role-shapes>
+    a owl:Ontology ;
+    rdfs:label "Public-Role Materialization Shapes"@en ;
+    rdfs:comment "SHACL NodeShapes declaring the minimum property contract for each materialization kind. Closes admission condition (2) of the Public Vocabulary Materialization Policy."@en ;
+    dcterms:creator "Sean Chatman" ;
+    dcterms:created "2026-05-18"^^xsd:date ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    owl:versionInfo "P0-B.6" .
+
+# ============================================================================
+# § 1  Agent — schema:Person / foaf:Agent
+#
+# Materialized rows must have an identifying label. Optional contact details
+# follow public-vocab property names where possible.
+# ============================================================================
+
+ggen:AgentMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:name "Agent Materialization Shape"@en ;
+    sh:description "Every materialized schema:Person (or foaf:Agent specialization thereof) must have a name. Optional contact fields are advisory."@en ;
+    sh:property [
+        sh:path schema:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "name" ;
+        sh:description "Display name; rendered as TEXT NOT NULL in SQL."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:email ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:name "email" ;
+    ] ;
+    sh:property [
+        sh:path schema:telephone ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:name "telephone" ;
+    ] .
+
+# ============================================================================
+# § 2  Organization — schema:Organization / org:Organization / foaf:Group
+# ============================================================================
+
+ggen:OrganizationMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Organization ;
+    sh:name "Organization Materialization Shape"@en ;
+    sh:description "Every materialized organization (ministry, team, group, campus, partner) must have a name."@en ;
+    sh:property [
+        sh:path schema:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "name" ;
+        sh:description "Organization display name; rendered as TEXT NOT NULL."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:url ;
+        sh:datatype xsd:anyURI ;
+        sh:maxCount 1 ;
+        sh:name "url" ;
+    ] .
+
+# ============================================================================
+# § 3  Container — sioc:Container
+# ============================================================================
+
+ggen:ContainerMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass sioc:Container ;
+    sh:name "Container Materialization Shape"@en ;
+    sh:description "Discussion/community containers require a name and an owner reference."@en ;
+    sh:property [
+        sh:path schema:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "name" ;
+    ] .
+
+# ============================================================================
+# § 4  Event — schema:Event
+# ============================================================================
+
+ggen:EventMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Event ;
+    sh:name "Event Materialization Shape"@en ;
+    sh:description "Every materialized event (session, meeting, camp, youth night) must have a name and a start time."@en ;
+    sh:property [
+        sh:path schema:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "name" ;
+    ] ;
+    sh:property [
+        sh:path schema:startDate ;
+        sh:or (
+            [ sh:datatype xsd:dateTime ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "start_date" ;
+        sh:description "Event start instant; rendered as TIMESTAMPTZ NOT NULL."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:endDate ;
+        sh:or (
+            [ sh:datatype xsd:dateTime ]
+            [ sh:datatype xsd:date ]
+        ) ;
+        sh:maxCount 1 ;
+        sh:name "end_date" ;
+    ] ;
+    sh:property [
+        sh:path schema:location ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:maxCount 1 ;
+        sh:name "location" ;
+    ] .
+
+# ============================================================================
+# § 5  Action — schema:Action (and subclasses)
+#
+# Every materialized action must declare who performed it (schema:agent),
+# what it acted on (schema:object), and when it occurred (schema:startTime).
+# ============================================================================
+
+ggen:ActionMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Action ;
+    sh:name "Action Materialization Shape"@en ;
+    sh:description "Actions (requests, agreements, check-ins, registrations, assignments) require agent, object, and start time."@en ;
+    sh:property [
+        sh:path schema:agent ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:name "agent" ;
+        sh:description "FK to the person/agent who performed the action; rendered as UUID NOT NULL REFERENCES persons(id)."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:object ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:name "object" ;
+        sh:description "FK to the resource/entity acted upon; rendered as UUID NOT NULL."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:startTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "start_time" ;
+    ] ;
+    sh:property [
+        sh:path schema:endTime ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:name "end_time" ;
+    ] ;
+    sh:property [
+        sh:path schema:actionStatus ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:maxCount 1 ;
+        sh:name "action_status" ;
+    ] .
+
+# ============================================================================
+# § 6  Message — schema:Message / sioc:Post
+# ============================================================================
+
+ggen:MessageMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Message ;
+    sh:name "Message Materialization Shape"@en ;
+    sh:description "Messages and posts require a sender, content, and date created."@en ;
+    sh:property [
+        sh:path schema:sender ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:name "sender" ;
+        sh:description "FK to the sending agent; UUID NOT NULL."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:text ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:name "text" ;
+    ] ;
+    sh:property [
+        sh:path schema:dateCreated ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "date_created" ;
+    ] .
+
+# ============================================================================
+# § 7  ActivityStream Activity — as:Activity
+# ============================================================================
+
+ggen:ActivityStreamMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass as:Activity ;
+    sh:name "ActivityStream Activity Materialization Shape"@en ;
+    sh:description "ActivityStreams activities require actor and object (and optional target)."@en ;
+    sh:property [
+        sh:path as:actor ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:name "actor" ;
+    ] ;
+    sh:property [
+        sh:path as:object ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:minCount 1 ;
+        sh:name "object" ;
+    ] ;
+    sh:property [
+        sh:path as:published ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "published" ;
+    ] .
+
+# ============================================================================
+# § 8  PROV Activity — prov:Activity
+# ============================================================================
+
+ggen:EvidenceActivityMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass prov:Activity ;
+    sh:name "PROV Evidence Activity Materialization Shape"@en ;
+    sh:description "Process-evidence activities require start time. Association and end time are advisory."@en ;
+    sh:property [
+        sh:path prov:startedAtTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "started_at_time" ;
+    ] ;
+    sh:property [
+        sh:path prov:endedAtTime ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+        sh:name "ended_at_time" ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:nodeKind sh:IRI ;
+        sh:name "was_associated_with" ;
+    ] .
+
+# ============================================================================
+# § 9  PROV Entity — prov:Entity (receipts, evidence artifacts, OCEL objects)
+# ============================================================================
+
+ggen:EvidenceEntityMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:name "PROV Evidence Entity Materialization Shape"@en ;
+    sh:description "Receipts and evidence artifacts require generation time and attribution."@en ;
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "generated_at_time" ;
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:nodeKind sh:IRI ;
+        sh:maxCount 1 ;
+        sh:name "was_generated_by" ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAttributedTo ;
+        sh:nodeKind sh:IRI ;
+        sh:name "was_attributed_to" ;
+    ] .
+
+# ============================================================================
+# § 10  SKOS Concept Scheme — skos:ConceptScheme
+# ============================================================================
+
+ggen:ConceptSchemeMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass skos:ConceptScheme ;
+    sh:name "Concept Scheme Materialization Shape"@en ;
+    sh:description "Controlled-vocabulary schemes require a preferred label."@en ;
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:name "pref_label" ;
+    ] ;
+    sh:property [
+        sh:path skos:notation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "notation" ;
+    ] .
+
+# ============================================================================
+# § 11  SKOS Concept (lookup row) — skos:Concept
+# ============================================================================
+
+ggen:ConceptLookupMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass skos:Concept ;
+    sh:name "Concept Lookup Materialization Shape"@en ;
+    sh:description "Individual concept rows in a controlled vocabulary require prefLabel, notation, and inScheme reference."@en ;
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:name "pref_label" ;
+    ] ;
+    sh:property [
+        sh:path skos:notation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "notation" ;
+    ] ;
+    sh:property [
+        sh:path skos:inScheme ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:name "in_scheme" ;
+        sh:description "FK to the parent ConceptScheme; UUID NOT NULL."@en ;
+    ] .
+
+# ============================================================================
+# § 12  ODRL Policy — odrl:Policy and subclasses
+# ============================================================================
+
+ggen:PolicyMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass odrl:Policy ;
+    sh:name "Policy Materialization Shape"@en ;
+    sh:description "ODRL policies require a uid and at least one permission, prohibition, or duty rule."@en ;
+    sh:property [
+        sh:path odrl:uid ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "uid" ;
+    ] .
+
+# ============================================================================
+# § 13  Time Window — time:TemporalEntity / schema:Schedule
+# ============================================================================
+
+ggen:TimeWindowMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass time:TemporalEntity ;
+    sh:name "Time Window Materialization Shape"@en ;
+    sh:description "Temporal entities require either a beginning, an end, or a duration. SHACL sh:or enforces at-least-one."@en ;
+    sh:or (
+        [ sh:property [ sh:path time:hasBeginning ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path time:hasEnd ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path time:hasDuration ; sh:minCount 1 ] ]
+    ) .
+
+# ============================================================================
+# § 14  Reservation — schema:Reservation (spot, waitlist)
+# ============================================================================
+
+ggen:ReservationMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Reservation ;
+    sh:name "Reservation Materialization Shape"@en ;
+    sh:description "Reservations require reservationFor and reservationStatus."@en ;
+    sh:property [
+        sh:path schema:reservationFor ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:name "reservation_for" ;
+        sh:description "FK to the reserved resource; UUID NOT NULL."@en ;
+    ] ;
+    sh:property [
+        sh:path schema:reservationStatus ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "reservation_status" ;
+    ] ;
+    sh:property [
+        sh:path schema:underName ;
+        sh:nodeKind sh:IRI ;
+        sh:maxCount 1 ;
+        sh:name "under_name" ;
+    ] .
+
+# ============================================================================
+# § 15  OCEL Object — prov:Entity with OCEL object-type role
+#
+# Note: OCEL object/event shapes target prov:Entity / prov:Activity already
+# (so they inherit Evidence shapes above). Local ocelObjectType/ocelObjectId
+# requirements are declared as ZOE-property shapes referencing zoe:
+# namespace, but documented here for completeness. The actual SHACL
+# enforcement of ocelObjectId/ocelObjectType lives on the corresponding ZOE
+# property definitions.
+# ============================================================================
+
+ggen:OcelObjectMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:name "OCEL Object Materialization Shape (additional)"@en ;
+    sh:description "OCEL object references require an object type and object ID. Targets prov:Entity in addition to ggen:EvidenceEntityMaterializationShape."@en ;
+    sh:property [
+        sh:path <https://zoela.org/ontology/ocelObjectType> ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "ocel_object_type" ;
+    ] ;
+    sh:property [
+        sh:path <https://zoela.org/ontology/ocelObjectId> ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "ocel_object_id" ;
+    ] .
+
+# ============================================================================
+# § 16  OCEL Event — prov:Activity with OCEL event-type role
+# ============================================================================
+
+ggen:OcelEventMaterializationShape
+    a sh:NodeShape ;
+    sh:targetClass prov:Activity ;
+    sh:name "OCEL Event Materialization Shape (additional)"@en ;
+    sh:description "OCEL events require an event type and event time. Targets prov:Activity in addition to ggen:EvidenceActivityMaterializationShape."@en ;
+    sh:property [
+        sh:path <https://zoela.org/ontology/ocelEventType> ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "ocel_event_type" ;
+    ] ;
+    sh:property [
+        sh:path <https://zoela.org/ontology/ocelEventTime> ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "ocel_event_time" ;
+    ] .
+
+# ============================================================================
+# End of public-role shapes
+# ============================================================================

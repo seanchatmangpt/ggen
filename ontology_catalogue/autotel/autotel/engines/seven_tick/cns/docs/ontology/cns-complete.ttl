@@ -1,0 +1,513 @@
+@prefix cns: <https://schema.chatman.ai/cns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# CNS Complete Ontology - All Components and Files
+#################################################################
+
+# Core CNS Classes
+cns:TelemetrySpan a rdfs:Class ;
+    rdfs:label "Telemetry Span" ;
+    rdfs:comment "A span for OpenTelemetry instrumentation" .
+
+cns:Function a rdfs:Class ;
+    rdfs:label "C Function" ;
+    rdfs:comment "A C function that can be instrumented" .
+
+cns:Pattern a rdfs:Class ;
+    rdfs:label "Design Pattern" ;
+    rdfs:comment "A design pattern used in CNS" .
+
+cns:Engine a rdfs:Class ;
+    rdfs:label "CNS Engine" ;
+    rdfs:comment "A core CNS engine (SPARQL, SHACL, OWL, etc.)" .
+
+cns:Command a rdfs:Class ;
+    rdfs:label "CNS Command" ;
+    rdfs:comment "A command in the CNS CLI" .
+
+cns:Test a rdfs:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "A test or benchmark for CNS components" .
+
+cns:Benchmark a rdfs:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "A performance benchmark" .
+
+cns:Compiler a rdfs:Class ;
+    rdfs:label "Compiler" ;
+    rdfs:comment "A code generation or compilation tool" .
+
+cns:Weaver a rdfs:Class ;
+    rdfs:label "Weaver" ;
+    rdfs:comment "A code weaver for telemetry instrumentation" .
+
+cns:Gatekeeper a rdfs:Class ;
+    rdfs:label "Gatekeeper" ;
+    rdfs:comment "Quality gate and validation system" .
+
+cns:Domain a rdfs:Class ;
+    rdfs:label "Domain" ;
+    rdfs:comment "A functional domain in CNS" .
+
+cns:Report a rdfs:Class ;
+    rdfs:label "Report" ;
+    rdfs:comment "A documentation or analysis report" .
+
+# Properties
+cns:providesFunction a rdf:Property ;
+    rdfs:label "provides function" ;
+    rdfs:domain cns:TelemetrySpan ;
+    rdfs:range cns:Function .
+
+cns:providesAPI a rdf:Property ;
+    rdfs:label "provides API" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+cns:cycleCost a rdf:Property ;
+    rdfs:label "cycle cost" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+cns:implementsEngine a rdf:Property ;
+    rdfs:label "implements engine" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:Engine .
+
+cns:hasTest a rdf:Property ;
+    rdfs:label "has test" ;
+    rdfs:domain cns:Engine ;
+    rdfs:range cns:Test .
+
+cns:hasBenchmark a rdf:Property ;
+    rdfs:label "has benchmark" ;
+    rdfs:domain cns:Engine ;
+    rdfs:range cns:Benchmark .
+
+cns:usesPattern a rdf:Property ;
+    rdfs:label "uses pattern" ;
+    rdfs:domain cns:Engine ;
+    rdfs:range cns:Pattern .
+
+cns:generatesCode a rdf:Property ;
+    rdfs:label "generates code" ;
+    rdfs:domain cns:Compiler ;
+    rdfs:range rdfs:Literal .
+
+cns:validatesQuality a rdf:Property ;
+    rdfs:label "validates quality" ;
+    rdfs:domain cns:Gatekeeper ;
+    rdfs:range cns:Engine .
+
+cns:belongsToDomain a rdf:Property ;
+    rdfs:label "belongs to domain" ;
+    rdfs:domain cns:Function ;
+    rdfs:range cns:Domain .
+
+cns:hasReport a rdf:Property ;
+    rdfs:label "has report" ;
+    rdfs:domain cns:Engine ;
+    rdfs:range cns:Report .
+
+cns:filePath a rdf:Property ;
+    rdfs:label "file path" ;
+    rdfs:domain cns:Function ;
+    rdfs:range rdfs:Literal .
+
+cns:lineNumber a rdf:Property ;
+    rdfs:label "line number" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+#################################################################
+# OWL-7T Engine and Functions
+#################################################################
+
+cns:OWLEngine a cns:Engine ;
+    rdfs:label "OWL Engine" ;
+    rdfs:comment "7T compliant OWL reasoning engine with 80/20 optimization" .
+
+cns:owlCreate a cns:Function ;
+    cns:providesAPI "CNSOWLEngine* cns_owl_create(size_t initial_capacity)" ;
+    cns:cycleCost 7 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 15 ;
+    rdfs:label "OWL Engine Create Function" .
+
+cns:owlDestroy a cns:Function ;
+    cns:providesAPI "void cns_owl_destroy(CNSOWLEngine *engine)" ;
+    cns:cycleCost 3 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 35 ;
+    rdfs:label "OWL Engine Destroy Function" .
+
+cns:owlAddSubclass a cns:Function ;
+    cns:providesAPI "int cns_owl_add_subclass(CNSOWLEngine *engine, uint32_t child, uint32_t parent)" ;
+    cns:cycleCost 5 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 75 ;
+    rdfs:label "OWL Add Subclass Function" .
+
+cns:owlIsSubclassOf a cns:Function ;
+    cns:providesAPI "bool cns_owl_is_subclass_of(CNSOWLEngine *engine, uint32_t child, uint32_t parent)" ;
+    cns:cycleCost 3 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 120 ;
+    rdfs:label "OWL Subclass Check Function" .
+
+cns:owlMaterialize80_20 a cns:Function ;
+    cns:providesAPI "int cns_owl_materialize_inferences_80_20(CNSOWLEngine *engine)" ;
+    cns:cycleCost 100 ;
+    cns:implementsEngine cns:OWLEngine ;
+    cns:filePath "cns/src/owl.c" ;
+    cns:lineNumber 350 ;
+    rdfs:label "OWL 80/20 Materialization Function" .
+
+# OWL Telemetry Spans
+cns:owlCreateSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlCreate ;
+    rdfs:label "OWL Create Span" .
+
+cns:owlSubclassSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlIsSubclassOf ;
+    rdfs:label "OWL Subclass Check Span" .
+
+cns:owlMaterializeSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:owlMaterialize80_20 ;
+    rdfs:label "OWL Materialization Span" .
+
+#################################################################
+# Gatekeeper Engine and Functions
+#################################################################
+
+cns:GatekeeperEngine a cns:Engine ;
+    rdfs:label "Gatekeeper Engine" ;
+    rdfs:comment "Quality gate and validation system for CNS" .
+
+cns:gatekeeperGetCycles a cns:Function ;
+    cns:providesAPI "uint64_t gatekeeper_get_cycles(void)" ;
+    cns:cycleCost 25 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 45 ;
+    rdfs:label "Gatekeeper Get Cycles Function" .
+
+cns:gatekeeperSigma a cns:Function ;
+    cns:providesAPI "double gatekeeper_sigma(double target, double mean, double std_dev)" ;
+    cns:cycleCost 8 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 65 ;
+    rdfs:label "Gatekeeper Sigma Calculation Function" .
+
+cns:gatekeeperCalculateMetrics a cns:Function ;
+    cns:providesAPI "void gatekeeper_calculate_metrics(GatekeeperMetrics *metrics)" ;
+    cns:cycleCost 100 ;
+    cns:implementsEngine cns:GatekeeperEngine ;
+    cns:filePath "cns/src/gatekeeper_test.c" ;
+    cns:lineNumber 95 ;
+    rdfs:label "Gatekeeper Calculate Metrics Function" .
+
+# Gatekeeper Telemetry Spans
+cns:gatekeeperCyclesSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperGetCycles ;
+    rdfs:label "Gatekeeper Cycles Span" .
+
+cns:gatekeeperSigmaSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperSigma ;
+    rdfs:label "Gatekeeper Sigma Span" .
+
+cns:gatekeeperMetricsSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:gatekeeperCalculateMetrics ;
+    rdfs:label "Gatekeeper Metrics Span" .
+
+#################################################################
+# SQL AOT Engine and Functions
+#################################################################
+
+cns:SQLAOTEngine a cns:Engine ;
+    rdfs:label "SQL AOT Engine" ;
+    rdfs:comment "Ahead-of-time SQL compilation engine" .
+
+cns:sqlAOTCompile a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_compile(const char* query, CnsSQLAOTResult* result)" ;
+    cns:cycleCost 50 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 25 ;
+    rdfs:label "SQL AOT Compile Function" .
+
+cns:sqlAOTExecute a cns:Function ;
+    cns:providesAPI "int cns_sql_aot_execute(CnsSQLAOTResult* compiled, void* data)" ;
+    cns:cycleCost 15 ;
+    cns:implementsEngine cns:SQLAOTEngine ;
+    cns:filePath "cns/src/domains/sql/sql_aot_domain.c" ;
+    cns:lineNumber 45 ;
+    rdfs:label "SQL AOT Execute Function" .
+
+# SQL AOT Telemetry Spans
+cns:sqlAOTCompileSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTCompile ;
+    rdfs:label "SQL AOT Compile Span" .
+
+cns:sqlAOTExecuteSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:sqlAOTExecute ;
+    rdfs:label "SQL AOT Execute Span" .
+
+#################################################################
+# Weaver Engine and Functions
+#################################################################
+
+cns:WeaverEngine a cns:Engine ;
+    rdfs:label "Weaver Engine" ;
+    rdfs:comment "Code weaver for telemetry instrumentation" .
+
+cns:weaverInstrument a cns:Function ;
+    cns:providesAPI "int cns_weaver_instrument(const char* source, const char* output)" ;
+    cns:cycleCost 200 ;
+    cns:implementsEngine cns:WeaverEngine ;
+    cns:filePath "cns/weaver_80_20_simple_final.cpp" ;
+    cns:lineNumber 25 ;
+    rdfs:label "Weaver Instrument Function" .
+
+cns:weaverExtractSpans a cns:Function ;
+    cns:providesAPI "int cns_weaver_extract_spans(const char* source, CnsSpanList* spans)" ;
+    cns:cycleCost 150 ;
+    cns:implementsEngine cns:WeaverEngine ;
+    cns:filePath "cns/weaver_80_20_simple_final.cpp" ;
+    cns:lineNumber 45 ;
+    rdfs:label "Weaver Extract Spans Function" .
+
+# Weaver Telemetry Spans
+cns:weaverInstrumentSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:weaverInstrument ;
+    rdfs:label "Weaver Instrument Span" .
+
+cns:weaverExtractSpansSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:weaverExtractSpans ;
+    rdfs:label "Weaver Extract Spans Span" .
+
+#################################################################
+# Benchmark Engine and Functions
+#################################################################
+
+cns:BenchmarkEngine a cns:Engine ;
+    rdfs:label "Benchmark Engine" ;
+    rdfs:comment "Performance benchmarking system" .
+
+cns:benchmarkRun a cns:Function ;
+    cns:providesAPI "int cns_benchmark_run(const char* test_name, CnsBenchmarkResult* result)" ;
+    cns:cycleCost 1000 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 25 ;
+    rdfs:label "Benchmark Run Function" .
+
+cns:benchmarkMeasure a cns:Function ;
+    cns:providesAPI "uint64_t cns_benchmark_measure_cycles(void (*func)(void))" ;
+    cns:cycleCost 50 ;
+    cns:implementsEngine cns:BenchmarkEngine ;
+    cns:filePath "cns/src/cmd_benchmark.c" ;
+    cns:lineNumber 45 ;
+    rdfs:label "Benchmark Measure Function" .
+
+# Benchmark Telemetry Spans
+cns:benchmarkRunSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkRun ;
+    rdfs:label "Benchmark Run Span" .
+
+cns:benchmarkMeasureSpan a cns:TelemetrySpan ;
+    cns:providesFunction cns:benchmarkMeasure ;
+    rdfs:label "Benchmark Measure Span" .
+
+#################################################################
+# Test Suites
+#################################################################
+
+cns:OWLTestSuite a cns:Test ;
+    rdfs:label "OWL Test Suite" ;
+    cns:filePath "cns/tests/test_owl.c" ;
+    rdfs:comment "Comprehensive test suite for OWL engine" .
+
+cns:GatekeeperTestSuite a cns:Test ;
+    rdfs:label "Gatekeeper Test Suite" ;
+    cns:filePath "cns/tests/test_gatekeeper_standalone.c" ;
+    rdfs:comment "Standalone test suite for Gatekeeper" .
+
+cns:SQLAOTTestSuite a cns:Test ;
+    rdfs:label "SQL AOT Test Suite" ;
+    cns:filePath "cns/test_sql_aot.c" ;
+    rdfs:comment "Test suite for SQL AOT engine" .
+
+#################################################################
+# Benchmarks
+#################################################################
+
+cns:OWLBenchmark a cns:Benchmark ;
+    rdfs:label "OWL Benchmark" ;
+    cns:filePath "cns/test_owl" ;
+    rdfs:comment "Performance benchmark for OWL engine" .
+
+cns:SQLAOTBenchmark a cns:Benchmark ;
+    rdfs:label "SQL AOT Benchmark" ;
+    cns:filePath "cns/sql_aot_benchmark_standalone" ;
+    rdfs:comment "Performance benchmark for SQL AOT engine" .
+
+cns:SPARQLBenchmark a cns:Benchmark ;
+    rdfs:label "SPARQL Benchmark" ;
+    cns:filePath "cns/sparql_80_20_benchmark" ;
+    rdfs:comment "Performance benchmark for SPARQL engine" .
+
+cns:SHACLBenchmark a cns:Benchmark ;
+    rdfs:label "SHACL Benchmark" ;
+    cns:filePath "cns/shacl_49_cycle_benchmark" ;
+    rdfs:comment "Performance benchmark for SHACL engine" .
+
+#################################################################
+# Compilers
+#################################################################
+
+cns:SQLCompiler a cns:Compiler ;
+    rdfs:label "SQL Compiler" ;
+    cns:filePath "cns/sql_compiler.py" ;
+    rdfs:comment "Python-based SQL AOT compiler" .
+
+cns:SPARQLCompiler a cns:Compiler ;
+    rdfs:label "SPARQL Compiler" ;
+    cns:filePath "cns/sparql_aot_compiler.py" ;
+    rdfs:comment "Python-based SPARQL AOT compiler" .
+
+cns:SHACLCompiler a cns:Compiler ;
+    rdfs:label "SHACL Compiler" ;
+    cns:filePath "cns/shacl_aot_compiler.py" ;
+    rdfs:comment "Python-based SHACL AOT compiler" .
+
+cns:AOTCompiler a cns:Compiler ;
+    rdfs:label "AOT Compiler" ;
+    cns:filePath "cns/codegen/aot_compiler.py" ;
+    rdfs:comment "General AOT compilation framework" .
+
+#################################################################
+# Domains
+#################################################################
+
+cns:SQLDomain a cns:Domain ;
+    rdfs:label "SQL Domain" ;
+    rdfs:comment "SQL processing and optimization domain" .
+
+cns:SPARQLDomain a cns:Domain ;
+    rdfs:label "SPARQL Domain" ;
+    rdfs:comment "SPARQL query processing domain" .
+
+cns:SHACLDomain a cns:Domain ;
+    rdfs:label "SHACL Domain" ;
+    rdfs:comment "SHACL validation domain" .
+
+cns:OWLDomain a cns:Domain ;
+    rdfs:label "OWL Domain" ;
+    rdfs:comment "OWL reasoning domain" .
+
+cns:BenchmarkDomain a cns:Domain ;
+    rdfs:label "Benchmark Domain" ;
+    rdfs:comment "Performance benchmarking domain" .
+
+cns:TelemetryDomain a cns:Domain ;
+    rdfs:label "Telemetry Domain" ;
+    rdfs:comment "OpenTelemetry instrumentation domain" .
+
+#################################################################
+# Reports
+#################################################################
+
+cns:OWLImplementationReport a cns:Report ;
+    rdfs:label "OWL Implementation Report" ;
+    cns:filePath "CNS_OWL_IMPLEMENTATION_SUMMARY.md" ;
+    rdfs:comment "Complete documentation of OWL implementation" .
+
+cns:SQLAOTReport a cns:Report ;
+    rdfs:label "SQL AOT Implementation Report" ;
+    cns:filePath "cns/SQL_AOT_IMPLEMENTATION_REPORT.md" ;
+    rdfs:comment "SQL AOT implementation documentation" .
+
+cns:SPARQLAOTReport a cns:Report ;
+    rdfs:label "SPARQL AOT Implementation Report" ;
+    cns:filePath "cns/SPARQL_AOT_IMPLEMENTATION_REPORT.md" ;
+    rdfs:comment "SPARQL AOT implementation documentation" .
+
+cns:SHACLAOTReport a cns:Report ;
+    rdfs:label "SHACL AOT Implementation Report" ;
+    cns:filePath "cns/SHACL_AOT_IMPLEMENTATION_REPORT.md" ;
+    rdfs:comment "SHACL AOT implementation documentation" .
+
+#################################################################
+# Relationships
+#################################################################
+
+# OWL Engine relationships
+cns:OWLEngine cns:hasTest cns:OWLTestSuite ;
+    cns:hasBenchmark cns:OWLBenchmark ;
+    cns:hasReport cns:OWLImplementationReport ;
+    cns:belongsToDomain cns:OWLDomain .
+
+# SQL AOT Engine relationships
+cns:SQLAOTEngine cns:hasTest cns:SQLAOTTestSuite ;
+    cns:hasBenchmark cns:SQLAOTBenchmark ;
+    cns:hasReport cns:SQLAOTReport ;
+    cns:belongsToDomain cns:SQLDomain .
+
+# Gatekeeper Engine relationships
+cns:GatekeeperEngine cns:hasTest cns:GatekeeperTestSuite ;
+    cns:validatesQuality cns:OWLEngine ;
+    cns:validatesQuality cns:SQLAOTEngine ;
+    cns:validatesQuality cns:SPARQLDomain ;
+    cns:validatesQuality cns:SHACLDomain ;
+    cns:belongsToDomain cns:BenchmarkDomain .
+
+# Weaver Engine relationships
+cns:WeaverEngine cns:belongsToDomain cns:TelemetryDomain ;
+    cns:generatesCode "OpenTelemetry instrumentation code" .
+
+# Benchmark Engine relationships
+cns:BenchmarkEngine cns:belongsToDomain cns:BenchmarkDomain ;
+    cns:hasBenchmark cns:SPARQLBenchmark ;
+    cns:hasBenchmark cns:SHACLBenchmark .
+
+#################################################################
+# Performance Characteristics
+#################################################################
+
+# 7T Compliance annotations
+cns:sevenTickCompliant a rdf:Property ;
+    rdfs:label "7T compliant" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:boolean .
+
+cns:cycleBudget a rdf:Property ;
+    rdfs:label "cycle budget" ;
+    rdfs:domain cns:Function ;
+    rdfs:range xsd:integer .
+
+# Mark 7T compliant functions
+cns:owlIsSubclassOf cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 .
+
+cns:gatekeeperGetCycles cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 .
+
+cns:sqlAOTExecute cns:sevenTickCompliant true ;
+    cns:cycleBudget 7 .
+
+cns:weaverExtractSpans cns:sevenTickCompliant false ;
+    cns:cycleBudget 150 .
+
+cns:benchmarkRun cns:sevenTickCompliant false ;
+    cns:cycleBudget 1000 . 

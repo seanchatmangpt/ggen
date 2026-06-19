@@ -1,0 +1,136 @@
+# Sample Enterprise Ontology - FOAF + Schema.org patterns
+# This demonstrates the 80/20 approach with common enterprise classes
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# ===== CLASSES =====
+
+# Person class from FOAF
+foaf:Person a owl:Class ;
+    rdfs:comment "A person - the core entity in most enterprise systems" ;
+    rdfs:label "Person" .
+
+# Organization from Schema.org  
+schema:Organization a owl:Class ;
+    rdfs:comment "An organization such as a company, NGO, or government agency" ;
+    rdfs:label "Organization" .
+
+# Employee - enterprise-specific extension
+schema:Employee a owl:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:comment "An employee of an organization" ;
+    rdfs:label "Employee" .
+
+# Product from Schema.org
+schema:Product a owl:Class ;
+    rdfs:comment "Any offered product or service" ;
+    rdfs:label "Product" .
+
+# ===== PROPERTIES =====
+
+# Person properties
+foaf:name a owl:DatatypeProperty ;
+    rdfs:domain foaf:Person ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The name of a person" ;
+    rdfs:label "name" .
+
+foaf:email a owl:DatatypeProperty ;
+    rdfs:domain foaf:Person ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Email address of a person" ;
+    rdfs:label "email" .
+
+foaf:homepage a owl:DatatypeProperty ;
+    rdfs:domain foaf:Person ;
+    rdfs:range xsd:anyURI ;
+    rdfs:comment "Personal homepage URL" ;
+    rdfs:label "homepage" .
+
+foaf:age a owl:DatatypeProperty ;
+    rdfs:domain foaf:Person ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Age of a person" ;
+    rdfs:label "age" .
+
+# Organization properties  
+schema:name a owl:DatatypeProperty ;
+    rdfs:domain schema:Organization ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Official name of the organization" ;
+    rdfs:label "name" .
+
+schema:url a owl:DatatypeProperty ;
+    rdfs:domain schema:Organization ;
+    rdfs:range xsd:anyURI ;
+    rdfs:comment "Official website URL" ;
+    rdfs:label "url" .
+
+schema:numberOfEmployees a owl:DatatypeProperty ;
+    rdfs:domain schema:Organization ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of employees" ;
+    rdfs:label "numberOfEmployees" .
+
+schema:foundingDate a owl:DatatypeProperty ;
+    rdfs:domain schema:Organization ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date the organization was founded" ;
+    rdfs:label "foundingDate" .
+
+# Employee properties
+schema:jobTitle a owl:DatatypeProperty ;
+    rdfs:domain schema:Employee ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Job title or position" ;
+    rdfs:label "jobTitle" .
+
+schema:salary a owl:DatatypeProperty ;
+    rdfs:domain schema:Employee ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Annual salary" ;
+    rdfs:label "salary" .
+
+schema:startDate a owl:DatatypeProperty ;
+    rdfs:domain schema:Employee ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Employment start date" ;
+    rdfs:label "startDate" .
+
+# Object properties (relationships)
+schema:worksFor a owl:ObjectProperty ;
+    rdfs:domain schema:Employee ;
+    rdfs:range schema:Organization ;
+    rdfs:comment "Organization the person works for" ;
+    rdfs:label "worksFor" .
+
+foaf:knows a owl:ObjectProperty ;
+    rdfs:domain foaf:Person ;
+    rdfs:range foaf:Person ;
+    rdfs:comment "Person knows another person" ;
+    rdfs:label "knows" .
+
+# Product properties
+schema:price a owl:DatatypeProperty ;
+    rdfs:domain schema:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Product price" ;
+    rdfs:label "price" .
+
+schema:description a owl:DatatypeProperty ;
+    rdfs:domain schema:Product ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Product description" ;
+    rdfs:label "description" .
+
+schema:manufacturer a owl:ObjectProperty ;
+    rdfs:domain schema:Product ;
+    rdfs:range schema:Organization ;
+    rdfs:comment "Organization that manufactures the product" ;
+    rdfs:label "manufacturer" .

@@ -1,0 +1,154 @@
+@prefix tb: <http://trialbase.com/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yawl: <http://www.yawlfoundation.org/yawlschema#> .
+@prefix weaver: <http://weaver.org/schema#> .
+
+# TrialBase Legal Ontology
+# Extends BitJob/Weaver for Case Management
+
+# Core Classes
+tb:LegalCase a owl:Class ;
+    rdfs:label "Legal Case" ;
+    rdfs:comment "A legal case managed by the system" ;
+    weaver:extends weaver:Project .
+
+tb:Attorney a owl:Class ;
+    rdfs:label "Attorney" ;
+    rdfs:comment "Legal professional managing cases" ;
+    weaver:extends weaver:Professional .
+
+tb:Client a owl:Class ;
+    rdfs:label "Client" ;
+    rdfs:comment "Individual or entity represented in legal case" ;
+    weaver:extends weaver:User .
+
+tb:LegalDocument a owl:Class ;
+    rdfs:label "Legal Document" ;
+    rdfs:comment "Document related to a legal case" ;
+    weaver:extends weaver:Document .
+
+# Document Subclasses
+tb:MedicalRecord a owl:Class ;
+    rdfs:subClassOf tb:LegalDocument ;
+    rdfs:label "Medical Record" .
+
+tb:BillingRecord a owl:Class ;
+    rdfs:subClassOf tb:LegalDocument ;
+    rdfs:label "Billing Record" .
+
+tb:IncomeDocument a owl:Class ;
+    rdfs:subClassOf tb:LegalDocument ;
+    rdfs:label "Income Document" .
+
+tb:DemandLetter a owl:Class ;
+    rdfs:subClassOf tb:LegalDocument ;
+    rdfs:label "Demand Letter" .
+
+# Properties
+tb:hasCase a owl:ObjectProperty ;
+    rdfs:domain tb:Client ;
+    rdfs:range tb:LegalCase .
+
+tb:managedBy a owl:ObjectProperty ;
+    rdfs:domain tb:LegalCase ;
+    rdfs:range tb:Attorney .
+
+tb:hasDocument a owl:ObjectProperty ;
+    rdfs:domain tb:LegalCase ;
+    rdfs:range tb:LegalDocument .
+
+tb:caseNumber a owl:DatatypeProperty ;
+    rdfs:domain tb:LegalCase ;
+    rdfs:range xsd:string .
+
+tb:incidentDate a owl:DatatypeProperty ;
+    rdfs:domain tb:LegalCase ;
+    rdfs:range xsd:date .
+
+tb:settlementAmount a owl:DatatypeProperty ;
+    rdfs:domain tb:LegalCase ;
+    rdfs:range xsd:decimal .
+
+# Workflow Definitions
+tb:IntakeWorkflow a yawl:WorkflowSpecification ;
+    rdfs:label "Client Intake Workflow" ;
+    yawl:hasTask tb:CollectClientInfo ;
+    yawl:hasTask tb:GatherInitialDocuments ;
+    yawl:hasTask tb:PerformConflictCheck ;
+    yawl:hasTask tb:CreateCase .
+
+tb:DocumentProcessingWorkflow a yawl:WorkflowSpecification ;
+    rdfs:label "Document Processing Workflow" ;
+    yawl:hasTask tb:UploadDocument ;
+    yawl:hasTask tb:PerformOCR ;
+    yawl:hasTask tb:ClassifyDocument ;
+    yawl:hasTask tb:ExtractData ;
+    yawl:hasTask tb:GenerateSummary ;
+    yawl:hasTask tb:CreateEmbeddings .
+
+tb:MedicalAnalysisWorkflow a yawl:WorkflowSpecification ;
+    rdfs:label "Medical Records Analysis" ;
+    yawl:hasTask tb:ExtractDiagnoses ;
+    yawl:hasTask tb:IdentifyTreatments ;
+    yawl:hasTask tb:ExtractMedications ;
+    yawl:hasTask tb:CreateTimeline ;
+    yawl:hasTask tb:DetectAnomalies .
+
+tb:BillingAnalysisWorkflow a yawl:WorkflowSpecification ;
+    rdfs:label "Billing Analysis Workflow" ;
+    yawl:hasTask tb:ExtractCharges ;
+    yawl:hasTask tb:ValidateCPTCodes ;
+    yawl:hasTask tb:CompareRates ;
+    yawl:hasTask tb:IdentifyDiscrepancies ;
+    yawl:hasTask tb:CalculateTotals .
+
+tb:IncomeLossWorkflow a yawl:WorkflowSpecification ;
+    rdfs:label "Income Loss Calculation" ;
+    yawl:hasTask tb:ExtractEmploymentHistory ;
+    yawl:hasTask tb:CalculateBaseSalary ;
+    yawl:hasTask tb:DetermineLostWages ;
+    yawl:hasTask tb:ProjectFutureLoss ;
+    yawl:hasTask tb:GenerateReport .
+
+# Document Classification Rules
+tb:DocumentClassifier a weaver:SemanticRule ;
+    weaver:if "document contains medical terminology" ;
+    weaver:then "classify as MedicalRecord" .
+
+tb:BillClassifier a weaver:SemanticRule ;
+    weaver:if "document contains CPT codes or billing amounts" ;
+    weaver:then "classify as BillingRecord" .
+
+tb:IncomeClassifier a weaver:SemanticRule ;
+    weaver:if "document contains W2, pay stub, or tax return" ;
+    weaver:then "classify as IncomeDocument" .
+
+# Validation Rules
+tb:CaseValidation a weaver:ValidationRule ;
+    weaver:requires tb:caseNumber ;
+    weaver:requires tb:incidentDate ;
+    weaver:requires tb:hasClient .
+
+tb:DocumentValidation a weaver:ValidationRule ;
+    weaver:requires tb:fileName ;
+    weaver:requires tb:fileType ;
+    weaver:requires tb:uploadDate .
+
+# Integration Points
+tb:DropboxIntegration a weaver:ExternalService ;
+    rdfs:label "Dropbox Integration" ;
+    weaver:endpoint "https://api.dropboxapi.com/2/" ;
+    weaver:authenticationType "OAuth2" .
+
+tb:GoogleDriveIntegration a weaver:ExternalService ;
+    rdfs:label "Google Drive Integration" ;
+    weaver:endpoint "https://www.googleapis.com/drive/v3/" ;
+    weaver:authenticationType "OAuth2" .
+
+tb:OllamaIntegration a weaver:AIService ;
+    rdfs:label "Ollama LLM Service" ;
+    weaver:endpoint "http://localhost:11434/api/" ;
+    weaver:model "qwen2.5vl:latest" .

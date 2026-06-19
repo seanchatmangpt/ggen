@@ -1,0 +1,17 @@
+# SPARQL Query: Extract EVERY witness key across ALL categories.
+# The inverse of extract-witnesses-full.rq's category filter — this aggregates
+# the core module AND all per-category modules into one corpus so the rendered
+# src/witness_corpus.rs can prove KEY-uniqueness at compile time.
+# Variable names match all-witness-keys.tera exactly.
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX compat: <https://wasm4pm-compat.rs/ontology#>
+
+SELECT ?witnessKey ?witnessFamily ?witnessYear
+WHERE {
+  ?marker a compat:WitnessMarker ;
+          compat:witnessKey ?witnessKey .
+  OPTIONAL { ?marker compat:witnessFamily ?witnessFamily . }
+  OPTIONAL { ?marker compat:witnessYear   ?witnessYear . }
+}
+ORDER BY ?witnessKey

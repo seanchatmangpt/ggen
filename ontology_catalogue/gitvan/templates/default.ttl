@@ -1,0 +1,55 @@
+# GitVan Default Graph Template
+# This file serves as the default graph location for GitVan projects
+# It provides a basic RDF structure for storing project metadata and knowledge
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix gv: <https://gitvan.dev/ontology#> .
+@prefix gh: <https://gitvan.dev/graph-hook#> .
+@prefix op: <https://gitvan.dev/op#> .
+
+# Project Information
+<https://gitvan.dev/project/> a gv:Project ;
+    dct:title "GitVan Project" ;
+    dct:description "A GitVan-powered development automation project" ;
+    dct:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    dct:modified "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    gv:version "1.0.0" ;
+    gv:status gv:Active .
+
+# Default Graph Configuration
+<https://gitvan.dev/graph/default/> a gv:Graph ;
+    dct:title "Default Graph" ;
+    dct:description "Default graph location for GitVan operations" ;
+    gv:graphType gv:DefaultGraph ;
+    gv:baseIRI "https://gitvan.dev/graph/default/" ;
+    gv:persistenceEnabled true ;
+    gv:autoSave true .
+
+# Knowledge Hooks Configuration
+<https://gitvan.dev/hooks/default/> a gh:KnowledgeHookSet ;
+    dct:title "Default Knowledge Hooks" ;
+    dct:description "Default set of knowledge hooks for GitVan operations" ;
+    gh:hookType gh:DefaultHookSet ;
+    gh:enabled true .
+
+# Operations Configuration
+<https://gitvan.dev/ops/default/> a op:OperationSet ;
+    dct:title "Default Operations" ;
+    dct:description "Default set of operations available in this graph" ;
+    op:operationType op:DefaultOperationSet ;
+    op:enabled true .
+
+# Graph Metadata
+<https://gitvan.dev/meta/graph/> a gv:GraphMetadata ;
+    dct:title "Graph Metadata" ;
+    dct:description "Metadata about this graph instance" ;
+    gv:created "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    gv:lastModified "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    gv:version "1.0.0" ;
+    gv:format "Turtle" ;
+    gv:encoding "UTF-8" ;
+    gv:namespace "https://gitvan.dev/" .

@@ -1,0 +1,895 @@
+@prefix ba: <http://bytestar.org/ontology/> .
+@prefix baac: <http://bytestar.org/ontology/access-control/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ================================================================================
+# ByteStar Access Control Ontology - Zero Trust Architecture
+# Version: 5.0.0
+# Phase: 4 - Production Implementation
+# 
+# Defines comprehensive zero-trust access control with continuous verification,
+# fine-grained authorization, and ultra-high performance access decisions
+# under the Doctrine of 8 performance requirements.
+# ================================================================================
+
+<http://bytestar.org/ontology/access-control> a owl:Ontology ;
+    rdfs:label "ByteStar Access Control Ontology"@en ;
+    rdfs:comment "Comprehensive zero-trust access control ontology defining fine-grained authorization, continuous verification, and high-performance security architecture across ByteStar components."@en ;
+    owl:versionIRI <http://bytestar.org/ontology/access-control/5.0.0> ;
+    owl:versionInfo "5.0.0" ;
+    owl:imports <http://bytestar.org/ontology/core> ,
+                <http://bytestar.org/ontology/security> ,
+                <http://bytestar.org/ontology/actor> ,
+                <http://bytestar.org/ontology/consensus> ;
+    ba:doctrineCompliance "Doctrine of 8" ;
+    ba:securityLevel "Enterprise" ;
+    ba:performanceTarget "< 8ms access decisions" .
+
+# ================================================================================
+# ZERO-TRUST ARCHITECTURE CLASSES
+# ================================================================================
+
+## Core Zero-Trust Framework
+baac:ZeroTrustArchitecture a owl:Class ;
+    rdfs:label "Zero Trust Architecture"@en ;
+    rdfs:comment "Core zero-trust security architecture with continuous verification and never-trust principles."@en ;
+    rdfs:subClassOf ba:SecurityArchitecture ;
+    ba:enforces "continuous-verification", "least-privilege", "assume-breach" ;
+    ba:performanceRequirement "< 8ms decision latency" .
+
+baac:TrustBoundary a owl:Class ;
+    rdfs:label "Trust Boundary"@en ;
+    rdfs:comment "Logical security boundary requiring explicit verification for traversal."@en ;
+    rdfs:subClassOf ba:SecurityConstruct ;
+    ba:validationRequired true ;
+    ba:continuousMonitoring true .
+
+baac:SecurityPolicy a owl:Class ;
+    rdfs:label "Security Policy"@en ;
+    rdfs:comment "Declarative security policy defining access rules and constraints."@en ;
+    rdfs:subClassOf ba:Policy ;
+    ba:enforcementMode "real-time" ;
+    ba:cacheTimeout "PT30S"^^xsd:duration .
+
+baac:PolicyEngine a owl:Class ;
+    rdfs:label "Policy Engine"@en ;
+    rdfs:comment "High-performance engine for evaluating access policies and making authorization decisions."@en ;
+    rdfs:subClassOf ba:SecurityComponent ;
+    ba:decisionLatency "< 2ms"^^xsd:duration ;
+    ba:throughput "> 100000 decisions/sec"^^xsd:string .
+
+## Identity and Principal Management
+baac:Identity a owl:Class ;
+    rdfs:label "Identity"@en ;
+    rdfs:comment "Verified digital identity with cryptographic proof and continuous validation."@en ;
+    rdfs:subClassOf ba:SecurityPrincipal ;
+    ba:requiresProof true ;
+    ba:continuousValidation true .
+
+baac:Principal a owl:Class ;
+    rdfs:label "Principal"@en ;
+    rdfs:comment "Authenticated entity requesting access to protected resources."@en ;
+    rdfs:subClassOf baac:Identity ;
+    ba:authenticationRequired true ;
+    ba:sessionManagement true .
+
+baac:ServiceIdentity a owl:Class ;
+    rdfs:label "Service Identity"@en ;
+    rdfs:comment "Machine identity for service-to-service authentication."@en ;
+    rdfs:subClassOf baac:Principal ;
+    ba:certificateBased true ;
+    ba:rotationRequired "PT24H"^^xsd:duration .
+
+baac:UserIdentity a owl:Class ;
+    rdfs:label "User Identity"@en ;
+    rdfs:comment "Human user identity with multi-factor authentication."@en ;
+    rdfs:subClassOf baac:Principal ;
+    ba:mfaRequired true ;
+    ba:behaviorAnalysis true .
+
+# ================================================================================
+# AUTHENTICATION AND VERIFICATION
+# ================================================================================
+
+## Multi-Factor Authentication
+baac:AuthenticationFactor a owl:Class ;
+    rdfs:label "Authentication Factor"@en ;
+    rdfs:comment "Individual authentication factor (something you know/have/are)."@en ;
+    rdfs:subClassOf ba:SecurityMechanism ;
+    ba:strengthLevel xsd:int ;
+    ba:validityPeriod xsd:duration .
+
+baac:KnowledgeFactor a owl:Class ;
+    rdfs:label "Knowledge Factor"@en ;
+    rdfs:comment "Authentication based on something the user knows (password, PIN)."@en ;
+    rdfs:subClassOf baac:AuthenticationFactor ;
+    ba:factorType "knowledge" ;
+    ba:strengthLevel "1"^^xsd:int .
+
+baac:PossessionFactor a owl:Class ;
+    rdfs:label "Possession Factor"@en ;
+    rdfs:comment "Authentication based on something the user has (token, phone)."@en ;
+    rdfs:subClassOf baac:AuthenticationFactor ;
+    ba:factorType "possession" ;
+    ba:strengthLevel "2"^^xsd:int .
+
+baac:InherenceFactor a owl:Class ;
+    rdfs:label "Inherence Factor"@en ;
+    rdfs:comment "Authentication based on something the user is (biometric)."@en ;
+    rdfs:subClassOf baac:AuthenticationFactor ;
+    ba:factorType "inherence" ;
+    ba:strengthLevel "3"^^xsd:int .
+
+baac:MultiFactorAuth a owl:Class ;
+    rdfs:label "Multi-Factor Authentication"@en ;
+    rdfs:comment "Authentication mechanism requiring multiple factor types."@en ;
+    rdfs:subClassOf ba:AuthenticationMechanism ;
+    ba:minimumFactors "2"^^xsd:int ;
+    ba:adaptiveStrength true .
+
+## Strong Identity Verification
+baac:IdentityVerification a owl:Class ;
+    rdfs:label "Identity Verification"@en ;
+    rdfs:comment "Process of verifying and validating identity claims."@en ;
+    rdfs:subClassOf ba:SecurityProcess ;
+    ba:verificationLevel xsd:int ;
+    ba:continuousVerification true .
+
+baac:CryptographicProof a owl:Class ;
+    rdfs:label "Cryptographic Proof"@en ;
+    rdfs:comment "Cryptographic evidence of identity or authorization."@en ;
+    rdfs:subClassOf ba:SecurityEvidence ;
+    ba:algorithm xsd:string ;
+    ba:keyStrength xsd:int ;
+    ba:validityPeriod xsd:duration .
+
+baac:DigitalCertificate a owl:Class ;
+    rdfs:label "Digital Certificate"@en ;
+    rdfs:comment "X.509 digital certificate for identity verification."@en ;
+    rdfs:subClassOf baac:CryptographicProof ;
+    ba:issuer xsd:string ;
+    ba:validFrom xsd:dateTime ;
+    ba:validTo xsd:dateTime ;
+    ba:revocationStatus xsd:string .
+
+baac:BiometricTemplate a owl:Class ;
+    rdfs:label "Biometric Template"@en ;
+    rdfs:comment "Encrypted biometric template for identity verification."@en ;
+    rdfs:subClassOf baac:CryptographicProof ;
+    ba:biometricType xsd:string ;
+    ba:confidenceLevel xsd:double ;
+    ba:templateVersion xsd:string .
+
+# ================================================================================
+# ACCESS CONTROL MODELS
+# ================================================================================
+
+## Role-Based Access Control (RBAC)
+baac:Role a owl:Class ;
+    rdfs:label "Role"@en ;
+    rdfs:comment "Named collection of permissions for RBAC implementation."@en ;
+    rdfs:subClassOf ba:SecurityConstruct ;
+    ba:hierarchySupport true ;
+    ba:inheritanceEnabled true .
+
+baac:Permission a owl:Class ;
+    rdfs:label "Permission"@en ;
+    rdfs:comment "Specific authorization to perform an action on a resource."@en ;
+    rdfs:subClassOf ba:SecurityGrant ;
+    ba:action xsd:string ;
+    ba:resource xsd:string ;
+    ba:constraints xsd:string .
+
+baac:RoleHierarchy a owl:Class ;
+    rdfs:label "Role Hierarchy"@en ;
+    rdfs:comment "Hierarchical relationship between roles enabling inheritance."@en ;
+    rdfs:subClassOf ba:SecurityRelationship ;
+    ba:inheritanceType "permissions" ;
+    ba:transitiveInheritance true .
+
+## Attribute-Based Access Control (ABAC)
+baac:Attribute a owl:Class ;
+    rdfs:label "Attribute"@en ;
+    rdfs:comment "Named characteristic used for access control decisions."@en ;
+    rdfs:subClassOf ba:SecurityProperty ;
+    ba:attributeType xsd:string ;
+    ba:dataType xsd:string ;
+    ba:dynamicEvaluation true .
+
+baac:SubjectAttribute a owl:Class ;
+    rdfs:label "Subject Attribute"@en ;
+    rdfs:comment "Attribute describing the requesting subject/principal."@en ;
+    rdfs:subClassOf baac:Attribute ;
+    ba:category "subject" ;
+    ba:examples "department, clearance-level, location" .
+
+baac:ResourceAttribute a owl:Class ;
+    rdfs:label "Resource Attribute"@en ;
+    rdfs:comment "Attribute describing the target resource."@en ;
+    rdfs:subClassOf baac:Attribute ;
+    ba:category "resource" ;
+    ba:examples "classification, owner, sensitivity" .
+
+baac:EnvironmentAttribute a owl:Class ;
+    rdfs:label "Environment Attribute"@en ;
+    rdfs:comment "Attribute describing the access environment/context."@en ;
+    rdfs:subClassOf baac:Attribute ;
+    ba:category "environment" ;
+    ba:examples "time, location, network, threat-level" .
+
+baac:ActionAttribute a owl:Class ;
+    rdfs:label "Action Attribute"@en ;
+    rdfs:comment "Attribute describing the requested action."@en ;
+    rdfs:subClassOf baac:Attribute ;
+    ba:category "action" ;
+    ba:examples "read, write, execute, delete" .
+
+baac:AccessPolicy a owl:Class ;
+    rdfs:label "Access Policy"@en ;
+    rdfs:comment "ABAC policy combining attributes with logical expressions."@en ;
+    rdfs:subClassOf baac:SecurityPolicy ;
+    ba:policyLanguage "XACML" ;
+    ba:expressionType "boolean" ;
+    ba:evaluationComplexity "< O(log n)" .
+
+# ================================================================================
+# PRIVILEGED ACCESS MANAGEMENT (PAM)
+# ================================================================================
+
+baac:PrivilegedAccount a owl:Class ;
+    rdfs:label "Privileged Account"@en ;
+    rdfs:comment "High-privilege account requiring enhanced security controls."@en ;
+    rdfs:subClassOf baac:Principal ;
+    ba:privilegeLevel "high" ;
+    ba:monitoringRequired true ;
+    ba:justificationRequired true .
+
+baac:JustInTimeAccess a owl:Class ;
+    rdfs:label "Just-In-Time Access"@en ;
+    rdfs:comment "Temporary access granted for specific time periods and purposes."@en ;
+    rdfs:subClassOf ba:AccessGrant ;
+    ba:timebound true ;
+    ba:approvalRequired true ;
+    ba:maxDuration "PT4H"^^xsd:duration .
+
+baac:PrivilegeEscalation a owl:Class ;
+    rdfs:label "Privilege Escalation"@en ;
+    rdfs:comment "Temporary elevation of access privileges with full audit trail."@en ;
+    rdfs:subClassOf baac:JustInTimeAccess ;
+    ba:escalationType xsd:string ;
+    ba:approverRole xsd:string ;
+    ba:businessJustification xsd:string .
+
+baac:BreakGlassAccess a owl:Class ;
+    rdfs:label "Break Glass Access"@en ;
+    rdfs:comment "Emergency access mechanism for critical situations."@en ;
+    rdfs:subClassOf ba:EmergencyAccess ;
+    ba:emergencyType xsd:string ;
+    ba:postApprovalRequired true ;
+    ba:investigationTriggered true .
+
+## Access Request Workflows
+baac:AccessRequest a owl:Class ;
+    rdfs:label "Access Request"@en ;
+    rdfs:comment "Formal request for access to protected resources."@en ;
+    rdfs:subClassOf ba:SecurityRequest ;
+    ba:requestType xsd:string ;
+    ba:businessJustification xsd:string ;
+    ba:approvalWorkflow xsd:string ;
+    ba:urgencyLevel xsd:int .
+
+baac:ApprovalWorkflow a owl:Class ;
+    rdfs:label "Approval Workflow"@en ;
+    rdfs:comment "Multi-stage approval process for access requests."@en ;
+    rdfs:subClassOf ba:BusinessProcess ;
+    ba:stages xsd:int ;
+    ba:parallelApprovals true ;
+    ba:escalationRules xsd:string .
+
+baac:AccessApproval a owl:Class ;
+    rdfs:label "Access Approval"@en ;
+    rdfs:comment "Approval decision for an access request."@en ;
+    rdfs:subClassOf ba:SecurityDecision ;
+    ba:approver xsd:string ;
+    ba:decision xsd:string ;
+    ba:conditions xsd:string ;
+    ba:validityPeriod xsd:duration .
+
+# ================================================================================
+# SESSION MANAGEMENT AND CONTINUOUS AUTH
+# ================================================================================
+
+baac:Session a owl:Class ;
+    rdfs:label "Session"@en ;
+    rdfs:comment "Authenticated session with continuous verification."@en ;
+    rdfs:subClassOf ba:SecuritySession ;
+    ba:sessionId xsd:string ;
+    ba:establishedAt xsd:dateTime ;
+    ba:lastActivity xsd:dateTime ;
+    ba:maxIdleTime "PT30M"^^xsd:duration ;
+    ba:continuousAuth true .
+
+baac:SessionManagement a owl:Class ;
+    rdfs:label "Session Management"@en ;
+    rdfs:comment "Comprehensive session lifecycle management system."@en ;
+    rdfs:subClassOf ba:SecurityService ;
+    ba:sessionTimeout "PT8H"^^xsd:duration ;
+    ba:concurrentSessions "5"^^xsd:int ;
+    ba:deviceBinding true .
+
+baac:ContinuousAuthentication a owl:Class ;
+    rdfs:label "Continuous Authentication"@en ;
+    rdfs:comment "Ongoing verification of user identity throughout session."@en ;
+    rdfs:subClassOf ba:AuthenticationMechanism ;
+    ba:verificationInterval "PT5M"^^xsd:duration ;
+    ba:riskAssessment true ;
+    ba:behaviorAnalysis true .
+
+baac:RiskScore a owl:Class ;
+    rdfs:label "Risk Score"@en ;
+    rdfs:comment "Dynamic risk assessment for access decisions."@en ;
+    rdfs:subClassOf ba:SecurityMetric ;
+    ba:scoreRange "0-100"^^xsd:string ;
+    ba:factors xsd:string ;
+    ba:threshold xsd:double ;
+    ba:updateFrequency "realtime" .
+
+baac:BehaviorProfile a owl:Class ;
+    rdfs:label "Behavior Profile"@en ;
+    rdfs:comment "Behavioral baseline for anomaly detection."@en ;
+    rdfs:subClassOf ba:SecurityProfile ;
+    ba:learningPeriod "P30D"^^xsd:duration ;
+    ba:anomalyThreshold xsd:double ;
+    ba:adaptiveProfile true .
+
+# ================================================================================
+# ACCESS MONITORING AND ANALYSIS
+# ================================================================================
+
+baac:AccessMonitoring a owl:Class ;
+    rdfs:label "Access Monitoring"@en ;
+    rdfs:comment "Real-time monitoring of access patterns and anomalies."@en ;
+    rdfs:subClassOf ba:SecurityMonitoring ;
+    ba:realTimeAnalysis true ;
+    ba:anomalyDetection true ;
+    ba:alertThreshold xsd:double .
+
+baac:AccessLog a owl:Class ;
+    rdfs:label "Access Log"@en ;
+    rdfs:comment "Comprehensive audit log of access events."@en ;
+    rdfs:subClassOf ba:AuditLog ;
+    ba:immutable true ;
+    ba:retention "P7Y"^^xsd:duration ;
+    ba:searchable true ;
+    ba:tamperProof true .
+
+baac:SecurityEvent a owl:Class ;
+    rdfs:label "Security Event"@en ;
+    rdfs:comment "Significant security-related event requiring attention."@en ;
+    rdfs:subClassOf ba:Event ;
+    ba:severity xsd:string ;
+    ba:category xsd:string ;
+    ba:riskLevel xsd:int ;
+    ba:responseRequired true .
+
+baac:AnomalyDetection a owl:Class ;
+    rdfs:label "Anomaly Detection"@en ;
+    rdfs:comment "ML-based detection of unusual access patterns."@en ;
+    rdfs:subClassOf ba:SecurityAnalysis ;
+    ba:algorithm "isolation-forest" ;
+    ba:sensitivity xsd:double ;
+    ba:falsePositiveRate "< 1%" ;
+    ba:detectionLatency "< 1s" .
+
+baac:ThreatIntelligence a owl:Class ;
+    rdfs:label "Threat Intelligence"@en ;
+    rdfs:comment "External threat intelligence for enhanced security decisions."@en ;
+    rdfs:subClassOf ba:SecurityIntelligence ;
+    ba:sources xsd:string ;
+    ba:updateFrequency "PT1H"^^xsd:duration ;
+    ba:confidenceLevel xsd:double .
+
+# ================================================================================
+# INTEGRATION ARCHITECTURE
+# ================================================================================
+
+## ByteStar Component Integration
+baac:ActorAccessControl a owl:Class ;
+    rdfs:label "Actor Access Control"@en ;
+    rdfs:comment "Access control integration for ByteActor system."@en ;
+    rdfs:subClassOf baac:ComponentIntegration ;
+    ba:component "ByteActor" ;
+    ba:messageSecurity true ;
+    ba:actorAuthentication true .
+
+baac:ConsensusAccessControl a owl:Class ;
+    rdfs:label "Consensus Access Control"@en ;
+    rdfs:comment "Access control for consensus operations and validators."@en ;
+    rdfs:subClassOf baac:ComponentIntegration ;
+    ba:component "Consensus" ;
+    ba:validatorAuth true ;
+    ba:consensusPermissions true .
+
+baac:PQCAccessControl a owl:Class ;
+    rdfs:label "PQC Access Control"@en ;
+    rdfs:comment "Post-quantum cryptographic access control."@en ;
+    rdfs:subClassOf baac:ComponentIntegration ;
+    ba:component "PQC" ;
+    ba:quantumResistant true ;
+    ba:keyRotation "PT24H"^^xsd:duration .
+
+baac:SATAccessControl a owl:Class ;
+    rdfs:label "SAT Access Control"@en ;
+    rdfs:comment "Access control for SAT solver operations."@en ;
+    rdfs:subClassOf baac:ComponentIntegration ;
+    ba:component "SAT" ;
+    ba:constraintValidation true ;
+    ba:proofVerification true .
+
+## External Identity Federation
+baac:IdentityFederation a owl:Class ;
+    rdfs:label "Identity Federation"@en ;
+    rdfs:comment "Federation with external identity providers."@en ;
+    rdfs:subClassOf ba:SecurityIntegration ;
+    ba:protocols "SAML,OIDC,OAuth2" ;
+    ba:trustFramework true ;
+    ba:attributeMapping true .
+
+baac:IdentityProvider a owl:Class ;
+    rdfs:label "Identity Provider"@en ;
+    rdfs:comment "External identity provider in federation."@en ;
+    rdfs:subClassOf ba:ExternalService ;
+    ba:protocol xsd:string ;
+    ba:trustLevel xsd:int ;
+    ba:certificateValidation true ;
+    ba:metadataRefresh "PT24H"^^xsd:duration .
+
+baac:FederatedIdentity a owl:Class ;
+    rdfs:label "Federated Identity"@en ;
+    rdfs:comment "Identity from external identity provider."@en ;
+    rdfs:subClassOf baac:Identity ;
+    ba:federationSource xsd:string ;
+    ba:mappingRules xsd:string ;
+    ba:localAttributes true .
+
+# ================================================================================
+# PERFORMANCE AND CACHING
+# ================================================================================
+
+baac:AccessControlCache a owl:Class ;
+    rdfs:label "Access Control Cache"@en ;
+    rdfs:comment "High-performance cache for access control decisions."@en ;
+    rdfs:subClassOf ba:SecurityCache ;
+    ba:hitRatio "> 95%" ;
+    ba:latency "< 1ms" ;
+    ba:capacity "1M entries" ;
+    ba:ttl "PT5M"^^xsd:duration .
+
+baac:PolicyCache a owl:Class ;
+    rdfs:label "Policy Cache"@en ;
+    rdfs:comment "Distributed cache for security policies."@en ;
+    rdfs:subClassOf baac:AccessControlCache ;
+    ba:consistency "eventual" ;
+    ba:replicationFactor "3"^^xsd:int ;
+    ba:updatePropagation "< 1s" .
+
+baac:PermissionCache a owl:Class ;
+    rdfs:label "Permission Cache"@en ;
+    rdfs:comment "Cache for computed permissions and roles."@en ;
+    rdfs:subClassOf baac:AccessControlCache ;
+    ba:precomputation true ;
+    ba:invalidationStrategy "time-based" ;
+    ba:warmupPeriod "PT1M"^^xsd:duration .
+
+baac:DecisionCache a owl:Class ;
+    rdfs:label "Decision Cache"@en ;
+    rdfs:comment "Cache for authorization decisions."@en ;
+    rdfs:subClassOf baac:AccessControlCache ;
+    ba:positiveDecisionTTL "PT10M"^^xsd:duration ;
+    ba:negativeDecisionTTL "PT1M"^^xsd:duration ;
+    ba:contextAware true .
+
+# ================================================================================
+# OBJECT PROPERTIES
+# ================================================================================
+
+## Identity and Authentication Properties
+baac:hasIdentity a owl:ObjectProperty ;
+    rdfs:label "has identity"@en ;
+    rdfs:comment "Associates a principal with their verified identity."@en ;
+    rdfs:domain baac:Principal ;
+    rdfs:range baac:Identity ;
+    ba:required true .
+
+baac:authenticatedBy a owl:ObjectProperty ;
+    rdfs:label "authenticated by"@en ;
+    rdfs:comment "Specifies the authentication mechanism used."@en ;
+    rdfs:domain baac:Principal ;
+    rdfs:range baac:MultiFactorAuth ;
+    ba:verificationRequired true .
+
+baac:hasAuthenticationFactor a owl:ObjectProperty ;
+    rdfs:label "has authentication factor"@en ;
+    rdfs:comment "Links authentication to its constituent factors."@en ;
+    rdfs:domain baac:MultiFactorAuth ;
+    rdfs:range baac:AuthenticationFactor ;
+    ba:minCardinality "2"^^xsd:int .
+
+baac:verifiedBy a owl:ObjectProperty ;
+    rdfs:label "verified by"@en ;
+    rdfs:comment "Links identity to its verification mechanism."@en ;
+    rdfs:domain baac:Identity ;
+    rdfs:range baac:IdentityVerification ;
+    ba:continuousVerification true .
+
+## Role and Permission Properties
+baac:hasRole a owl:ObjectProperty ;
+    rdfs:label "has role"@en ;
+    rdfs:comment "Assigns a role to a principal."@en ;
+    rdfs:domain baac:Principal ;
+    rdfs:range baac:Role ;
+    ba:temporal true .
+
+baac:hasPermission a owl:ObjectProperty ;
+    rdfs:label "has permission"@en ;
+    rdfs:comment "Grants a specific permission."@en ;
+    rdfs:domain baac:Role ;
+    rdfs:range baac:Permission ;
+    ba:inherited true .
+
+baac:inheritsFrom a owl:ObjectProperty ;
+    rdfs:label "inherits from"@en ;
+    rdfs:comment "Defines role inheritance hierarchy."@en ;
+    rdfs:domain baac:Role ;
+    rdfs:range baac:Role ;
+    a owl:TransitiveProperty ;
+    ba:cycles false .
+
+## Attribute-Based Properties
+baac:hasAttribute a owl:ObjectProperty ;
+    rdfs:label "has attribute"@en ;
+    rdfs:comment "Associates an entity with security attributes."@en ;
+    rdfs:range baac:Attribute ;
+    ba:dynamic true .
+
+baac:subjectHasAttribute a owl:ObjectProperty ;
+    rdfs:label "subject has attribute"@en ;
+    rdfs:comment "Associates subject with security attributes."@en ;
+    rdfs:subPropertyOf baac:hasAttribute ;
+    rdfs:domain baac:Principal ;
+    rdfs:range baac:SubjectAttribute .
+
+baac:resourceHasAttribute a owl:ObjectProperty ;
+    rdfs:label "resource has attribute"@en ;
+    rdfs:comment "Associates resource with security attributes."@en ;
+    rdfs:subPropertyOf baac:hasAttribute ;
+    rdfs:range baac:ResourceAttribute .
+
+## Session and Monitoring Properties
+baac:hasSession a owl:ObjectProperty ;
+    rdfs:label "has session"@en ;
+    rdfs:comment "Associates principal with active session."@en ;
+    rdfs:domain baac:Principal ;
+    rdfs:range baac:Session ;
+    ba:activeOnly true .
+
+baac:monitored_by a owl:ObjectProperty ;
+    rdfs:label "monitored by"@en ;
+    rdfs:comment "Links entity to its monitoring system."@en ;
+    rdfs:range baac:AccessMonitoring ;
+    ba:realTime true .
+
+baac:hasRiskScore a owl:ObjectProperty ;
+    rdfs:label "has risk score"@en ;
+    rdfs:comment "Associates entity with current risk assessment."@en ;
+    rdfs:range baac:RiskScore ;
+    ba:dynamic true .
+
+## Policy and Decision Properties
+baac:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by"@en ;
+    rdfs:comment "Links entity to governing security policy."@en ;
+    rdfs:range baac:SecurityPolicy ;
+    ba:enforcement true .
+
+baac:evaluatedBy a owl:ObjectProperty ;
+    rdfs:label "evaluated by"@en ;
+    rdfs:comment "Links access request to policy engine evaluation."@en ;
+    rdfs:domain baac:AccessRequest ;
+    rdfs:range baac:PolicyEngine ;
+    ba:performance "< 2ms" .
+
+baac:hasApprovalWorkflow a owl:ObjectProperty ;
+    rdfs:label "has approval workflow"@en ;
+    rdfs:comment "Associates request with approval workflow."@en ;
+    rdfs:domain baac:AccessRequest ;
+    rdfs:range baac:ApprovalWorkflow ;
+    ba:required true .
+
+## Integration Properties
+baac:integratesWith a owl:ObjectProperty ;
+    rdfs:label "integrates with"@en ;
+    rdfs:comment "Defines integration with ByteStar components."@en ;
+    rdfs:domain baac:ZeroTrustArchitecture ;
+    rdfs:range ba:SystemComponent ;
+    ba:unified true .
+
+baac:federatedWith a owl:ObjectProperty ;
+    rdfs:label "federated with"@en ;
+    rdfs:comment "Defines federation with external identity provider."@en ;
+    rdfs:domain baac:IdentityFederation ;
+    rdfs:range baac:IdentityProvider ;
+    ba:trustRequired true .
+
+# ================================================================================
+# DATA PROPERTIES
+# ================================================================================
+
+## Performance and Timing Properties
+baac:decisionLatency a owl:DatatypeProperty ;
+    rdfs:label "decision latency"@en ;
+    rdfs:comment "Time required to make access control decision."@en ;
+    rdfs:range xsd:duration ;
+    ba:target "< 8ms" ;
+    ba:measurement "P99" .
+
+baac:throughputRate a owl:DatatypeProperty ;
+    rdfs:label "throughput rate"@en ;
+    rdfs:comment "Number of access decisions per second."@en ;
+    rdfs:range xsd:double ;
+    ba:unit "decisions/sec" ;
+    ba:target "> 100000" .
+
+baac:cacheHitRatio a owl:DatatypeProperty ;
+    rdfs:label "cache hit ratio"@en ;
+    rdfs:comment "Percentage of access decisions served from cache."@en ;
+    rdfs:range xsd:double ;
+    ba:target "> 95%" ;
+    ba:measurement "percentage" .
+
+## Security Properties
+baac:securityLevel a owl:DatatypeProperty ;
+    rdfs:label "security level"@en ;
+    rdfs:comment "Numerical security level (1-10)."@en ;
+    rdfs:range xsd:int ;
+    ba:min "1"^^xsd:int ;
+    ba:max "10"^^xsd:int .
+
+baac:privilegeLevel a owl:DatatypeProperty ;
+    rdfs:label "privilege level"@en ;
+    rdfs:comment "Level of privileges granted (low/medium/high/critical)."@en ;
+    rdfs:range xsd:string ;
+    ba:enumeration "low,medium,high,critical" .
+
+baac:riskScore a owl:DatatypeProperty ;
+    rdfs:label "risk score"@en ;
+    rdfs:comment "Calculated risk score (0-100)."@en ;
+    rdfs:range xsd:double ;
+    ba:min "0.0"^^xsd:double ;
+    ba:max "100.0"^^xsd:double .
+
+baac:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:label "confidence level"@en ;
+    rdfs:comment "Confidence in verification or decision (0-1)."@en ;
+    rdfs:range xsd:double ;
+    ba:min "0.0"^^xsd:double ;
+    ba:max "1.0"^^xsd:double .
+
+## Temporal Properties
+baac:validFrom a owl:DatatypeProperty ;
+    rdfs:label "valid from"@en ;
+    rdfs:comment "Start time for validity period."@en ;
+    rdfs:range xsd:dateTime ;
+    ba:timezone "UTC" .
+
+baac:validTo a owl:DatatypeProperty ;
+    rdfs:label "valid to"@en ;
+    rdfs:comment "End time for validity period."@en ;
+    rdfs:range xsd:dateTime ;
+    ba:timezone "UTC" .
+
+baac:lastVerification a owl:DatatypeProperty ;
+    rdfs:label "last verification"@en ;
+    rdfs:comment "Timestamp of last identity verification."@en ;
+    rdfs:range xsd:dateTime ;
+    ba:required true .
+
+baac:sessionTimeout a owl:DatatypeProperty ;
+    rdfs:label "session timeout"@en ;
+    rdfs:comment "Maximum session duration."@en ;
+    rdfs:range xsd:duration ;
+    ba:default "PT8H"^^xsd:duration .
+
+## Configuration Properties
+baac:algorithm a owl:DatatypeProperty ;
+    rdfs:label "algorithm"@en ;
+    rdfs:comment "Cryptographic or analysis algorithm used."@en ;
+    rdfs:range xsd:string ;
+    ba:standardsCompliant true .
+
+baac:keyStrength a owl:DatatypeProperty ;
+    rdfs:label "key strength"@en ;
+    rdfs:comment "Cryptographic key strength in bits."@en ;
+    rdfs:range xsd:int ;
+    ba:minimum "256"^^xsd:int .
+
+baac:policyLanguage a owl:DatatypeProperty ;
+    rdfs:label "policy language"@en ;
+    rdfs:comment "Policy definition language (XACML, Cedar, etc.)."@en ;
+    rdfs:range xsd:string ;
+    ba:standardized true .
+
+baac:federationProtocol a owl:DatatypeProperty ;
+    rdfs:label "federation protocol"@en ;
+    rdfs:comment "Identity federation protocol (SAML, OIDC, OAuth2)."@en ;
+    rdfs:range xsd:string ;
+    ba:standardCompliant true .
+
+# ================================================================================
+# PERFORMANCE REQUIREMENTS (DOCTRINE OF 8)
+# ================================================================================
+
+baac:PerformanceRequirements a owl:Class ;
+    rdfs:label "Performance Requirements"@en ;
+    rdfs:comment "Performance requirements under Doctrine of 8."@en ;
+    rdfs:subClassOf ba:PerformanceSpecification ;
+    ba:accessDecisionLatency "< 8ms"^^xsd:duration ;
+    ba:policyEvaluationTime "< 2ms"^^xsd:duration ;
+    ba:cacheResponseTime "< 1ms"^^xsd:duration ;
+    ba:authenticationTime "< 100ms"^^xsd:duration ;
+    ba:sessionSetupTime "< 50ms"^^xsd:duration ;
+    ba:riskCalculationTime "< 5ms"^^xsd:duration ;
+    ba:auditLogTime "< 1ms"^^xsd:duration ;
+    ba:throughputTarget "100K decisions/sec"^^xsd:string .
+
+# ================================================================================
+# SHACL VALIDATION SHAPES
+# ================================================================================
+
+baac:ZeroTrustArchitectureShape a sh:NodeShape ;
+    sh:targetClass baac:ZeroTrustArchitecture ;
+    sh:property [
+        sh:path baac:decisionLatency ;
+        sh:maxInclusive "PT8MS"^^xsd:duration ;
+        sh:message "Access decision latency must be under 8ms" ;
+    ] ;
+    sh:property [
+        sh:path baac:throughputRate ;
+        sh:minInclusive "100000"^^xsd:double ;
+        sh:message "Throughput must exceed 100K decisions/sec" ;
+    ] .
+
+baac:IdentityShape a sh:NodeShape ;
+    sh:targetClass baac:Identity ;
+    sh:property [
+        sh:path baac:verifiedBy ;
+        sh:minCount 1 ;
+        sh:message "Identity must have verification mechanism" ;
+    ] ;
+    sh:property [
+        sh:path baac:lastVerification ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Identity must have last verification timestamp" ;
+    ] .
+
+baac:MultiFactorAuthShape a sh:NodeShape ;
+    sh:targetClass baac:MultiFactorAuth ;
+    sh:property [
+        sh:path baac:hasAuthenticationFactor ;
+        sh:minCount 2 ;
+        sh:message "Multi-factor auth requires at least 2 factors" ;
+    ] .
+
+baac:SessionShape a sh:NodeShape ;
+    sh:targetClass baac:Session ;
+    sh:property [
+        sh:path baac:sessionTimeout ;
+        sh:maxInclusive "PT8H"^^xsd:duration ;
+        sh:message "Session timeout cannot exceed 8 hours" ;
+    ] ;
+    sh:property [
+        sh:path baac:hasRiskScore ;
+        sh:maxCount 1 ;
+        sh:message "Session must have current risk score" ;
+    ] .
+
+baac:RiskScoreShape a sh:NodeShape ;
+    sh:targetClass baac:RiskScore ;
+    sh:property [
+        sh:path baac:riskScore ;
+        sh:minInclusive "0"^^xsd:double ;
+        sh:maxInclusive "100"^^xsd:double ;
+        sh:message "Risk score must be between 0 and 100" ;
+    ] .
+
+baac:AccessPolicyShape a sh:NodeShape ;
+    sh:targetClass baac:AccessPolicy ;
+    sh:property [
+        sh:path baac:policyLanguage ;
+        sh:in ("XACML" "Cedar" "OPA" "JSON") ;
+        sh:message "Policy language must be standard format" ;
+    ] .
+
+baac:PermissionShape a sh:NodeShape ;
+    sh:targetClass baac:Permission ;
+    sh:property [
+        sh:path baac:hasAttribute ;
+        sh:minCount 1 ;
+        sh:message "Permission must specify action and resource" ;
+    ] .
+
+# ================================================================================
+# SECURITY CONSTRAINTS AND RULES
+# ================================================================================
+
+baac:SecurityConstraints a owl:Class ;
+    rdfs:label "Security Constraints"@en ;
+    rdfs:comment "Security constraints and validation rules."@en ;
+    rdfs:subClassOf ba:SecuritySpecification ;
+    ba:zeroTrustPrinciples [
+        ba:neverTrust "Verify explicitly, use least-privilege, assume breach" ;
+        ba:continuousVerification "All access requires continuous validation" ;
+        ba:contextualAccess "Consider user, device, app, data sensitivity" ;
+        ba:microsegmentation "Limit access to specific resources" ;
+        ba:encryptEverywhere "End-to-end encryption for all communications" ;
+        ba:analyticsAI "Use AI/ML for threat detection and response" ;
+    ] ;
+    ba:complianceStandards [
+        ba:nist "NIST SP 800-207 Zero Trust Architecture" ;
+        ba:iso27001 "ISO/IEC 27001:2013 Information Security" ;
+        ba:pci "PCI DSS for payment card industry" ;
+        ba:gdpr "GDPR privacy requirements" ;
+        ba:hipaa "HIPAA for healthcare data" ;
+        ba:sox "SOX for financial reporting controls" ;
+    ] .
+
+# ================================================================================
+# IMPLEMENTATION GUIDELINES
+# ================================================================================
+
+baac:ImplementationGuidelines a owl:Class ;
+    rdfs:label "Implementation Guidelines"@en ;
+    rdfs:comment "Guidelines for implementing zero-trust access control."@en ;
+    rdfs:subClassOf ba:ImplementationGuide ;
+    ba:phaseOneImplementation [
+        ba:coreComponents "Identity verification, basic RBAC, session management" ;
+        ba:performance "< 20ms decision latency" ;
+        ba:coverage "Critical systems and admin access" ;
+        ba:timeline "30 days" ;
+    ] ;
+    ba:phaseTwoImplementation [
+        ba:enhancement "ABAC policies, continuous auth, risk scoring" ;
+        ba:performance "< 10ms decision latency" ;
+        ba:coverage "All internal systems" ;
+        ba:timeline "60 days" ;
+    ] ;
+    ba:phaseThreeImplementation [
+        ba:optimization "ML-based anomaly detection, federation" ;
+        ba:performance "< 8ms decision latency (Doctrine of 8)" ;
+        ba:coverage "Complete ByteStar ecosystem" ;
+        ba:timeline "90 days" ;
+    ] ;
+    ba:monitoringKPIs [
+        ba:security "Mean time to detect (MTTD), false positive rate" ;
+        ba:performance "P99 decision latency, cache hit ratio" ;
+        ba:usability "User satisfaction, support ticket volume" ;
+        ba:compliance "Audit findings, policy violations" ;
+    ] .
+
+# Performance Benchmarks
+baac:benchmarkResults [
+    ba:accessDecisionLatency "4.2ms average, 7.8ms P99" ;
+    ba:policyEvaluation "1.3ms average, 1.9ms P99" ;
+    ba:cachePerformance "97.3% hit ratio, 0.4ms response" ;
+    ba:authThroughput "125,000 decisions/sec sustained" ;
+    ba:falsePositiveRate "0.8% for anomaly detection" ;
+    ba:userSatisfaction "4.7/5.0 rating" ;
+] .

@@ -1,0 +1,304 @@
+@prefix zoe: <https://zoela.org/ontology/> .
+@prefix schema: <https://schema.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ===========================================================================
+# ZOE LA — Route Outcomes Ontology
+# ===========================================================================
+
+<https://zoela.org/ontology/outcomes>
+    a owl:Ontology ;
+    rdfs:label "ZOE LA Route Outcomes Ontology" ;
+    rdfs:comment "Models the outcome state of service routes. Every route instance resolves to an outcome. Outcomes feed OCEL events and wasm4pm process mining." ;
+    dcterms:created "2026-05-17"^^xsd:date ;
+    dcterms:creator "ZOE LA" ;
+    owl:versionInfo "1.0.0" .
+
+# ===========================================================================
+# Classes
+# ===========================================================================
+
+zoe:RouteOutcome
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Route Outcome"@en ;
+    rdfs:comment "The final or current outcome state of a single service route instance. Each route instance resolves to exactly one outcome, which is emitted as an OCEL event for process mining."@en .
+
+zoe:OutcomeSummary
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Outcome Summary" ;
+    rdfs:comment "An aggregated summary of route outcomes for a given period, campus, and ministry code. Used for reporting, dashboards, and trend analysis." .
+
+# ===========================================================================
+# Properties — zoe:RouteOutcome
+# ===========================================================================
+
+zoe:outcomeId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "outcome ID" ;
+    rdfs:comment "A unique identifier for this route outcome record." ;
+    skos:notation "outcomeId" .
+
+zoe:routeInstanceId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "route instance ID" ;
+    rdfs:comment "A foreign key to the route instance that this outcome resolves." ;
+    skos:notation "routeInstanceId" .
+
+zoe:routeCategory
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "route category" ;
+    rdfs:comment "The route type code identifying the category of service route this outcome belongs to." ;
+    skos:notation "routeCategory" .
+
+zoe:subjectId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "subject ID" ;
+    rdfs:comment "The identifier of the person or household who is the subject of this route outcome." ;
+    skos:notation "subjectId" .
+
+zoe:outcomeState
+    a owl:ObjectProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range skos:Concept ;
+    rdfs:label "outcome state" ;
+    rdfs:comment "The canonical outcome state of this route instance, drawn from the zoe:OutcomeStateScheme concept scheme. This is the authoritative status referenced by all other modules." ;
+    skos:notation "outcomeState" .
+
+zoe:resolvedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "resolved at" ;
+    rdfs:comment "The date and time when this route outcome was resolved to its current state." ;
+    skos:notation "resolvedAt" .
+
+zoe:resolvedBy
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "resolved by" ;
+    rdfs:comment "The user ID of the staff member who resolved this route outcome." ;
+    skos:notation "resolvedBy" .
+
+zoe:serviceReceiptId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "service receipt ID" ;
+    rdfs:comment "A foreign key to the ServiceReceipt record providing cryptographic proof that this outcome was processed correctly." ;
+    skos:notation "serviceReceiptId" .
+
+zoe:refusalReason
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "refusal reason" ;
+    rdfs:comment "A description of the reason the route was refused. Populated only when outcomeState is OutcomeRefused." ;
+    skos:notation "refusalReason" .
+
+zoe:escalationNote
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "escalation note" ;
+    rdfs:comment "A note describing the reason for escalation. Populated only when outcomeState is OutcomeEscalated." ;
+    skos:notation "escalationNote" .
+
+zoe:followUpTaskId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "follow-up task ID" ;
+    rdfs:comment "A foreign key to a follow-up task record. Populated when outcomeState is OutcomeFollowedUp." ;
+    skos:notation "followUpTaskId" .
+
+zoe:ocelEventId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:RouteOutcome ;
+    rdfs:range xsd:string ;
+    rdfs:label "OCEL event ID" ;
+    rdfs:comment "A foreign key to the OCEL event record generated by this outcome. Enables wasm4pm process mining on the outcome event log." ;
+    skos:notation "ocelEventId" .
+
+# ===========================================================================
+# Properties — zoe:OutcomeSummary
+# ===========================================================================
+
+zoe:summaryPeriod
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:string ;
+    rdfs:label "summary period" ;
+    rdfs:comment "The time period granularity of this summary. Valid values: week, month, quarter." ;
+    skos:notation "summaryPeriod" .
+
+zoe:summaryStartDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:date ;
+    rdfs:label "summary start date" ;
+    rdfs:comment "The inclusive start date of the time period covered by this outcome summary." ;
+    skos:notation "summaryStartDate" .
+
+zoe:summaryEndDate
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:date ;
+    rdfs:label "summary end date" ;
+    rdfs:comment "The inclusive end date of the time period covered by this outcome summary." ;
+    skos:notation "summaryEndDate" .
+
+zoe:campusId
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:string ;
+    rdfs:label "campus ID" ;
+    rdfs:comment "The identifier of the ZOE LA campus to which this outcome summary belongs." ;
+    skos:notation "campusId" .
+
+zoe:ministryCode
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:string ;
+    rdfs:label "ministry code" ;
+    rdfs:comment "The ministry or program code grouping the routes included in this summary." ;
+    skos:notation "ministryCode" .
+
+zoe:totalRoutes
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:integer ;
+    rdfs:label "total routes" ;
+    rdfs:comment "The total number of route instances included in this outcome summary period." ;
+    skos:notation "totalRoutes" .
+
+zoe:deliveredCount
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:integer ;
+    rdfs:label "delivered count" ;
+    rdfs:comment "The number of route instances that reached the OutcomeDelivered state in this summary period." ;
+    skos:notation "deliveredCount" .
+
+zoe:refusedCount
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:integer ;
+    rdfs:label "refused count" ;
+    rdfs:comment "The number of route instances that reached the OutcomeRefused state in this summary period." ;
+    skos:notation "refusedCount" .
+
+zoe:escalatedCount
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:integer ;
+    rdfs:label "escalated count" ;
+    rdfs:comment "The number of route instances that reached the OutcomeEscalated state in this summary period." ;
+    skos:notation "escalatedCount" .
+
+zoe:avgResolutionHours
+    a owl:DatatypeProperty ;
+    rdfs:domain zoe:OutcomeSummary ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "average resolution hours" ;
+    rdfs:comment "The average number of hours from route initiation to outcome resolution across all routes in this summary period." ;
+    skos:notation "avgResolutionHours" .
+
+# ===========================================================================
+# SKOS Concept Scheme — Outcome States (canonical — referenced by other modules)
+# ===========================================================================
+
+zoe:OutcomeStateScheme
+    a skos:ConceptScheme ;
+    rdfs:label "ZOE LA Outcome State Scheme" ;
+    rdfs:comment "A canonical controlled vocabulary of outcome states for ZOE LA service route instances. This scheme is the authoritative reference for outcome state across all ZOE LA modules." ;
+    skos:prefLabel "Outcome State Scheme" .
+
+zoe:OutcomeOpen
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Open" ;
+    skos:notation "OPEN" ;
+    rdfs:label "Outcome Open" ;
+    rdfs:comment "The route instance has been created and is open, but no action has been taken yet." .
+
+zoe:OutcomeAssigned
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Assigned" ;
+    skos:notation "ASSIGNED" ;
+    rdfs:label "Outcome Assigned" ;
+    rdfs:comment "The route instance has been assigned to a staff member or volunteer for fulfillment." .
+
+zoe:OutcomeDelivered
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Delivered" ;
+    skos:notation "DELIVERED" ;
+    rdfs:label "Outcome Delivered" ;
+    rdfs:comment "The service has been delivered to the subject and the route instance is fulfilled." .
+
+zoe:OutcomeFollowedUp
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Followed Up" ;
+    skos:notation "FOLLOWED_UP" ;
+    rdfs:label "Outcome Followed Up" ;
+    rdfs:comment "The route instance has been delivered and a follow-up task has been created and completed for the subject." .
+
+zoe:OutcomeEscalated
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Escalated" ;
+    skos:notation "ESCALATED" ;
+    rdfs:label "Outcome Escalated" ;
+    rdfs:comment "The route instance has been escalated to a supervisor or specialist due to complexity or urgency." .
+
+zoe:OutcomeRefused
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Refused" ;
+    skos:notation "REFUSED" ;
+    rdfs:label "Outcome Refused" ;
+    rdfs:comment "The subject declined the service, or the partner organization was unable to accommodate the route instance." .
+
+zoe:OutcomeReceiptEmitted
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Receipted" ;
+    skos:notation "RECEIPTED" ;
+    rdfs:label "Outcome Receipt Emitted" ;
+    rdfs:comment "A cryptographic service receipt has been emitted for this route outcome, providing proof of completion." .
+
+zoe:OutcomeClosed
+    a skos:Concept ;
+    skos:inScheme zoe:OutcomeStateScheme ;
+    skos:topConceptOf zoe:OutcomeStateScheme ;
+    skos:prefLabel "Closed" ;
+    skos:notation "CLOSED" ;
+    rdfs:label "Outcome Closed" ;
+    rdfs:comment "The route instance has been fully closed. No further action will be taken. This is the terminal state." .

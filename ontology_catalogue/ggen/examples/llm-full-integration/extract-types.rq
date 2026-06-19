@@ -1,0 +1,10 @@
+# Extract schema types
+PREFIX a2a: <http://example.org/a2a#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?class_name ?class_label ?property WHERE {
+  ?class a rdfs:Class ;
+         rdfs:label ?class_label ;
+         a2a:hasProperty ?property .
+}
+ORDER BY ?class_label
