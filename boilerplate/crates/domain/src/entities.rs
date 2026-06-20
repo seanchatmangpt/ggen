@@ -30,3 +30,40 @@ impl Item {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn item_new_has_non_nil_id() {
+        let item = Item::new("foo");
+        // A nil UUID is all zeros; new() uses Uuid::new_v4() so it must not be nil.
+        assert_ne!(
+            item.id.inner().as_u128(),
+            0u128,
+            "Item::new must assign a non-nil UUID"
+        );
+    }
+
+    #[test]
+    fn item_new_stores_name_verbatim() {
+        let item = Item::new("foo");
+        assert_eq!(item.name, "foo");
+    }
+
+    #[test]
+    fn item_new_has_no_description() {
+        let item = Item::new("foo");
+        assert!(item.description.is_none(), "new Item must have description=None");
+    }
+
+    #[test]
+    fn item_new_created_at_equals_updated_at() {
+        let item = Item::new("bar");
+        assert_eq!(
+            item.created_at, item.updated_at,
+            "created_at and updated_at must be equal for a newly created Item"
+        );
+    }
+}
