@@ -5,6 +5,8 @@ pub mod pagination;
 pub use error::CoreError;
 pub type Result<T, E = CoreError> = std::result::Result<T, E>;
 
+pub use pagination::{Cursor, CursorPage, CursorPagedResult, Page, PagedResult};
+
 #[cfg(test)]
 mod tests {
     use super::*;

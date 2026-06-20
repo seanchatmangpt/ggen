@@ -36,9 +36,10 @@ impl IntoResponse for ApiError {
             ),
         };
 
+        let machine_code = code.to_lowercase().replace(' ', "_");
         (
             status,
-            Json(json!({ "error": { "code": code, "message": message } })),
+            Json(json!({ "error": machine_code, "message": message })),
         )
             .into_response()
     }

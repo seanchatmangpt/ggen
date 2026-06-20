@@ -10,7 +10,7 @@ pub struct CreateItemRequest {
 }
 
 pub async fn health() -> Json<serde_json::Value> {
-    Json(serde_json::json!({ "status": "ok" }))
+    Json(serde_json::json!({ "status": "ok", "version": env!("CARGO_PKG_VERSION") }))
 }
 
 pub async fn create_item(Json(req): Json<CreateItemRequest>) -> Result<Json<Item>, ApiError> {
