@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Pre-commit: fmt check + non-pedantic clippy on staged .rs files.
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.rs$' || true)
+
+if [ -z "$STAGED" ]; then
+    exit 0
+fi
+
+echo "[pre-commit] Checking format..."
+cargo fmt --all -- --check
+
+echo "[pre-commit] Running clippy..."
+cargo clippy --workspace --all-targets -- -D warnings
+
+echo "[pre-commit] OK"

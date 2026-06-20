@@ -1,0 +1,17 @@
+[package]
+name = "service"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+bp-core = { path = "../core" }
+domain = { path = "../domain" }
+bp-config = { path = "../config" }
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }

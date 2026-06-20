@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Pre-push: full CI gate before pushing to remote.
+set -euo pipefail
+
+echo "[pre-push] Running full CI gate..."
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo build --workspace
+cargo test --workspace
+echo "[pre-push] All checks passed."

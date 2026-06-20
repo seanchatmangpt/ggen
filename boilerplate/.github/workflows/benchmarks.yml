@@ -1,0 +1,26 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  bench:
+    name: Criterion benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run benchmarks
+        run: cargo bench --workspace 2>&1 | tee bench.txt
+      - name: Check for regressions (>10% advisory)
+        run: |
+          if grep -E "regression.*([1-9][0-9]{1,}|[2-9][0-9])%" bench.txt; then
+            echo "::warning::Benchmark regression detected (>10%)"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench.txt

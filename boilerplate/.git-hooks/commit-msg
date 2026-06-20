@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Validate Conventional Commits format:
+# type(scope)?: description
+# Types: feat, fix, docs, style, refactor, test, chore, ci, perf, build
+set -euo pipefail
+
+MSG_FILE="$1"
+MSG=$(cat "$MSG_FILE")
+
+CC_PATTERN='^(feat|fix|docs|style|refactor|test|chore|ci|perf|build)(\([a-zA-Z0-9_-]+\))?!?: .{1,100}$'
+
+if ! echo "$MSG" | grep -qE "$CC_PATTERN"; then
+    echo "[commit-msg] ERROR: Commit message does not follow Conventional Commits."
+    echo "[commit-msg] Format: type(scope)?: description"
+    echo "[commit-msg] Types: feat fix docs style refactor test chore ci perf build"
+    echo "[commit-msg] Got: $MSG"
+    exit 1
+fi

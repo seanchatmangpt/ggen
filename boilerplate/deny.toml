@@ -1,0 +1,47 @@
+[licenses]
+# Allowlist: permissive licenses used by the Rust ecosystem.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-DFS-2016",
+    "CC0-1.0",
+]
+# Deny copyleft licenses that could affect distribution.
+deny = [
+    "GPL-2.0",
+    "GPL-3.0",
+    "LGPL-2.0",
+    "LGPL-2.1",
+    "LGPL-3.0",
+    "AGPL-3.0",
+]
+# Policy for crates without declared license.
+unlicensed = "deny"
+# Confidence threshold for license detection.
+confidence-threshold = 0.8
+
+[advisories]
+# Reject crates with known vulnerabilities.
+ignore = []
+
+[bans]
+# Prevent duplicate versions of critical crates.
+multiple-versions = "warn"
+deny = [
+    # openssl replaces with rustls
+    { crate = "openssl", use-instead = "rustls" },
+]
+skip = []
+skip-tree = []
+
+[sources]
+# Only allow crates from crates.io and the workspace itself.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

@@ -1,0 +1,21 @@
+name: Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-tarpaulin
+      - run: cargo tarpaulin --workspace --out Xml --output-dir target/coverage
+      - uses: codecov/codecov-action@v4
+        with:
+          files: target/coverage/cobertura.xml
+          threshold: "60"
+          patch_threshold: "50"

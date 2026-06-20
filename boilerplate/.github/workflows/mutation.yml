@@ -1,0 +1,27 @@
+name: Mutation Testing
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"  # Weekly Sunday
+  workflow_dispatch:
+
+jobs:
+  mutants:
+    name: cargo-mutants
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-mutants
+      - name: Run mutation tests (1h budget)
+        run: cargo mutants --workspace --timeout 60 --jobs 4 2>&1 | tee mutants.txt
+      - name: Summarize
+        run: |
+          echo "## Mutation Results" >> $GITHUB_STEP_SUMMARY
+          tail -20 mutants.txt >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: mutants.txt

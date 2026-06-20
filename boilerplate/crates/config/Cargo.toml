@@ -1,0 +1,9 @@
+[package]
+name = "bp-config"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+anyhow = { workspace = true }
+dotenvy = { workspace = true }
