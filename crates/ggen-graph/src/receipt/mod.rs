@@ -1,5 +1,6 @@
 //! Cryptographic receipts, validation, replay verification, and transaction bundling.
 
+use crate::coherence::CoherenceReport;
 use crate::GraphError;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -20,6 +21,9 @@ pub struct GraphReceipt {
     pub delta_hash: [u8; 32],
     /// Cryptographic checksum binding all transition fields.
     pub signature_or_hash: [u8; 32],
+    /// Optional BLAKE3 fingerprint of a [`CoherenceReport`] attached after construction.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coherence_fingerprint: Option<String>,
 }
 
 /// Alias for GraphReceipt to support TransitionReceipt interfaces.
@@ -45,7 +49,22 @@ impl GraphReceipt {
             post_state_hash,
             delta_hash,
             signature_or_hash,
+            coherence_fingerprint: None,
         }
+    }
+
+    /// Attach a three-pole coherence fingerprint to this receipt.
+    ///
+    /// Computes a BLAKE3 hex hash of the serialized [`CoherenceReport`] and stores it.
+    /// This is a builder method; call after `new()`.
+    #[must_use]
+    pub fn with_coherence_report(mut self, report: &CoherenceReport) -> Self {
+        if let Ok(json) = serde_json::to_string(report) {
+            let mut h = blake3::Hasher::new();
+            h.update(json.as_bytes());
+            self.coherence_fingerprint = Some(hex::encode(h.finalize().as_bytes()));
+        }
+        self
     }
 
     /// Verifies the cryptographic integrity of the receipt.

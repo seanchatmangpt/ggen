@@ -1,0 +1,158 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix pc:   <https://ggen.dev/ontology/post-chatman#> .
+@prefix ggen: <https://ggen.dev/ontology/core#> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Ontology declaration
+# ─────────────────────────────────────────────────────────────────────────────
+
+<https://ggen.dev/ontology/post-chatman>
+    a owl:Ontology ;
+    rdfs:label "Post-Chatman Equation Ontology"@en ;
+    rdfs:comment """Formalises the isomorphism A ≅ O ≅ L between the three poles
+of the post-Chatman code-generation thesis:
+  A = Artifact (generated code / assets)
+  O = Ontology (RDF triplestore — source of truth)
+  L = Event Log (OCEL process evidence)
+"""@en ;
+    owl:versionInfo "1.0.0" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Core concepts — the three poles
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:Pole
+    a owl:Class ;
+    rdfs:label "Pole"@en ;
+    rdfs:comment "One of three isomorphic representations in the post-Chatman equation."@en .
+
+pc:OntologyPole
+    a owl:Class ;
+    rdfs:subClassOf pc:Pole ;
+    rdfs:label "Ontology Pole (O)"@en ;
+    rdfs:comment "The RDF triplestore — canonical source of truth for the system."@en .
+
+pc:ArtifactPole
+    a owl:Class ;
+    rdfs:subClassOf pc:Pole ;
+    rdfs:label "Artifact Pole (A)"@en ;
+    rdfs:comment "Generated code, assets, or other materialised output derived from O."@en .
+
+pc:EventLogPole
+    a owl:Class ;
+    rdfs:subClassOf pc:Pole ;
+    rdfs:label "Event Log Pole (L)"@en ;
+    rdfs:comment "OCEL process evidence recording transitions across the system lifecycle."@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Isomorphism relation
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:isomorphicTo
+    a owl:ObjectProperty ;
+    a owl:SymmetricProperty ;
+    a owl:TransitiveProperty ;
+    rdfs:domain pc:Pole ;
+    rdfs:range  pc:Pole ;
+    rdfs:label "isomorphic to"@en ;
+    rdfs:comment "Declares that two poles are informationally isomorphic under the post-Chatman equation."@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Coherence report concept
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:CoherenceReport
+    a owl:Class ;
+    rdfs:label "Coherence Report"@en ;
+    rdfs:comment "An auditable record of a three-pole isomorphism check."@en .
+
+pc:hasOperationId
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:CoherenceReport ;
+    rdfs:range  xsd:string ;
+    rdfs:label "operation ID"@en .
+
+pc:admitted
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:CoherenceReport ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label "admitted"@en ;
+    rdfs:comment "True iff all three poles are present and no drift was detected."@en .
+
+pc:checkedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:CoherenceReport ;
+    rdfs:range  xsd:dateTime ;
+    rdfs:label "checked at"@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Drift concept
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:CoherenceDrift
+    a owl:Class ;
+    rdfs:label "Coherence Drift"@en ;
+    rdfs:comment "A detected divergence between two poles."@en .
+
+pc:driftKind
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:CoherenceDrift ;
+    rdfs:range  xsd:string ;
+    rdfs:label "drift kind"@en ;
+    rdfs:comment "One of: HashMismatch, CountDiscrepancy, Missing"@en .
+
+pc:hasDrift
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceReport ;
+    rdfs:range  pc:CoherenceDrift ;
+    rdfs:label "has drift"@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# The canonical three-way isomorphism assertion
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:OntologyPoleInstance
+    a pc:OntologyPole ;
+    rdfs:label "Canonical Ontology Pole"@en ;
+    pc:isomorphicTo pc:ArtifactPoleInstance ;
+    pc:isomorphicTo pc:EventLogPoleInstance .
+
+pc:ArtifactPoleInstance
+    a pc:ArtifactPole ;
+    rdfs:label "Canonical Artifact Pole"@en ;
+    pc:isomorphicTo pc:OntologyPoleInstance ;
+    pc:isomorphicTo pc:EventLogPoleInstance .
+
+pc:EventLogPoleInstance
+    a pc:EventLogPole ;
+    rdfs:label "Canonical Event Log Pole"@en ;
+    pc:isomorphicTo pc:OntologyPoleInstance ;
+    pc:isomorphicTo pc:ArtifactPoleInstance .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SPARQL-compatible ggen integration — link to μ₁-μ₅ pipeline concepts
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:PipelineStage
+    a owl:Class ;
+    rdfs:label "Pipeline Stage"@en ;
+    rdfs:comment "One of the five stages in the μ₁-μ₅ forward or μ⁻¹ inverse pipeline."@en .
+
+pc:ForwardStage
+    a owl:Class ;
+    rdfs:subClassOf pc:PipelineStage ;
+    rdfs:label "Forward Stage (μ)"@en .
+
+pc:InverseStage
+    a owl:Class ;
+    rdfs:subClassOf pc:PipelineStage ;
+    rdfs:label "Inverse Stage (μ⁻¹)"@en .
+
+pc:stageOrder
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:PipelineStage ;
+    rdfs:range  xsd:integer ;
+    rdfs:label "stage order"@en .
