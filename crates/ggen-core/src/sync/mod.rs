@@ -51,6 +51,7 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use ggen_graph::{CoherenceChecker, CoherenceReport};
 use std::time::{Duration, Instant};
 
 // ---------------------------------------------------------------------------
@@ -156,6 +157,9 @@ pub struct SyncResult {
     /// Deterministic cryptographic receipt: `hex( sha256( ontology_bytes || sorted_output_bytes ) )`.
     /// Same inputs always produce the same receipt.
     pub receipt: String,
+
+    /// Three-pole coherence report (ontology/artifact/event-log isomorphism check).
+    pub coherence_report: Option<CoherenceReport>,
 }
 
 /// Errors that can occur during the sync pipeline.
@@ -289,6 +293,29 @@ pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
 
     let receipt = compute_receipt(&ontology_bytes, &generated);
 
+    // ------------------------------------------------------------------
+    // Stage 5b — Coherence check (A ≅ O ≅ L three-pole fingerprint)
+    // ------------------------------------------------------------------
+    let coherence_report = {
+        let ontology_str = std::str::from_utf8(&ontology_bytes).unwrap_or("");
+        let ontology_pole = CoherenceChecker::fingerprint_ontology(&[ontology_str]);
+        let artifact_pairs: Vec<(&str, u64)> = generated
+            .iter()
+            .map(|(p, content)| (p.to_str().unwrap_or(""), content.len() as u64))
+            .collect();
+        let artifact_pole = CoherenceChecker::fingerprint_artifacts(&artifact_pairs);
+        let event_log_pole = CoherenceChecker::fingerprint_event_log(&[]);
+        let report = CoherenceChecker::check(&[ontology_pole, artifact_pole, event_log_pole]);
+        if !config.dry_run {
+            if let Ok(json) = serde_json::to_string_pretty(&report) {
+                let receipts_dir = config.output_dir.join(".ggen").join("receipts");
+                std::fs::create_dir_all(&receipts_dir).ok();
+                std::fs::write(receipts_dir.join("coherence-latest.json"), json).ok();
+            }
+        }
+        report
+    };
+
     let elapsed_ms = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
 
     Ok(SyncResult {
@@ -296,6 +323,7 @@ pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
         soundness_violations,
         elapsed_ms,
         receipt,
+        coherence_report: Some(coherence_report),
     })
 }
 

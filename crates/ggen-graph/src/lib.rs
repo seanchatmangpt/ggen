@@ -11,6 +11,7 @@
     clippy::unimplemented
 )]
 
+pub mod coherence;
 pub mod delta;
 pub mod diagnostics;
 pub mod dialect;
@@ -24,6 +25,9 @@ pub mod shacl;
 pub mod sparql;
 pub mod vocab;
 
+pub use coherence::{
+    CoherenceChecker, CoherenceDrift, CoherenceReport, DriftKind, Pole, PoleState,
+};
 pub use graph::quad::parse_nquad;
 pub use graph::{
     extract_prefixes, iri_terms, parse_nquads_located, parse_ntriples_located,
