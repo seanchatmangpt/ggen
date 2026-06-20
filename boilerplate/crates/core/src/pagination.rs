@@ -171,4 +171,28 @@ mod tests {
         assert!(!result.has_next, "has_next must be false when next_cursor is None");
         assert!(result.next_cursor.is_none());
     }
+
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn page_limit_always_capped_at_100(offset in 0u64..10000, limit in 0u64..10000) {
+            let p = Page::new(offset, limit);
+            prop_assert!(p.limit <= 100);
+            prop_assert_eq!(p.offset, offset);
+        }
+
+        #[test]
+        fn paged_result_has_next_iff_more_remain(
+            total in 0u64..1000,
+            limit in 1u64..100,
+            offset in 0u64..1000,
+        ) {
+            let page = Page::new(offset, limit);
+            let items: Vec<i32> = vec![];
+            let result = PagedResult::new(items, total, page);
+            let expected = offset + limit < total;
+            prop_assert_eq!(result.has_next(), expected);
+        }
+    }
 }

@@ -298,4 +298,19 @@ mod tests {
         let e = Email::new("user@example.com").unwrap();
         assert_eq!(e.to_string(), "user@example.com");
     }
+
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn name_roundtrips_valid_strings(s in "[a-zA-Z][a-zA-Z0-9 ]{0,50}") {
+            let name = Name::new(s.clone()).unwrap();
+            prop_assert_eq!(name.as_str(), s.trim());
+        }
+
+        #[test]
+        fn name_always_rejects_empty_after_trim(s in "[ \t\n\r]*") {
+            prop_assert!(Name::new(s).is_err());
+        }
+    }
 }
