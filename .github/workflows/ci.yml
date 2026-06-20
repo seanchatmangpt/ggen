@@ -45,8 +45,13 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: check
-      - name: just check
-        run: just check
+      # CI calls cargo directly rather than the `just` recipes: those wrap
+      # commands in short timeouts tuned for the LOCAL warm-cache dev loop
+      # (e.g. `test-lib` = `timeout 30s`, `lint` = `timeout 90s`), which fire
+      # mid-compile during a CI COLD build (observed: exit 124). The job-level
+      # `timeout-minutes` is the correct CI guardrail. Commands mirror the recipes.
+      - name: cargo check
+        run: cargo check --workspace
 
   build:
     name: Build
@@ -58,8 +63,8 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: build
-      - name: just build
-        run: just build
+      - name: cargo build
+        run: cargo build --workspace
 
   test:
     name: Test
@@ -71,8 +76,8 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: test
-      - name: just test-lib
-        run: just test-lib
+      - name: cargo test (lib)
+        run: cargo test --workspace --lib
 
   doctest:
     name: Doctest
@@ -84,8 +89,8 @@ jobs:
         uses: ./.github/actions/setup-ggen-build
         with:
           cache-key-suffix: doctest
-      - name: just test-doc
-        run: just test-doc
+      - name: cargo test (doc)
+        run: cargo test --doc --workspace --exclude ggen-core
 
   # Single required aggregate check. Fails if ANY gating job did not succeed,
   # including skipped/cancelled (no honest job can be 'skipped' here).

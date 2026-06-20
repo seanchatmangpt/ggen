@@ -1381,8 +1381,8 @@ impl GenerationPipeline {
     ///
     /// If there are any `Error`-severity violations, return an `Err` (aborts generation).
     pub fn execute_shacl_validation(&mut self) -> Result<()> {
-        use crate::validation::{SparqlValidator, Severity as VSeverity};
-        
+        use crate::validation::{Severity as VSeverity, SparqlValidator};
+
         let shacl_paths = self.manifest.validation.shacl.clone();
         if shacl_paths.is_empty() {
             return Ok(());

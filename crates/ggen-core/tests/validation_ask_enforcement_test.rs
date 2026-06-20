@@ -297,12 +297,17 @@ fn orphan_argument_blocks() {
     std::fs::write(dir.path().join("ontology.ttl"), orphan_arg_ontology(true))
         .expect("write ontology");
 
-    let mut pipeline =
-        GenerationPipeline::new(manifest(vec![no_orphan_arg_rule()]), dir.path().to_path_buf());
+    let mut pipeline = GenerationPipeline::new(
+        manifest(vec![no_orphan_arg_rule()]),
+        dir.path().to_path_buf(),
+    );
     pipeline.load_ontology().expect("load ontology");
 
     let result = pipeline.execute_validation_rules();
-    assert!(result.is_err(), "an unreferenced cnv:Argument must fail the rule");
+    assert!(
+        result.is_err(),
+        "an unreferenced cnv:Argument must fail the rule"
+    );
     assert!(result.unwrap_err().to_string().contains("GGEN-VALIDATION"));
 }
 
@@ -313,8 +318,10 @@ fn no_orphan_argument_passes_when_all_referenced() {
     std::fs::write(dir.path().join("ontology.ttl"), orphan_arg_ontology(false))
         .expect("write ontology");
 
-    let mut pipeline =
-        GenerationPipeline::new(manifest(vec![no_orphan_arg_rule()]), dir.path().to_path_buf());
+    let mut pipeline = GenerationPipeline::new(
+        manifest(vec![no_orphan_arg_rule()]),
+        dir.path().to_path_buf(),
+    );
     pipeline.load_ontology().expect("load ontology");
 
     pipeline
@@ -368,12 +375,17 @@ fn unnamed_argument_blocks() {
     std::fs::write(dir.path().join("ontology.ttl"), unnamed_arg_ontology(false))
         .expect("write ontology");
 
-    let mut pipeline =
-        GenerationPipeline::new(manifest(vec![every_arg_named_rule()]), dir.path().to_path_buf());
+    let mut pipeline = GenerationPipeline::new(
+        manifest(vec![every_arg_named_rule()]),
+        dir.path().to_path_buf(),
+    );
     pipeline.load_ontology().expect("load ontology");
 
     let result = pipeline.execute_validation_rules();
-    assert!(result.is_err(), "an unnamed argument must fail the every-argument-named rule");
+    assert!(
+        result.is_err(),
+        "an unnamed argument must fail the every-argument-named rule"
+    );
     assert!(result.unwrap_err().to_string().contains("GGEN-VALIDATION"));
 }
 
@@ -384,8 +396,10 @@ fn every_argument_named_passes_when_all_named() {
     std::fs::write(dir.path().join("ontology.ttl"), unnamed_arg_ontology(true))
         .expect("write ontology");
 
-    let mut pipeline =
-        GenerationPipeline::new(manifest(vec![every_arg_named_rule()]), dir.path().to_path_buf());
+    let mut pipeline = GenerationPipeline::new(
+        manifest(vec![every_arg_named_rule()]),
+        dir.path().to_path_buf(),
+    );
     pipeline.load_ontology().expect("load ontology");
 
     pipeline
