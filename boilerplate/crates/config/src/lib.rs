@@ -49,9 +49,15 @@ mod tests {
     fn from_env_succeeds_with_defaults() {
         let config = AppConfig::from_env().expect("from_env must succeed with defaults");
         assert!(!config.bind_addr.is_empty(), "bind_addr must be non-empty");
-        assert!(!config.database_url.is_empty(), "database_url must be non-empty");
+        assert!(
+            !config.database_url.is_empty(),
+            "database_url must be non-empty"
+        );
         assert!(!config.log_level.is_empty(), "log_level must be non-empty");
-        assert!(!config.mcp_transport.is_empty(), "mcp_transport must be non-empty");
+        assert!(
+            !config.mcp_transport.is_empty(),
+            "mcp_transport must be non-empty"
+        );
     }
 
     #[test]

@@ -40,7 +40,10 @@ mod tests {
     #[test]
     fn name_new_whitespace_only_returns_err() {
         let result = Name::new("   ");
-        assert!(result.is_err(), "Name::new with only whitespace must return Err");
+        assert!(
+            result.is_err(),
+            "Name::new with only whitespace must return Err"
+        );
     }
 
     #[test]
@@ -59,6 +62,9 @@ mod tests {
     #[test]
     fn name_new_too_long_returns_err() {
         let long = "x".repeat(256);
-        assert!(Name::new(long).is_err(), "Name exceeding 255 chars must return Err");
+        assert!(
+            Name::new(long).is_err(),
+            "Name exceeding 255 chars must return Err"
+        );
     }
 }

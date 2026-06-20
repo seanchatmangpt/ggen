@@ -16,7 +16,11 @@ mod tests {
     #[test]
     fn id_new_produces_non_zero_uuid() {
         let id = Id::<()>::new();
-        assert_ne!(id.inner(), uuid::Uuid::nil(), "new Id must not be the nil UUID");
+        assert_ne!(
+            id.inner(),
+            uuid::Uuid::nil(),
+            "new Id must not be the nil UUID"
+        );
     }
 
     #[test]
@@ -32,7 +36,10 @@ mod tests {
     fn core_error_not_found_formats_correctly() {
         let err = CoreError::not_found("Item", "abc");
         let msg = err.to_string();
-        assert!(msg.contains("Item"), "error message must contain entity name");
+        assert!(
+            msg.contains("Item"),
+            "error message must contain entity name"
+        );
         assert!(msg.contains("abc"), "error message must contain id");
     }
 
@@ -60,22 +67,20 @@ mod tests {
 
     #[test]
     fn paged_result_has_next_true_when_more_items_remain() {
-        let result: PagedResult<i32> = PagedResult::new(
-            vec![1, 2, 3],
-            10,
-            Page::new(0, 3),
+        let result: PagedResult<i32> = PagedResult::new(vec![1, 2, 3], 10, Page::new(0, 3));
+        assert!(
+            result.has_next(),
+            "has_next must be true when offset+limit < total"
         );
-        assert!(result.has_next(), "has_next must be true when offset+limit < total");
     }
 
     #[test]
     fn paged_result_has_next_false_on_last_page() {
-        let result: PagedResult<i32> = PagedResult::new(
-            vec![1, 2, 3],
-            3,
-            Page::new(0, 3),
+        let result: PagedResult<i32> = PagedResult::new(vec![1, 2, 3], 3, Page::new(0, 3));
+        assert!(
+            !result.has_next(),
+            "has_next must be false when offset+limit >= total"
         );
-        assert!(!result.has_next(), "has_next must be false when offset+limit >= total");
     }
 
     #[test]

@@ -55,7 +55,10 @@ mod tests {
     #[test]
     fn item_new_has_no_description() {
         let item = Item::new("foo");
-        assert!(item.description.is_none(), "new Item must have description=None");
+        assert!(
+            item.description.is_none(),
+            "new Item must have description=None"
+        );
     }
 
     #[test]
