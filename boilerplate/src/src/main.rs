@@ -1,6 +1,17 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
+/// Production-grade Rust workspace boilerplate CLI.
+///
+/// # Examples
+///
+/// ```text
+/// cargo-project serve --bind 0.0.0.0:8080
+/// cargo-project migrate --db app.db
+/// cargo-project migrate --dry-run
+/// cargo-project config
+/// cargo-project mcp --transport stdio
+/// ```
 #[derive(Parser)]
 #[command(
     name = "cargo-project",
@@ -31,6 +42,9 @@ enum Commands {
         /// Path to SQLite database
         #[arg(short, long, default_value = "app.db", env = "DATABASE_URL")]
         db: String,
+        /// Print what would happen without applying changes
+        #[arg(long)]
+        dry_run: bool,
     },
     /// Print active configuration
     Config,
@@ -50,12 +64,25 @@ async fn main() -> Result<()> {
 
     match cli.command {
         Commands::Serve { bind } => {
+            let cfg = bp_config::AppConfig::from_env().unwrap_or_default();
+            eprintln!(
+                "cargo-project v{}\nListening on: {}\nLog level:    {}\nTransport:    {}",
+                env!("CARGO_PKG_VERSION"),
+                bind,
+                cfg.log_level,
+                cfg.mcp_transport,
+            );
             tracing::info!(%bind, "starting HTTP service");
             println!("HTTP service bound to {bind}  (not yet wired; see crates/service/)");
         }
-        Commands::Migrate { db } => {
-            tracing::info!(%db, "running migrations");
-            println!("Migrations applied to {db}  (not yet wired; see crates/sqlite/)");
+        Commands::Migrate { db, dry_run } => {
+            if dry_run {
+                println!("[dry-run] Would run migrations against: {db}");
+                println!("[dry-run] No changes applied.");
+            } else {
+                tracing::info!(%db, "running migrations");
+                println!("Migrations applied to {db}  (not yet wired; see crates/sqlite/)");
+            }
         }
         Commands::Config => {
             let cfg = bp_config::AppConfig::from_env()?;
