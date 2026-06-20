@@ -17,6 +17,11 @@ permissions:
   contents: read
   packages: write
 
+# Publishing job: do not cancel an in-progress image push mid-publish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   # ============================================================================
   # STAGE 1: Build and push controller image
@@ -31,20 +36,20 @@ jobs:
       image-tags: ${{ steps.meta.outputs.tags }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Log in to GCP Artifact Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY_GCP }}
           username: _json_key
           password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY_GHCR }}
           username: ${{ github.actor }}
@@ -52,7 +57,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
           images: |
             ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}
@@ -66,7 +71,7 @@ jobs:
 
       - name: Build and push Controller image
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
           file: ./controller/Containerfile
@@ -102,20 +107,20 @@ jobs:
       image-digest: ${{ steps.build.outputs.digest }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Log in to GCP Artifact Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY_GCP }}
           username: _json_key
           password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ env.REGISTRY_GHCR }}
           username: ${{ github.actor }}
@@ -123,7 +128,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
           images: |
             ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}
@@ -141,7 +146,7 @@ jobs:
 
       - name: Build and push CLI image
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
@@ -158,26 +163,27 @@ jobs:
   scan-images:
     name: Scan Docker Images (Trivy)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [build-controller, build-cli]
     if: github.event_name != 'pull_request'
 
     steps:
       - name: Run Trivy vulnerability scanner (Controller)
-        uses: aquasecurity/trivy-action@main
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}
           format: sarif
           output: trivy-controller.sarif
 
       - name: Run Trivy vulnerability scanner (CLI)
-        uses: aquasecurity/trivy-action@main
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
         with:
           image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}
           format: sarif
           output: trivy-cli.sarif
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@a8d1ac45b9a34d11fe398d5503176af0d06b303e # v3.30.7
         if: always()
         with:
           sarif_file: |
@@ -191,14 +197,15 @@ jobs:
   sign-and-sbom:
     name: Sign Images & Generate SBOMs
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [build-controller, build-cli]
     if: github.event_name != 'pull_request'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
         with:
           cosign-release: 'v2.2.0'
 
@@ -254,7 +261,7 @@ jobs:
             "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
 
       - name: Upload SBOMs as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: sbom-reports
           path: |

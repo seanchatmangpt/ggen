@@ -7,6 +7,11 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+# Updates an external Homebrew tap repo via COMMITTER_TOKEN; this repo only
+# needs read access to its own contents.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
@@ -19,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Extract and validate version
         uses: ./.github/actions/extract-semantic-version
@@ -53,7 +58,7 @@ jobs:
           done
 
       - name: Bump Homebrew Formula
-        uses: mislav/bump-homebrew-formula-action@v3.6
+        uses: mislav/bump-homebrew-formula-action@56a283fa15557e9abaa4bdb63b8212abc68e655c # v3.6
         with:
           formula-name: ggen
           homebrew-tap: seanchatmangpt/homebrew-tap

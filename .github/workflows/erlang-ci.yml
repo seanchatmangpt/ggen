@@ -14,6 +14,10 @@ concurrency:
   group: erlang-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# CI-only build/test/lint; read-only is sufficient (artifacts use the job token).
+permissions:
+  contents: read
+
 env:
   REBAR_CACHE_DIR: ${{ github.workspace }}/.cache/rebar3
   OTP_VERSION: '26'
@@ -28,18 +32,18 @@ jobs:
       matrix:
         otp: ['24', '25', '26', '27']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: 'recursive'
 
       - name: Setup Erlang/OTP ${{ matrix.otp }}
-        uses: erlef/setup-erlang@v1
+        uses: erlef/setup-beam@e6d7c94229049569db56a7ad5a540c051a010af9 # v1.20.4 (replaces unmaintained erlef/setup-erlang)
         with:
           otp-version: ${{ matrix.otp }}
           rebar3-version: '3.23.0'
 
       - name: Restore Rebar3 cache
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: |
             ${{ env.REBAR_CACHE_DIR }}
@@ -71,18 +75,18 @@ jobs:
         otp: ['24', '25', '26']
     needs: erlang-build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: 'recursive'
 
       - name: Setup Erlang/OTP ${{ matrix.otp }}
-        uses: erlef/setup-erlang@v1
+        uses: erlef/setup-beam@e6d7c94229049569db56a7ad5a540c051a010af9 # v1.20.4 (replaces unmaintained erlef/setup-erlang)
         with:
           otp-version: ${{ matrix.otp }}
           rebar3-version: '3.23.0'
 
       - name: Restore Rebar3 cache
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: |
             ${{ env.REBAR_CACHE_DIR }}
@@ -111,7 +115,7 @@ jobs:
 
       - name: Upload test logs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: erlang-test-logs-otp${{ matrix.otp }}
           path: |
@@ -124,16 +128,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Erlang/OTP
-        uses: erlef/setup-erlang@v1
+        uses: erlef/setup-beam@e6d7c94229049569db56a7ad5a540c051a010af9 # v1.20.4 (replaces unmaintained erlef/setup-erlang)
         with:
           otp-version: '26'
           rebar3-version: '3.23.0'
 
       - name: Restore Rebar3 cache
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: |
             ${{ env.REBAR_CACHE_DIR }}
@@ -164,18 +168,18 @@ jobs:
     needs: [erlang-build, erlang-tests]
     if: success()
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: 'recursive'
 
       - name: Setup Erlang/OTP
-        uses: erlef/setup-erlang@v1
+        uses: erlef/setup-beam@e6d7c94229049569db56a7ad5a540c051a010af9 # v1.20.4 (replaces unmaintained erlef/setup-erlang)
         with:
           otp-version: '26'
           rebar3-version: '3.23.0'
 
       - name: Restore Rebar3 cache
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: |
             ${{ env.REBAR_CACHE_DIR }}
@@ -196,7 +200,7 @@ jobs:
           sha256sum tps_jidoka-${{ github.sha }}.tar.gz > tps_jidoka-${{ github.sha }}.tar.gz.sha256
 
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: erlang-release-otp26
           path: crates/tps-jidoka/releases/
@@ -205,6 +209,7 @@ jobs:
   erlang-ci-status:
     name: Erlang CI Status
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [erlang-build, erlang-tests, erlang-lint, erlang-release]
     if: always()
     steps:
