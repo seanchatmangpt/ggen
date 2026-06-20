@@ -81,6 +81,15 @@ runs:
         toolchain: nightly-2026-04-15
         components: ${{ inputs.components }}
 
+    # STEP 2b — Install `just`, the project's task runner and CI entry point.
+    # Every CI job invokes `just <recipe>` (check/build/test/lint/...), but `just`
+    # is NOT preinstalled on GitHub runners (jobs failed with `just: command not
+    # found`, exit 127). taiki-e/install-action fetches a prebuilt binary (no compile).
+    - name: Install just
+      uses: taiki-e/install-action@v2
+      with:
+        tool: just
+
     # STEP 3 — Cache cargo registry + build artifacts.
     #
     # Swatinem/rust-cache keys on Cargo.lock + rustc version and caches the registry

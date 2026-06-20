@@ -6,7 +6,7 @@ name: Docs
 #   - validate-docs.yml    -> that is cargo-dependent and belongs in the Rust CI path,
 #                             not a fast docs gate. Folding it would reintroduce heavy
 #                             tooling the CI contract forbids.)
-# What remains here is honest and instant: TOC freshness + a stdlib relative-link check.
+# What remains here is honest and instant: a stdlib relative-link check (advisory).
 
 on:
   pull_request:
@@ -27,25 +27,11 @@ permissions:
   contents: read
 
 jobs:
-  toc:
-    name: TOC is up to date
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # CHECK_ONLY: never auto-commit. Fails the job if any TOC is stale,
-      # so the developer regenerates it locally. (Reused verbatim from toc.yml.)
-      - name: Validate TOC (check only, no auto-commit)
-        uses: technote-space/toc-generator@v4
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TARGET_PATHS: 'README.md,docs/**/*.md'
-          CHECK_ONLY: 'true'
-
+  # NOTE: the legacy toc.yml used technote-space/toc-generator, which PUSHES the
+  # regenerated TOC back to the branch even in CHECK_ONLY mode — incompatible with
+  # least-privilege `permissions: contents: read` (it 403'd as github-actions[bot]).
+  # A TOC freshness gate that requires write access to a PR branch is an anti-pattern;
+  # dropped here. (Follow-up: a non-pushing stdlib TOC check could be added later.)
   links:
     name: Relative markdown links (advisory)
     runs-on: ubuntu-latest
