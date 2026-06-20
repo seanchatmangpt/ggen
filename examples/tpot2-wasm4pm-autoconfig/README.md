@@ -111,14 +111,24 @@ tpot2-wasm4pm-autoconfig/
 │   ├── extract-hyperparameters.rq  # hyperparameter grid
 │   └── extract-fitness-objectives.rq # multi-objective config (2 rows)
 ├── templates/
-│   ├── generated-ggen-toml.tera    # renders the auto-config ggen.toml
+│   ├── generated-ggen-toml.tera    # renders the auto-config ggen.toml (a specification)
 │   ├── tpot-config-dict.py.tera    # renders a TPOT2 config_dict (Python)
-│   ├── pipeline-manifest.json.tera # renders pipeline.json
-│   └── search-space-report.md.tera # renders SEARCH_SPACE.md
-└── verify/
-    ├── reference_autoconfig.py     # pure-Python TPOT2 selection reference
-    ├── validate_artifacts.py       # structural validators
-    └── test_tpot2_autoconfig.py    # Chicago-TDD-style checks
+│   ├── pipeline-manifest.json.tera # renders pipeline.json (canonical pipeline form)
+│   ├── search-space-report.md.tera # renders SEARCH_SPACE.md
+│   ├── stage-plan.md.tera          # renders STAGE_PLAN.md (RULE 5, dedicated)
+│   ├── objectives.json.tera        # renders objectives.json (RULE 6, dedicated)
+│   ├── {ingest,discover,conform,learn,predict}.tera  # per-stage wasm4pm descriptors
+│   └── drift.tera                  # detect-drift monitor descriptor
+├── verify/
+│   ├── reference_autoconfig.py     # pure-Python TPOT2 selection reference
+│   ├── validate_artifacts.py       # structural validators (60 checks)
+│   ├── test_tpot2_autoconfig.py    # Chicago-TDD checks (7)
+│   ├── test_vision2030.py          # SLO + E2E boundary-crossing (4)
+│   ├── conformance_check.py        # process-mining conformance; rejects 8 impossible logs (10)
+│   ├── conformance_spec.md         # the frozen declared process model
+│   └── slo_check.py                # performance SLO gate
+└── research/
+    └── 00-INDEX.md … 10-*.md       # 10-agent source-grounded audit dossiers
 ```
 
 ---
@@ -150,14 +160,17 @@ tpot2-wasm4pm-autoconfig/
    | `generate-tpot-config`        | `extract-operators.rq`         | `tpot-config-dict.py.tera`    | `generated/tpot_config.py` |
    | `generate-pipeline-manifest`  | `extract-pareto-pipeline.rq`   | `pipeline-manifest.json.tera` | `generated/pipeline.json` |
    | `generate-search-space-report`| `extract-operators.rq`         | `search-space-report.md.tera` | `generated/SEARCH_SPACE.md` |
-   | `generate-stage-plan`         | `extract-pipeline-stages.rq`   | `search-space-report.md.tera` | `generated/STAGE_PLAN.md` |
-   | `generate-fitness-objectives` | `extract-fitness-objectives.rq`| `pipeline-manifest.json.tera` | `generated/objectives.json` |
+   | `generate-stage-plan`         | `extract-pipeline-stages.rq`   | `stage-plan.md.tera`          | `generated/STAGE_PLAN.md` |
+   | `generate-fitness-objectives` | `extract-fitness-objectives.rq`| `objectives.json.tera`        | `generated/objectives.json` |
 
-   The four primary artifacts are the generated `ggen.toml`, `tpot_config.py`,
-   `pipeline.json`, and `SEARCH_SPACE.md`. Every query and template path is a
-   direct relative `{ file = "..." }` reference (no pack indirection — WASM4PM
-   BUG-008/011), and every template referenced is one of the four templates this
-   project actually ships.
+   Every rule has a **dedicated** template that reads exactly its query's
+   projection — RULES 5 and 6 were originally reused templates that silently
+   rendered blank columns (a projection mismatch ggen-lsp's GGEN-TPL-001 cannot
+   detect; see `research/08` + `research/10`), now fixed. Every query and template
+   path is a direct relative `{ file = "..." }` reference (no pack indirection —
+   WASM4PM BUG-008/011). The generated `ggen.toml` is a **rendered specification**
+   of the chosen pipeline (it omits the `[inference]`/`imports` needed to self-run —
+   `research/08`); the canonical machine-readable form is `generated/pipeline.json`.
 
 ### A note on the manifest's inference rules
 
@@ -211,13 +224,30 @@ parses `ggen.toml` to confirm it is valid TOML and schema-shaped.
 # Where the ggen toolchain IS available, the driver would run as:
 ggen sync                    # load → infer → select → render into generated/
 
-# In THIS container, use the reference implementation instead:
+# In THIS container, use the reference + verification gates instead (Python stdlib):
 python3 verify/reference_autoconfig.py     # computes the same elite pipeline, writes an artifact
-python3 verify/validate_artifacts.py       # structural checks (TOML/SPARQL well-formedness, ORDER BY, no SELECT *)
+python3 verify/validate_artifacts.py       # 60 structural checks (ORDER BY, no SELECT *, no frontmatter, coverage)
+python3 verify/test_tpot2_autoconfig.py    # 7 Chicago-TDD checks (real files, observable state, zero mocks)
+python3 verify/test_vision2030.py          # 4 SLO + E2E boundary-crossing checks
+python3 verify/conformance_check.py        # process-mining conformance; rejects the 8 impossible logs
+python3 verify/slo_check.py                # performance SLO gate (latency + reproducibility)
 ```
 
-The generated `ggen.toml` is itself required to be valid TOML and schema-valid —
-the generator's output is a working ggen project.
+All gates are reproducible and pass green (60 / 7 / 4 / 10 / SLO). Why a real
+`ggen sync` is not run here: no usable `cargo` (the pinned nightly lacks the cargo
+component) and the workspace `[patch]` requires two unprovisioned sibling repos
+(`../lsp-max`, `../wasm4pm`). Executability is established by **source analysis**
+(see `research/01,06,07,08,10`) corroborated by the independent Python reference; no
+receipt is fabricated.
+
+## 8. Source-grounded research program
+
+A 10-agent read-only audit of this generator against the real ggen/wasm4pm
+codebase is indexed in **`research/00-INDEX.md`** (dossiers `01`–`10`, every claim
+cited to `file:line`). It established that the **driver `ggen.toml` is runnable by
+`ggen sync`**, that **wasm4pm is metadata-only here** (runtime is a downstream
+sibling repo), and drove the hardening recorded in `INTEGRATION_REPORT.md` §7
+(RULE 5/6 fix, SHACL-gate activation, the conformance + SLO proofs).
 
 ---
 

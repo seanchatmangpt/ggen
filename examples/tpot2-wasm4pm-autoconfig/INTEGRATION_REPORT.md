@@ -131,3 +131,62 @@ references removed).
   config references them as each stage's `tpot:resultMapping`, and uses the
   pipeline SELECT as the generation query (valid SELECT→template), not the
   CONSTRUCT directly.
+
+---
+
+## 7. Research program (10 agents) + hardening
+
+A second wave of **10 parallel research agents** audited the generator against the
+real ggen/wasm4pm source (read-only, `file:line`-cited). Full index +
+per-dossier findings: `research/00-INDEX.md`; individual dossiers `research/01..10`.
+
+**What the research proved (source-grounded):**
+- **The driver `ggen.toml` is runnable by `ggen sync`** (research/01): inference runs
+  first sorted by `order`, materializes the 60 derived operators into the shared
+  graph, the SELECTs see them, CONSTRUCT-in-generation correctly errors (E0003) so
+  our SELECT routing is right, and output paths stay in-root.
+- **wasm4pm is metadata-only in this repo** (research/02): no `.wasm`, the runtime
+  is an unprovisioned sibling repo. The generator precipitates a pipeline
+  *specification* from the ontology; execution is downstream.
+- **Real inputs exist** (research/03): `crates/cpmp/tests/fixtures/p2p.ocel.json`
+  (OCEL 2.0) + `test_log.xes`.
+- **TPOT2 fidelity** (research/04): faithful to TPOT2's declarative skeleton; the
+  deterministic per-stage argmax is the **exact** optimum of the separable linear
+  problem (not a lossy heuristic).
+
+**Hardening applied (all re-verified green):**
+- Fixed RULES 5 & 6 **silent wrong output** — dedicated `stage-plan.md.tera` /
+  `objectives.json.tera` read exactly their query's projection (research/08; the
+  ggen-lsp GGEN-TPL-001 detector structurally cannot catch this — research/10).
+- Relabeled the generated `ggen.toml` as a **rendered specification** (it omits
+  `[inference]`/`imports`, so it cannot self-run — research/08); the canonical
+  machine-readable pipeline form is `generated/pipeline.json`.
+- Activated the previously **dormant SHACL gate** (`[validation] shacl + strict_mode`)
+  and tightened the operator/stage shapes (research/06); added `ORDER BY` to both
+  inference CONSTRUCTs (research/07) so strict mode is clean.
+- Labelled the config `tpot:executionMode "deterministic-greedy-elite"` and the cost
+  objective as a runtime-cost proxy (research/04 R1/R6).
+
+**New Vision-2030 proof artifacts (`verify/`):**
+- `conformance_check.py` — object-centric process-mining conformance of the
+  generator's own declared model; passes only by **rejecting the doctrine's 8
+  impossible logs** (`10/10`). Spec frozen in `conformance_spec.md`.
+- `slo_check.py` — performance SLO gate: worst-case **2.7 ms** vs the 5 s
+  RDF-processing budget, 100% reproducible across 5 runs.
+
+**Verification scoreboard (all green, reproducible with Python stdlib):**
+
+| gate | result |
+|------|--------|
+| `validate_artifacts.py` | 60 / 60 PASS |
+| `test_tpot2_autoconfig.py` | 7 / 7 |
+| `test_vision2030.py` (SLO + E2E) | 4 / 4 |
+| `conformance_check.py` (8 impossible logs) | 10 / 10 |
+| `slo_check.py` | PASS (2.7 ms; 100% reproducible) |
+
+**Why a real `ggen sync` still did not run:** beyond the missing cargo component, the
+workspace `[patch.crates-io]` requires two **unprovisioned sibling repos**
+(`../lsp-max`, `../wasm4pm`) that are absent in this clone, so the workspace cannot
+even be loaded by cargo. Every executability verdict is therefore source-analysis
+(dossiers 01/06/07/08/10) corroborated by the independent pure-Python reference. No
+receipt is fabricated.

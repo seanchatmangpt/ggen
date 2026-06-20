@@ -139,10 +139,14 @@ tpot:Objective_quality a tpot:FitnessObjective ;
   tpot:weight         "1.0"^^xsd:decimal ;
   tpot:objectiveOrder "1"^^xsd:integer .
 
+# NOTE (research/04 R6): this "cost" objective is a RUNTIME-cost proxy (speedTier =
+# how slow/costly the algorithm is), NOT TPOT2's structural pipeline complexity
+# (operator count). The analogy to TPOT2's second NSGA-II objective is intentional
+# but the metric differs; labelled here so the divergence is explicit.
 tpot:Objective_cost a tpot:FitnessObjective ;
-  rdfs:label          "Objective: minimise speed-tier cost" ;
+  rdfs:label          "Objective: minimise speed-tier runtime cost (proxy; != TPOT2 structural complexity)" ;
   tpot:objectiveId    "cost" ;
-  tpot:objectiveName  "Cost" ;
+  tpot:objectiveName  "RuntimeCost" ;
   tpot:metric         "speedTier" ;
   tpot:direction      "minimize" ;
   tpot:weight         "0.5"^^xsd:decimal ;
@@ -162,8 +166,17 @@ tpot:Objective_cost a tpot:FitnessObjective ;
 # breeds in breeds.ttl that would also qualify: compat:Breed_ebl,
 # compat:Breed_rl_symbolic, compat:Breed_ilp.)
 
+# tpot:executionMode records the HONEST relationship to real TPOT2 (research/04):
+# the GP knobs below (population/generations/mutation/crossover) describe the
+# search TPOT2 *would* run; this generator instead resolves the pipeline by a
+# DETERMINISTIC per-stage argmax over fitness + a global Pareto front. That is not a
+# lossy heuristic: because the 9 stages are SEPARABLE and the objective is linear
+# per stage, greedy per-stage argmax is the EXACT optimum of the multi-stage linear
+# problem (and ggen mandates deterministic, hash-stable output). The GP parameters
+# are therefore descriptive metadata, not an executed stochastic loop.
 tpot:Config_default a tpot:GeneticConfig ;
-  rdfs:label              "TPOT2 NSGA-II default GP configuration" ;
+  rdfs:label              "TPOT2 NSGA-II configuration (resolved as deterministic-greedy-elite)" ;
+  tpot:executionMode      "deterministic-greedy-elite" ;
   tpot:populationSize     "100"^^xsd:integer ;
   tpot:generations        "50"^^xsd:integer ;
   tpot:mutationRate       "0.9"^^xsd:decimal ;

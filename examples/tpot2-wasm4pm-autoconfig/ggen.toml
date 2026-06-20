@@ -104,6 +104,7 @@ WHERE {
   BIND((?q - (0.5 * ?s)) AS ?fitness)
   BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?algorithm_id)) AS ?operator)
 }
+ORDER BY ?algorithm_id
 """ },
 
     # derive-pareto-dominance: ?opA tpot:dominates ?opB for every ordered pair
@@ -139,6 +140,7 @@ WHERE {
   BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idA)) AS ?opA)
   BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idB)) AS ?opB)
 }
+ORDER BY ?idA ?idB
 """ },
 ]
 
@@ -199,34 +201,55 @@ output_file = "SEARCH_SPACE.md"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
-# RULE 5 — stage plan section of the report (ordered 9-stage plan)
+# RULE 5 — stage plan (ordered 9-stage plan)
 #   query: extract-pipeline-stages.rq  (one row per stage, 9 rows)
-#   Reuses the search-space-report template (the only Markdown template Agent 3
-#   is creating); writes a distinct STAGE_PLAN.md so it never collides with the
-#   all-operator report from RULE 4. No new template file is referenced — every
-#   template path in this manifest is one of Agent 3's 4 deliverables.
+#   template: stage-plan.md.tera — reads EXACTLY this query's projection
+#   (stage_order, stage_id, stage_label, for_category, operator_count). An earlier
+#   version reused search-space-report.md.tera, whose operator-level column reads
+#   rendered SILENTLY BLANK (projection mismatch; research/08 §B.1, which ggen-lsp
+#   GGEN-TPL-001 structurally cannot catch — research/10). This dedicated template
+#   fixes it: the columns the query provides are the columns the template reads.
 #   -> generated/STAGE_PLAN.md
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "generate-stage-plan"
 query = { file = "queries/extract-pipeline-stages.rq" }
-template = { file = "templates/search-space-report.md.tera" }
+template = { file = "templates/stage-plan.md.tera" }
 output_file = "STAGE_PLAN.md"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
 # RULE 6 — fitness-objective summary (the multi-objective NSGA-II config)
 #   query: extract-fitness-objectives.rq  (2 rows: quality, cost)
-#   Reuses the pipeline-manifest JSON template (one of Agent 3's 4 deliverables)
-#   to emit the objective set as JSON; distinct output file, no collision.
+#   template: objectives.json.tera — reads EXACTLY this query's projection
+#   (objective_order, objective_id, objective_name, metric, direction, weight) so
+#   the objectives are genuinely query-derived. An earlier version reused
+#   pipeline-manifest.json.tera, whose objectives array was a hardcoded literal and
+#   consumed NONE of the query's columns (research/08 §B.2). Fixed here.
 #   -> generated/objectives.json
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "generate-fitness-objectives"
 query = { file = "queries/extract-fitness-objectives.rq" }
-template = { file = "templates/pipeline-manifest.json.tera" }
+template = { file = "templates/objectives.json.tera" }
 output_file = "objectives.json"
 mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# [validation] — ACTIVATE the SHACL gate + strict determinism mode.
+# SHACL enforcement is gated by a NON-EMPTY `shacl` list (independent of
+# strict_mode; types.rs:399-414). Without this section the imported
+# tpot-shapes.ttl was loaded as data only and never enforced (research/06).
+# Every OperatorShape / PipelineStageShape / FitnessObjectiveShape constraint
+# passes the derived data (research/06 datatype check: BIND fitness is xsd:decimal;
+# tiers are xsd:integer; forCategory ∈ the 9 frozen categories). strict_mode
+# elevates missing-ORDER-BY (E0011) to a hard error — safe here because all 6
+# SELECTs AND both inline inference CONSTRUCTs now carry ORDER BY. Basis:
+# source analysis in research/01,06,07 (this container cannot run `ggen sync`).
+# -----------------------------------------------------------------------------
+[validation]
+shacl = ["ontology/tpot-shapes.ttl"]
+strict_mode = true
 
 # -----------------------------------------------------------------------------
 # [sync] / [rdf] / [templates] / [output] — mirror the canonical ggen.toml.

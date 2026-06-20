@@ -45,7 +45,9 @@ tpot:PipelineStageShape a sh:NodeShape ;
     sh:datatype xsd:string ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
-    sh:message  "PipelineStage requires exactly one tpot:forCategory (must equal a real pi:category string)." ;
+    sh:in       ( "import_export" "discovery" "object_centric" "discovery_analytics"
+                  "conformance" "ml_analytics" "prediction" "simulation" "agentic" ) ;
+    sh:message  "PipelineStage tpot:forCategory must be one of the 9 frozen pi:category strings." ;
   ] .
 
 
@@ -86,6 +88,37 @@ tpot:OperatorShape a sh:NodeShape ;
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:message  "Operator requires exactly one tpot:fitnessScore (xsd:decimal = qualityTier - 0.5*speedTier)." ;
+  ] ;
+  # Derived tier/identity predicates (copied from pi: by derive-operators.rq).
+  # Datatypes verified against the CONSTRUCT output in research/06: pi: tiers are
+  # xsd:integer; pi:category / pi:wasmExport are xsd:string.
+  sh:property [
+    sh:path     tpot:opSpeedTier ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:opSpeedTier (xsd:integer, copied from pi:speedTier)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:opQualityTier ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:opQualityTier (xsd:integer, copied from pi:qualityTier)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:opCategory ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:opCategory (xsd:string, copied from pi:category)." ;
+  ] ;
+  sh:property [
+    sh:path     tpot:wasmExport ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message  "Operator requires one tpot:wasmExport (xsd:string, copied from pi:wasmExport)." ;
   ] .
 
 

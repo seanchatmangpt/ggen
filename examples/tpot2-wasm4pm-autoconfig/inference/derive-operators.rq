@@ -63,3 +63,5 @@ WHERE {
   # --- MINT the operator IRI deterministically from algorithmId ------------
   BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?algorithm_id)) AS ?operator)
 }
+# Deterministic solution order; satisfies strict-mode E0011 (CONSTRUCT needs ORDER BY).
+ORDER BY ?algorithm_id

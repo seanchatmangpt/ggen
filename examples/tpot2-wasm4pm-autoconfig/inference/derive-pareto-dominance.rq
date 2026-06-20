@@ -61,3 +61,5 @@ WHERE {
   BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idA)) AS ?opA)
   BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idB)) AS ?opB)
 }
+# Deterministic solution order; satisfies strict-mode E0011 (CONSTRUCT needs ORDER BY).
+ORDER BY ?idA ?idB
