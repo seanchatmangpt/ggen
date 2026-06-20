@@ -1,0 +1,88 @@
+# Process Bottleneck Discovery
+# Van der Aalst's performance spectrum analysis (2016, Chapter 7).
+#
+# A bottleneck is an activity transition (A → B) where the waiting time
+# between A completing and B starting is disproportionately high.  This
+# query computes the directly-follows graph (DFG) for each object type and
+# reports aggregate duration statistics per transition.
+#
+# "Directly follows" means: event B follows event A for the same object,
+# with no intervening event for that object between A and B.
+#
+# Duration approximation:
+#   SPARQL 1.1 has no built-in duration arithmetic.  We approximate elapsed
+#   seconds as the difference in fractional years derived from the ISO-8601
+#   string prefix (SUBSTR year component).  For production use, replace the
+#   BIND expression with a custom SPARQL extension function that performs
+#   proper xsd:dateTime subtraction (e.g. afn:datediff or a project-specific
+#   UDF registered in Oxigraph).
+#
+# Return columns:
+#   ?actA            – activity name of the predecessor event
+#   ?actB            – activity name of the successor event
+#   ?objType         – OCEL object type label shared by both events
+#   ?avgDurationSecs – mean waiting time in seconds (approximated)
+#   ?minDurationSecs – minimum waiting time observed
+#   ?maxDurationSecs – maximum waiting time observed
+#   ?frequency       – number of directly-follows pairs observed
+#
+# Rows are sorted descending by average duration so the worst bottlenecks
+# appear first.  The LIMIT 20 cap keeps result sets manageable for dashboards.
+
+PREFIX ocel: <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX pipe: <https://ggen.io/ontology/pipeline#>
+PREFIX ggen: <https://ggen.io/ontology/core#>
+
+SELECT
+  ?actA
+  ?actB
+  ?objType
+  (AVG(?durationSeconds) AS ?avgDurationSecs)
+  (MIN(?durationSeconds) AS ?minDurationSecs)
+  (MAX(?durationSeconds) AS ?maxDurationSecs)
+  (COUNT(*) AS ?frequency)
+WHERE {
+
+  # ── Predecessor event A ──────────────────────────────────────────────────────
+  ?eventA ocel:activityName    ?actA ;
+          ocel:timestamp       ?tsA ;
+          ocel:hasRelationship ?relA .
+  ?relA   ocel:relationshipObject ?obj .
+
+  # ── Successor event B for the same object ───────────────────────────────────
+  ?eventB ocel:activityName    ?actB ;
+          ocel:timestamp       ?tsB ;
+          ocel:hasRelationship ?relB .
+  ?relB   ocel:relationshipObject ?obj .
+
+  # B must come after A
+  FILTER(?tsB > ?tsA)
+  # B must directly follow A: no intervening event for the same object
+  FILTER NOT EXISTS {
+    ?eventC ocel:timestamp       ?tsC ;
+            ocel:hasRelationship ?relC .
+    ?relC   ocel:relationshipObject ?obj .
+    FILTER(?tsC > ?tsA && ?tsC < ?tsB)
+    FILTER(?eventC != ?eventA && ?eventC != ?eventB)
+  }
+
+  # ── Object type label ────────────────────────────────────────────────────────
+  ?obj ocel:hasObjectType ?typeNode .
+  ?typeNode rdfs:label ?objType .
+
+  # ── Duration approximation (year-component difference × 31 557 600 s/year) ──
+  # Replace with a proper xsd:dateTime subtraction UDF for production use.
+  BIND(
+    (xsd:decimal(SUBSTR(STR(?tsB), 1, 4)) -
+     xsd:decimal(SUBSTR(STR(?tsA), 1, 4))) * 31557600.0
+    AS ?durationSeconds
+  )
+}
+GROUP BY ?actA ?actB ?objType
+HAVING (AVG(?durationSeconds) > 0)
+ORDER BY DESC(AVG(?durationSeconds))
+LIMIT 20

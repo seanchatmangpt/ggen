@@ -1,0 +1,279 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ocel:    <https://www.ocel-standard.org/2.0/> .
+@prefix ps:      <https://ggen.io/ontology/performance-spectrum#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ontology header
+# ═══════════════════════════════════════════════════════════════════════════════
+
+<https://ggen.io/ontology/performance-spectrum>
+    a owl:Ontology ;
+    dcterms:title "Performance Spectrum Ontology" ;
+    dcterms:description """OWL ontology for the Performance Spectrum visualisation technique
+introduced by Denisov, Fahland, and Van der Aalst (2018). The Performance Spectrum
+maps all case segments between every pair of activities (a → b) onto a single
+time axis, making bottlenecks, batch behaviour, and resource overload directly
+visible as visual patterns. Each case contributes a diagonal line from its
+departure time at activity a to its arrival time at activity b; the density,
+slope, and clustering of these lines reveals the operating regime of the segment.
+
+Reference: Denisov, D., Fahland, D., Van der Aalst, W.M.P. (2018). Unbiased,
+Fine-grained Description of Processes Performance from Event Data. In: BPM 2018,
+LNCS 11080, pp. 139-157. Springer.""" ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    owl:imports <https://www.ocel-standard.org/2.0/> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 1. Core classes
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ps:PerformanceSpectrum a owl:Class ;
+    rdfs:label "PerformanceSpectrum" ;
+    rdfs:comment """The complete Performance Spectrum visualisation derived from one event log.
+A PerformanceSpectrum aggregates a set of PerformanceSegment instances — one per
+ordered pair of activities (a, b) observed in the log — and exposes the full
+temporal picture of how cases flow through the process. The spectrum is the
+primary analytical artefact: by scanning across all segments simultaneously, an
+analyst can locate global bottlenecks, identify synchronisation points where
+batches form, and compare throughput times across different regions of the
+process. Linked to its source via ps:derivedFrom.""" .
+
+ps:PerformanceSegment a owl:Class ;
+    rdfs:label "PerformanceSegment" ;
+    rdfs:comment """A single segment in the Performance Spectrum corresponding to one
+ordered pair of activities (activityFrom → activityTo). The segment aggregates
+all CaseSegment instances for this pair and is annotated with statistical
+summaries (ps:caseCount, ps:p10Duration, ps:p50Duration, ps:p90Duration,
+ps:p99Duration). Segments are the unit of bottleneck identification and
+behaviour classification: a segment may be labelled as showing BatchBehavior,
+OverloadBehavior, SteadyFlowBehavior, or identified as a BottleneckSegment via
+the ps:isBottleneck flag and ps:bottleneckScore.""" .
+
+ps:CaseSegment a owl:Class ;
+    rdfs:label "CaseSegment" ;
+    rdfs:comment """The time interval for a single case (process instance) while it
+was between two successive activities in a PerformanceSegment. In the visual
+Performance Spectrum, each CaseSegment corresponds to one diagonal line: the line
+starts at ps:segmentStart on the left time axis (when the case completed the
+source activity) and ends at ps:segmentEnd on the right time axis (when the case
+completed the target activity). The slope of the line encodes throughput time via
+ps:segmentDuration. Vertical stacking of lines at a particular time point reveals
+the instantaneous load on the segment.""" .
+
+# ─── Behaviour classification classes ────────────────────────────────────────
+
+ps:BatchBehavior a owl:Class ;
+    rdfs:label "BatchBehavior" ;
+    rdfs:comment """A behaviour type assigned to a PerformanceSegment when multiple
+cases start or end the segment simultaneously (or near-simultaneously). In the
+Performance Spectrum visualisation, batch behaviour appears as a cluster of
+parallel diagonal lines that originate or terminate at the same time point.
+Batching may arise from scheduled releases, manual queue draining, or upstream
+synchronisation. A PerformanceSegment exhibits batch behaviour when
+ps:isBatchBehavior is true.""" .
+
+ps:OverloadBehavior a owl:Class ;
+    rdfs:label "OverloadBehavior" ;
+    rdfs:comment """A behaviour type assigned to a PerformanceSegment that indicates
+resource overload: more cases are arriving at the segment than the resource can
+service, causing throughput times to grow progressively over a time window.
+In the visualisation, overload appears as a fan of lines whose slopes decrease
+(throughput times increase) over time — the segment is filling up. Overload
+precedes a bottleneck in causal order: overload is the state; the bottleneck is
+the structural cause.""" .
+
+ps:SteadyFlowBehavior a owl:Class ;
+    rdfs:label "SteadyFlowBehavior" ;
+    rdfs:comment """A behaviour type assigned to a PerformanceSegment that shows a
+stable, predictable throughput time with low variance across the observation
+window. In the visualisation, steady flow appears as a band of parallel diagonal
+lines with consistent slope and regular spacing. SteadyFlowBehavior is the
+baseline healthy operating regime; deviations from it (toward BatchBehavior or
+OverloadBehavior) indicate process anomalies.""" .
+
+ps:BottleneckSegment a owl:Class ;
+    rdfs:subClassOf ps:PerformanceSegment ;
+    rdfs:label "BottleneckSegment" ;
+    rdfs:comment """A PerformanceSegment identified as a bottleneck in the process:
+a structural constraint that limits the overall throughput of all cases passing
+through it. BottleneckSegments are characterised by high ps:p90Duration and
+ps:p99Duration relative to other segments, by ps:isBottleneck true, and by a
+ps:bottleneckScore close to 1.0. In the visualisation, a bottleneck typically
+shows as a region of densely packed, shallow-slope lines representing long
+waiting times. Detection is performed by comparing segment percentile durations
+against the process-wide median or by analysing case density over time.""" .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2. Datatype properties — CaseSegment timing
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ps:segmentStart a owl:DatatypeProperty ;
+    rdfs:label "segmentStart" ;
+    rdfs:comment """The timestamp (UTC) at which the case entered this CaseSegment —
+i.e., when the case completed the source activity (ps:activityFrom). In the
+Performance Spectrum diagram, this value places the left endpoint of the
+diagonal line on the time axis.""" ;
+    rdfs:domain ps:CaseSegment ;
+    rdfs:range  xsd:dateTime .
+
+ps:segmentEnd a owl:DatatypeProperty ;
+    rdfs:label "segmentEnd" ;
+    rdfs:comment """The timestamp (UTC) at which the case left this CaseSegment —
+i.e., when the case completed the target activity (ps:activityTo). In the
+Performance Spectrum diagram, this value places the right endpoint of the
+diagonal line on the time axis.""" ;
+    rdfs:domain ps:CaseSegment ;
+    rdfs:range  xsd:dateTime .
+
+ps:segmentDuration a owl:DatatypeProperty ;
+    rdfs:label "segmentDuration" ;
+    rdfs:comment """The elapsed time (in seconds) for this case while in the segment,
+computed as ps:segmentEnd minus ps:segmentStart. This is the throughput time for
+one case on the (activityFrom → activityTo) transition. In the visualisation, the
+slope of the diagonal line is inversely proportional to segmentDuration: steeper
+lines represent faster cases; shallower lines represent slower cases or waiting.""" ;
+    rdfs:domain ps:CaseSegment ;
+    rdfs:range  xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 3. Datatype properties — PerformanceSegment statistics
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ps:activityFrom a owl:DatatypeProperty ;
+    rdfs:label "activityFrom" ;
+    rdfs:comment """The label of the source activity for this PerformanceSegment.
+Together with ps:activityTo, uniquely identifies the segment within the
+Performance Spectrum. Corresponds to an ocel:activity value in the source log.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:string .
+
+ps:activityTo a owl:DatatypeProperty ;
+    rdfs:label "activityTo" ;
+    rdfs:comment """The label of the target activity for this PerformanceSegment.
+Together with ps:activityFrom, uniquely identifies the segment. The segment
+records the time between a case completing activityFrom and subsequently
+completing activityTo (in directly-follows order).""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:string .
+
+ps:caseCount a owl:DatatypeProperty ;
+    rdfs:label "caseCount" ;
+    rdfs:comment """The total number of cases (process instances) that traversed this
+PerformanceSegment in the observation window — i.e., the number of CaseSegment
+instances associated with this PerformanceSegment via ps:hasCaseSegment.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+ps:p10Duration a owl:DatatypeProperty ;
+    rdfs:label "p10Duration" ;
+    rdfs:comment """The 10th-percentile segment duration (in seconds) across all
+CaseSegments in this PerformanceSegment. 10% of cases completed the transition
+faster than this value. Used to characterise the fast tail of the performance
+distribution and to detect unusually quick transitions.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:decimal .
+
+ps:p50Duration a owl:DatatypeProperty ;
+    rdfs:label "p50Duration" ;
+    rdfs:comment """The median (50th-percentile) segment duration (in seconds) across
+all CaseSegments in this PerformanceSegment. The median is the primary summary
+statistic for segment performance, robust to outliers, and the natural comparison
+point for detecting deterioration or improvement over time.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:decimal .
+
+ps:p90Duration a owl:DatatypeProperty ;
+    rdfs:label "p90Duration" ;
+    rdfs:comment """The 90th-percentile segment duration (in seconds) across all
+CaseSegments in this PerformanceSegment. 90% of cases completed the transition
+within this duration. P90 is the primary SLO target for process segments:
+breaching it indicates that a non-trivial fraction of cases experience severe
+delays. Elevated P90 combined with lower P50 is a strong bottleneck signal.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:decimal .
+
+ps:p99Duration a owl:DatatypeProperty ;
+    rdfs:label "p99Duration" ;
+    rdfs:comment """The 99th-percentile segment duration (in seconds) across all
+CaseSegments in this PerformanceSegment. P99 captures the worst-case tail
+behaviour and is used for SLA compliance checking. Extreme P99 values relative to
+P50 indicate a heavy-tailed distribution caused by periodic overload, resource
+contention, or exception handling paths.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:decimal .
+
+ps:isBatchBehavior a owl:DatatypeProperty ;
+    rdfs:label "isBatchBehavior" ;
+    rdfs:comment """Boolean flag set to true when this PerformanceSegment exhibits
+batch behaviour — i.e., when statistical analysis of ps:segmentStart or
+ps:segmentEnd timestamps reveals significant clustering that is inconsistent with
+Poisson arrival and is instead consistent with scheduled or triggered batch
+release. See also: ps:BatchBehavior.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:boolean .
+
+ps:isBottleneck a owl:DatatypeProperty ;
+    rdfs:label "isBottleneck" ;
+    rdfs:comment """Boolean flag set to true when this PerformanceSegment is
+identified as a process bottleneck. The identification criterion is typically a
+combination of high ps:p90Duration relative to process-wide median, high
+ps:caseCount (many cases waiting), and persistent overload patterns over the
+observation window. See also: ps:BottleneckSegment, ps:bottleneckScore.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:boolean .
+
+ps:bottleneckScore a owl:DatatypeProperty ;
+    rdfs:label "bottleneckScore" ;
+    rdfs:comment """A normalised scalar in [0.0, 1.0] quantifying the severity of the
+bottleneck at this PerformanceSegment. A score of 0.0 means no bottleneck
+evidence; 1.0 means the segment is the dominant throughput constraint for the
+entire process. The score may be computed as a weighted combination of relative
+P90/P50 ratio, case density, and trend in throughput times. Used to rank segments
+when prioritising process improvement interventions.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 4. Object properties
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ps:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derivedFrom" ;
+    rdfs:comment """Links a PerformanceSpectrum to the OCEL 2.0 event log from which
+it was derived. Provides provenance: the spectrum is a lossful performance
+abstraction of this log, retaining timing and ordering information but discarding
+event payload data.""" ;
+    rdfs:domain ps:PerformanceSpectrum ;
+    rdfs:range  ocel:EventLog .
+
+ps:hasSegment a owl:ObjectProperty ;
+    rdfs:label "hasSegment" ;
+    rdfs:comment """Associates a PerformanceSpectrum with one of its constituent
+PerformanceSegment instances. A complete PerformanceSpectrum has one segment per
+ordered activity pair (a → b) observed in the source event log.""" ;
+    rdfs:domain ps:PerformanceSpectrum ;
+    rdfs:range  ps:PerformanceSegment .
+
+ps:hasCaseSegment a owl:ObjectProperty ;
+    rdfs:label "hasCaseSegment" ;
+    rdfs:comment """Associates a PerformanceSegment with one of the individual
+CaseSegment instances that together form the segment's population. In the
+visualisation, each CaseSegment linked via this property corresponds to one
+diagonal line drawn on the spectrum canvas.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  ps:CaseSegment .
+
+ps:exhibitsBehavior a owl:ObjectProperty ;
+    rdfs:label "exhibitsBehavior" ;
+    rdfs:comment """Links a PerformanceSegment to a behaviour classification instance
+(ps:BatchBehavior, ps:OverloadBehavior, or ps:SteadyFlowBehavior). A segment may
+exhibit multiple behaviours in different sub-intervals of the observation window;
+each classification instance should carry its own temporal scope if needed.""" ;
+    rdfs:domain ps:PerformanceSegment ;
+    rdfs:range  owl:Thing .

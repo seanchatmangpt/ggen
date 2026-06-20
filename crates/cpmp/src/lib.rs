@@ -3,6 +3,7 @@ pub mod classification;
 pub mod db;
 pub mod entry;
 pub mod models;
+pub mod ocel;
 pub mod projection;
 pub mod receipt;
 pub mod registry;

@@ -10,13 +10,13 @@ fn global_singleton_initialises_without_panic() {
 }
 
 #[test]
-fn tier0_returns_exactly_seven_iris() {
+fn tier0_returns_exactly_eight_iris() {
     let registry = OntologyRegistry::global();
     let iris = registry.tier0_iris();
     assert_eq!(
         iris.len(),
-        7,
-        "expected 7 Tier-0 (Core) ontologies, got {}: {iris:?}",
+        8,
+        "expected 8 Tier-0 (Core) ontologies, got {}: {iris:?}",
         iris.len()
     );
 }
@@ -32,6 +32,7 @@ fn tier0_iris_include_all_w3c_foundations() {
         "http://www.w3.org/ns/shacl#",
         "http://www.w3.org/ns/prov#",
         "http://purl.org/dc/terms/",
+        "https://www.ocel-standard.org/2.0/",
     ];
     for expected in &required {
         assert!(
@@ -59,7 +60,7 @@ fn tier0_entries_have_embedded_content() {
         .filter(|e| e.tier == OntologyTier::Core)
         .collect();
 
-    assert_eq!(core_entries.len(), 7);
+    assert_eq!(core_entries.len(), 8);
 
     for entry in &core_entries {
         let content = entry.embedded_content().unwrap_or_else(|| {

@@ -1,0 +1,93 @@
+# =============================================================================
+# Process Variant Discovery — OCEL 2.0
+# =============================================================================
+#
+# Discovers process variants (unique trace signatures) and their frequencies
+# from an OCEL 2.0 RDF event log stored in an Oxigraph triplestore.
+#
+# Theoretical basis: Van der Aalst's notion of a process variant in process
+# mining.  A variant is a unique sequence of activities (a "trace") observed
+# for a case (here: an OCEL 2.0 object).  Variant analysis is the first step
+# in understanding process complexity and heterogeneity.
+#
+# Formally, for an event log L over an alphabet A:
+#   - A trace σ ∈ A* is the ordered sequence of activities for one case
+#   - A variant v is an equivalence class of traces with the same sequence
+#   - frequency(v) = |{σ ∈ L : σ ≡ v}|
+#
+# In OCEL 2.0, a "case" corresponds to an ocel:Object.  Events are related to
+# objects via ocel:hasRelationship / ocel:relationshipObject.  The trace for an
+# object is the time-ordered sequence of ocel:activityName values across all
+# events linked to that object.
+#
+# Algorithm (SPARQL 1.1, two-level aggregation):
+#
+#   Level 1 — inner GROUP_CONCAT (per object):
+#     For each object ?caseId, collect all activity names ordered by timestamp
+#     and concatenate them with the separator "->" to form ?variantSignature.
+#     SPARQL 1.1 does not support ORDER BY inside GROUP_CONCAT directly, so the
+#     ordering is achieved via a nested sub-SELECT that produces rows already
+#     ordered by (?caseId, ?ts).  Oxigraph respects this ordering within the
+#     GROUP_CONCAT aggregation when the input is pre-sorted.
+#
+#   Level 2 — outer COUNT (per variant):
+#     Count how many distinct objects (?caseId) share the same
+#     ?variantSignature.  This is the variant frequency.
+#
+# Output columns:
+#   ?variantSignature  — "->" separated activity sequence, e.g.
+#                        "Create Order->Pack Items->Ship->Deliver"
+#   ?frequency         — Number of objects (cases) that follow this variant
+#
+# Results are sorted by descending frequency so the most common "happy path"
+# variant appears first, matching the standard process-mining convention.
+#
+# Limitations:
+#   - GROUP_CONCAT ordering relies on the inner ORDER BY being preserved by
+#     Oxigraph's aggregate execution.  This is compliant with SPARQL 1.1 when
+#     the engine processes the sub-SELECT rows in the declared order.
+#   - Ties in ?ts (same-timestamp events for one object) yield non-deterministic
+#     ordering within those ties.  Add a secondary tiebreaker (e.g., STR(?event))
+#     to the inner ORDER BY if determinism is required.
+#   - Very long traces produce long ?variantSignature strings.  Consider a hash
+#     function in the outer layer if storage is a concern.
+#
+# Prefixes:
+#   ocel: <https://www.ocel-standard.org/2.0/>
+# =============================================================================
+
+PREFIX ocel:  <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dfg:   <https://ggen.io/ontology/dfg#>
+
+SELECT ?variantSignature (COUNT(DISTINCT ?caseId) AS ?frequency)
+WHERE {
+
+  # ── Level 1: Build ordered activity sequence per object (case) ──────────────
+  {
+    SELECT ?caseId (GROUP_CONCAT(?actName ; SEPARATOR="->") AS ?variantSignature)
+    WHERE {
+      # Inner sub-SELECT: retrieve (caseId, actName, ts) rows pre-sorted by
+      # (caseId, ts) so that GROUP_CONCAT above concatenates in timestamp order.
+      {
+        SELECT ?caseId ?actName ?ts
+        WHERE {
+          ?event ocel:activityName ?actName .
+          ?event ocel:timestamp    ?ts .
+          ?event ocel:hasRelationship ?rel .
+          ?rel   ocel:relationshipObject ?obj .
+
+          # Use the object IRI string as a stable case identifier
+          BIND(STR(?obj) AS ?caseId)
+        }
+        ORDER BY ?caseId ?ts STR(?event)
+      }
+    }
+    GROUP BY ?caseId
+  }
+
+}
+GROUP BY ?variantSignature
+ORDER BY DESC(?frequency) ?variantSignature

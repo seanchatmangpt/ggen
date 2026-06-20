@@ -42,7 +42,7 @@ gcat:authority a rdf:Property ; rdfs:label "authority" ; rdfs:range xsd:string .
 gcat:capability a rdf:Property ; rdfs:label "capability" ; rdfs:range xsd:string .
 
 # ══════════════════════════════════════════════════════════════════════
-# TIER 0: CORE — embedded in binary (7 entries)
+# TIER 0: CORE — embedded in binary (8 entries)
 # ══════════════════════════════════════════════════════════════════════
 
 <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -115,8 +115,18 @@ gcat:capability a rdf:Property ; rdfs:label "capability" ; rdfs:range xsd:string
     gcat:authority "DCMI" ;
     gcat:capability "metadata" .
 
+<https://www.ocel-standard.org/2.0/>
+    a dcat:Dataset ;
+    dcterms:title "Object-Centric Event Log (OCEL) 2.0" ;
+    dcterms:description "Standard for object-centric process mining event logs (Van der Aalst et al.) — embedded for offline reasoning." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "ocel" ;
+    gcat:embeddedPath "ontologies/core/ocel2.ttl" ;
+    gcat:authority "IEEE" ;
+    gcat:capability "process-mining" .
+
 # ══════════════════════════════════════════════════════════════════════
-# TIER 1: CACHED — downloaded on first use (12 entries)
+# TIER 1: CACHED — downloaded on first use (11 entries)
 # ══════════════════════════════════════════════════════════════════════
 
 <http://www.w3.org/2004/02/skos/core#>
@@ -178,16 +188,6 @@ gcat:capability a rdf:Property ; rdfs:label "capability" ; rdfs:range xsd:string
     dcat:downloadURL <http://qudt.org/2.1/schema/qudt> ;
     gcat:authority "QUDT.org" ;
     gcat:capability "units-of-measure" .
-
-<https://www.ocel-standard.org/2.0/>
-    a dcat:Dataset ;
-    dcterms:title "Object-Centric Event Log (OCEL) 2.0" ;
-    dcterms:description "Standard for object-centric process mining event logs (Van der Aalst et al.)." ;
-    gcat:tier gcat:Cached ;
-    gcat:prefix "ocel" ;
-    dcat:downloadURL <https://www.ocel-standard.org/2.0/ocel2-standard.ttl> ;
-    gcat:authority "IEEE" ;
-    gcat:capability "process-mining" .
 
 <http://www.w3.org/2006/time#>
     a dcat:Dataset ;
@@ -636,3 +636,55 @@ gcat:capability a rdf:Property ; rdfs:label "capability" ; rdfs:range xsd:string
     gcat:embeddedPath "ontology_catalogue/knhk/rust/docs/yawl/ontology/van_der_aalst_patterns_all_43.ttl" ;
     gcat:authority "ggen" ;
     gcat:capability "workflow-patterns" .
+
+# ── Process Mining Ontologies (Van der Aalst) ────────────────────────
+
+<https://ggen.io/ontology/petri-net#>
+    a dcat:Dataset ;
+    dcterms:title "Petri Net Ontology" ;
+    dcterms:description "OWL formalisation of Petri Nets, Workflow Nets, Colored Petri Nets, and soundness properties." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "pn" ;
+    gcat:embeddedPath "ontologies/project/petri-net.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "process-mining" .
+
+<https://ggen.io/ontology/dfg#>
+    a dcat:Dataset ;
+    dcterms:title "Directly-Follows Graph (DFG) Ontology" ;
+    dcterms:description "OWL vocabulary for Directly-Follows Graphs discovered from OCEL event logs." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "dfg" ;
+    gcat:embeddedPath "ontologies/project/dfg.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "process-mining" .
+
+<https://ggen.io/ontology/process-tree#>
+    a dcat:Dataset ;
+    dcterms:title "Process Tree Ontology (Inductive Miner)" ;
+    dcterms:description "OWL formalisation of Inductive Miner process trees: Sequence, ExclusiveChoice, Parallel, Loop, and interleave operators." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "ptree" ;
+    gcat:embeddedPath "ontologies/project/process-tree.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "process-mining" .
+
+<https://ggen.io/ontology/performance-spectrum#>
+    a dcat:Dataset ;
+    dcterms:title "Performance Spectrum Ontology" ;
+    dcterms:description "OWL vocabulary for the Performance Spectrum (Denisov, Fahland, Van der Aalst 2018) — bottleneck and batch behavior analysis." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "ps" ;
+    gcat:embeddedPath "ontologies/project/performance-spectrum.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "process-mining" .
+
+<https://ggen.io/ontology/decision-mining#>
+    a dcat:Dataset ;
+    dcterms:title "Decision Mining Ontology" ;
+    dcterms:description "OWL vocabulary for decision mining — decision points, decision trees, branching conditions, and feature importance discovered from event logs." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "dm" ;
+    gcat:embeddedPath "ontologies/project/decision-mining.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "process-mining" .

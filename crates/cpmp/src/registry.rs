@@ -18,6 +18,7 @@ const XSD_DATATYPES_TTL: &str = include_str!("../../../ontologies/core/xmlschema
 const SHACL_TTL: &str = include_str!("../../../ontologies/core/shacl.ttl");
 const PROV_O_TTL: &str = include_str!("../../../ontologies/core/prov-o.ttl");
 const DCTERMS_TTL: &str = include_str!("../../../ontologies/core/dcterms.ttl");
+const OCEL2_TTL: &str = include_str!("../../../ontologies/core/ocel2.ttl");
 
 // ── Error type ───────────────────────────────────────────────────────────────
 
@@ -117,6 +118,7 @@ impl OntologyRegistry {
             ("ontologies/core/shacl.ttl", SHACL_TTL),
             ("ontologies/core/prov-o.ttl", PROV_O_TTL),
             ("ontologies/core/dcterms.ttl", DCTERMS_TTL),
+            ("ontologies/core/ocel2.ttl", OCEL2_TTL),
         ];
         for (path, content) in core_entries {
             load_ttl_into_store(store, content, path)?;
@@ -146,11 +148,11 @@ fn load_ttl_into_store(store: &Store, content: &str, path: &'static str) -> Regi
         })
 }
 
-/// Build the canonical set of ontology entries for all 57 catalog items.
+/// Build the canonical set of ontology entries for all 62 catalog items.
 fn build_entries() -> HashMap<String, OntologyEntry> {
     let mut m = HashMap::new();
 
-    // ── Tier 0: Core (7) ────────────────────────────────────────────────────
+    // ── Tier 0: Core (8) ────────────────────────────────────────────────────
 
     tier0(
         &mut m,
@@ -222,7 +224,17 @@ fn build_entries() -> HashMap<String, OntologyEntry> {
         vec![Capability::Metadata],
     );
 
-    // ── Tier 1: Cached (12) ─────────────────────────────────────────────────
+    tier0(
+        &mut m,
+        "https://www.ocel-standard.org/2.0/",
+        "ocel",
+        "Object-Centric Event Log (OCEL) 2.0",
+        OntologyAuthority::Community,
+        OCEL2_TTL,
+        vec![Capability::ProcessMining],
+    );
+
+    // ── Tier 1: Cached (11) ─────────────────────────────────────────────────
 
     cached(
         &mut m,
@@ -282,16 +294,6 @@ fn build_entries() -> HashMap<String, OntologyEntry> {
         OntologyAuthority::Community,
         "http://qudt.org/2.1/schema/qudt",
         vec![Capability::UnitsOfMeasure],
-    );
-
-    cached(
-        &mut m,
-        "https://www.ocel-standard.org/2.0/",
-        "ocel",
-        "Object-Centric Event Log (OCEL) 2.0",
-        OntologyAuthority::Community,
-        "https://www.ocel-standard.org/2.0/ocel2-standard.ttl",
-        vec![Capability::ProcessMining],
     );
 
     cached(
@@ -493,6 +495,28 @@ fn build_entries() -> HashMap<String, OntologyEntry> {
     referenced(&mut m, "https://ggen.io/ontology/yawl-knhk#", "yknhk",
         "KNHK YAWL Pattern Ontology", OntologyAuthority::GgenProject,
         "https://github.com/seanchatmangpt/ggen", vec![Capability::WorkflowPatterns]);
+
+    // ── Process Mining Ontologies (Van der Aalst) ──────────────────────────
+
+    referenced(&mut m, "https://ggen.io/ontology/petri-net#", "pn",
+        "Petri Net Ontology", OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining, Capability::WorkflowPatterns]);
+
+    referenced(&mut m, "https://ggen.io/ontology/dfg#", "dfg",
+        "Directly-Follows Graph (DFG) Ontology", OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+
+    referenced(&mut m, "https://ggen.io/ontology/process-tree#", "ptree",
+        "Process Tree Ontology (Inductive Miner)", OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+
+    referenced(&mut m, "https://ggen.io/ontology/performance-spectrum#", "ps",
+        "Performance Spectrum Ontology", OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+
+    referenced(&mut m, "https://ggen.io/ontology/decision-mining#", "dm",
+        "Decision Mining Ontology", OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
 
     m
 }

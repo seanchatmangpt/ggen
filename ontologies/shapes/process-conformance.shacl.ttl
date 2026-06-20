@@ -1,0 +1,373 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix ocel:  <https://www.ocel-standard.org/2.0/> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix pipe:  <https://ggen.io/ontology/pipeline#> .
+@prefix conf:  <https://ggen.io/ontology/conformance#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ---------------------------------------------------------------------------
+# Ontology Header
+# ---------------------------------------------------------------------------
+
+<https://ggen.io/ontology/conformance>
+    a owl:Ontology ;
+    dcterms:title "Process Conformance SHACL Shapes" ;
+    dcterms:description "SHACL constraint shapes for OCEL 2.0 event log validation, process lifecycle conformance, and pipeline receipt integrity." ;
+    owl:versionInfo "1.0" .
+
+# ---------------------------------------------------------------------------
+# 1. OcelEventShape — structural correctness of individual OCEL events
+# ---------------------------------------------------------------------------
+
+conf:OcelEventShape
+    a sh:NodeShape ;
+    sh:name "OCEL Event Shape" ;
+    sh:description "Every ocel:Event must carry a unique identifier, an ISO-8601 timestamp, and a named activity. These three attributes are the minimum OCEL 2.0 event record." ;
+    sh:targetClass ocel:Event ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "eventId-required" ;
+        sh:path        ocel:eventId ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:message     "Every OCEL event must have exactly one ocel:eventId (xsd:string). Missing or typed-as-non-string event identifiers violate OCEL 2.0 structural requirements." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "timestamp-required" ;
+        sh:path        ocel:timestamp ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:dateTime ;
+        sh:message     "Every OCEL event must have a ocel:timestamp typed as xsd:dateTime. Events without timestamps cannot be ordered for conformance checking." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "activityName-required" ;
+        sh:path        ocel:activityName ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:message     "Every OCEL event must declare an ocel:activityName (xsd:string). Activity names are the labels used in process model conformance replay." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 2. OcelObjectShape — structural correctness of OCEL objects
+# ---------------------------------------------------------------------------
+
+conf:OcelObjectShape
+    a sh:NodeShape ;
+    sh:name "OCEL Object Shape" ;
+    sh:description "Every ocel:Object in an OCEL 2.0 log must carry a stable identifier and declare its object type. These enable object-centric conformance checking across multiple object types simultaneously." ;
+    sh:targetClass ocel:Object ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "objectId-required" ;
+        sh:path        ocel:objectId ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:message     "Every OCEL object must have exactly one ocel:objectId (xsd:string). Object identity is required for lifecycle tracking across events." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "objectType-required" ;
+        sh:path        ocel:hasObjectType ;
+        sh:minCount    1 ;
+        sh:message     "Every OCEL object must declare its type via ocel:hasObjectType. Object types partition the log into per-type lifecycle traces (artifact, receipt, proof-gate, benchmark, release)." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 3. OcelEventLogShape — structural correctness of the event log container
+# ---------------------------------------------------------------------------
+
+conf:OcelEventLogShape
+    a sh:NodeShape ;
+    sh:name "OCEL Event Log Shape" ;
+    sh:description "An ocel:EventLog container must reference only typed events and typed objects. Referencing untyped resources breaks object-centric process discovery." ;
+    sh:targetClass ocel:EventLog ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "containsEvent-class" ;
+        sh:path        ocel:containsEvent ;
+        sh:class       ocel:Event ;
+        sh:message     "ocel:containsEvent must point to resources typed as ocel:Event. Untyped references cannot be replayed against a process model." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "containsObject-class" ;
+        sh:path        ocel:containsObject ;
+        sh:class       ocel:Object ;
+        sh:message     "ocel:containsObject must point to resources typed as ocel:Object. Untyped object references break object-centric lifecycle tracking." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 4. LifecycleOrderingShape — no COMPLETE before CREATE (Van der Aalst, 2016)
+# ---------------------------------------------------------------------------
+# SPARQL constraint: for every event whose activityName is "Complete", there
+# must exist a prior "Create" event for the same object.  Violations indicate
+# that an object reached a terminal state without a lawful origin event — a
+# first-class process defect, not an implementation bug.
+# ---------------------------------------------------------------------------
+
+conf:LifecycleOrderingShape
+    a sh:NodeShape ;
+    sh:name "Lifecycle Ordering Shape" ;
+    sh:description "SPARQL-based constraint enforcing that no COMPLETE event exists for an object unless a CREATE event with an earlier timestamp precedes it. Detecting COMPLETE-without-CREATE is Van der Aalst's canonical lifecycle soundness check." ;
+    sh:targetClass ocel:Event ;
+    sh:severity sh:Violation ;
+
+    sh:sparql [
+        sh:name    "complete-requires-prior-create" ;
+        sh:message "Lifecycle violation: a 'Complete' activity was found for object {?object} but no 'Create' event with an earlier timestamp exists for that object. Objects must be created before they can be completed." ;
+        sh:severity sh:Violation ;
+        sh:prefixes <https://ggen.io/ontology/conformance> ;
+        sh:select """
+            SELECT ?this ?object ?completeTime
+            WHERE {
+                ?this ocel:activityName "Complete" ;
+                      ocel:timestamp   ?completeTime .
+
+                # Bind the object this Complete event is associated with
+                ?rel ocel:relationshipEvent  ?this ;
+                     ocel:relationshipObject ?object .
+
+                # Violation: no Create event with an earlier timestamp exists
+                FILTER NOT EXISTS {
+                    ?createEvent ocel:activityName "Create" ;
+                                 ocel:timestamp   ?createTime .
+                    ?createRel   ocel:relationshipEvent  ?createEvent ;
+                                 ocel:relationshipObject ?object .
+                    FILTER ( ?createTime < ?completeTime )
+                }
+            }
+        """ ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 5. TemporalConsistencyShape — event timestamps must not be wildly in the future
+# ---------------------------------------------------------------------------
+# OCEL events with timestamps more than one day beyond the current run date
+# indicate data corruption, fabricated traces, or a clock skew bug.
+# We cannot bind "now" dynamically in a static SHACL file, so we document
+# the intent with a SPARQL shape that tests for timestamps after year 2100,
+# which is a safe unconditional upper bound for any expected log.
+# ---------------------------------------------------------------------------
+
+conf:TemporalConsistencyShape
+    a sh:NodeShape ;
+    sh:name "Temporal Consistency Shape" ;
+    sh:description "OCEL event timestamps must fall within a plausible historical and near-future window. Timestamps beyond the year 2100 are unconditionally invalid and indicate data corruption or fabricated traces." ;
+    sh:targetClass ocel:Event ;
+    sh:severity sh:Warning ;
+
+    sh:property [
+        sh:name        "timestamp-upper-bound" ;
+        sh:path        ocel:timestamp ;
+        sh:maxInclusive "2100-01-01T00:00:00"^^xsd:dateTime ;
+        # NOTE: In runtime validation (e.g. via ggen validate), replace this
+        # static bound with a dynamically injected current-date-plus-one-day
+        # value to catch near-future timestamps from clock-skew bugs.
+        sh:message     "ocel:timestamp exceeds the year 2100 upper bound. This indicates a fabricated timestamp, data corruption, or a Unix-epoch overflow. Inspect the trace source before using this log as conformance evidence." ;
+        sh:severity    sh:Warning ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 6. ReceiptIntegrityShape — ggen pipeline receipt completeness
+# ---------------------------------------------------------------------------
+# A pipeline receipt without a non-empty BLAKE3 hash or Ed25519 signature
+# is a contract-drift artifact (see .claude/rules/coding-agent-mistakes.md).
+# These constraints enforce that receipts are cryptographically complete
+# before they are used as process conformance evidence.
+# ---------------------------------------------------------------------------
+
+conf:ReceiptIntegrityShape
+    a sh:NodeShape ;
+    sh:name "Receipt Integrity Shape" ;
+    sh:description "Every ggen pipeline receipt must carry a non-empty operation identifier, a BLAKE3 content hash, and an Ed25519 signature. Receipts missing any of these fields are contract-drift artifacts and must be rejected as process evidence." ;
+    sh:targetClass pipe:Receipt ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "operationId-required" ;
+        sh:path        pipe:operationId ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:minLength   1 ;
+        sh:message     "pipe:operationId is required and must be a non-empty UUID v4 string. An absent or empty operationId means the receipt cannot be linked to its originating pipeline run." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "blake3Hash-required" ;
+        sh:path        pipe:blake3Hash ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:minLength   1 ;
+        sh:message     "pipe:blake3Hash is required and must be a non-empty hex string. An empty or absent BLAKE3 hash means the receipt does not bind to any specific artifact content — it is a decorative completion artifact." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "ed25519Signature-required" ;
+        sh:path        pipe:ed25519Signature ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:minLength   1 ;
+        sh:message     "Receipt is invalid without non-empty signature. pipe:ed25519Signature must be a non-empty base64-encoded Ed25519 signature. A missing or empty signature means the receipt is unsigned and cannot be verified by ggen receipt verify." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 7. OcelRelationshipShape — event-to-object relationship completeness
+# ---------------------------------------------------------------------------
+
+conf:OcelRelationshipShape
+    a sh:NodeShape ;
+    sh:name "OCEL Relationship Shape" ;
+    sh:description "Every ocel:Relationship must bind both an event and an object. Dangling relationships (missing either endpoint) break the object-centric event graph and make conformance replay impossible." ;
+    sh:targetClass ocel:Relationship ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "relationshipObject-required" ;
+        sh:path        ocel:relationshipObject ;
+        sh:minCount    1 ;
+        sh:message     "ocel:Relationship must reference at least one ocel:relationshipObject. A relationship with no object endpoint cannot link an event to any lifecycle trace." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "relationshipEvent-required" ;
+        sh:path        ocel:relationshipEvent ;
+        sh:minCount    1 ;
+        sh:message     "ocel:Relationship must reference at least one ocel:relationshipEvent. A relationship with no event endpoint cannot connect an object to any timestamped activity." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 8. O2ORelationshipShape — object-to-object qualifier completeness
+# ---------------------------------------------------------------------------
+# OCEL 2.0 O2O relationships must carry at least one qualifier string that
+# names the relationship type (e.g. "partOf", "triggers", "dependsOn").
+# Unqualified O2O edges are uninterpretable by discovery algorithms.
+# ---------------------------------------------------------------------------
+
+conf:O2ORelationshipShape
+    a sh:NodeShape ;
+    sh:name "OCEL O2O Relationship Shape" ;
+    sh:description "Every ocel:O2ORelationship must carry at least one ocel:qualifier string naming the relationship type. Unqualified object-to-object edges cannot be interpreted by process discovery algorithms and break object-centric model comparison." ;
+    sh:targetClass ocel:O2ORelationship ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "qualifier-required" ;
+        sh:path        ocel:qualifier ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:string ;
+        sh:message     "ocel:O2ORelationship must have at least one ocel:qualifier (xsd:string). The qualifier encodes the semantic type of the object-to-object relationship (e.g. 'partOf', 'triggers', 'dependsOn'). Missing qualifiers make the relationship opaque to process mining tools." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 9. PipelineRunShape — ggen μ₁–μ₅ pipeline run provenance completeness
+# ---------------------------------------------------------------------------
+
+conf:PipelineRunShape
+    a sh:NodeShape ;
+    sh:name "Pipeline Run Shape" ;
+    sh:description "Every ggen pipeline run must record its start time, end time, and at least one receipt. Without these, the run cannot be ordered relative to other runs in a conformance check, and its artifact provenance is unverifiable." ;
+    sh:targetClass pipe:PipelineRun ;
+    sh:severity sh:Violation ;
+
+    sh:property [
+        sh:name        "startedAtTime-required" ;
+        sh:path        prov:startedAtTime ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:dateTime ;
+        sh:message     "pipe:PipelineRun must declare prov:startedAtTime (xsd:dateTime). Without a start time the run cannot be ordered relative to other runs in temporal conformance checking." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "endedAtTime-required" ;
+        sh:path        prov:endedAtTime ;
+        sh:minCount    1 ;
+        sh:datatype    xsd:dateTime ;
+        sh:message     "pipe:PipelineRun must declare prov:endedAtTime (xsd:dateTime). Without an end time the run appears as an incomplete (orphan) lifecycle object — a first-class process defect." ;
+        sh:severity    sh:Violation ;
+    ] ;
+
+    sh:property [
+        sh:name        "hasReceipt-required" ;
+        sh:path        pipe:hasReceipt ;
+        sh:minCount    1 ;
+        sh:class       pipe:Receipt ;
+        sh:message     "pipe:PipelineRun must link to at least one pipe:Receipt via pipe:hasReceipt. A run with no receipt is a decorative completion artifact — it cannot be verified by ggen receipt verify and must not be used as conformance evidence." ;
+        sh:severity    sh:Violation ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# 10. NonEmptyEventLogShape — an event log must contain at least one event
+# ---------------------------------------------------------------------------
+# An ocel:EventLog with zero ocel:containsEvent triples is an empty evidence
+# container. Process discovery algorithms produce degenerate models from empty
+# logs. Conformance checking against an empty log always reports 100% fitness,
+# which is a misleading result.
+# ---------------------------------------------------------------------------
+
+conf:NonEmptyEventLogShape
+    a sh:NodeShape ;
+    sh:name "Non-Empty Event Log Shape" ;
+    sh:description "An ocel:EventLog must contain at least one event. Empty event logs are degenerate evidence containers: process discovery on an empty log produces no model, and conformance replay on an empty log always reports trivial 100% fitness — a misleading and invalid result." ;
+    sh:targetClass ocel:EventLog ;
+    sh:severity sh:Violation ;
+
+    sh:sparql [
+        sh:name    "event-log-must-be-non-empty" ;
+        sh:message "ocel:EventLog contains zero events (no ocel:containsEvent triples). An empty event log cannot be used as process conformance evidence. Verify that the log was correctly populated before validation." ;
+        sh:severity sh:Violation ;
+        sh:prefixes <https://ggen.io/ontology/conformance> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a ocel:EventLog .
+                FILTER NOT EXISTS {
+                    ?this ocel:containsEvent ?anyEvent .
+                }
+            }
+        """ ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# Prefix declarations block (required for sh:prefixes references above)
+# ---------------------------------------------------------------------------
+
+<https://ggen.io/ontology/conformance>
+    sh:declare [
+        sh:prefix    "ocel" ;
+        sh:namespace "https://www.ocel-standard.org/2.0/"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix    "xsd" ;
+        sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix    "pipe" ;
+        sh:namespace "https://ggen.io/ontology/pipeline#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix    "prov" ;
+        sh:namespace "http://www.w3.org/ns/prov#"^^xsd:anyURI ;
+    ] .
