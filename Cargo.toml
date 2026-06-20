@@ -33,6 +33,7 @@ include = [
 members = [
   "crates/ggen-a2a-mcp",
   "crates/ggen-config",
+  "crates/ggen-toml",
   "crates/ggen-marketplace",
   "crates/ggen-core",
   "crates/ggen-cli",

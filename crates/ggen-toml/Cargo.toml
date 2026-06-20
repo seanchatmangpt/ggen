@@ -1,0 +1,31 @@
+[package]
+name = "ggen-toml"
+description = "Minimal TOML config loading abstractions for ggen — generic loader, env-var expansion, pipeline schema types"
+keywords = ["config", "toml", "ggen", "generation"]
+categories = ["development-tools", "config"]
+
+[package.version]
+workspace = true
+
+[package.authors]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.repository]
+workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+toml = "1.1.0"
+thiserror = "2.0"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true
