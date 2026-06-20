@@ -1,0 +1,61 @@
+name: Example (tpot2-wasm4pm-autoconfig)
+
+# Fast, honest, dependency-free PR gate for the TPOT2 example.
+# NO cargo. Pure Python 3.11 stdlib. Runs the example's own verify scripts,
+# each of which already exits 0 today (see examples/tpot2-wasm4pm-autoconfig/verify/).
+
+on:
+  pull_request:
+    paths:
+      - 'examples/tpot2-wasm4pm-autoconfig/**'
+  push:
+    branches: [main]
+    paths:
+      - 'examples/tpot2-wasm4pm-autoconfig/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify TPOT2 example (Python, no cargo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Each script is run from the example root so its local imports
+      # (e.g. `import reference_autoconfig`) resolve. Any non-zero exit fails the job.
+      - name: reference_autoconfig.py
+        working-directory: examples/tpot2-wasm4pm-autoconfig
+        run: python3 verify/reference_autoconfig.py
+
+      - name: validate_artifacts.py
+        working-directory: examples/tpot2-wasm4pm-autoconfig
+        run: python3 verify/validate_artifacts.py
+
+      - name: test_tpot2_autoconfig.py
+        working-directory: examples/tpot2-wasm4pm-autoconfig
+        run: python3 verify/test_tpot2_autoconfig.py
+
+      - name: test_vision2030.py
+        working-directory: examples/tpot2-wasm4pm-autoconfig
+        run: python3 verify/test_vision2030.py
+
+      - name: conformance_check.py
+        working-directory: examples/tpot2-wasm4pm-autoconfig
+        run: python3 verify/conformance_check.py
+
+      - name: slo_check.py
+        working-directory: examples/tpot2-wasm4pm-autoconfig
+        run: python3 verify/slo_check.py

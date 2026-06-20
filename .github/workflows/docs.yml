@@ -1,0 +1,139 @@
+name: Docs
+
+# Consolidates the three legacy docs workflows' LIGHTWEIGHT, no-cargo checks:
+#   - toc.yml              -> TOC freshness via technote-space/toc-generator (CHECK_ONLY)
+#   - docs-validation.yml  -> (cargo doc-example validation intentionally NOT folded here;
+#   - validate-docs.yml    -> that is cargo-dependent and belongs in the Rust CI path,
+#                             not a fast docs gate. Folding it would reintroduce heavy
+#                             tooling the CI contract forbids.)
+# What remains here is honest and instant: TOC freshness + a stdlib relative-link check.
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  toc:
+    name: TOC is up to date
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # CHECK_ONLY: never auto-commit. Fails the job if any TOC is stale,
+      # so the developer regenerates it locally. (Reused verbatim from toc.yml.)
+      - name: Validate TOC (check only, no auto-commit)
+        uses: technote-space/toc-generator@v4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_PATHS: 'README.md,docs/**/*.md'
+          CHECK_ONLY: 'true'
+
+  links:
+    name: Relative markdown links (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ADVISORY / non-blocking. The repo carries ~1100 pre-existing broken
+      # relative links (mostly under docs/). Gating PRs on that inherited debt
+      # would be red-for-the-wrong-reasons (exactly the CI we are replacing).
+      # So this job ANNOTATES broken links (GitHub `::warning::`) but always
+      # exits 0. The blocking docs gate is the deterministic `toc` job above.
+      # Per CI_CONVENTIONS §7: the only acceptable non-blocking job is one
+      # explicitly documented as advisory — this is that job. When the backlog
+      # is cleared, flip `--strict` on to make it blocking.
+      #
+      # Stdlib-only structural check: every relative markdown link target
+      # ([text](path) / [text](path#anchor)) must exist on disk. We skip
+      # http(s)/mailto/anchor-only links and code fences. No network, no deps.
+      - name: Check relative links (warn only)
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          from pathlib import Path
+
+          ROOT = Path(".").resolve()
+          SKIP_DIRS = {".git", "node_modules", "target", "__pycache__", ".venv"}
+          # [text](dest "title")  -- capture dest only
+          LINK = re.compile(r'\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)')
+          FENCE = re.compile(r'^\s*(```|~~~)')
+
+          def is_external(dest: str) -> bool:
+              return (
+                  dest.startswith(("http://", "https://", "mailto:", "tel:", "//"))
+                  or dest.startswith("#")            # in-page anchor
+                  or dest.startswith("{")            # template/jinja placeholder
+                  or "://" in dest
+              )
+
+          md_files = [
+              p for p in ROOT.rglob("*.md")
+              if not any(part in SKIP_DIRS for part in p.relative_to(ROOT).parts)
+          ]
+
+          broken = []
+          checked = 0
+          for md in md_files:
+              try:
+                  lines = md.read_text(encoding="utf-8", errors="replace").splitlines()
+              except OSError as e:
+                  print(f"::warning::cannot read {md}: {e}")
+                  continue
+              in_fence = False
+              for ln, line in enumerate(lines, 1):
+                  if FENCE.match(line):
+                      in_fence = not in_fence
+                      continue
+                  if in_fence:
+                      continue
+                  for m in LINK.finditer(line):
+                      dest = m.group(1).strip()
+                      if not dest or is_external(dest):
+                          continue
+                      # strip query/anchor; resolve relative to the md file's dir
+                      path_part = dest.split("#", 1)[0].split("?", 1)[0]
+                      if not path_part:
+                          continue  # pure-anchor like (#section)
+                      target = (md.parent / path_part).resolve()
+                      checked += 1
+                      if not target.exists():
+                          rel = md.relative_to(ROOT)
+                          broken.append((rel, ln, dest))
+
+          print(f"Scanned {len(md_files)} markdown files; checked {checked} relative links.")
+          if broken:
+              for rel, ln, dest in broken:
+                  # advisory: annotate as a warning, never fail the build
+                  print(f"::warning file={rel},line={ln}::broken relative link -> {dest}")
+              print(f"ADVISORY: {len(broken)} broken relative link(s) found "
+                    f"(non-blocking; see annotations).")
+          else:
+              print("OK: all relative markdown links resolve.")
+          # Advisory job: always succeed.
+          sys.exit(0)
+          PY

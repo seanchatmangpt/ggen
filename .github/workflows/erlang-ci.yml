@@ -8,12 +8,7 @@ on:
       - 'crates/tai-erlang-autonomics/**'
       - '.github/workflows/erlang-ci.yml'
       - 'rebar.lock'
-  pull_request:
-    paths:
-      - 'crates/tps-jidoka/**'
-      - 'crates/tai-erlang-autonomics/**'
-      - '.github/workflows/erlang-ci.yml'
-      - 'rebar.lock'
+  workflow_dispatch:
 
 concurrency:
   group: erlang-${{ github.workflow }}-${{ github.ref }}

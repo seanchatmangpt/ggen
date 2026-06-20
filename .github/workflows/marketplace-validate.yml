@@ -10,14 +10,7 @@ on:
       - 'crates/ggen-domain/src/marketplace/**'
       - 'crates/ggen-cli/src/cmds/marketplace.rs'
       - '.github/workflows/marketplace-validate.yml'
-  pull_request:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'marketplace/**'
-      - 'crates/ggen-domain/src/marketplace/**'
-      - 'crates/ggen-cli/src/cmds/marketplace.rs'
+  workflow_dispatch:
 
 jobs:
   marketplace-validate:

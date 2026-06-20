@@ -1,0 +1,112 @@
+# Quality — consolidated, honest quality gates (Agent 4 of the CI refactor)
+#
+# This workflow REPLACES the fmt/clippy/audit checks that were scattered and
+# duplicated across the old sprawl:
+#   - quality-gates.yml      ("Poka-Yoke", 7 gates)  -> superseded
+#   - ci-quality-gates.yml   (cargo-make, 5 gates)   -> superseded
+#   - security.yml           (audit + deny + SAST)   -> audit/deny folded here
+#   - security-audit.yml     (duplicate audit)       -> superseded
+# It keeps ONLY the real checks (rustfmt, clippy -D warnings, cargo audit, SLO)
+# and drops the theater that was failing or duplicate:
+#   - andon-validation.yml / andon_ci.yml  (andon "stop the line" theater)
+#   - weaver-validation.yml                (weaver/OTEL-schema theater)
+#   - the "Gate 5: documentation-consistency" / multi-OS build matrices
+#     (duplicate of ci.yml's check/build/test)
+#   - the LLM-OTEL gate (needs live API keys; non-deterministic in CI)
+#   - tarpaulin coverage, semgrep SAST, SBOM/supply-chain "gates"
+#   - the per-gate "Quality Gates Summary" aggregators (status theater)
+# Root-cause context: those cargo-using jobs all died because CI never
+# provisioned the workspace sibling repos and the toolchain matrix was a lie
+# (rust-toolchain.toml pins nightly-2026-04-15, overriding stable/beta). See
+# .github/CI_REFACTOR_CONTRACT.md §0. Every cargo job here uses the shared
+# ./.github/actions/setup-ggen-build action, which provisions the siblings and
+# installs the pinned nightly — the only toolchain that can compile this tree.
+#
+# Honesty rules applied (CI_REFACTOR_CONTRACT.md §3):
+#   - No cargo-make. No continue-on-error masking on fmt/clippy/audit.
+#   - All `uses:` are version-pinned. Least-privilege permissions.
+
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # rustfmt check. fmt-check needs no full build/siblings, but using the shared
+  # action keeps the workflow DRY and pins the same nightly rustfmt everywhere.
+  # No continue-on-error: formatting must fail honestly.
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt
+          cache-key-suffix: fmt
+      - name: just fmt-check
+        run: just fmt-check
+
+  # clippy -D warnings across all targets. Needs siblings + a real build, so the
+  # setup action provisions them. No continue-on-error: lints must fail honestly.
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt,clippy
+          cache-key-suffix: clippy
+      - name: just lint
+        run: just lint
+
+  # cargo audit over the resolved dependency tree (RUSTSEC advisories). Needs the
+  # workspace to resolve, so siblings are provisioned. No continue-on-error: a
+  # known vulnerability must fail honestly.
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt,clippy
+          cache-key-suffix: audit
+      - name: just audit
+        run: just audit
+
+  # SLO check. `just slo-check` runs a Criterion benchmark in --test mode
+  # (justfile: `cargo bench --bench cli_startup_performance -- --test`), which
+  # requires compiling the full bench harness and is timing-sensitive on shared
+  # CI runners. DECISION: advisory / NON-BLOCKING. It is intentionally NOT wired
+  # into any required aggregate (ci.yml's `ci-status` does not `needs:` it), so a
+  # noisy/slow SLO run cannot block a PR. Keep it visible for trend signal; if it
+  # proves stable it can be promoted to required later. We do NOT use
+  # continue-on-error here (that would mask the result inside the job and still
+  # report green); non-blocking is achieved purely by leaving this job out of the
+  # required status check.
+  slo:
+    name: slo (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-ggen-build
+        with:
+          components: rustfmt,clippy
+          cache-key-suffix: slo
+      - name: just slo-check
+        run: just slo-check

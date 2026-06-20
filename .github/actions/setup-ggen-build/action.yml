@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+#
+# setup-ggen-build — the DRY foundation for ggen's PR-gating CI.
+#
+# WHY THIS ACTION EXISTS (root-cause fix):
+# ggen's workspace root Cargo.toml carries a `[patch.crates-io]` table that
+# redirects the lsp-max / wasm4pm families to SIBLING checkouts one level above
+# the repo root (e.g. `lsp-max = { path = "../lsp-max" }`,
+# `wasm4pm = { path = "../wasm4pm/wasm4pm" }`). A fresh CI checkout contains only
+# `ggen`, so cargo cannot even LOAD the workspace — every cargo invocation dies at
+# workspace resolution with `failed to read /home/runner/work/ggen/lsp-max/Cargo.toml`.
+# This action provisions those siblings BEFORE any cargo step runs, installs the
+# single pinned-nightly toolchain the workspace actually compiles on, and warms the
+# cargo cache. Consumers reference it as `./.github/actions/setup-ggen-build`.
+name: Setup ggen build
+description: >-
+  Provision the sibling repos required by the workspace [patch.crates-io] path
+  dependencies, install the pinned nightly toolchain from rust-toolchain.toml, and
+  enable cargo registry/target caching. Idempotent and non-interactive.
+
+inputs:
+  components:
+    description: 'Rust components to add (comma-separated), e.g. "rustfmt,clippy".'
+    required: false
+    default: 'rustfmt,clippy'
+  cache-key-suffix:
+    description: 'Extra suffix mixed into the rust-cache key to segment caches per job.'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    # STEP 1 — Provision sibling dependency repos (THE root-cause fix).
+    #
+    # The workspace `[patch.crates-io]` in the root Cargo.toml points at:
+    #   lsp-max          -> ../lsp-max                 (+ its lsp-max-protocol/-macros/-client subcrates)
+    #   wasm4pm-compat   -> ../wasm4pm-compat
+    #   wasm4pm          -> ../wasm4pm/wasm4pm
+    # and lsp-max itself path-depends on lsp-types-max (../lsp-types-max). So the
+    # four top-level sibling repos that MUST exist next to the checkout are:
+    #   lsp-max  lsp-types-max  wasm4pm  wasm4pm-compat
+    # Without them cargo fails at workspace load before any build/test/lint runs.
+    #
+    # Clone target is the PARENT of the checkout: "$GITHUB_WORKSPACE/.." resolves
+    # `../lsp-max` to /home/runner/work/ggen/lsp-max — NEVER inside the checkout.
+    # `--depth 1` keeps it fast; the `[ -d .../.git ] ||` guard makes it idempotent
+    # so re-runs (or cached workspaces) don't re-clone. This is the exact recipe that
+    # reproduced a green local `cargo build` + `ggen sync`
+    # (see examples/tpot2-wasm4pm-autoconfig/BUILD_PROVISIONING.md).
+    - name: Provision sibling dependency repos
+      shell: bash
+      run: |
+        set -euo pipefail
+        org="https://github.com/seanchatmangpt"
+        parent="$GITHUB_WORKSPACE/.."
+        for repo in lsp-max lsp-types-max wasm4pm wasm4pm-compat; do
+          dest="$parent/$repo"
+          if [ -d "$dest/.git" ]; then
+            echo "sibling already present: $repo"
+          else
+            echo "cloning sibling: $repo -> $dest"
+            git clone --depth 1 "$org/$repo" "$dest"
+          fi
+        done
+
+    # STEP 2 — Install the pinned nightly toolchain.
+    #
+    # rust-toolchain.toml pins `channel = "nightly-2026-04-15"`. This is the ONLY
+    # channel that compiles the workspace; a stable/beta matrix cannot. We pin the
+    # toolchain explicitly (matching rust-toolchain.toml) so the installed components
+    # land on the right channel, and add the requested components. dtolnay/rust-toolchain
+    # is SHA-pinned for supply-chain safety (it publishes mutable channel tags, not
+    # immutable release tags).
+    - name: Install pinned nightly toolchain
+      # dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b == tag "stable" (2024-06)
+      uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+      with:
+        # Channel mirrors rust-toolchain.toml exactly (nightly-2026-04-15). If that
+        # file's channel changes, update this line in lockstep.
+        toolchain: nightly-2026-04-15
+        components: ${{ inputs.components }}
+
+    # STEP 3 — Cache cargo registry + build artifacts.
+    #
+    # Swatinem/rust-cache keys on Cargo.lock + rustc version and caches the registry
+    # index/cache and target/ dir. The `cache-key-suffix` input is folded into both
+    # `key` and `shared-key` so distinct jobs (check / build / test / lint) can keep
+    # segmented caches instead of clobbering one another.
+    - name: Cache cargo build artifacts
+      uses: Swatinem/rust-cache@v2
+      with:
+        key: ${{ inputs.cache-key-suffix }}
+        shared-key: ggen-${{ inputs.cache-key-suffix }}

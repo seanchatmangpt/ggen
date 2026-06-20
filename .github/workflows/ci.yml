@@ -1,273 +1,113 @@
+# Core PR-gating CI — minimal, honest, fast.
+#
+# This file replaces the previous ci.yml, whose design was root-cause broken
+# (see .github/CI_REFACTOR_CONTRACT.md §0):
+#   - INVERTED MATRIX: it ran a [stable, beta, nightly] toolchain matrix, but
+#     rust-toolchain.toml pins `nightly-2026-04-15`, which overrides every matrix
+#     entry. Stable/beta could never compile this workspace; the matrix was a lie.
+#   - continue-on-error MASKING: `continue-on-error: ${{ matrix.rust == 'nightly' }}`
+#     hid the ONLY toolchain that can actually build, so genuine failures went green.
+#   - NO SIBLINGS: the root Cargo.toml `[patch.crates-io]` points lsp-max /
+#     lsp-types-max / wasm4pm / wasm4pm-compat at `../<repo>`. CI only checked out
+#     `ggen`, so every cargo invocation died at workspace load
+#     (`failed to read /home/runner/work/ggen/lsp-max/Cargo.toml`).
+#
+# Fix: build ONLY on the pinned nightly (nightly-2026-04-15), provision the four
+# sibling repos via the DRY composite action `./.github/actions/setup-ggen-build`,
+# and drive every job through the real `just` recipes (the project entry point).
+# No matrix, no continue-on-error. One required aggregate check: `ci-status`.
 name: CI
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
 
 jobs:
-  file-organization:
-    name: File Organization Check
+  check:
+    name: Check
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Check file organization
-        run: |
-          set -euo pipefail
-          echo "Checking for misplaced files in root directory..."
-          ERRORS=0
-
-          # Check for Rust files in root (but not Cargo files)
-          if find . -maxdepth 1 -name "*.rs" -type f 2>/dev/null | grep -v Cargo >/dev/null 2>&1; then
-            echo "❌ Found Rust files in root directory"
-            find . -maxdepth 1 -name "*.rs" -type f
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          # Check for template files in root
-          if find . -maxdepth 1 -name "*.tmpl" -type f 2>/dev/null | grep -q .; then
-            echo "❌ Found template files in root directory"
-            find . -maxdepth 1 -name "*.tmpl" -type f
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          # Check for data files in root
-          if find . -maxdepth 1 \( -name "*.ttl" -o -name "*.rdf" \) -type f 2>/dev/null | grep -q .; then
-            echo "❌ Found data files in root directory"
-            find . -maxdepth 1 \( -name "*.ttl" -o -name "*.rdf" \) -type f
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          # Check for scripts in root (except allowed ones)
-          if find . -maxdepth 1 -name "*.sh" -type f 2>/dev/null | grep -v "scripts/" | grep -q .; then
-            echo "❌ Found script files in root directory"
-            find . -maxdepth 1 -name "*.sh" -type f
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          # Check for redundant Makefiles
-          if [ -f "Makefile" ] || [ -f "make.toml" ] || [ -f "Makefile.ultra-deploy" ]; then
-            echo "❌ Found redundant Makefile files (only Makefile.toml should exist)"
-            [ -f "Makefile" ] && echo "  - Makefile"
-            [ -f "make.toml" ] && echo "  - make.toml"
-            [ -f "Makefile.ultra-deploy" ] && echo "  - Makefile.ultra-deploy"
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          # Check for temporary files
-          if find . -maxdepth 1 \( -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*~" -o -name "*.swp" \) -type f 2>/dev/null | grep -q .; then
-            echo "❌ Found temporary files in root directory"
-            find . -maxdepth 1 \( -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*~" -o -name "*.swp" \) -type f
-            ERRORS=$((ERRORS + 1))
-          fi
-
-          if [ $ERRORS -gt 0 ]; then
-            exit 1
-          fi
-
-          echo "✅ File organization check passed"
-
-  comprehensive-test:
-    name: Comprehensive Tests (${{ matrix.rust }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        rust: [stable, beta]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Rust and cache
-        uses: ./.github/actions/setup-rust-cached
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: ${{ matrix.rust }}
-          cache-key-suffix: comprehensive-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+          cache-key-suffix: check
+      - name: just check
+        run: just check
 
-      - name: Install cargo tools
-        uses: ./.github/actions/install-cargo-tools
-        with:
-          tools: make
-          cache-tools: 'true'
-
-      - name: Run unit tests
-        run: cargo test --workspace --lib
-
-      - name: Run integration tests
-        run: cargo test --test cli --test marketplace --test e2e_github_integration --test e2e_lockfile_sha256 --test e2e_marketplace --test e2e_pqc_infrastructure --test e2e_production_marketplace
-
-      - name: Run BDD tests
-        run: cargo test --test bdd
-
-      - name: Generate BDD report
-        run: cargo test --test bdd -- --nocapture
-
-      - name: Upload BDD results
-        uses: actions/upload-artifact@v4
-        with:
-          name: bdd-results-${{ matrix.rust }}
-          path: target/bdd-report.xml
-
-      - name: Run examples
-        run: cargo run --example cli-subcommand
-
-      - name: "Run doctests (CRITICAL: Verify all doctests compile and run)"
-        run: cargo test --doc --workspace
-
-      - name: "Path A: Run feature-gated tests (otel, proptest, integration, docker)"
-        run: |
-          echo "🎯 Running Path A test suite..."
-          echo "Enabled features: otel, proptest, integration, docker, testcontainers"
-          cargo test --all-features --doc -p ggen-core --verbose 2>&1 | tail -50
-
-      - name: "Path A: Verify integration tests compile and run"
-        run: |
-          echo "Testing integration feature specifically..."
-          cargo test --features integration -p ggen-core --verbose 2>&1 | tail -50
-
-      - name: Run External Observer Promotion Adjudication
-        run: bash scripts/gall/external/13_adjudicate_gall_promotion.sh
-
-  plugin-harness:
-    name: Plugin Test Harness (LSP/MCP)
+  build:
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Rust and cache
-        uses: ./.github/actions/setup-rust-cached
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: stable
-          cache-key-suffix: plugin-harness-${{ hashFiles('**/Cargo.lock') }}
+          cache-key-suffix: build
+      - name: just build
+        run: just build
 
-      - name: Install cargo tools
-        uses: ./.github/actions/install-cargo-tools
-        with:
-          tools: make
-          cache-tools: 'true'
-
-      - name: Run ggen-lsp plugin harness tests
-        run: cargo test -p ggen-lsp --test manifest_contract_test --test lsp_protocol_test --test lsp_sabotage_test
-
-      - name: Run ggen-lsp-mcp plugin harness tests
-        run: cargo test -p ggen-lsp-mcp --test mcp_protocol_test
-
-      - name: Detect fake implementations (find-fakes)
-        run: bash scripts/find-fakes.sh
-
-      - name: Build plugin binaries for smoke canary
-        run: |
-          cargo build -p ggen-lsp --bin ggen-lsp
-          cargo build -p ggen-lsp-mcp
-
-      - name: LSP smoke canary (live E0011 route)
-        run: python3 scripts/lsp-smoke.py
-
-      - name: MCP smoke canary (live E0011 route)
-        run: python3 scripts/mcp-smoke.py
-
-  build-matrix:
-    name: Build (${{ matrix.os }}, ${{ matrix.rust }})
-    runs-on: ${{ matrix.os }}
+  test:
+    name: Test
+    runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        rust: [stable, beta, nightly]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Rust and cache
-        uses: ./.github/actions/setup-rust-cached
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
         with:
-          toolchain: ${{ matrix.rust }}
-          cache-key-suffix: build-${{ matrix.os }}-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+          cache-key-suffix: test
+      - name: just test-lib
+        run: just test-lib
 
-      - name: Build
-        run: cargo build --verbose
-        continue-on-error: ${{ matrix.rust == 'nightly' }}
-
-      - name: Run tests
-        run: cargo test --verbose
-        continue-on-error: ${{ matrix.rust == 'nightly' }}
-
-  fmt:
-    name: Rustfmt
+  doctest:
+    name: Doctest
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
         with:
-          components: rustfmt
-      - run: cargo fmt --all -- --check
+          cache-key-suffix: doctest
+      - name: just test-doc
+        run: just test-doc
 
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy
-      - run: cargo clippy --workspace --all-features -- -D warnings
-
-  coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
-
-      - name: Generate coverage
-        run: cargo tarpaulin --workspace --out Xml --output-dir ./coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/cobertura.xml
-          fail_ci_if_error: false
-
-  # Summary: All CI checks must pass before merge
+  # Single required aggregate check. Fails if ANY gating job did not succeed,
+  # including skipped/cancelled (no honest job can be 'skipped' here).
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs:
-      - file-organization
-      - comprehensive-test
-      - plugin-harness
-      - build-matrix
-      - fmt
-      - clippy
-      - coverage
+    timeout-minutes: 5
+    needs: [check, build, test, doctest]
     if: always()
     steps:
-      - name: Check CI status
+      - name: Assert all gating jobs succeeded
         run: |
-          if [ "${{ needs.file-organization.result }}" != "success" ] || \
-             [ "${{ needs.comprehensive-test.result }}" != "success" ] || \
-             [ "${{ needs.plugin-harness.result }}" != "success" ] || \
-             [ "${{ needs.build-matrix.result }}" != "success" ] || \
-             [ "${{ needs.fmt.result }}" != "success" ] || \
-             [ "${{ needs.clippy.result }}" != "success" ] || \
-             [ "${{ needs.coverage.result }}" != "success" ]; then
-            echo "❌ CI checks failed"
+          set -euo pipefail
+          echo "check=${{ needs.check.result }}"
+          echo "build=${{ needs.build.result }}"
+          echo "test=${{ needs.test.result }}"
+          echo "doctest=${{ needs.doctest.result }}"
+          if [ "${{ needs.check.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.doctest.result }}" != "success" ]; then
+            echo "::error::One or more CI gating jobs failed."
             exit 1
           fi
-          echo "✅ All CI checks passed"
+          echo "All CI gating jobs succeeded."
