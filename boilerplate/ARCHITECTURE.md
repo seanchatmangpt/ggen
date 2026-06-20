@@ -112,3 +112,56 @@ Split a crate out when:
 |---|----------|
 | [0001](docs/decisions/0001-hexagonal-architecture.md) | Hexagonal architecture |
 | [0002](docs/decisions/0002-error-handling-strategy.md) | Error handling strategy |
+
+## HTTP Request Flow
+
+```
+Client → Axum Router → Handler → ItemService → ItemRepository
+                ↑                                      ↓
+         X-Request-Id                           SQLite Pool
+         (middleware)                                  ↓
+                ↓                              rows → Item
+         ApiError                                      ↓
+         (JSON body)                          Ok(Item) / Err(CoreError)
+                                                       ↓
+                                              Ok(Json) / ApiError → HTTP 4xx/5xx
+```
+
+### Request lifecycle
+
+1. Request arrives at Axum router
+2. `add_request_id` middleware assigns `X-Request-Id` header
+3. Handler extracts path/query params
+4. Service validates domain rules, calls repository
+5. Repository executes SQL, maps rows to domain entities
+6. `ApiError` converts `CoreError` to HTTP status + JSON body
+7. Response includes `X-Request-Id` for correlation
+
+## Error Propagation
+
+| Layer | Error Type | Mapped To |
+|-------|-----------|-----------|
+| Repository | `CoreError::NotFound` | `404 Not Found` |
+| Repository | `sqlx::Error` | `CoreError::Internal` → `500` |
+| Domain | `CoreError::Validation` | `400 Bad Request` |
+| Domain | `CoreError::Conflict` | `409 Conflict` |
+| Service | `CoreError::Internal` | `500 Internal Server Error` |
+
+JSON error body shape:
+```json
+{"error": "not_found", "message": "Item abc not found"}
+```
+
+## Crate Dependency Graph (compile order)
+
+```
+bp-core        (no workspace deps)
+bp-config      → bp-core
+domain         → bp-core
+service        → domain, bp-core
+bp-sqlite      → domain, bp-core
+mcp-server     (no workspace deps)
+cargo-project  → bp-config, bp-core
+```
+
+Rule: no crate may depend on `service`, `bp-sqlite`, or `mcp-server` — they are leaves.
