@@ -44,23 +44,42 @@ runs:
     #
     # Clone target is the PARENT of the checkout: "$GITHUB_WORKSPACE/.." resolves
     # `../lsp-max` to /home/runner/work/ggen/lsp-max — NEVER inside the checkout.
-    # `--depth 1` keeps it fast; the `[ -d .../.git ] ||` guard makes it idempotent
-    # so re-runs (or cached workspaces) don't re-clone. This is the exact recipe that
-    # reproduced a green local `cargo build` + `ggen sync`
+    # The `[ -d .../.git ]` guard makes it idempotent so re-runs (or cached
+    # workspaces) don't re-fetch. This is the exact recipe that reproduced a green
+    # local `cargo build` + `ggen sync`
     # (see examples/tpot2-wasm4pm-autoconfig/BUILD_PROVISIONING.md).
+    #
+    # WHY PIN TO EXACT COMMIT SHAs (reproducibility fix):
+    # These siblings are UNTAGGED, WIP branches whose default HEAD moves. A plain
+    # `git clone --depth 1` grabs whatever floating HEAD happens to be current,
+    # so the same CI workflow could compile against different sibling source on two
+    # runs minutes apart — non-deterministic, non-reproducible builds. We instead
+    # `fetch --depth 1` an EXACT commit SHA per sibling and check out FETCH_HEAD.
+    # CI now compiles against a frozen, known-good sibling set; upgrading a sibling
+    # becomes a DELIBERATE, reviewable bump of the SHA in the table below.
     - name: Provision sibling dependency repos
       shell: bash
       run: |
         set -euo pipefail
         org="https://github.com/seanchatmangpt"
         parent="$GITHUB_WORKSPACE/.."
+        # Pinned sibling commit SHAs (bump deliberately; floating HEAD is forbidden).
+        declare -A shas=(
+          [lsp-max]=7bcc1e16dec71ef5fb2cedea2dfd6cb5cde37f59
+          [lsp-types-max]=6773e6017ca83c565785d0ec39d75304f62c3237
+          [wasm4pm]=0bb134b29245517ac4969a9f1916f5432931c5d0
+          [wasm4pm-compat]=e46155e209a750fda0218532d96ae17a9e10903e
+        )
         for repo in lsp-max lsp-types-max wasm4pm wasm4pm-compat; do
-          dest="$parent/$repo"
+          dest="$parent/$repo"; sha="${shas[$repo]}"
           if [ -d "$dest/.git" ]; then
             echo "sibling already present: $repo"
           else
-            echo "cloning sibling: $repo -> $dest"
-            git clone --depth 1 "$org/$repo" "$dest"
+            echo "fetching sibling $repo @ $sha"
+            git init -q "$dest"
+            git -C "$dest" remote add origin "$org/$repo"
+            git -C "$dest" fetch -q --depth 1 origin "$sha"
+            git -C "$dest" checkout -q FETCH_HEAD
           fi
         done
 
@@ -86,7 +105,8 @@ runs:
     # is NOT preinstalled on GitHub runners (jobs failed with `just: command not
     # found`, exit 127). taiki-e/install-action fetches a prebuilt binary (no compile).
     - name: Install just
-      uses: taiki-e/install-action@v2
+      # SHA-pinned for supply-chain safety / reproducibility (mutable @v2 tag).
+      uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab  # v2.62.43
       with:
         tool: just
 
@@ -97,7 +117,8 @@ runs:
     # `key` and `shared-key` so distinct jobs (check / build / test / lint) can keep
     # segmented caches instead of clobbering one another.
     - name: Cache cargo build artifacts
-      uses: Swatinem/rust-cache@v2
+      # SHA-pinned for supply-chain safety / reproducibility (mutable @v2 tag).
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1  # v2.8.1
       with:
         key: ${{ inputs.cache-key-suffix }}
         shared-key: ggen-${{ inputs.cache-key-suffix }}

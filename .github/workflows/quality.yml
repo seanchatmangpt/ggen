@@ -18,13 +18,13 @@
 # Root-cause context: those cargo-using jobs all died because CI never
 # provisioned the workspace sibling repos and the toolchain matrix was a lie
 # (rust-toolchain.toml pins nightly-2026-04-15, overriding stable/beta). See
-# .github/CI_REFACTOR_CONTRACT.md §0. Every cargo job here uses the shared
+# .github/CI_ARCHITECTURE.md. Every cargo job here uses the shared
 # ./.github/actions/setup-ggen-build action, which provisions the siblings and
 # installs the pinned nightly — the only toolchain that can compile this tree.
 #
-# Honesty rules applied (CI_REFACTOR_CONTRACT.md §3):
+# Honesty rules applied (see .github/CI_ARCHITECTURE.md):
 #   - No cargo-make. No continue-on-error masking on fmt/clippy/audit.
-#   - All `uses:` are version-pinned. Least-privilege permissions.
+#   - All `uses:` are SHA-pinned. Least-privilege permissions.
 
 name: Quality
 
@@ -32,6 +32,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # merge_group: required-status checks must also run in the merge queue, or a PR
+  # that passed at PR-time could break main when batched. Mirrors ci.yml triggers.
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -49,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./.github/actions/setup-ggen-build
         with:
           components: rustfmt
@@ -64,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./.github/actions/setup-ggen-build
         with:
           components: rustfmt,clippy
@@ -75,8 +78,14 @@ jobs:
       # the workspace's clippy-cleanliness is unverified (the old CI never compiled),
       # so gating on it would be red for pre-existing debt. Warnings are surfaced as
       # annotations; promote to `-D warnings` (blocking) once the backlog is clean.
+      # The lsp trio (ggen-lsp, ggen-lsp-mcp, ggen-lsp-a2a) is excluded here, kept
+      # consistent with ci.yml's deliverable scope: the trio does not compile against
+      # the floating-HEAD external `lsp-max` sibling (51-error API drift), so leaving
+      # it in would make clippy always red and give no signal on the shippable code;
+      # the trio's own lint health is covered separately by ci.yml's `lsp-crates`
+      # advisory job.
       - name: cargo clippy (advisory)
-        run: cargo clippy --workspace --all-targets
+        run: cargo clippy --workspace --all-targets --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
 
   # cargo audit over the resolved dependency tree (RUSTSEC advisories). Needs the
   # workspace to resolve, so siblings are provisioned. No continue-on-error: a
@@ -86,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./.github/actions/setup-ggen-build
         with:
           components: rustfmt,clippy
@@ -94,7 +103,7 @@ jobs:
       # `just audit` = `cargo audit`, which needs the cargo-audit binary (not
       # preinstalled — failed with `no such command: audit`). Install it, then run.
       - name: Install cargo-audit
-        uses: taiki-e/install-action@v2
+        uses: taiki-e/install-action@81ecf985428d5c2ea81dbf079bceca32bc9604ab # v2.62.43
         with:
           tool: cargo-audit
       # ADVISORY: RUSTSEC advisories over a large transitive dependency tree are
@@ -118,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./.github/actions/setup-ggen-build
         with:
           components: rustfmt,clippy
