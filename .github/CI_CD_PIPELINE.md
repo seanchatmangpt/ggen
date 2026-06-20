@@ -2,90 +2,104 @@
 
 ## Overview
 
-The ggen CI/CD pipeline is a comprehensive, production-ready system built with GitHub Actions that implements:
+The ggen CI/CD pipeline is built with GitHub Actions and split into two tiers:
 
-- **Andon Signals**: Real-time quality gates that stop the line on errors
+**PR-gating CI (4 workflows).** Every pull request runs exactly four workflows —
+`ci.yml`, `quality.yml`, `docs.yml`, and `example-tpot2.yml`. Only `ci.yml`'s checks
+are required to merge; the rest are advisory. See
+[`CI_ARCHITECTURE.md`](CI_ARCHITECTURE.md) for the design rationale and
+[`CI_CONVENTIONS.md`](CI_CONVENTIONS.md) for the honesty/convention rules.
+
+**Operational CD (push/tag/schedule/manual).** The remaining workflows are
+deployment/release machinery and are **not** PR gates:
+
 - **Semantic Versioning**: Automatic version bumping based on conventional commits
 - **Multi-Registry Deployment**: Push images to GCP Artifact Registry and GitHub Container Registry
-- **Helm Chart Validation**: Lint, template, kubeval, schema validation
-- **Security Scanning**: SAST, dependency checks, container image scanning
+- **Security Scanning**: dependency checks (`cargo audit`), container image scanning (Trivy)
 - **Artifact Provenance**: Image signing with cosign, SBOM generation with syft
-- **GitOps with Flux**: Declarative infrastructure, automatic reconciliation
+- **Release automation**: GitHub releases, Debian packages, Homebrew formula, registry publish
 - **Automated Rollback**: Health-check-triggered rollbacks with automatic revert
+
+> **Note:** Earlier revisions of this guide documented Helm-chart validation and
+> Flux GitOps workflows. Those workflows were **removed** in the CI refactor — this
+> repository has no `helm/` or `infra/flux/` directory, so the workflows could never
+> run. They have been deleted from this guide; see `CI_ARCHITECTURE.md` for the
+> teardown record.
 
 ---
 
 ## Workflows
 
-### 1. CI Complete Pipeline (ci-complete.yml)
+### 1. PR-Gating CI (ci.yml + quality.yml + docs.yml + example-tpot2.yml)
 
-Main continuous integration pipeline triggered on every push and pull request.
+The merge gate is four workflows. Only `ci.yml`'s jobs are **required**; the rest are
+**advisory** (they run for signal and do not block merge). All cargo jobs first run
+the composite action `./.github/actions/setup-ggen-build`, which clones the four
+sibling repos (`lsp-max`, `lsp-types-max`, `wasm4pm`, `wasm4pm-compat`) and installs
+the pinned `nightly-2026-04-15` toolchain — the only toolchain that compiles this
+workspace. The required gate is **deliverable-scoped**: it excludes the `ggen-lsp`,
+`ggen-lsp-mcp`, and `ggen-lsp-a2a` leaf crates (see `CI_ARCHITECTURE.md` §4).
 
-**Triggers:**
-- Push to `main`, `develop`, `feature/**`
-- Pull requests to `main`, `develop`
+#### `ci.yml` — the required gate
 
-**Stages:**
+**Triggers:** `pull_request`, `push` to `main`, and `merge_group` (so required checks
+also run in the merge queue).
 
-1. **Quick Checks** (2-3 min)
-   - Formatting check (`cargo fmt`)
-   - Clippy linting (`cargo clippy -D warnings`)
-   - Compilation check (`cargo check`)
-   - **Andon Signal**: Stops on any failure
+**Jobs:**
 
-2. **Unit Tests** (5-10 min)
-   - Chicago TDD pattern tests
-   - State-based test verification
-   - `--test-threads=1` for deterministic execution
-   - **Andon Signal**: All tests must pass
+| Job (`name:`) | Command | Required? |
+|---------------|---------|-----------|
+| `Check` | `cargo check --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a` | ✅ required |
+| `Build` | `cargo build --workspace --exclude …` | ✅ required |
+| `Test` | `cargo test --workspace --lib --exclude …` (lib-only, fast PR gate) | ✅ required |
+| `Doctest` | `cargo test --doc --workspace --exclude …` | ✅ required |
+| `lsp crates (advisory)` | `cargo check -p ggen-lsp -p ggen-lsp-mcp -p ggen-lsp-a2a` | ❌ advisory — surfaces the trio's true (currently red) status; **not** in `ci-status.needs` |
+| `CI Status` | aggregate, `needs: [check, build, test, doctest]` | ✅ required (the stable aggregate) |
 
-3. **Integration Tests** (10-15 min)
-   - Database tests (PostgreSQL)
-   - Cache tests (Redis)
-   - Full end-to-end workflows
-   - **Andon Signal**: All tests must pass
+> **Scope note:** `Test` is intentionally lib-only for a fast PR gate. Integration,
+> BDD, and E2E suites are a documented follow-up and are **not** currently gated (see
+> `CI_ARCHITECTURE.md` §5).
 
-4. **Security Scanning** (5-10 min)
-   - `cargo audit`: Dependency vulnerabilities
-   - `cargo deny`: License and source verification
-   - `cargo-geiger`: Unsafe usage detection
-   - **Andon Signal**: No critical vulnerabilities allowed
+#### `quality.yml` — advisory quality gates
 
-5. **Specification Validation** (2 min)
-   - TTL/RDF syntax validation
-   - Markdown documentation checks
-   - SHACL conformance (if applicable)
+**Triggers:** `pull_request`, `push` to `main`, `merge_group`.
 
-6. **Test Report** (1 min)
-   - Summary of all checks
-   - Status indicators for each stage
+| Job (`name:`) | Command | Blocking? |
+|---------------|---------|-----------|
+| `fmt` | `just fmt-check` | blocking **within** quality.yml (fails honestly), but not a required branch-protection check |
+| `clippy (advisory)` | `cargo clippy --workspace --all-targets --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a` (deliberately **not** `-D warnings`) | advisory |
+| `audit (advisory)` | `cargo audit` (warns on advisories) | advisory |
+| `slo (advisory)` | `just slo-check` (warns) | advisory |
 
-7. **Andon Signal Verification** (Final gate)
-   - Verifies all signals are green (✅)
-   - Blocks any downstream workflows if signals are red (🔴)
+#### `docs.yml` — advisory docs check
 
-**Configuration:**
+**Triggers:** `pull_request` / `push` filtered to `**/*.md` and `docs/**`. One job,
+`links` (a no-cargo relative-link check). Advisory — there is a large pre-existing
+backlog of broken links, so it must not block merge.
 
-```yaml
-env:
-  CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
-  REGISTRY: artifacts.example.com
-```
+#### `example-tpot2.yml` — advisory example check
+
+**Triggers:** `pull_request` / `push` filtered to `examples/tpot2-wasm4pm-autoconfig/**`.
+One job, `verify` — runs the example's Python 3.11 verify scripts. **No cargo**, so no
+sibling provisioning. Advisory and path-filtered.
 
 **Usage:**
 
-The CI pipeline runs automatically on every push. To view results:
+The four workflows run automatically on every PR. To view results:
 
 ```bash
-# View workflow runs
-gh run list --workflow=ci-complete.yml
+# List recent runs of the required gate
+gh run list --workflow=ci.yml
 
-# View specific run
+# List runs of the advisory quality gate
+gh run list --workflow=quality.yml
+
+# View a specific run
 gh run view <run_id>
 
-# Re-run failed workflow
+# Re-run a failed run (or just the failed jobs)
 gh run rerun <run_id>
+gh run rerun <run_id> --failed
 ```
 
 ---
@@ -232,86 +246,7 @@ cosign find attestations ghcr.io/seanchatmangpt/ggen-cli:latest | jq .
 
 ---
 
-### 4. Helm Chart Validation (helm-validation.yml)
-
-Comprehensive Helm chart validation including linting, templating, Kubernetes manifest validation, and integration testing.
-
-**Triggers:**
-- Push to `main`, `develop` (with `helm/` path changes)
-- Pull requests (with `helm/` path changes)
-
-**Stages:**
-
-1. **Helm Lint** (2 min)
-   - Validates chart structure
-   - Checks for common errors
-   - Strict mode enabled
-
-2. **Template Validation** (2 min)
-   - Renders templates
-   - Validates YAML syntax
-   - Checks for template errors
-
-3. **Kubeval** (3 min)
-   - Validates generated manifests against Kubernetes schemas
-   - Version: 1.28.0
-   - Reports schema violations
-
-4. **Schema Validation** (2 min)
-   - Validates `values.yaml` against `values.schema.json`
-   - Uses JSON Schema validation
-   - Ensures config compliance
-
-5. **Version Consistency** (1 min)
-   - Checks Chart.yaml version
-   - Compares with Cargo.toml version
-   - Reports mismatches
-
-6. **K8s Integration Test** (10 min)
-   - Creates Kind cluster
-   - Installs chart
-   - Verifies rollout
-   - Tests with different value profiles
-   - Cleans up resources
-
-7. **Validation Summary** (1 min)
-   - Reports all check statuses
-   - Final pass/fail indication
-
-**Configuration:**
-
-Update Kind cluster config to customize test environment:
-
-```yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
-- role: control-plane
-  extraPortMappings:
-  - containerPort: 80
-    hostPort: 80
-  - containerPort: 443
-    hostPort: 443
-```
-
-**Usage:**
-
-```bash
-# Run Helm validation
-gh workflow run helm-validation.yml --ref main
-
-# Test Helm chart locally
-helm lint helm/tai-chart
-helm template tai-chart helm/tai-chart
-helm install tai-test helm/tai-chart --dry-run
-
-# Validate with kubeval
-helm template tai-chart helm/tai-chart | kubeval
-```
-
----
-
-### 5. Generate Release Notes (generate-release-notes.yml)
+### 4. Generate Release Notes (generate-release-notes.yml)
 
 Automatically generates release notes from commit history using conventional commits.
 
@@ -384,117 +319,7 @@ gh release edit v0.3.0 --notes "Updated notes"
 
 ---
 
-### 6. GitOps with Flux (gitops-sync-flux.yml)
-
-Declarative infrastructure with automatic synchronization using Flux CD.
-
-**Triggers:**
-- Push to `main`, `develop` (with `infra/flux/` path changes)
-- Manual workflow dispatch
-
-**Stages:**
-
-1. **Validate Flux Configuration** (3 min)
-   - Checks Flux sources
-   - Validates kustomizations
-   - Verifies directory structure
-
-2. **Validate Kustomize** (3 min)
-   - Builds all kustomizations
-   - Detects errors early
-
-3. **Validate Manifests** (3 min)
-   - kubeval validation
-   - Kubernetes schema compliance
-   - Version: 1.28.0
-
-4. **Dry-run on Staging** (5 min, `develop` branch only)
-   - Connects to staging cluster
-   - Performs dry-run apply
-   - Shows predicted drift
-
-5. **Apply to Production** (10 min, `main` branch only)
-   - Requires GitHub environment approval
-   - Applies to production cluster
-   - Waits for Flux reconciliation (max 5 min)
-   - Verifies deployment
-
-6. **Verify Deployment** (5 min)
-   - Checks rollout status
-   - Verifies service endpoints
-   - Performs health checks
-
-**Directory Structure:**
-
-```
-infra/flux/
-├── sources/                    # Git/Helm/Other sources
-│   └── ggen-source.yaml
-├── kustomizations/             # Kustomize overlays
-│   ├── base/
-│   │   ├── kustomization.yaml
-│   │   ├── deployment.yaml
-│   │   └── service.yaml
-│   ├── staging/
-│   │   └── kustomization.yaml
-│   └── production/
-│       └── kustomization.yaml
-└── gotk-components.yaml        # Flux system components
-```
-
-**Configuration:**
-
-Update kubeconfig secrets:
-
-```bash
-# Encode and store kubeconfig
-cat ~/.kube/config | base64 | xclip -selection clipboard
-# Paste into: Settings → Secrets and variables → Actions → New repository secret
-# Names: KUBECONFIG_STAGING, KUBECONFIG_PROD
-```
-
-**Secrets Required:**
-
-```
-KUBECONFIG_STAGING         - base64-encoded kubeconfig for staging
-KUBECONFIG_PROD            - base64-encoded kubeconfig for production
-PROD_CLUSTER_URL           - URL of production cluster
-```
-
-**Usage:**
-
-```bash
-# Create Flux sources
-flux create source git ggen \
-  --url=https://github.com/seanchatmangpt/ggen \
-  --branch=main \
-  --interval=5m \
-  --export | kubectl apply -f -
-
-# Create kustomizations
-flux create kustomization ggen \
-  --source=GitRepository/ggen \
-  --path="./infra/flux/kustomizations" \
-  --prune=true \
-  --interval=5m \
-  --export | kubectl apply -f -
-
-# Monitor reconciliation
-flux get kustomizations --watch
-flux get sources all --watch
-
-# Force reconciliation
-flux reconcile source git ggen
-flux reconcile kustomization ggen
-
-# View Flux logs
-kubectl logs -n flux-system deployment/source-controller
-kubectl logs -n flux-system deployment/kustomize-controller
-```
-
----
-
-### 7. Automated Rollback (automated-rollback.yml)
+### 5. Automated Rollback (automated-rollback.yml)
 
 Health-check-triggered automatic rollbacks with manual override capability.
 
@@ -578,6 +403,33 @@ All rollbacks are recorded in `.rollback-history/`:
 
 ---
 
+### 6. Other Operational Workflows (by reference)
+
+These workflows exist in `.github/workflows/` and run on push/tag/schedule/manual
+triggers — none is a PR gate. They are listed here for completeness; inspect each
+file (or `gh workflow view <name>.yml`) for its exact triggers and jobs.
+
+| Workflow | Purpose |
+|----------|---------|
+| `release.yml` | Build and publish GitHub releases on tag push (`v*`). |
+| `release-debian.yml` | Build `.deb` packages for releases. |
+| `homebrew-release.yml` | Update the Homebrew formula on release. |
+| `publish-registry.yml` | Publish ggen packages to the package registry. |
+| `deploy-docs.yml` | Build and deploy the documentation site. |
+| `docker.yml` | Auxiliary Docker build (alongside `docker-build-push.yml`). |
+| `secrets-sync.yml` | Synchronize repository/organization secrets. |
+| `marketplace.yml` | Marketplace top-level orchestration. |
+| `marketplace-deploy.yml` | Deploy the marketplace. |
+| `marketplace-docs.yml` | Build/publish marketplace docs. |
+| `marketplace-test.yml` | Marketplace tests (operational, not a PR gate). |
+| `marketplace-validate.yml` | Marketplace pack validation (operational, not a PR gate). |
+| `erlang-ci.yml` | Erlang component CI. |
+| `erlang-release.yml` | Erlang component release. |
+
+> Use `gh run list --workflow=<name>.yml` to inspect recent runs of any of these.
+
+---
+
 ## Environment Configuration
 
 ### Secrets Setup
@@ -603,17 +455,28 @@ Configure these variables in **Settings → Secrets and variables → Variables*
 
 ### Branch Protection
 
-Configure branch protection in **Settings → Branches → main**:
+Configure branch protection in **Settings → Branches → main**. The required
+status checks are the deliverable-scoped gate from `ci.yml` (see
+`.github/CI_ARCHITECTURE.md` §4 for the authoritative list and rationale —
+operational workflows like `docker-build-push` / `semantic-release` are NOT PR
+gates):
 
 ```
-✅ Require status checks to pass:
-   - ci-complete
-   - helm-validation
-   - docker-build-push
+✅ Require status checks to pass (all from ci.yml):
+   - Check
+   - Build
+   - Test
+   - Doctest
+   - CI Status        # aggregate of the four above
+
+# NON-required (advisory; run for signal, do not block):
+#   clippy / audit / slo (quality.yml), example-tpot2, docs (links),
+#   lsp-crates (ci.yml advisory — promote once ggen-lsp tracks a pinned lsp-max)
 
 ✅ Require code reviews before merging
 ✅ Require approval from code owners
 ✅ Require branches to be up to date
+✅ Require merge queue (gates also run on merge_group)
 
 ✅ Require deploy reviews before merging
    - Environment: production
@@ -623,20 +486,31 @@ Configure branch protection in **Settings → Branches → main**:
 
 ## Customization Guide
 
-### Add Custom Andon Signals
+### Add a New PR Check
 
-Edit `ci-complete.yml` to add custom checks:
+Add a required check by adding a job to `ci.yml` and wiring it into the `ci-status`
+aggregate (so branch protection keeps tracking a single stable check). Add an
+advisory check by adding a job to `quality.yml` instead. Cargo jobs must call the
+`setup-ggen-build` action first and use the deliverable scope
+(`--exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a`):
 
 ```yaml
-- name: Custom andon signal
-  run: |
-    # Your check here
-    if [ condition ]; then
-      echo "❌ ANDON SIGNAL TRIGGERED"
-      exit 1
-    fi
-    echo "✅ Check passed"
+# In ci.yml — a new REQUIRED gate
+my-check:
+  name: My Check
+  runs-on: ubuntu-latest
+  timeout-minutes: 30
+  steps:
+    - uses: actions/checkout@<sha> # vX.Y.Z
+    - uses: ./.github/actions/setup-ggen-build
+    - run: cargo <command> --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
+
+# Then add it to the aggregate so it becomes part of the `CI Status` required check:
+ci-status:
+  needs: [check, build, test, doctest, my-check]
 ```
+
+No `continue-on-error` — checks must fail honestly (see `CI_CONVENTIONS.md`).
 
 ### Change Release Type Logic
 
@@ -661,26 +535,6 @@ build-new-image:
     # Build steps here
 ```
 
-### Customize Helm Validation
-
-Edit `helm-validation.yml` to add validators:
-
-```yaml
-- name: Custom Helm validator
-  run: |
-    # Custom validation logic
-```
-
-### Change GitOps Source
-
-Edit `gitops-sync-flux.yml` to use different Git source:
-
-```yaml
-flux create source git ggen \
-  --url=${{ secrets.GIT_REPO_URL }} \
-  --branch=${{ secrets.GIT_BRANCH }}
-```
-
 ---
 
 ## Monitoring & Debugging
@@ -692,7 +546,7 @@ flux create source git ggen \
 gh run list
 
 # List runs for specific workflow
-gh run list --workflow=ci-complete.yml
+gh run list --workflow=ci.yml
 
 # List runs for specific branch
 gh run list --branch=main
@@ -738,29 +592,24 @@ gh run download <run-id> -n artifact-name
 
 ## Common Issues & Solutions
 
-### Issue: "Andon Signal Failed - Compilation Error"
+### Issue: `ci.yml` Check/Build/Test failed — compilation error
 
 **Solution:**
 
-1. Run locally: `cargo check`
-2. Fix errors: `cargo clippy --fix`
-3. Commit and push: `git push origin feature-branch`
-
-### Issue: "Helm Lint Failed"
-
-**Solution:**
+The required gate (`ci.yml`) builds with the pinned `nightly-2026-04-15` toolchain and
+the four provisioned siblings. Reproduce locally with the same scope:
 
 ```bash
-# Lint chart locally
-helm lint helm/tai-chart
+# Compile the shippable deliverable (same exclusions as the required gate)
+cargo check --workspace --exclude ggen-lsp --exclude ggen-lsp-mcp --exclude ggen-lsp-a2a
 
-# Check for missing dependencies
-helm dependency list helm/tai-chart
-helm dependency update helm/tai-chart
-
-# Validate YAML
-helm template tai-chart helm/tai-chart | kubeval
+# Or use the project entry point
+just check && just test-lib
 ```
+
+Then fix the errors and push. Note: failures in the advisory `lsp crates` job
+(`ggen-lsp` / `ggen-lsp-mcp` / `ggen-lsp-a2a`) do **not** block merge — that job is
+intentionally non-required until `ggen-lsp` compiles against a pinned `lsp-max`.
 
 ### Issue: "Docker image build timeout"
 
@@ -782,21 +631,6 @@ helm template tai-chart helm/tai-chart | kubeval
 3. Check deployment status: `kubectl rollout status deployment/tai-controller -n production`
 4. Manual verification: `kubectl describe pod <pod-name> -n production`
 
-### Issue: "Kubeconfig authentication failed"
-
-**Solution:**
-
-```bash
-# Verify kubeconfig is valid
-kubectl config view
-
-# Encode kubeconfig correctly
-cat ~/.kube/config | base64 -w 0
-
-# Update secret:
-echo "NEW_BASE64_KUBECONFIG" | gh secret set KUBECONFIG_PROD
-```
-
 ---
 
 ## Performance Optimization
@@ -804,8 +638,10 @@ echo "NEW_BASE64_KUBECONFIG" | gh secret set KUBECONFIG_PROD
 ### Cache Optimization
 
 The CI pipeline uses GitHub Actions caching for:
-- Rust build artifacts: `Swatinem/rust-cache@v2`
-- Docker layers: `docker/build-push-action@v26.5.19` with `cache-from: type=gha`
+- Rust build artifacts: `Swatinem/rust-cache` (commit-pinned inside the shared
+  `./.github/actions/setup-ggen-build` composite action, so every cargo job caches
+  consistently)
+- Docker layers: `docker/build-push-action` with `cache-from: type=gha`
 
 To clear caches:
 
@@ -820,8 +656,11 @@ gh api repos/seanchatmangpt/ggen/actions/cache -X GET | jq '.actions_caches[].id
 ### Parallel Job Optimization
 
 Jobs run in parallel when possible:
-- `quick-checks` → `unit-tests`, `integration-tests`, `security-scan` (parallel)
-- `validate-flux` → `validate-kustomize` → `validate-manifests` (sequential)
+- In `ci.yml`, the `check`, `build`, `test`, `doctest`, and advisory `lsp-crates`
+  jobs all run in parallel; `ci-status` fans in last (`needs: [check, build, test,
+  doctest]`).
+- In `quality.yml`, the `fmt`, `clippy`, `audit`, and `slo` jobs all run in parallel
+  (no inter-job `needs:`).
 
 Adjust concurrency with:
 
@@ -859,10 +698,11 @@ concurrency:
 
 ## Related Documentation
 
+- [`CI_ARCHITECTURE.md`](CI_ARCHITECTURE.md) — PR-gating CI design and rationale
+- [`CI_CONVENTIONS.md`](CI_CONVENTIONS.md) — honesty/convention rules for workflows
+- [`CI_TEARDOWN.md`](CI_TEARDOWN.md) — per-workflow teardown decision record
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
-- [Flux CD Documentation](https://fluxcd.io/)
 - [cosign Documentation](https://docs.sigstore.dev/cosign/overview/)
 - [syft Documentation](https://github.com/anchore/syft)
-- [Helm Best Practices](https://helm.sh/docs/chart_best_practices/)
 
