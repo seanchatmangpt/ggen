@@ -1,0 +1,80 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    a owl:Ontology ;
+    dcterms:title "RDF 1.1 Vocabulary" ;
+    dcterms:description "The RDF syntax namespace (W3C Recommendation 2014)" ;
+    owl:versionInfo "1.1" .
+
+rdf:Property a rdfs:Class ;
+    rdfs:label "Property" ;
+    rdfs:comment "The class of RDF properties." .
+
+rdf:Statement a rdfs:Class ;
+    rdfs:label "Statement" ;
+    rdfs:comment "The class of RDF statements." .
+
+rdf:Bag a rdfs:Class ;
+    rdfs:subClassOf rdfs:Container ;
+    rdfs:label "Bag" .
+
+rdf:Seq a rdfs:Class ;
+    rdfs:subClassOf rdfs:Container ;
+    rdfs:label "Seq" .
+
+rdf:Alt a rdfs:Class ;
+    rdfs:subClassOf rdfs:Container ;
+    rdfs:label "Alt" .
+
+rdf:List a rdfs:Class ;
+    rdfs:label "List" .
+
+rdf:XMLLiteral a rdfs:Datatype ;
+    rdfs:label "XMLLiteral" .
+
+rdf:HTML a rdfs:Datatype ;
+    rdfs:label "HTML" .
+
+rdf:langString a rdfs:Datatype ;
+    rdfs:label "langString" .
+
+rdf:type a rdf:Property ;
+    rdfs:label "type" ;
+    rdfs:comment "The subject is an instance of a class." ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Class .
+
+rdf:subject a rdf:Property ;
+    rdfs:label "subject" ;
+    rdfs:domain rdf:Statement ;
+    rdfs:range rdfs:Resource .
+
+rdf:predicate a rdf:Property ;
+    rdfs:label "predicate" ;
+    rdfs:domain rdf:Statement ;
+    rdfs:range rdfs:Resource .
+
+rdf:object a rdf:Property ;
+    rdfs:label "object" ;
+    rdfs:domain rdf:Statement ;
+    rdfs:range rdfs:Resource .
+
+rdf:value a rdf:Property ;
+    rdfs:label "value" .
+
+rdf:first a rdf:Property ;
+    rdfs:label "first" ;
+    rdfs:domain rdf:List ;
+    rdfs:range rdfs:Resource .
+
+rdf:rest a rdf:Property ;
+    rdfs:label "rest" ;
+    rdfs:domain rdf:List ;
+    rdfs:range rdf:List .
+
+rdf:nil a rdf:List ;
+    rdfs:label "nil" .

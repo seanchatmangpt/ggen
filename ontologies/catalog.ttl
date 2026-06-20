@@ -1,0 +1,638 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix gcat: <https://ggen.io/ontology/catalog/v1#> .
+
+# ═══════════════════════════════════════════════════════════════
+# ggen Vision 2030 Ontology Catalog
+# DCAT 2 — W3C Data Catalog Vocabulary
+#
+# Three tiers:
+#   gcat:Core       — Embedded in binary (include_str!), always available offline
+#   gcat:Cached     — Downloaded to XDG cache on first use, verified by BLAKE3
+#   gcat:Referenced — URL reference only, fetched on demand
+# ═══════════════════════════════════════════════════════════════
+
+<https://ggen.io/ontology/catalog>
+    a dcat:Catalog ;
+    dcterms:title "ggen Vision 2030 Ontology Catalog" ;
+    dcterms:description "Complete catalog of ontologies referenced by the ggen code generation system, from W3C foundations to domain-specific vocabularies." ;
+    dcterms:version "1.0.0" ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:license <https://spdx.org/licenses/MIT> ;
+    dcterms:modified "2026-06-20"^^xsd:date .
+
+# ─── Tier vocabulary ────────────────────────────────────────────
+
+gcat:Tier a owl:Class ; rdfs:label "OntologyTier" .
+gcat:Core a gcat:Tier ; rdfs:label "Core" ;
+    rdfs:comment "Tier 0: embedded in the cpmp binary via include_str! — always available offline." .
+gcat:Cached a gcat:Tier ; rdfs:label "Cached" ;
+    rdfs:comment "Tier 1: downloaded to XDG cache directory on first use; integrity verified by BLAKE3." .
+gcat:Referenced a gcat:Tier ; rdfs:label "Referenced" ;
+    rdfs:comment "Tier 2: URL reference only; fetched on demand when SPARQL reasoning requires it." .
+
+gcat:tier a rdf:Property ; rdfs:label "tier" ; rdfs:domain dcat:Dataset ; rdfs:range gcat:Tier .
+gcat:prefix a rdf:Property ; rdfs:label "prefix" ; rdfs:domain dcat:Dataset ; rdfs:range xsd:string .
+gcat:embeddedPath a rdf:Property ; rdfs:label "embeddedPath" ; rdfs:range xsd:string .
+gcat:authority a rdf:Property ; rdfs:label "authority" ; rdfs:range xsd:string .
+gcat:capability a rdf:Property ; rdfs:label "capability" ; rdfs:range xsd:string .
+
+# ══════════════════════════════════════════════════════════════════════
+# TIER 0: CORE — embedded in binary (7 entries)
+# ══════════════════════════════════════════════════════════════════════
+
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    a dcat:Dataset ;
+    dcterms:title "RDF 1.1 Vocabulary" ;
+    dcterms:description "The Resource Description Framework syntax namespace — foundation of all RDF data models." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "rdf" ;
+    gcat:embeddedPath "ontologies/core/rdf-syntax-ns.ttl" ;
+    gcat:authority "W3C" ;
+    gcat:capability "rdf-foundation" .
+
+<http://www.w3.org/2000/01/rdf-schema#>
+    a dcat:Dataset ;
+    dcterms:title "RDF Schema 1.1" ;
+    dcterms:description "RDF Vocabulary Description Language (RDFS) — classes, properties, domains, ranges." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "rdfs" ;
+    gcat:embeddedPath "ontologies/core/rdf-schema.ttl" ;
+    gcat:authority "W3C" ;
+    gcat:capability "rdf-foundation" .
+
+<http://www.w3.org/2002/07/owl#>
+    a dcat:Dataset ;
+    dcterms:title "OWL 2 Vocabulary" ;
+    dcterms:description "Web Ontology Language 2 — full class axioms, property restrictions, reasoning support." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "owl" ;
+    gcat:embeddedPath "ontologies/core/owl2.ttl" ;
+    gcat:authority "W3C" ;
+    gcat:capability "owl-reasoning" .
+
+<http://www.w3.org/2001/XMLSchema#>
+    a dcat:Dataset ;
+    dcterms:title "XML Schema 1.1 Datatypes" ;
+    dcterms:description "XSD built-in primitive and derived datatypes used in RDF/OWL literals." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "xsd" ;
+    gcat:embeddedPath "ontologies/core/xmlschema-datatypes.ttl" ;
+    gcat:authority "W3C" ;
+    gcat:capability "datatype-validation" .
+
+<http://www.w3.org/ns/shacl#>
+    a dcat:Dataset ;
+    dcterms:title "Shapes Constraint Language (SHACL)" ;
+    dcterms:description "W3C SHACL — defines node and property shapes for RDF graph validation." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "sh" ;
+    gcat:embeddedPath "ontologies/core/shacl.ttl" ;
+    gcat:authority "W3C" ;
+    gcat:capability "shacl-validation" .
+
+<http://www.w3.org/ns/prov#>
+    a dcat:Dataset ;
+    dcterms:title "PROV-O: The PROV Ontology" ;
+    dcterms:description "W3C provenance ontology — entity, activity, agent, derivation, attribution, generation." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "prov" ;
+    gcat:embeddedPath "ontologies/core/prov-o.ttl" ;
+    gcat:authority "W3C" ;
+    gcat:capability "provenance-chain" .
+
+<http://purl.org/dc/terms/>
+    a dcat:Dataset ;
+    dcterms:title "Dublin Core Metadata Terms" ;
+    dcterms:description "DCMI Metadata Terms — the complete set of descriptive metadata properties." ;
+    gcat:tier gcat:Core ;
+    gcat:prefix "dcterms" ;
+    gcat:embeddedPath "ontologies/core/dcterms.ttl" ;
+    gcat:authority "DCMI" ;
+    gcat:capability "metadata" .
+
+# ══════════════════════════════════════════════════════════════════════
+# TIER 1: CACHED — downloaded on first use (12 entries)
+# ══════════════════════════════════════════════════════════════════════
+
+<http://www.w3.org/2004/02/skos/core#>
+    a dcat:Dataset ;
+    dcterms:title "SKOS Simple Knowledge Organization System" ;
+    dcterms:description "W3C vocabulary for thesauri, classification schemes, and controlled vocabularies." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "skos" ;
+    dcat:downloadURL <https://www.w3.org/TR/skos-reference/skos.rdf> ;
+    gcat:authority "W3C" ;
+    gcat:capability "knowledge-organization" .
+
+<http://www.w3.org/ns/dcat#>
+    a dcat:Dataset ;
+    dcterms:title "Data Catalog Vocabulary (DCAT) 2" ;
+    dcterms:description "W3C vocabulary for describing data catalogs and datasets on the web." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "dcat" ;
+    dcat:downloadURL <https://www.w3.org/ns/dcat2.ttl> ;
+    gcat:authority "W3C" ;
+    gcat:capability "catalog-management" .
+
+<http://xmlns.com/foaf/0.1/>
+    a dcat:Dataset ;
+    dcterms:title "Friend of a Friend (FOAF)" ;
+    dcterms:description "Vocabulary for describing people, their activities, and their relations to other people and objects." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "foaf" ;
+    dcat:downloadURL <http://xmlns.com/foaf/spec/index.rdf> ;
+    gcat:authority "Community" ;
+    gcat:capability "agent-description" .
+
+<https://schema.org/>
+    a dcat:Dataset ;
+    dcterms:title "Schema.org" ;
+    dcterms:description "Vocabulary for structured data — used by search engines and the web at large." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "schema" ;
+    dcat:downloadURL <https://schema.org/version/latest/schemaorg-current-https.ttl> ;
+    gcat:authority "schema.org" ;
+    gcat:capability "structured-data" .
+
+<http://rdfs.org/ns/void#>
+    a dcat:Dataset ;
+    dcterms:title "Vocabulary of Interlinked Datasets (VoID)" ;
+    dcterms:description "Vocabulary for expressing metadata about RDF datasets." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "void" ;
+    dcat:downloadURL <http://rdfs.org/ns/void.ttl> ;
+    gcat:authority "W3C" ;
+    gcat:capability "dataset-description" .
+
+<http://qudt.org/schema/qudt/>
+    a dcat:Dataset ;
+    dcterms:title "Quantities, Units, Dimensions and Types (QUDT)" ;
+    dcterms:description "Ontology for units of measure, quantity kinds, and numeric values." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "qudt" ;
+    dcat:downloadURL <http://qudt.org/2.1/schema/qudt> ;
+    gcat:authority "QUDT.org" ;
+    gcat:capability "units-of-measure" .
+
+<https://www.ocel-standard.org/2.0/>
+    a dcat:Dataset ;
+    dcterms:title "Object-Centric Event Log (OCEL) 2.0" ;
+    dcterms:description "Standard for object-centric process mining event logs (Van der Aalst et al.)." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "ocel" ;
+    dcat:downloadURL <https://www.ocel-standard.org/2.0/ocel2-standard.ttl> ;
+    gcat:authority "IEEE" ;
+    gcat:capability "process-mining" .
+
+<http://www.w3.org/2006/time#>
+    a dcat:Dataset ;
+    dcterms:title "OWL-Time" ;
+    dcterms:description "W3C ontology for describing temporal entities and relations." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "time" ;
+    dcat:downloadURL <https://www.w3.org/2006/time> ;
+    gcat:authority "W3C" ;
+    gcat:capability "temporal-reasoning" .
+
+<https://spdx.org/rdf/terms/>
+    a dcat:Dataset ;
+    dcterms:title "SPDX RDF Ontology" ;
+    dcterms:description "Software Package Data Exchange — license expression and software bill of materials." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "spdx" ;
+    dcat:downloadURL <https://spdx.org/rdf/spdx-terms-v2.3.ttl> ;
+    gcat:authority "Linux Foundation" ;
+    gcat:capability "license-compliance" .
+
+<http://usefulinc.com/ns/doap#>
+    a dcat:Dataset ;
+    dcterms:title "Description of a Project (DOAP)" ;
+    dcterms:description "Vocabulary for describing open-source software projects." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "doap" ;
+    dcat:downloadURL <https://raw.githubusercontent.com/ewilderj/doap/master/schema/doap.rdf> ;
+    gcat:authority "Community" ;
+    gcat:capability "project-description" .
+
+<http://purl.org/vocab/vann/>
+    a dcat:Dataset ;
+    dcterms:title "VANN: A vocabulary for annotating vocabulary descriptions" ;
+    dcterms:description "Vocabulary for documenting ontologies with preferred prefixes and example namespaces." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "vann" ;
+    dcat:downloadURL <http://purl.org/vocab/vann/vann-vocab-20100607.rdf> ;
+    gcat:authority "Community" ;
+    gcat:capability "vocabulary-annotation" .
+
+<http://purl.org/linked-data/cube#>
+    a dcat:Dataset ;
+    dcterms:title "RDF Data Cube Vocabulary" ;
+    dcterms:description "W3C vocabulary for publishing multi-dimensional statistical data as Linked Data." ;
+    gcat:tier gcat:Cached ;
+    gcat:prefix "qb" ;
+    dcat:downloadURL <http://purl.org/linked-data/cube> ;
+    gcat:authority "W3C" ;
+    gcat:capability "statistical-data" .
+
+# ══════════════════════════════════════════════════════════════════════
+# TIER 2: REFERENCED — URL only, fetched on demand (38 entries)
+# ══════════════════════════════════════════════════════════════════════
+
+# ── Financial & Legal ────────────────────────────────────────────
+
+<https://spec.edmcouncil.org/fibo/ontology/FND/>
+    a dcat:Dataset ;
+    dcterms:title "FIBO Foundations (FND)" ;
+    dcterms:description "Financial Industry Business Ontology — foundational concepts for financial services." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "fibo-fnd" ;
+    dcat:landingPage <https://spec.edmcouncil.org/fibo/> ;
+    gcat:authority "EDMCouncil" ;
+    gcat:capability "financial-instruments" .
+
+<https://spec.edmcouncil.org/fibo/ontology/BE/>
+    a dcat:Dataset ;
+    dcterms:title "FIBO Business Entities (BE)" ;
+    dcterms:description "FIBO module covering legal entities, legal persons, and ownership structures." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "fibo-be" ;
+    dcat:landingPage <https://spec.edmcouncil.org/fibo/> ;
+    gcat:authority "EDMCouncil" ;
+    gcat:capability "financial-instruments" .
+
+<https://spec.edmcouncil.org/fibo/ontology/SEC/>
+    a dcat:Dataset ;
+    dcterms:title "FIBO Securities (SEC)" ;
+    dcterms:description "FIBO module covering financial instruments, securities, and derivatives." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "fibo-sec" ;
+    dcat:landingPage <https://spec.edmcouncil.org/fibo/> ;
+    gcat:authority "EDMCouncil" ;
+    gcat:capability "financial-instruments" .
+
+<http://www.estrellaproject.org/lkif-core/lkif-core.owl#>
+    a dcat:Dataset ;
+    dcterms:title "Legal Knowledge Interchange Format (LKIF-Core)" ;
+    dcterms:description "Core ontology for legal knowledge — norms, rules, actions, and legal roles." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "lkif" ;
+    dcat:landingPage <http://www.estrellaproject.org/lkif-core/> ;
+    gcat:authority "ESTRELLA" ;
+    gcat:capability "compliance-rules" .
+
+# ── Healthcare ───────────────────────────────────────────────────
+
+<http://hl7.org/fhir/>
+    a dcat:Dataset ;
+    dcterms:title "HL7 FHIR RDF" ;
+    dcterms:description "Fast Healthcare Interoperability Resources — clinical data exchange standard." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "fhir" ;
+    dcat:landingPage <https://www.hl7.org/fhir/rdf.html> ;
+    gcat:authority "HL7" ;
+    gcat:capability "healthcare-data" .
+
+# ── Cybersecurity ────────────────────────────────────────────────
+
+<http://docs.oasis-open.org/cti/ns/stix/>
+    a dcat:Dataset ;
+    dcterms:title "STIX 2.1 Cyber Threat Intelligence" ;
+    dcterms:description "Structured Threat Information Expression — vocabulary for cyber threat intelligence sharing." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "stix" ;
+    dcat:landingPage <https://oasis-open.github.io/cti-stix2-json-schemas/> ;
+    gcat:authority "OASIS" ;
+    gcat:capability "security-classification" .
+
+<https://ontology.unifiedcyberontology.org/uco/>
+    a dcat:Dataset ;
+    dcterms:title "Unified Cyber Ontology (UCO)" ;
+    dcterms:description "Ontology for cyber-investigation, digital forensics, and cybersecurity analysis." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "uco" ;
+    dcat:landingPage <https://unifiedcyberontology.org/> ;
+    gcat:authority "UCO Community" ;
+    gcat:capability "security-classification" .
+
+# ── Infrastructure & DevOps ──────────────────────────────────────
+
+<https://w3id.org/iac#>
+    a dcat:Dataset ;
+    dcterms:title "Infrastructure as Code Ontology (IaC)" ;
+    dcterms:description "Ontology for describing infrastructure configuration and deployment resources." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "iac" ;
+    dcat:landingPage <https://w3id.org/iac> ;
+    gcat:authority "Community" ;
+    gcat:capability "infrastructure-as-code" .
+
+<http://docs.oasis-open.org/tosca/ns/2011/12/>
+    a dcat:Dataset ;
+    dcterms:title "TOSCA (Topology and Orchestration Specification)" ;
+    dcterms:description "OASIS standard for portable cloud application topologies." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "tosca" ;
+    dcat:landingPage <https://www.oasis-open.org/committees/tosca/> ;
+    gcat:authority "OASIS" ;
+    gcat:capability "infrastructure-as-code" .
+
+# ── Machine Learning ─────────────────────────────────────────────
+
+<http://ml-schema.github.io/documentation/>
+    a dcat:Dataset ;
+    dcterms:title "ML Schema" ;
+    dcterms:description "Community ontology for machine learning algorithms, datasets, and experiments." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "mls" ;
+    dcat:landingPage <http://ml-schema.github.io/documentation/ML_schema.html> ;
+    gcat:authority "W3C Community" ;
+    gcat:capability "ml-metadata" .
+
+<https://www.w3.org/ns/mls>
+    a dcat:Dataset ;
+    dcterms:title "W3C Machine Learning Schema" ;
+    dcterms:description "W3C Machine Learning Schema Community Group vocabulary for ML datasets and models." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "mls2" ;
+    dcat:landingPage <https://www.w3.org/community/ml-schema/> ;
+    gcat:authority "W3C" ;
+    gcat:capability "ml-metadata" .
+
+# ── Workflow & Process ───────────────────────────────────────────
+
+<http://www.yawlfoundation.org/yawlschema#>
+    a dcat:Dataset ;
+    dcterms:title "YAWL Workflow Ontology" ;
+    dcterms:description "Yet Another Workflow Language — 43 workflow control-flow patterns (Van der Aalst et al.)." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "yawl" ;
+    dcat:landingPage <https://yawlfoundation.github.io/> ;
+    gcat:authority "YAWL Foundation" ;
+    gcat:capability "workflow-patterns" .
+
+<https://www.omg.org/spec/BPMN/20100524/MODEL-XMI>
+    a dcat:Dataset ;
+    dcterms:title "BPMN 2.0 Metamodel" ;
+    dcterms:description "Business Process Model and Notation 2.0 — standard for business process modeling." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "bpmn" ;
+    dcat:landingPage <https://www.omg.org/spec/BPMN/> ;
+    gcat:authority "OMG" ;
+    gcat:capability "workflow-patterns" .
+
+# ── Linked Data & APIs ───────────────────────────────────────────
+
+<http://www.w3.org/ns/r2rml#>
+    a dcat:Dataset ;
+    dcterms:title "R2RML: RDB to RDF Mapping Language" ;
+    dcterms:description "W3C standard for mapping relational databases to RDF graphs." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "rr" ;
+    dcat:downloadURL <https://www.w3.org/TR/r2rml/r2rml.ttl> ;
+    gcat:authority "W3C" ;
+    gcat:capability "data-integration" .
+
+<http://www.w3.org/ns/sparql-service-description#>
+    a dcat:Dataset ;
+    dcterms:title "SPARQL 1.1 Service Description" ;
+    dcterms:description "W3C vocabulary for describing SPARQL endpoints and their capabilities." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "sd" ;
+    dcat:downloadURL <https://www.w3.org/TR/sparql11-service-description/sd.ttl> ;
+    gcat:authority "W3C" ;
+    gcat:capability "sparql-federation" .
+
+<http://www.w3.org/ns/hydra/core#>
+    a dcat:Dataset ;
+    dcterms:title "Hydra Core Vocabulary" ;
+    dcterms:description "Vocabulary for hypermedia-driven Web APIs — operations, IRI templates, collections." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "hydra" ;
+    dcat:downloadURL <http://www.w3.org/ns/hydra/core> ;
+    gcat:authority "W3C Community" ;
+    gcat:capability "api-description" .
+
+<https://www.w3.org/ns/json-ld#>
+    a dcat:Dataset ;
+    dcterms:title "JSON-LD 1.1 Vocabulary" ;
+    dcterms:description "W3C vocabulary for JSON-LD context documents and JSON-LD data model." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "jsonld" ;
+    dcat:downloadURL <https://www.w3.org/ns/json-ld> ;
+    gcat:authority "W3C" ;
+    gcat:capability "json-ld-context" .
+
+<http://www.w3.org/ns/ldp#>
+    a dcat:Dataset ;
+    dcterms:title "Linked Data Platform (LDP)" ;
+    dcterms:description "W3C standard for RESTful read-write Linked Data." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "ldp" ;
+    dcat:downloadURL <https://www.w3.org/ns/ldp> ;
+    gcat:authority "W3C" ;
+    gcat:capability "api-description" .
+
+# ── Bibliographic ────────────────────────────────────────────────
+
+<http://purl.org/ontology/bibo/>
+    a dcat:Dataset ;
+    dcterms:title "Bibliographic Ontology (BIBO)" ;
+    dcterms:description "Vocabulary for bibliographic references and citations." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "bibo" ;
+    dcat:downloadURL <http://purl.org/ontology/bibo/bibo.owl> ;
+    gcat:authority "Community" ;
+    gcat:capability "bibliography" .
+
+<http://purl.org/dc/elements/1.1/>
+    a dcat:Dataset ;
+    dcterms:title "Dublin Core Elements 1.1" ;
+    dcterms:description "Original Dublin Core 15 metadata elements (legacy; prefer dcterms)." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "dc" ;
+    dcat:downloadURL <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.ttl> ;
+    gcat:authority "DCMI" ;
+    gcat:capability "metadata" .
+
+# ── Geospatial ───────────────────────────────────────────────────
+
+<http://www.opengis.net/ont/geosparql#>
+    a dcat:Dataset ;
+    dcterms:title "GeoSPARQL 1.1" ;
+    dcterms:description "OGC standard for representing geospatial data as RDF and querying it with SPARQL." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "geo" ;
+    dcat:downloadURL <http://www.opengis.net/ont/geosparql> ;
+    gcat:authority "OGC" ;
+    gcat:capability "geospatial" .
+
+<http://www.w3.org/2003/01/geo/wgs84_pos#>
+    a dcat:Dataset ;
+    dcterms:title "WGS84 Geo Positioning" ;
+    dcterms:description "W3C Basic Geo (WGS84 lat/long) vocabulary for spatial things." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "wgs84" ;
+    dcat:downloadURL <https://www.w3.org/2003/01/geo/wgs84_pos.rdf> ;
+    gcat:authority "W3C" ;
+    gcat:capability "geospatial" .
+
+# ── Scientific Domains ───────────────────────────────────────────
+
+<http://purl.obolibrary.org/obo/go.owl>
+    a dcat:Dataset ;
+    dcterms:title "Gene Ontology (GO)" ;
+    dcterms:description "Controlled vocabulary for gene product attributes across species." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "go" ;
+    dcat:landingPage <http://geneontology.org/> ;
+    gcat:authority "Gene Ontology Consortium" ;
+    gcat:capability "biology" .
+
+<http://purl.obolibrary.org/obo/chebi.owl>
+    a dcat:Dataset ;
+    dcterms:title "ChEBI: Chemical Entities of Biological Interest" ;
+    dcterms:description "Ontology for chemical entities with roles in biological systems." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "chebi" ;
+    dcat:landingPage <https://www.ebi.ac.uk/chebi/> ;
+    gcat:authority "EBI" ;
+    gcat:capability "chemistry" .
+
+# ── Statistics & Measurement ─────────────────────────────────────
+
+<http://purl.org/linked-data/sdmx/2009/measure#>
+    a dcat:Dataset ;
+    dcterms:title "SDMX-RDF Measure Vocabulary" ;
+    dcterms:description "Linked Data vocabulary derived from the Statistical Data and Metadata eXchange standard." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "sdmx-measure" ;
+    dcat:landingPage <https://sdmx.org/> ;
+    gcat:authority "IMF/ECB/Eurostat" ;
+    gcat:capability "statistical-data" .
+
+<http://www.ontology-of-units-of-measure.org/resource/om-2/>
+    a dcat:Dataset ;
+    dcterms:title "Ontology of Units of Measure (OM) 2" ;
+    dcterms:description "Comprehensive ontology for units of measure, quantities, and measurement scales." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "om" ;
+    dcat:downloadURL <http://www.ontology-of-units-of-measure.org/resource/om-2/om-2.0.rdf> ;
+    gcat:authority "Wageningen University" ;
+    gcat:capability "units-of-measure" .
+
+# ── Knowledge Representation ─────────────────────────────────────
+
+<http://www.w3.org/2008/05/skos-xl#>
+    a dcat:Dataset ;
+    dcterms:title "SKOS-XL (eXtension for Labels)" ;
+    dcterms:description "W3C extension to SKOS for rich label descriptions in thesauri." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "skosxl" ;
+    dcat:downloadURL <https://www.w3.org/TR/skos-reference/skos-xl.rdf> ;
+    gcat:authority "W3C" ;
+    gcat:capability "knowledge-organization" .
+
+# ── Software & Semantic Science ──────────────────────────────────
+
+<http://semanticscience.org/resource/>
+    a dcat:Dataset ;
+    dcterms:title "Semanticscience Integrated Ontology (SIO)" ;
+    dcterms:description "Ontology for scientific data integration and knowledge discovery." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "sio" ;
+    dcat:landingPage <http://semanticscience.org/> ;
+    gcat:authority "SIO Community" ;
+    gcat:capability "scientific-data" .
+
+# ── Social & Communication ───────────────────────────────────────
+
+<https://www.w3.org/ns/activitystreams#>
+    a dcat:Dataset ;
+    dcterms:title "Activity Streams 2.0" ;
+    dcterms:description "W3C vocabulary for social data streams and social network interactions." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "as" ;
+    dcat:downloadURL <https://www.w3.org/ns/activitystreams-owl> ;
+    gcat:authority "W3C" ;
+    gcat:capability "agent-communication" .
+
+# ── ggen-native Ontologies ───────────────────────────────────────
+
+<https://ggen.io/ontology/core#>
+    a dcat:Dataset ;
+    dcterms:title "ggen Core Ontology" ;
+    dcterms:description "Formalises A = μ(O) — the five-stage code-generation pipeline, templates, artefacts." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "ggen" ;
+    gcat:embeddedPath "ontologies/project/ggen-core.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "code-generation" .
+
+<https://ggen.io/ontology/pipeline#>
+    a dcat:Dataset ;
+    dcterms:title "ggen Pipeline Ontology" ;
+    dcterms:description "μ₁–μ₅ pipeline runs, stage runs, receipts, and quality gates." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "pipe" ;
+    gcat:embeddedPath "ontologies/project/ggen-pipeline.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "code-generation" .
+
+<https://ggen.io/ontology/marketplace#>
+    a dcat:Dataset ;
+    dcterms:title "ggen Marketplace Ontology" ;
+    dcterms:description "Pack management, lock files, profile constraints, and marketplace catalogs." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "market" ;
+    dcat:landingPage <https://github.com/seanchatmangpt/ggen> ;
+    gcat:authority "ggen" ;
+    gcat:capability "capability-classification" .
+
+<https://ggen.io/ontology/cpmp#>
+    a dcat:Dataset ;
+    dcterms:title "Computer Project Mapping Protocol (CPMP)" ;
+    dcterms:description "Open Ontologies Catalog — scanner, capability classification, projection, receipts." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "cpmp" ;
+    dcat:landingPage <https://github.com/seanchatmangpt/ggen> ;
+    gcat:authority "ggen" ;
+    gcat:capability "capability-classification" .
+
+# ── Agent Communication (A2A) ────────────────────────────────────
+
+<https://google.github.io/A2A/specification/>
+    a dcat:Dataset ;
+    dcterms:title "Google A2A Protocol" ;
+    dcterms:description "Agent-to-Agent communication protocol for multi-agent orchestration." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "a2a" ;
+    dcat:landingPage <https://google.github.io/A2A/> ;
+    gcat:authority "Google" ;
+    gcat:capability "agent-communication" .
+
+# ── KNHK V2 / Genesis ────────────────────────────────────────────
+
+<https://ggen.io/ontology/genesis-core#>
+    a dcat:Dataset ;
+    dcterms:title "Genesis Core Ontology" ;
+    dcterms:description "Mathematical foundation: A = μ(O), Pair2, RelationPage, Construct8 — interchangeable-parts architecture." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "genesis" ;
+    dcat:landingPage <https://github.com/seanchatmangpt/ggen> ;
+    gcat:authority "ggen" ;
+    gcat:capability "code-generation" .
+
+<https://ggen.io/ontology/yawl-knhk#>
+    a dcat:Dataset ;
+    dcterms:title "KNHK YAWL Pattern Ontology" ;
+    dcterms:description "43 YAWL workflow control-flow patterns formalised as OWL classes for the KNHK V2 engine." ;
+    gcat:tier gcat:Referenced ;
+    gcat:prefix "yknhk" ;
+    gcat:embeddedPath "ontology_catalogue/knhk/rust/docs/yawl/ontology/van_der_aalst_patterns_all_43.ttl" ;
+    gcat:authority "ggen" ;
+    gcat:capability "workflow-patterns" .

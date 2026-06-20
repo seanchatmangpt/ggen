@@ -1,0 +1,78 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/2000/01/rdf-schema#>
+    a owl:Ontology ;
+    dcterms:title "RDF Schema 1.1" ;
+    dcterms:description "RDF Vocabulary Description Language (W3C Recommendation 2014)" ;
+    owl:versionInfo "1.1" .
+
+rdfs:Resource a rdfs:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "The class resource, everything." .
+
+rdfs:Class a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Class" .
+
+rdfs:Literal a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Literal" .
+
+rdfs:Datatype a rdfs:Class ;
+    rdfs:subClassOf rdfs:Class ;
+    rdfs:label "Datatype" .
+
+rdfs:Container a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Container" .
+
+rdfs:ContainerMembershipProperty a rdfs:Class ;
+    rdfs:subClassOf rdf:Property ;
+    rdfs:label "ContainerMembershipProperty" .
+
+rdfs:subClassOf a rdf:Property ;
+    rdfs:label "subClassOf" ;
+    rdfs:domain rdfs:Class ;
+    rdfs:range rdfs:Class .
+
+rdfs:subPropertyOf a rdf:Property ;
+    rdfs:label "subPropertyOf" ;
+    rdfs:domain rdf:Property ;
+    rdfs:range rdf:Property .
+
+rdfs:comment a rdf:Property ;
+    rdfs:label "comment" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Literal .
+
+rdfs:label a rdf:Property ;
+    rdfs:label "label" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Literal .
+
+rdfs:domain a rdf:Property ;
+    rdfs:label "domain" ;
+    rdfs:domain rdf:Property ;
+    rdfs:range rdfs:Class .
+
+rdfs:range a rdf:Property ;
+    rdfs:label "range" ;
+    rdfs:domain rdf:Property ;
+    rdfs:range rdfs:Class .
+
+rdfs:member a rdf:Property ;
+    rdfs:label "member" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Resource .
+
+rdfs:seeAlso a rdf:Property ;
+    rdfs:label "seeAlso" ;
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Resource .
+
+rdfs:isDefinedBy a rdf:Property ;
+    rdfs:subPropertyOf rdfs:seeAlso ;
+    rdfs:label "isDefinedBy" .

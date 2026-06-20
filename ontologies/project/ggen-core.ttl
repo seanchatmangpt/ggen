@@ -1,0 +1,134 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ggen: <https://ggen.io/ontology/core#> .
+@prefix code: <https://ggen.io/ontology/code#> .
+
+<https://ggen.io/ontology/core>
+    a owl:Ontology ;
+    dcterms:title "ggen Core Ontology" ;
+    dcterms:description "Core ontology for the ggen specification-driven code generation system. Formalises A = μ(O): code precipitates from RDF via the five-stage μ₁–μ₅ pipeline." ;
+    owl:versionInfo "26.5.28" ;
+    dcterms:creator <https://github.com/seanchatmangpt> ;
+    dcterms:license <https://spdx.org/licenses/MIT> .
+
+# ───── Source of Truth (O) ─────
+
+ggen:Ontology a owl:Class ;
+    rdfs:label "Ontology" ;
+    rdfs:comment "An RDF ontology that acts as the source of truth driving code generation via A = μ(O)." .
+
+# ───── Generated Artefacts (A) ─────
+
+ggen:Artefact a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Artefact" ;
+    rdfs:comment "A code artefact produced by applying μ to an Ontology." .
+
+ggen:File a owl:Class ;
+    rdfs:subClassOf ggen:Artefact ;
+    rdfs:label "File" .
+
+ggen:Directory a owl:Class ;
+    rdfs:label "Directory" .
+
+ggen:Template a owl:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A Tera template that renders Artefacts from SPARQL bindings." .
+
+ggen:Variable a owl:Class ;
+    rdfs:label "Variable" .
+
+ggen:SparqlQuery a owl:Class ;
+    rdfs:label "SparqlQuery" ;
+    rdfs:comment "A SPARQL SELECT or CONSTRUCT query used in μ₂ extraction." .
+
+# ───── μ Pipeline Stages ─────
+
+ggen:PipelineStage a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "PipelineStage" .
+
+ggen:LoadStage a owl:Class ;
+    rdfs:subClassOf ggen:PipelineStage ;
+    rdfs:label "μ₁ Load" ;
+    rdfs:comment "Load RDF ontology into the in-memory Oxigraph triplestore (μ₁)." .
+
+ggen:ExtractStage a owl:Class ;
+    rdfs:subClassOf ggen:PipelineStage ;
+    rdfs:label "μ₂ Extract" ;
+    rdfs:comment "Extract bindings via SPARQL SELECT / CONSTRUCT queries (μ₂)." .
+
+ggen:GenerateStage a owl:Class ;
+    rdfs:subClassOf ggen:PipelineStage ;
+    rdfs:label "μ₃ Generate" ;
+    rdfs:comment "Render code via Tera templates from SPARQL-derived bindings (μ₃)." .
+
+ggen:ValidateStage a owl:Class ;
+    rdfs:subClassOf ggen:PipelineStage ;
+    rdfs:label "μ₄ Validate" ;
+    rdfs:comment "Validate generated output via SHACL shapes and quality gates (μ₄)." .
+
+ggen:EmitStage a owl:Class ;
+    rdfs:subClassOf ggen:PipelineStage ;
+    rdfs:label "μ₅ Emit" ;
+    rdfs:comment "Write artefacts to disk and produce a cryptographic BLAKE3 receipt (μ₅)." .
+
+# ───── Pipeline Properties ─────
+
+ggen:hasTemplate a owl:ObjectProperty ;
+    rdfs:label "hasTemplate" ;
+    rdfs:domain ggen:PipelineStage ;
+    rdfs:range ggen:Template .
+
+ggen:hasQuery a owl:ObjectProperty ;
+    rdfs:label "hasQuery" ;
+    rdfs:domain ggen:ExtractStage ;
+    rdfs:range ggen:SparqlQuery .
+
+ggen:producesArtefact a owl:ObjectProperty ;
+    rdfs:label "producesArtefact" ;
+    rdfs:domain ggen:EmitStage ;
+    rdfs:range ggen:Artefact .
+
+ggen:receiptHash a owl:DatatypeProperty ;
+    rdfs:label "receiptHash" ;
+    rdfs:range xsd:string .
+
+ggen:pipelineVersion a owl:DatatypeProperty ;
+    rdfs:label "pipelineVersion" ;
+    rdfs:range xsd:string .
+
+ggen:outputFile a owl:DatatypeProperty ;
+    rdfs:label "outputFile" ;
+    rdfs:domain ggen:Template ;
+    rdfs:range xsd:string .
+
+# ───── Code Ontology ─────
+
+code:Module a owl:Class ; rdfs:label "Module" .
+code:Struct a owl:Class ; rdfs:label "Struct" .
+code:Trait a owl:Class ; rdfs:label "Trait" .
+code:Field a owl:Class ; rdfs:label "Field" .
+code:Method a owl:Class ; rdfs:label "Method" .
+code:Function a owl:Class ; rdfs:label "Function" .
+code:Enum a owl:Class ; rdfs:label "Enum" .
+code:Variant a owl:Class ; rdfs:label "Variant" .
+code:Type a owl:Class ; rdfs:label "Type" .
+code:Lifetime a owl:Class ; rdfs:label "Lifetime" .
+code:GenericParam a owl:Class ; rdfs:label "GenericParam" .
+code:Attribute a owl:Class ; rdfs:label "Attribute" .
+code:Macro a owl:Class ; rdfs:label "Macro" .
+code:Crate a owl:Class ; rdfs:label "Crate" .
+code:Workspace a owl:Class ; rdfs:label "Workspace" .
+
+code:hasField a owl:ObjectProperty ; rdfs:label "hasField" ; rdfs:domain code:Struct ; rdfs:range code:Field .
+code:hasMethod a owl:ObjectProperty ; rdfs:label "hasMethod" ; rdfs:domain code:Trait ; rdfs:range code:Method .
+code:implements a owl:ObjectProperty ; rdfs:label "implements" ; rdfs:domain code:Struct ; rdfs:range code:Trait .
+code:containsModule a owl:ObjectProperty ; rdfs:label "containsModule" ; rdfs:domain code:Crate ; rdfs:range code:Module .
+code:fieldType a owl:DatatypeProperty ; rdfs:label "fieldType" ; rdfs:domain code:Field ; rdfs:range xsd:string .
+code:visibility a owl:DatatypeProperty ; rdfs:label "visibility" ; rdfs:range xsd:string .
+code:rustType a owl:DatatypeProperty ; rdfs:label "rustType" ; rdfs:range xsd:string .

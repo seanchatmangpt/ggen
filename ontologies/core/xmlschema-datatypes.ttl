@@ -1,0 +1,60 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/2001/XMLSchema#>
+    a owl:Ontology ;
+    dcterms:title "XML Schema Definition Language (XSD) 1.1 Datatypes" ;
+    dcterms:description "XSD built-in datatype declarations for use in RDF/OWL ontologies" ;
+    owl:versionInfo "1.1" .
+
+xsd:string a rdfs:Datatype ; rdfs:label "string" .
+xsd:boolean a rdfs:Datatype ; rdfs:label "boolean" .
+xsd:decimal a rdfs:Datatype ; rdfs:label "decimal" .
+xsd:float a rdfs:Datatype ; rdfs:label "float" .
+xsd:double a rdfs:Datatype ; rdfs:label "double" .
+xsd:duration a rdfs:Datatype ; rdfs:label "duration" .
+xsd:dateTime a rdfs:Datatype ; rdfs:label "dateTime" .
+xsd:time a rdfs:Datatype ; rdfs:label "time" .
+xsd:date a rdfs:Datatype ; rdfs:label "date" .
+xsd:gYearMonth a rdfs:Datatype ; rdfs:label "gYearMonth" .
+xsd:gYear a rdfs:Datatype ; rdfs:label "gYear" .
+xsd:gMonthDay a rdfs:Datatype ; rdfs:label "gMonthDay" .
+xsd:gDay a rdfs:Datatype ; rdfs:label "gDay" .
+xsd:gMonth a rdfs:Datatype ; rdfs:label "gMonth" .
+xsd:hexBinary a rdfs:Datatype ; rdfs:label "hexBinary" .
+xsd:base64Binary a rdfs:Datatype ; rdfs:label "base64Binary" .
+xsd:anyURI a rdfs:Datatype ; rdfs:label "anyURI" .
+xsd:QName a rdfs:Datatype ; rdfs:label "QName" .
+xsd:NOTATION a rdfs:Datatype ; rdfs:label "NOTATION" .
+xsd:normalizedString a rdfs:Datatype ; rdfs:label "normalizedString" .
+xsd:token a rdfs:Datatype ; rdfs:label "token" .
+xsd:language a rdfs:Datatype ; rdfs:label "language" .
+xsd:Name a rdfs:Datatype ; rdfs:label "Name" .
+xsd:NCName a rdfs:Datatype ; rdfs:label "NCName" .
+xsd:ID a rdfs:Datatype ; rdfs:label "ID" .
+xsd:IDREF a rdfs:Datatype ; rdfs:label "IDREF" .
+xsd:IDREFS a rdfs:Datatype ; rdfs:label "IDREFS" .
+xsd:ENTITY a rdfs:Datatype ; rdfs:label "ENTITY" .
+xsd:ENTITIES a rdfs:Datatype ; rdfs:label "ENTITIES" .
+xsd:NMTOKEN a rdfs:Datatype ; rdfs:label "NMTOKEN" .
+xsd:NMTOKENS a rdfs:Datatype ; rdfs:label "NMTOKENS" .
+xsd:integer a rdfs:Datatype ; rdfs:label "integer" .
+xsd:nonPositiveInteger a rdfs:Datatype ; rdfs:label "nonPositiveInteger" .
+xsd:negativeInteger a rdfs:Datatype ; rdfs:label "negativeInteger" .
+xsd:long a rdfs:Datatype ; rdfs:label "long" .
+xsd:int a rdfs:Datatype ; rdfs:label "int" .
+xsd:short a rdfs:Datatype ; rdfs:label "short" .
+xsd:byte a rdfs:Datatype ; rdfs:label "byte" .
+xsd:nonNegativeInteger a rdfs:Datatype ; rdfs:label "nonNegativeInteger" .
+xsd:unsignedLong a rdfs:Datatype ; rdfs:label "unsignedLong" .
+xsd:unsignedInt a rdfs:Datatype ; rdfs:label "unsignedInt" .
+xsd:unsignedShort a rdfs:Datatype ; rdfs:label "unsignedShort" .
+xsd:unsignedByte a rdfs:Datatype ; rdfs:label "unsignedByte" .
+xsd:positiveInteger a rdfs:Datatype ; rdfs:label "positiveInteger" .
+xsd:dayTimeDuration a rdfs:Datatype ; rdfs:label "dayTimeDuration" .
+xsd:yearMonthDuration a rdfs:Datatype ; rdfs:label "yearMonthDuration" .
+xsd:dateTimeStamp a rdfs:Datatype ; rdfs:label "dateTimeStamp" .
+xsd:precisionDecimal a rdfs:Datatype ; rdfs:label "precisionDecimal" .
