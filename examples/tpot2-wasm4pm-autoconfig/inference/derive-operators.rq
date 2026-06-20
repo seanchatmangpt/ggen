@@ -1,0 +1,65 @@
+# ============================================================================
+# inference/derive-operators.rq  —  THE "AUTO" STEP (anti-epistemic-bypass)
+# ============================================================================
+# This CONSTRUCT is what makes the generator "auto-configuring". The TPOT2
+# operator search space is NOT hand-coded: every tpot:Operator is *derived*
+# from the existing pi:ProcessIntelligenceAlgorithm registry by SPARQL. One
+# operator per algorithm (60 in, 60 out), with its fitness COMPUTED here, not
+# stored. If the registry grows, the search space grows automatically. There
+# is no Rust/Tera match-arm enumerating algorithms — the ontology is the
+# single source of truth (CONTRACT.md §0, §10; coding-agent-mistakes §1.2).
+#
+# Adds NEW triples only (never an identity CONSTRUCT — WASM4PM BUG-009): every
+# emitted predicate is in the tpot: namespace and did not exist on the input
+# pi:/tpot:Stage graph.
+#
+# Fitness formula (FROZEN, CONTRACT.md §5):
+#   fitnessScore = qualityTier - (lambdaCost * speedTier),  lambdaCost = 0.5
+#   => BIND((?q - (0.5 * ?s)) AS ?fitness)
+#
+# Stage join (FROZEN, CONTRACT.md §4/§5): an operator is placed at the
+# tpot:Stage whose tpot:forCategory string equals the algorithm's pi:category.
+# This is the category->stage bijection (9 categories <-> 9 stages).
+#
+# Operator IRI is minted deterministically from the algorithmId so the same
+# input always yields the same operator node (determinism — CONTRACT.md §5):
+#   Op_<algorithm_id>  under  https://wasm4pm.dev/tpot#
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+CONSTRUCT {
+  ?operator a tpot:Operator ;
+            tpot:operatorId     ?algorithm_id ;
+            tpot:wrapsAlgorithm ?a ;
+            tpot:atStage        ?stage ;
+            tpot:opCategory     ?category ;
+            tpot:opSpeedTier    ?s ;
+            tpot:opQualityTier  ?q ;
+            tpot:fitnessScore   ?fitness ;
+            tpot:wasmExport     ?wasm_export .
+}
+WHERE {
+  # --- read the algorithm registry (pi:) -----------------------------------
+  ?a a pi:ProcessIntelligenceAlgorithm ;
+     pi:algorithmId ?algorithm_id ;
+     pi:category    ?category ;
+     pi:speedTier   ?s ;
+     pi:qualityTier ?q ;
+     pi:wasmExport  ?wasm_export .
+
+  # --- JOIN on category: find the stage that owns this algorithm's category -
+  ?stage a tpot:PipelineStage ;
+         tpot:forCategory ?category .
+
+  # --- COMPUTE fitness (the frozen formula, lambdaCost = 0.5) ---------------
+  BIND((?q - (0.5 * ?s)) AS ?fitness)
+
+  # --- MINT the operator IRI deterministically from algorithmId ------------
+  BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?algorithm_id)) AS ?operator)
+}

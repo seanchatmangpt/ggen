@@ -1,0 +1,48 @@
+{
+  "generator": "tpot2-wasm4pm-autoconfig",
+  "random_seed": 42,
+  "lambda_cost": 0.5,
+  "selection_strategy": "NSGA2",
+  "objectives": [
+    {
+      "objective_order": 1,
+      "name": "quality",
+      "metric": "quality_tier",
+      "direction": "maximize",
+      "weight": 1.0
+    },
+    {
+      "objective_order": 2,
+      "name": "cost",
+      "metric": "speed_tier",
+      "direction": "minimize",
+      "weight": 0.5
+    }
+  ],
+  "stages": [
+{%- for row in sparql_results %}
+{%- set stage_order = row["stage_order"] | default(value="0") -%}
+{%- set stage_id = row["stage_id"] | default(value="") -%}
+{%- set operator_id = row["operator_id"] | default(value="") -%}
+{%- set wasm_export = row["wasm_export"] | default(value="") -%}
+{%- set input_format = row["input_format"] | default(value="") -%}
+{%- set output_type = row["output_type"] | default(value="") -%}
+{%- set speed_tier = row["speed_tier"] | default(value="0") -%}
+{%- set quality_tier = row["quality_tier"] | default(value="0") -%}
+{%- set fitness_score = row["fitness_score"] | default(value="0") -%}
+{%- set proof_query = row["proof_query"] | default(value="") -%}
+    {
+      "stage_order": {{ stage_order }},
+      "stage_id": "{{ stage_id }}",
+      "operator_id": "{{ operator_id }}",
+      "wasm_export": "{{ wasm_export }}",
+      "input_format": "{{ input_format }}",
+      "output_type": "{{ output_type }}",
+      "speed_tier": {{ speed_tier }},
+      "quality_tier": {{ quality_tier }},
+      "fitness_score": {{ fitness_score }},
+      "proof_query": "{{ proof_query }}"
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}

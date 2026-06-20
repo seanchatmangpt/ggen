@@ -1,0 +1,298 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix pi:     <https://wasm4pm.dev/pi#> .
+@prefix compat: <https://wasm4pm.dev/ns#> .
+@prefix tpot:   <https://wasm4pm.dev/tpot#> .
+
+# ============================================================================
+# TPOT2 SEARCH-SPACE LAYER for the wasm4pm process-mining engine
+# ============================================================================
+#
+# This file models the 60 wasm4pm `pi:ProcessIntelligenceAlgorithm` individuals
+# (in algorithms.ttl) as a TPOT2-style genetic-programming AutoML SEARCH SPACE.
+#
+# TPOT2 (Tree-based Pipeline Optimization Tool 2) optimises an ML pipeline by
+# genetic programming over a `config_dict` (operator search space) with
+# multi-objective NSGA-II Pareto selection: maximise CV score, minimise
+# pipeline complexity. We mirror that EXACTLY for process mining:
+#   * operator   = one wasm4pm algorithm wrapped as a candidate pipeline step
+#   * stage      = one of the 9 pi:category buckets (a "column" of the GP tree)
+#   * fitness    = qualityTier - (lambdaCost * speedTier)   [maximise quality,
+#                  minimise speed-tier cost; speedTier is "cost" not "speed":
+#                  higher speedTier == slower/costlier per the registry semantics]
+#   * Pareto     = globally non-dominated operators on (qualityTier, speedTier)
+#
+# WHAT THIS FILE DECLARES (static search-space metadata only):
+#   - 9  tpot:PipelineStage   individuals  (bijection to the 9 pi:category values)
+#   - 2  tpot:FitnessObjective individuals  (quality:maximize, cost:minimize)
+#   - 1  tpot:GeneticConfig    individual   (NSGA-II GP hyperparameters, seed 42)
+#   - a meaningful SUBSET of tpot:Hyperparameter individuals for real algorithms,
+#     grounded in the algorithmDoc text from algorithms.ttl (NOT invented).
+#
+# WHAT THIS FILE DOES *NOT* DECLARE — and why:
+#   tpot:Operator individuals are intentionally NOT enumerated here. They are
+#   DERIVED BY INFERENCE from the pi: registry via inference/derive-operators.rq
+#   (owned by Agent 2): each pi:Algorithm -> one tpot:Operator carrying the
+#   computed tpot:fitnessScore, its tpot:atStage (matched on category), and the
+#   copied speed/quality tiers. Hand-writing the 60 operators would duplicate the
+#   registry and let it drift; deriving them keeps the ontology the single source
+#   of truth (RDF is truth). Pareto dominance edges are likewise CONSTRUCT-derived
+#   (inference/derive-pareto-dominance.rq).
+#
+# Namespaces (FROZEN, see CONTRACT.md section 2):
+#   pi:     https://wasm4pm.dev/pi#   (60-algorithm registry, reused verbatim)
+#   compat: https://wasm4pm.dev/ns#   (55 cognition breeds, reused verbatim)
+#   tpot:   https://wasm4pm.dev/tpot# (this NEW TPOT2 search-space vocabulary)
+# ============================================================================
+
+
+# ----------------------------------------------------------------------------
+# 1. PIPELINE STAGES  (9 individuals — bijection to the 9 pi:category strings)
+# ----------------------------------------------------------------------------
+# Each tpot:forCategory string below is an EXACT copy of a real pi:category
+# value in algorithms.ttl. Verified counts (= 60 total):
+#   import_export=4  discovery=20  object_centric=6  discovery_analytics=10
+#   conformance=4    ml_analytics=8  prediction=5  simulation=2  agentic=1
+# Order follows the natural process-mining lifecycle: ingest a log, discover a
+# model, analyse it, check conformance, learn/predict, simulate, orchestrate.
+
+tpot:Stage_ingest a tpot:PipelineStage ;
+  rdfs:label      "Stage: Ingest (import/export)" ;
+  tpot:stageId    "ingest" ;
+  tpot:stageOrder "1"^^xsd:integer ;
+  tpot:stageLabel "Ingest" ;
+  tpot:forCategory "import_export" .
+
+tpot:Stage_discover a tpot:PipelineStage ;
+  rdfs:label      "Stage: Discover (control-flow discovery)" ;
+  tpot:stageId    "discover" ;
+  tpot:stageOrder "2"^^xsd:integer ;
+  tpot:stageLabel "Discover" ;
+  tpot:forCategory "discovery" .
+
+tpot:Stage_discover_oc a tpot:PipelineStage ;
+  rdfs:label      "Stage: Discover (object-centric)" ;
+  tpot:stageId    "discover_oc" ;
+  tpot:stageOrder "3"^^xsd:integer ;
+  tpot:stageLabel "DiscoverObjectCentric" ;
+  tpot:forCategory "object_centric" .
+
+tpot:Stage_analyze a tpot:PipelineStage ;
+  rdfs:label      "Stage: Analyze (discovery analytics)" ;
+  tpot:stageId    "analyze" ;
+  tpot:stageOrder "4"^^xsd:integer ;
+  tpot:stageLabel "Analyze" ;
+  tpot:forCategory "discovery_analytics" .
+
+tpot:Stage_conform a tpot:PipelineStage ;
+  rdfs:label      "Stage: Conform (conformance checking)" ;
+  tpot:stageId    "conform" ;
+  tpot:stageOrder "5"^^xsd:integer ;
+  tpot:stageLabel "Conform" ;
+  tpot:forCategory "conformance" .
+
+tpot:Stage_learn a tpot:PipelineStage ;
+  rdfs:label      "Stage: Learn (ML analytics)" ;
+  tpot:stageId    "learn" ;
+  tpot:stageOrder "6"^^xsd:integer ;
+  tpot:stageLabel "Learn" ;
+  tpot:forCategory "ml_analytics" .
+
+tpot:Stage_predict a tpot:PipelineStage ;
+  rdfs:label      "Stage: Predict (predictive monitoring)" ;
+  tpot:stageId    "predict" ;
+  tpot:stageOrder "7"^^xsd:integer ;
+  tpot:stageLabel "Predict" ;
+  tpot:forCategory "prediction" .
+
+tpot:Stage_simulate a tpot:PipelineStage ;
+  rdfs:label      "Stage: Simulate (what-if simulation)" ;
+  tpot:stageId    "simulate" ;
+  tpot:stageOrder "8"^^xsd:integer ;
+  tpot:stageLabel "Simulate" ;
+  tpot:forCategory "simulation" .
+
+tpot:Stage_orchestrate a tpot:PipelineStage ;
+  rdfs:label      "Stage: Orchestrate (agentic pipeline)" ;
+  tpot:stageId    "orchestrate" ;
+  tpot:stageOrder "9"^^xsd:integer ;
+  tpot:stageLabel "Orchestrate" ;
+  tpot:forCategory "agentic" .
+
+
+# ----------------------------------------------------------------------------
+# 2. FITNESS OBJECTIVES  (2 individuals — the NSGA-II multi-objective vector)
+# ----------------------------------------------------------------------------
+# Mirrors TPOT2's (maximise CV score, minimise complexity). Here:
+#   objective 1: quality  -> maximise pi:qualityTier  (weight 1.0)
+#   objective 2: cost     -> minimise pi:speedTier    (weight 0.5 == lambdaCost)
+# The scalarised fitness used for per-stage elite selection is
+#   fitnessScore = qualityTier - (lambdaCost * speedTier).
+
+tpot:Objective_quality a tpot:FitnessObjective ;
+  rdfs:label          "Objective: maximise quality tier" ;
+  tpot:objectiveId    "quality" ;
+  tpot:objectiveName  "Quality" ;
+  tpot:metric         "qualityTier" ;
+  tpot:direction      "maximize" ;
+  tpot:weight         "1.0"^^xsd:decimal ;
+  tpot:objectiveOrder "1"^^xsd:integer .
+
+tpot:Objective_cost a tpot:FitnessObjective ;
+  rdfs:label          "Objective: minimise speed-tier cost" ;
+  tpot:objectiveId    "cost" ;
+  tpot:objectiveName  "Cost" ;
+  tpot:metric         "speedTier" ;
+  tpot:direction      "minimize" ;
+  tpot:weight         "0.5"^^xsd:decimal ;
+  tpot:objectiveOrder "2"^^xsd:integer .
+
+
+# ----------------------------------------------------------------------------
+# 3. GENETIC CONFIG  (single individual — the NSGA-II GP run parameters)
+# ----------------------------------------------------------------------------
+# tpot:metaBreed points at compat:Breed_version_space, a REAL breed in
+# breeds.ttl. From its breedDoc: "Version-space candidate elimination (Mitchell,
+# 'Generalization as Search', Artificial Intelligence 18(2), 1982)." Version-space
+# learning frames concept learning as SEARCH through a hypothesis space bounded by
+# a most-general and most-specific boundary set — the closest classical analogue
+# to TPOT2's genetic-programming search through a pipeline-configuration space,
+# so it is used here as the GP meta-strategy. (Other genuine learning/search
+# breeds in breeds.ttl that would also qualify: compat:Breed_ebl,
+# compat:Breed_rl_symbolic, compat:Breed_ilp.)
+
+tpot:Config_default a tpot:GeneticConfig ;
+  rdfs:label              "TPOT2 NSGA-II default GP configuration" ;
+  tpot:populationSize     "100"^^xsd:integer ;
+  tpot:generations        "50"^^xsd:integer ;
+  tpot:mutationRate       "0.9"^^xsd:decimal ;
+  tpot:crossoverRate      "0.1"^^xsd:decimal ;
+  tpot:selectionStrategy  "NSGA2" ;
+  tpot:randomSeed         "42"^^xsd:integer ;
+  tpot:lambdaCost         "0.5"^^xsd:decimal ;
+  tpot:metaBreed          compat:Breed_version_space .
+
+
+# ----------------------------------------------------------------------------
+# 4. HYPERPARAMETERS  (illustrative subset — grounded in algorithms.ttl docs)
+# ----------------------------------------------------------------------------
+# Each tpot:hpOperator equals a real pi:algorithmId. Parameter semantics are
+# taken DIRECTLY from each algorithm's algorithmDoc; nothing here contradicts the
+# registry. These mirror the per-operator hyperparameter grid TPOT2 samples while
+# tuning an operator. They are illustrative (10 of 60 algorithms), not exhaustive.
+
+# heuristic_miner: doc -> "Dependency threshold controls filtering aggressiveness."
+tpot:Hp_heuristic_miner_dependency_threshold a tpot:Hyperparameter ;
+  rdfs:label        "heuristic_miner.dependency_threshold" ;
+  tpot:hpOperator   "heuristic_miner" ;
+  tpot:paramName    "dependency_threshold" ;
+  tpot:paramType    "float" ;
+  tpot:paramDefault "0.5" ;
+  tpot:paramMin     "0.0" ;
+  tpot:paramMax     "1.0" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+# inductive_miner: doc -> recursively discovers a sound, block-structured tree by
+# detecting cut types; the IMf variant filters infrequent behaviour by a noise
+# threshold in [0,1].
+tpot:Hp_inductive_miner_noise_threshold a tpot:Hyperparameter ;
+  rdfs:label        "inductive_miner.noise_threshold" ;
+  tpot:hpOperator   "inductive_miner" ;
+  tpot:paramName    "noise_threshold" ;
+  tpot:paramType    "float" ;
+  tpot:paramDefault "0.2" ;
+  tpot:paramMin     "0.0" ;
+  tpot:paramMax     "1.0" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+# genetic_algorithm: doc -> "evolves a population of candidate Petri nets using
+# fitness, precision, generalization and simplicity as multi-objective fitness".
+# Population size and generation count are the canonical GA controls.
+tpot:Hp_genetic_algorithm_population_size a tpot:Hyperparameter ;
+  rdfs:label        "genetic_algorithm.population_size" ;
+  tpot:hpOperator   "genetic_algorithm" ;
+  tpot:paramName    "population_size" ;
+  tpot:paramType    "int" ;
+  tpot:paramDefault "100" ;
+  tpot:paramMin     "10" ;
+  tpot:paramMax     "500" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+tpot:Hp_genetic_algorithm_generations a tpot:Hyperparameter ;
+  rdfs:label        "genetic_algorithm.generations" ;
+  tpot:hpOperator   "genetic_algorithm" ;
+  tpot:paramName    "generations" ;
+  tpot:paramType    "int" ;
+  tpot:paramDefault "50" ;
+  tpot:paramMin     "5" ;
+  tpot:paramMax     "200" ;
+  tpot:paramOrder   "2"^^xsd:integer .
+
+# ilp: doc -> "solves an integer linear programming problem to find a Petri net
+# fitting the directly-follows relations; produces high-precision sound models."
+# The ILP variant selects which constraint/objective formulation is solved.
+tpot:Hp_ilp_variant a tpot:Hyperparameter ;
+  rdfs:label        "ilp.variant" ;
+  tpot:hpOperator   "ilp" ;
+  tpot:paramName    "variant" ;
+  tpot:paramType    "choice" ;
+  tpot:paramDefault "baseline" ;
+  tpot:paramChoices "baseline,sequence_encoding,petri_only" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+# alignments: doc -> "computing optimal alignment cost using A* over the
+# synchronous product automaton." A* exposes an explored-state-cap budget.
+tpot:Hp_alignments_max_states a tpot:Hyperparameter ;
+  rdfs:label        "alignments.max_states" ;
+  tpot:hpOperator   "alignments" ;
+  tpot:paramName    "max_states" ;
+  tpot:paramType    "int" ;
+  tpot:paramDefault "10000" ;
+  tpot:paramMin     "1000" ;
+  tpot:paramMax     "1000000" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+# ml_classify: doc -> "trains a classifier on labeled process feature vectors".
+# The classifier family is the primary AutoML choice axis.
+tpot:Hp_ml_classify_classifier a tpot:Hyperparameter ;
+  rdfs:label        "ml_classify.classifier" ;
+  tpot:hpOperator   "ml_classify" ;
+  tpot:paramName    "classifier" ;
+  tpot:paramType    "choice" ;
+  tpot:paramDefault "random_forest" ;
+  tpot:paramChoices "decision_tree,random_forest,gradient_boosting,logistic_regression" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+# detect_drift: doc -> "statistical change-point tests (ADWIN, Page-Hinkley) to a
+# sliding window". ADWIN's confidence delta governs sensitivity.
+tpot:Hp_detect_drift_method a tpot:Hyperparameter ;
+  rdfs:label        "detect_drift.method" ;
+  tpot:hpOperator   "detect_drift" ;
+  tpot:paramName    "method" ;
+  tpot:paramType    "choice" ;
+  tpot:paramDefault "adwin" ;
+  tpot:paramChoices "adwin,page_hinkley" ;
+  tpot:paramOrder   "1"^^xsd:integer .
+
+tpot:Hp_detect_drift_delta a tpot:Hyperparameter ;
+  rdfs:label        "detect_drift.delta" ;
+  tpot:hpOperator   "detect_drift" ;
+  tpot:paramName    "delta" ;
+  tpot:paramType    "float" ;
+  tpot:paramDefault "0.002" ;
+  tpot:paramMin     "0.0001" ;
+  tpot:paramMax     "0.1" ;
+  tpot:paramOrder   "2"^^xsd:integer .
+
+# ml_cluster: doc -> "applies k-means or DBSCAN to process feature vectors".
+# k (cluster count) is the canonical control for the k-means branch.
+tpot:Hp_ml_cluster_n_clusters a tpot:Hyperparameter ;
+  rdfs:label        "ml_cluster.n_clusters" ;
+  tpot:hpOperator   "ml_cluster" ;
+  tpot:paramName    "n_clusters" ;
+  tpot:paramType    "int" ;
+  tpot:paramDefault "5" ;
+  tpot:paramMin     "2" ;
+  tpot:paramMax     "50" ;
+  tpot:paramOrder   "1"^^xsd:integer .

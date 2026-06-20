@@ -1,0 +1,63 @@
+# ============================================================================
+# inference/derive-pareto-dominance.rq  —  Pareto dominance edges (NSGA-II)
+# ============================================================================
+# CONSTRUCTs one  ?opA tpot:dominates ?opB  edge for every ordered operator
+# pair where A Pareto-dominates B over the two TPOT2 objectives
+# (maximize qualityTier, minimize speedTier = cost). This is the relation the
+# SELECT queries use to compute the globally non-dominated Pareto front
+# (queries/extract-pareto-front.rq).
+#
+# Dominance (FROZEN, CONTRACT.md §5): A dominates B iff
+#   qualityTier_A >= qualityTier_B
+#   AND speedTier_A   <= speedTier_B
+#   AND (qualityTier_A > qualityTier_B  OR  speedTier_A < speedTier_B)
+#   AND A != B
+# (i.e. A is no worse on either objective and strictly better on at least one.)
+#
+# SOURCE OF TIERS — DELIBERATE CHOICE: this CONSTRUCT reads the *pi:* tiers
+# (pi:qualityTier / pi:speedTier) directly from the algorithm registry, NOT the
+# derived tpot:opQualityTier / tpot:opSpeedTier on tpot:Operator. Reading pi:
+# makes this rule SELF-CONTAINED: it does not depend on derive-operators.rq
+# having run first, so the two inference rules are order-independent. The
+# operator IRIs it emits are minted with the SAME deterministic scheme as
+# derive-operators.rq (Op_<algorithm_id>), so the edges line up exactly with
+# the tpot:Operator nodes regardless of inference order.
+#
+# Adds NEW triples only (tpot:dominates did not exist on input — BUG-009).
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+CONSTRUCT {
+  ?opA tpot:dominates ?opB .
+}
+WHERE {
+  # --- candidate A from the registry ---------------------------------------
+  ?algoA a pi:ProcessIntelligenceAlgorithm ;
+         pi:algorithmId ?idA ;
+         pi:qualityTier ?qA ;
+         pi:speedTier   ?sA .
+
+  # --- candidate B from the registry ---------------------------------------
+  ?algoB a pi:ProcessIntelligenceAlgorithm ;
+         pi:algorithmId ?idB ;
+         pi:qualityTier ?qB ;
+         pi:speedTier   ?sB .
+
+  # --- distinct operators (avoid self-dominance) ---------------------------
+  FILTER(?idA != ?idB)
+
+  # --- Pareto dominance test (no worse on both, strictly better on one) -----
+  FILTER(?qA >= ?qB)
+  FILTER(?sA <= ?sB)
+  FILTER(?qA > ?qB || ?sA < ?sB)
+
+  # --- mint operator IRIs (same scheme as derive-operators.rq) -------------
+  BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idA)) AS ?opA)
+  BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idB)) AS ?opB)
+}

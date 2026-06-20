@@ -1,0 +1,86 @@
+# ============================================================================
+# queries/extract-pareto-pipeline.rq  —  THE CHOSEN PIPELINE (9 rows, 1/stage)
+# ============================================================================
+# The auto-selected pipeline: exactly the per-stage ELITE operator for each of
+# the 9 stages. This is the SPARQL ranking that makes the generator "auto" —
+# the best operator per stage is derived from fitness, never hand-picked
+# (CONTRACT.md §0). Exactly one row per stage => 9 rows.
+#
+# ELITE = argmax tpot:fitnessScore within the stage, with the FROZEN tie-break
+# (CONTRACT.md §5): on equal fitness prefer lower opSpeedTier, then operatorId
+# ascending. Argmax is expressed as NOT EXISTS another operator in the same
+# stage that out-ranks me under that exact lexicographic order:
+#
+#   other out-ranks me  <=>  other.fitness > my.fitness
+#                            OR (other.fitness == my.fitness AND other.speed <  my.speed)
+#                            OR (other.fitness == my.fitness AND other.speed == my.speed
+#                                                            AND other.id    <  my.id)
+#
+# Because the order is a strict total order (fitness, then speed, then the
+# unique operatorId), exactly ONE operator per stage has no one above it —
+# guaranteeing a single deterministic winner per stage with no ties.
+#
+# ?proof_query maps the stage to its wasm4pm semconv SPARQL proof file when one
+# exists, else "" (CONTRACT.md §6). The mapping is keyed on stage_id via
+# nested IF (ingest->ocel-load.rq, discover->discover-dfg.rq,
+# conform->conformance-check.rq, learn->ml-classify.rq, predict->predict-activity.rq;
+# analyze / discover_oc / simulate / orchestrate -> "").
+#
+# Strict-mode discipline: explicit projection (no SELECT * — BUG-007) and an
+# explicit ORDER BY ?stage_order (BUG-006 / E0011 / E0013).
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+SELECT ?stage_order ?stage_id ?operator_id ?algorithm_label ?wasm_export
+       ?input_format ?output_type ?speed_tier ?quality_tier ?fitness_score
+       ?proof_query
+WHERE {
+  # --- candidate operator + its stage --------------------------------------
+  ?op a tpot:Operator ;
+      tpot:operatorId    ?operator_id ;
+      tpot:wrapsAlgorithm ?a ;
+      tpot:atStage       ?stage ;
+      tpot:opSpeedTier   ?speed_tier ;
+      tpot:opQualityTier ?quality_tier ;
+      tpot:fitnessScore  ?fitness_score ;
+      tpot:wasmExport    ?wasm_export .
+
+  ?stage a tpot:PipelineStage ;
+         tpot:stageId    ?stage_id ;
+         tpot:stageOrder ?stage_order .
+
+  ?a pi:algorithmLabel ?algorithm_label ;
+     pi:inputFormat    ?input_format ;
+     pi:outputType     ?output_type .
+
+  # --- ELITE filter: no other operator in this stage out-ranks me ----------
+  FILTER NOT EXISTS {
+    ?other a tpot:Operator ;
+           tpot:atStage      ?stage ;
+           tpot:operatorId   ?other_id ;
+           tpot:opSpeedTier  ?other_speed ;
+           tpot:fitnessScore ?other_fit .
+    FILTER(?other_id != ?operator_id)
+    FILTER(
+         ?other_fit > ?fitness_score
+      || (?other_fit = ?fitness_score && ?other_speed < ?speed_tier)
+      || (?other_fit = ?fitness_score && ?other_speed = ?speed_tier && ?other_id < ?operator_id)
+    )
+  }
+
+  # --- stage -> semconv proof file mapping (else "") -----------------------
+  BIND(
+    IF(?stage_id = "ingest",   "ocel-load.rq",
+    IF(?stage_id = "discover", "discover-dfg.rq",
+    IF(?stage_id = "conform",  "conformance-check.rq",
+    IF(?stage_id = "learn",    "ml-classify.rq",
+    IF(?stage_id = "predict",  "predict-activity.rq",
+       ""))))) AS ?proof_query)
+}
+ORDER BY ?stage_order

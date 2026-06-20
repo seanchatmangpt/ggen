@@ -1,0 +1,59 @@
+# ============================================================================
+# queries/extract-pareto-front.rq  —  the global Pareto front
+# ============================================================================
+# The globally non-dominated operators across the ENTIRE search space (all 60,
+# not per-stage). An operator is on the Pareto front iff NO other operator
+# dominates it under the two TPOT2 objectives (maximize qualityTier, minimize
+# speedTier). This is the NSGA-II first front.
+#
+# Dominance is the FROZEN relation from CONTRACT.md §5; we re-state it inline as
+# a NOT EXISTS rather than reading tpot:dominates, so this query is robust even
+# if inference/derive-pareto-dominance.rq has not been materialized. "?other
+# dominates ?op" expands to:
+#   other.quality >= my.quality
+#   AND other.speed   <= my.speed
+#   AND (other.quality > my.quality OR other.speed < my.speed)
+# If no such ?other exists, ?op is non-dominated => on the front.
+#
+# (Equivalent form using the derived edge would be:
+#    FILTER NOT EXISTS { ?dom tpot:dominates ?op } — kept as inline test for
+#  self-containment, matching extract-pareto-pipeline.rq's discipline.)
+#
+# Strict-mode discipline: explicit projection (no SELECT * — BUG-007) and an
+# explicit ORDER BY (BUG-006 / E0011 / E0013): best quality first, then lower
+# speed (cost), then operatorId for determinism.
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+SELECT ?operator_id ?stage_id ?speed_tier ?quality_tier ?fitness_score
+WHERE {
+  # --- candidate operator + its stage --------------------------------------
+  ?op a tpot:Operator ;
+      tpot:operatorId    ?operator_id ;
+      tpot:atStage       ?stage ;
+      tpot:opSpeedTier   ?speed_tier ;
+      tpot:opQualityTier ?quality_tier ;
+      tpot:fitnessScore  ?fitness_score .
+
+  ?stage a tpot:PipelineStage ;
+         tpot:stageId ?stage_id .
+
+  # --- non-dominated: no other operator dominates me -----------------------
+  FILTER NOT EXISTS {
+    ?other a tpot:Operator ;
+           tpot:operatorId    ?other_id ;
+           tpot:opSpeedTier   ?other_speed ;
+           tpot:opQualityTier ?other_quality .
+    FILTER(?other_id != ?operator_id)
+    FILTER(?other_quality >= ?quality_tier)
+    FILTER(?other_speed   <= ?speed_tier)
+    FILTER(?other_quality >  ?quality_tier || ?other_speed < ?speed_tier)
+  }
+}
+ORDER BY DESC(?quality_tier) ?speed_tier ?operator_id
