@@ -63,19 +63,18 @@ fn tier0_entries_have_embedded_content() {
     assert_eq!(core_entries.len(), 8);
 
     for entry in &core_entries {
-        let content = entry.embedded_content().unwrap_or_else(|| {
-            panic!(
-                "Tier-0 entry '{}' must have Embedded content",
-                entry.iri
-            )
-        });
+        let content = entry
+            .embedded_content()
+            .unwrap_or_else(|| panic!("Tier-0 entry '{}' must have Embedded content", entry.iri));
         assert!(
             !content.is_empty(),
             "embedded content for {} must be non-empty",
             entry.iri
         );
         assert!(
-            content.contains("owl:Ontology") || content.contains("owl#Ontology") || content.len() > 100,
+            content.contains("owl:Ontology")
+                || content.contains("owl#Ontology")
+                || content.len() > 100,
             "embedded TTL for {} looks truncated: {} bytes",
             entry.iri,
             content.len()
@@ -102,19 +101,18 @@ fn load_tier0_into_store_populates_owl_classes() {
 #[test]
 fn catalog_covers_all_three_tiers() {
     let registry = OntologyRegistry::global();
-    let has_core = registry
-        .entries()
-        .any(|e| e.tier == OntologyTier::Core);
-    let has_cached = registry
-        .entries()
-        .any(|e| e.tier == OntologyTier::Cached);
+    let has_core = registry.entries().any(|e| e.tier == OntologyTier::Core);
+    let has_cached = registry.entries().any(|e| e.tier == OntologyTier::Cached);
     let has_referenced = registry
         .entries()
         .any(|e| e.tier == OntologyTier::Referenced);
 
     assert!(has_core, "catalog must include Tier 0 Core entries");
     assert!(has_cached, "catalog must include Tier 1 Cached entries");
-    assert!(has_referenced, "catalog must include Tier 2 Referenced entries");
+    assert!(
+        has_referenced,
+        "catalog must include Tier 2 Referenced entries"
+    );
 }
 
 #[test]

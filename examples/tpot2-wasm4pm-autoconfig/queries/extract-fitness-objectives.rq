@@ -1,0 +1,30 @@
+# ============================================================================
+# queries/extract-fitness-objectives.rq  —  the multi-objective config (2 rows)
+# ============================================================================
+# One row per tpot:FitnessObjective (the two NSGA-II objectives authored in
+# tpot-search-space.ttl — CONTRACT.md §5). Renders the multi-objective block of
+# the generated TPOT2 config: maximize qualityTier (weight 1.0, order 1),
+# minimize speedTier/cost (weight 0.5, order 2). Exactly 2 rows.
+#
+# Strict-mode discipline: explicit projection (no SELECT * — BUG-007) and an
+# explicit ORDER BY ?objective_order (BUG-006 / E0011 / E0013).
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+SELECT ?objective_order ?objective_id ?objective_name ?metric ?direction ?weight
+WHERE {
+  ?obj a tpot:FitnessObjective ;
+       tpot:objectiveId    ?objective_id ;
+       tpot:objectiveName  ?objective_name ;
+       tpot:metric         ?metric ;
+       tpot:direction      ?direction ;
+       tpot:weight         ?weight ;
+       tpot:objectiveOrder ?objective_order .
+}
+ORDER BY ?objective_order

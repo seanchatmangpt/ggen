@@ -1,0 +1,861 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix pi:   <https://wasm4pm.dev/pi#> .
+
+# PI algorithm instances — 60 ProcessIntelligenceAlgorithm individuals.
+# pi:algorithmStatus is NEVER set here — CONSTRUCT-derived from pi-certified-gate.
+# pi:cliAlias is OMITTED when no alias is defined (not empty string).
+# Namespace: https://wasm4pm.dev/pi# (must match ggen.toml CONSTRUCT exactly)
+
+# ============================================================
+# DISCOVERY (20)
+# ============================================================
+
+pi:Algo_a_star a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "a_star" ;
+  pi:algorithmLabel "AStar" ;
+  pi:algorithmDoc   "A* shortest-path discovery over DFG — finds optimal path through the directly-follows graph using heuristic search, producing a Petri net model." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "30"^^xsd:integer ;
+  pi:qualityTier    "75"^^xsd:integer ;
+  pi:wasmExport     "discover_a_star" ;
+  pi:cliAlias       "astar" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_aco a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "aco" ;
+  pi:algorithmLabel "Aco" ;
+  pi:algorithmDoc   "Ant Colony Optimisation discovery — stochastic population-based search inspired by ant foraging, producing Petri net models with good fitness/precision balance." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "50"^^xsd:integer ;
+  pi:qualityTier    "78"^^xsd:integer ;
+  pi:wasmExport     "discover_aco" ;
+  pi:cliAlias       "ant-colony" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_alpha_plus_plus a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "alpha_plus_plus" ;
+  pi:algorithmLabel "AlphaPlusPlus" ;
+  pi:algorithmDoc   "Alpha++ miner — extends the original Alpha algorithm to handle length-one and length-two loops, producing a Petri net from the directly-follows footprint matrix." ;
+  pi:citation       "van der Aalst, W.M.P., Weijters, T., & Maruster, L. (2004). Workflow Mining: Discovering Process Models from Event Logs. IEEE TKDE, 16(9), 1128-1142." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "5"^^xsd:integer ;
+  pi:qualityTier    "50"^^xsd:integer ;
+  pi:wasmExport     "discover_alpha_plus_plus" ;
+  pi:cliAlias       "alpha" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_declare a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "declare" ;
+  pi:algorithmLabel "Declare" ;
+  pi:algorithmDoc   "Declarative constraint mining using LTL-based temporal logic — discovers existence, response, and precedence constraints rather than a procedural model." ;
+  pi:citation       "Pesic, M., & van der Aalst, W.M.P. (2006). A Declarative Approach for Flexible Business Processes. BPM 2006 Workshops, LNCS 4103. Springer." ;
+  pi:outputType     "declare" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "20"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "discover_declare" ;
+  pi:cliAlias       "declare" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "dfg" ;
+  pi:algorithmLabel "Dfg" ;
+  pi:algorithmDoc   "Directly-Follows Graph — fastest baseline discovery, counting how often one activity directly follows another. Serves as input to most other discovery algorithms." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "1"^^xsd:integer ;
+  pi:qualityTier    "30"^^xsd:integer ;
+  pi:wasmExport     "discover_dfg" ;
+  pi:cliAlias       "dfg" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_genetic_algorithm a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "genetic_algorithm" ;
+  pi:algorithmLabel "GeneticAlgorithm" ;
+  pi:algorithmDoc   "Genetic algorithm process model search — evolves a population of candidate Petri nets using fitness, precision, generalization and simplicity as multi-objective fitness functions." ;
+  pi:citation       "van der Aalst, W.M.P., de Medeiros, A.K.A., & Weijters, A.J.M.M. (2005). Genetic process mining. Petri Nets 2005, LNCS 3536. Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "50"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "discover_genetic_algorithm" ;
+  pi:cliAlias       "genetic" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_heuristic_miner a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "heuristic_miner" ;
+  pi:algorithmLabel "HeuristicMiner" ;
+  pi:algorithmDoc   "Heuristics Miner — uses dependency measures to filter noise before constructing a causal net. Dependency threshold controls filtering aggressiveness." ;
+  pi:citation       "Weijters, A.J.M.M., & van der Aalst, W.M.P. (2006). Process Mining with the HeuristicsMiner Algorithm. BETA Working Paper WP 166, Eindhoven University of Technology." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "8"^^xsd:integer ;
+  pi:qualityTier    "70"^^xsd:integer ;
+  pi:wasmExport     "discover_heuristic_miner" ;
+  pi:cliAlias       "heuristic" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_hierarchical_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "hierarchical_dfg" ;
+  pi:algorithmLabel "HierarchicalDfg" ;
+  pi:algorithmDoc   "Hierarchical DFG — extends the standard DFG with automatic detection and collapsing of recurring sub-process patterns." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "12"^^xsd:integer ;
+  pi:qualityTier    "55"^^xsd:integer ;
+  pi:wasmExport     "discover_hierarchical_dfg" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_hill_climbing a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "hill_climbing" ;
+  pi:algorithmLabel "HillClimbing" ;
+  pi:algorithmDoc   "Hill-climbing local search — iteratively improves a candidate model by applying local operators, terminating at a local optimum." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "45"^^xsd:integer ;
+  pi:qualityTier    "75"^^xsd:integer ;
+  pi:wasmExport     "discover_hill_climbing" ;
+  pi:cliAlias       "hill-climbing" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ilp a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ilp" ;
+  pi:algorithmLabel "Ilp" ;
+  pi:algorithmDoc   "ILP Miner — solves an integer linear programming problem to find a Petri net fitting the directly-follows relations; produces high-precision sound models." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "40"^^xsd:integer ;
+  pi:qualityTier    "90"^^xsd:integer ;
+  pi:wasmExport     "discover_ilp_petri_net" ;
+  pi:cliAlias       "ilp" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_inductive_miner a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "inductive_miner" ;
+  pi:algorithmLabel "InductiveMiner" ;
+  pi:algorithmDoc   "Inductive Miner — recursively discovers a sound, block-structured process tree from the event log by detecting cut types (sequence, parallel, choice, loop)." ;
+  pi:citation       "Leemans, S.J.J., Fahland, D., & van der Aalst, W.M.P. (2013). Discovering Block-Structured Process Models from Event Logs. Petri Nets 2013, LNCS 7927. Springer." ;
+  pi:outputType     "tree" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "10"^^xsd:integer ;
+  pi:qualityTier    "85"^^xsd:integer ;
+  pi:wasmExport     "discover_inductive_miner" ;
+  pi:cliAlias       "inductive" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_log_to_trie a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "log_to_trie" ;
+  pi:algorithmLabel "LogToTrie" ;
+  pi:algorithmDoc   "Prefix-tree (trie) representation — inserts all traces into a trie where each path from root to leaf represents a unique trace variant." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "tree" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "3"^^xsd:integer ;
+  pi:qualityTier    "40"^^xsd:integer ;
+  pi:wasmExport     "discover_log_to_trie" ;
+  pi:cliAlias       "prefix-tree" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_optimized_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "optimized_dfg" ;
+  pi:algorithmLabel "OptimizedDfg" ;
+  pi:algorithmDoc   "DFG with arc-weight optimisation pass — builds a standard DFG then applies pruning to remove statistically insignificant arcs." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "2"^^xsd:integer ;
+  pi:qualityTier    "35"^^xsd:integer ;
+  pi:wasmExport     "discover_dfg" ;
+  pi:cliAlias       "dfg-optimized" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_process_skeleton a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "process_skeleton" ;
+  pi:algorithmLabel "ProcessSkeleton" ;
+  pi:algorithmDoc   "Minimal skeleton DFG — retains only the highest-frequency directly-follows arcs to produce a sparse backbone of the process." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "2"^^xsd:integer ;
+  pi:qualityTier    "25"^^xsd:integer ;
+  pi:wasmExport     "discover_process_skeleton" ;
+  pi:cliAlias       "skeleton" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_pso a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "pso" ;
+  pi:algorithmLabel "Pso" ;
+  pi:algorithmDoc   "Particle Swarm Optimisation discovery — maintains a swarm of candidate models whose positions evolve toward the global best according to social and cognitive acceleration." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "48"^^xsd:integer ;
+  pi:qualityTier    "77"^^xsd:integer ;
+  pi:wasmExport     "discover_pso" ;
+  pi:cliAlias       "pso" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_simd_streaming_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "simd_streaming_dfg" ;
+  pi:algorithmLabel "SimdStreamingDfg" ;
+  pi:algorithmDoc   "SIMD-accelerated streaming DFG — processes the event log in a single pass using SIMD vector intrinsics for maximum throughput on large logs." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "1"^^xsd:integer ;
+  pi:qualityTier    "30"^^xsd:integer ;
+  pi:wasmExport     "discover_dfg_simd" ;
+  pi:cliAlias       "simd-dfg" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_simulated_annealing a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "simulated_annealing" ;
+  pi:algorithmLabel "SimulatedAnnealing" ;
+  pi:algorithmDoc   "Simulated Annealing stochastic search — probabilistically accepts worse candidate models according to a cooling schedule to escape local optima." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "47"^^xsd:integer ;
+  pi:qualityTier    "76"^^xsd:integer ;
+  pi:wasmExport     "discover_simulated_annealing" ;
+  pi:cliAlias       "simulated-annealing" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_smart_engine a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "smart_engine" ;
+  pi:algorithmLabel "SmartEngine" ;
+  pi:algorithmDoc   "Auto-selects the best algorithm for the input characteristics — inspects log size, variant count, and noise level, then dispatches to the most appropriate discovery algorithm." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "model" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "15"^^xsd:integer ;
+  pi:qualityTier    "85"^^xsd:integer ;
+  pi:wasmExport     "discover_smart_engine" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_streaming_log a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "streaming_log" ;
+  pi:algorithmLabel "StreamingLog" ;
+  pi:algorithmDoc   "Streaming event log ingestion — processes events in arrival order without materialising the full log in memory; emits running DFG statistics." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "1"^^xsd:integer ;
+  pi:qualityTier    "28"^^xsd:integer ;
+  pi:wasmExport     "discover_dfg" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_transition_system a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "transition_system" ;
+  pi:algorithmLabel "TransitionSystem" ;
+  pi:algorithmDoc   "Transition system from event log — constructs a finite-state automaton where states are abstractions of trace history and arcs are activity labels." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "model" ;
+  pi:category       "discovery" ;
+  pi:speedTier      "18"^^xsd:integer ;
+  pi:qualityTier    "65"^^xsd:integer ;
+  pi:wasmExport     "discover_transition_system" ;
+  pi:cliAlias       "transition-system" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# DISCOVERY ANALYTICS (10)
+# ============================================================
+
+pi:Algo_analyze_process_speedup a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "analyze_process_speedup" ;
+  pi:algorithmLabel "AnalyzeProcessSpeedup" ;
+  pi:algorithmDoc   "Measures speedup potential across trace variants — identifies bottleneck activity pairs and quantifies theoretical throughput gain from parallelisation." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "20"^^xsd:integer ;
+  pi:qualityTier    "75"^^xsd:integer ;
+  pi:wasmExport     "analyze_process_speedup" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_analyze_variant_complexity a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "analyze_variant_complexity" ;
+  pi:algorithmLabel "AnalyzeVariantComplexity" ;
+  pi:algorithmDoc   "Complexity metrics per trace variant — computes length distribution, unique activity count, loop density, and entropy for each distinct variant in the log." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "15"^^xsd:integer ;
+  pi:qualityTier    "70"^^xsd:integer ;
+  pi:wasmExport     "analyze_variant_complexity" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_batches a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "batches" ;
+  pi:algorithmLabel "Batches" ;
+  pi:algorithmDoc   "Detects batch-execution patterns — identifies when a resource processes multiple cases simultaneously (sequential, concurrent, simultaneous, or interleaved batches)." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "22"^^xsd:integer ;
+  pi:qualityTier    "72"^^xsd:integer ;
+  pi:wasmExport     "analyze_batches" ;
+  pi:cliAlias       "batches" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_causal_graph a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "causal_graph" ;
+  pi:algorithmLabel "CausalGraph" ;
+  pi:algorithmDoc   "Causal dependency graph — applies causal inference to distinguish spurious correlations in the DFG from genuine causal dependencies between activities." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "28"^^xsd:integer ;
+  pi:qualityTier    "78"^^xsd:integer ;
+  pi:wasmExport     "compute_causal_graph" ;
+  pi:cliAlias       "causal-graph" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_compute_activity_transition_matrix a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "compute_activity_transition_matrix" ;
+  pi:algorithmLabel "ComputeActivityTransitionMatrix" ;
+  pi:algorithmDoc   "Activity-to-activity transition probability matrix — computes the n x n matrix of empirical transition probabilities between all activity pairs." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "10"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "compute_activity_transition_matrix" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_compute_trace_similarity_matrix a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "compute_trace_similarity_matrix" ;
+  pi:algorithmLabel "ComputeTraceSimilarityMatrix" ;
+  pi:algorithmDoc   "Pairwise trace similarity matrix — computes edit-distance or Jaccard similarity for all trace pairs; used as input to clustering and variant analysis." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "35"^^xsd:integer ;
+  pi:qualityTier    "82"^^xsd:integer ;
+  pi:wasmExport     "compute_trace_similarity_matrix" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_correlation_miner a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "correlation_miner" ;
+  pi:algorithmLabel "CorrelationMiner" ;
+  pi:algorithmDoc   "Correlation-based dependency miner — discovers dependencies from statistical correlation of activity occurrences without requiring case identifiers." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "25"^^xsd:integer ;
+  pi:qualityTier    "73"^^xsd:integer ;
+  pi:wasmExport     "compute_correlation_miner" ;
+  pi:cliAlias       "correlation" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_handover_network a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "handover_network" ;
+  pi:algorithmLabel "HandoverNetwork" ;
+  pi:algorithmDoc   "Social network: handover-of-work between resources — nodes are resources, arcs represent how frequently one resource hands a case to another." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "12"^^xsd:integer ;
+  pi:qualityTier    "76"^^xsd:integer ;
+  pi:wasmExport     "compute_handover_network" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_performance_spectrum a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "performance_spectrum" ;
+  pi:algorithmLabel "PerformanceSpectrum" ;
+  pi:algorithmDoc   "Performance spectrum — segments all arc traversals in the DFG by time, producing a time-sliced frequency matrix for flow rate visualisation." ;
+  pi:citation       "Denisov, V., Fahland, D., & van der Aalst, W.M.P. (2018). Unbiased description of processes performance from event data. BPM 2018, LNCS 11080. Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "18"^^xsd:integer ;
+  pi:qualityTier    "74"^^xsd:integer ;
+  pi:wasmExport     "compute_performance_spectrum" ;
+  pi:cliAlias       "perf-spectrum" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_working_together_network a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "working_together_network" ;
+  pi:algorithmLabel "WorkingTogetherNetwork" ;
+  pi:algorithmDoc   "Social network: co-worker collaboration — arcs represent how frequently two resources work on the same case, regardless of handover direction." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "discovery_analytics" ;
+  pi:speedTier      "13"^^xsd:integer ;
+  pi:qualityTier    "74"^^xsd:integer ;
+  pi:wasmExport     "compute_working_together_network" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# OBJECT-CENTRIC (6)
+# ============================================================
+
+pi:Algo_ocel_dfg a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ocel_dfg" ;
+  pi:algorithmLabel "OcelDfg" ;
+  pi:algorithmDoc   "Object-centric DFG across all object types — flattens the OCEL log into a unified DFG weighted by event frequency regardless of type." ;
+  pi:citation       "van der Aalst, W.M.P. (2019). Object-Centric Process Mining. ICSOC 2019, LNCS 11895. Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "object_centric" ;
+  pi:speedTier      "5"^^xsd:integer ;
+  pi:qualityTier    "55"^^xsd:integer ;
+  pi:wasmExport     "discover_ocel_dfg" ;
+  pi:inputFormat    "ocel" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ocel_dfg_per_type a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ocel_dfg_per_type" ;
+  pi:algorithmLabel "OcelDfgPerType" ;
+  pi:algorithmDoc   "Separate DFG per object type — produces one DFG for each object type in the OCEL log, enabling per-type flow analysis without cross-type interference." ;
+  pi:citation       "van der Aalst, W.M.P. (2019). Object-Centric Process Mining. ICSOC 2019, LNCS 11895. Springer." ;
+  pi:outputType     "dfg" ;
+  pi:category       "object_centric" ;
+  pi:speedTier      "8"^^xsd:integer ;
+  pi:qualityTier    "60"^^xsd:integer ;
+  pi:wasmExport     "discover_ocel_dfg_per_type" ;
+  pi:inputFormat    "ocel" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ocel_encode a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ocel_encode" ;
+  pi:algorithmLabel "OcelEncode" ;
+  pi:algorithmDoc   "Encodes OCEL log to feature matrix — transforms the object-centric log into a numeric feature matrix suitable for downstream ML algorithms." ;
+  pi:citation       "van der Aalst, W.M.P. (2019). Object-Centric Process Mining. ICSOC 2019, LNCS 11895. Springer." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "object_centric" ;
+  pi:speedTier      "15"^^xsd:integer ;
+  pi:qualityTier    "70"^^xsd:integer ;
+  pi:wasmExport     "encode_ocel" ;
+  pi:inputFormat    "ocel" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ocel_oc_declare a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ocel_oc_declare" ;
+  pi:algorithmLabel "OcelOcDeclare" ;
+  pi:algorithmDoc   "Object-centric Declare constraint discovery — mines LTL-based temporal constraints from the OCEL log, relating events across different object types." ;
+  pi:citation       "van der Aalst, W.M.P. (2019). Object-Centric Process Mining. ICSOC 2019, LNCS 11895. Springer." ;
+  pi:outputType     "declare" ;
+  pi:category       "object_centric" ;
+  pi:speedTier      "25"^^xsd:integer ;
+  pi:qualityTier    "72"^^xsd:integer ;
+  pi:wasmExport     "discover_ocel_oc_declare" ;
+  pi:inputFormat    "ocel" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ocel_ocla a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ocel_ocla" ;
+  pi:algorithmLabel "OcelOcla" ;
+  pi:algorithmDoc   "Object-centric log abstraction analytics — computes summary statistics: object interaction counts, event density, and type co-occurrence matrices." ;
+  pi:citation       "van der Aalst, W.M.P. (2019). Object-Centric Process Mining. ICSOC 2019, LNCS 11895. Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "object_centric" ;
+  pi:speedTier      "10"^^xsd:integer ;
+  pi:qualityTier    "65"^^xsd:integer ;
+  pi:wasmExport     "discover_ocel_ocla" ;
+  pi:inputFormat    "ocel" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ocel_petri_net a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ocel_petri_net" ;
+  pi:algorithmLabel "OcelPetriNet" ;
+  pi:algorithmDoc   "Per-type flattened Petri nets — applies the Inductive Miner to each object-type-flattened sub-log to produce a sound Petri net per type." ;
+  pi:citation       "van der Aalst, W.M.P. (2019). Object-Centric Process Mining. ICSOC 2019, LNCS 11895. Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "object_centric" ;
+  pi:speedTier      "30"^^xsd:integer ;
+  pi:qualityTier    "78"^^xsd:integer ;
+  pi:wasmExport     "discover_ocel_petri_net" ;
+  pi:inputFormat    "ocel" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# ML & ANALYTICS (8)
+# ============================================================
+
+pi:Algo_automl_classify a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "automl_classify" ;
+  pi:algorithmLabel "AutomlClassify" ;
+  pi:algorithmDoc   "AutoML classification — automatically selects and tunes a classifier (decision tree, random forest, gradient boosting) from process feature vectors." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "45"^^xsd:integer ;
+  pi:qualityTier    "82"^^xsd:integer ;
+  pi:wasmExport     "automl_classify" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_automl_forecast a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "automl_forecast" ;
+  pi:algorithmLabel "AutomlForecast" ;
+  pi:algorithmDoc   "AutoML time-series forecasting — automatically selects and tunes a forecasting model for process throughput or case duration prediction." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "50"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "automl_forecast" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ml_anomaly a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ml_anomaly" ;
+  pi:algorithmLabel "MlAnomaly" ;
+  pi:algorithmDoc   "Anomaly detection — applies isolation forest or one-class SVM to process feature vectors to flag statistically anomalous traces or events." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "30"^^xsd:integer ;
+  pi:qualityTier    "75"^^xsd:integer ;
+  pi:wasmExport     "ml_anomaly" ;
+  pi:cliAlias       "ml-anomaly" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ml_classify a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ml_classify" ;
+  pi:algorithmLabel "MlClassify" ;
+  pi:algorithmDoc   "Supervised classification — trains a classifier on labeled process feature vectors and predicts labels for unseen cases." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "25"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "ml_classify" ;
+  pi:cliAlias       "ml-classify" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ml_cluster a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ml_cluster" ;
+  pi:algorithmLabel "MlCluster" ;
+  pi:algorithmDoc   "Unsupervised clustering — applies k-means or DBSCAN to process feature vectors to discover natural groupings of cases or traces." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "20"^^xsd:integer ;
+  pi:qualityTier    "72"^^xsd:integer ;
+  pi:wasmExport     "ml_cluster" ;
+  pi:cliAlias       "ml-cluster" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ml_forecast a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ml_forecast" ;
+  pi:algorithmLabel "MlForecast" ;
+  pi:algorithmDoc   "Time-series forecasting — trains a forecasting model on historical process metrics and produces forward projections." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "35"^^xsd:integer ;
+  pi:qualityTier    "76"^^xsd:integer ;
+  pi:wasmExport     "ml_forecast" ;
+  pi:cliAlias       "ml-forecast" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ml_pca a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ml_pca" ;
+  pi:algorithmLabel "MlPca" ;
+  pi:algorithmDoc   "Principal Component Analysis — reduces dimensionality of process feature vectors, revealing principal axes of variation." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "20"^^xsd:integer ;
+  pi:qualityTier    "70"^^xsd:integer ;
+  pi:wasmExport     "ml_pca" ;
+  pi:cliAlias       "ml-pca" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_ml_regress a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "ml_regress" ;
+  pi:algorithmLabel "MlRegress" ;
+  pi:algorithmDoc   "Regression — fits a regression model to predict a continuous target (e.g., case duration) from process feature vectors." ;
+  pi:citation       "de Leoni, M., van der Aalst, W.M.P., & Dees, M. (2016). A General Process Mining Framework. Information Systems, 56, 235-257." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "ml_analytics" ;
+  pi:speedTier      "22"^^xsd:integer ;
+  pi:qualityTier    "78"^^xsd:integer ;
+  pi:wasmExport     "ml_regress" ;
+  pi:cliAlias       "ml-regress" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# CONFORMANCE (4)
+# ============================================================
+
+pi:Algo_alignments a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "alignments" ;
+  pi:algorithmLabel "Alignments" ;
+  pi:algorithmDoc   "Alignment-based conformance checking — synchronously replays each trace on the Petri net, computing optimal alignment cost using A* over the synchronous product automaton." ;
+  pi:citation       "van der Aalst, W.M.P., Adriansyah, A., & van Dongen, B.F. (2012). Replaying History on Process Models for Conformance Checking. WIREs DMKD, 2(2), 182-192." ;
+  pi:outputType     "analytics" ;
+  pi:category       "conformance" ;
+  pi:speedTier      "25"^^xsd:integer ;
+  pi:qualityTier    "95"^^xsd:integer ;
+  pi:wasmExport     "compute_alignments" ;
+  pi:cliAlias       "alignment" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_complexity_metrics a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "complexity_metrics" ;
+  pi:algorithmLabel "ComplexityMetrics" ;
+  pi:algorithmDoc   "Structural complexity metrics (size, CFC, depth) — computes Control Flow Complexity, model size, connector degree distribution, and depth without replaying the log." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "conformance" ;
+  pi:speedTier      "15"^^xsd:integer ;
+  pi:qualityTier    "90"^^xsd:integer ;
+  pi:wasmExport     "compute_complexity_metrics" ;
+  pi:cliAlias       "complexity" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_etconformance_precision a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "etconformance_precision" ;
+  pi:algorithmLabel "EtconformancePrecision" ;
+  pi:algorithmDoc   "ETConformance precision — measures how much of the model's behaviour is actually observed in the log using escaping-edges token-based precision." ;
+  pi:citation       "Munoz-Gama, J., & Carmona, J. (2010). A Fresh Look at Precision in Process Conformance. BPM 2010, LNCS 6336. Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "conformance" ;
+  pi:speedTier      "20"^^xsd:integer ;
+  pi:qualityTier    "92"^^xsd:integer ;
+  pi:wasmExport     "compute_align_etconformance_precision" ;
+  pi:cliAlias       "etconformance" ;
+  pi:inputFormat    "petri_net_handle" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_generalization a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "generalization" ;
+  pi:algorithmLabel "Generalization" ;
+  pi:algorithmDoc   "Van der Aalst generalization score — measures how well the model generalises beyond the observed log by penalising infrequently visited transitions." ;
+  pi:citation       "Buijs, J.C.A.M., van Dongen, B.F., & van der Aalst, W.M.P. (2012). On the Role of Fitness, Precision, Generalization and Simplicity in Process Discovery. CoopIS 2012, LNCS 7565. Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "conformance" ;
+  pi:speedTier      "20"^^xsd:integer ;
+  pi:qualityTier    "90"^^xsd:integer ;
+  pi:wasmExport     "generalization" ;
+  pi:cliAlias       "generalization" ;
+  pi:inputFormat    "petri_net_handle" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# SIMULATION (2)
+# ============================================================
+
+pi:Algo_monte_carlo_simulation a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "monte_carlo_simulation" ;
+  pi:algorithmLabel "MonteCarloSimulation" ;
+  pi:algorithmDoc   "Monte Carlo simulation from discovered model — samples synthetic traces from empirical transition probability distribution to estimate throughput time distributions." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "simulation" ;
+  pi:speedTier      "35"^^xsd:integer ;
+  pi:qualityTier    "78"^^xsd:integer ;
+  pi:wasmExport     "monte_carlo_simulation" ;
+  pi:cliAlias       "montecarlo" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_playout a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "playout" ;
+  pi:algorithmLabel "Playout" ;
+  pi:algorithmDoc   "Stochastic playout from Petri net — generates synthetic event logs by firing enabled transitions according to stochastic weights until all tokens reach the final marking." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "simulation" ;
+  pi:speedTier      "30"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "petri_net_playout" ;
+  pi:cliAlias       "playout" ;
+  pi:inputFormat    "petri_net_handle" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# PREDICTION (5)
+# ============================================================
+
+pi:Algo_compute_ewma a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "compute_ewma" ;
+  pi:algorithmLabel "ComputeEwma" ;
+  pi:algorithmDoc   "Exponentially weighted moving average on case metrics — applies EWMA smoothing to process KPI time-series for trend-aware monitoring." ;
+  pi:citation       "Bose, R.P.J.C., van der Aalst, W.M.P., Zliobaite, I., & Pechenizkiy, M. (2011). Handling Concept Drift in Process Mining. CAiSE 2011, LNCS 6741. Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "prediction" ;
+  pi:speedTier      "8"^^xsd:integer ;
+  pi:qualityTier    "75"^^xsd:integer ;
+  pi:wasmExport     "compute_ewma" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_detect_drift a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "detect_drift" ;
+  pi:algorithmLabel "DetectDrift" ;
+  pi:algorithmDoc   "Concept drift detection — applies statistical change-point tests (ADWIN, Page-Hinkley) to a sliding window to detect when the underlying process has changed." ;
+  pi:citation       "Bose, R.P.J.C., van der Aalst, W.M.P., Zliobaite, I., & Pechenizkiy, M. (2011). Handling Concept Drift in Process Mining. CAiSE 2011, LNCS 6741. Springer." ;
+  pi:outputType     "analytics" ;
+  pi:category       "prediction" ;
+  pi:speedTier      "25"^^xsd:integer ;
+  pi:qualityTier    "82"^^xsd:integer ;
+  pi:wasmExport     "detect_drift" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_predict_next_activity a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "predict_next_activity" ;
+  pi:algorithmLabel "PredictNextActivity" ;
+  pi:algorithmDoc   "Next-activity prediction from trace prefix — encodes the trace prefix as a feature vector and predicts the most likely next activity." ;
+  pi:citation       "Teinemaa, I., Dumas, M., Rosa, M.L., & Maggi, F.M. (2019). Outcome-Oriented Predictive Process Monitoring. ACM TKDD, 13(2), Article 17." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "prediction" ;
+  pi:speedTier      "30"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "predict_next_activity" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_predict_outcome a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "predict_outcome" ;
+  pi:algorithmLabel "PredictOutcome" ;
+  pi:algorithmDoc   "Case outcome prediction — predicts the final outcome of a running case from its prefix using a trained binary or multi-class classifier." ;
+  pi:citation       "Teinemaa, I., Dumas, M., Rosa, M.L., & Maggi, F.M. (2019). Outcome-Oriented Predictive Process Monitoring. ACM TKDD, 13(2), Article 17." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "prediction" ;
+  pi:speedTier      "28"^^xsd:integer ;
+  pi:qualityTier    "82"^^xsd:integer ;
+  pi:wasmExport     "predict_outcome" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_predict_remaining_time a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "predict_remaining_time" ;
+  pi:algorithmLabel "PredictRemainingTime" ;
+  pi:algorithmDoc   "Remaining time prediction from trace prefix — estimates time until case completion using a regression model trained on completed cases." ;
+  pi:citation       "Teinemaa, I., Dumas, M., Rosa, M.L., & Maggi, F.M. (2019). Outcome-Oriented Predictive Process Monitoring. ACM TKDD, 13(2), Article 17." ;
+  pi:outputType     "ml_result" ;
+  pi:category       "prediction" ;
+  pi:speedTier      "32"^^xsd:integer ;
+  pi:qualityTier    "85"^^xsd:integer ;
+  pi:wasmExport     "predict_case_duration" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# IMPORT / EXPORT (4)
+# ============================================================
+
+pi:Algo_bpmn_import a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "bpmn_import" ;
+  pi:algorithmLabel "BpmnImport" ;
+  pi:algorithmDoc   "Import BPMN 2.0 XML to process tree — parses a BPMN 2.0 XML document and converts flow elements to a block-structured process tree." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "tree" ;
+  pi:category       "import_export" ;
+  pi:speedTier      "10"^^xsd:integer ;
+  pi:qualityTier    "85"^^xsd:integer ;
+  pi:wasmExport     "read_bpmn" ;
+  pi:cliAlias       "import-bpmn" ;
+  pi:inputFormat    "bpmn" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_pnml_import a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "pnml_import" ;
+  pi:algorithmLabel "PnmlImport" ;
+  pi:algorithmDoc   "Import PNML to Petri net — parses a PNML XML document and reconstructs the place-transition structure for use as a conformance reference model." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "petrinet" ;
+  pi:category       "import_export" ;
+  pi:speedTier      "8"^^xsd:integer ;
+  pi:qualityTier    "90"^^xsd:integer ;
+  pi:wasmExport     "from_pnml_wasm" ;
+  pi:cliAlias       "import-pnml" ;
+  pi:inputFormat    "pnml" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_powl_to_process_tree a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "powl_to_process_tree" ;
+  pi:algorithmLabel "PowlToProcessTree" ;
+  pi:algorithmDoc   "Convert POWL model to process tree — translates a Partially Ordered Workflow Language model to a block-structured process tree." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "tree" ;
+  pi:category       "import_export" ;
+  pi:speedTier      "12"^^xsd:integer ;
+  pi:qualityTier    "80"^^xsd:integer ;
+  pi:wasmExport     "convert_powl_to_process_tree" ;
+  pi:cliAlias       "powl-to-tree" ;
+  pi:inputFormat    "any" ;
+  pi:standing     "REPLAYABLE" .
+
+pi:Algo_yawl_export a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "yawl_export" ;
+  pi:algorithmLabel "YawlExport" ;
+  pi:algorithmDoc   "Export process model to YAWL format — serialises a discovered process model as a YAWL specification for import into YAWL-compatible workflow engines." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "model" ;
+  pi:category       "import_export" ;
+  pi:speedTier      "10"^^xsd:integer ;
+  pi:qualityTier    "85"^^xsd:integer ;
+  pi:wasmExport     "export_yawl" ;
+  pi:cliAlias       "export-yawl" ;
+  pi:inputFormat    "petri_net_handle" ;
+  pi:standing     "REPLAYABLE" .
+
+# ============================================================
+# AGENTIC (1)
+# ============================================================
+
+pi:Algo_agentic_pipeline a pi:ProcessIntelligenceAlgorithm ;
+  pi:algorithmId    "agentic_pipeline" ;
+  pi:algorithmLabel "AgenticPipeline" ;
+  pi:algorithmDoc   "Orchestrated multi-step agentic pipeline — chains discovery, conformance, and analytics algorithms in a reasoning loop, selecting next operation based on intermediate results." ;
+  pi:citation       "van der Aalst, W.M.P. (2016). Process Mining: Data Science in Action (2nd ed.). Springer." ;
+  pi:outputType     "model" ;
+  pi:category       "agentic" ;
+  pi:speedTier      "80"^^xsd:integer ;
+  pi:qualityTier    "90"^^xsd:integer ;
+  pi:wasmExport     "run_agentic_pipeline" ;
+  pi:inputFormat    "xes" ;
+  pi:standing     "REPLAYABLE" .

@@ -167,11 +167,7 @@ impl OcelEventLog {
 
     /// All declared object-type names, sorted.
     pub fn object_type_names(&self) -> Vec<&str> {
-        let mut types: Vec<&str> = self
-            .object_types
-            .iter()
-            .map(|t| t.name.as_str())
-            .collect();
+        let mut types: Vec<&str> = self.object_types.iter().map(|t| t.name.as_str()).collect();
         types.sort_unstable();
         types
     }

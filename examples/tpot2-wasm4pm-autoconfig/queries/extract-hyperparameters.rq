@@ -1,0 +1,45 @@
+# ============================================================================
+# queries/extract-hyperparameters.rq  —  the hyperparameter grid
+# ============================================================================
+# One row per tpot:Hyperparameter (the static, illustrative subset authored in
+# tpot-search-space.ttl — CONTRACT.md §5). These feed the per-operator
+# hyperparameter dict in the generated TPOT2 config_dict.
+#
+# The link to an operator is tpot:hpOperator (a string equal to the
+# operatorId / algorithmId — CONTRACT.md §5). We expose it as ?operator_id so
+# the template can join it against extract-operators.rq rows by value.
+#
+# Nullable columns (paramDefault, paramMin, paramMax, paramChoices) are
+# OPTIONAL and coalesced to "" so every projected variable is always bound
+# (templates use `| default(value="")` too — CONTRACT.md §7). int/float params
+# carry min/max; choice/bool params carry paramChoices instead.
+#
+# Strict-mode discipline: explicit projection (no SELECT * — BUG-007) and an
+# explicit ORDER BY (BUG-006 / E0011 / E0013): by operator, then paramOrder.
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+SELECT ?operator_id ?param_name ?param_type ?param_default ?param_min
+       ?param_max ?param_choices ?param_order
+WHERE {
+  ?hp a tpot:Hyperparameter ;
+      tpot:hpOperator ?operator_id ;
+      tpot:paramName  ?param_name ;
+      tpot:paramType  ?param_type ;
+      tpot:paramOrder ?param_order .
+  OPTIONAL { ?hp tpot:paramDefault ?param_default_opt }
+  OPTIONAL { ?hp tpot:paramMin     ?param_min_opt }
+  OPTIONAL { ?hp tpot:paramMax     ?param_max_opt }
+  OPTIONAL { ?hp tpot:paramChoices ?param_choices_opt }
+  BIND(COALESCE(?param_default_opt, "") AS ?param_default)
+  BIND(COALESCE(?param_min_opt,     "") AS ?param_min)
+  BIND(COALESCE(?param_max_opt,     "") AS ?param_max)
+  BIND(COALESCE(?param_choices_opt, "") AS ?param_choices)
+}
+ORDER BY ?operator_id ?param_order

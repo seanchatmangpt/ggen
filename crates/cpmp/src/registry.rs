@@ -348,175 +348,417 @@ fn build_entries() -> HashMap<String, OntologyEntry> {
 
     // ── Tier 2: Referenced (38) ─────────────────────────────────────────────
 
-    referenced(&mut m, "https://spec.edmcouncil.org/fibo/ontology/FND/", "fibo-fnd",
-        "FIBO Foundations (FND)", OntologyAuthority::EDMCouncil,
-        "https://spec.edmcouncil.org/fibo/", vec![Capability::FinancialInstruments]);
+    referenced(
+        &mut m,
+        "https://spec.edmcouncil.org/fibo/ontology/FND/",
+        "fibo-fnd",
+        "FIBO Foundations (FND)",
+        OntologyAuthority::EDMCouncil,
+        "https://spec.edmcouncil.org/fibo/",
+        vec![Capability::FinancialInstruments],
+    );
 
-    referenced(&mut m, "https://spec.edmcouncil.org/fibo/ontology/BE/", "fibo-be",
-        "FIBO Business Entities (BE)", OntologyAuthority::EDMCouncil,
-        "https://spec.edmcouncil.org/fibo/", vec![Capability::FinancialInstruments]);
+    referenced(
+        &mut m,
+        "https://spec.edmcouncil.org/fibo/ontology/BE/",
+        "fibo-be",
+        "FIBO Business Entities (BE)",
+        OntologyAuthority::EDMCouncil,
+        "https://spec.edmcouncil.org/fibo/",
+        vec![Capability::FinancialInstruments],
+    );
 
-    referenced(&mut m, "https://spec.edmcouncil.org/fibo/ontology/SEC/", "fibo-sec",
-        "FIBO Securities (SEC)", OntologyAuthority::EDMCouncil,
-        "https://spec.edmcouncil.org/fibo/", vec![Capability::FinancialInstruments]);
+    referenced(
+        &mut m,
+        "https://spec.edmcouncil.org/fibo/ontology/SEC/",
+        "fibo-sec",
+        "FIBO Securities (SEC)",
+        OntologyAuthority::EDMCouncil,
+        "https://spec.edmcouncil.org/fibo/",
+        vec![Capability::FinancialInstruments],
+    );
 
-    referenced(&mut m, "http://www.estrellaproject.org/lkif-core/lkif-core.owl#", "lkif",
-        "Legal Knowledge Interchange Format (LKIF-Core)", OntologyAuthority::Community,
-        "http://www.estrellaproject.org/lkif-core/", vec![Capability::ComplianceRules]);
+    referenced(
+        &mut m,
+        "http://www.estrellaproject.org/lkif-core/lkif-core.owl#",
+        "lkif",
+        "Legal Knowledge Interchange Format (LKIF-Core)",
+        OntologyAuthority::Community,
+        "http://www.estrellaproject.org/lkif-core/",
+        vec![Capability::ComplianceRules],
+    );
 
-    referenced(&mut m, "http://hl7.org/fhir/", "fhir",
-        "HL7 FHIR RDF", OntologyAuthority::HL7,
-        "https://www.hl7.org/fhir/rdf.html", vec![Capability::HcareData]);
+    referenced(
+        &mut m,
+        "http://hl7.org/fhir/",
+        "fhir",
+        "HL7 FHIR RDF",
+        OntologyAuthority::HL7,
+        "https://www.hl7.org/fhir/rdf.html",
+        vec![Capability::HcareData],
+    );
 
-    referenced(&mut m, "http://docs.oasis-open.org/cti/ns/stix/", "stix",
-        "STIX 2.1 Cyber Threat Intelligence", OntologyAuthority::OASISOpen,
-        "https://oasis-open.github.io/cti-stix2-json-schemas/", vec![Capability::SecurityClassification]);
+    referenced(
+        &mut m,
+        "http://docs.oasis-open.org/cti/ns/stix/",
+        "stix",
+        "STIX 2.1 Cyber Threat Intelligence",
+        OntologyAuthority::OASISOpen,
+        "https://oasis-open.github.io/cti-stix2-json-schemas/",
+        vec![Capability::SecurityClassification],
+    );
 
-    referenced(&mut m, "https://ontology.unifiedcyberontology.org/uco/", "uco",
-        "Unified Cyber Ontology (UCO)", OntologyAuthority::Community,
-        "https://unifiedcyberontology.org/", vec![Capability::SecurityClassification]);
+    referenced(
+        &mut m,
+        "https://ontology.unifiedcyberontology.org/uco/",
+        "uco",
+        "Unified Cyber Ontology (UCO)",
+        OntologyAuthority::Community,
+        "https://unifiedcyberontology.org/",
+        vec![Capability::SecurityClassification],
+    );
 
-    referenced(&mut m, "https://w3id.org/iac#", "iac",
-        "Infrastructure as Code Ontology", OntologyAuthority::Community,
-        "https://w3id.org/iac", vec![Capability::InfrastructureAsCode]);
+    referenced(
+        &mut m,
+        "https://w3id.org/iac#",
+        "iac",
+        "Infrastructure as Code Ontology",
+        OntologyAuthority::Community,
+        "https://w3id.org/iac",
+        vec![Capability::InfrastructureAsCode],
+    );
 
-    referenced(&mut m, "http://docs.oasis-open.org/tosca/ns/2011/12/", "tosca",
-        "TOSCA Topology and Orchestration", OntologyAuthority::OASISOpen,
-        "https://www.oasis-open.org/committees/tosca/", vec![Capability::InfrastructureAsCode]);
+    referenced(
+        &mut m,
+        "http://docs.oasis-open.org/tosca/ns/2011/12/",
+        "tosca",
+        "TOSCA Topology and Orchestration",
+        OntologyAuthority::OASISOpen,
+        "https://www.oasis-open.org/committees/tosca/",
+        vec![Capability::InfrastructureAsCode],
+    );
 
-    referenced(&mut m, "http://ml-schema.github.io/documentation/", "mls",
-        "ML Schema", OntologyAuthority::Community,
-        "http://ml-schema.github.io/documentation/ML_schema.html", vec![Capability::MlMetadata]);
+    referenced(
+        &mut m,
+        "http://ml-schema.github.io/documentation/",
+        "mls",
+        "ML Schema",
+        OntologyAuthority::Community,
+        "http://ml-schema.github.io/documentation/ML_schema.html",
+        vec![Capability::MlMetadata],
+    );
 
-    referenced(&mut m, "https://www.w3.org/ns/mls", "mls2",
-        "W3C Machine Learning Schema", OntologyAuthority::W3C,
-        "https://www.w3.org/community/ml-schema/", vec![Capability::MlMetadata]);
+    referenced(
+        &mut m,
+        "https://www.w3.org/ns/mls",
+        "mls2",
+        "W3C Machine Learning Schema",
+        OntologyAuthority::W3C,
+        "https://www.w3.org/community/ml-schema/",
+        vec![Capability::MlMetadata],
+    );
 
-    referenced(&mut m, "http://www.yawlfoundation.org/yawlschema#", "yawl",
-        "YAWL Workflow Ontology", OntologyAuthority::Community,
-        "https://yawlfoundation.github.io/", vec![Capability::WorkflowPatterns]);
+    referenced(
+        &mut m,
+        "http://www.yawlfoundation.org/yawlschema#",
+        "yawl",
+        "YAWL Workflow Ontology",
+        OntologyAuthority::Community,
+        "https://yawlfoundation.github.io/",
+        vec![Capability::WorkflowPatterns],
+    );
 
-    referenced(&mut m, "https://www.omg.org/spec/BPMN/20100524/MODEL-XMI", "bpmn",
-        "BPMN 2.0 Metamodel", OntologyAuthority::OMG,
-        "https://www.omg.org/spec/BPMN/", vec![Capability::WorkflowPatterns]);
+    referenced(
+        &mut m,
+        "https://www.omg.org/spec/BPMN/20100524/MODEL-XMI",
+        "bpmn",
+        "BPMN 2.0 Metamodel",
+        OntologyAuthority::OMG,
+        "https://www.omg.org/spec/BPMN/",
+        vec![Capability::WorkflowPatterns],
+    );
 
-    referenced(&mut m, "http://www.w3.org/ns/r2rml#", "rr",
-        "R2RML: RDB to RDF Mapping Language", OntologyAuthority::W3C,
-        "https://www.w3.org/TR/r2rml/r2rml.ttl", vec![Capability::DataIntegration]);
+    referenced(
+        &mut m,
+        "http://www.w3.org/ns/r2rml#",
+        "rr",
+        "R2RML: RDB to RDF Mapping Language",
+        OntologyAuthority::W3C,
+        "https://www.w3.org/TR/r2rml/r2rml.ttl",
+        vec![Capability::DataIntegration],
+    );
 
-    referenced(&mut m, "http://www.w3.org/ns/sparql-service-description#", "sd",
-        "SPARQL 1.1 Service Description", OntologyAuthority::W3C,
+    referenced(
+        &mut m,
+        "http://www.w3.org/ns/sparql-service-description#",
+        "sd",
+        "SPARQL 1.1 Service Description",
+        OntologyAuthority::W3C,
         "https://www.w3.org/TR/sparql11-service-description/sd.ttl",
-        vec![Capability::Custom("sparql-federation".into())]);
+        vec![Capability::Custom("sparql-federation".into())],
+    );
 
-    referenced(&mut m, "http://www.w3.org/ns/hydra/core#", "hydra",
-        "Hydra Core Vocabulary", OntologyAuthority::W3C,
-        "http://www.w3.org/ns/hydra/core", vec![Capability::ApiDescription]);
+    referenced(
+        &mut m,
+        "http://www.w3.org/ns/hydra/core#",
+        "hydra",
+        "Hydra Core Vocabulary",
+        OntologyAuthority::W3C,
+        "http://www.w3.org/ns/hydra/core",
+        vec![Capability::ApiDescription],
+    );
 
-    referenced(&mut m, "https://www.w3.org/ns/json-ld#", "jsonld",
-        "JSON-LD 1.1 Vocabulary", OntologyAuthority::W3C,
-        "https://www.w3.org/ns/json-ld", vec![Capability::JsonLdContext]);
+    referenced(
+        &mut m,
+        "https://www.w3.org/ns/json-ld#",
+        "jsonld",
+        "JSON-LD 1.1 Vocabulary",
+        OntologyAuthority::W3C,
+        "https://www.w3.org/ns/json-ld",
+        vec![Capability::JsonLdContext],
+    );
 
-    referenced(&mut m, "http://www.w3.org/ns/ldp#", "ldp",
-        "Linked Data Platform (LDP)", OntologyAuthority::W3C,
-        "https://www.w3.org/ns/ldp", vec![Capability::ApiDescription]);
+    referenced(
+        &mut m,
+        "http://www.w3.org/ns/ldp#",
+        "ldp",
+        "Linked Data Platform (LDP)",
+        OntologyAuthority::W3C,
+        "https://www.w3.org/ns/ldp",
+        vec![Capability::ApiDescription],
+    );
 
-    referenced(&mut m, "http://purl.org/ontology/bibo/", "bibo",
-        "Bibliographic Ontology (BIBO)", OntologyAuthority::Community,
-        "http://purl.org/ontology/bibo/bibo.owl", vec![Capability::Metadata]);
+    referenced(
+        &mut m,
+        "http://purl.org/ontology/bibo/",
+        "bibo",
+        "Bibliographic Ontology (BIBO)",
+        OntologyAuthority::Community,
+        "http://purl.org/ontology/bibo/bibo.owl",
+        vec![Capability::Metadata],
+    );
 
-    referenced(&mut m, "http://purl.org/dc/elements/1.1/", "dc",
-        "Dublin Core Elements 1.1", OntologyAuthority::DCMI,
+    referenced(
+        &mut m,
+        "http://purl.org/dc/elements/1.1/",
+        "dc",
+        "Dublin Core Elements 1.1",
+        OntologyAuthority::DCMI,
         "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.ttl",
-        vec![Capability::Metadata]);
+        vec![Capability::Metadata],
+    );
 
-    referenced(&mut m, "http://www.opengis.net/ont/geosparql#", "geo",
-        "GeoSPARQL 1.1", OntologyAuthority::OGC,
-        "http://www.opengis.net/ont/geosparql", vec![Capability::Geospatial]);
+    referenced(
+        &mut m,
+        "http://www.opengis.net/ont/geosparql#",
+        "geo",
+        "GeoSPARQL 1.1",
+        OntologyAuthority::OGC,
+        "http://www.opengis.net/ont/geosparql",
+        vec![Capability::Geospatial],
+    );
 
-    referenced(&mut m, "http://www.w3.org/2003/01/geo/wgs84_pos#", "wgs84",
-        "WGS84 Geo Positioning", OntologyAuthority::W3C,
-        "https://www.w3.org/2003/01/geo/wgs84_pos.rdf", vec![Capability::Geospatial]);
+    referenced(
+        &mut m,
+        "http://www.w3.org/2003/01/geo/wgs84_pos#",
+        "wgs84",
+        "WGS84 Geo Positioning",
+        OntologyAuthority::W3C,
+        "https://www.w3.org/2003/01/geo/wgs84_pos.rdf",
+        vec![Capability::Geospatial],
+    );
 
-    referenced(&mut m, "http://purl.obolibrary.org/obo/go.owl", "go",
-        "Gene Ontology (GO)", OntologyAuthority::Community,
-        "http://geneontology.org/", vec![Capability::Custom("biology".into())]);
+    referenced(
+        &mut m,
+        "http://purl.obolibrary.org/obo/go.owl",
+        "go",
+        "Gene Ontology (GO)",
+        OntologyAuthority::Community,
+        "http://geneontology.org/",
+        vec![Capability::Custom("biology".into())],
+    );
 
-    referenced(&mut m, "http://purl.obolibrary.org/obo/chebi.owl", "chebi",
-        "ChEBI: Chemical Entities of Biological Interest", OntologyAuthority::Community,
-        "https://www.ebi.ac.uk/chebi/", vec![Capability::Custom("chemistry".into())]);
+    referenced(
+        &mut m,
+        "http://purl.obolibrary.org/obo/chebi.owl",
+        "chebi",
+        "ChEBI: Chemical Entities of Biological Interest",
+        OntologyAuthority::Community,
+        "https://www.ebi.ac.uk/chebi/",
+        vec![Capability::Custom("chemistry".into())],
+    );
 
-    referenced(&mut m, "http://purl.org/linked-data/sdmx/2009/measure#", "sdmx-measure",
-        "SDMX-RDF Measure Vocabulary", OntologyAuthority::Community,
-        "https://sdmx.org/", vec![Capability::StatisticalData]);
+    referenced(
+        &mut m,
+        "http://purl.org/linked-data/sdmx/2009/measure#",
+        "sdmx-measure",
+        "SDMX-RDF Measure Vocabulary",
+        OntologyAuthority::Community,
+        "https://sdmx.org/",
+        vec![Capability::StatisticalData],
+    );
 
-    referenced(&mut m, "http://www.ontology-of-units-of-measure.org/resource/om-2/", "om",
-        "Ontology of Units of Measure (OM) 2", OntologyAuthority::Community,
+    referenced(
+        &mut m,
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/",
+        "om",
+        "Ontology of Units of Measure (OM) 2",
+        OntologyAuthority::Community,
         "http://www.ontology-of-units-of-measure.org/resource/om-2/om-2.0.rdf",
-        vec![Capability::UnitsOfMeasure]);
+        vec![Capability::UnitsOfMeasure],
+    );
 
-    referenced(&mut m, "http://www.w3.org/2008/05/skos-xl#", "skosxl",
-        "SKOS-XL (eXtension for Labels)", OntologyAuthority::W3C,
+    referenced(
+        &mut m,
+        "http://www.w3.org/2008/05/skos-xl#",
+        "skosxl",
+        "SKOS-XL (eXtension for Labels)",
+        OntologyAuthority::W3C,
         "https://www.w3.org/TR/skos-reference/skos-xl.rdf",
-        vec![Capability::KnowledgeOrganization]);
+        vec![Capability::KnowledgeOrganization],
+    );
 
-    referenced(&mut m, "http://semanticscience.org/resource/", "sio",
-        "Semanticscience Integrated Ontology (SIO)", OntologyAuthority::Community,
-        "http://semanticscience.org/", vec![Capability::Custom("scientific-data".into())]);
+    referenced(
+        &mut m,
+        "http://semanticscience.org/resource/",
+        "sio",
+        "Semanticscience Integrated Ontology (SIO)",
+        OntologyAuthority::Community,
+        "http://semanticscience.org/",
+        vec![Capability::Custom("scientific-data".into())],
+    );
 
-    referenced(&mut m, "https://www.w3.org/ns/activitystreams#", "as",
-        "Activity Streams 2.0", OntologyAuthority::W3C,
-        "https://www.w3.org/ns/activitystreams-owl", vec![Capability::AgentCommunication]);
+    referenced(
+        &mut m,
+        "https://www.w3.org/ns/activitystreams#",
+        "as",
+        "Activity Streams 2.0",
+        OntologyAuthority::W3C,
+        "https://www.w3.org/ns/activitystreams-owl",
+        vec![Capability::AgentCommunication],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/core#", "ggen",
-        "ggen Core Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::CodeGeneration]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/core#",
+        "ggen",
+        "ggen Core Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::CodeGeneration],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/pipeline#", "pipe",
-        "ggen Pipeline Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::CodeGeneration]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/pipeline#",
+        "pipe",
+        "ggen Pipeline Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::CodeGeneration],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/marketplace#", "market",
-        "ggen Marketplace Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::CapabilityClassification]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/marketplace#",
+        "market",
+        "ggen Marketplace Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::CapabilityClassification],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/cpmp#", "cpmp",
-        "Computer Project Mapping Protocol (CPMP)", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::CapabilityClassification]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/cpmp#",
+        "cpmp",
+        "Computer Project Mapping Protocol (CPMP)",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::CapabilityClassification],
+    );
 
-    referenced(&mut m, "https://google.github.io/A2A/specification/", "a2a",
-        "Google A2A Protocol", OntologyAuthority::Community,
-        "https://google.github.io/A2A/", vec![Capability::AgentCommunication]);
+    referenced(
+        &mut m,
+        "https://google.github.io/A2A/specification/",
+        "a2a",
+        "Google A2A Protocol",
+        OntologyAuthority::Community,
+        "https://google.github.io/A2A/",
+        vec![Capability::AgentCommunication],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/genesis-core#", "genesis",
-        "Genesis Core Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::CodeGeneration]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/genesis-core#",
+        "genesis",
+        "Genesis Core Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::CodeGeneration],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/yawl-knhk#", "yknhk",
-        "KNHK YAWL Pattern Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::WorkflowPatterns]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/yawl-knhk#",
+        "yknhk",
+        "KNHK YAWL Pattern Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::WorkflowPatterns],
+    );
 
     // ── Process Mining Ontologies (Van der Aalst) ──────────────────────────
 
-    referenced(&mut m, "https://ggen.io/ontology/petri-net#", "pn",
-        "Petri Net Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining, Capability::WorkflowPatterns]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/petri-net#",
+        "pn",
+        "Petri Net Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::ProcessMining, Capability::WorkflowPatterns],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/dfg#", "dfg",
-        "Directly-Follows Graph (DFG) Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/dfg#",
+        "dfg",
+        "Directly-Follows Graph (DFG) Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::ProcessMining],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/process-tree#", "ptree",
-        "Process Tree Ontology (Inductive Miner)", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/process-tree#",
+        "ptree",
+        "Process Tree Ontology (Inductive Miner)",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::ProcessMining],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/performance-spectrum#", "ps",
-        "Performance Spectrum Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/performance-spectrum#",
+        "ps",
+        "Performance Spectrum Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::ProcessMining],
+    );
 
-    referenced(&mut m, "https://ggen.io/ontology/decision-mining#", "dm",
-        "Decision Mining Ontology", OntologyAuthority::GgenProject,
-        "https://github.com/seanchatmangpt/ggen", vec![Capability::ProcessMining]);
+    referenced(
+        &mut m,
+        "https://ggen.io/ontology/decision-mining#",
+        "dm",
+        "Decision Mining Ontology",
+        OntologyAuthority::GgenProject,
+        "https://github.com/seanchatmangpt/ggen",
+        vec![Capability::ProcessMining],
+    );
 
     m
 }
@@ -524,13 +766,8 @@ fn build_entries() -> HashMap<String, OntologyEntry> {
 // ── Builder helpers ───────────────────────────────────────────────────────────
 
 fn tier0(
-    m: &mut HashMap<String, OntologyEntry>,
-    iri: &str,
-    prefix: &str,
-    label: &str,
-    authority: OntologyAuthority,
-    content: &'static str,
-    capabilities: Vec<Capability>,
+    m: &mut HashMap<String, OntologyEntry>, iri: &str, prefix: &str, label: &str,
+    authority: OntologyAuthority, content: &'static str, capabilities: Vec<Capability>,
 ) {
     m.insert(
         iri.to_owned(),
@@ -547,13 +784,8 @@ fn tier0(
 }
 
 fn cached(
-    m: &mut HashMap<String, OntologyEntry>,
-    iri: &str,
-    prefix: &str,
-    label: &str,
-    authority: OntologyAuthority,
-    download_url: &str,
-    capabilities: Vec<Capability>,
+    m: &mut HashMap<String, OntologyEntry>, iri: &str, prefix: &str, label: &str,
+    authority: OntologyAuthority, download_url: &str, capabilities: Vec<Capability>,
 ) {
     m.insert(
         iri.to_owned(),
@@ -573,13 +805,8 @@ fn cached(
 }
 
 fn referenced(
-    m: &mut HashMap<String, OntologyEntry>,
-    iri: &str,
-    prefix: &str,
-    label: &str,
-    authority: OntologyAuthority,
-    landing_url: &str,
-    capabilities: Vec<Capability>,
+    m: &mut HashMap<String, OntologyEntry>, iri: &str, prefix: &str, label: &str,
+    authority: OntologyAuthority, landing_url: &str, capabilities: Vec<Capability>,
 ) {
     m.insert(
         iri.to_owned(),

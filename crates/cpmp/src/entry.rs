@@ -45,9 +45,7 @@ pub enum OntologyContent {
         blake3_hex: Option<String>,
     },
     /// Tier 2: URL only; content not materialized until explicitly requested.
-    Remote {
-        landing_url: String,
-    },
+    Remote { landing_url: String },
 }
 
 /// A single ontology entry in the Vision 2030 catalog.
@@ -63,12 +61,8 @@ pub struct OntologyEntry {
 
 impl OntologyEntry {
     pub fn new(
-        iri: impl Into<String>,
-        prefix: impl Into<String>,
-        label: impl Into<String>,
-        tier: OntologyTier,
-        content: OntologyContent,
-        authority: OntologyAuthority,
+        iri: impl Into<String>, prefix: impl Into<String>, label: impl Into<String>,
+        tier: OntologyTier, content: OntologyContent, authority: OntologyAuthority,
         capabilities: Vec<Capability>,
     ) -> Self {
         Self {

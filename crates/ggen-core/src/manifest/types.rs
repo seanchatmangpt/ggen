@@ -566,7 +566,6 @@ mod tests {
     }
 }
 
-
 impl OntologyConfig {
     /// Resolves the primary ontology source into a list of paths
     pub fn resolved_sources(&self, base_path: &std::path::Path) -> Vec<PathBuf> {

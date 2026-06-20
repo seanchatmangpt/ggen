@@ -16,7 +16,7 @@ impl OntologyResolver {
                 .join("ggen")
                 .join("ontology_catalogue")
                 .join(crate_name);
-            
+
             let mut paths = Vec::new();
             if local_registry.exists() && local_registry.is_dir() {
                 for entry in WalkDir::new(&local_registry) {

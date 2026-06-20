@@ -1,0 +1,278 @@
+# =============================================================================
+# ggen.toml — DRIVER for the TPOT2 Auto-Configuration Generator (wasm4pm)
+# -----------------------------------------------------------------------------
+# This manifest ties together the ontology (TPOT2 search space over the wasm4pm
+# 60-algorithm process-mining registry), the inference rules that DERIVE the
+# operator search space + Pareto-dominance edges, the SELECT queries that rank
+# operators by fitness, and the Tera templates that emit the auto-configured
+# artifacts (a generated ggen.toml, a TPOT2 config_dict, a pipeline manifest,
+# and a search-space report).
+#
+# "Auto" = the optimal operator per stage is DERIVED by SPARQL ranking over a
+# fitness function, never hand-coded. See CONTRACT.md §0 and README.md.
+#
+# Every key below is a real serde field in crates/ggen-core/src/manifest/types.rs
+# (which uses #[serde(deny_unknown_fields)] on [ontology], [generation], and each
+# [[generation.rules]] entry — so unknown keys are REJECTED, not ignored).
+# =============================================================================
+
+[project]
+name = "tpot2-wasm4pm-autoconfig"
+version = "0.1.0"
+description = "TPOT2 genetic-programming auto-configuration over the wasm4pm 60-algorithm process-mining registry: SPARQL-derived, Pareto-optimal pipeline selection."
+authors = ["ggen tpot2 example"]
+license = "MIT"
+
+# -----------------------------------------------------------------------------
+# [ontology]
+# source = the primary TTL (the NEW tpot: search-space vocabulary: stages,
+#   fitness objectives, genetic config, category->stage map).
+# imports = the rest. The field name is `imports` (WASM4PM BUG-001: the older,
+#   wrong key name caused OntologyConfig to drop the imported TTLs silently, so
+#   SPARQL returned empty). With deny_unknown_fields now on OntologyConfig that
+#   wrong key would hard-error; `imports` is the only correct field name that
+#   actually loads the extra ontologies (types.rs:182-184).
+# -----------------------------------------------------------------------------
+[ontology]
+source = "ontology/tpot-search-space.ttl"
+imports = [
+    "ontology/algorithms.ttl",   # 60 pi:ProcessIntelligenceAlgorithm individuals
+    "ontology/breeds.ttl",       # 55 compat: cognition breeds (GP meta-strategy)
+    "ontology/tpot-shapes.ttl",  # SHACL shapes for the tpot: vocabulary
+]
+base_iri = "https://wasm4pm.dev/tpot#"
+
+[ontology.prefixes]
+pi = "https://wasm4pm.dev/pi#"
+compat = "https://wasm4pm.dev/ns#"
+tpot = "https://wasm4pm.dev/tpot#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+# -----------------------------------------------------------------------------
+# [inference] — the "AUTO" step. CONSTRUCTs that ADD NEW triples (never identity
+# CONSTRUCTs — WASM4PM BUG-009), run BEFORE the [[generation.rules]] SELECTs so
+# operators + dominance edges exist when the SELECTs query them.
+#
+# SCHEMA DECISION (verified against types.rs:213-233): `InferenceRule` has
+# #[serde(deny_unknown_fields)] and its only query field is `construct` (a
+# required String). There is NO `file` field for inference rules — a
+# `{ name, file = "..." }` entry would be REJECTED by deny_unknown_fields.
+# Therefore the two CONSTRUCTs (authored by Agent 2 at
+# inference/derive-operators.rq and inference/derive-pareto-dominance.rq) are
+# INLINED here verbatim as `construct = """..."""`. The .rq files remain the
+# human-readable source of record; this manifest is the machine-executable copy.
+# `order` makes the execution sequence explicit (lower runs earlier).
+# -----------------------------------------------------------------------------
+[inference]
+rules = [
+    # derive-operators: pi:Algorithm -> tpot:Operator with COMPUTED fitness
+    #   fitnessScore = qualityTier - (0.5 * speedTier)   (CONTRACT.md §5)
+    #   one operator per algorithm (60 in, 60 out), placed at the tpot:Stage
+    #   whose tpot:forCategory equals the algorithm's pi:category.
+    { name = "derive-operators", order = 1, construct = """
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+CONSTRUCT {
+  ?operator a tpot:Operator ;
+            tpot:operatorId     ?algorithm_id ;
+            tpot:wrapsAlgorithm ?a ;
+            tpot:atStage        ?stage ;
+            tpot:opCategory     ?category ;
+            tpot:opSpeedTier    ?s ;
+            tpot:opQualityTier  ?q ;
+            tpot:fitnessScore   ?fitness ;
+            tpot:wasmExport     ?wasm_export .
+}
+WHERE {
+  ?a a pi:ProcessIntelligenceAlgorithm ;
+     pi:algorithmId ?algorithm_id ;
+     pi:category    ?category ;
+     pi:speedTier   ?s ;
+     pi:qualityTier ?q ;
+     pi:wasmExport  ?wasm_export .
+
+  ?stage a tpot:PipelineStage ;
+         tpot:forCategory ?category .
+
+  BIND((?q - (0.5 * ?s)) AS ?fitness)
+  BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?algorithm_id)) AS ?operator)
+}
+ORDER BY ?algorithm_id
+""" },
+
+    # derive-pareto-dominance: ?opA tpot:dominates ?opB for every ordered pair
+    #   where A Pareto-dominates B over (maximize qualityTier, minimize
+    #   speedTier). Self-contained (reads pi: tiers), so order-independent.
+    { name = "derive-pareto-dominance", order = 2, construct = """
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+CONSTRUCT {
+  ?opA tpot:dominates ?opB .
+}
+WHERE {
+  ?algoA a pi:ProcessIntelligenceAlgorithm ;
+         pi:algorithmId ?idA ;
+         pi:qualityTier ?qA ;
+         pi:speedTier   ?sA .
+
+  ?algoB a pi:ProcessIntelligenceAlgorithm ;
+         pi:algorithmId ?idB ;
+         pi:qualityTier ?qB ;
+         pi:speedTier   ?sB .
+
+  FILTER(?idA != ?idB)
+  FILTER(?qA >= ?qB)
+  FILTER(?sA <= ?sB)
+  FILTER(?qA > ?qB || ?sA < ?sB)
+
+  BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idA)) AS ?opA)
+  BIND(IRI(CONCAT("https://wasm4pm.dev/tpot#Op_", ?idB)) AS ?opB)
+}
+ORDER BY ?idA ?idB
+""" },
+]
+
+# -----------------------------------------------------------------------------
+# [generation] — all artifacts land under generated/ (inside this project root;
+# never escapes it — WASM4PM YIELD-001). output_file values are resolved
+# relative to output_dir.
+# -----------------------------------------------------------------------------
+[generation]
+output_dir = "generated/"
+
+# -----------------------------------------------------------------------------
+# RULE 1 — the AUTO-CONFIG ggen.toml (the chosen Pareto-optimal pipeline)
+#   query: extract-pareto-pipeline.rq  (per-stage elite, 9 rows)
+#   -> generated/ggen.toml
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "generate-ggen-toml"
+query = { file = "queries/extract-pareto-pipeline.rq" }
+template = { file = "templates/generated-ggen-toml.tera" }
+output_file = "ggen.toml"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# RULE 2 — the TPOT2 config_dict (full operator search space, all 60)
+#   query: extract-operators.rq  (one row per operator)
+#   -> generated/tpot_config.py
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "generate-tpot-config"
+query = { file = "queries/extract-operators.rq" }
+template = { file = "templates/tpot-config-dict.py.tera" }
+output_file = "tpot_config.py"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# RULE 3 — the pipeline manifest (the chosen pipeline as JSON)
+#   query: extract-pareto-pipeline.rq  (per-stage elite, 9 rows)
+#   -> generated/pipeline.json
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "generate-pipeline-manifest"
+query = { file = "queries/extract-pareto-pipeline.rq" }
+template = { file = "templates/pipeline-manifest.json.tera" }
+output_file = "pipeline.json"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# RULE 4 — the search-space report (Markdown over all 60 operators)
+#   query: extract-operators.rq  (one row per operator)
+#   -> generated/SEARCH_SPACE.md
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "generate-search-space-report"
+query = { file = "queries/extract-operators.rq" }
+template = { file = "templates/search-space-report.md.tera" }
+output_file = "SEARCH_SPACE.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# RULE 5 — stage plan (ordered 9-stage plan)
+#   query: extract-pipeline-stages.rq  (one row per stage, 9 rows)
+#   template: stage-plan.md.tera — reads EXACTLY this query's projection
+#   (stage_order, stage_id, stage_label, for_category, operator_count). An earlier
+#   version reused search-space-report.md.tera, whose operator-level column reads
+#   rendered SILENTLY BLANK (projection mismatch; research/08 §B.1, which ggen-lsp
+#   GGEN-TPL-001 structurally cannot catch — research/10). This dedicated template
+#   fixes it: the columns the query provides are the columns the template reads.
+#   -> generated/STAGE_PLAN.md
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "generate-stage-plan"
+query = { file = "queries/extract-pipeline-stages.rq" }
+template = { file = "templates/stage-plan.md.tera" }
+output_file = "STAGE_PLAN.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# RULE 6 — fitness-objective summary (the multi-objective NSGA-II config)
+#   query: extract-fitness-objectives.rq  (2 rows: quality, cost)
+#   template: objectives.json.tera — reads EXACTLY this query's projection
+#   (objective_order, objective_id, objective_name, metric, direction, weight) so
+#   the objectives are genuinely query-derived. An earlier version reused
+#   pipeline-manifest.json.tera, whose objectives array was a hardcoded literal and
+#   consumed NONE of the query's columns (research/08 §B.2). Fixed here.
+#   -> generated/objectives.json
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "generate-fitness-objectives"
+query = { file = "queries/extract-fitness-objectives.rq" }
+template = { file = "templates/objectives.json.tera" }
+output_file = "objectives.json"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# [validation] — ACTIVATE the SHACL gate + strict determinism mode.
+# SHACL enforcement is gated by a NON-EMPTY `shacl` list (independent of
+# strict_mode; types.rs:399-414). Without this section the imported
+# tpot-shapes.ttl was loaded as data only and never enforced (research/06).
+# Every OperatorShape / PipelineStageShape / FitnessObjectiveShape constraint
+# passes the derived data (research/06 datatype check: BIND fitness is xsd:decimal;
+# tiers are xsd:integer; forCategory ∈ the 9 frozen categories). strict_mode
+# elevates missing-ORDER-BY (E0011) to a hard error — safe here because all 6
+# SELECTs AND both inline inference CONSTRUCTs now carry ORDER BY. Basis:
+# source analysis in research/01,06,07 (this container cannot run `ggen sync`).
+# -----------------------------------------------------------------------------
+[validation]
+shacl = ["ontology/tpot-shapes.ttl"]
+strict_mode = true
+
+# -----------------------------------------------------------------------------
+# [sync] / [rdf] / [templates] / [output] — mirror the canonical ggen.toml.
+# These four sections are captured as opaque toml::Value in the manifest
+# (types.rs:120-127), so their inner keys are not schema-validated; the values
+# below match /home/user/ggen/ggen.toml verbatim.
+# -----------------------------------------------------------------------------
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
+
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+strict_validation = false
+
+[templates]
+enable_caching = true
+auto_reload = true
+
+[output]
+formatting = "default"
+line_length = 100
+indent = 2

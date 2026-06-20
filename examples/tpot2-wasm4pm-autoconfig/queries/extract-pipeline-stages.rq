@@ -1,0 +1,40 @@
+# ============================================================================
+# queries/extract-pipeline-stages.rq  —  the ordered stage plan (9 rows)
+# ============================================================================
+# One row per tpot:PipelineStage (the 9 stages, bijection to the 9 pi:category
+# values — CONTRACT.md §4). ?operator_count is the number of derived operators
+# placed at the stage, computed by a GROUP BY sub-SELECT over tpot:Operator so
+# the count survives even though the outer query is per-stage.
+#
+# Strict-mode discipline: explicit projection (no SELECT * — BUG-007) and an
+# explicit ORDER BY ?stage_order (BUG-006 / E0011 / E0013).
+# ----------------------------------------------------------------------------
+
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+PREFIX pi:     <https://wasm4pm.dev/pi#>
+PREFIX compat: <https://wasm4pm.dev/ns#>
+PREFIX tpot:   <https://wasm4pm.dev/tpot#>
+
+SELECT ?stage_order ?stage_id ?stage_label ?for_category ?operator_count
+WHERE {
+  # --- the stage -----------------------------------------------------------
+  ?stage a tpot:PipelineStage ;
+         tpot:stageId     ?stage_id ;
+         tpot:stageOrder  ?stage_order ;
+         tpot:stageLabel  ?stage_label ;
+         tpot:forCategory ?for_category .
+
+  # --- count operators at this stage (GROUP BY sub-SELECT) -----------------
+  {
+    SELECT ?cstage (COUNT(?cop) AS ?operator_count)
+    WHERE {
+      ?cop a tpot:Operator ;
+           tpot:atStage ?cstage .
+    }
+    GROUP BY ?cstage
+  }
+  FILTER(?cstage = ?stage)
+}
+ORDER BY ?stage_order

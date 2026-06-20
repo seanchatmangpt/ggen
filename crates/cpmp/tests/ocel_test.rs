@@ -5,8 +5,7 @@ use std::path::Path;
 
 /// Returns the path to the p2p fixture file (relative to the crate root at test time).
 fn p2p_fixture_path() -> std::path::PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/p2p.ocel.json")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/p2p.ocel.json")
 }
 
 /// Loads the purchase-to-pay fixture and fails the test on any error.
@@ -162,14 +161,8 @@ fn directly_follows_graph_has_three_distinct_edges() {
         2,
         "Place Order → Receive Payment must have count 2"
     );
-    assert_eq!(
-        dfg[&("Receive Payment".into(), "Pick Item".into())],
-        1
-    );
-    assert_eq!(
-        dfg[&("Pick Item".into(), "Ship Order".into())],
-        2
-    );
+    assert_eq!(dfg[&("Receive Payment".into(), "Pick Item".into())], 1);
+    assert_eq!(dfg[&("Pick Item".into(), "Ship Order".into())], 2);
 }
 
 // ── process variants ──────────────────────────────────────────────────────────
@@ -185,8 +178,7 @@ fn variants_per_object_type_identifies_two_order_variants() {
     // order2: Place Order -> Receive Payment
     assert_eq!(order_variants.len(), 2);
     assert_eq!(
-        order_variants
-            ["Place Order -> Receive Payment -> Pick Item -> Ship Order"],
+        order_variants["Place Order -> Receive Payment -> Pick Item -> Ship Order"],
         1
     );
     assert_eq!(order_variants["Place Order -> Receive Payment"], 1);
