@@ -1,0 +1,645 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix genesis: <https://ggen.io/ontology/genesis-core#> .
+
+# =============================================================================
+# GENESIS CORE ONTOLOGY
+# Formalizes the mathematical foundation A = μ(O) — code precipitates from RDF
+# via the five-stage deterministic transformation μ applied to an ontology O.
+#
+# Source of truth: crates/genesis-core/src/lib.rs
+# Rust structures encoded: Pair2, RelationPage<CAP>, Construct8Packet,
+#   Receipt, ReplayCursor, Refusal, RefusalReason.
+# =============================================================================
+
+<https://ggen.io/ontology/genesis-core>
+    a owl:Ontology ;
+    rdfs:label "Genesis Core Ontology" ;
+    rdfs:comment """Formal OWL ontology for the Genesis interchangeable-parts architecture.
+Encodes the formula A = μ(O): code (A) precipitates from an RDF ontology (O) via the
+deterministic transformation μ decomposed into five pipeline stages μ₁–μ₅.
+All structures derive from crates/genesis-core/src/lib.rs (#[no_std], zero-allocation).""" ;
+    owl:imports <https://ggen.io/ontology/core> ;
+    dcterms:created "2026-06-20"^^xsd:date ;
+    owl:versionInfo "26.5.28" .
+
+#################################################################
+# PART 1: The A = μ(O) Formula
+#################################################################
+
+genesis:Transformation
+    a owl:Class ;
+    rdfs:label "Transformation" ;
+    rdfs:comment """μ — the code-precipitation transformation.
+Encodes the deterministic, idempotent mapping from an RDF ontology O to a
+generated code artefact A. The pipeline stages μ₁–μ₅ compose to form μ.""" .
+
+genesis:Ontology
+    a owl:Class ;
+    rdfs:label "Ontology" ;
+    rdfs:comment """O — the source RDF ontology.
+The declarative, machine-readable specification from which code precipitates.
+In the ggen system this is the content of .specify/*.ttl files.""" .
+
+genesis:Artefact
+    a owl:Class ;
+    rdfs:label "Artefact" ;
+    rdfs:comment """A — the generated code artefact.
+The concrete output (Rust source file, SPARQL query, Tera template, etc.)
+produced when μ is applied to O. Bound by a cryptographic Receipt.""" .
+
+genesis:applies
+    a owl:ObjectProperty ;
+    rdfs:label "applies" ;
+    rdfs:comment "μ applies to an ontology O. Domain: Transformation, Range: Ontology." ;
+    rdfs:domain genesis:Transformation ;
+    rdfs:range  genesis:Ontology .
+
+genesis:precipitates
+    a owl:ObjectProperty ;
+    rdfs:label "precipitates" ;
+    rdfs:comment "An artefact A precipitates from an ontology O via a transformation μ." ;
+    rdfs:domain genesis:Ontology ;
+    rdfs:range  genesis:Artefact .
+
+genesis:producedBy
+    a owl:ObjectProperty ;
+    rdfs:label "produced by" ;
+    rdfs:comment "Links an artefact A to the transformation μ that produced it." ;
+    rdfs:domain genesis:Artefact ;
+    rdfs:range  genesis:Transformation ;
+    owl:inverseOf genesis:produces .
+
+genesis:produces
+    a owl:ObjectProperty ;
+    rdfs:label "produces" ;
+    rdfs:comment "Links a transformation μ to the artefact A it produces." ;
+    rdfs:domain genesis:Transformation ;
+    rdfs:range  genesis:Artefact .
+
+genesis:isIdempotent
+    a owl:DatatypeProperty ;
+    rdfs:label "is idempotent" ;
+    rdfs:comment "True when applying μ twice to the same O yields the same A (μ(μ(O)) = μ(O))." ;
+    rdfs:domain genesis:Transformation ;
+    rdfs:range  xsd:boolean .
+
+genesis:isDeterministic
+    a owl:DatatypeProperty ;
+    rdfs:label "is deterministic" ;
+    rdfs:comment "True when μ applied to the same O always produces the same A, regardless of execution environment." ;
+    rdfs:domain genesis:Transformation ;
+    rdfs:range  xsd:boolean .
+
+# Ground instance: the ggen μ transformation
+genesis:MuTransformation
+    a genesis:Transformation ;
+    rdfs:label "ggen μ Transformation" ;
+    rdfs:comment "The concrete ggen code-generation transformation. Idempotent and deterministic by construction." ;
+    genesis:isIdempotent    true ;
+    genesis:isDeterministic true .
+
+#################################################################
+# PART 2: Pair2 — bounded left/right byte pair
+# Source: crates/genesis-core/src/lib.rs, struct Pair2
+#   pub struct Pair2 { pub left: u8, pub right: u8 }
+# Semantics: left and right bytes under an assumed middle relation.
+#################################################################
+
+genesis:Pair2
+    a owl:Class ;
+    rdfs:label "Pair2" ;
+    rdfs:comment """The fundamental 2-element byte pair encoding a binary relation datum.
+Rust: #[repr(C)] pub struct Pair2 { pub left: u8, pub right: u8 }
+Semantics: (left, right) under an assumed middle relation matter.
+Used as the base unit in RelationPage and Construct8Packet.""" .
+
+genesis:pairLeft
+    a owl:DatatypeProperty ;
+    rdfs:label "pair left" ;
+    rdfs:comment "The left byte of a Pair2. Corresponds to Pair2::left (u8). Range: 0–255." ;
+    rdfs:domain genesis:Pair2 ;
+    rdfs:range  xsd:unsignedByte .
+
+genesis:pairRight
+    a owl:DatatypeProperty ;
+    rdfs:label "pair right" ;
+    rdfs:comment "The right byte of a Pair2. Corresponds to Pair2::right (u8). Range: 0–255." ;
+    rdfs:domain genesis:Pair2 ;
+    rdfs:range  xsd:unsignedByte .
+
+# Aliases using the spec-requested names (first/second map to left/right)
+genesis:Pair2First
+    owl:equivalentProperty genesis:pairLeft ;
+    rdfs:label "Pair2 first element" ;
+    rdfs:comment "Alias for pairLeft. The first (left) element of a Pair2." .
+
+genesis:Pair2Second
+    owl:equivalentProperty genesis:pairRight ;
+    rdfs:label "Pair2 second element" ;
+    rdfs:comment "Alias for pairRight. The second (right) element of a Pair2." .
+
+genesis:pairFirst
+    a owl:DatatypeProperty ;
+    owl:equivalentProperty genesis:pairLeft ;
+    rdfs:label "pair first" ;
+    rdfs:domain genesis:Pair2 ;
+    rdfs:range  xsd:unsignedByte .
+
+genesis:pairSecond
+    a owl:DatatypeProperty ;
+    owl:equivalentProperty genesis:pairRight ;
+    rdfs:label "pair second" ;
+    rdfs:domain genesis:Pair2 ;
+    rdfs:range  xsd:unsignedByte .
+
+#################################################################
+# PART 3: RelationPage — predicate-fixed binary relation context
+# Source: crates/genesis-core/src/lib.rs, struct RelationPage<const CAP: usize = 256>
+#   pub struct RelationPage<const CAP: usize = 256> {
+#       pub predicate: u32,
+#       pub len: u32,
+#       pub pairs: [Pair2; CAP],
+#   }
+# Semantics: a bounded, contiguous slice of a binary relation fixed to one predicate.
+#################################################################
+
+genesis:RelationPage
+    a owl:Class ;
+    rdfs:label "RelationPage" ;
+    rdfs:comment """A predicate-fixed binary relation context holding up to CAP Pair2 entries.
+Rust: #[repr(C)] pub struct RelationPage<const CAP: usize = 256> { predicate: u32, len: u32, pairs: [Pair2; CAP] }
+Zero-allocation, no_std compatible. Insertion is refused (Refusal::PageFull) when len == CAP.
+Duplicate pairs are rejected (Refusal::DuplicateRelation).""" .
+
+genesis:hasPair
+    a owl:ObjectProperty ;
+    rdfs:label "has pair" ;
+    rdfs:comment "Links a RelationPage to one of the Pair2 entries it contains." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:relationPredicate
+    a owl:DatatypeProperty ;
+    rdfs:label "relation predicate" ;
+    rdfs:comment "The predicate u32 identifier to which all pairs in this page belong. Corresponds to RelationPage::predicate." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  xsd:unsignedInt .
+
+genesis:pageLength
+    a owl:DatatypeProperty ;
+    rdfs:label "page length" ;
+    rdfs:comment "The current number of valid pairs inserted. Corresponds to RelationPage::len (u32). Always <= CAP." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+genesis:pageCapacity
+    a owl:DatatypeProperty ;
+    rdfs:label "page capacity" ;
+    rdfs:comment "The const generic capacity CAP of the RelationPage array. Default 256." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+genesis:pageIndex
+    a owl:DatatypeProperty ;
+    rdfs:label "page index" ;
+    rdfs:comment "Zero-based page index within a multi-page relation." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+genesis:pageSize
+    a owl:DatatypeProperty ;
+    rdfs:label "page size" ;
+    rdfs:comment "Maximum entries per page (equivalent to CAP for this page)." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+genesis:RelationPageTotal
+    a owl:DatatypeProperty ;
+    rdfs:label "relation page total" ;
+    rdfs:comment "Total number of pages in the complete relation." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+genesis:nextPage
+    a owl:ObjectProperty ;
+    rdfs:label "next page" ;
+    rdfs:comment "Links a RelationPage to the next page in the ordered sequence of relation pages." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  genesis:RelationPage .
+
+genesis:RelationPageContent
+    a owl:ObjectProperty ;
+    rdfs:label "relation page content" ;
+    rdfs:comment "The collection of Pair2 entries on this page (up to len entries are valid). Alias for hasPair in a collection context." ;
+    rdfs:domain genesis:RelationPage ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:RelationPageIndex
+    owl:equivalentProperty genesis:pageIndex ;
+    rdfs:label "RelationPage index" ;
+    rdfs:comment "Alias for pageIndex." .
+
+genesis:RelationPageSize
+    owl:equivalentProperty genesis:pageSize ;
+    rdfs:label "RelationPage size" ;
+    rdfs:comment "Alias for pageSize." .
+
+#################################################################
+# PART 4: Construct8Packet — 8-lane bounded packing
+# Source: crates/genesis-core/src/lib.rs, struct Construct8Packet
+#   pub struct Construct8Packet {
+#       pub epoch: u64,
+#       pub relation_id: u32,
+#       pub lanes: [Pair2; 8],
+#       pub valid_mask: u8,  // bitmask: bit i set iff lanes[i] is occupied
+#   }
+# Semantics: a single construction act packing up to 8 Pair2 values into
+# lanes 0–7, tracked by a u8 bitmask.
+#################################################################
+
+genesis:Construct8
+    a owl:Class ;
+    rdfs:label "Construct8" ;
+    rdfs:comment """A bounded 8-lane packing of Pair2 relation pairs per construction act.
+Rust: #[repr(C)] pub struct Construct8Packet { epoch: u64, relation_id: u32, lanes: [Pair2; 8], valid_mask: u8 }
+Lanes are indexed 0–7; valid_mask bit i indicates that lanes[i] is occupied.
+Overflow (> 8 pairs) is refused with Refusal::ConstructFull.
+Each Construct8Packet is the input to a BLAKE3 Receipt.""" .
+
+# Alias: Construct8Packet is the concrete Rust name
+genesis:Construct8Packet
+    owl:equivalentClass genesis:Construct8 ;
+    rdfs:label "Construct8Packet" ;
+    rdfs:comment "Rust struct name alias for genesis:Construct8." .
+
+genesis:Component
+    a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "An interchangeable part occupying one lane (0–7) in a Construct8Packet. Corresponds to a single Pair2 in a lane slot." .
+
+genesis:ComponentSlot
+    a owl:Class ;
+    rdfs:label "ComponentSlot" ;
+    rdfs:comment "One of the 8 lane slots (0–7) in a Construct8Packet, addressed by index." .
+
+genesis:Interface
+    a owl:Class ;
+    rdfs:label "Interface" ;
+    rdfs:comment "The abstract interface that interchangeable Component lanes must satisfy to be valid within a Construct8Packet." .
+
+genesis:hasComponent
+    a owl:ObjectProperty ;
+    rdfs:label "has component" ;
+    rdfs:comment "Links a Construct8Packet to the valid Pair2 occupying one of its lanes." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Component .
+
+genesis:componentSlot
+    a owl:DatatypeProperty ;
+    rdfs:label "component slot" ;
+    rdfs:comment "Lane index (0–7) of a component within its Construct8Packet. Derived from valid_mask bit position." ;
+    rdfs:domain genesis:Component ;
+    rdfs:range  xsd:nonNegativeInteger .
+
+genesis:isInterchangeable
+    a owl:DatatypeProperty ;
+    rdfs:label "is interchangeable" ;
+    rdfs:comment "True when a component can be swapped for another implementing the same Interface without changing observable behavior." ;
+    rdfs:domain genesis:Component ;
+    rdfs:range  xsd:boolean .
+
+genesis:componentInterface
+    a owl:ObjectProperty ;
+    rdfs:label "component interface" ;
+    rdfs:comment "The abstract interface this component implements, enabling interchangeability." ;
+    rdfs:domain genesis:Component ;
+    rdfs:range  genesis:Interface .
+
+genesis:constructEpoch
+    a owl:DatatypeProperty ;
+    rdfs:label "construct epoch" ;
+    rdfs:comment "Monotonic epoch counter for this construction act. Corresponds to Construct8Packet::epoch (u64). Used in Refusal and Receipt derivation." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  xsd:unsignedLong .
+
+genesis:constructRelationId
+    a owl:DatatypeProperty ;
+    rdfs:label "construct relation id" ;
+    rdfs:comment "Predicate/relation identifier for this construction act. Corresponds to Construct8Packet::relation_id (u32)." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  xsd:unsignedInt .
+
+genesis:constructValidMask
+    a owl:DatatypeProperty ;
+    rdfs:label "construct valid mask" ;
+    rdfs:comment "Bitmask (u8, bits 0–7) indicating which lanes are occupied. Corresponds to Construct8Packet::valid_mask." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  xsd:unsignedByte .
+
+# Named lane slots (component0–component7)
+genesis:component0
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 0" ;
+    rdfs:comment "The Pair2 occupying lane 0 (valid_mask bit 0) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component1
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 1" ;
+    rdfs:comment "The Pair2 occupying lane 1 (valid_mask bit 1) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component2
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 2" ;
+    rdfs:comment "The Pair2 occupying lane 2 (valid_mask bit 2) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component3
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 3" ;
+    rdfs:comment "The Pair2 occupying lane 3 (valid_mask bit 3) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component4
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 4" ;
+    rdfs:comment "The Pair2 occupying lane 4 (valid_mask bit 4) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component5
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 5" ;
+    rdfs:comment "The Pair2 occupying lane 5 (valid_mask bit 5) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component6
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 6" ;
+    rdfs:comment "The Pair2 occupying lane 6 (valid_mask bit 6) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+genesis:component7
+    a owl:ObjectProperty ;
+    rdfs:label "component slot 7" ;
+    rdfs:comment "The Pair2 occupying lane 7 (valid_mask bit 7) of a Construct8Packet." ;
+    rdfs:domain genesis:Construct8 ;
+    rdfs:range  genesis:Pair2 .
+
+#################################################################
+# PART 4b: Receipt — BLAKE3 cryptographic proof of a Construct8 act
+# Source: crates/genesis-core/src/lib.rs, struct Receipt
+#   pub struct Receipt { pub signature: [u8; 32] }
+# Derived via BLAKE3(prev_receipt || epoch || relation_id || valid_lanes)
+#################################################################
+
+genesis:Receipt
+    a owl:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment """Cryptographic proof of a single Construct8 construction act.
+Rust: #[repr(C)] pub struct Receipt { pub signature: [u8; 32] }
+Derived deterministically via BLAKE3(previous_receipt ‖ epoch ‖ relation_id ‖ valid_lanes).
+Chains from the previous receipt, forming a tamper-evident sequence.""" .
+
+genesis:receiptSignature
+    a owl:DatatypeProperty ;
+    rdfs:label "receipt signature" ;
+    rdfs:comment "BLAKE3 digest (32 bytes, hex-encoded) of the construction act. Corresponds to Receipt::signature." ;
+    rdfs:domain genesis:Receipt ;
+    rdfs:range  xsd:hexBinary .
+
+genesis:previousReceipt
+    a owl:DatatypeProperty ;
+    rdfs:label "previous receipt" ;
+    rdfs:comment "The 32-byte BLAKE3 digest of the preceding receipt in the chain. Corresponds to the `previous_receipt` input to Receipt::new." ;
+    rdfs:domain genesis:Receipt ;
+    rdfs:range  xsd:hexBinary .
+
+genesis:proofsConstruct
+    a owl:ObjectProperty ;
+    rdfs:label "proofs construct" ;
+    rdfs:comment "Links a Receipt to the Construct8Packet it cryptographically proves." ;
+    rdfs:domain genesis:Receipt ;
+    rdfs:range  genesis:Construct8 .
+
+#################################################################
+# PART 4c: ReplayCursor and Refusal
+# Source: crates/genesis-core/src/lib.rs
+#   struct ReplayCursor { seed: u64, offset: u32, expected_receipt: [u8; 32] }
+#   enum RefusalReason { PageFull=1, ConstructFull=2, OutofOrderEpoch=3,
+#                        ReceiptMismatch=4, ConstraintViolation=5, DuplicateRelation=6 }
+#   struct Refusal { epoch: u64, reason: RefusalReason, failed_pair: Pair2 }
+#################################################################
+
+genesis:ReplayCursor
+    a owl:Class ;
+    rdfs:label "ReplayCursor" ;
+    rdfs:comment """Deterministic replay cursor enabling reconstruction of a construction act.
+Rust: #[repr(C)] pub struct ReplayCursor { seed: u64, offset: u32, expected_receipt: [u8; 32] }""" .
+
+genesis:replaySeed
+    a owl:DatatypeProperty ;
+    rdfs:label "replay seed" ;
+    rdfs:comment "Seed for deterministic replay. Corresponds to ReplayCursor::seed (u64)." ;
+    rdfs:domain genesis:ReplayCursor ;
+    rdfs:range  xsd:unsignedLong .
+
+genesis:replayOffset
+    a owl:DatatypeProperty ;
+    rdfs:label "replay offset" ;
+    rdfs:comment "Byte or pair offset into the construction sequence. Corresponds to ReplayCursor::offset (u32)." ;
+    rdfs:domain genesis:ReplayCursor ;
+    rdfs:range  xsd:unsignedInt .
+
+genesis:replayExpectedReceipt
+    a owl:DatatypeProperty ;
+    rdfs:label "replay expected receipt" ;
+    rdfs:comment "BLAKE3 receipt the replay is expected to reproduce. Corresponds to ReplayCursor::expected_receipt ([u8; 32])." ;
+    rdfs:domain genesis:ReplayCursor ;
+    rdfs:range  xsd:hexBinary .
+
+genesis:Refusal
+    a owl:Class ;
+    rdfs:label "Refusal" ;
+    rdfs:comment """A rejected construction or validation act with reason and failing pair.
+Rust: #[repr(C)] pub struct Refusal { epoch: u64, reason: RefusalReason, failed_pair: Pair2 }""" .
+
+genesis:refusalEpoch
+    a owl:DatatypeProperty ;
+    rdfs:label "refusal epoch" ;
+    rdfs:comment "Epoch of the refused construction act. Corresponds to Refusal::epoch (u64)." ;
+    rdfs:domain genesis:Refusal ;
+    rdfs:range  xsd:unsignedLong .
+
+genesis:refusalReason
+    a owl:DatatypeProperty ;
+    rdfs:label "refusal reason" ;
+    rdfs:comment "Code indicating why the act was refused. Maps to RefusalReason enum variants." ;
+    rdfs:domain genesis:Refusal ;
+    rdfs:range  xsd:string .
+
+genesis:refusalFailedPair
+    a owl:ObjectProperty ;
+    rdfs:label "refusal failed pair" ;
+    rdfs:comment "The Pair2 whose insertion caused the refusal. Corresponds to Refusal::failed_pair." ;
+    rdfs:domain genesis:Refusal ;
+    rdfs:range  genesis:Pair2 .
+
+# RefusalReason individuals (enum discriminants from source)
+genesis:RefusalPageFull
+    a genesis:Refusal ;
+    rdfs:label "Page Full" ;
+    rdfs:comment "RefusalReason::PageFull (discriminant 1): destination RelationPage is at capacity." ;
+    genesis:refusalReason "PageFull" .
+
+genesis:RefusalConstructFull
+    a genesis:Refusal ;
+    rdfs:label "Construct Full" ;
+    rdfs:comment "RefusalReason::ConstructFull (discriminant 2): all 8 lanes of a Construct8Packet are occupied." ;
+    genesis:refusalReason "ConstructFull" .
+
+genesis:RefusalOutOfOrderEpoch
+    a genesis:Refusal ;
+    rdfs:label "Out of Order Epoch" ;
+    rdfs:comment "RefusalReason::OutofOrderEpoch (discriminant 3): epoch sequence violation during replay." ;
+    genesis:refusalReason "OutofOrderEpoch" .
+
+genesis:RefusalReceiptMismatch
+    a genesis:Refusal ;
+    rdfs:label "Receipt Mismatch" ;
+    rdfs:comment "RefusalReason::ReceiptMismatch (discriminant 4): BLAKE3 receipt validation failed." ;
+    genesis:refusalReason "ReceiptMismatch" .
+
+genesis:RefusalConstraintViolation
+    a genesis:Refusal ;
+    rdfs:label "Constraint Violation" ;
+    rdfs:comment "RefusalReason::ConstraintViolation (discriminant 5): assumed relation constraint violated." ;
+    genesis:refusalReason "ConstraintViolation" .
+
+genesis:RefusalDuplicateRelation
+    a genesis:Refusal ;
+    rdfs:label "Duplicate Relation" ;
+    rdfs:comment "RefusalReason::DuplicateRelation (discriminant 6): pair already present in RelationPage." ;
+    genesis:refusalReason "DuplicateRelation" .
+
+#################################################################
+# PART 5: The Pipeline as μ decomposed — μ₅ ∘ μ₄ ∘ μ₃ ∘ μ₂ ∘ μ₁
+#################################################################
+
+genesis:MuDecomposition
+    a owl:Class ;
+    rdfs:label "Mu Decomposition" ;
+    rdfs:comment """The five-stage decomposition of μ: μ = μ₅ ∘ μ₄ ∘ μ₃ ∘ μ₂ ∘ μ₁.
+Each stage is a MuStage instance that feeds its output to the next stage.
+Corresponds to the μ₁–μ₅ pipeline in crates/ggen-core/src/.""" .
+
+genesis:MuStage
+    a owl:Class ;
+    rdfs:label "Mu Stage" ;
+    rdfs:comment "A single stage in the μ pipeline decomposition. Has a stageIndex and is composed with adjacent stages." .
+
+genesis:stageIndex
+    a owl:DatatypeProperty ;
+    rdfs:label "stage index" ;
+    rdfs:comment "1-based position of this stage in the μ pipeline (1=Load, 2=Extract, 3=Generate, 4=Validate, 5=Emit)." ;
+    rdfs:domain genesis:MuStage ;
+    rdfs:range  xsd:integer .
+
+genesis:composedWith
+    a owl:ObjectProperty ;
+    rdfs:label "composed with" ;
+    rdfs:comment "Composition successor: this stage's output feeds into the referenced stage. Encodes left-to-right pipeline order." ;
+    rdfs:domain genesis:MuStage ;
+    rdfs:range  genesis:MuStage .
+
+genesis:MuLoad
+    a genesis:MuStage ;
+    rdfs:label "μ₁ Load" ;
+    rdfs:comment "Stage μ₁: load the source RDF ontology into the Oxigraph triplestore. Input: .specify/*.ttl files. Output: in-memory graph." ;
+    genesis:stageIndex 1 ;
+    genesis:composedWith genesis:MuExtract .
+
+genesis:MuExtract
+    a genesis:MuStage ;
+    rdfs:label "μ₂ Extract" ;
+    rdfs:comment "Stage μ₂: execute SPARQL SELECT/CONSTRUCT queries to extract structured bindings from the loaded graph." ;
+    genesis:stageIndex 2 ;
+    genesis:composedWith genesis:MuGenerate .
+
+genesis:MuGenerate
+    a genesis:MuStage ;
+    rdfs:label "μ₃ Generate" ;
+    rdfs:comment "Stage μ₃: render Tera templates with SPARQL bindings to produce candidate code strings." ;
+    genesis:stageIndex 3 ;
+    genesis:composedWith genesis:MuValidate .
+
+genesis:MuValidate
+    a genesis:MuStage ;
+    rdfs:label "μ₄ Validate" ;
+    rdfs:comment "Stage μ₄: apply SHACL shapes and quality gates to candidate code. Emits GGEN-* diagnostic codes on violation." ;
+    genesis:stageIndex 4 ;
+    genesis:composedWith genesis:MuEmit .
+
+genesis:MuEmit
+    a genesis:MuStage ;
+    rdfs:label "μ₅ Emit" ;
+    rdfs:comment "Stage μ₅: write validated artefacts to the filesystem and emit a BLAKE3-signed Receipt." ;
+    genesis:stageIndex 5 .
+
+# The canonical μ decomposition instance
+genesis:CanonicalMuDecomposition
+    a genesis:MuDecomposition ;
+    rdfs:label "Canonical μ Decomposition" ;
+    rdfs:comment "The standard five-stage ggen pipeline: μ₁(Load) → μ₂(Extract) → μ₃(Generate) → μ₄(Validate) → μ₅(Emit)." .
+
+#################################################################
+# PART 6: No-std / WASM support
+#################################################################
+
+genesis:NoStdVariant
+    a owl:Class ;
+    rdfs:label "No-Std Variant" ;
+    rdfs:comment """A variant of the Genesis transformation running in no_std environments.
+The genesis-core crate is annotated #![no_std] and all structures are zero-allocation,
+enabling execution in embedded and wasm32 targets.
+Source: crates/genesis-core/src/lib.rs line 1: #![no_std]""" .
+
+genesis:WasmTarget
+    a owl:Class ;
+    rdfs:label "WASM Target" ;
+    rdfs:comment "The wasm32 compilation target for which genesis-core provides a no_std compatible variant." .
+
+genesis:supportsNoStd
+    a owl:DatatypeProperty ;
+    rdfs:label "supports no-std" ;
+    rdfs:comment "True when the transformation can execute in a no_std environment (no heap allocator required)." ;
+    rdfs:domain genesis:Transformation ;
+    rdfs:range  xsd:boolean .
+
+genesis:targetArchitecture
+    a owl:DatatypeProperty ;
+    rdfs:label "target architecture" ;
+    rdfs:comment "Target architecture string (e.g. 'wasm32-unknown-unknown', 'x86_64-unknown-linux-gnu')." ;
+    rdfs:domain genesis:NoStdVariant ;
+    rdfs:range  xsd:string .
+
+genesis:Wasm32UnknownUnknown
+    a genesis:WasmTarget ;
+    rdfs:label "wasm32-unknown-unknown" ;
+    rdfs:comment "The canonical wasm32 bare-metal target used by genesis-core for no_std wasm compilation." ;
+    genesis:targetArchitecture "wasm32-unknown-unknown" .
+
+# Annotate the canonical transformation with no-std support
+genesis:MuTransformation
+    genesis:supportsNoStd true .

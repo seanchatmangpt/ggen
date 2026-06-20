@@ -1,0 +1,82 @@
+# =============================================================================
+# DFG Discovery Query for OCEL 2.0 Event Logs
+# =============================================================================
+#
+# Extracts directly-follows relationships between activities per object from an
+# OCEL 2.0 RDF event log stored in an Oxigraph triplestore.
+#
+# Theoretical basis: Van der Aalst's Directly-Follows Graph (DFG)
+#   A DFG G = (A, F) where:
+#     - A is the set of activities
+#     - F ⊆ A × A is the directly-follows relation
+#     - (a, b) ∈ F iff ∃ trace σ, ∃ i: σ[i] = a ∧ σ[i+1] = b
+#
+# In OCEL 2.0, "traces" are per-object: events are grouped by ocel:Object,
+# ordered by ocel:timestamp. Two events form a directly-follows pair when:
+#   1. Both share the same related object
+#   2. eventB.timestamp > eventA.timestamp
+#   3. No third event exists for the same object with a timestamp strictly
+#      between eventA.timestamp and eventB.timestamp
+#
+# Output columns:
+#   ?actA       — Activity name of the directly-preceding event (source node)
+#   ?actB       — Activity name of the directly-following event (target node)
+#   ?objType    — Object type label (e.g., "Order", "Item")
+#   ?eventA     — IRI of the preceding event
+#   ?eventB     — IRI of the following event
+#   ?tsA        — Timestamp of ?eventA (xsd:dateTime)
+#   ?tsB        — Timestamp of ?eventB (xsd:dateTime)
+#
+# Usage: Execute this SELECT against your Oxigraph SPARQL endpoint, then
+# aggregate (GROUP BY ?actA, ?actB) in the calling layer to compute edge
+# frequencies for the DFG.  The outer process-mining layer should emit
+# dfg:DFGEdge instances with dfg:frequency = COUNT(*).
+#
+# Prefixes:
+#   ocel: <https://www.ocel-standard.org/2.0/>
+#   dfg:  <https://ggen.io/ontology/dfg#>
+# =============================================================================
+
+PREFIX ocel:  <https://www.ocel-standard.org/2.0/>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dfg:   <https://ggen.io/ontology/dfg#>
+
+SELECT ?actA ?actB ?objType ?eventA ?eventB ?tsA ?tsB
+WHERE {
+  # ── Step 1: Bind eventA to an object via its relationship ──────────────────
+  ?eventA ocel:hasRelationship ?relA .
+  ?relA   ocel:relationshipObject ?obj .
+
+  # ── Step 2: Bind eventB to the SAME object ─────────────────────────────────
+  ?eventB ocel:hasRelationship ?relB .
+  ?relB   ocel:relationshipObject ?obj .
+
+  # ── Step 3: Retrieve activity names ────────────────────────────────────────
+  ?eventA ocel:activityName ?actA .
+  ?eventB ocel:activityName ?actB .
+
+  # ── Step 4: Retrieve timestamps ────────────────────────────────────────────
+  ?eventA ocel:timestamp ?tsA .
+  ?eventB ocel:timestamp ?tsB .
+
+  # ── Step 5: Retrieve object type label ─────────────────────────────────────
+  ?obj ocel:hasObjectType ?objTypeNode .
+  ?objTypeNode rdfs:label ?objType .
+
+  # ── Step 6: eventB must come strictly AFTER eventA ─────────────────────────
+  FILTER(?tsB > ?tsA)
+
+  # ── Step 7: Enforce DIRECT following — no intervening event exists ──────────
+  # (a, b) is a directly-follows pair only when there is no event c associated
+  # with the same object whose timestamp falls strictly between tsA and tsB.
+  FILTER NOT EXISTS {
+    ?eventC ocel:hasRelationship ?relC .
+    ?relC   ocel:relationshipObject ?obj .
+    ?eventC ocel:timestamp ?tsC .
+    FILTER(?tsC > ?tsA && ?tsC < ?tsB)
+    FILTER(?eventC != ?eventA && ?eventC != ?eventB)
+  }
+}
+ORDER BY ?objType ?tsA ?tsB
