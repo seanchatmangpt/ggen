@@ -241,6 +241,28 @@ impl PowlGraph {
 
         violations
     }
+
+    /// Serialize to a JSON string.
+    pub fn to_json(&self) -> Result<String> {
+        Ok(serde_json::to_string(self)?)
+    }
+
+    /// Deserialize from a JSON string.
+    pub fn from_json(json: &str) -> Result<Self> {
+        Ok(serde_json::from_str(json)?)
+    }
+
+    /// Write JSON representation to a file at `path`.
+    pub fn to_json_file(&self, path: &std::path::Path) -> Result<()> {
+        let json = self.to_json()?;
+        std::fs::write(path, json).map_err(|e| Error::Other(e.to_string()))
+    }
+
+    /// Read and deserialize from a JSON file at `path`.
+    pub fn from_json_file(path: &std::path::Path) -> Result<Self> {
+        let content = std::fs::read_to_string(path).map_err(|e| Error::Other(e.to_string()))?;
+        Self::from_json(&content)
+    }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -320,6 +342,52 @@ impl ProcessAdmissionReport {
             return AdmissionStatus::Unknown;
         }
         AdmissionStatus::PartialAlive
+    }
+
+    /// Compute a BLAKE3 hex receipt hash over gate results, operation_id, graph_id, and timestamp.
+    /// Does NOT include the `receipt_hash` field itself (avoids self-reference).
+    pub fn compute_receipt_hash(&self) -> String {
+        let json = serde_json::json!({
+            "operation_id": self.operation_id,
+            "graph_id": self.graph_id,
+            "status": self.status,
+            "gates": self.gates,
+            "timestamp": self.timestamp.to_rfc3339(),
+        })
+        .to_string();
+        let mut h = blake3::Hasher::new();
+        h.update(json.as_bytes());
+        h.finalize().to_hex().to_string()
+    }
+
+    /// Return a clone of `self` with `receipt_hash` populated from [`compute_receipt_hash`].
+    #[must_use]
+    pub fn with_receipt_hash(mut self) -> Self {
+        let hash = self.compute_receipt_hash();
+        self.receipt_hash = Some(hash);
+        self
+    }
+
+    /// Serialize to a JSON string.
+    pub fn to_json(&self) -> Result<String> {
+        Ok(serde_json::to_string(self)?)
+    }
+
+    /// Deserialize from a JSON string.
+    pub fn from_json(json: &str) -> Result<Self> {
+        Ok(serde_json::from_str(json)?)
+    }
+
+    /// Write JSON representation to a file at `path`.
+    pub fn to_json_file(&self, path: &std::path::Path) -> Result<()> {
+        let json = self.to_json()?;
+        std::fs::write(path, json).map_err(|e| Error::Other(e.to_string()))
+    }
+
+    /// Read and deserialize from a JSON file at `path`.
+    pub fn from_json_file(path: &std::path::Path) -> Result<Self> {
+        let content = std::fs::read_to_string(path).map_err(|e| Error::Other(e.to_string()))?;
+        Self::from_json(&content)
     }
 }
 
@@ -779,6 +847,28 @@ impl VisualGapReport {
                     .to_string(),
             ))
         }
+    }
+
+    /// Serialize to a JSON string.
+    pub fn to_json(&self) -> Result<String> {
+        Ok(serde_json::to_string(self)?)
+    }
+
+    /// Deserialize from a JSON string.
+    pub fn from_json(json: &str) -> Result<Self> {
+        Ok(serde_json::from_str(json)?)
+    }
+
+    /// Write JSON representation to a file at `path`.
+    pub fn to_json_file(&self, path: &std::path::Path) -> Result<()> {
+        let json = self.to_json()?;
+        std::fs::write(path, json).map_err(|e| Error::Other(e.to_string()))
+    }
+
+    /// Read and deserialize from a JSON file at `path`.
+    pub fn from_json_file(path: &std::path::Path) -> Result<Self> {
+        let content = std::fs::read_to_string(path).map_err(|e| Error::Other(e.to_string()))?;
+        Self::from_json(&content)
     }
 }
 

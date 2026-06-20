@@ -125,6 +125,10 @@ itertools = "0.12"
 path = "../ggen-config"
 version = "26.6.11"
 
+[dependencies.ggen-graph]
+path = "../ggen-graph"
+version = "26.6.11"
+
 [dependencies.ggen-marketplace]
 path = "../ggen-marketplace"
 version = "26.6.11"
