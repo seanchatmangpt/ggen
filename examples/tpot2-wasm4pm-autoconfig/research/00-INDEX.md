@@ -29,10 +29,13 @@ integration fixes they drove:
   rejects 8 impossible logs), `verify/conformance_spec.md`, `verify/slo_check.py`.
 - **Honest TPOT2 labelling:** deterministic-greedy execution mode; runtime-cost proxy.
 
-## Honest boundaries (unchanged, reinforced by research)
+## Honest boundaries → now CLOSED by a real run
 
-`ggen sync` was not executed: this container has no usable `cargo` (the pinned
-nightly toolchain lacks the cargo component) and the workspace `[patch]` requires
-two **unprovisioned sibling repos** (`../lsp-max`, `../wasm4pm`). All executability
-verdicts are **source-analysis** (dossiers 01/06/07/08/10) corroborated by the
-independent pure-Python reference; no receipt is fabricated.
+The research verdicts were all **source-analysis** corroborated by the independent
+Python reference. Those verdicts have since been **confirmed by a real execution**:
+the sibling repos were cloned, the corrupted nightly toolchain reinstalled, `ggen
+26.6.11` built, and `ggen sync` ran successfully — its output matches the Python
+reference exactly and `strict_mode` + SHACL passed (research/01/06/07 validated by
+the run). Evidence: `REAL_RUN_EVIDENCE.md`; provisioning: `BUILD_PROVISIONING.md`.
+The one residual: `ggen sync` emits no OCEL (research/05 §1.6), so
+`conformance_check.py` stays Mode A. No receipt was ever fabricated.

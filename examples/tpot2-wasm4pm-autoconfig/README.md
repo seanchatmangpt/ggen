@@ -208,10 +208,16 @@ operator to a proof keeps the AutoML selection honest: the pipeline does not jus
 
 ## 6. Running it (and an honest caveat about this container)
 
-**This container has no `cargo` and no `ggen` binary**, so `ggen sync` cannot be
-executed here, and **no generation has been run** — there is no `generated/`
-directory and no `.ggen/receipts/`. Nothing in this README reports a sync that
-happened; the tables above describe what the driver *would* produce.
+> **The real pipeline now runs.** After provisioning the build (see
+> `BUILD_PROVISIONING.md`), `ggen 26.6.11` was built and `ggen sync` executed
+> successfully here — 6 generated files + a valid cryptographic receipt, output
+> matching the Python reference exactly, with `strict_mode` + SHACL enforced. Full
+> captured evidence: **`REAL_RUN_EVIDENCE.md`**.
+
+A fresh container starts without `cargo`/`ggen` wired up; the pure-Python
+verification under `verify/` (below) reproduces the same elite pipeline and
+validates every artifact with zero external dependencies, so the example is
+verifiable with or without the ggen toolchain.
 
 To make the result observable without the ggen binary, the verification harness
 under `verify/` (authored separately) provides a **pure-Python reference

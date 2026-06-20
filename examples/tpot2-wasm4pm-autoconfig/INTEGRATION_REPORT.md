@@ -117,10 +117,17 @@ references removed).
 
 ## 6. Honest limitations
 
-- **`ggen sync` was NOT executed.** This container has no usable `cargo`
-  (the active rustup toolchain lacks the cargo component) and no prebuilt `ggen`
-  binary, so the real five-stage ggen pipeline could not be run and **no
-  `.ggen/receipts/*.json` was produced — none is fabricated.**
+> **UPDATE — this limitation is now RESOLVED.** The real `ggen 26.6.11` binary was
+> built and `ggen sync` executed successfully (6 files, real receipt, exit 0); its
+> output matches the independent Python reference exactly and `[validation]
+> strict_mode + shacl` passed on the real run. See **`REAL_RUN_EVIDENCE.md`** and
+> `BUILD_PROVISIONING.md`. The text below describes the state *before* that run.
+
+- **`ggen sync` was NOT executed (at the time of writing).** This container had no
+  usable `cargo` (the pinned nightly toolchain's cargo/std components were corrupt)
+  and the workspace `[patch]` required unprovisioned sibling repos, so the pipeline
+  could not be run and **no receipt was fabricated.** (Both blockers were later
+  resolved — see the UPDATE banner above.)
 - Verification is therefore **(a)** structural (TOML/SPARQL/Tera/TTL scanning) and
   **(b)** an **independent pure-Python reference** that re-derives the exact same
   deterministic pipeline and emits a tomllib-valid `ggen.toml`. The reference is a
