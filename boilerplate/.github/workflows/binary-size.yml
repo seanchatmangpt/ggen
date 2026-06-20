@@ -1,0 +1,23 @@
+name: Binary Size
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --workspace
+      - name: Report binary size
+        run: |
+          SIZE=$(stat -c%s target/release/cargo-project)
+          echo "Binary size: ${SIZE} bytes ($(( SIZE / 1024 ))KB)"
+          echo "## Binary Size" >> $GITHUB_STEP_SUMMARY
+          echo "| Binary | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| cargo-project | $(( SIZE / 1024 ))KB |" >> $GITHUB_STEP_SUMMARY

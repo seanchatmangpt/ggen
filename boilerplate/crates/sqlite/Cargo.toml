@@ -1,0 +1,14 @@
+[package]
+name = "bp-sqlite"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+bp-core = { path = "../core" }
+domain = { path = "../domain" }
+sqlx = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+async-trait = "0.1"
+uuid = { workspace = true }
+chrono = { workspace = true }

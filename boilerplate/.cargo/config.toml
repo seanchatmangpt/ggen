@@ -1,0 +1,33 @@
+[net]
+# Sparse index: dramatically faster `cargo update` (used by all top projects).
+git-fetch-with-cli = true
+
+[registries.crates-io]
+protocol = "sparse"
+
+[alias]
+# Speed aliases: `cargo t`, `cargo c`, `cargo cl`
+t = "nextest run"
+c = "check --workspace --all-targets"
+cl = "clippy --workspace --all-targets -- -D warnings"
+b = "build --workspace"
+br = "build --workspace --release"
+
+[build]
+# Faster incremental linking via mold/lld (CI uses default linker; devs can
+# override locally by adding a host-triple section below).
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+[profile.dev.package."*"]
+# Dependencies compile fast in dev; still debuggable for first-party code.
+opt-level = 1
+
+[profile.release]
+# Strip debug info from release builds to minimize binary size.
+strip = "symbols"
+# Enable full LTO for maximum optimization.
+lto = "thin"
+# Single codegen unit: slower builds but smaller/faster binaries.
+codegen-units = 1
+# Map source paths to a canonical prefix for reproducible builds.
+# remap-path-prefix = ["${CARGO_MANIFEST_DIR}=/build"]
