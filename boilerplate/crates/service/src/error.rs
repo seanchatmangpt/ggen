@@ -28,11 +28,7 @@ impl IntoResponse for ApiError {
                 "VALIDATION_ERROR",
                 msg.clone(),
             ),
-            CoreError::Conflict(msg) => (
-                StatusCode::CONFLICT,
-                "CONFLICT",
-                msg.clone(),
-            ),
+            CoreError::Conflict(msg) => (StatusCode::CONFLICT, "CONFLICT", msg.clone()),
             CoreError::Internal(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "INTERNAL_ERROR",
@@ -40,6 +36,10 @@ impl IntoResponse for ApiError {
             ),
         };
 
-        (status, Json(json!({ "error": { "code": code, "message": message } }))).into_response()
+        (
+            status,
+            Json(json!({ "error": { "code": code, "message": message } })),
+        )
+            .into_response()
     }
 }

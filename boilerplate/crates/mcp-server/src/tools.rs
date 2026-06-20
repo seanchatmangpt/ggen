@@ -13,25 +13,29 @@ struct ToolDef {
 impl ToolRegistry {
     pub fn new() -> Self {
         Self {
-            tools: vec![
-                ToolDef {
-                    name: "echo",
-                    description: "Echo the input message back",
-                    handler: |params| {
-                        let msg = params.get("message").and_then(Value::as_str).unwrap_or("");
-                        Ok(json!({ "echo": msg }))
-                    },
+            tools: vec![ToolDef {
+                name: "echo",
+                description: "Echo the input message back",
+                handler: |params| {
+                    let msg = params.get("message").and_then(Value::as_str).unwrap_or("");
+                    Ok(json!({ "echo": msg }))
                 },
-            ],
+            }],
         }
     }
 
     pub fn list(&self) -> Value {
-        let tools: Vec<_> = self.tools.iter().map(|t| json!({
-            "name": t.name,
-            "description": t.description,
-            "inputSchema": { "type": "object" }
-        })).collect();
+        let tools: Vec<_> = self
+            .tools
+            .iter()
+            .map(|t| {
+                json!({
+                    "name": t.name,
+                    "description": t.description,
+                    "inputSchema": { "type": "object" }
+                })
+            })
+            .collect();
         json!({ "tools": tools })
     }
 

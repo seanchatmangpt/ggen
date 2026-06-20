@@ -1,5 +1,5 @@
-use chrono::{DateTime, Utc};
 use bp_core::id::Id;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// Marker type for the example entity.

@@ -8,7 +8,10 @@ pub struct Page {
 
 impl Page {
     pub fn new(offset: u64, limit: u64) -> Self {
-        Self { offset, limit: limit.min(100) }
+        Self {
+            offset,
+            limit: limit.min(100),
+        }
     }
 }
 
@@ -28,7 +31,12 @@ pub struct PagedResult<T> {
 
 impl<T> PagedResult<T> {
     pub fn new(items: Vec<T>, total: u64, page: Page) -> Self {
-        Self { items, total, offset: page.offset, limit: page.limit }
+        Self {
+            items,
+            total,
+            offset: page.offset,
+            limit: page.limit,
+        }
     }
 
     pub fn has_next(&self) -> bool {

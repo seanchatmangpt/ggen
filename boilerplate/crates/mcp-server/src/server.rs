@@ -1,4 +1,7 @@
-use crate::{protocol::{JsonRpcRequest, JsonRpcResponse}, tools::ToolRegistry};
+use crate::{
+    protocol::{JsonRpcRequest, JsonRpcResponse},
+    tools::ToolRegistry,
+};
 use serde_json::json;
 
 pub struct McpServer {
@@ -32,7 +35,10 @@ impl McpServer {
                 let name = params.get("name").and_then(|v| v.as_str()).unwrap_or("");
                 let args = params.get("arguments").cloned().unwrap_or(json!({}));
                 match self.tools.call(name, args) {
-                    Ok(result) => JsonRpcResponse::ok(req.id, json!({ "content": [{ "type": "text", "text": result.to_string() }] })),
+                    Ok(result) => JsonRpcResponse::ok(
+                        req.id,
+                        json!({ "content": [{ "type": "text", "text": result.to_string() }] }),
+                    ),
                     Err(e) => JsonRpcResponse::err(req.id, -32601, e.to_string()),
                 }
             }

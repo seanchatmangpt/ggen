@@ -1,5 +1,5 @@
-pub mod router;
-pub mod handlers;
 pub mod error;
+pub mod handlers;
+pub mod router;
 
 pub use error::ApiError;

@@ -1,6 +1,6 @@
 pub mod protocol;
-pub mod tools;
 pub mod server;
+pub mod tools;
 
 pub use server::McpServer;
 

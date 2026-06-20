@@ -1,5 +1,5 @@
 pub fn init_tracing(verbose: u8) {
-    use tracing_subscriber::{EnvFilter, fmt};
+    use tracing_subscriber::{fmt, EnvFilter};
 
     let level = match verbose {
         0 => "info",
@@ -7,8 +7,7 @@ pub fn init_tracing(verbose: u8) {
         _ => "trace",
     };
 
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(level));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(level));
 
     fmt().with_env_filter(filter).init();
 }

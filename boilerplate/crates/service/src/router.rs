@@ -1,6 +1,9 @@
-use axum::{Router, routing::{get, post}};
-use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use crate::handlers;
+use axum::{
+    routing::{get, post},
+    Router,
+};
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
 pub fn build() -> Router {
     Router::new()

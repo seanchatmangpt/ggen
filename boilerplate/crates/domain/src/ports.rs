@@ -1,6 +1,9 @@
-use async_trait::async_trait;
-use bp_core::{pagination::{Page, PagedResult}, Result};
 use crate::entities::{Item, ItemId};
+use async_trait::async_trait;
+use bp_core::{
+    pagination::{Page, PagedResult},
+    Result,
+};
 
 /// Outbound port — repository abstraction for `Item`.
 #[async_trait]

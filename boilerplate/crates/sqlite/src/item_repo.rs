@@ -1,6 +1,12 @@
 use async_trait::async_trait;
-use bp_core::{pagination::{Page, PagedResult}, Result};
-use domain::{entities::{Item, ItemId}, ports::ItemRepository};
+use bp_core::{
+    pagination::{Page, PagedResult},
+    Result,
+};
+use domain::{
+    entities::{Item, ItemId},
+    ports::ItemRepository,
+};
 use sqlx::SqlitePool;
 
 pub struct SqliteItemRepository {

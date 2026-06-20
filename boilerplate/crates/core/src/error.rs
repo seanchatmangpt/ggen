@@ -17,7 +17,10 @@ pub enum CoreError {
 
 impl CoreError {
     pub fn not_found(entity: &'static str, id: impl std::fmt::Display) -> Self {
-        Self::NotFound { entity, id: id.to_string() }
+        Self::NotFound {
+            entity,
+            id: id.to_string(),
+        }
     }
 
     pub fn validation(msg: impl Into<String>) -> Self {
