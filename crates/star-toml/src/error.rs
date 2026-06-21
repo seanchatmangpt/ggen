@@ -1,5 +1,6 @@
 //! Error types for `star_toml`.
 
+use crate::validation::ValidationErrors;
 use std::path::PathBuf;
 
 /// Alias so callers can write `star_toml::Result<T>`.
@@ -34,6 +35,9 @@ pub enum Error {
     Serialize(#[from] toml::ser::Error),
 
     /// A loaded config failed its own invariant checks (see [`crate::Validate`]).
+    ///
+    /// Used for ad-hoc, single-message validation. For structured, path-precise,
+    /// multi-error reports, see [`Error::Invalid`].
     #[error("validation failed for {context}: {reason}")]
     Validation {
         /// Which file or config type was being validated.
@@ -41,6 +45,11 @@ pub enum Error {
         /// Human-readable description of the violation.
         reason: String,
     },
+
+    /// A loaded config failed structured validation — carries the full
+    /// path-precise report of every failure (see [`crate::ValidationErrors`]).
+    #[error("{0}")]
+    Invalid(#[from] ValidationErrors),
 }
 
 impl Error {

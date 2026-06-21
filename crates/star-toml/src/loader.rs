@@ -8,9 +8,10 @@ use crate::{
     error::{Error, Result},
     expand::expand_env_vars,
     merge::{deep_merge, env_str_to_value, set_dotted},
-    validate::Validate,
+    validation::Validate,
 };
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
 use toml::Value;
@@ -231,12 +232,15 @@ impl Loader {
         })
     }
 
-    /// Like [`load`], but calls [`Validate::validate`] on the result before returning.
+    /// Like [`load`], but runs [`Validate::check`] on the result before returning.
+    ///
+    /// On validation failure the error is [`Error::Invalid`], carrying the full
+    /// path-precise, multi-error report.
     ///
     /// [`load`]: Loader::load
     pub fn load_validated<T: DeserializeOwned + Validate>(self) -> Result<T> {
         let cfg: T = self.load()?;
-        cfg.validate()?;
+        cfg.check()?;
         Ok(cfg)
     }
 
@@ -377,6 +381,34 @@ pub fn load_file<T: DeserializeOwned>(path: impl AsRef<Path>) -> Result<T> {
     parse_str(&expanded, &path.display().to_string())
 }
 
+/// Serialize `value` to a pretty-printed TOML string.
+///
+/// # Errors
+///
+/// Returns [`Error::Serialize`] if the value cannot be represented as TOML.
+pub fn to_string<T: Serialize>(value: &T) -> Result<String> {
+    toml::to_string_pretty(value).map_err(Error::from)
+}
+
+/// Serialize `value` and write it to `path`, creating parent directories as needed.
+///
+/// Round-trips with [`load_file`]: useful for `init`-style commands that scaffold a
+/// default config to disk.
+///
+/// # Errors
+///
+/// Returns [`Error::Serialize`] on serialization failure or [`Error::Io`] on write failure.
+pub fn save_file<T: Serialize>(value: &T, path: impl AsRef<Path>) -> Result<()> {
+    let path = path.as_ref();
+    let toml = to_string(value)?;
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent).map_err(|e| Error::io(parent, e))?;
+        }
+    }
+    fs::write(path, toml).map_err(|e| Error::io(path, e))
+}
+
 // ---------------------------------------------------------------------------
 // Private helpers
 // ---------------------------------------------------------------------------
@@ -414,14 +446,14 @@ fn find_config_file_from_cwd(file_name: &str) -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde::Deserialize;
+    use serde::{Deserialize, Serialize};
     use std::io::Write;
     use tempfile::{NamedTempFile, TempDir};
 
-    #[derive(Debug, Deserialize, PartialEq)]
+    #[derive(Debug, Deserialize, Serialize, PartialEq)]
     struct Simple {
         name: String,
-        #[serde(default)]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         port: Option<u16>,
     }
 
@@ -552,6 +584,22 @@ mod tests {
         let (path, cfg): (PathBuf, Simple) = find_and_load("x.toml", &child).unwrap();
         assert_eq!(path, dir.path().join("x.toml"));
         assert_eq!(cfg.name, "found");
+    }
+
+    #[test]
+    fn save_file_round_trips_with_load_file() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("nested/out.toml");
+        let original = Simple {
+            name: "round-trip".into(),
+            port: Some(1234),
+        };
+
+        save_file(&original, &path).unwrap();
+        assert!(path.exists()); // parent dir was created
+
+        let reloaded: Simple = load_file(&path).unwrap();
+        assert_eq!(reloaded, original);
     }
 
     #[test]

@@ -1,7 +1,8 @@
 [package]
 name = "star-toml"
 description = "Framework for loading, layering, and validating any *.toml configuration file"
-keywords = ["config", "toml", "layered", "framework"]
+readme = "README.md"
+keywords = ["config", "toml", "layered", "validation"]
 categories = ["development-tools", "config"]
 
 [package.version]
