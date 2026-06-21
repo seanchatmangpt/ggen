@@ -1,22 +1,86 @@
 //! Pydantic-grade + Van der Aalst-grade validation for TOML configs.
 //!
-//! Extends the Pydantic model (collect every error, path-precise, machine-matchable)
-//! with three process-mining concepts from Van der Aalst et al:
+//! # Design
 //!
-//! 1. **Severity stratification** — not all errors are equal:
-//!    `Fatal` (halt immediately) → `Error` → `Warning` → `Advisory`.
+//! Validation works by *descent*: implement [`Validate`] for each config type,
+//! use a [`Validator`] to record failures, and compose nested types with
+//! [`Validator::field`] / [`Validator::index`]. Every `check_*` call is an
+//! atomic "check event" — the validator counts all checks (pass + fail) for the
+//! conformance score.
 //!
-//! 2. **Conformance fitness** ([`ValidationErrors::fitness`]) — instead of binary
-//!    pass/fail, a 0.0–1.0 score (alignment metric) showing how much of the
-//!    declared model the observed config satisfies.
+//! # Validator method reference
 //!
-//! 3. **DECLARE-style cross-field constraints** ([`Validator::check_consistent`]) —
-//!    object-centric constraints that span multiple fields, matching Van der Aalst's
-//!    DECLARE formalism for process constraints.
+//! ## Descent (path tracking)
 //!
-//! **Plus**: auto-derived [`ValidationError::repair_hint`], variant fingerprinting
-//! ([`ValidationErrors::variant_id`]), and object-centric error grouping
-//! ([`ValidationErrors::by_section`]).
+//! | Method | Signature | Effect |
+//! |--------|-----------|--------|
+//! | [`field`](Validator::field) | `(name: &str, f: FnOnce(&mut Validator))` | Push key segment, run `f`, pop |
+//! | [`index`](Validator::index) | `(i: usize, f: FnOnce(&mut Validator))` | Push index segment, run `f`, pop |
+//!
+//! ## Built-in checks (each counts as one check event)
+//!
+//! | Method | Code | Fails when |
+//! |--------|------|-----------|
+//! | [`check_non_empty`](Validator::check_non_empty) | `empty` | `&str` is `""` |
+//! | [`check_range`](Validator::check_range) | `out_of_range` | value outside `lo..=hi` |
+//! | [`check_one_of`](Validator::check_one_of) | `not_one_of` | value not in allowed slice |
+//! | [`check_predicate`](Validator::check_predicate) | caller-defined | boolean is `false` |
+//! | [`check_consistent`](Validator::check_consistent) | caller-defined | cross-field condition is `false` |
+//!
+//! ## Severity control
+//!
+//! | Method | Effect |
+//! |--------|--------|
+//! | [`with_severity`](Validator::with_severity) | Sets [`Severity`] for all checks inside the closure |
+//!
+//! Default severity: [`Severity::Error`].
+//! Errors with `Severity < Error` (Warning / Advisory) still appear in the report
+//! but do not block [`ValidationErrors::has_fatal`].
+//!
+//! ## Raw error recording
+//!
+//! | Method | Description |
+//! |--------|-------------|
+//! | [`error`](Validator::error) | Record [`ErrorKind`] at the current location |
+//! | [`error_with`](Validator::error_with) | Same, capturing the offending value as a string |
+//! | [`finish`](Validator::finish) | Consume the validator → `Ok(())` or `Err(ValidationErrors)` |
+//!
+//! # ValidationErrors analytics
+//!
+//! | Method | Returns | Van der Aalst concept |
+//! |--------|---------|----------------------|
+//! | [`errors`](ValidationErrors::errors) | `&[ValidationError]` | — |
+//! | [`fitness`](ValidationErrors::fitness) | `f64` 0.0–1.0 | Replay fitness / alignment score |
+//! | [`variant_id`](ValidationErrors::variant_id) | `u64` | Trace variant fingerprint |
+//! | [`by_section`](ValidationErrors::by_section) | `BTreeMap<String, Vec<_>>` | OCEL object-centric view |
+//! | [`has_fatal`](ValidationErrors::has_fatal) | `bool` | Halt-immediately signal |
+//! | [`errors_above`](ValidationErrors::errors_above) | `impl Iterator` | Severity filter |
+//!
+//! # ValidationError fields
+//!
+//! | Field | Type | Description |
+//! |-------|------|-------------|
+//! | `loc` | [`Loc`] | Path, e.g. `server.tls.port` or `[2].name` |
+//! | `kind` | [`ErrorKind`] | Structured reason (machine-matchable) |
+//! | `severity` | [`Severity`] | Advisory / Warning / Error / Fatal |
+//! | `input` | `Option<String>` | Offending value, if captured |
+//! | `msg` | `String` | Human-readable message |
+//!
+//! Plus: [`code()`](ValidationError::code), [`repair_hint()`](ValidationError::repair_hint),
+//! [`is_fatal()`](ValidationError::is_fatal).
+//!
+//! # ErrorKind codes
+//!
+//! | Variant | `code()` | Produced by |
+//! |---------|----------|-------------|
+//! | `Missing` | `missing` | `error(ErrorKind::Missing, …)` |
+//! | `Empty` | `empty` | `check_non_empty` |
+//! | `OutOfRange` | `out_of_range` | `check_range` |
+//! | `TooShort` | `too_short` | `error(ErrorKind::TooShort{…}, …)` |
+//! | `TooLong` | `too_long` | `error(ErrorKind::TooLong{…}, …)` |
+//! | `NotOneOf` | `not_one_of` | `check_one_of` |
+//! | `Inconsistent` | caller-defined | `check_consistent` |
+//! | `Predicate` | caller-defined | `check_predicate`, `error(ErrorKind::Predicate{…}, …)` |
 //!
 //! ```
 //! use star_toml::{Validate, Validator, Severity};
@@ -33,9 +97,7 @@
 //! let bad = Server { host: String::new(), port: 0 };
 //! let errs = bad.check().unwrap_err();
 //! assert_eq!(errs.len(), 2);
-//! // Conformance: 0 of 2 checks passed
-//! assert_eq!(errs.fitness(), 0.0);
-//! // Auto-derived repair hints
+//! assert_eq!(errs.fitness(), 0.0);               // 0 of 2 checks passed
 //! assert!(!errs.errors()[0].repair_hint().is_empty());
 //! ```
 
@@ -98,13 +160,37 @@ impl fmt::Display for Loc {
 // Severity — Van der Aalst alignment cost levels
 // ---------------------------------------------------------------------------
 
-/// How severe a validation failure is.
+/// How severe a validation failure is — ordered least to most severe.
 ///
-/// Ordered from least to most severe. [`Fatal`](Severity::Fatal) errors
-/// indicate the config cannot be used at all; [`Advisory`](Severity::Advisory)
-/// errors are informational best-practice hints.
+/// The default for all `check_*` methods is [`Error`](Severity::Error).
+/// Use [`Validator::with_severity`] to override for a closure.
 ///
-/// Use [`Validator::with_severity`] to emit non-default severity.
+/// Comparison: `Advisory < Warning < Error < Fatal`.
+///
+/// | Level | Meaning | `has_fatal` |
+/// |-------|---------|-------------|
+/// | `Advisory` | best-practice hint; config is usable | no |
+/// | `Warning` | risky but technically valid | no |
+/// | `Error` | constraint violated; config is broken | no |
+/// | `Fatal` | unrecoverable; halt all evaluation | **yes** |
+///
+/// # Example
+///
+/// ```
+/// use star_toml::{Validate, Validator, Severity};
+///
+/// struct Cfg { log_dir: String }
+/// impl Validate for Cfg {
+///     fn validate(&self, v: &mut Validator) {
+///         v.with_severity(Severity::Warning, |v| {
+///             v.check_non_empty("log_dir", &self.log_dir);
+///         });
+///     }
+/// }
+/// let errs = Cfg { log_dir: String::new() }.check().unwrap_err();
+/// assert_eq!(errs.errors()[0].severity, Severity::Warning);
+/// assert!(!errs.has_fatal());
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub enum Severity {
     /// Informational: not a hard rule, but a best-practice recommendation.
