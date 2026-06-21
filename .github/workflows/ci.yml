@@ -29,10 +29,10 @@ jobs:
           toolchain: stable
           cache-key-suffix: cicd-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install cargo-cicd
+      - name: Install cargo-cicd and affi
         uses: ./.github/actions/install-cargo-tools
         with:
-          tools: cicd
+          tools: cicd,affi
           cache-tools: 'true'
 
       - name: Validate pipeline preconditions
@@ -40,6 +40,15 @@ jobs:
 
       - name: Run full manufacturing pipeline
         run: cargo cicd pipeline run
+
+      - name: Seal evidence receipt (BLAKE3 provenance chain)
+        run: cargo cicd affidavit seal
+
+      - name: Verify sealed receipt
+        run: cargo cicd affidavit verify
+
+      - name: Anti-LLM admissibility check (changed .rs files)
+        run: cargo cicd lsp check
 
       - name: Show evidence summary
         if: always()
@@ -129,7 +138,7 @@ jobs:
       - name: Install cargo tools
         uses: ./.github/actions/install-cargo-tools
         with:
-          tools: make
+          tools: make,cicd
           cache-tools: 'true'
 
       - name: Run unit tests
@@ -169,6 +178,11 @@ jobs:
 
       - name: Run External Observer Promotion Adjudication
         run: bash scripts/gall/external/13_adjudicate_gall_promotion.sh
+
+      - name: ggen sync smoke (workspace sync via cargo-cicd)
+        run: |
+          cargo build -p ggen-cli --bin ggen
+          PATH="$PWD/target/debug:$PATH" cargo cicd workspace sync
 
   plugin-harness:
     name: Plugin Test Harness (LSP/MCP)

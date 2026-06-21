@@ -168,3 +168,23 @@ workspace-sync:
 # Show pipeline state: evidence files and cicd.toml fields
 pipeline-status:
     cargo cicd pipeline status
+
+# Seal evidence journal into a BLAKE3 provenance receipt (requires affi on PATH)
+affidavit-seal:
+    cargo cicd affidavit seal
+
+# Verify sealed BLAKE3 receipt — ACCEPT or REJECT
+affidavit-verify:
+    cargo cicd affidavit verify
+
+# Show evidence event summary (count, timestamps, verdicts)
+evidence-show:
+    cargo cicd evidence show
+
+# wpm oracle adjudication on the evidence log
+evidence-audit:
+    cargo cicd evidence audit
+
+# Scan changed .rs files for anti-LLM admissibility violations
+lsp-check:
+    cargo cicd lsp check

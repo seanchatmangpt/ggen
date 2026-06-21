@@ -52,5 +52,10 @@ runs:
 
     - name: Install cargo-cicd
       if: contains(inputs.tools, 'cicd')
-      run: cargo install --git https://github.com/seanchatmangpt/cargo-cicd --branch main --features autonomic --locked
+      run: cargo install --git https://github.com/seanchatmangpt/cargo-cicd --branch main --features autonomic,affidavit,anti-llm-cheat --locked
+      shell: bash
+
+    - name: Install affi (affidavit provenance CLI)
+      if: contains(inputs.tools, 'affi')
+      run: cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --bin affi --locked
       shell: bash
