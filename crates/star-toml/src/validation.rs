@@ -120,7 +120,7 @@ pub enum LocSegment {
 
 /// A path to a value in the config tree, rendered like `server.tls.port` or `stages[2].name`.
 #[derive(Debug, Clone, PartialEq, Eq, Default, Hash)]
-pub struct Loc(Vec<LocSegment>);
+pub struct Loc(pub(crate) Vec<LocSegment>);
 
 impl Loc {
     /// The segments making up this location, outermost first.
@@ -392,10 +392,10 @@ impl fmt::Display for ValidationError {
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationErrors {
-    errors: Vec<ValidationError>,
-    title: Option<String>,
+    pub(crate) errors: Vec<ValidationError>,
+    pub(crate) title: Option<String>,
     /// Total number of checks attempted (passed + failed). Used for fitness.
-    checks_run: usize,
+    pub(crate) checks_run: usize,
 }
 
 impl ValidationErrors {

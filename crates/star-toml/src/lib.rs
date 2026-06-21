@@ -29,6 +29,7 @@
 //! | Recursive table merge | [`deep_merge`] |
 //! | `${VAR}` substitution alone | [`expand_env_vars`] |
 //! | Validate an already-loaded struct | [`Validate::check`] / [`Validate::validated`] |
+//! | Validate without a Rust struct | [`Schema`] declarative builder |
 //! | Attach severity / cross-field rules | [`Validator::with_severity`] / [`Validator::check_consistent`] |
 //! | Get conformance score | [`ValidationErrors::fitness`] |
 //! | Fingerprint error pattern | [`ValidationErrors::variant_id`] |
@@ -56,6 +57,8 @@
 //!
 //! | Symbol | Kind | Description |
 //! |--------|------|-------------|
+//! | [`Schema`] | struct | Declarative builder: validate `toml::Value` / TOML strings without a Rust struct |
+//! | [`FieldBuilder`] | struct | Fluent constraint chain returned by [`Schema::field`] |
 //! | [`Validate`] | trait | Implement `validate(&self, v: &mut Validator)` on your config type |
 //! | [`Validator`] | struct | Accumulates errors; carries the current path location |
 //! | [`Validator::field`] | method | Descend into table key `name` for the duration of a closure |
@@ -397,6 +400,7 @@ pub mod error;
 pub mod expand;
 pub mod loader;
 pub mod merge;
+pub mod schema;
 pub mod validation;
 
 pub use error::{Error, Result};
@@ -405,6 +409,7 @@ pub use loader::{
     find_and_load, find_config_file, from_str, load_file, save_file, to_string, ConfigFile, Loader,
 };
 pub use merge::deep_merge;
+pub use schema::{FieldBuilder, Schema};
 pub use validation::{
     ErrorKind, Loc, LocSegment, Severity, Validate, ValidationError, ValidationErrors, Validator,
 };
