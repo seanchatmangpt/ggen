@@ -66,6 +66,30 @@ for e in report.errors() {
 }
 ```
 
+Every error also carries a **auto-derived repair hint** and a machine-readable severity:
+
+```rust
+# use star_toml::{Validate, Validator, ErrorKind, Severity};
+# struct App;
+# impl Validate for App { fn validate(&self, _: &mut Validator) {} }
+# let app = App;
+let report = app.check().unwrap_err();
+
+// Van der Aalst conformance score: 0.0 = total failure, 1.0 = perfect
+println!("fitness: {:.0}%", report.fitness() * 100.0);
+
+// Stable variant fingerprint — same error pattern = same ID across runs
+println!("variant: {:016x}", report.variant_id());
+
+// Object-centric grouping by top-level config section
+for (section, errors) in report.by_section() {
+    println!("[{section}] {} error(s)", errors.len());
+    for e in errors {
+        println!("  {} → {} | fix: {}", e.loc, e.code(), e.repair_hint());
+    }
+}
+```
+
 ### Built-in checks
 
 | Helper | Error code | Use |
@@ -73,8 +97,21 @@ for e in report.errors() {
 | `check_non_empty(field, &str)` | `empty` | reject empty strings |
 | `check_range(field, value, lo..=hi)` | `out_of_range` | numeric bounds |
 | `check_one_of(field, &str, &[..])` | `not_one_of` | enumerations |
-| `check_predicate(field, cond, code, msg)` | *your code* | any custom / cross-field rule |
-| `field(name, |v| …)` / `index(i, |v| …)` | — | descend into nested structs / arrays |
+| `check_predicate(field, cond, code, msg)` | *your code* | arbitrary domain rules |
+| `check_consistent(field, &[related], cond, code, msg)` | *your code* | DECLARE cross-field constraints |
+| `with_severity(Severity::Warning, \|v\| …)` | — | emit non-Error severity |
+| `field(name, \|v\| …)` / `index(i, \|v\| …)` | — | descend into nested structs / arrays |
+
+### Van der Aalst innovations
+
+| Feature | API | Description |
+|---------|-----|-------------|
+| **Conformance fitness** | `report.fitness() -> f64` | Alignment metric: proportion of checks that passed (0.0–1.0) |
+| **Variant fingerprint** | `report.variant_id() -> u64` | FNV-1a hash of error patterns — same failures = same ID |
+| **Object-centric grouping** | `report.by_section()` | Errors indexed by top-level config section |
+| **Severity stratification** | `Severity::{Advisory,Warning,Error,Fatal}` | Not all failures are equal |
+| **Repair hints** | `error.repair_hint()` | Auto-derived minimum fix for each error kind |
+| **DECLARE constraints** | `check_consistent(…)` | Cross-field co-existence / response constraints |
 
 ## Layered loading
 

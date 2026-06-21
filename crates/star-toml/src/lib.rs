@@ -188,5 +188,5 @@ pub use loader::{
 };
 pub use merge::deep_merge;
 pub use validation::{
-    ErrorKind, Loc, LocSegment, Validate, ValidationError, ValidationErrors, Validator,
+    ErrorKind, Loc, LocSegment, Severity, Validate, ValidationError, ValidationErrors, Validator,
 };

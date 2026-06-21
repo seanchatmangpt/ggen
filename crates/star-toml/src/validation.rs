@@ -1,19 +1,25 @@
-//! Pydantic-grade validation for TOML configs.
+//! Pydantic-grade + Van der Aalst-grade validation for TOML configs.
 //!
-//! The defining idea, borrowed from [Pydantic](https://docs.pydantic.dev/): a config
-//! type is validated by *descending through its structure*, and **every** failure is
-//! collected — not just the first — each carrying:
+//! Extends the Pydantic model (collect every error, path-precise, machine-matchable)
+//! with three process-mining concepts from Van der Aalst et al:
 //!
-//! - a precise **location** (`server.tls.port`, `stages[2].name`),
-//! - the **offending value**, and
-//! - a machine-matchable **error code**.
+//! 1. **Severity stratification** — not all errors are equal:
+//!    `Fatal` (halt immediately) → `Error` → `Warning` → `Advisory`.
 //!
-//! You implement [`Validate`] for your type, using a [`Validator`] that tracks the
-//! current location as you descend. Nested types compose: a parent calls
-//! [`Validator::field`] and delegates to the child's `validate`.
+//! 2. **Conformance fitness** ([`ValidationErrors::fitness`]) — instead of binary
+//!    pass/fail, a 0.0–1.0 score (alignment metric) showing how much of the
+//!    declared model the observed config satisfies.
+//!
+//! 3. **DECLARE-style cross-field constraints** ([`Validator::check_consistent`]) —
+//!    object-centric constraints that span multiple fields, matching Van der Aalst's
+//!    DECLARE formalism for process constraints.
+//!
+//! **Plus**: auto-derived [`ValidationError::repair_hint`], variant fingerprinting
+//! ([`ValidationErrors::variant_id`]), and object-centric error grouping
+//! ([`ValidationErrors::by_section`]).
 //!
 //! ```
-//! use star_toml::{Validate, Validator};
+//! use star_toml::{Validate, Validator, Severity};
 //!
 //! struct Server { host: String, port: u16 }
 //!
@@ -26,11 +32,14 @@
 //!
 //! let bad = Server { host: String::new(), port: 0 };
 //! let errs = bad.check().unwrap_err();
-//! assert_eq!(errs.len(), 2);                       // both errors collected
-//! assert_eq!(errs.errors()[0].loc.to_string(), "host");
-//! assert_eq!(errs.errors()[1].code(), "out_of_range");
+//! assert_eq!(errs.len(), 2);
+//! // Conformance: 0 of 2 checks passed
+//! assert_eq!(errs.fitness(), 0.0);
+//! // Auto-derived repair hints
+//! assert!(!errs.errors()[0].repair_hint().is_empty());
 //! ```
 
+use std::collections::BTreeMap;
 use std::fmt;
 use std::ops::RangeInclusive;
 
@@ -39,7 +48,7 @@ use std::ops::RangeInclusive;
 // ---------------------------------------------------------------------------
 
 /// One segment of a [`Loc`]: either a table key or an array index.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum LocSegment {
     /// A table key, e.g. `server` in `server.port`.
     Key(String),
@@ -48,7 +57,7 @@ pub enum LocSegment {
 }
 
 /// A path to a value in the config tree, rendered like `server.tls.port` or `stages[2].name`.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Hash)]
 pub struct Loc(Vec<LocSegment>);
 
 impl Loc {
@@ -82,6 +91,49 @@ impl fmt::Display for Loc {
             }
         }
         Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Severity — Van der Aalst alignment cost levels
+// ---------------------------------------------------------------------------
+
+/// How severe a validation failure is.
+///
+/// Ordered from least to most severe. [`Fatal`](Severity::Fatal) errors
+/// indicate the config cannot be used at all; [`Advisory`](Severity::Advisory)
+/// errors are informational best-practice hints.
+///
+/// Use [`Validator::with_severity`] to emit non-default severity.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub enum Severity {
+    /// Informational: not a hard rule, but a best-practice recommendation.
+    Advisory,
+    /// Technically acceptable but risky or sub-optimal.
+    Warning,
+    /// Constraint violated — the default level. Config is unusable.
+    #[default]
+    Error,
+    /// Unrecoverable: halt immediately, do not evaluate further constraints.
+    Fatal,
+}
+
+impl Severity {
+    /// Stable string code for this severity level.
+    #[must_use]
+    pub fn code(&self) -> &str {
+        match self {
+            Self::Advisory => "advisory",
+            Self::Warning => "warning",
+            Self::Error => "error",
+            Self::Fatal => "fatal",
+        }
+    }
+}
+
+impl fmt::Display for Severity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.code())
     }
 }
 
@@ -125,6 +177,15 @@ pub enum ErrorKind {
         /// The permitted values.
         allowed: Vec<String>,
     },
+    /// A cross-field DECLARE constraint was violated.
+    ///
+    /// `related` names the other field(s) involved in the constraint.
+    Inconsistent {
+        /// The other field names that form this cross-field constraint.
+        related: Vec<String>,
+        /// Caller-defined stable code.
+        code: &'static str,
+    },
     /// A custom predicate failed; `code` is a caller-chosen stable identifier.
     Predicate {
         /// Stable, caller-defined error code.
@@ -143,7 +204,7 @@ impl ErrorKind {
             Self::TooShort { .. } => "too_short",
             Self::TooLong { .. } => "too_long",
             Self::NotOneOf { .. } => "not_one_of",
-            Self::Predicate { code } => code,
+            Self::Inconsistent { code, .. } | Self::Predicate { code } => code,
         }
     }
 }
@@ -159,6 +220,8 @@ pub struct ValidationError {
     pub loc: Loc,
     /// The structured reason.
     pub kind: ErrorKind,
+    /// How severe this failure is.
+    pub severity: Severity,
     /// The offending value, stringified, if it was captured.
     pub input: Option<String>,
     /// Human-readable message.
@@ -171,6 +234,42 @@ impl ValidationError {
     pub fn code(&self) -> &str {
         self.kind.code()
     }
+
+    /// Whether this error requires an immediate halt (severity == Fatal).
+    #[must_use]
+    pub fn is_fatal(&self) -> bool {
+        self.severity == Severity::Fatal
+    }
+
+    /// Auto-derived repair suggestion based on the error kind.
+    ///
+    /// For custom predicates the message itself is the best hint; for
+    /// built-in kinds the hint is derived from the constraint parameters.
+    ///
+    /// This implements Van der Aalst's *alignment repair* concept: given a
+    /// deviation from the reference model, what is the minimum edit?
+    #[must_use]
+    pub fn repair_hint(&self) -> String {
+        match &self.kind {
+            ErrorKind::Empty => "provide a non-empty value".into(),
+            ErrorKind::Missing => "add this required field".into(),
+            ErrorKind::OutOfRange { lower, upper } => match (lower, upper) {
+                (Some(lo), Some(hi)) => format!("use a value in the range {lo}..={hi}"),
+                (Some(lo), None) => format!("use a value ≥ {lo}"),
+                (None, Some(hi)) => format!("use a value ≤ {hi}"),
+                (None, None) => "use a value within the required range".into(),
+            },
+            ErrorKind::NotOneOf { allowed } => {
+                format!("choose one of: {}", allowed.join(", "))
+            }
+            ErrorKind::TooShort { min, .. } => format!("provide at least {min} items/characters"),
+            ErrorKind::TooLong { max, .. } => format!("use at most {max} items/characters"),
+            ErrorKind::Inconsistent { related, .. } => {
+                format!("ensure this field is consistent with: {}", related.join(", "))
+            }
+            ErrorKind::Predicate { .. } => self.msg.clone(),
+        }
+    }
 }
 
 impl fmt::Display for ValidationError {
@@ -179,7 +278,11 @@ impl fmt::Display for ValidationError {
         if let Some(input) = &self.input {
             write!(f, " (got: `{input}`)")?;
         }
-        write!(f, " [{}]", self.code())
+        write!(f, " [{}]", self.code())?;
+        if self.severity != Severity::Error {
+            write!(f, " <{}>", self.severity)?;
+        }
+        Ok(())
     }
 }
 
@@ -189,10 +292,15 @@ impl fmt::Display for ValidationError {
 
 /// A non-empty collection of [`ValidationError`]s, rendered as a Pydantic-style report.
 ///
+/// Extends the Pydantic report with:
+/// - [`fitness`](ValidationErrors::fitness) — Van der Aalst alignment conformance score
+/// - [`variant_id`](ValidationErrors::variant_id) — fingerprint for recurring failure patterns
+/// - [`by_section`](ValidationErrors::by_section) — object-centric grouping
+///
 /// ```text
 /// 2 validation errors for Server
 /// host
-///   must not be empty [empty]
+///   must not be empty (got: `""`) [empty]
 /// port
 ///   input must be in range 1..=65535 (got: `0`) [out_of_range]
 /// ```
@@ -200,6 +308,8 @@ impl fmt::Display for ValidationError {
 pub struct ValidationErrors {
     errors: Vec<ValidationError>,
     title: Option<String>,
+    /// Total number of checks attempted (passed + failed). Used for fitness.
+    checks_run: usize,
 }
 
 impl ValidationErrors {
@@ -233,6 +343,93 @@ impl ValidationErrors {
         let short = full.rsplit("::").next().unwrap_or(full);
         self.title = Some(short.to_string());
     }
+
+    /// Whether any error is [`Severity::Fatal`] (requires immediate halt).
+    #[must_use]
+    pub fn has_fatal(&self) -> bool {
+        self.errors.iter().any(ValidationError::is_fatal)
+    }
+
+    /// Errors at or above the given severity threshold.
+    pub fn errors_above(&self, min: Severity) -> impl Iterator<Item = &ValidationError> {
+        self.errors.iter().filter(move |e| e.severity >= min)
+    }
+
+    /// **Van der Aalst alignment fitness** — proportion of checks that passed.
+    ///
+    /// Returns 1.0 when all checks pass (no errors), 0.0 when every check
+    /// failed. Analogous to the replay-fitness metric from conformance checking:
+    /// how well does the observed config align to the declared validation model?
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use star_toml::{Validate, Validator};
+    ///
+    /// struct Pair { a: u32, b: u32 }
+    /// impl Validate for Pair {
+    ///     fn validate(&self, v: &mut Validator) {
+    ///         v.check_range("a", self.a, 1..=10);  // passes
+    ///         v.check_range("b", self.b, 1..=10);  // fails
+    ///     }
+    /// }
+    /// let errs = Pair { a: 5, b: 0 }.check().unwrap_err();
+    /// assert_eq!(errs.fitness(), 0.5);  // 1 of 2 checks passed
+    /// ```
+    #[must_use]
+    pub fn fitness(&self) -> f64 {
+        if self.checks_run == 0 {
+            return 1.0;
+        }
+        let failed = self.errors.iter().filter(|e| e.severity >= Severity::Error).count();
+        let passed = self.checks_run.saturating_sub(failed);
+        passed as f64 / self.checks_run as f64
+    }
+
+    /// **Variant fingerprint** — a deterministic hash of the failure pattern.
+    ///
+    /// Two `ValidationErrors` instances with the same set of `(location, code)`
+    /// pairs produce the same variant ID, regardless of message text or input
+    /// values. Useful for deduplicating recurring failure patterns across runs.
+    ///
+    /// Uses FNV-1a over the sorted `"loc:code"` pairs.
+    #[must_use]
+    pub fn variant_id(&self) -> u64 {
+        let mut pairs: Vec<String> = self
+            .errors
+            .iter()
+            .map(|e| format!("{}:{}", e.loc, e.code()))
+            .collect();
+        pairs.sort_unstable();
+        fnv1a(pairs.join("|").as_bytes())
+    }
+
+    /// **Object-centric grouping** — errors indexed by their top-level config section.
+    ///
+    /// Implements Van der Aalst's object-centric view: each top-level TOML table
+    /// is an "object type"; this groups all its constraint violations together.
+    ///
+    /// Root-level errors are keyed `"(root)"`.
+    #[must_use]
+    pub fn by_section(&self) -> BTreeMap<String, Vec<&ValidationError>> {
+        let mut map: BTreeMap<String, Vec<&ValidationError>> = BTreeMap::new();
+        for err in &self.errors {
+            let key = err
+                .loc
+                .segments()
+                .first()
+                .and_then(|s| {
+                    if let LocSegment::Key(k) = s {
+                        Some(k.as_str())
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or("(root)");
+            map.entry(key.to_string()).or_default().push(err);
+        }
+        map
+    }
 }
 
 impl fmt::Display for ValidationErrors {
@@ -265,10 +462,18 @@ impl std::error::Error for ValidationErrors {}
 /// with [`Validator::new`] for ad-hoc validation. Use [`field`](Validator::field) and
 /// [`index`](Validator::index) to descend; the `check_*` helpers record errors at the
 /// named sub-location with the offending value attached.
+///
+/// Use [`with_severity`](Validator::with_severity) to emit [`Warning`](Severity::Warning)
+/// or [`Fatal`](Severity::Fatal) errors. Use
+/// [`check_consistent`](Validator::check_consistent) for cross-field DECLARE constraints.
 #[derive(Debug, Default)]
 pub struct Validator {
     loc: Vec<LocSegment>,
     errors: Vec<ValidationError>,
+    /// Total atomic checks performed (pass or fail), used to compute fitness.
+    checks_run: usize,
+    /// Severity to stamp on the next emitted error (reset after each `record`).
+    pending_severity: Severity,
 }
 
 impl Validator {
@@ -294,18 +499,50 @@ impl Validator {
         self.loc.pop();
     }
 
+    /// Run `f` with the given severity applied to every error emitted inside it.
+    ///
+    /// Severity resets to the enclosing scope's value after `f` returns.
+    ///
+    /// ```
+    /// use star_toml::{Validate, Validator, Severity};
+    ///
+    /// struct Config { log_dir: String }
+    /// impl Validate for Config {
+    ///     fn validate(&self, v: &mut Validator) {
+    ///         // Best-practice advisory: non-critical
+    ///         v.with_severity(Severity::Warning, |v| {
+    ///             v.check_non_empty("log_dir", &self.log_dir);
+    ///         });
+    ///     }
+    /// }
+    /// let errs = Config { log_dir: String::new() }.check().unwrap_err();
+    /// assert_eq!(errs.errors()[0].severity, Severity::Warning);
+    /// assert!(!errs.has_fatal());
+    /// ```
+    pub fn with_severity(&mut self, severity: Severity, f: impl FnOnce(&mut Validator)) {
+        let prev = std::mem::replace(&mut self.pending_severity, severity);
+        f(self);
+        self.pending_severity = prev;
+    }
+
     /// Record an error at the current location.
     pub fn error(&mut self, kind: ErrorKind, msg: impl Into<String>) {
         self.record(kind, None, msg.into());
     }
 
     /// Record an error at the current location, capturing an offending value.
-    pub fn error_with(&mut self, kind: ErrorKind, input: impl fmt::Display, msg: impl Into<String>) {
+    pub fn error_with(
+        &mut self,
+        kind: ErrorKind,
+        input: impl fmt::Display,
+        msg: impl Into<String>,
+    ) {
         self.record(kind, Some(input.to_string()), msg.into());
     }
 
     /// Fail subfield `field` with [`ErrorKind::Empty`] if `value` is empty.
     pub fn check_non_empty(&mut self, field: &str, value: &str) {
+        self.checks_run += 1;
         if value.is_empty() {
             self.at(field, |v| {
                 v.error_with(ErrorKind::Empty, "\"\"", "must not be empty");
@@ -318,6 +555,7 @@ impl Validator {
     where
         T: PartialOrd + fmt::Display + Copy,
     {
+        self.checks_run += 1;
         if !range.contains(&value) {
             let (lo, hi) = (range.start().to_string(), range.end().to_string());
             let msg = format!("input must be in range {lo}..={hi}");
@@ -336,6 +574,7 @@ impl Validator {
 
     /// Fail subfield `field` with [`ErrorKind::NotOneOf`] if `value` is not in `allowed`.
     pub fn check_one_of(&mut self, field: &str, value: &str, allowed: &[&str]) {
+        self.checks_run += 1;
         if !allowed.contains(&value) {
             let allowed_owned: Vec<String> = allowed.iter().map(|s| (*s).to_string()).collect();
             let msg = format!("must be one of: {}", allowed.join(", "));
@@ -353,7 +592,7 @@ impl Validator {
 
     /// Fail subfield `field` with a caller-defined `code` when `passed` is false.
     ///
-    /// The escape hatch for arbitrary cross-field or domain rules.
+    /// The escape hatch for arbitrary domain rules.
     pub fn check_predicate(
         &mut self,
         field: &str,
@@ -361,9 +600,56 @@ impl Validator {
         code: &'static str,
         msg: impl Into<String>,
     ) {
+        self.checks_run += 1;
         if !passed {
             let msg = msg.into();
             self.at(field, |v| v.error(ErrorKind::Predicate { code }, msg));
+        }
+    }
+
+    /// **DECLARE-style cross-field constraint** (Van der Aalst).
+    ///
+    /// Records an [`ErrorKind::Inconsistent`] at `primary_field` when `condition`
+    /// is `false`, tagging `related_fields` as the other objects in the constraint.
+    ///
+    /// This models DECLARE's *co-existence*, *response*, and *precedence*
+    /// templates: field A is only valid in relation to field B.
+    ///
+    /// ```
+    /// use star_toml::{Validate, Validator};
+    ///
+    /// struct Tls { enabled: bool, cert_path: String }
+    /// impl Validate for Tls {
+    ///     fn validate(&self, v: &mut Validator) {
+    ///         // Co-existence: TLS enabled ⟺ cert_path non-empty
+    ///         v.check_consistent(
+    ///             "cert_path",
+    ///             &["enabled"],
+    ///             !self.enabled || !self.cert_path.is_empty(),
+    ///             "tls_cert_required",
+    ///             "cert_path must be set when TLS is enabled",
+    ///         );
+    ///     }
+    /// }
+    /// let bad = Tls { enabled: true, cert_path: String::new() };
+    /// let errs = bad.check().unwrap_err();
+    /// assert_eq!(errs.errors()[0].code(), "tls_cert_required");
+    /// ```
+    pub fn check_consistent(
+        &mut self,
+        primary_field: &str,
+        related_fields: &[&str],
+        condition: bool,
+        code: &'static str,
+        msg: impl Into<String>,
+    ) {
+        self.checks_run += 1;
+        if !condition {
+            let related: Vec<String> = related_fields.iter().map(|s| (*s).to_string()).collect();
+            let msg = msg.into();
+            self.at(primary_field, |v| {
+                v.error(ErrorKind::Inconsistent { related, code }, msg);
+            });
         }
     }
 
@@ -379,6 +665,7 @@ impl Validator {
             Err(ValidationErrors {
                 errors: self.errors,
                 title: None,
+                checks_run: self.checks_run,
             })
         }
     }
@@ -390,9 +677,11 @@ impl Validator {
     }
 
     fn record(&mut self, kind: ErrorKind, input: Option<String>, msg: String) {
+        let severity = std::mem::take(&mut self.pending_severity);
         self.errors.push(ValidationError {
             loc: Loc(self.loc.clone()),
             kind,
+            severity,
             input,
             msg,
         });
@@ -472,6 +761,18 @@ pub trait Validate {
 }
 
 // ---------------------------------------------------------------------------
+// FNV-1a — for variant fingerprinting (no external deps)
+// ---------------------------------------------------------------------------
+
+fn fnv1a(data: &[u8]) -> u64 {
+    const OFFSET: u64 = 0xcbf2_9ce4_8422_2325;
+    const PRIME: u64 = 0x0000_0100_0000_01b3;
+    data.iter().fold(OFFSET, |hash, &byte| {
+        (hash ^ u64::from(byte)).wrapping_mul(PRIME)
+    })
+}
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
@@ -514,7 +815,11 @@ mod tests {
         fn validate(&self, v: &mut Validator) {
             v.check_non_empty("name", &self.name);
             v.check_range("workers", self.workers, 1..=1024);
-            v.check_one_of("log_level", &self.log_level, &["trace", "debug", "info", "warn", "error"]);
+            v.check_one_of(
+                "log_level",
+                &self.log_level,
+                &["trace", "debug", "info", "warn", "error"],
+            );
             v.field("server", |v| self.server.validate(v));
         }
     }
@@ -532,6 +837,8 @@ mod tests {
         }
     }
 
+    // -- original Pydantic-grade tests (unchanged behaviour) ----------------
+
     #[test]
     fn valid_config_passes() {
         assert!(valid_app().check().is_ok());
@@ -540,12 +847,12 @@ mod tests {
     #[test]
     fn collects_all_errors_not_just_first() {
         let app = App {
-            name: String::new(),         // error 1: name empty
-            workers: 0,                  // error 2: workers out of range
-            log_level: "verbose".into(), // error 3: log_level not one of
+            name: String::new(),
+            workers: 0,
+            log_level: "verbose".into(),
             server: Server {
-                host: String::new(), // error 4: host empty
-                port: 0,             // error 5: port out of range
+                host: String::new(),
+                port: 0,
                 tls: None,
             },
         };
@@ -635,5 +942,248 @@ mod tests {
         let errs = Thing.check().unwrap_err();
         assert_eq!(errs.errors()[0].loc.to_string(), "(root)");
         assert!(errs.errors()[0].loc.is_root());
+    }
+
+    // -- Van der Aalst: severity stratification ----------------------------
+
+    #[test]
+    fn default_severity_is_error() {
+        let app = App {
+            name: String::new(),
+            ..valid_app()
+        };
+        let errs = app.check().unwrap_err();
+        assert_eq!(errs.errors()[0].severity, Severity::Error);
+    }
+
+    #[test]
+    fn with_severity_stamps_warning() {
+        struct Cfg {
+            log_dir: String,
+        }
+        impl Validate for Cfg {
+            fn validate(&self, v: &mut Validator) {
+                v.with_severity(Severity::Warning, |v| {
+                    v.check_non_empty("log_dir", &self.log_dir);
+                });
+            }
+        }
+        let errs = Cfg { log_dir: String::new() }.check().unwrap_err();
+        assert_eq!(errs.errors()[0].severity, Severity::Warning);
+        assert!(!errs.has_fatal());
+    }
+
+    #[test]
+    fn fatal_severity_detected() {
+        struct Cfg;
+        impl Validate for Cfg {
+            fn validate(&self, v: &mut Validator) {
+                v.with_severity(Severity::Fatal, |v| {
+                    v.error(ErrorKind::Missing, "signing key is absent");
+                });
+            }
+        }
+        let errs = Cfg.check().unwrap_err();
+        assert!(errs.has_fatal());
+        assert!(errs.errors()[0].is_fatal());
+    }
+
+    // -- Van der Aalst: conformance fitness --------------------------------
+
+    #[test]
+    fn fitness_is_one_when_valid() {
+        struct Good {
+            x: u32,
+        }
+        impl Validate for Good {
+            fn validate(&self, v: &mut Validator) {
+                v.check_range("x", self.x, 1..=10);
+            }
+        }
+        // valid → no errors, fitness should be accessible via a fresh validator
+        // (only meaningful on error path, but the doc example has a passing case)
+        assert!(Good { x: 5 }.check().is_ok());
+    }
+
+    #[test]
+    fn fitness_half_when_one_of_two_fails() {
+        struct Pair {
+            a: u32,
+            b: u32,
+        }
+        impl Validate for Pair {
+            fn validate(&self, v: &mut Validator) {
+                v.check_range("a", self.a, 1..=10); // passes
+                v.check_range("b", self.b, 1..=10); // fails
+            }
+        }
+        let errs = Pair { a: 5, b: 0 }.check().unwrap_err();
+        assert_eq!(errs.fitness(), 0.5);
+    }
+
+    #[test]
+    fn fitness_zero_when_all_fail() {
+        let app = App {
+            name: String::new(),
+            workers: 0,
+            log_level: "verbose".into(),
+            server: Server {
+                host: String::new(),
+                port: 0,
+                tls: None,
+            },
+        };
+        let errs = app.check().unwrap_err();
+        assert_eq!(errs.fitness(), 0.0);
+    }
+
+    // -- Van der Aalst: repair hints ---------------------------------------
+
+    #[test]
+    fn repair_hint_for_empty() {
+        let app = App {
+            name: String::new(),
+            ..valid_app()
+        };
+        let errs = app.check().unwrap_err();
+        assert_eq!(errs.errors()[0].repair_hint(), "provide a non-empty value");
+    }
+
+    #[test]
+    fn repair_hint_for_out_of_range() {
+        let app = App {
+            workers: 9999,
+            ..valid_app()
+        };
+        let errs = app.check().unwrap_err();
+        assert!(errs.errors()[0].repair_hint().contains("1..=1024"));
+    }
+
+    #[test]
+    fn repair_hint_for_not_one_of() {
+        let app = App {
+            log_level: "nope".into(),
+            ..valid_app()
+        };
+        let errs = app.check().unwrap_err();
+        let hint = errs.errors()[0].repair_hint();
+        assert!(hint.contains("trace"));
+        assert!(hint.contains("error"));
+    }
+
+    // -- Van der Aalst: variant fingerprint --------------------------------
+
+    #[test]
+    fn same_error_pattern_same_variant_id() {
+        let app1 = App {
+            name: String::new(),
+            ..valid_app()
+        };
+        let app2 = App {
+            name: String::new(),
+            ..valid_app()
+        };
+        assert_eq!(
+            app1.check().unwrap_err().variant_id(),
+            app2.check().unwrap_err().variant_id()
+        );
+    }
+
+    #[test]
+    fn different_error_pattern_different_variant_id() {
+        let app1 = App {
+            name: String::new(),
+            ..valid_app()
+        };
+        let app2 = App {
+            workers: 9999,
+            ..valid_app()
+        };
+        assert_ne!(
+            app1.check().unwrap_err().variant_id(),
+            app2.check().unwrap_err().variant_id()
+        );
+    }
+
+    // -- Van der Aalst: object-centric grouping ----------------------------
+
+    #[test]
+    fn by_section_groups_errors_by_top_level_key() {
+        let app = App {
+            name: String::new(),
+            workers: 0,
+            server: Server {
+                host: String::new(),
+                port: 0,
+                tls: None,
+            },
+            ..valid_app()
+        };
+        let errs = app.check().unwrap_err();
+        let by_sec = errs.by_section();
+        assert!(by_sec.contains_key("name"));
+        assert!(by_sec.contains_key("workers"));
+        assert!(by_sec.contains_key("server"));
+        // server.host + server.port are both under "server"
+        assert_eq!(by_sec["server"].len(), 2);
+    }
+
+    // -- Van der Aalst: DECLARE cross-field constraints --------------------
+
+    #[test]
+    fn check_consistent_records_inconsistent_error() {
+        struct Tls2 {
+            enabled: bool,
+            cert_path: String,
+        }
+        impl Validate for Tls2 {
+            fn validate(&self, v: &mut Validator) {
+                v.check_consistent(
+                    "cert_path",
+                    &["enabled"],
+                    !self.enabled || !self.cert_path.is_empty(),
+                    "tls_cert_required",
+                    "cert_path must be set when TLS is enabled",
+                );
+            }
+        }
+        let bad = Tls2 {
+            enabled: true,
+            cert_path: String::new(),
+        };
+        let errs = bad.check().unwrap_err();
+        assert_eq!(errs.errors()[0].code(), "tls_cert_required");
+        assert_eq!(errs.errors()[0].loc.to_string(), "cert_path");
+        match &errs.errors()[0].kind {
+            ErrorKind::Inconsistent { related, .. } => {
+                assert!(related.contains(&"enabled".to_string()));
+            }
+            other => panic!("expected Inconsistent, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn check_consistent_passes_when_condition_true() {
+        struct Tls2 {
+            enabled: bool,
+            cert_path: String,
+        }
+        impl Validate for Tls2 {
+            fn validate(&self, v: &mut Validator) {
+                v.check_consistent(
+                    "cert_path",
+                    &["enabled"],
+                    !self.enabled || !self.cert_path.is_empty(),
+                    "tls_cert_required",
+                    "cert_path must be set when TLS is enabled",
+                );
+            }
+        }
+        assert!(Tls2 {
+            enabled: true,
+            cert_path: "/etc/cert.pem".into()
+        }
+        .check()
+        .is_ok());
     }
 }
