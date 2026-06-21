@@ -1,0 +1,33 @@
+[package]
+name = "star-toml"
+description = "Framework for loading, layering, and validating any *.toml configuration file"
+readme = "README.md"
+keywords = ["config", "toml", "layered", "validation"]
+categories = ["development-tools", "config"]
+
+[package.version]
+workspace = true
+
+[package.authors]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.repository]
+workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+toml = { version = "1.1.0", features = ["preserve_order"] }
+thiserror = "2.0"
+
+[dev-dependencies]
+tempfile = "3"
+serde = { version = "1.0", features = ["derive"] }
+
+[lints]
+workspace = true
