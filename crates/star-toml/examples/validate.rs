@@ -137,9 +137,7 @@ fn main() {
             }
 
             // ── 5. Fatal / warning counts ───────────────────────────────────
-            let fatals: usize = report
-                .errors_above(Severity::Fatal)
-                .count();
+            let fatals: usize = report.errors_above(Severity::Fatal).count();
             let warnings: usize = report
                 .errors_above(Severity::Advisory)
                 .filter(|e| e.severity == Severity::Advisory)

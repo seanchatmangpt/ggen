@@ -35,8 +35,8 @@ pub fn code_lenses(file_type: FileType, content: &str) -> Option<Vec<CodeLens>> 
         FileType::Rdf => rdf_lenses(content),
         FileType::Sparql => sparql_lenses(content),
         FileType::Toml => toml_lenses(content),
-        // Tera/Unknown carry no class/query/section structure to lens.
-        FileType::Tera | FileType::Unknown => Vec::new(),
+        // Tera/Unknown/Usd/Mtlx carry no class/query/section structure to lens.
+        FileType::Tera | FileType::Unknown | FileType::Usd | FileType::Mtlx => Vec::new(),
     };
     if lenses.is_empty() {
         None

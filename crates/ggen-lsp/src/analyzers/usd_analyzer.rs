@@ -28,7 +28,7 @@ pub const GGEN_USD_003: &str = "GGEN-USD-003";
 
 /// The canonical set of part names checked for foreign-geometry detection.
 const PART_NAMES: &[&str] = &[
-    "Head", "Arm", "Leg", "Wing", "Blade", "Backpack", "Loadout",
+    "Head", "Torso", "Arm", "Leg", "Wing", "Blade", "Backpack", "Loadout",
 ];
 
 /// Returns the first part name found within `prim_name`, or `None`.
@@ -107,17 +107,12 @@ impl UsdAnalyzer {
                 let prim_name = extract_prim_name(trimmed);
                 let is_mesh = trimmed.starts_with("def Mesh ");
                 let is_xform = trimmed.starts_with("def Xform ");
-                let is_socket =
-                    prim_name.contains("Socket") || prim_name.contains("socket");
+                let is_socket = prim_name.contains("Socket") || prim_name.contains("socket");
                 let part = part_in(&prim_name);
 
                 // Foreign geometry check: if there is a parent prim with a part name,
                 // and THIS prim has a DIFFERENT part name, emit GGEN-USD-001.
-                if let Some(parent_part) = stack
-                    .iter()
-                    .rev()
-                    .find_map(|f| f.part)
-                {
+                if let Some(parent_part) = stack.iter().rev().find_map(|f| f.part) {
                     if let Some(child_part) = part {
                         if child_part != parent_part {
                             diags.push(diag::max_whole_line(
@@ -137,9 +132,7 @@ impl UsdAnalyzer {
 
                 // Socket-with-mesh check: if there is an open socket ancestor and this is a Mesh.
                 if is_mesh {
-                    if let Some(socket_frame) =
-                        stack.iter().rev().find(|f| f.is_socket)
-                    {
+                    if let Some(socket_frame) = stack.iter().rev().find(|f| f.is_socket) {
                         diags.push(diag::max_whole_line(
                             socket_frame.line,
                             DiagnosticSeverity::WARNING,
@@ -362,6 +355,7 @@ def Xform "SM_Torso" {
     fn test_clean_file_no_diagnostics() {
         let content = r#"#usda 1.0
 def Xform "SM_Torso" {
+    custom string owner_part_id = "torso"
     def Mesh "SM_Torso_Main" {
         custom string owner_part_id = "torso"
     }

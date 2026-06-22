@@ -29,7 +29,7 @@ fn test_packs_install_with_progress_feedback() {
 
     // Execute pack install with verbose output
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "startup-essentials"])
+        .args(["pack", "add", "startup-essentials"])
         .args(["--dry_run"]) // Use dry run to avoid network dependencies
         .current_dir(temp_path)
         .output()
@@ -93,7 +93,7 @@ fn test_packs_install_error_handling_improvements() {
 
     // Test with invalid pack ID
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", ""])
+        .args(["pack", "add", ""])
         .output()
         .expect("Failed to execute pack install command");
 
@@ -120,7 +120,7 @@ fn test_packs_install_dry_run_mode() {
     let temp_path = temp_dir.path();
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "test-pack"])
+        .args(["pack", "add", "test-pack"])
         .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
@@ -168,7 +168,7 @@ fn test_packs_install_planning_phase() {
     let temp_path = temp_dir.path();
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "startup-essentials"])
+        .args(["pack", "add", "startup-essentials"])
         .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
@@ -222,7 +222,7 @@ fn test_packs_install_performance_indicators() {
     let start = std::time::Instant::now();
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "startup-essentials"])
+        .args(["pack", "add", "startup-essentials"])
         .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
@@ -267,7 +267,7 @@ fn test_packs_install_cache_status_indicators() {
     let temp_path = temp_dir.path();
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "startup-essentials"])
+        .args(["pack", "add", "startup-essentials"])
         .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
@@ -305,7 +305,7 @@ fn test_packs_install_step_by_step_progress() {
     let temp_path = temp_dir.path();
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "startup-essentials"])
+        .args(["pack", "add", "startup-essentials"])
         .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
@@ -352,7 +352,7 @@ fn test_packs_install_error_recovery_suggestions() {
 
     // Test with invalid pack ID (should show helpful error)
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "invalid-pack-!!!"])
+        .args(["pack", "add", "invalid-pack-!!!"])
         .output()
         .expect("Failed to execute error recovery test command");
 
@@ -382,14 +382,14 @@ fn test_packs_install_concurrency_safety() {
 
     // Run two parallel installations (dry run mode to avoid conflicts)
     let child1 = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "pack1"])
+        .args(["pack", "add", "pack1"])
         .args(["--dry_run"])
         .current_dir(temp_dir1.path())
         .spawn()
         .expect("Failed to spawn first command");
 
     let child2 = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "pack2"])
+        .args(["pack", "add", "pack2"])
         .args(["--dry_run"])
         .current_dir(temp_dir2.path())
         .spawn()
@@ -449,7 +449,7 @@ fn test_packs_install_memory_efficiency() {
     let temp_dir = TempDir::new().unwrap();
 
     let mut child = Command::new(env!("CARGO_BIN_EXE_ggen"))
-        .args(["pack", "add", "--pack_name", "startup-essentials"])
+        .args(["pack", "add", "startup-essentials"])
         .args(["--dry_run"])
         .current_dir(temp_dir.path())
         .stdout(Stdio::piped())

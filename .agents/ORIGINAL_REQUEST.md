@@ -76,3 +76,33 @@ Provide a comparative critique of ggen from the perspective of a Ruby on Rails C
 
 ### Updated Acceptance Criteria
 - [ ] Include a dedicated section in the audit report comparing ggen with Rails philosophies and outlining 3-5 high-impact Rails-inspired lessons for ggen.
+
+## Follow-up — 2026-06-22T22:54:41Z
+
+Document the state of all `.md` files in the repository by reading their contents and producing a comprehensive report detailing the status, purpose, and completeness of each file.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Markdown File Discovery
+Find all `.md` files in the repository root and subdirectories (excluding standard ignore folders like `target`, `.git`, `.venv_shacl`, and node_modules).
+
+### R2. Content Analysis
+For each discovered `.md` file, analyze its content to determine its primary purpose, structural state (e.g., whether it contains placeholders, stubs, TODOs, or is fully complete), and any potential alignment with repository rules/AGENTS.md.
+
+### R3. Executive Report Generation
+Generate a comprehensive, structured markdown report documenting the state of the repository's documentation. The report must be saved as `DOCUMENTATION_AUDIT_REPORT.md` in the workspace root.
+
+## Acceptance Criteria
+
+### Audit Scope & Verification
+- [ ] Every `.md` file in the workspace (excluding ignored directories like target, .git, etc.) must be identified and visited.
+- [ ] A final audit report file `DOCUMENTATION_AUDIT_REPORT.md` must be created in the workspace root.
+- [ ] The generated report must contain a table covering all discovered `.md` files with columns for:
+  - File Path (relative to workspace root)
+  - Primary Purpose (brief summary of what the file describes)
+  - Completeness State (e.g., Complete, Draft, Placeholder/Stub, Has TODOs)
+  - Action Items / Recommendations
+- [ ] A validation check must prove that the number of files listed in the report matches the number of `.md` files found by a standard shell command like `find . -name "*.md"` (excluding ignored directories).

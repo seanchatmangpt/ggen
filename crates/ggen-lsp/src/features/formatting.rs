@@ -40,7 +40,7 @@ pub fn format_document(file_type: FileType, content: &str) -> Option<Vec<TextEdi
         FileType::Toml => format_toml(content)?,
         FileType::Rdf => format_turtle(content)?,
         FileType::Sparql => format_sparql(content)?,
-        FileType::Tera | FileType::Unknown => return None,
+        FileType::Tera | FileType::Unknown | FileType::Usd | FileType::Mtlx => return None,
     };
 
     // A no-op format (already canonical) is still a valid, empty-effect edit; we
@@ -67,7 +67,7 @@ pub fn format_document(file_type: FileType, content: &str) -> Option<Vec<TextEdi
 pub fn format_range(file_type: FileType, content: &str, _range: Range) -> Option<Vec<TextEdit>> {
     match file_type {
         FileType::Toml | FileType::Rdf | FileType::Sparql => format_document(file_type, content),
-        FileType::Tera | FileType::Unknown => None,
+        FileType::Tera | FileType::Unknown | FileType::Usd | FileType::Mtlx => None,
     }
 }
 
