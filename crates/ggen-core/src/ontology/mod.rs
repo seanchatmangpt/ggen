@@ -74,5 +74,5 @@ pub mod resolver;
 pub mod core_bundle;
 pub mod loader;
 
-pub use core_bundle::{CoreOntologyBundle, OntologyStats};
+pub use core_bundle::{CoreOntologyBundle, OntologyMetadata};
 pub use loader::OntologyLoader;
