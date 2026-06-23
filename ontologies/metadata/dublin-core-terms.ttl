@@ -1,0 +1,560 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcam: <http://purl.org/dc/dcam/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://purl.org/dc/terms/>
+    a owl:Ontology ;
+    dcterms:title "DCMI Metadata Terms Ontology" ;
+    dcterms:description "RDF schema for Dublin Core Metadata Initiative terms" ;
+    dcterms:issued "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2020-01-20"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:language "en" ;
+    foaf:homepage <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/> ;
+    rdfs:comment "DCMI Metadata Terms namespace" ;
+    owl:versionInfo "2020-01-20" .
+
+# DCMI Abstract Model (DCAM) terms
+dcam:VocabularyEncodingScheme
+    a rdfs:Class ;
+    rdfs:label "Vocabulary Encoding Scheme" ;
+    rdfs:comment "A set of concepts that may be used as a value" ;
+    dcterms:issued "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+# Dublin Core Metadata Terms - Basic properties
+dcterms:abstract
+    a rdf:Property ;
+    rdfs:label "Abstract" ;
+    rdfs:comment "A summary of the resource." ;
+    dcterms:description "Typically, an abstract will be from one to several sentences or a short paragraph." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:description ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#abstract-003> .
+
+dcterms:accessRights
+    a rdf:Property ;
+    rdfs:label "Access Rights" ;
+    rdfs:comment "Information about who can access the resource or an indication of its security status." ;
+    dcterms:description "Access Rights may include information regarding access or restrictions based on privacy, security, or other regulations." ;
+    dcterms:issued "2003-06-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#accessRights-003> .
+
+dcterms:alternative
+    a rdf:Property ;
+    rdfs:label "Alternative Title" ;
+    rdfs:comment "An alternative name for the resource." ;
+    dcterms:description "The distinction between titles and alternative titles is application-specific." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:title ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#alternative-003> .
+
+dcterms:audience
+    a rdf:Property ;
+    rdfs:label "Audience" ;
+    rdfs:comment "A class of agent for whom the resource is intended or useful." ;
+    dcterms:issued "2001-04-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Class ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#audience-003> .
+
+dcterms:available
+    a rdf:Property ;
+    rdfs:label "Date Available" ;
+    rdfs:comment "Date that the resource became or will become available." ;
+    dcterms:issued "2001-04-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#available-003> .
+
+dcterms:bibliographicCitation
+    a rdf:Property ;
+    rdfs:label "Bibliographic Citation" ;
+    rdfs:comment "A bibliographic reference for the resource." ;
+    dcterms:description "Recommended practice is to include sufficient bibliographic detail to identify the resource as unambiguously as possible." ;
+    dcterms:issued "2006-11-10"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#bibliographicCitation-002> .
+
+dcterms:conformsTo
+    a rdf:Property ;
+    rdfs:label "Conforms To" ;
+    rdfs:comment "An established standard to which the described resource conforms." ;
+    dcterms:issued "2001-04-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#conformsTo-003> .
+
+dcterms:contributor
+    a rdf:Property ;
+    rdfs:label "Contributor" ;
+    rdfs:comment "An agent responsible for making contributions to the resource." ;
+    dcterms:description "The guidelines for using names of persons, organizations, and projects as creators and contributors are specified in the DCMI Metadata Guidelines." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#contributor-003> .
+
+dcterms:coverage
+    a rdf:Property ;
+    rdfs:label "Coverage" ;
+    rdfs:comment "The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant." ;
+    dcterms:description "Spatial topic and spatial applicability may be a named place or a location specified by its geographic coordinates. Temporal topic may be a named period, date, or date range. A jurisdiction may be a named administrative entity or a geographic place to which the resource applies." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#coverage-003> .
+
+dcterms:created
+    a rdf:Property ;
+    rdfs:label "Date Created" ;
+    rdfs:comment "Date of creation of the resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#created-003> .
+
+dcterms:creator
+    a rdf:Property ;
+    rdfs:label "Creator" ;
+    rdfs:comment "An agent responsible for making the resource." ;
+    dcterms:description "The guidelines for using names of persons, organizations, and projects as creators and contributors are specified in the DCMI Metadata Guidelines." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:contributor ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#creator-003> .
+
+dcterms:date
+    a rdf:Property ;
+    rdfs:label "Date" ;
+    rdfs:comment "A point or period of time associated with an event in the lifecycle of the resource." ;
+    dcterms:description "Date may be used to express temporal information at any level of granularity. Recommended best practice is to use an encoding scheme, such as the W3CDTF profile of ISO 8601 [W3CDTF]." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#date-003> .
+
+dcterms:dateAccepted
+    a rdf:Property ;
+    rdfs:label "Date Accepted" ;
+    rdfs:comment "Date of acceptance of the resource." ;
+    dcterms:issued "2001-04-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#dateAccepted-003> .
+
+dcterms:dateCopyrighted
+    a rdf:Property ;
+    rdfs:label "Date Copyrighted" ;
+    rdfs:comment "Date of copyright of the resource." ;
+    dcterms:issued "2003-06-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#dateCopyrighted-003> .
+
+dcterms:dateSubmitted
+    a rdf:Property ;
+    rdfs:label "Date Submitted" ;
+    rdfs:comment "Date of submission of the resource." ;
+    dcterms:issued "2001-04-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#dateSubmitted-003> .
+
+dcterms:description
+    a rdf:Property ;
+    rdfs:label "Description" ;
+    rdfs:comment "An account of the resource." ;
+    dcterms:description "Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or an account of the resource's contents." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#description-003> .
+
+dcterms:educationLevel
+    a rdf:Property ;
+    rdfs:label "Education Level" ;
+    rdfs:comment "A class of agent, defined in terms of progression through an educational or training context, for which the described resource is intended." ;
+    dcterms:issued "2002-06-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:audience ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#educationLevel-003> .
+
+dcterms:extent
+    a rdf:Property ;
+    rdfs:label "Extent" ;
+    rdfs:comment "The size or duration of the resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:format ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#extent-003> .
+
+dcterms:format
+    a rdf:Property ;
+    rdfs:label "Format" ;
+    rdfs:comment "The file format, physical medium, or dimensions of the resource." ;
+    dcterms:description "Examples of dimensions include height, width, and depth. Recommended best practice is to use a controlled vocabulary such as the list of Internet Media Types [MIME]." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#format-003> .
+
+dcterms:hasFormat
+    a rdf:Property ;
+    rdfs:label "Has Format" ;
+    rdfs:comment "A related resource that is substantially the same as the pre-existing described resource, but in another format." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:isFormatOf ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#hasFormat-003> .
+
+dcterms:hasPart
+    a rdf:Property ;
+    rdfs:label "Has Part" ;
+    rdfs:comment "A related resource that is included either physically or logically in the described resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:isPartOf ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#hasPart-003> .
+
+dcterms:hasVersion
+    a rdf:Property ;
+    rdfs:label "Has Version" ;
+    rdfs:comment "A related resource that is a version, edition, or adaptation of the described resource." ;
+    dcterms:description "Changes in version imply substantive changes in content rather than differences in form." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:isVersionOf ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#hasVersion-003> .
+
+dcterms:identifier
+    a rdf:Property ;
+    rdfs:label "Identifier" ;
+    rdfs:comment "An unambiguous reference to the resource within a given context." ;
+    dcterms:description "Recommended best practice is to identify the resource by means of a string conforming to a formal identification system." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#identifier-003> .
+
+dcterms:instructionalMethod
+    a rdf:Property ;
+    rdfs:label "Instructional Method" ;
+    rdfs:comment "A process, used to engender knowledge, attitudes and skills, that the described resource is designed to support." ;
+    dcterms:issued "2006-11-10"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#instructionalMethod-002> .
+
+dcterms:isFormatOf
+    a rdf:Property ;
+    rdfs:label "Is Format Of" ;
+    rdfs:comment "A related resource that the described resource is a version, edition, or adaptation of." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:hasFormat ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#isFormatOf-003> .
+
+dcterms:isPartOf
+    a rdf:Property ;
+    rdfs:label "Is Part Of" ;
+    rdfs:comment "A related resource in which the described resource is physically or logically included." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:hasPart ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#isPartOf-003> .
+
+dcterms:isReferencedBy
+    a rdf:Property ;
+    rdfs:label "Is Referenced By" ;
+    rdfs:comment "A related resource that references, cites, or otherwise points to the described resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:references ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#isReferencedBy-003> .
+
+dcterms:isReplacedBy
+    a rdf:Property ;
+    rdfs:label "Is Replaced By" ;
+    rdfs:comment "A related resource that supplants, displaces, or supersedes the described resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:replaces ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#isReplacedBy-003> .
+
+dcterms:isRequiredBy
+    a rdf:Property ;
+    rdfs:label "Is Required By" ;
+    rdfs:comment "A related resource that requires the described resource to function or be delivered." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:requires ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#isRequiredBy-003> .
+
+dcterms:isVersionOf
+    a rdf:Property ;
+    rdfs:label "Is Version Of" ;
+    rdfs:comment "A related resource of which the described resource is a version, edition, or adaptation." ;
+    dcterms:description "Changes in version imply substantive changes in content rather than differences in form." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:hasVersion ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#isVersionOf-003> .
+
+dcterms:issued
+    a rdf:Property ;
+    rdfs:label "Date Issued" ;
+    rdfs:comment "Date of formal issuance (e.g., publication) of the resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#issued-003> .
+
+dcterms:language
+    a rdf:Property ;
+    rdfs:label "Language" ;
+    rdfs:comment "A language of the resource." ;
+    dcterms:description "Recommended best practice is to use either a non-normative list of current IETF RFC 5646 [RFC5646] language tags, or the ISO 639-1 [ISO639-1] two-letter codes supplemented, when appropriate, by region tags. This encoding scheme provides encoding guidelines but does not force any particular tag to be used." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#language-003> .
+
+dcterms:license
+    a rdf:Property ;
+    rdfs:label "License" ;
+    rdfs:comment "A legal document giving official permission to do something with the resource." ;
+    dcterms:issued "2004-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#license-003> .
+
+dcterms:mediator
+    a rdf:Property ;
+    rdfs:label "Mediator" ;
+    rdfs:comment "An agent that mediates access to the resource." ;
+    dcterms:description "In an educational context, a mediator might be a parent, teacher, teaching material, or a learning environment." ;
+    dcterms:issued "2001-04-12"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:audience ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#mediator-003> .
+
+dcterms:medium
+    a rdf:Property ;
+    rdfs:label "Medium" ;
+    rdfs:comment "The material or physical carrier of the resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:format ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#medium-003> .
+
+dcterms:modified
+    a rdf:Property ;
+    rdfs:label "Date Modified" ;
+    rdfs:comment "Date on which the resource was changed." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#modified-003> .
+
+dcterms:provenance
+    a rdf:Property ;
+    rdfs:label "Provenance" ;
+    rdfs:comment "A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation." ;
+    dcterms:description "This property is intended to be used with non-literal values as defined in the DCMI Abstract Model. As of December 2007, the DCMI usage community has begun a process of expending the DCMI Abstract Model to permit its use with such values." ;
+    dcterms:issued "2007-11-06"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:description ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#provenance-002> .
+
+dcterms:publisher
+    a rdf:Property ;
+    rdfs:label "Publisher" ;
+    rdfs:comment "An agent responsible for making the resource available." ;
+    dcterms:description "Examples of a publisher include a person, an organization, or a service." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#publisher-003> .
+
+dcterms:references
+    a rdf:Property ;
+    rdfs:label "References" ;
+    rdfs:comment "A related resource that is referenced, cited, or otherwise pointed to by the described resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:isReferencedBy ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#references-003> .
+
+dcterms:relation
+    a rdf:Property ;
+    rdfs:label "Relation" ;
+    rdfs:comment "A related resource." ;
+    dcterms:description "Recommended best practice is to identify the related resource by means of a string conforming to a formal identification system." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#relation-003> .
+
+dcterms:replaces
+    a rdf:Property ;
+    rdfs:label "Replaces" ;
+    rdfs:comment "A related resource that is supplanted, displaced, or superseded by the described resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:isReplacedBy ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#replaces-003> .
+
+dcterms:requires
+    a rdf:Property ;
+    rdfs:label "Requires" ;
+    rdfs:comment "A related resource that is required by the described resource to function or be delivered." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    owl:inverseOf dcterms:isRequiredBy ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#requires-003> .
+
+dcterms:rights
+    a rdf:Property ;
+    rdfs:label "Rights" ;
+    rdfs:comment "Information about rights held in and over the resource." ;
+    dcterms:description "Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#rights-003> .
+
+dcterms:rightsHolder
+    a rdf:Property ;
+    rdfs:label "Rights Holder" ;
+    rdfs:comment "A person or organization owning or managing rights over the resource." ;
+    dcterms:issued "2004-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#rightsHolder-003> .
+
+dcterms:source
+    a rdf:Property ;
+    rdfs:label "Source" ;
+    rdfs:comment "A related resource from which the described resource is derived." ;
+    dcterms:description "The described resource may be derived from the related resource in whole or in part. Recommended best practice is to identify the related resource by means of a string conforming to a formal identification system." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#source-003> .
+
+dcterms:spatial
+    a rdf:Property ;
+    rdfs:label "Spatial" ;
+    rdfs:comment "Spatial characteristics of the content of the resource." ;
+    dcterms:issued "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:coverage ;
+    rdfs:range rdfs:Resource .
+
+dcterms:subject
+    a rdf:Property ;
+    rdfs:label "Subject" ;
+    rdfs:comment "The topic of the resource." ;
+    dcterms:description "Typically, the subject will be represented using keywords, key phrases, or classification codes. Recommended best practice is to use a controlled vocabulary. To describe the spatial or temporal topic of the resource, use the coverage element." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#subject-003> .
+
+dcterms:tableOfContents
+    a rdf:Property ;
+    rdfs:label "Table Of Contents" ;
+    rdfs:comment "A list of subunits of the resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:description ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#tableOfContents-003> .
+
+dcterms:temporal
+    a rdf:Property ;
+    rdfs:label "Temporal" ;
+    rdfs:comment "Temporal characteristics of the content of the resource." ;
+    dcterms:issued "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:coverage ;
+    rdfs:range rdfs:Resource .
+
+dcterms:title
+    a rdf:Property ;
+    rdfs:label "Title" ;
+    rdfs:comment "A name given to the resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#title-003> .
+
+dcterms:type
+    a rdf:Property ;
+    rdfs:label "Type" ;
+    rdfs:comment "The nature or genre of the resource." ;
+    dcterms:description "Recommended best practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [DCTYPE]. To describe the physical or digital manifestation of the resource, use the format element." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:range rdfs:Class ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#type-003> .
+
+dcterms:valid
+    a rdf:Property ;
+    rdfs:label "Date Valid" ;
+    rdfs:comment "Date (often a range) of validity of a resource." ;
+    dcterms:issued "2000-07-11"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subPropertyOf dcterms:date ;
+    rdfs:range rdfs:Literal ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#valid-003> .
