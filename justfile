@@ -127,6 +127,76 @@ sync:
 sync-dry:
     ggen sync --dry_run true
 
+# ── cargo-cicd ────────────────────────────────────────────────────────────────
+
+# Full workspace health check
+doctor:
+    cargo cicd workspace doctor
+
+# Run only tests for crates changed since origin/main
+test-changed:
+    cargo cicd test changed
+
+# Check git working-tree state
+git-status:
+    cargo cicd git status
+
+# Check publish readiness
+publish-check:
+    cargo cicd publish run
+
+# Show target directory size
+target-show:
+    cargo cicd target show
+
+# Prune stale build artifacts
+target-prune:
+    cargo cicd target prune
+
+# Run the full manufacturing pipeline (status, target, tests, doctor, publish check, oracle audit)
+pipeline:
+    cargo cicd pipeline run
+
+# Check pipeline preconditions without running
+pipeline-validate:
+    cargo cicd pipeline validate
+
+# Invoke ggen sync via cargo-cicd (requires ggen binary on PATH)
+workspace-sync:
+    cargo cicd workspace sync
+
+# Show pipeline state: evidence files and cicd.toml fields
+pipeline-status:
+    cargo cicd pipeline status
+
+# Seal evidence journal into a BLAKE3 provenance receipt (requires affi on PATH)
+affidavit-seal:
+    cargo cicd affidavit seal
+
+# Verify sealed BLAKE3 receipt — ACCEPT or REJECT
+affidavit-verify:
+    cargo cicd affidavit verify
+
+# Show evidence event summary (count, timestamps, verdicts)
+evidence-show:
+    cargo cicd evidence show
+
+# wpm oracle adjudication on the evidence log
+evidence-audit:
+    cargo cicd evidence audit
+
+# Scan changed .rs files for anti-LLM admissibility violations
+lsp-check:
+    cargo cicd lsp check
+
+# wpm oracle process conformance gate (TRUTHFUL/VARIANCE/DECEPTIVE/BLOCKED)
+status-audit:
+    cargo cicd status audit
+
+# IEC 61508 / ISO 26262 compliance evidence summary
+certification-show:
+    cargo cicd certification show
+
 # ── lsp-max scaffold ──────────────────────────────────────────────────────────
 
 LSP_MAX_MANIFEST := ".specify/specs/lsp-max/ggen.toml"

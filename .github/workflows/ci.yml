@@ -54,6 +54,59 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
+  cargo-cicd:
+    name: cargo-cicd workspace health
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Provision siblings + pinned nightly + cache
+        uses: ./.github/actions/setup-ggen-build
+        with:
+          cache-key-suffix: cicd
+
+      - name: Install cargo-cicd, affi, and wpm
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: cicd,affi,wpm
+          cache-tools: 'true'
+
+      - name: Pre-flight — verify affi and wpm on PATH (ANDON if missing)
+        run: |
+          set -euo pipefail
+          if ! command -v affi >/dev/null 2>&1; then
+            echo "ANDON: affi not found after install step — pull the cord"
+            exit 1
+          fi
+          if ! command -v wpm >/dev/null 2>&1; then
+            echo "ANDON: wpm not found after install step — pull the cord"
+            exit 1
+          fi
+          echo "affi: $(affi --version 2>/dev/null || which affi)"
+          echo "wpm:  $(wpm --version 2>/dev/null || which wpm)"
+
+      - name: Validate pipeline preconditions
+        run: cargo cicd pipeline validate
+
+      - name: Run full manufacturing pipeline
+        run: cargo cicd pipeline run
+
+      - name: Seal evidence receipt (BLAKE3 provenance chain)
+        run: cargo cicd affidavit seal
+
+      - name: Verify sealed receipt
+        run: cargo cicd affidavit verify
+
+      - name: Process conformance gate (wpm oracle)
+        run: cargo cicd status audit
+
+      - name: Show evidence summary
+        if: always()
+        run: cargo cicd evidence show
+
   check:
     name: Check
     runs-on: ubuntu-latest
@@ -144,7 +197,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [check, build, test, doctest]
+    needs: [check, build, test, doctest, cargo-cicd]
     if: always()
     steps:
       - name: Assert all gating jobs succeeded
@@ -154,10 +207,12 @@ jobs:
           echo "build=${{ needs.build.result }}"
           echo "test=${{ needs.test.result }}"
           echo "doctest=${{ needs.doctest.result }}"
+          echo "cargo-cicd=${{ needs.cargo-cicd.result }}"
           if [ "${{ needs.check.result }}" != "success" ] || \
              [ "${{ needs.build.result }}" != "success" ] || \
              [ "${{ needs.test.result }}" != "success" ] || \
-             [ "${{ needs.doctest.result }}" != "success" ]; then
+             [ "${{ needs.doctest.result }}" != "success" ] || \
+             [ "${{ needs.cargo-cicd.result }}" != "success" ]; then
             echo "::error::One or more CI gating jobs failed."
             exit 1
           fi
