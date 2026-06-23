@@ -24,7 +24,7 @@ impl GgenLanguageServer {
 
     /// Build (or rebuild) the analyzer for a document, store it, and publish its
     /// diagnostics — the live "refusal before execution" signal.
-    async fn refresh_analyzer(&self, uri: &Url, content: &str) {
+    async fn refresh_analyzer(&self, uri: &DocumentUri, content: &str) {
         for (target_uri, diagnostics) in self.state.analyze_and_observe(uri, content).await {
             // Task C — mirror diagnostics into lsp-max REGISTRY and write the Λ_CD gate.
             push_diagnostics_to_registry(&diagnostics);

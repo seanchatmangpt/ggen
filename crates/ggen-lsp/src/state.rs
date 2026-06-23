@@ -9,7 +9,7 @@ use tokio::sync::Mutex;
 /// Convert a `DocumentUri` to a `PathBuf` for `file://` URIs.
 /// Uses `url::Url` (the real crate) as a shim since `DocumentUri` (fluent_uri) has
 /// no `to_file_path()` method.
-fn uri_to_file_path(uri: &Url) -> Result<PathBuf, ()> {
+fn uri_to_file_path(uri: &DocumentUri) -> Result<PathBuf, ()> {
     url::Url::parse(uri.as_str())
         .map_err(|_| ())?
         .to_file_path()
@@ -37,7 +37,7 @@ pub enum FileType {
 }
 
 impl FileType {
-    pub fn from_uri(uri: &Url) -> Self {
+    pub fn from_uri(uri: &DocumentUri) -> Self {
         Self::from_path(uri.path().as_str())
     }
 
@@ -80,8 +80,8 @@ impl Default for ServerConfig {
 }
 
 pub struct ServerState {
-    pub documents: Arc<Mutex<HashMap<Url, String>>>,
-    pub analyzers: Arc<Mutex<HashMap<Url, DocumentAnalyzer>>>,
+    pub documents: Arc<Mutex<HashMap<DocumentUri, String>>>,
+    pub analyzers: Arc<Mutex<HashMap<DocumentUri, DocumentAnalyzer>>>,
     pub config: ServerConfig,
     /// Precomputed repair routes. Immutable on the hot path (no lock needed for
     /// reads): a plain `Arc` so `code_action` looks up routes lock-free.
@@ -96,9 +96,9 @@ pub struct ServerState {
     pub(crate) seq: Arc<AtomicU64>,
     /// (uri, diagnostic_code) → route_id offered for it, so the later
     /// disappearance of that diagnostic is attributed as a `RepairApplied`.
-    pending_repairs: Arc<Mutex<HashMap<(Url, String), String>>>,
+    pending_repairs: Arc<Mutex<HashMap<(DocumentUri, String), String>>>,
     /// Last-published diagnostics per document, for new/disappeared diffing.
-    published_diags: Arc<Mutex<HashMap<Url, Vec<MaxDiagnostic>>>>,
+    published_diags: Arc<Mutex<HashMap<DocumentUri, Vec<MaxDiagnostic>>>>,
     /// Per-species flagged-surface sets, keyed by diagnostic code. Each entry is
     /// the set of anchor URIs that received that species' publish on the PREVIOUS
     /// pass; a later pass that no longer flags a URI re-publishes its residual so
@@ -106,7 +106,7 @@ pub struct ServerState {
     /// One map replaces the former parallel tpl_flagged/harness_flagged/out_flagged
     /// fields — a new ProjectIndex/HarnessIndex species is now one more key, not a
     /// fourth field + a fourth clears_for.
-    flagged: Arc<Mutex<HashMap<&'static str, HashSet<Url>>>>,
+    flagged: Arc<Mutex<HashMap<&'static str, HashSet<DocumentUri>>>>,
 }
 
 /// True if `path` is a ggen project manifest (`ggen.toml`) — the TPL-001 trigger.
@@ -160,11 +160,11 @@ impl ServerState {
     /// lifecycle transition. Stores `current` as the flagged set for the next pass.
     #[allow(clippy::mutable_key_type)]
     pub async fn clears_for(
-        &self, code: &'static str, edited: &Url, current: &HashSet<Url>,
-    ) -> Vec<Url> {
+        &self, code: &'static str, edited: &DocumentUri, current: &HashSet<DocumentUri>,
+    ) -> Vec<DocumentUri> {
         let mut flagged = self.flagged.lock().await;
         let prev = flagged.entry(code).or_default();
-        let cleared: Vec<Url> = prev
+        let cleared: Vec<DocumentUri> = prev
             .iter()
             .filter(|&u| !current.contains(u) && *u != *edited)
             .cloned()
@@ -177,7 +177,7 @@ impl ServerState {
     /// stale-clear test drives it directly). Thin shim over the generic
     /// [`Self::clears_for`] keyed on the TPL species code; behavior is identical.
     #[allow(clippy::mutable_key_type)]
-    pub async fn tpl_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
+    pub async fn tpl_clears_for(&self, edited: &DocumentUri, current: &HashSet<DocumentUri>) -> Vec<DocumentUri> {
         self.clears_for(crate::analyzers::GGEN_TPL_001, edited, current)
             .await
     }
@@ -195,7 +195,7 @@ impl ServerState {
     ///   observed, not merely proposed).
     ///
     /// Best-effort: log-append errors never disturb the editor.
-    pub async fn observe_diagnostics(&self, uri: &Url, new: &[MaxDiagnostic]) {
+    pub async fn observe_diagnostics(&self, uri: &DocumentUri, new: &[MaxDiagnostic]) {
         use crate::intel::events::{
             diagnostic_raised, gate_result, receipt_emitted, repair_applied, repair_suggested,
             route_selected,
@@ -300,12 +300,12 @@ impl ServerState {
         );
         let _ = crate::intel::IntelLog::at_root(&self.root).append(&events);
     }
-    pub async fn set_document(&self, uri: Url, content: String) {
+    pub async fn set_document(&self, uri: DocumentUri, content: String) {
         let mut docs = self.documents.lock().await;
         docs.insert(uri, content);
     }
 
-    pub async fn get_document(&self, uri: &Url) -> Option<String> {
+    pub async fn get_document(&self, uri: &DocumentUri) -> Option<String> {
         let docs = self.documents.lock().await;
         docs.get(uri).cloned()
     }
@@ -317,7 +317,7 @@ impl ServerState {
             .collect()
     }
 
-    pub async fn remove_document(&self, uri: &Url) {
+    pub async fn remove_document(&self, uri: &DocumentUri) {
         let mut docs = self.documents.lock().await;
         docs.remove(uri);
 
@@ -332,17 +332,17 @@ impl ServerState {
     }
 
     #[allow(clippy::mutable_key_type)]
-    pub async fn close_document(&self, uri: &Url) -> Vec<(Url, Vec<MaxDiagnostic>)> {
+    pub async fn close_document(&self, uri: &DocumentUri) -> Vec<(DocumentUri, Vec<MaxDiagnostic>)> {
         self.remove_document(uri).await;
         let overlay = self.buffer_overlay().await;
-        let mut published: Vec<(Url, Vec<MaxDiagnostic>)> = Vec::new();
+        let mut published: Vec<(DocumentUri, Vec<MaxDiagnostic>)> = Vec::new();
 
         let tpl_is_trigger = matches!(
             FileType::from_path(uri.path().as_str()),
             FileType::Tera | FileType::Sparql
         ) || is_ggen_manifest(uri.path().as_str());
         if tpl_is_trigger {
-            let mut current: HashSet<Url> = HashSet::new();
+            let mut current: HashSet<DocumentUri> = HashSet::new();
             for (template_path, _) in self.detect_tpl_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&template_path) {
                     current.insert(u);
@@ -354,7 +354,7 @@ impl ServerState {
                 published.push((cleared, residual));
             }
 
-            let mut out_current: HashSet<Url> = HashSet::new();
+            let mut out_current: HashSet<DocumentUri> = HashSet::new();
             for (manifest_path, _) in self.detect_out_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&manifest_path) {
                     out_current.insert(u);
@@ -369,7 +369,7 @@ impl ServerState {
                 published.push((cleared, residual));
             }
 
-            let mut rule_current: HashSet<Url> = HashSet::new();
+            let mut rule_current: HashSet<DocumentUri> = HashSet::new();
             for (manifest_path, _) in self.detect_rule_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&manifest_path) {
                     rule_current.insert(u);
@@ -386,7 +386,7 @@ impl ServerState {
         }
 
         if is_harness_surface(uri.path().as_str()) {
-            let mut current: HashSet<Url> = HashSet::new();
+            let mut current: HashSet<DocumentUri> = HashSet::new();
             for (manifest_path, _) in self.detect_harness_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&manifest_path) {
                     current.insert(u);
@@ -406,20 +406,20 @@ impl ServerState {
         published
     }
 
-    pub async fn set_analyzer(&self, uri: Url, analyzer: DocumentAnalyzer) {
+    pub async fn set_analyzer(&self, uri: DocumentUri, analyzer: DocumentAnalyzer) {
         let mut analyzers = self.analyzers.lock().await;
         analyzers.insert(uri, analyzer);
     }
 
-    pub async fn get_analyzer(&self, uri: &Url) -> Option<DocumentAnalyzer> {
+    pub async fn get_analyzer(&self, uri: &DocumentUri) -> Option<DocumentAnalyzer> {
         let analyzers = self.analyzers.lock().await;
         analyzers.get(uri).cloned()
     }
 
     pub async fn analyze_and_observe(
-        &self, uri: &Url, content: &str,
-    ) -> Vec<(Url, Vec<MaxDiagnostic>)> {
-        let mut published: Vec<(Url, Vec<MaxDiagnostic>)> = Vec::new();
+        &self, uri: &DocumentUri, content: &str,
+    ) -> Vec<(DocumentUri, Vec<MaxDiagnostic>)> {
+        let mut published: Vec<(DocumentUri, Vec<MaxDiagnostic>)> = Vec::new();
         let file_type = FileType::from_path(uri.path().as_str());
 
         let mut overlay = self.buffer_overlay().await;
@@ -467,7 +467,7 @@ impl ServerState {
             code: &'static str,
             is_trigger: bool,
             groups: Vec<(PathBuf, Vec<MaxDiagnostic>)>,
-            flagged: HashSet<Url>,
+            flagged: HashSet<DocumentUri>,
         }
         let mut species = [
             Species {
@@ -534,7 +534,7 @@ impl ServerState {
         published
     }
 
-    async fn residual_single_file_diags(&self, uri: &Url) -> Vec<MaxDiagnostic> {
+    async fn residual_single_file_diags(&self, uri: &DocumentUri) -> Vec<MaxDiagnostic> {
         let content = match self.get_document(uri).await {
             Some(c) => c,
             None => match uri_to_file_path(uri) {
@@ -548,7 +548,7 @@ impl ServerState {
     }
 
     fn detect_tpl_001_for(
-        &self, uri: &Url, overlay: &BufferOverlay,
+        &self, uri: &DocumentUri, overlay: &BufferOverlay,
     ) -> Vec<(PathBuf, Vec<MaxDiagnostic>)> {
         let Some(root) = self.project_root_for(uri) else {
             return Vec::new();
@@ -560,7 +560,7 @@ impl ServerState {
     }
 
     fn detect_out_001_for(
-        &self, uri: &Url, overlay: &BufferOverlay,
+        &self, uri: &DocumentUri, overlay: &BufferOverlay,
     ) -> Vec<(PathBuf, Vec<MaxDiagnostic>)> {
         let Some(root) = self.project_root_for(uri) else {
             return Vec::new();
@@ -572,7 +572,7 @@ impl ServerState {
     }
 
     fn detect_rule_001_for(
-        &self, uri: &Url, overlay: &BufferOverlay,
+        &self, uri: &DocumentUri, overlay: &BufferOverlay,
     ) -> Vec<(PathBuf, Vec<MaxDiagnostic>)> {
         let Some(root) = self.project_root_for(uri) else {
             return Vec::new();
@@ -583,7 +583,7 @@ impl ServerState {
         }
     }
 
-    fn project_root_for(&self, uri: &Url) -> Option<PathBuf> {
+    fn project_root_for(&self, uri: &DocumentUri) -> Option<PathBuf> {
         if let Ok(file_path) = uri_to_file_path(uri) {
             let mut dir: Option<&Path> = file_path.parent();
             while let Some(d) = dir {
@@ -602,7 +602,7 @@ impl ServerState {
     }
 
     fn detect_harness_001_for(
-        &self, uri: &Url, overlay: &BufferOverlay,
+        &self, uri: &DocumentUri, overlay: &BufferOverlay,
     ) -> Vec<(PathBuf, Vec<MaxDiagnostic>)> {
         let Some(root) = self.harness_root_for(uri) else {
             return Vec::new();
@@ -613,7 +613,7 @@ impl ServerState {
         }
     }
 
-    fn harness_root_for(&self, uri: &Url) -> Option<PathBuf> {
+    fn harness_root_for(&self, uri: &DocumentUri) -> Option<PathBuf> {
         if let Ok(file_path) = uri_to_file_path(uri) {
             let mut dir: Option<&Path> = file_path.parent();
             while let Some(d) = dir {
@@ -632,12 +632,12 @@ impl ServerState {
     }
 }
 
-fn url_from_path(path: &Path) -> Option<Url> {
+fn url_from_path(path: &Path) -> Option<DocumentUri> {
     let s = url::Url::from_file_path(path).ok()?.to_string();
     s.parse().ok()
 }
 
-fn url_from_path_str(path: &str) -> Option<Url> {
+fn url_from_path_str(path: &str) -> Option<DocumentUri> {
     let decoded = percent_decode_path(path);
     let s = url::Url::from_file_path(std::path::Path::new(&decoded))
         .ok()?

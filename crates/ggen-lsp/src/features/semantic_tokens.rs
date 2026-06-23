@@ -118,7 +118,7 @@ pub fn semantic_tokens(file_type: FileType, content: &str) -> Option<SemanticTok
         FileType::Sparql => tokenize_sparql(content),
         FileType::Toml => tokenize_toml(content),
         FileType::Tera => tokenize_tera(content),
-        FileType::Unknown => return None,
+        FileType::Unknown | FileType::Usd | FileType::Mtlx => return None,
     };
     if abs.is_empty() {
         return None;

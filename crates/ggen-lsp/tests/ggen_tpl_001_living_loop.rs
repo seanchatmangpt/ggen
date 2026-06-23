@@ -58,13 +58,13 @@
 
 use std::path::{Path, PathBuf};
 
-use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, Url};
+use lsp_max::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range, DocumentUri};
 
-fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+fn url_from_path(path: impl AsRef<std::path::Path>) -> DocumentUri {
     url::Url::from_file_path(path.as_ref())
         .expect("absolute path")
         .to_string()
-        .parse::<Url>()
+        .parse::<DocumentUri>()
         .expect("valid uri")
 }
 
@@ -456,7 +456,7 @@ fn headless_gate_never_materializes_output_file() {
 ///
 ///   * **A public, root-injected façade** that runs the *same* publish path as
 ///     `refresh_analyzer` without a `Client`, e.g.
-///     `ServerState::analyze_and_observe(&self, uri: &Url, content: &str)` that
+///     `ServerState::analyze_and_observe(&self, uri: &DocumentUri, content: &str)` that
 ///     builds the analyzer, calls `observe_diagnostics`, and returns the
 ///     diagnostics (no `publish_diagnostics`). A test would then:
 ///       1. `let state = ServerState::with_root(temp);`

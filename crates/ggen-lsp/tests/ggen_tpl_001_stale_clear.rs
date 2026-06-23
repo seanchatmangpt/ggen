@@ -50,15 +50,15 @@ use std::path::Path;
 use ggen_lsp::analyzers::detect_tpl_001;
 use ggen_lsp::project_index::ProjectIndex;
 use ggen_lsp::ServerState;
-use lsp_max::lsp_types::Url;
+use lsp_max::lsp_types::DocumentUri;
 use tempfile::TempDir;
 
 /// Convert a filesystem path to a `DocumentUri` for test use.
-fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+fn url_from_path(path: impl AsRef<std::path::Path>) -> DocumentUri {
     url::Url::from_file_path(path.as_ref())
         .expect("absolute path")
         .to_string()
-        .parse::<Url>()
+        .parse::<DocumentUri>()
         .expect("valid uri")
 }
 
@@ -148,7 +148,7 @@ async fn query_side_repair_clears_template_through_living_loop() {
     // matches byte-for-byte across passes (no canonicalization skew).
     let (template_path, raise_diags) = groups.into_iter().next().expect("one group");
     let template_uri = url_from_path(&template_path);
-    let mut flagged_now: HashSet<Url> = HashSet::new();
+    let mut flagged_now: HashSet<DocumentUri> = HashSet::new();
     flagged_now.insert(template_uri.clone());
     // Mirror refresh_analyzer: publish-through-observe for the flagged template,
     // then reconcile (nothing to clear on the raise pass).
@@ -173,7 +173,7 @@ async fn query_side_repair_clears_template_through_living_loop() {
     );
     // The now-lawful template dropped out of the detector result entirely.
     // Reconciliation must still re-publish it — as an EMPTY set, through observe.
-    let current_now: HashSet<Url> = HashSet::new();
+    let current_now: HashSet<DocumentUri> = HashSet::new();
     let to_clear = state.tpl_clears_for(&rq_uri, &current_now).await;
     assert_eq!(
         to_clear,
@@ -292,7 +292,7 @@ async fn clear_preserves_unrelated_diagnostic_on_same_template() {
     state.observe_diagnostics(&template_uri, &raised).await;
     // Store the flagged set on the raise pass (mirrors refresh_analyzer: the
     // reconcile call runs every pass, recording `current_flagged` for next time).
-    let mut flagged_now: HashSet<Url> = HashSet::new();
+    let mut flagged_now: HashSet<DocumentUri> = HashSet::new();
     flagged_now.insert(template_uri.clone());
     let raise_clears = state.tpl_clears_for(&template_uri, &flagged_now).await;
     assert!(raise_clears.is_empty(), "raise pass clears nothing");

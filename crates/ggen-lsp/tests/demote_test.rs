@@ -37,14 +37,14 @@ use ggen_lsp::intel::{MetricValue, PromotionHistory, RouteStatus};
 use ggen_lsp::route::{default_pack_routes_path, RouteRegistry};
 use ggen_lsp::state::ServerState;
 use ggen_lsp::{check_content, check_files_in_root, compute_metrics, mine};
-use lsp_max::lsp_types::Url;
+use lsp_max::lsp_types::DocumentUri;
 use tempfile::TempDir;
 
-fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+fn url_from_path(path: impl AsRef<std::path::Path>) -> DocumentUri {
     url::Url::from_file_path(path.as_ref())
         .expect("absolute path")
         .to_string()
-        .parse::<Url>()
+        .parse::<DocumentUri>()
         .expect("valid uri")
 }
 

@@ -21,7 +21,7 @@
 
 use std::path::Path;
 
-use lsp_max::lsp_types::{Location, SymbolInformation, SymbolKind, Url};
+use lsp_max::lsp_types::{Location, SymbolInformation, SymbolKind, DocumentUri};
 
 /// Maximum number of symbols returned for a single `workspace/symbol` request.
 ///
@@ -63,7 +63,7 @@ pub fn workspace_symbols(root: &Path, query: &str) -> Vec<SymbolInformation> {
         // symbols are unaddressable — skip the file rather than emit a broken jump.
         let Ok(url) = url::Url::from_file_path(&path)
             .ok()
-            .and_then(|u| u.to_string().parse::<Url>().ok())
+            .and_then(|u| u.to_string().parse::<DocumentUri>().ok())
             .ok_or(())
         else {
             continue;
@@ -119,7 +119,7 @@ fn flatten<'a>(
 
 /// Convert a [`DocumentSymbol`] + the owning file URL into a
 /// [`SymbolInformation`] addressed at the symbol's own range.
-fn to_symbol_information(sym: &lsp_max::lsp_types::DocumentSymbol, url: Url) -> SymbolInformation {
+fn to_symbol_information(sym: &lsp_max::lsp_types::DocumentSymbol, url: DocumentUri) -> SymbolInformation {
     #[allow(deprecated)] // `deprecated` field is required by the struct; superseded by `tags`.
     SymbolInformation {
         name: sym.name.clone(),

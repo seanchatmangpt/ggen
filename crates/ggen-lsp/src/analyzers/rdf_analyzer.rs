@@ -6,7 +6,7 @@
 
 use lsp_max::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionResponse, DiagnosticSeverity, Hover,
-    HoverContents, Location, MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, Url,
+    HoverContents, Location, MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, DocumentUri,
     WorkspaceEdit,
 };
 
@@ -517,11 +517,11 @@ fn word_at(source: &str, line: u32, character: u32) -> Option<String> {
     }
 }
 
-fn placeholder_uri() -> Url {
+fn placeholder_uri() -> DocumentUri {
     // Document edits are applied to the active document; the client substitutes
     // the real URI. A stable placeholder keeps the type total.
     #[allow(clippy::expect_used)]
-    "file:///".parse::<Url>().expect("static URI is valid")
+    "file:///".parse::<DocumentUri>().expect("static URI is valid")
 }
 
 #[cfg(test)]

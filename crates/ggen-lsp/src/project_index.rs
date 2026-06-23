@@ -19,7 +19,7 @@ use crate::rule_index::RuleIndexEntry;
 /// — byte-identical to the disk-only path, so existing disk-fixture tests are
 /// unaffected. Keys are the same `manifest_dir.join(file)` / `root.join(...)` paths
 /// the index already computes (no canonicalization), so a buffer keyed by
-/// `Url::to_file_path()` matches the index's resolved read path on the same OS.
+/// `url::Url::to_file_path()` matches the index's resolved read path on the same OS.
 pub type BufferOverlay = std::collections::HashMap<PathBuf, String>;
 
 /// Structured errors for project-index construction.

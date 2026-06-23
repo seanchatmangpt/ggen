@@ -5,7 +5,7 @@
 //! document text to yield a `TextEdit`. The same renderer feeds both the editor
 //! `WorkspaceEdit` and the agent `RoutePlan`, so both apply identical repairs.
 
-use lsp_max::lsp_types::{Position, Range, TextEdit, Url, WorkspaceEdit};
+use lsp_max::lsp_types::{Position, Range, TextEdit, DocumentUri, WorkspaceEdit};
 use std::collections::HashMap;
 
 use super::model::{Anchor, EditTemplate, PartialOrder, RepairRoute, RouteBindings};
@@ -74,7 +74,7 @@ fn anchor_line(anchor: Anchor, doc: &str) -> u32 {
 /// Build a `WorkspaceEdit` applying all of a route's steps to `uri`/`doc`.
 #[must_use]
 pub fn workspace_edit_from_route(
-    route: &RepairRoute, bindings: &RouteBindings, uri: &Url, doc: &str,
+    route: &RepairRoute, bindings: &RouteBindings, uri: &DocumentUri, doc: &str,
 ) -> WorkspaceEdit {
     let edits: Vec<TextEdit> = ordered_steps(&route.steps)
         .iter()
@@ -133,8 +133,8 @@ mod tests {
     };
     use super::*;
 
-    fn uri() -> Url {
-        "file:///spec.ttl".parse::<Url>().expect("valid uri")
+    fn uri() -> DocumentUri {
+        "file:///spec.ttl".parse::<DocumentUri>().expect("valid uri")
     }
 
     #[test]

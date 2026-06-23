@@ -61,13 +61,13 @@
 
 use std::path::{Path, PathBuf};
 
-use lsp_max::lsp_types::{Diagnostic, NumberOrString, Url};
+use lsp_max::lsp_types::{Diagnostic, NumberOrString, DocumentUri};
 
-fn url_from_path(path: impl AsRef<std::path::Path>) -> Url {
+fn url_from_path(path: impl AsRef<std::path::Path>) -> DocumentUri {
     url::Url::from_file_path(path.as_ref())
         .expect("absolute path")
         .to_string()
-        .parse::<Url>()
+        .parse::<DocumentUri>()
         .expect("valid uri")
 }
 
