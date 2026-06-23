@@ -48,7 +48,6 @@ runs:
     - name: Install cargo-nextest
       if: contains(inputs.tools, 'nextest')
       uses: taiki-e/install-action@cargo-nextest
-      shell: bash
 
     - name: Install cargo-cicd
       if: contains(inputs.tools, 'cicd')
