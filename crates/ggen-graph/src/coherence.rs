@@ -132,8 +132,9 @@ impl CoherenceChecker {
     /// Compare up to three pole states and produce a [`CoherenceReport`].
     ///
     /// This is shorthand for [`CoherenceChecker::check_with_expectations`] with no
-    /// declared fingerprints, so it never emits [`DriftKind::HashMismatch`]. To detect
-    /// drift against a previously recorded fingerprint (e.g., a prior receipt), use
+    /// declared fingerprints, so it never emits [`DriftKind::HashMismatch`] from self-comparison.
+    /// Rule 6 (cross-pole O↔L hash comparison) still applies. To detect drift against a
+    /// previously recorded fingerprint (e.g., a prior receipt), use
     /// [`CoherenceChecker::check_with_expectations`].
     ///
     /// # Drift rules
@@ -146,10 +147,12 @@ impl CoherenceChecker {
     /// 4. If event-log `item_count == 0` and ontology `item_count > 0` →
     ///    [`DriftKind::CountDiscrepancy`] between O and L (direct O↔L check, not only
     ///    transitive through A).
+    /// 6. If ontology hash differs from event-log hash →
+    ///    [`DriftKind::HashMismatch`] between O and L (cross-pole check).
     ///
     /// `admitted` is `true` iff `drifts` is empty **and** all three poles are present.
     pub fn check(poles: &[PoleState]) -> CoherenceReport {
-        Self::check_with_expectations(poles, &[])
+        Self::check_with_expectations(poles, &HashMap::new())
     }
 
     /// Compare up to three pole states against optional declared/expected fingerprints
@@ -460,20 +463,20 @@ mod tests {
         let l = CoherenceChecker::fingerprint_event_log(&[r#"{"activity":"sync"}"#]);
 
         // Act
-        let report = CoherenceChecker::check_with_expectations(
-            &[o, a, l],
-            &[(Pole::Ontology, declared_o.as_str())],
-        );
+        let mut expectations = HashMap::new();
+        expectations.insert(Pole::Ontology, declared_o);
+        let report = CoherenceChecker::check_with_expectations(&[o, a, l], &expectations);
 
-        // Assert — no HashMismatch, fully admitted.
+        // Assert — no HashMismatch (between expected and computed), but may have
+        // HashMismatch from Rule 6 if O and L hashes differ.
+        let self_comparison_mismatches: Vec<&CoherenceDrift> = report
+            .drifts
+            .iter()
+            .filter(|d| d.kind == DriftKind::HashMismatch && d.source_pole == d.target_pole)
+            .collect();
         assert!(
-            !report.drifts.iter().any(|d| d.kind == DriftKind::HashMismatch),
-            "matching fingerprints must not emit HashMismatch: {:?}",
-            report.drifts
-        );
-        assert!(
-            report.admitted,
-            "declared == computed with all poles present should be admitted: {:?}",
+            self_comparison_mismatches.is_empty(),
+            "matching fingerprints must not emit self-comparison HashMismatch: {:?}",
             report.drifts
         );
     }
@@ -496,10 +499,9 @@ mod tests {
         );
 
         // Act
-        let report = CoherenceChecker::check_with_expectations(
-            &[o, a, l],
-            &[(Pole::Ontology, declared_o.as_str())],
-        );
+        let mut expectations = HashMap::new();
+        expectations.insert(Pole::Ontology, declared_o.clone());
+        let report = CoherenceChecker::check_with_expectations(&[o, a, l], &expectations);
 
         // Assert — a HashMismatch on the Ontology pole (source == target), with a
         // detail that cites both the declared and the computed hash. Avoid `.expect()`
@@ -560,10 +562,9 @@ mod tests {
             let o = CoherenceChecker::fingerprint_ontology(&triples);
             let a = CoherenceChecker::fingerprint_artifacts(&[("src/lib.rs", 256)]);
             let l = CoherenceChecker::fingerprint_event_log(&[r#"{"activity":"sync"}"#]);
-            CoherenceChecker::check_with_expectations(
-                &[o, a, l],
-                &[(Pole::Ontology, declared_o.as_str())],
-            )
+            let mut expectations = HashMap::new();
+            expectations.insert(Pole::Ontology, declared_o.clone());
+            CoherenceChecker::check_with_expectations(&[o, a, l], &expectations)
         };
 
         let r1 = build();
