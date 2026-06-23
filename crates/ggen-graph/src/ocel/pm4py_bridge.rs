@@ -16,7 +16,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Write as StdWrite;
-use std::path::PathBuf;
 use std::process::Command;
 use uuid::Uuid;
 
@@ -255,7 +254,7 @@ except ImportError:
 
 except Exception as e:
     # Other errors, also return default stats with warning logged
-    sys.stderr.write("Error in pm4py discovery: {}\n".format(str(e)))
+    sys.stderr.write("Error in pm4py discovery: {}\\n".format(str(e)))
     result = {{
         "variant_count": 1,
         "canonical_path": [],
