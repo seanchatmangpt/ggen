@@ -4,7 +4,9 @@
 //! pipeline runs.  The lockfile check is a real `Path::exists()` call —
 //! no test doubles required.
 
-use crate::packs::lockfile::PackLockfile;
+use crate::domain::packs::install::compute_pack_digest;
+use crate::domain::packs::metadata::load_pack_metadata;
+use crate::packs::lockfile::{PackLockfile, PackSource};
 use std::str::FromStr;
 
 /// Known enforcement profiles for `ggen sync --profile <name>`.
@@ -84,6 +86,78 @@ fn check_integrity_fields(lockfile: &PackLockfile) -> Result<(), String> {
     ))
 }
 
+/// RE-VERIFY every locked pack's digest against the pack on disk (lockfile
+/// invariant 4.3.3 — `digest` must be re-verified at `ggen sync --locked` time;
+/// mismatch must hard-fail). A non-empty `integrity` field alone is fail-open:
+/// it proves a digest was once recorded, not that the pack on disk still
+/// matches it. This recomputes the digest with the SAME algorithm used at
+/// install time (`compute_pack_digest`) and compares to the stored
+/// `sha256-<hex>` value.
+///
+/// For each locked pack we require:
+///   1. The recorded `PackSource::Local { path }` install directory still
+///      exists (a deleted install dir => "missing pack").
+///   2. The pack definition is re-loadable from the packs registry via
+///      `load_pack_metadata` — this is the same source `install_pack` read the
+///      pack from when it computed the install-time digest, so the digest is
+///      deterministically reconstructible. A pack TOML that was deleted or made
+///      unreadable => "missing pack".
+///   3. The recomputed `sha256-<hex>` digest equals the stored `integrity`
+///      value. Any divergence => "digest mismatch".
+///
+/// Packs whose recorded source is not `Local` (e.g. `Registry`/`GitHub`) are
+/// skipped here: their on-disk closure is not addressable through a local path,
+/// so this layer can only assert the non-empty digest already checked by
+/// `check_integrity_fields`. This keeps re-verification grounded in real,
+/// re-loadable on-disk state rather than fabricating a comparison.
+fn verify_pack_digests(lockfile: &PackLockfile) -> Result<(), String> {
+    for (pack_id, locked) in &lockfile.packs {
+        // Only locally-installed packs expose an on-disk path we can re-check.
+        let install_path = match &locked.source {
+            PackSource::Local { path } => path,
+            _ => continue,
+        };
+
+        // (1) The recorded install directory must still exist.
+        if !install_path.exists() {
+            return Err(format!(
+                "Lockfile digest re-verification failed (--locked): missing pack '{}'. \
+                 Its recorded install path '{}' no longer exists. Run `ggen packs add {}` \
+                 to reinstall it.",
+                pack_id,
+                install_path.display(),
+                pack_id
+            ));
+        }
+
+        // (2) Re-load the pack definition from the registry (same source the
+        //     install-time digest was computed from). A missing/unreadable pack
+        //     definition is treated as a missing pack — fail closed.
+        let pack = load_pack_metadata(pack_id).map_err(|e| {
+            format!(
+                "Lockfile digest re-verification failed (--locked): missing pack '{}'. \
+                 Could not re-load its definition to recompute the digest: {}. Run \
+                 `ggen packs add {}` to reinstall it.",
+                pack_id, e, pack_id
+            )
+        })?;
+
+        // (3) Recompute the digest and compare to the stored integrity value.
+        let recomputed = format!("sha256-{}", compute_pack_digest(&pack));
+        let stored = locked.integrity.as_deref().unwrap_or("");
+        if recomputed != stored {
+            return Err(format!(
+                "Lockfile digest re-verification failed (--locked): digest mismatch for \
+                 pack '{}'. Lockfile records '{}' but the pack on disk hashes to '{}'. The \
+                 pack was modified after it was locked. Run `ggen packs add {}` to relock it.",
+                pack_id, stored, recomputed, pack_id
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 /// Pre-flight check executed before `ggen sync` runs.
 ///
 /// Returns `Ok(())` when all profile requirements are satisfied, or an
@@ -114,9 +188,12 @@ pub fn validate_sync_preconditions(
                 // here: the precondition layer checks presence only; corrupt
                 // content is the responsibility of the sync pipeline / CLI parser
                 // (see sabotage tests). A lockfile that parses cleanly but is
-                // missing integrity digests IS rejected here.
+                // missing integrity digests IS rejected here, and every locked
+                // pack's digest is RE-VERIFIED against the pack on disk
+                // (invariant 4.3.3) — a non-empty digest alone is fail-open.
                 if let Ok(lockfile) = PackLockfile::from_file(&lockfile_path) {
                     check_integrity_fields(&lockfile)?;
+                    verify_pack_digests(&lockfile)?;
                 }
             }
             return Ok(());
@@ -135,10 +212,12 @@ pub fn validate_sync_preconditions(
             ));
         }
         if locked {
-            // Load and verify integrity of every entry.
+            // Load, verify integrity, then RE-VERIFY every entry's digest
+            // against the pack on disk (invariant 4.3.3).
             let lockfile = PackLockfile::from_file(&lockfile_path)
                 .map_err(|e| format!("Failed to load lockfile (--locked): {e}"))?;
             check_integrity_fields(&lockfile)?;
+            verify_pack_digests(&lockfile)?;
         }
     }
 
@@ -400,6 +479,255 @@ mod tests {
         assert!(
             err.contains("--locked") || err.contains("packs.lock"),
             "error must reference --locked or packs.lock; got: {err}"
+        );
+    }
+
+    // ── Digest re-verification (invariant 4.3.3) ─────────────────────────────
+    //
+    // These tests exercise `verify_pack_digests` end-to-end with REAL on-disk
+    // state: a registry `<id>.toml` (read by `load_pack_metadata`, the same
+    // source the install-time digest came from), a real `Local` install dir,
+    // and a lockfile whose `integrity` is computed with the SAME algorithm
+    // (`compute_pack_digest`). No mocks — `GGEN_PACKS_DIR` is mutated globally so
+    // these are `#[serial(GGEN_PACKS_DIR)]` like the `metadata` tests.
+    use crate::domain::packs::types::Pack;
+    use serial_test::serial;
+    use std::collections::HashMap;
+
+    /// Restore `GGEN_PACKS_DIR` to its prior value (or unset) on Drop.
+    struct PacksDirGuard {
+        previous: Option<std::ffi::OsString>,
+    }
+
+    impl PacksDirGuard {
+        fn set(value: &std::path::Path) -> Self {
+            let previous = std::env::var_os("GGEN_PACKS_DIR");
+            std::env::set_var("GGEN_PACKS_DIR", value);
+            Self { previous }
+        }
+    }
+
+    impl Drop for PacksDirGuard {
+        fn drop(&mut self) {
+            match &self.previous {
+                None => std::env::remove_var("GGEN_PACKS_DIR"),
+                Some(v) => std::env::set_var("GGEN_PACKS_DIR", v),
+            }
+        }
+    }
+
+    /// Build the in-memory `Pack` that the registry TOML below deserializes to,
+    /// so the test can compute the expected digest with the production
+    /// algorithm rather than hardcoding a hex string.
+    fn sample_pack(id: &str, version: &str) -> Pack {
+        Pack {
+            id: id.to_string(),
+            name: format!("Sample {id}"),
+            version: version.to_string(),
+            description: "reverify fixture".to_string(),
+            category: "test".to_string(),
+            author: None,
+            repository: None,
+            license: Some("MIT".to_string()),
+            registry_type: None,
+            packages: vec![format!("{id}-core")],
+            templates: vec![],
+            sparql_queries: HashMap::new(),
+            dependencies: vec![],
+            tags: vec![],
+            keywords: vec![],
+            production_ready: true,
+            metadata: Default::default(),
+        }
+    }
+
+    /// Write a registry `<id>.toml` matching `sample_pack(id, version)`.
+    fn write_registry_pack(registry: &std::path::Path, id: &str, version: &str) {
+        let toml = format!(
+            r#"[pack]
+id = "{id}"
+name = "Sample {id}"
+version = "{version}"
+description = "reverify fixture"
+category = "test"
+license = "MIT"
+production_ready = true
+packages = ["{id}-core"]
+"#
+        );
+        fs::write(registry.join(format!("{id}.toml")), toml).unwrap();
+    }
+
+    /// Write a lockfile pinning `id` as a `Local` source at `install_path` with
+    /// the supplied integrity string.
+    fn write_local_lockfile(
+        project: &std::path::Path, id: &str, version: &str, install_path: &std::path::Path,
+        integrity: &str,
+    ) {
+        let mut lockfile = PackLockfile::new("4.0.0");
+        lockfile.add_pack(
+            id,
+            LockedPack {
+                version: version.to_string(),
+                source: PackSource::Local {
+                    path: install_path.to_path_buf(),
+                },
+                integrity: Some(integrity.to_string()),
+                installed_at: Utc::now(),
+                dependencies: vec![],
+            },
+        );
+        let ggen_dir = project.join(".ggen");
+        fs::create_dir_all(&ggen_dir).unwrap();
+        lockfile.save(&ggen_dir.join("packs.lock")).unwrap();
+    }
+
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn reverify_passes_when_pack_unmodified() {
+        // Arrange: registry pack + matching install dir + correct digest.
+        let registry = TempDir::new().unwrap();
+        let project = TempDir::new().unwrap();
+        let install = TempDir::new().unwrap();
+        let _guard = PacksDirGuard::set(registry.path());
+
+        write_registry_pack(registry.path(), "io.ggen.ok", "1.0.0");
+        let digest = format!(
+            "sha256-{}",
+            compute_pack_digest(&sample_pack("io.ggen.ok", "1.0.0"))
+        );
+        write_local_lockfile(
+            project.path(),
+            "io.ggen.ok",
+            "1.0.0",
+            install.path(),
+            &digest,
+        );
+
+        // Act + Assert: happy path passes --locked.
+        assert!(
+            validate_sync_preconditions(None, true, project.path()).is_ok(),
+            "unmodified pack with matching digest must pass --locked re-verification"
+        );
+    }
+
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn reverify_fails_on_digest_mismatch() {
+        // Arrange: lock the pack at v1.0.0's digest, then mutate the registry
+        // TOML to v2.0.0 so the recomputed digest diverges.
+        let registry = TempDir::new().unwrap();
+        let project = TempDir::new().unwrap();
+        let install = TempDir::new().unwrap();
+        let _guard = PacksDirGuard::set(registry.path());
+
+        write_registry_pack(registry.path(), "io.ggen.drift", "1.0.0");
+        let locked_digest = format!(
+            "sha256-{}",
+            compute_pack_digest(&sample_pack("io.ggen.drift", "1.0.0"))
+        );
+        write_local_lockfile(
+            project.path(),
+            "io.ggen.drift",
+            "1.0.0",
+            install.path(),
+            &locked_digest,
+        );
+
+        // Sabotage: rewrite the on-disk pack to a different version.
+        write_registry_pack(registry.path(), "io.ggen.drift", "2.0.0");
+
+        // Act
+        let err = validate_sync_preconditions(None, true, project.path()).unwrap_err();
+
+        // Assert: digest mismatch named, with the offending pack id.
+        assert!(
+            err.contains("digest mismatch"),
+            "error must reference 'digest mismatch'; got: {err}"
+        );
+        assert!(
+            err.contains("io.ggen.drift"),
+            "error must name the drifted pack; got: {err}"
+        );
+    }
+
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn reverify_fails_when_pack_definition_removed() {
+        // Arrange: valid lock, then delete the registry TOML => not re-loadable.
+        let registry = TempDir::new().unwrap();
+        let project = TempDir::new().unwrap();
+        let install = TempDir::new().unwrap();
+        let _guard = PacksDirGuard::set(registry.path());
+
+        write_registry_pack(registry.path(), "io.ggen.gone", "1.0.0");
+        let digest = format!(
+            "sha256-{}",
+            compute_pack_digest(&sample_pack("io.ggen.gone", "1.0.0"))
+        );
+        write_local_lockfile(
+            project.path(),
+            "io.ggen.gone",
+            "1.0.0",
+            install.path(),
+            &digest,
+        );
+
+        // Sabotage: remove the registry pack definition.
+        fs::remove_file(registry.path().join("io.ggen.gone.toml")).unwrap();
+
+        // Act
+        let err = validate_sync_preconditions(None, true, project.path()).unwrap_err();
+
+        // Assert: treated as a missing pack.
+        assert!(
+            err.contains("missing pack"),
+            "error must reference 'missing pack'; got: {err}"
+        );
+        assert!(
+            err.contains("io.ggen.gone"),
+            "error must name the missing pack; got: {err}"
+        );
+    }
+
+    #[test]
+    #[serial(GGEN_PACKS_DIR)]
+    fn reverify_fails_when_install_dir_removed() {
+        // Arrange: valid lock pointing at an install dir we then delete.
+        let registry = TempDir::new().unwrap();
+        let project = TempDir::new().unwrap();
+        let install = TempDir::new().unwrap();
+        let _guard = PacksDirGuard::set(registry.path());
+
+        write_registry_pack(registry.path(), "io.ggen.noinstall", "1.0.0");
+        let digest = format!(
+            "sha256-{}",
+            compute_pack_digest(&sample_pack("io.ggen.noinstall", "1.0.0"))
+        );
+        let install_path = install.path().to_path_buf();
+        write_local_lockfile(
+            project.path(),
+            "io.ggen.noinstall",
+            "1.0.0",
+            &install_path,
+            &digest,
+        );
+
+        // Sabotage: remove the recorded install directory.
+        drop(install);
+        assert!(!install_path.exists());
+
+        // Act
+        let err = validate_sync_preconditions(None, true, project.path()).unwrap_err();
+
+        // Assert: missing pack (install path gone).
+        assert!(
+            err.contains("missing pack"),
+            "error must reference 'missing pack'; got: {err}"
+        );
+        assert!(
+            err.contains("io.ggen.noinstall"),
+            "error must name the pack with the missing install path; got: {err}"
         );
     }
 }

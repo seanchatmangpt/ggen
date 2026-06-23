@@ -19,6 +19,12 @@ use std::time::Duration;
 use tempfile::TempDir;
 
 #[test]
+#[ignore = "Asserts fabricated progress UX (📋 Installation Plan, 📦, ✅ Installation \
+completed, Total size/Dependencies/Estimated time) and a `--dry_run` flag that the \
+live `pack add` verb (crates/ggen-cli/src/cmds/pack.rs::add) does not implement. The \
+real verb returns an AddOutput JSON/text with status \"installed\"|\"not_found\" and no \
+plan/progress narration. Intent (rich install progress feedback) is not achievable on \
+the current CLI; re-enable if/when `pack add` grows a planning phase + --dry_run."]
 fn test_packs_install_with_progress_feedback() {
     // Test: Installation should provide clear progress feedback
     // This test verifies that the install command provides better user feedback
@@ -27,13 +33,12 @@ fn test_packs_install_with_progress_feedback() {
     let temp_dir = TempDir::new().unwrap();
     let temp_path = temp_dir.path();
 
-    // Execute pack install with verbose output
+    // Execute pack add (migrated from removed `packs install`).
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "startup-essentials"])
-        .args(["--dry_run"]) // Use dry run to avoid network dependencies
         .current_dir(temp_path)
         .output()
-        .expect("Failed to execute pack install command");
+        .expect("Failed to execute pack add command");
 
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -112,6 +117,12 @@ fn test_packs_install_error_handling_improvements() {
 }
 
 #[test]
+#[ignore = "Tests a `--dry_run` flag and dry-run UX (📋 Installation Plan, \
+'Dry run completed', 'Would install') that the live `pack add` verb \
+(crates/ggen-cli/src/cmds/pack.rs::add) does not implement — `add` has only \
+(pack_name, force) and always performs a real install. Intent (no-side-effect \
+preview) is not achievable on the current CLI; re-enable if `pack add` gains \
+--dry_run."]
 fn test_packs_install_dry_run_mode() {
     // Test: Dry run should work without side effects
     // This verifies that dry run mode provides accurate preview without installation
@@ -121,10 +132,9 @@ fn test_packs_install_dry_run_mode() {
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "test-pack"])
-        .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
-        .expect("Failed to execute dry run command");
+        .expect("Failed to execute pack add command");
 
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -160,6 +170,11 @@ fn test_packs_install_dry_run_mode() {
 }
 
 #[test]
+#[ignore = "Asserts a fabricated planning phase (Steps:, '1. Validate package', \
+'2. Download main package', '3. Download dependencies', 'Starting installation') and a \
+`--dry_run` flag absent from the live `pack add` verb \
+(crates/ggen-cli/src/cmds/pack.rs::add). The real verb has no planning narration. \
+Intent (detailed install planning output) is not achievable on the current CLI."]
 fn test_packs_install_planning_phase() {
     // Test: Installation planning should provide detailed information
     // This verifies that the planning phase shows accurate estimates and steps
@@ -169,10 +184,9 @@ fn test_packs_install_planning_phase() {
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "startup-essentials"])
-        .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
-        .expect("Failed to execute install planning command");
+        .expect("Failed to execute pack add command");
 
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -212,6 +226,10 @@ fn test_packs_install_planning_phase() {
 }
 
 #[test]
+#[ignore = "Asserts fabricated performance UX (Total size:, Estimated time:, \
+Duration:) and a `--dry_run` flag absent from the live `pack add` verb \
+(crates/ggen-cli/src/cmds/pack.rs::add). The real verb emits no perf metrics. \
+Intent (display install performance indicators) is not achievable on the current CLI."]
 fn test_packs_install_performance_indicators() {
     // Test: Installation should show performance indicators
     // This verifies that performance metrics are displayed to users
@@ -223,10 +241,9 @@ fn test_packs_install_performance_indicators() {
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "startup-essentials"])
-        .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
-        .expect("Failed to execute performance test command");
+        .expect("Failed to execute pack add command");
 
     let duration = start.elapsed();
 
@@ -259,6 +276,10 @@ fn test_packs_install_performance_indicators() {
 }
 
 #[test]
+#[ignore = "Asserts fabricated cache UX (Cache status:, 🎯 hit / 📥 miss emoji, \
+'Some packages cached' / 'No cached packages') and a `--dry_run` flag absent from the \
+live `pack add` verb (crates/ggen-cli/src/cmds/pack.rs::add). The real verb reports no \
+cache status. Intent (communicate cache hit/miss) is not achievable on the current CLI."]
 fn test_packs_install_cache_status_indicators() {
     // Test: Installation should show cache status
     // This verifies that cache status is clearly communicated to users
@@ -268,10 +289,9 @@ fn test_packs_install_cache_status_indicators() {
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "startup-essentials"])
-        .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
-        .expect("Failed to execute cache test command");
+        .expect("Failed to execute pack add command");
 
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -297,6 +317,11 @@ fn test_packs_install_cache_status_indicators() {
 }
 
 #[test]
+#[ignore = "Asserts fabricated step-by-step UX (Steps:, 'Starting installation', \
+'Installation completed', '1. Validate package', '2. Download main package', \
+'3. Download dependencies') and a `--dry_run` flag absent from the live `pack add` \
+verb (crates/ggen-cli/src/cmds/pack.rs::add). The real verb emits no step narration. \
+Intent (per-step install progress) is not achievable on the current CLI."]
 fn test_packs_install_step_by_step_progress() {
     // Test: Installation should show step-by-step progress
     // This verifies that progress is shown at each step of the installation process
@@ -306,10 +331,9 @@ fn test_packs_install_step_by_step_progress() {
 
     let output = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "startup-essentials"])
-        .args(["--dry_run"])
         .current_dir(temp_path)
         .output()
-        .expect("Failed to execute step-by-step test command");
+        .expect("Failed to execute pack add command");
 
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -372,6 +396,11 @@ fn test_packs_install_error_recovery_suggestions() {
 }
 
 #[test]
+#[ignore = "The load-bearing assertion ('Installation Plan' in stdout) is fabricated \
+UX not emitted by the live `pack add` verb (crates/ggen-cli/src/cmds/pack.rs::add), and \
+the test relied on a `--dry_run` flag the verb does not accept. The surviving no-panic \
+intent is already covered by test_packs_install_memory_efficiency. Re-enable if `pack \
+add` gains a planning phase + --dry_run."]
 fn test_packs_install_concurrency_safety() {
     // Test: Multiple installations should not interfere with each other
     // This verifies that concurrent operations are handled safely
@@ -380,17 +409,15 @@ fn test_packs_install_concurrency_safety() {
     let temp_dir1 = TempDir::new().unwrap();
     let temp_dir2 = TempDir::new().unwrap();
 
-    // Run two parallel installations (dry run mode to avoid conflicts)
+    // Run two parallel pack adds (migrated from removed `packs install`).
     let child1 = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "pack1"])
-        .args(["--dry_run"])
         .current_dir(temp_dir1.path())
         .spawn()
         .expect("Failed to spawn first command");
 
     let child2 = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "pack2"])
-        .args(["--dry_run"])
         .current_dir(temp_dir2.path())
         .spawn()
         .expect("Failed to spawn second command");
@@ -448,9 +475,9 @@ fn test_packs_install_memory_efficiency() {
     // Create a test with temporary directory
     let temp_dir = TempDir::new().unwrap();
 
+    // Migrated from removed `packs install`; `--dry_run` dropped (not a live `add` arg).
     let mut child = Command::new(env!("CARGO_BIN_EXE_ggen"))
         .args(["pack", "add", "--pack_name", "startup-essentials"])
-        .args(["--dry_run"])
         .current_dir(temp_dir.path())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

@@ -1,3 +1,16 @@
+// NOTE: This whole file is compiled out by `#![cfg(any())]` (pre-existing gate) and is
+// NOT part of the live build. It predates the `packs` -> `pack` noun rename and the
+// removal of the `install`/`validate` verbs. As a surface migration we have rewritten
+// the invocation strings to the live `pack` noun:
+//   - `packs install --pack_id X --dry_run` -> `pack add <X>` (live verb is `add`; there
+//     is no `--pack_id`/`--dry_run`/`install` — `pack add` takes a positional pack name).
+//   - `packs list|show|search` -> `pack list|show|search`.
+// The live `pack` noun has NO `validate` verb (validation lives under `policy validate`
+// only — see crates/ggen-cli/src/cmds/policy.rs), so every `validate`-based test here is
+// impossible on the current CLI and is additionally marked `#[ignore]` for the day the
+// `cfg(any())` gate is lifted. The list/show JSON-shape assertions (5 packs,
+// "startup-essentials"/"Startup Essentials") are pre-existing fixtures we did NOT verify
+// against the live registry — UNVERIFIED; they remain gated off.
 #![cfg(any())]
 #![allow(
     clippy::unwrap_used,
@@ -38,11 +51,11 @@ use std::time::Instant;
 // TEST UTILITIES
 // ============================================================================
 
-/// Execute ggen packs command and return stdout
+/// Execute `ggen pack <args>` and return stdout (noun migrated from removed `packs`).
 fn run_packs_command(args: &[&str]) -> Result<String, String> {
     let output = Command::new("cargo")
         .args(["run", "--bin", "ggen", "--"])
-        .args(["packs"])
+        .args(["pack"])
         .args(args)
         .output()
         .map_err(|e| format!("Failed to execute command: {}", e))?;
@@ -133,9 +146,13 @@ fn test_packs_show_returns_pack_details() {
 }
 
 #[test]
+#[ignore = "Live `pack add` (crates/ggen-cli/src/cmds/pack.rs::add) has no `--dry_run` \
+and emits no 'DRY RUN'/'Would install' status — those assertions are fabricated. \
+Invocation migrated to `pack add startup-essentials`. Real add-path coverage lives in \
+proof_pack_test.rs::test_add_writes_lockfile_with_digest_and_emits_signed_receipt."]
 fn test_packs_install_lists_packages() {
-    // Execute: ggen packs install --pack_id startup-essentials --dry_run
-    let result = run_packs_command(&["install", "--pack_id", "startup-essentials", "--dry_run"]);
+    // Migrated: `packs install --pack_id X --dry_run` -> `pack add X` (no such flags).
+    let result = run_packs_command(&["add", "startup-essentials"]);
 
     // For now, accept either success or graceful failure due to marketplace unavailability
     // The important part is that --dry_run should not crash
@@ -170,8 +187,12 @@ fn test_packs_install_lists_packages() {
 }
 
 #[test]
+#[ignore = "The live `pack` noun has NO `validate` verb (only `policy validate` exists, \
+crates/ggen-cli/src/cmds/policy.rs). Intent (validate a pack by id) is impossible on the \
+current CLI; no equivalent migration target. Invocation left referencing the removed \
+verb intentionally — test stays ignored until/unless a `pack validate` verb is added."]
 fn test_packs_validate_checks_pack() {
-    // Execute: ggen packs validate --pack_id startup-essentials
+    // Execute: ggen pack validate --pack_id startup-essentials (REMOVED verb — see #[ignore]).
     let output = run_packs_command(&["validate", "--pack_id", "startup-essentials"])
         .expect("packs validate should execute successfully");
 
@@ -218,8 +239,12 @@ fn test_packs_invalid_id_returns_error() {
 }
 
 #[test]
+#[ignore = "The live `pack` noun has NO `validate` verb (only `policy validate` exists, \
+crates/ggen-cli/src/cmds/policy.rs). Intent (validate detects an invalid pack) is \
+impossible on the current CLI; no equivalent migration target. Stays ignored until a \
+`pack validate` verb is added."]
 fn test_packs_validate_invalid_pack_returns_false() {
-    // Execute: ggen packs validate --pack_id invalid-pack-xyz
+    // Execute: ggen pack validate --pack_id invalid-pack-xyz (REMOVED verb — see #[ignore]).
     let output = run_packs_command(&["validate", "--pack_id", "invalid-pack-xyz"])
         .expect("validate should handle invalid packs gracefully");
 
@@ -249,8 +274,12 @@ fn test_packs_validate_invalid_pack_returns_false() {
 // ============================================================================
 
 #[test]
+#[ignore = "Step 4 calls the removed `validate` verb (no live `pack validate`; only \
+`policy validate`, crates/ggen-cli/src/cmds/policy.rs). list/show were migrated to the \
+live `pack` noun and `install --dry_run` to `pack add`, but the validate assertion \
+cannot pass on the current CLI. Live list/show/add coverage lives in proof_pack_test.rs."]
 fn test_packs_all_commands_work_end_to_end() {
-    // Test complete workflow: list -> show -> validate (skip install due to marketplace availability)
+    // Test complete workflow: list -> show -> add -> validate(REMOVED).
 
     // 1. List packs
     let list_output = run_packs_command(&["list"]).expect("list should work");
@@ -265,12 +294,13 @@ fn test_packs_all_commands_work_end_to_end() {
     let show_json = parse_json_output(&show_output).expect("show should return JSON");
     assert_eq!(show_json["id"], pack_id, "Should return correct pack");
 
-    // 3. Install pack (dry run) - skip if marketplace unavailable
-    let _install_result = run_packs_command(&["install", "--pack_id", pack_id, "--dry_run"]);
+    // 3. Add pack - skip assertions if marketplace unavailable
+    //    (migrated from `install --pack_id X --dry_run`; live `add` takes a positional name).
+    let _install_result = run_packs_command(&["add", pack_id]);
     // We don't assert here because marketplace might be unavailable in test environment
     // The key is that commands complete without panicking
 
-    // 4. Validate pack
+    // 4. Validate pack (REMOVED verb — see #[ignore]).
     let validate_output =
         run_packs_command(&["validate", "--pack_id", pack_id]).expect("validate should work");
     let validate_json = parse_json_output(&validate_output).expect("validate should return JSON");
@@ -306,6 +336,10 @@ fn test_packs_list_with_category_filter() {
 // ============================================================================
 
 #[test]
+#[ignore = "Exercises the removed `validate` verb (no live `pack validate`; only \
+`policy validate`, crates/ggen-cli/src/cmds/policy.rs) with `.expect(...)`. list/show \
+migrated to the live `pack` noun and `install --dry_run` to `pack add`, but the validate \
+step cannot run on the current CLI. Stays ignored until a `pack validate` verb exists."]
 fn test_packs_commands_execute_quickly() {
     // Each command should complete in < 60000ms (20 seconds, accounting for cargo build)
 
@@ -329,18 +363,18 @@ fn test_packs_commands_execute_quickly() {
         show_duration.as_millis()
     );
 
-    // Test install command - may fail if marketplace unavailable, but should complete quickly
+    // Test add command (migrated from `install --pack_id X --dry_run`) -
+    // may fail if marketplace unavailable, but should complete quickly.
     let start = Instant::now();
-    let _install_result =
-        run_packs_command(&["install", "--pack_id", "startup-essentials", "--dry_run"]);
+    let _install_result = run_packs_command(&["add", "startup-essentials"]);
     let install_duration = start.elapsed();
     assert!(
         install_duration.as_millis() < 60000,
-        "install should complete in < 60000ms (got {}ms), even if marketplace unavailable",
+        "add should complete in < 60000ms (got {}ms), even if marketplace unavailable",
         install_duration.as_millis()
     );
 
-    // Test validate command
+    // Test validate command (REMOVED verb — see #[ignore]).
     let start = Instant::now();
     run_packs_command(&["validate", "--pack_id", "startup-essentials"])
         .expect("validate should work");
@@ -357,6 +391,10 @@ fn test_packs_commands_execute_quickly() {
 // ============================================================================
 
 #[test]
+#[ignore = "Validates every listed pack via the removed `validate` verb (no live \
+`pack validate`; only `policy validate`, crates/ggen-cli/src/cmds/policy.rs). The `list` \
+call migrated to the live `pack` noun, but the per-pack validate loop cannot run on the \
+current CLI. Stays ignored until a `pack validate` verb exists."]
 fn test_packs_all_defined_packs_are_valid() {
     // Get all packs
     let output = run_packs_command(&["list"]).expect("list should work");

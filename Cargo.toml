@@ -122,6 +122,7 @@ rig-core = "0.15.1"
 # NOTE: v26.5.29 unified release
 ggen-core = { path = "crates/ggen-core", version = "26.6.11" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.11" }
+ggen-graph = { path = "crates/ggen-graph", version = "26.6.11" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2", version = "26.6.11" }

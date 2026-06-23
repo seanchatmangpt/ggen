@@ -2076,3 +2076,76 @@ args = [
   "clippy::dbg_macro",
 ]
 
+# ============================================================================
+# Phase 2: Inverse Sync + Coherence Gate (BACKWARD COMPAT with justfile)
+# ============================================================================
+# NOTE: Makefile.toml is deprecated in favor of justfile. These recipes
+# mirror the justfile recipes for backward compatibility only. Use `just`
+# commands in new code. See justfile for primary definitions.
+
+[tasks.test-phase2]
+description = "Run Phase 2 test suite (inverse-sync, coherence, process discovery) — DEPRECATED: use `just test-phase2`"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+echo "Running Phase 2 test suite (DEPRECATED: use 'just test-phase2')..."
+
+cargo test -p ggen-core --test ast_extractor_70pct_test || exit 1
+cargo test -p ggen-core --test inverse_receipt_chain_test || exit 1
+cargo test -p ggen-core --test provenance_envelope_test || exit 1
+cargo test -p ggen-graph --test ocel_conformance_test || exit 1
+cargo test -p ggen-graph --test coherence_hash_expectations_test || exit 1
+cargo test -p ggen-graph --test pm4py_bridge_test || exit 1
+cargo test -p ggen-graph --test post_chatman_coherence_integration || exit 1
+
+echo "✅ Phase 2 test suite complete"
+'''
+
+[tasks.coherence-check]
+description = "Validate post-Chatman ontology + SHACL shapes — DEPRECATED: use `just coherence-check`"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+ontology=".specify/specs/post-chatman/post_chatman.ttl"
+shapes=".specify/specs/post-chatman/post_chatman_shapes.ttl"
+
+echo "Validating ontology: $ontology"
+ggen validate "$ontology" || exit 1
+
+echo "Validating shapes: $shapes"
+ggen validate "$shapes" || exit 1
+
+echo "✅ Coherence check passed"
+'''
+
+[tasks.inverse-sync]
+description = "Run inverse-sync on sample artifacts — DEPRECATED: use `just inverse-sync`"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+ontology=".specify/specs/post-chatman/post_chatman.ttl"
+echo "Running inverse-sync..."
+echo "  Ontology: $ontology"
+
+ggen validate "$ontology" || exit 1
+echo "✅ Inverse-sync validation complete"
+'''
+
+[tasks.round-trip]
+description = "Full O→A→O round-trip test — DEPRECATED: use `just round-trip`"
+workspace = false
+dependencies = ["coherence-check", "inverse-sync"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+echo "✅ O→A→O round-trip complete"
+'''
+

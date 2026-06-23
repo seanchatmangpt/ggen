@@ -372,6 +372,94 @@ impl PackLockfile {
         Ok(())
     }
 
+    /// Validate per-entry lockfile invariants (coding-agent-mistakes.md §4.1).
+    ///
+    /// Enforces, for every entry in `packs`, the contract that prevents
+    /// "contract drift" — a lockfile entry that does not faithfully describe
+    /// what was actually installed:
+    ///
+    /// - `version` must be non-empty (trimmed) — an entry without a version is
+    ///   not reproducible.
+    /// - `installed_at` must be a real timestamp, never the Unix epoch / default
+    ///   sentinel (`timestamp() <= 0`) — a zero timestamp signals the field was
+    ///   never populated.
+    /// - `integrity` must be present and, when present, match the shape
+    ///   `sha256-<64 hex chars>` — an empty or malformed digest cannot be
+    ///   re-verified at `sync --locked` time.
+    ///
+    /// Returns a descriptive `Err` on the first violation found.
+    ///
+    /// This check is intentionally NOT wired into `save()`/`from_file()`: those
+    /// paths already round-trip entries with looser integrity values (e.g.
+    /// `integrity: None` or a non-canonical digest) that existing callers and
+    /// tests depend on. Callers that require the strict §4.1 contract — such as
+    /// `sync --locked` proof gates — should invoke this method explicitly.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use crate::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+    /// use chrono::Utc;
+    ///
+    /// let mut lockfile = PackLockfile::new("4.0.0");
+    /// lockfile.add_pack(
+    ///     "io.ggen.rust.cli",
+    ///     LockedPack {
+    ///         version: "1.0.0".to_string(),
+    ///         source: PackSource::Registry {
+    ///             url: "https://registry.ggen.io".to_string(),
+    ///         },
+    ///         integrity: Some(format!("sha256-{}", "a".repeat(64))),
+    ///         installed_at: Utc::now(),
+    ///         dependencies: vec![],
+    ///     },
+    /// );
+    /// assert!(lockfile.validate_invariants().is_ok());
+    /// ```
+    pub fn validate_invariants(&self) -> Result<()> {
+        for (pack_id, pack) in &self.packs {
+            // version: non-empty (after trimming surrounding whitespace).
+            if pack.version.trim().is_empty() {
+                return Err(Error::new(&format!(
+                    "Lockfile invariant violation: pack '{}' has an empty version",
+                    pack_id
+                )));
+            }
+
+            // installed_at: must be a real timestamp, not the Unix epoch / default.
+            // `DateTime::<Utc>::default()` is 1970-01-01T00:00:00Z (timestamp 0);
+            // negative timestamps are pre-epoch and equally invalid.
+            if pack.installed_at.timestamp() <= 0 {
+                return Err(Error::new(&format!(
+                    "Lockfile invariant violation: pack '{}' has a non-real installed_at \
+                     timestamp ({}); expected a populated timestamp, not the Unix epoch / default",
+                    pack_id, pack.installed_at
+                )));
+            }
+
+            // integrity: must be present and match the shape `sha256-<64 hex chars>`.
+            match &pack.integrity {
+                None => {
+                    return Err(Error::new(&format!(
+                        "Lockfile invariant violation: pack '{}' is missing an integrity digest",
+                        pack_id
+                    )));
+                }
+                Some(integrity) => {
+                    if !is_valid_sha256_integrity(integrity) {
+                        return Err(Error::new(&format!(
+                            "Lockfile invariant violation: pack '{}' has a malformed integrity \
+                             digest '{}'; expected the shape 'sha256-<64 hex chars>'",
+                            pack_id, integrity
+                        )));
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     /// Recursively check for circular dependencies
     fn check_circular_deps(
         &self, start_pack: &str, current_pack: &str, visited: &mut Vec<String>,
@@ -397,6 +485,19 @@ impl PackLockfile {
 
         visited.pop();
         Ok(())
+    }
+}
+
+/// Returns `true` if `integrity` matches the canonical shape `sha256-<64 hex chars>`.
+///
+/// The check is performed without a regex dependency: the `sha256-` prefix is
+/// stripped, then the remaining 64 characters must all be ASCII hex digits.
+/// Both lowercase and uppercase hex digits are accepted.
+fn is_valid_sha256_integrity(integrity: &str) -> bool {
+    const PREFIX: &str = "sha256-";
+    match integrity.strip_prefix(PREFIX) {
+        Some(hash) => hash.len() == 64 && hash.bytes().all(|b| b.is_ascii_hexdigit()),
+        None => false,
     }
 }
 
@@ -508,5 +609,183 @@ mod tests {
             path: PathBuf::from("/tmp/pack"),
         };
         assert_eq!(local.to_string(), "Local(/tmp/pack)");
+    }
+
+    // --- §4.1 lockfile invariant tests (Chicago TDD: real fs round-trip) -----
+
+    /// A canonical 64-hex-char sha256 integrity string (`sha256-<64 hex>`).
+    fn valid_integrity() -> String {
+        format!("sha256-{}", "a".repeat(64))
+    }
+
+    /// Build a §4.1-valid pack: non-empty version, real timestamp, canonical
+    /// integrity digest.
+    fn valid_invariant_pack() -> LockedPack {
+        LockedPack {
+            version: "1.0.0".to_string(),
+            source: PackSource::Registry {
+                url: "https://registry.ggen.io".to_string(),
+            },
+            integrity: Some(valid_integrity()),
+            installed_at: Utc::now(),
+            dependencies: vec![],
+        }
+    }
+
+    /// (a) A lockfile whose entries satisfy §4.1 passes `validate_invariants`,
+    /// and the property survives a real save → load round-trip on disk.
+    #[test]
+    fn test_validate_invariants_accepts_valid_lockfile() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().expect("create temp dir");
+        let lock_path = temp_dir.path().join("packs.lock");
+
+        let mut lockfile = PackLockfile::new("4.0.0");
+        lockfile.add_pack("io.ggen.rust.cli", valid_invariant_pack());
+
+        // In-memory check.
+        assert!(
+            lockfile.validate_invariants().is_ok(),
+            "valid lockfile should pass §4.1 invariants"
+        );
+
+        // Real filesystem round-trip, then re-check the loaded value.
+        lockfile.save(&lock_path).expect("save lockfile");
+        assert!(lock_path.exists(), "lockfile should exist on disk");
+
+        let loaded = PackLockfile::from_file(&lock_path).expect("load lockfile");
+        assert!(
+            loaded.validate_invariants().is_ok(),
+            "lockfile loaded from disk should still pass §4.1 invariants"
+        );
+    }
+
+    /// (b) An entry with an empty integrity digest fails §4.1, observable after
+    /// the value is persisted and reloaded from disk.
+    #[test]
+    fn test_validate_invariants_rejects_empty_digest() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().expect("create temp dir");
+        let lock_path = temp_dir.path().join("packs.lock");
+
+        let mut pack = valid_invariant_pack();
+        pack.integrity = Some(String::new());
+
+        let mut lockfile = PackLockfile::new("4.0.0");
+        lockfile.add_pack("io.ggen.rust.cli", pack);
+
+        // `save`/`from_file` deliberately do not enforce §4.1, so persistence
+        // succeeds and the malformed value is what we re-load.
+        lockfile.save(&lock_path).expect("save lockfile");
+        let loaded = PackLockfile::from_file(&lock_path).expect("load lockfile");
+
+        let result = loaded.validate_invariants();
+        assert!(result.is_err(), "empty integrity digest must fail §4.1");
+        let msg = result.expect_err("expected an error").to_string();
+        assert!(
+            msg.contains("malformed integrity"),
+            "error should name the malformed integrity digest, got: {msg}"
+        );
+    }
+
+    /// (c) An entry with a malformed integrity digest (wrong length / missing
+    /// prefix) fails §4.1.
+    #[test]
+    fn test_validate_invariants_rejects_malformed_digest() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().expect("create temp dir");
+
+        // Wrong length (too short).
+        {
+            let lock_path = temp_dir.path().join("short.lock");
+            let mut pack = valid_invariant_pack();
+            pack.integrity = Some("sha256-abc123".to_string());
+            let mut lockfile = PackLockfile::new("4.0.0");
+            lockfile.add_pack("io.ggen.rust.cli", pack);
+            lockfile.save(&lock_path).expect("save lockfile");
+            let loaded = PackLockfile::from_file(&lock_path).expect("load lockfile");
+            assert!(
+                loaded.validate_invariants().is_err(),
+                "too-short integrity digest must fail §4.1"
+            );
+        }
+
+        // Missing `sha256-` prefix (64 hex chars but no algorithm prefix).
+        {
+            let lock_path = temp_dir.path().join("noprefix.lock");
+            let mut pack = valid_invariant_pack();
+            pack.integrity = Some("a".repeat(64));
+            let mut lockfile = PackLockfile::new("4.0.0");
+            lockfile.add_pack("io.ggen.rust.cli", pack);
+            lockfile.save(&lock_path).expect("save lockfile");
+            let loaded = PackLockfile::from_file(&lock_path).expect("load lockfile");
+            assert!(
+                loaded.validate_invariants().is_err(),
+                "integrity digest without sha256- prefix must fail §4.1"
+            );
+        }
+
+        // Non-hex characters in the 64-char body.
+        {
+            let mut pack = valid_invariant_pack();
+            pack.integrity = Some(format!("sha256-{}", "z".repeat(64)));
+            let mut lockfile = PackLockfile::new("4.0.0");
+            lockfile.add_pack("io.ggen.rust.cli", pack);
+            assert!(
+                lockfile.validate_invariants().is_err(),
+                "integrity digest with non-hex body must fail §4.1"
+            );
+        }
+    }
+
+    /// (d) An entry with an empty version fails §4.1, observable after a real
+    /// save → load round-trip.
+    #[test]
+    fn test_validate_invariants_rejects_empty_version() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().expect("create temp dir");
+        let lock_path = temp_dir.path().join("packs.lock");
+
+        let mut pack = valid_invariant_pack();
+        pack.version = String::new();
+
+        let mut lockfile = PackLockfile::new("4.0.0");
+        lockfile.add_pack("io.ggen.rust.cli", pack);
+
+        lockfile.save(&lock_path).expect("save lockfile");
+        let loaded = PackLockfile::from_file(&lock_path).expect("load lockfile");
+
+        let result = loaded.validate_invariants();
+        assert!(result.is_err(), "empty version must fail §4.1");
+        let msg = result.expect_err("expected an error").to_string();
+        assert!(
+            msg.contains("empty version"),
+            "error should name the empty version, got: {msg}"
+        );
+    }
+
+    /// `installed_at` at the Unix epoch / default sentinel fails §4.1.
+    #[test]
+    fn test_validate_invariants_rejects_epoch_installed_at() {
+        let mut pack = valid_invariant_pack();
+        pack.installed_at = DateTime::<Utc>::default();
+
+        let mut lockfile = PackLockfile::new("4.0.0");
+        lockfile.add_pack("io.ggen.rust.cli", pack);
+
+        let result = lockfile.validate_invariants();
+        assert!(
+            result.is_err(),
+            "epoch/default installed_at must fail §4.1"
+        );
+        let msg = result.expect_err("expected an error").to_string();
+        assert!(
+            msg.contains("installed_at"),
+            "error should name installed_at, got: {msg}"
+        );
     }
 }
