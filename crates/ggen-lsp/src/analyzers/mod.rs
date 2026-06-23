@@ -16,7 +16,7 @@ use std::collections::BTreeSet;
 use std::fmt;
 
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
-pub use mtlx_analyzer::{MtlxAnalyzer, GGEN_MTLX_001};
+
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
