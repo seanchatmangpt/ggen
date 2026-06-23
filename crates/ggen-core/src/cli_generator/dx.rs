@@ -177,13 +177,9 @@ impl TemplatePreview {
             use std::fmt::Write;
             let mut s = String::new();
             for a in &verb.arguments {
-                let _ = write!(
-                    s,
-                    "    /// {}\n    #[arg(long)]\n    pub {}: {},\n\n",
-                    a.help,
-                    a.name,
-                    Self::rust_type_for_arg(a)
-                );
+                // clap-noun-verb verbs take parameters directly (no clap Args
+                // struct); each argument becomes a `name: Type` function parameter.
+                let _ = write!(s, "{}: {}, ", a.name, Self::rust_type_for_arg(a));
             }
             s
         };
@@ -192,7 +188,7 @@ impl TemplatePreview {
             use std::fmt::Write;
             let mut s = String::new();
             for a in &verb.arguments {
-                let _ = writeln!(s, "        {}: args.{}.clone(),", a.name, a.name);
+                let _ = writeln!(s, "        {}: {},", a.name, a.name);
             }
             s
         };
@@ -202,18 +198,14 @@ impl TemplatePreview {
              ```rust\n\
              // crates/{cli_crate}/src/cmds/{noun_name}/{verb_name}.rs\n\
              \n\
-             use clap::Args;\n\
-             use crate::utils::error::Result;\n\
+             use clap_noun_verb::Result;\n\
+             use clap_noun_verb_macros::verb;\n\
+             use serde_json::{{json, Value}};\n\
              use crate::runtime::execute;\n\
              use {core_crate}::{noun_name}::{verb_name}::{{Input, execute as domain_{verb_name}}};\n\
              \n\
-             #[derive(Args, Debug)]\n\
-             pub struct {verb_args} {{\n\
-             {args}\
-             }}\n\
-             \n\
              #[verb(\"{verb_name}\", \"{noun_name}\")]\n\
-             pub fn run(args: &{verb_args}) -> Result<()> {{\n\
+             pub fn run({params}) -> Result<Value> {{\n\
                  let input = Input {{\n\
              {input_mapping}\
                  }};\n\
@@ -222,22 +214,14 @@ impl TemplatePreview {
                      domain_{verb_name}(input).await\n\
                  }})?;\n\
                  \n\
-                 println!(\"✅ {noun_name} {verb_name}d: {{}}\", result.id);\n\
-                 Ok(())\n\
+                 Ok(json!({{ \"{noun_name}\": result.id }}))\n\
              }}\n\
              ```",
             cli_crate = project.cli_crate.as_ref().unwrap_or(&format!("{}-cli", project.name)),
             core_crate = core_crate,
             noun_name = noun.name,
             verb_name = verb.name,
-            verb_args = format!("{}Args", {
-                if let Some(first_char) = verb.name.chars().next() {
-                    format!("{}{}", first_char.to_uppercase(), &verb.name[1..])
-                } else {
-                    "VerbArgs".to_string() // Fallback for empty verb name
-                }
-            }),
-            args = args_str,
+            params = args_str,
             input_mapping = input_mapping_str,
         )
     }

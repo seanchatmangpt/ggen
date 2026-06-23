@@ -92,31 +92,8 @@ impl EnvironmentManager for DefaultEnvironmentManager {
     }
 }
 
-// CLI wrapper - MOVED TO ggen-cli crate
-// Domain layer must not depend on clap
-// See ggen-cli/src/cmds/utils_v3.rs for CLI Args definitions
-/*
-#[derive(Debug, Parser)]
-pub struct EnvInput {
-    /// List all GGEN environment variables
-    list: bool,
-
-    /// Set environment variable
-    set: Vec<String>,
-
-    /// Get environment variable value
-    get: Option<String>,
-
-    /// Show environment directories
-    show_dirs: bool,
-
-    /// Ensure all directories exist
-    ensure_dirs: bool,
-
-    /// Clear cache directory
-    clear_cache: bool,
-}
-*/
+// CLI wrapper MOVED TO ggen-cli crate. The domain layer is CLI-agnostic; the
+// `env` verb and its arguments live in ggen-cli's clap-noun-verb command surface.
 
 // ============================================================================
 // CLI Bridge Function (Old Pattern - Commented Out)
