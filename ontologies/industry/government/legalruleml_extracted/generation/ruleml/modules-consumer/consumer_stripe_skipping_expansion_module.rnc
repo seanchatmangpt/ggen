@@ -1,0 +1,37 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+default namespace ruleml = "http://ruleml.org/spec"
+
+dcterms:title [ "Consumer RuleML Stripe-skipping" ]
+dcterms:identifier [
+  "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_stripe_skipping_expansion_module.rnc"
+]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, stripe-skipping" ]
+dcterms:description [ "The expansion module for stripe-skipping." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= notAllowed
+# 
+# STRIPE-SKIPPING MODE ENABLED
+# 
+formula-negation-edge.choice |= formula-negation.content
+arg_interval_term-edge.choice |= arg_interval_term.content
+arg_interval_formula-edge.choice |= arg_interval_formula.content
+arg_time-edge.choice |= time_primitives.content
+arg_spatial-edge.choice |= spatial_primitives.content
+formula-Operation-edge.choice |= formula_Operation.content
+# 
+# Also attribute skipping is enabled by this module.
+#
+formula_Operation-datt.choice |= empty
+# 
+# a dummy element to assist in XSD conversion
+#
+DummySkipElement.def = element Skip { text }

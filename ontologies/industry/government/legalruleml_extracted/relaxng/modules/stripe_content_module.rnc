@@ -1,0 +1,188 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Stripe Content Module" ]
+dc:version [ "1.0." ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, stripe-skipping" ]
+dc:description [ "expansion module for stripe content patterns." ]
+dc:language [ "en" ]
+start |= notAllowed
+# All the LegalRuleML roles below are optional because
+# it is possible to reconstruct the edge element from
+# the type and/or position of the child Node element
+# This module is included in both the compact and normalized serializations.
+# 
+# To allow only explicit striping (normalized serialization), also include
+# the stripe_optional module, but not the stripe_skipping module.
+# 
+# To allow only stripe-skippining (compact serialization), also include
+# the stripe_skipping module, but not the stripe_optional module
+
+##
+hasAgentCollection.content |= AgentCollection.Node.choice
+
+##
+hasAgent.content |= Agent.Node.choice
+
+##
+hasAlternativeCollection.content |= AlternativeCollection.Node.choice
+
+##
+hasAssociationCollection.content |= AssociationCollection.Node.choice
+
+##
+hasAssociation.content |= Association.Node.choice
+
+##
+hasAuthorityCollection.content |= AuthorityCollection.Node.choice
+
+##
+hasAuthority.content |= Authority.Node.choice
+
+##
+hasContext.content |= Context.Node.choice
+
+##
+hasFigureCollection.content |= FigureCollection.Node.choice
+
+##
+hasFigure.content |= Figure.Node.choice
+
+##
+hasJurisdictionCollection.content |= JurisdictionCollection.Node.choice
+
+##
+hasJurisdiction.content |= Jurisdiction.Node.choice
+
+##
+hasLegalSourceCollection.content |= LegalSourceCollection.Node.choice
+
+##
+hasLegalSource.content |= LegalSource.Node.choice
+
+##
+hasSourceCollection.content |= SourceCollection.Node.choice
+
+##
+hasSource.content |= Source.Node.choice
+
+##
+hasPrefix.content |= Prefix.Node.choice
+
+##
+hasLegalReferenceCollection.content |= LegalReferenceCollection.Node.choice
+
+##
+hasLegalReference.content |= LegalReference.Node.choice
+
+##
+hasReferenceCollection.content |= ReferenceCollection.Node.choice
+
+##
+hasReference.content |= Reference.Node.choice
+
+##
+hasRoleCollection.content |= RoleCollection.Node.choice
+
+##
+hasRole.content |= Role.Node.choice
+
+##
+hasStatementCollection.content |= StatementCollection.Node.choice
+
+##
+hasStatement.content |= Statement.Node.choice
+
+##
+hasComment.content |= Comment.Node.choice
+
+##
+hasParaphrase.content |= Paraphrase.Node.choice
+
+##
+hasTemplate-Constitutive.content |= ConstitutiveStatementFormula.choice
+
+##
+hasTemplate-Override.content |= OverrideStatementFormula.choice
+
+##
+hasTemplate-Penalty.content |= PenaltyStatementFormula.choice
+
+##
+hasTemplate-Prescriptive.content |= PrescriptiveStatementFormula.choice
+
+##
+hasTemplate-Reparation.content |= ReparationStatementFormula.choice
+
+##
+hasTemporalCharacteristics.content |= TemporalCharacteristicCollection.Node.choice
+
+##
+hasTemporalCharacteristic.content |= TemporalCharacteristic.Node.choice
+
+##
+hasTimeCollection.content |= TimeCollection.Node.choice
+
+##
+hasTime.content |= Time.Node.choice
+
+## From RuleML
+
+##
+formula_And-const.content |= ConstitutiveAndFormula.choice
+
+##
+formula_Deontic.content |= DeonticFormula.choice
+
+##
+formula_Exists-const.content |= ConstitutiveExistsFormula.choice
+
+##
+formula_Forall-const.content |= ConstitutiveForallFormula.choice
+
+##
+formula_Or-const.content |= ConstitutiveOrFormula.choice
+
+##
+formula_Suborder.content |= SuborderFormula.choice
+
+##
+strong-const.content |= ConstitutiveNegFormula.choice
+
+##
+torso-const.content |= ConstitutiveConclusionFormula.choice
+
+##
+argTimeData.content |= TimeData.Node.choice
+
+##
+# Non-skippable edges with leaf or branch forms
+##
+hasStrength.content |= Strength.Node.choice?
+
+##
+appliesStrength.content |= Strength.Node.choice?
+
+##
+hasTemplate-Factual.content |= FactualStatementFormula.choice?
+
+##
+hasQualification.content |= QualificationFormula.choice?
+
+# 
+# The following content models are LegalRuleML-specific patterns that are applied to required stripes in the RuleML namespace 
+
+##
+slotDeontic.content |= DeonticRole.Node.choice, AnyTerm.choice
+body_Implies-const.content |= ConstitutivePremiseFormula.choice
+head_Implies-const.content |= ConstitutiveConclusionFormula.choice
+body_ConstitutiveRule.content |= PremiseFormula.choice
+head_ConstitutiveRule.content |= ConstitutiveConclusionFormula.choice
+body_PrescriptiveRule.content |= PremiseFormula.choice
+head_PrescriptiveRule.content |= PrescriptiveConclusionFormula.choice

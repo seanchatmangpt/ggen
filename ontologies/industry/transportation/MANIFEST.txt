@@ -1,0 +1,10 @@
+1. SOSA/SSN Ontology | https://www.w3.org/ns/sosa/ | 27326 bytes
+2. GTFS Ontology | https://raw.githubusercontent.com/OpenTransitMap/GTFS-Ontology/master/ontology.ttl | 14 bytes
+3. Maritime Ontology | https://w3id.org/imooc/ontology | 58 bytes
+4. Aviation Ontology | https://w3id.org/aviation/ontology | 58 bytes
+5. Railway Ontology | https://data.transport.ec.europa.eu/ontologies/railway | 14 bytes
+6. Shipping Ontology | https://w3id.org/ece/ontology/shipping | 58 bytes
+7. Tracking Ontology | https://www.w3.org/ns/sosa/tracking | 27326 bytes
+8. Vehicle Ontology | https://w3id.org/vega/vehicle | 58 bytes
+9. Route Optimization Ontology | https://w3id.org/routing/ontology | 58 bytes
+10. Fleet Management Ontology | https://w3id.org/fiware/fleet | 58 bytes

@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-rga "https://www.omg.org/spec/Commons/RegulatoryAgencies/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-ge-cbj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-be-ge-ge "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY lcc-3166-1 "https://www.omg.org/spec/LCC/Countries/ISO3166-1-CountryCodes/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-rga="https://www.omg.org/spec/Commons/RegulatoryAgencies/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-ge-cbj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-be-ge-ge="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:lcc-3166-1="https://www.omg.org/spec/LCC/Countries/ISO3166-1-CountryCodes/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions/">
+		<rdfs:label>Caribbean Government Entities and Jurisdictions Ontology</rdfs:label>
+		<dct:abstract>This ontology provides the set of basic government-level entities and jurisdictions for independent countries and British Commonwealth regional sovereignties identified as part of the Caribbean in the U.N. M49 classification.</dct:abstract>
+		<dct:license>Copyright (c) 2020-2025 EDM Council, Inc.
+Copyright (c) 2020-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RegulatoryAgencies/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/LCC/Countries/ISO3166-1-CountryCodes/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20250301/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions/"/>
+		<skos:changeNote>The http://www.omg.org/spec/EDMC-FIBO/BE/20200701/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions.rdf version of this ontology was modified to correct the ontology prefix and address language-specific diacritical marks.</skos:changeNote>
+		<skos:changeNote>The http://www.omg.org/spec/EDMC-FIBO/BE/20210201/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions.rdf version of this ontology was modified to correct spelling issues.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20211201/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230101/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC) and to eliminate redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230301/GovernmentEntities/NorthAmericanJurisdiction/CaribbeanGovernmentEntitiesAndJurisdictions.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:scopeNote>The initial version of this ontology reflects the highest national or regional level (for British Commonwealth members) only.</skos:scopeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2020-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2020-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;AntiguaAndBarbudaEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Antigua and Barbuda entity</rdfs:label>
+		<skos:definition>sovereign state and polity that consists of two major islands, Antigua and Barbuda (separated by 39 miles), and a number of smaller islands in the middle of the Leeward Islands, that is part of the Lesser Antilles</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;AntiguaAndBarbuda"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfAntiguaAndBarbuda"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;BahamianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Bahamian entity</rdfs:label>
+		<skos:definition>sovereign state and polity that is The Bahamas</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;Bahamas"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheCommonwealthOfTheBahamas"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;BarbadianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Barbadian entity</rdfs:label>
+		<skos:definition>sovereign state and polity that is Barbados</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;Barbados"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfBarbados"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;BermudanEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;RegionalSovereignty"/>
+		<rdfs:label>Bermudan entity</rdfs:label>
+		<skos:definition>regional sovereignty and polity that is Bermuda</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;Bermuda"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfBermuda"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;CaymanIslandsEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;RegionalSovereignty"/>
+		<rdfs:label>Cayman Islands entity</rdfs:label>
+		<skos:definition>regional sovereignty and polity that is the Cayman Islands</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;CaymanIslands"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheCaymanIslands"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;CubanEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Cuban entity</rdfs:label>
+		<skos:definition>sovereign state and polity that is Cuba</skos:definition>
+		<fibo-be-ge-ge:hasFullSovereigntyOver rdf:resource="&lcc-3166-1;Cuba"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfCuba"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;DominicaEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Dominica entity</rdfs:label>
+		<skos:definition>soverign state and polity that is Dominica</skos:definition>
+		<fibo-be-ge-ge:hasFullSovereigntyOver rdf:resource="&lcc-3166-1;Dominica"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheCommonwealthOfDominica"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;DominicanRepublicEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Dominican Republic entity</rdfs:label>
+		<skos:definition>soverign state and polity that is the Dominican Republic</skos:definition>
+		<fibo-be-ge-ge:hasFullSovereigntyOver rdf:resource="&lcc-3166-1;DominicanRepublic"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheDominicanRepublic"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfAntiguaAndBarbuda">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Antigua and Barbuda</rdfs:label>
+		<skos:definition>unitary parliamentary constitutional monarchy, with the queen (Elizabeth II) as head of state represented locally by a governor-general</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;AntiguaAndBarbuda"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfAntiguaAndBarbuda"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfBarbados">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Barbados</rdfs:label>
+		<skos:definition>unitary parliamentary constitutional monarchy, modeled on the British Westminster system, with the Queen of Barbados (Elizabeth II) as head of state, represented locally by a governor-general</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Barbados"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfBarbados"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfBermuda">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;RegionalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Bermuda</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.gov.bm/"/>
+		<skos:definition>parliamentary representative democratic dependency and a British island territory in the North Atlantic Ocean</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Bermuda"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfBermuda"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfGrenada">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Grenada</rdfs:label>
+		<skos:definition>unitary two-party parliamentary constitutional monarchy that is a Commonwealth realm with Queen Elizabeth II as head of state, represented locally by a governor-general, located in the West Indies in the Caribbean Sea at the southern end of the Grenadines island chain</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Grenada"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfGrenada"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfJamaica">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Jamaica</rdfs:label>
+		<skos:definition>parliamentary constitutional monarchy with legislative power vested in the bicameral Parliament of Jamaica, consisting of an appointed Senate and a directly elected House of Representatives, and an independent member of the British Commonwealth, situated in the Caribbean Sea</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Jamaica"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfJamaica"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfSaintLucia">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Saint Lucia</rdfs:label>
+		<skos:definition>unitary parliamentary constitutional monarchy that is a Commonwealth realm with Queen Elizabeth II as head of state, represented locally by a governor-general, located in the West Indies in the eastern Caribbean Sea on the boundary with the Atlantic Ocean</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;SaintLucia"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfSaintLucia"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfSaintVincentAndTheGrenadines">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of Saint Vincent and the Grenadines</rdfs:label>
+		<skos:definition>unitary parliamentary constitutional monarchy, with the Queen of Saint Vincent and the Grenadines (Elizabeth II) as head of state represented locally by a governor-general, an Anglo-Caribbean country of several islands in the Lesser Antilles island arc, in the southeast Windward Islands, which lies in the West Indies at the southern end of the eastern border of the Caribbean Sea where the latter meets the Atlantic Ocean</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;SaintVincentAndTheGrenadines"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfSaintVincentAndTheGrenadines"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheCaymanIslands">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;RegionalGovernment"/>
+		<rdfs:label xml:lang="en">Government of the Cayman Islands</rdfs:label>
+		<rdfs:seeAlso rdf:resource="http://www.gov.ky/"/>
+		<skos:definition>parliamentary democracy with judicial, executive and legislative branches, and a British Overseas Territory, encompassing 3 islands in the western Caribbean Sea</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;CaymanIslands"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfTheCaymanIslands"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheCommonwealthOfDominica">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of the Commonwealth of Dominica</rdfs:label>
+		<skos:definition>unitary parliamentary democracy that is an independent republic and member of the Commonwealth of Nations, one of few republics in the Caribbean</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Dominica"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfDominica"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheCommonwealthOfTheBahamas">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of the Commonwealth of the Bahamas</rdfs:label>
+		<skos:definition>parliamentary constitutional monarchy, with the queen of the Bahamas (Elizabeth II) as head of state represented locally by a governor-general</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Bahamas"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfTheCommonwealthOfTheBahamas"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheDominicanRepublic">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of the the Dominican Republic</rdfs:label>
+		<skos:definition>unitary presidential republic that occupies the eastern five-eighths of the island of Hispaniola in the Greater Antilles archipelago, which it shares with Haiti</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;DominicanRepublic"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfTheDominicanRepublic"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheFederationOfSaintChristopherAndNevis">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of the Federation of Saint Christopher and Nevis</rdfs:label>
+		<skos:definition>federal parliamentary constitutional monarchy that is a Commonwealth realm with the Queen of Saint Christopher and Nevis (Queen Elizabeth II) as head of state, represented locally by a governor-general, located in the Leeward Islands chain of the Lesser Antilles</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;SaintKittsAndNevis"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfTheFederationOfSaintChristopherAndNevis"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfCuba">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="es">Gobierno de la República de Cuba</rdfs:label>
+		<rdfs:label xml:lang="en">Government of the Republic of Cuba</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.presidencia.gob.cu/en/government/"/>
+		<skos:definition>unitary Marxist-Leninist, one party socialist republic that includes the island of Cuba as well as Isla de la Juventud and several minor archipelagos</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Cuba"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfCuba"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfHaiti">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="fr">Gouvernement de la République d&apos;Haïti</rdfs:label>
+		<rdfs:label xml:lang="en">Government of the Republic of Haiti</rdfs:label>
+		<skos:definition>unitary semi-presidential republic located on the island of Hispaniola in the Greater Antilles archipelago</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;Haiti"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfHaiti"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfTrinidadAndTobago">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:label xml:lang="en">Government of the Republic of Trinidad and Tobago</rdfs:label>
+		<skos:definition>unitary parliamentary constitutional republic with a two-party system and a bicameral parliamentary system based on the Westminster System, that is the southernmost island country in the Caribbean</skos:definition>
+		<cmns-rga:governs rdf:resource="&lcc-3166-1;TrinidadAndTobago"/>
+		<cmns-rga:hasJurisdiction rdf:resource="&fibo-be-ge-cbj;JurisdictionOfTheRepublicOfTrinidadAndTobago"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;GrenadianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Grenadian entity</rdfs:label>
+		<skos:definition>soverign state and polity that is Grenada</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;Grenada"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfGrenada"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;HaitianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Haitian entity</rdfs:label>
+		<skos:definition>soverign state and polity that is Haiti</skos:definition>
+		<fibo-be-ge-ge:hasFullSovereigntyOver rdf:resource="&lcc-3166-1;Haiti"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfHaiti"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JamaicanEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Jamaican entity</rdfs:label>
+		<skos:definition>soverign state and polity that is Jamaica</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;Jamaica"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfJamaica"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfAntiguaAndBarbuda">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of Antigua and Barbuda</rdfs:label>
+		<skos:definition>jurisdiction of the Eastern Caribbean Supreme Court (based in Saint Lucia; one judge of the Supreme Court is a resident of the islands and presides over the High Court of Justice, including the Judicial Committee of the Privy Council (JCPC), which is the highest court of appeal for certain British territories, some Commonwealth countries and a few UK bodies</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;AntiguaAndBarbuda"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfAntiguaAndBarbuda"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfBarbados">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of Barbados</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Barbados, an independent branch of the Barbadian government, subject only to the Barbadian Constitution, including the Magistrates&apos; Court, Supreme Court, and Caribbean Court of Justice</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Barbados"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfBarbados"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfBermuda">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of Bermuda</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Bermuda, including the Magistrates&apos; Court, Supreme Court, Court of Appeal, and Judicial Committee of the Privy Council (JCPC), which is the highest court of appeal for certain British territories, some Commonwealth countries and a few UK bodies</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Bermuda"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfBermuda"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfCuba">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label xml:lang="es">jurisdicción de la República de Cuba</rdfs:label>
+		<rdfs:label xml:lang="en">jurisdiction of Cuba</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of the Republic of Cuba, including the system of courts that interprets and applies the law in Cuba</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Cuba"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfCuba"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfDominica">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of Dominica</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of the Commonwealth of Dominica, which is a member of the International Criminal Court, with a Bilateral Immunity Agreement of protection with the US military, as covered under Article 98</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Dominica"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheCommonwealthOfDominica"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfGrenada">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of Grenada</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Grenada, which is part of the Eastern Caribbean States Supreme Court with an associate judge residing in Grenada</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Grenada"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfGrenada"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfHaiti">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label xml:lang="fr">juridiction de la République d&apos;Haïti</rdfs:label>
+		<rdfs:label xml:lang="en">jurisdiction of Haiti</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Haiti, whose highest court is the Cour de Cassation, assisted by local and civil courts at a communal level</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Haiti"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfHaiti"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfJamaica">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of Jamaica</rdfs:label>
+		<skos:definition>the jurisdiction of the judiciary of Jamaica, a system based on English common law and local statutes, including the Judicial Committee of the Privy Council (JCPC), which is the highest court of appeal for certain British territories, some Commonwealth countries and a few UK bodies</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Jamaica"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfJamaica"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfSaintLucia">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Saint Lucia</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Saint Lucia, a mixed judicial system based on on both the civil law and English common law</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;SaintLucia"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfSaintLucia"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfSaintVincentAndTheGrenadines">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Federation of Saint Vincent and the Grenadines</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Saint Vincent and the Grenadines, which is divided into district courts, the Eastern Caribbean Supreme Court and the Privy Council in London being the court of last resort</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;SaintVincentAndTheGrenadines"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfSaintVincentAndTheGrenadines"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfTheCaymanIslands">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Cayman Islands</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of the Cayman Islands, a four-tiered judicial system is based on English common law, colonial and local statutes, including the Judicial Committee of the Privy Council (JCPC), which is the highest court of appeal for certain British territories, some Commonwealth countries and a few UK bodies</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;CaymanIslands"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheCaymanIslands"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfTheCommonwealthOfTheBahamas">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Commonwealth of the Bahamas</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of the Bahamas, a judicial system based on English common law and local statutes, including the Judicial Committee of the Privy Council (JCPC), which is the highest court of appeal for certain British territories, some Commonwealth countries and a few UK bodies, and which considered a safe jurisdiction as an International Financial Center (IFC), with a legal framework that is in compliance with the standards set by Organization for Economic Cooperation and Development (OECD)</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;Bahamas"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheCommonwealthOfTheBahamas"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfTheDominicanRepublic">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Dominican Republic</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of the Dominican Republic, whose highest court is the Supreme Court of Justice, composed of 16 judges appointed by the National Council of Magistrates, an entity created by the constitutional reform of 1994 to ensure the independence of the Judicial Branch</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;DominicanRepublic"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheDominicanRepublic"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfTheFederationOfSaintChristopherAndNevis">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Federation of Saint Christopher and Nevis</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Saint Kitts and Nevis, a mixed judicial system based on on both the civil law and English common law</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;SaintKittsAndNevis"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheFederationOfSaintChristopherAndNevis"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;JurisdictionOfTheRepublicOfTrinidadAndTobago">
+		<rdf:type rdf:resource="&cmns-rga;Jurisdiction"/>
+		<rdfs:label>jurisdiction of the Republic of Trinidad and Tobago</rdfs:label>
+		<skos:definition>jurisdiction of the judiciary of Trinidad and Tobago, a hierarchical system comprising a Supreme Court of Judicature, a Magistracy and a Family Court, with final appeal on some matters decided by the Judicial Committee of the Privy Council (JCPC)</skos:definition>
+		<cmns-rga:hasReach rdf:resource="&lcc-3166-1;TrinidadAndTobago"/>
+		<cmns-rga:isJurisdictionOf rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfTrinidadAndTobago"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;SaintKittsAndNevisEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Saint Kitts and Nevis entity</rdfs:label>
+		<skos:definition>soverign state and polity that is the Federation of Saint Christopher and Nevis</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;SaintKittsAndNevis"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheFederationOfSaintChristopherAndNevis"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;SaintLucianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Saint Lucian entity</rdfs:label>
+		<skos:definition>soverign state and polity that is Saint Lucia</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;SaintLucia"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfSaintLucia"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;SaintVincentianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Saint Vincentian entity</rdfs:label>
+		<skos:definition>soverign state and polity that is Saint Vincent and the Grenadines (or simply Saint Vincent)</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;SaintVincentAndTheGrenadines"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfSaintVincentAndTheGrenadines"/>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-ge-cbj;TrinidadianAndTobagonianEntity">
+		<rdf:type rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:label>Trinidadian and Tobagonian entity</rdfs:label>
+		<skos:definition>soverign state and polity that is the Republic of Trinidad and Tobago</skos:definition>
+		<fibo-be-ge-ge:hasSharedSovereigntyOver rdf:resource="&lcc-3166-1;TrinidadAndTobago"/>
+		<fibo-be-ge-ge:isRepresentedBy rdf:resource="&fibo-be-ge-cbj;GovernmentOfTheRepublicOfTrinidadAndTobago"/>
+	</owl:NamedIndividual>
+
+</rdf:RDF>

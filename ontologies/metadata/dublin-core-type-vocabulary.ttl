@@ -1,0 +1,139 @@
+@prefix dcmitype: <http://purl.org/dc/dcmitype/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://purl.org/dc/dcmitype/>
+    a owl:Ontology ;
+    dcterms:title "DCMI Type Vocabulary" ;
+    dcterms:description "A vocabulary of resource types for use with Dublin Core metadata elements. The DCMI Type Vocabulary is a general, cross-domain list of types of resources that may be encountered on the Internet. This list was developed with the intention of providing a set of generic, high-level classes that can be used to categorize a broad range of resource types." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2020-01-20"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:language "en" ;
+    foaf:homepage <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dcmitype/> ;
+    rdfs:comment "The DCMI Type Vocabulary defines twelve resource type classes for use with the dcterms:type element." ;
+    owl:versionInfo "2020-01-20" ;
+    dcterms:isPartOf <http://purl.org/dc/terms/> .
+
+# DCMI Resource Type Classes
+dcmitype:Collection
+    a rdfs:Class ;
+    rdfs:label "Collection" ;
+    rdfs:comment "An aggregation of resources." ;
+    dcterms:description "A collection is described as a group; its parts may also be separately described." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Collection-003> .
+
+dcmitype:Dataset
+    a rdfs:Class ;
+    rdfs:label "Dataset" ;
+    rdfs:comment "Data encoded in a defined structure." ;
+    dcterms:description "Examples include lists, tables, and databases. A dataset may be useful for direct machine processing." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Dataset-003> .
+
+dcmitype:Event
+    a rdfs:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "A non-persistent, time-based occurrence." ;
+    dcterms:description "Metadata for an event provides descriptive information that is the basis for discovery of the purpose, location, duration, and responsible agents associated with an event. In the broadest sense, events are any occurrence or instance of something." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Event-003> .
+
+dcmitype:Image
+    a rdfs:Class ;
+    rdfs:label "Image" ;
+    rdfs:comment "A visual representation other than text." ;
+    dcterms:description "This class includes images and photographs of physical objects, charts, diagrams, etc. Note that Image may include software interfaces and other visual resources not limited to physical materials." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Image-003> .
+
+dcmitype:InteractiveResource
+    a rdfs:Class ;
+    rdfs:label "Interactive Resource" ;
+    rdfs:comment "A resource requiring interaction from the user to be understood, executed, or experienced." ;
+    dcterms:description "Examples include forms on web pages, applets, multimedia learning objects, chat services, or virtual reality environments." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#InteractiveResource-003> .
+
+dcmitype:MovingImage
+    a rdfs:Class ;
+    rdfs:label "Moving Image" ;
+    rdfs:comment "A series of visual representations imparting an impression of motion when shown in succession." ;
+    dcterms:description "Examples include animations, movies, television programs, videos, zoetropes, or visual output from a simulation." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf dcmitype:Image ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#MovingImage-003> .
+
+dcmitype:PhysicalObject
+    a rdfs:Class ;
+    rdfs:label "Physical Object" ;
+    rdfs:comment "An inanimate, three-dimensional object or substance." ;
+    dcterms:description "Note that software is considered to be an abstract entity rather than a physical object. Examples include a book, stone, artifact, or a Norwegian uniworm." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#PhysicalObject-003> .
+
+dcmitype:Service
+    a rdfs:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "A system that provides one or more functions." ;
+    dcterms:description "Examples include a photocopying service, a banking service, an authentication service, interlibrary loans, a Z39.50 or Web server." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Service-003> .
+
+dcmitype:Software
+    a rdfs:Class ;
+    rdfs:label "Software" ;
+    rdfs:comment "A computer program in source or compiled form." ;
+    dcterms:description "Examples include C source code, MS-DOS .COM executable files, or Perl scripts. Examples that are not or should not be included are processor-dependent binary code not meant to be directly executed." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Software-003> .
+
+dcmitype:Sound
+    a rdfs:Class ;
+    rdfs:label "Sound" ;
+    rdfs:comment "A resource whose content is primarily intended to be rendered as audio." ;
+    dcterms:description "Examples include a music playback file format, an audio compact disc, and recorded speech or sounds." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Sound-003> .
+
+dcmitype:StillImage
+    a rdfs:Class ;
+    rdfs:label "Still Image" ;
+    rdfs:comment "A static visual representation." ;
+    dcterms:description "Examples include paintings, drawings, graphic designs, plans and maps. Recommended best practice includes vector graphics and raster graphics; animated GIFs and other implicit video should not normally be included." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf dcmitype:Image ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#StillImage-003> .
+
+dcmitype:Text
+    a rdfs:Class ;
+    rdfs:label "Text" ;
+    rdfs:comment "A resource whose primary content is words for reading." ;
+    dcterms:description "Examples include books, letters, dissertations, poems, newspapers, articles, archives of mailing lists. Note that facsimiles or images of texts are still of the genre Text." ;
+    dcterms:issued "2000-11-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    rdfs:subClassOf rdfs:Resource ;
+    dcterms:hasVersion <http://dublincore.org/usage/terms/history/#Text-003> .

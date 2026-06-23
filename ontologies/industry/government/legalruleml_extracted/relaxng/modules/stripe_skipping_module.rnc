@@ -1,0 +1,162 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Stripe-Skipping Module" ]
+dc:version [ "1.0." ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, stripe-skipping" ]
+dc:description [ "expansion module for stripe-skipping." ]
+dc:language [ "en" ]
+start |= notAllowed
+# This module extends the following RuleML choice Patterns:
+
+# All the LegalRuleML roles below are made collapsible by allowing
+# substitution of their content model for the role Pattern.
+
+# 
+# Stripe-skipping is allowed for these edges.
+
+##
+hasAgentCollection.edge.choice |= hasAgentCollection.content
+
+##
+hasAgent.edge.choice |= hasAgent.content
+
+##
+hasAlternativeCollection.edge.choice |= hasAlternativeCollection.content
+
+##
+hasAssociationCollection.edge.choice |= hasAssociationCollection.content
+
+##
+hasAssociation.edge.choice |= hasAssociation.content
+
+##
+hasAuthorityCollection.edge.choice |= hasAuthorityCollection.content
+
+##
+hasAuthority.edge.choice |= hasAuthority.content
+
+##
+hasContext.edge.choice |= hasContext.content
+
+##
+hasFigureCollection.edge.choice |= hasFigureCollection.content
+
+##
+hasFigure.edge.choice |= hasFigure.content
+
+##
+hasJurisdictionCollection.edge.choice |= hasJurisdictionCollection.content
+
+##
+hasJurisdiction.edge.choice |= hasJurisdiction.content
+
+##
+hasLegalSourceCollection.edge.choice |= hasLegalSourceCollection.content
+
+##
+hasLegalSource.edge.choice |= hasLegalSource.content
+
+##
+hasSourceCollection.edge.choice |= hasSourceCollection.content
+
+##
+hasSource.edge.choice |= hasSource.content
+
+##
+hasPrefix.edge.choice |= hasPrefix.content
+
+##
+hasLegalReferenceCollection.edge.choice |= hasLegalReferenceCollection.content
+
+##
+hasLegalReference.edge.choice |= hasLegalReference.content
+
+##
+hasReferenceCollection.edge.choice |= hasReferenceCollection.content
+
+##
+hasReference.edge.choice |= hasReference.content
+
+##
+hasRoleCollection.edge.choice |= hasRoleCollection.content
+
+##
+hasRole.edge.choice |= hasRole.content
+
+##
+hasStatementCollection.edge.choice |= hasStatementCollection.content
+
+##
+hasStatement.edge.choice |= hasStatement.content
+
+##
+hasComment.edge.choice |= hasComment.content
+
+##
+hasParaphrase.edge.choice |= hasParaphrase.content
+
+##
+hasTemplate-Constitutive.edge.choice |= hasTemplate-Constitutive.content
+
+##
+hasTemplate-Override.edge.choice |= hasTemplate-Override.content
+
+##
+hasTemplate-Penalty.edge.choice |= hasTemplate-Penalty.content
+
+##
+hasTemplate-Prescriptive.edge.choice |= hasTemplate-Prescriptive.content
+
+##
+hasTemplate-Reparation.edge.choice |= hasTemplate-Reparation.content
+
+##  
+hasTemporalCharacteristics.edge.choice |= hasTemporalCharacteristics.content
+
+##  
+hasTemporalCharacteristic.edge.choice |= hasTemporalCharacteristic.content
+
+##
+hasTimeCollection.edge.choice |= hasTimeCollection.content
+
+##
+hasTime.edge.choice |= hasTime.content
+
+## From RuleML
+##
+formula_And-const-edge.choice |= formula_And-const.content
+
+##
+formula_Deontic.edge.choice |= formula_Deontic.content
+
+##
+formula_Exists-const-edge.choice |= formula_Exists-const.content
+
+##
+formula_Forall-const-edge.choice |= formula_Forall-const.content
+
+##
+formula_Or-const-edge.choice |= formula_Or-const.content
+
+##
+formula_Suborder.edge.choice |= formula_Suborder.content
+
+##
+strong-const-edge.choice |= strong-const.content
+
+##
+torso-const-edge.choice |= torso-const.content
+
+##
+argTimeData.edge.choice |= argTimeData.content
+
+# 
+#
+DummySkip = element DummySkip { text }

@@ -1,0 +1,97 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Defeasibility" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, defeasible" ]
+dc:description [ "Expansion module for LegalRuleML defeasibility." ]
+dc:language [ "en" ]
+start |= Override.Node.def
+
+##
+QualificationFormula.choice |= 
+  SimpleFormula-node.choice
+  | And-node.choice
+  | Or-node.choice
+  | Negation-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-node.choice
+  | Forall-node.choice
+  | Exists-node.choice
+Atom-node.choice |= Override.Node.choice
+
+##
+Override.Node.choice |= Override.Node.def
+Override.Node.def =
+  
+  ## an indication that a Legal Rule takes precedence over another Legal Rule. The ordered pair of Legal Rules is an instance in a defeasible priority relation.
+  element Override { Override.type.def }
+Override.type.def = (over.attrib.choice & under.attrib.choice & Override.attlist), Override.main
+Override.attlist &= commonLRMLNodeInit.attlist?
+Override.main |= hasComment.edge.choice?, hasParaphrase.edge.choice? 
+
+##
+over.attrib.choice |= over.attrib.def
+over.attrib.def =
+  
+  ## the Legal Rule with higher priority.
+  attribute over { keyref.lrml.datatype}
+
+##
+under.attrib.choice |= under.attrib.def
+under.attrib.def =
+  
+  ## the Legal Rule with lower priority.
+  attribute under { keyref.lrml.datatype }
+
+##
+strength.attrib.opt.choice |= strength.attrib.def?
+strength.attrib.def =
+  
+  ## the (defeasible) Strength of the Legal Rule.
+  attribute strength { strength.datatype }
+
+##
+strength.datatype |= "StrictStrength" | "defeasible" | "defeater"
+
+## Strength: the quality of a Legal Rule to resist or not to resist a rebuttal.
+Strength.Node.choice |= DefeasibleStrength.Node.choice | StrictStrength.Node.choice | Defeater.Node.choice
+
+##
+DefeasibleStrength.Node.choice |= DefeasibleStrength.Node.def
+DefeasibleStrength.Node.def =
+  
+  ## an indication that, in the absence of information to the contrary, where the premises of a Legal Rule hold, the conclusion of the Legal Rule holds.
+  element DefeasibleStrength { DefeasibleStrength.type.def }
+DefeasibleStrength.type.def = DefeasibleStrength.attlist, DefeasibleStrength.main
+DefeasibleStrength.attlist &= commonLRMLNodeInit.attlist?
+DefeasibleStrength.attlist &= iri.lrml.attrib.opt.choice?
+DefeasibleStrength.main |= hasComment.edge.choice?
+
+##
+StrictStrength.Node.choice |= StrictStrength.Node.def
+StrictStrength.Node.def =
+  
+  ## an indication that where the premises of a Legal Rule are indisputable, the conclusion of the Legal Rule is indisputable.
+  element StrictStrength { StrictStrength.type.def }
+StrictStrength.type.def = StrictStrength.attlist, StrictStrength.main
+StrictStrength.attlist &= commonLRMLNodeInit.attlist?
+StrictStrength.attlist &= iri.lrml.attrib.opt.choice?
+StrictStrength.main |= hasComment.edge.choice?
+
+##
+Defeater.Node.choice |= Defeater.Node.def
+Defeater.Node.def =
+  
+  ## an indication that, in the absence of information to the contrary, where the premises of a Legal Rule hold, the opposite of the conclusion of the Legal Rule does not hold.
+  element Defeater { Defeater.type.def }
+Defeater.type.def = Defeater.attlist, Defeater.main
+Defeater.attlist &= commonLRMLNodeInit.attlist?
+Defeater.attlist &= iri.lrml.attrib.opt.choice?
+Defeater.main |= hasComment.edge.choice?

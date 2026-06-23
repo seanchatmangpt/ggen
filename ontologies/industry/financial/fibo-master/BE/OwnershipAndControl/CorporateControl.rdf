@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-le-fbo "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalBusinessOrganizations/">
+	<!ENTITY fibo-be-oac-cctl "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/">
+	<!ENTITY fibo-be-oac-cown "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateOwnership/">
+	<!ENTITY fibo-be-oac-cpty "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/">
+	<!ENTITY fibo-be-oac-opty "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/">
+	<!ENTITY fibo-fnd-oac-ctl "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Control/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-le-fbo="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalBusinessOrganizations/"
+	xmlns:fibo-be-oac-cctl="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/"
+	xmlns:fibo-be-oac-cown="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateOwnership/"
+	xmlns:fibo-be-oac-cpty="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/"
+	xmlns:fibo-be-oac-opty="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"
+	xmlns:fibo-fnd-oac-ctl="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Control/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateControl/">
+		<rdfs:label>Corporate Control Ontology</rdfs:label>
+		<dct:abstract>This ontology defines concepts relating to corporation-specific control. These concepts are based on the general types of control (both de facto control and controlling interests), as defined in the ControlParties ontology, and are the specific examples of these concepts as they apply to companies incorporated by the issuance of shares.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+		Copyright (c) 2013-2025 Object Management Group, Inc.
+		
+		Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalBusinessOrganizations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/CorporateOwnership/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Control/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20250301/OwnershipAndControl/CorporateControl/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20131101/OwnershipAndControl/CorporateControl.rdf version of this ontology was modified per the issue resolutions identified in the FIBO BE 1.0 FTF report.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20160201/OwnershipAndControl/CorporateControl.rdf version of this ontology was modified per the FIBO 2.0 RFC to add missing definitions and labels, eliminate references to BusinessFacingTypes, replace min 1 QCRs with someValuesFrom, address other hygiene issues, and limit the burden of certain restrictions, such as those on stock corporation, for typical applications.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20180801/OwnershipAndControl/CorporateControl.rdf version of this ontology was modified as a part of a simplification strategy for the organizational class hierarchy and to correct reasoning anomalies.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20190101/OwnershipAndControl/CorporateControl.rdf version of this ontology was revised to allow any legal entity to participate in control relations rather than limiting control to a stock corporation, and simplifying others such that any party can be a significant shareholder, for example, rather than limiting this role to a legal entity.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200501/OwnershipAndControl/CorporateControl.rdf version of this ontology was revised to further clean up definitions related to control via ownership of shares, which only applies to corporations and some partnerships, and revise and extend the definition of affiliation.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200601/OwnershipAndControl/CorporateControl.rdf version of the ontology was modified to simplify control concepts and relations.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20201201/OwnershipAndControl/CorporateControl.rdf version of the ontology was modified to incorporate the latest insights into how control relations should integrate with the control situation.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20210401/OwnershipAndControl/CorporateControl.rdf version of the ontology was modified to address text formatting hygiene issues.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20220801/OwnershipAndControl/CorporateControl.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230101/OwnershipAndControl/CorporateControl.rdf version of the ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20240101/OwnershipAndControl/CorporateControl.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;Affiliate">
+		<rdfs:subClassOf rdf:resource="&cmns-pts;PartyRole"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-oac-cctl;isAffiliateOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-oac-cctl;Affiliate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>affiliate</rdfs:label>
+		<owl:equivalentClass>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-be-oac-cpty;MajorityControllingParty">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-be-oac-cpty;ControlledParty">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</owl:equivalentClass>
+		<skos:definition>party that is related to a legal entity, directly, or indirectly through one or more intermediaries, and controls, or is controlled by, or is under common control with that entity, typically determined by the degree of ownership</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;Affiliation">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-oac-ctl;Control"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-pts;hasActor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-oac-cctl;ControllingAffiliate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-pts;hasUndergoer"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-oac-cctl;ControlledAffiliate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>affiliation</rdfs:label>
+		<skos:definition>situation in which a controlled party is affiliated with a controlling party for some period of time</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;ControlledAffiliate">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;ControlledParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;Affiliate"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:allValuesFrom rdf:resource="&cmns-org;LegalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>controlled affiliate</rdfs:label>
+		<skos:definition>controlled party in an affiliation situation</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;ControllingAffiliate">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;MajorityControllingParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;Affiliate"/>
+		<rdfs:label>controlling affiliate</rdfs:label>
+		<skos:definition>controlling party in an affiliation situation</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;DomesticUltimateParent">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;TotalControllingInterestParty"/>
+		<rdfs:label>domestic ultimate parent</rdfs:label>
+		<skos:definition>party that is recognized as the ultimate parent of a given organization within the country or jurisdiction of incorporation or organization</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;GlobalUltimateParent">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;TotalControllingInterestParty"/>
+		<rdfs:label>global ultimate parent</rdfs:label>
+		<skos:definition>party that is recognized as the ultimate parent of a given organization world-wide</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;JointVenturePartner">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;EntityControllingParty"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-oac-ctl;isControllingPartyOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-le-fbo;JointVenture"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>joint venture partner</rdfs:label>
+		<skos:definition>party that shares capital, technology, human resources, risks, and benefits of an entity under shared control</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;SignificantShareholder">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;VotingShareholder"/>
+		<rdfs:label>significant shareholder</rdfs:label>
+		<skos:definition>party that owns a significant voting stake in an organization that is less than 50 percent but greater than some threshold</skos:definition>
+		<cmns-av:explanatoryNote>Note that the concept of significance varies depending on the jurisdiction, and particularly with respect to reporting requirements. For example, in some cases, three (3) percent ownership of any class or series of shares is considered significant, and in others it means more than five or ten percent of the total combined voting power across all classes of securities.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;Subsidiary">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;ControlledAffiliate"/>
+		<rdfs:label>subsidiary</rdfs:label>
+		<skos:definition>legal entity that is entirely or majority owned and controlled by another legal entity</skos:definition>
+		<cmns-av:explanatoryNote>A subsidiary is a separate, distinct legal entity from its parent company(ies) for the purposes of taxation, regulatory compliance, and with respect to liability.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;TotalControllingInterestParty">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;TotalOwner"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cctl;SignificantShareholder"/>
+		<rdfs:label>total controlling interest party</rdfs:label>
+		<skos:definition>voting shareholder that owns 100 percent of the voting shares in some legal entity</skos:definition>
+		<cmns-av:explanatoryNote>By virtue of holding 100 percent of the share ownership, the total controlling interest company also holds 100 percent of the controlling equity, if there is a difference. Therefore, it is both a total owner and a total controlling party.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>parent company</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-cctl;VotingShareholder">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;DeJureControllingInterestParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cown;Shareholder"/>
+		<rdfs:label>voting shareholder</rdfs:label>
+		<skos:definition>shareholder whose shares confer the right to vote in corporate elections, including the right to elect directors at annual or special meetings, and to express their views to corporate management and directors on significant issues that may affect the value of those shares</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;hasAffiliate">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-oac-ctl;isControlledPartyOf"/>
+		<rdfs:label>has affiliate</rdfs:label>
+		<rdfs:domain rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;Affiliate"/>
+		<skos:definition>has a party which directly, or indirectly through one or more intermediaries, controls, or is controlled by, or is under common control with the company</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;hasControllingAffiliate">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cctl;isAffiliateOf"/>
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;isAffectedBy"/>
+		<rdfs:label>has controlling affiliate</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-cctl;ControlledAffiliate"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;ControllingAffiliate"/>
+		<skos:definition>is directly, or indirectly through one or more intermediaries, controlled by</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;hasDomesticUltimateParent">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cpty;hasMajorityControllingParty"/>
+		<rdfs:label>has domestic ultimate parent</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;DomesticUltimateParent"/>
+		<skos:definition>relates an organization to another recognized as its ultimate parent, within its country or jurisdiction of incorporation, if it has one</skos:definition>
+		<skos:editorialNote>In the case of companies that are subsidiaries of another company that itself has a parent, this identifies the organization at the top of the hierarchy of organizations in the country of registration. Adapted from consensus definition of Ultimate Parent, now that this is split into national and global parent.</skos:editorialNote>
+		<cmns-av:adaptedFrom>consensus definition of ultimate parent, with the split between domestic and global parent</cmns-av:adaptedFrom>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;hasGlobalUltimateParent">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cpty;hasMajorityControllingParty"/>
+		<rdfs:label>has global ultimate parent</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;GlobalUltimateParent"/>
+		<skos:definition>relates an organization to another recognized as its ultimate parent, if it has one</skos:definition>
+		<skos:editorialNote>In the case of companies that are subsidiaries of another company that itself has a parent, this identifies the organization at the top of the hierarchy, world-wide. Adapted from consensus definition of Ultimate Parent, now that this is split into national and global parent.</skos:editorialNote>
+		<cmns-av:adaptedFrom>consensus definition of ultimate parent, with the split between domestic and global parent</cmns-av:adaptedFrom>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;hasSubsidiary">
+		<rdfs:label>has subsidiary</rdfs:label>
+		<rdfs:domain rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;Subsidiary"/>
+		<owl:propertyChainAxiom rdf:parseType="Collection">
+			<rdf:Description rdf:about="&cmns-rlcmp;playsRole">
+			</rdf:Description>
+			<rdf:Description rdf:about="&fibo-be-oac-cctl;isParentCompanyOf">
+			</rdf:Description>
+		</owl:propertyChainAxiom>
+		<skos:definition>relates a legal entity to another organization that it owns at least 50 percent of</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;isAffiliateOf">
+		<rdf:type rdf:resource="&owl;SymmetricProperty"/>
+		<rdfs:label>is affiliate of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-cctl;Affiliate"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;Affiliate"/>
+		<skos:definition>relates a party which directly, or indirectly through one or more intermediaries, controls, or is controlled by, or is under common control by another party to that party</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;isControllingAffiliateOf">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cctl;isAffiliateOf"/>
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;actsOn"/>
+		<rdfs:label>is controlling affiliate of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-cctl;ControllingAffiliate"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;ControlledAffiliate"/>
+		<owl:inverseOf rdf:resource="&fibo-be-oac-cctl;hasControllingAffiliate"/>
+		<skos:definition>controls directly, or indirectly through one or more intermediaries</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;isParentCompanyOf">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cctl;isControllingAffiliateOf"/>
+		<rdfs:label>is parent company of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-cctl;ControllingAffiliate"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;Subsidiary"/>
+		<owl:inverseOf rdf:resource="&fibo-be-oac-cctl;isSubsidiaryOf"/>
+		<skos:definition>indicates a controlled affiliate that it owns at least 50 percent of</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;isSubsidiaryOf">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cctl;hasControllingAffiliate"/>
+		<rdfs:label>is subsidiary of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-cctl;Subsidiary"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;ControllingAffiliate"/>
+		<skos:definition>is controlled directly, or indirectly through one or more intermediaries and owned at least 50 percent by</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-cctl;isWhollyOwnedBy">
+		<rdfs:label>is wholly owned by</rdfs:label>
+		<rdfs:domain rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-cctl;TotalControllingInterestParty"/>
+		<owl:propertyChainAxiom rdf:parseType="Collection">
+			<rdf:Description rdf:about="&cmns-rlcmp;playsRole">
+			</rdf:Description>
+			<rdf:Description rdf:about="&fibo-be-oac-cctl;isSubsidiaryOf">
+			</rdf:Description>
+		</owl:propertyChainAxiom>
+		<skos:definition>relates a legal entity to a party that has 100 percent ownership and control over it</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

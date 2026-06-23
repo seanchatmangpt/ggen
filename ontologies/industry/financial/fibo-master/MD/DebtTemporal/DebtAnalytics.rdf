@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-qtu "https://www.omg.org/spec/Commons/QuantitiesAndUnits/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fbc-fi-ip "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-utl-alx "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-ind-ind "https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/">
+	<!ENTITY fibo-ind-ir-ir "https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/">
+	<!ENTITY fibo-md-dbtx-aly "https://spec.edmcouncil.org/fibo/ontology/MD/DebtTemporal/DebtAnalytics/">
+	<!ENTITY fibo-sec-dbt-bnd "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/Bonds/">
+	<!ENTITY fibo-sec-dbt-dbti "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/">
+	<!ENTITY fibo-sec-dbt-mbs "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/">
+	<!ENTITY fibo-sec-dbt-pbs "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/">
+	<!ENTITY fibo-sec-sec-pls "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/MD/DebtTemporal/DebtAnalytics/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-qtu="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fbc-fi-ip="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-utl-alx="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-ind-ind="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"
+	xmlns:fibo-ind-ir-ir="https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/"
+	xmlns:fibo-md-dbtx-aly="https://spec.edmcouncil.org/fibo/ontology/MD/DebtTemporal/DebtAnalytics/"
+	xmlns:fibo-sec-dbt-bnd="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/Bonds/"
+	xmlns:fibo-sec-dbt-dbti="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"
+	xmlns:fibo-sec-dbt-mbs="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/"
+	xmlns:fibo-sec-dbt-pbs="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/"
+	xmlns:fibo-sec-sec-pls="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/MD/DebtTemporal/DebtAnalytics/">
+		<rdfs:label xml:lang="en">Debt Analytics Ontology</rdfs:label>
+		<dct:abstract>This ontology covers an extensive range of analytical measures for debt instruments and pools of debt instruments. These cover the well-known concepts of convexity, duration and life, as well as weighted average loan ages and maturities, prepayments speeds etc. for debt pools. Most of the widely referenced variants of these are included, for example modified duration. Some yield related concepts (e.g. for equivalent yield) are also included. Debt pricing and yields are intimately related, and this ontology sets out the basic concepts of debt price, including different ways in which debt and bod prices are described and calculated, as well as a range of different kinds of yield (simple yield, Wall Street Yield, Japanese Yield and so on). The pricing terms are supported by a range of trading and exchange related concepts that are used to differentiate different kinds of debt price, for example last, high and low exchange prices.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/InstrumentPricing/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/Bonds/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/MD/DebtTemporal/DebtAnalytics/"/>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Provisional"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;BondEquivalentYield">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;RelativelyDefinedDebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;EquivalentYieldCalculationMethod"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">bond equivalent yield</rdfs:label>
+		<skos:definition xml:lang="en">Yield determined on an equivalent basis to the yield of another bond. This is used to be able to realistically compare prices between debt instruments across different markets.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">For example when comparing Treasury with Corp it&apos;s called a Corp Bond Equivalent Yield; when comparing other kinds of yields this would be labelled differently. Treasury bills typically in discount rates - that&apos;s one of the ways you would compare TB or MM or RePo to BEQ - by changing the day count. Detailed implementation of this: This term refers to the type of bond that it is equivalent to, that is the type of bond whose yield is normally determined according to the yield calculation method that is used in determining this Bond Equivalent Yield figure. The type of bond in this instance is defined in relation to the market on which that bond trades, for example the US Corporate Bond Market.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;CreditSpread">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;YieldSpread"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ir-ir;ReferenceInterestRate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit spread</rdfs:label>
+		<skos:definition xml:lang="en">yield spread that reflects the additional net yield an investor can earn from a security with more credit risk relative to one with less credit risk</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The credit spread of a particular security is often quoted in relation to the yield on a credit risk-free benchmark security or reference rate. Further Notes There are several measures of credit spread, including Z-spread and option-adjusted spread. Old definition (Algo) The spread between the credit rating of something and its maturity. THis is now defined as a different term pending further review with Algorithmics. Update from SMER. difference between risk free price (price of govt bond) and the price of this security. (matches Wikipedia definition above) i.e. price of this credit versus the price of a (near) risk free credit. The latter is a reference security with low risk such as a Treasury Bond. Is this between prices or between yields? can be expressed as either wrt price or yield, and this is detemined by context for different markets. Try and get a list. This is more generic - the meaning is not that it is speciufically wrt yield as such. Debt Price Spread is in context of price, whereas this is more generic.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;CurrentYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-ip;CleanPrice"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">current yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">The ratio of the interest payment amount to the clean price.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This is a kind of yield that applies to debt instruments only as it relates to the clean price. It differs from the simple yield in that simple yield relates to the actual price paid for the bond, which on will differ from the clean price by the amount of accrued interest.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtConvexityAnalytic">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;DatedCollectionConstituent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;isRateOfChangeOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DurationAnalytic"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-ind-ind;MarketSpread"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt convexity analytic</rdfs:label>
+		<skos:definition xml:lang="en">The second derivative of a security&apos;s price with respect to its yield, divided by the security&apos;s price. A security exhibits positive convexity when its price rises more for a downward move in its yield than its price declines for an equal upward move in its yield. Further notes: A measure of the change in price for a given change in Modified Duration. This always (necessarily) refers to Modified Duration. This is used as another risk measurement. Numerator is always (a) duration - either MacCaulays or Modified. Always rate of change of (one of the) Duration against some other parameter. The other paramater can be characterised as a Yield (it may be the Price, but that has a relationship to the Yield in any case). REVIEW: Inconsistency in the above - is it always necessarily Modified Duration that is referred to, or &quot;any&quot; Duration measure (Macaulays and.or Modified)? notes 9 Dec A measure of the sensitivity of the price with reference to interest rates. This is normally determined with reference to maturity, but since there are different maturity dates, this figure gives an estimate of the equitvalent if you had a homogenous portfolio, i.e. this is an estimate based on a pure equivalent, homogenous portfolio. Convexity of instrument versus portfolio. Sees instrument in terms of the set of cashflows. The term Convexity can be applied either to a bond or to a portfolio. More notes: When you get Convexit in MD, it will tell you what Duration it is refrfering to, along with Redemption Date (logically). Also if there is Option Adjusted Yield, there is a third set of analytics. What are they? i.e. OA Convexity, Duration Yield and the rest. Conclusions: Agreed to revisit this in OTC.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtInstrumentYield">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;Yield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;calculationFollowing"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-md-dbtx-aly;LifeAnalytic">
+							</rdf:Description>
+							<owl:Restriction>
+								<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasOriginalTimeToMaturity"/>
+								<owl:someValuesFrom rdf:resource="&cmns-dt;ExplicitDuration"/>
+							</owl:Restriction>
+							<rdf:Description rdf:about="&fibo-sec-dbt-dbti;PrescriptiveEvent">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-sec-dbt-dbti;RedemptionEvent">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-ip;SecurityPrice"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt instrument yield</rdfs:label>
+		<skos:definition xml:lang="en">The return on the debt instrument at the stated price.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Yield has a relationship to the price.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtPriceSpread">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ind-ind;MarketSpread"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-ip;SecurityPrice"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt price spread</rdfs:label>
+		<skos:definition xml:lang="en">The difference between the [what?] of a security and the fair price value of a different security which is used as a point of reference. The spread is used to determine the price of the instrument. (draft definition)</skos:definition>
+		<skos:editorialNote xml:lang="en">This was &quot;Spread&quot; in the Debt pricing reviews, however that word has at least 2 other uses (spread between equity bid and offer prices; spread for derivatives). Detailed notes from Debt Pricing Review session 5 Aug: Identify what the spread is in relation to e.g. LIBOR. ALSO If fixed of floating. So if it&apos;s a FRN, For a fixed rate bond, it&apos;s priced off the on-the-run, e.g. a 30 year bond is priced as a spread wrt a 30 year treasury bond. So e..g spread would be something like 10bp+the value of the 30 year on the run Treasury. On the Run: definition needed. Also class of Thing and where this should go.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtSecuritiesMarketMaker">
+		<rdfs:subClassOf rdf:resource="&cmns-org;ServiceProvider"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;determinesMarketPriceForDebt"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;OTCBondMarketPrice"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt securities market maker</rdfs:label>
+		<skos:definition xml:lang="en">An actor which has the role of Market Maker in a given market.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtYieldToAverageLife">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-pbs;WeightedAverageLife"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt yield to average life</rdfs:label>
+		<skos:definition xml:lang="en">The yield achieved by substituting a bond&apos;s average life for the issue&apos;s final maturity date.</skos:definition>
+		<skos:editorialNote xml:lang="en">Assume from this that there is also a Yield to Equivalent Life. Some sources have these as the same term, whereas we have separated them.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtYieldToEquivalentLife">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;EquivalentLifeAnalytic"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt yield to equivalent life</rdfs:label>
+		<skos:definition xml:lang="en">The yield achieved by substituting a bond&apos;s equivalent life for the issue&apos;s final maturity date.</skos:definition>
+		<skos:editorialNote xml:lang="en">Some sources have Average Life and Equivalent Life as the same term, whereas we have separated them.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtYieldToMaturity">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasOriginalTimeToMaturity"/>
+						<owl:someValuesFrom rdf:resource="&cmns-dt;ExplicitDuration"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt yield to maturity</rdfs:label>
+		<skos:definition xml:lang="en">The internal rate of return an investor would achieve if he or she purchased that bond at its current dirty price, and held it to maturity, assuming all coupon and principal payments are received as scheduled.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtYieldToNextCall">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;NextCall"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt yield to next call</rdfs:label>
+		<skos:definition xml:lang="en">The yield of a bond to the next possible call date.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DebtYieldToWorst">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;WorstCall"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt yield to worst</rdfs:label>
+		<skos:definition xml:lang="en">Yield to the worst case of when the instrument might be called.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DiscountedInstrumentYield">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:label xml:lang="en">discounted instrument yield</rdfs:label>
+		<skos:definition xml:lang="en">Yield quoted for a discount instrument. This is the ratio of the discount to the face value, divided by the period to maturity as a fraction of a year.</skos:definition>
+		<cmns-av:usageNote xml:lang="en">Applies to Debt only.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;DurationAnalytic">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">duration analytic</rdfs:label>
+		<skos:definition xml:lang="en">Weighted average time to receipt of all the payments.</skos:definition>
+		<skos:editorialNote xml:lang="en">Duration in general is a measure of % price change for a given change in yield. See definition from BMB The duration on a traditional bond will be much shorter than the duration relative to the maturity. Duration is the first derivative of the curve between Price and Yield. There are multiple types of duration, all of which are variants of this. So Duration is the first derivative and the different type of duration measure are different ways of measuring this, for example a &quot;quick and dirty&quot; measure of duration or one which.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;EffectiveDuration">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DurationAnalytic"/>
+		<rdfs:label xml:lang="en">effective duration</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;EffectiveYield">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:label xml:lang="en">effective yield</rdfs:label>
+		<skos:editorialNote xml:lang="en">The difference between this and Native yield is as per note: Native yield relates to price quotation context; Effective Yild is in relation to portfolio analytics. Recall: every analytic formula relates to the set of cash flows, so there are assumptions underlying each of these, For example the assumption that Y is constant, which it isn&apos;t (because there is a curve, which may be convex not linear (is that right?). So you can compare rate or return between what I see and what the market has out there. In the US market: a Y which is calculated using Monto Carlo method simulation. relationship facts to add: Relation to method / formula (e.g. Monte Carlo), and the method used to determine the actual figure for the MC method. eff Y for single instrument: E Y for bonds without calls and stuff. Variation in this: whether we look at a whole set of bonds YTM quoted by Bmb would be the YTM quoted according to whatever the market is - = the NAtive Yield. SO: Publicly quoted more: choose another adjective.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;EquivalentLifeAnalytic">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;LifeAnalytic"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;PartialCallsEstimationModel"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-bnd;BondWithPartialCall"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">equivalent life analytic</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-dbt-pbs;WeightedAverageLife"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;EquivalentYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;RelativeYieldCalculationMethod"/>
+		<rdfs:label xml:lang="en">equivalent yield calculation method</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;ExchangeTradedBondPrice">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;SecurityPrice"/>
+		<rdfs:label xml:lang="en">exchange traded bond price</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-md-dbtx-aly;OTCBondMarketPrice"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;FFIECDown300PrepaySpeed">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;PrepaymentSpeed"/>
+		<rdfs:label xml:lang="en">f f i e c down 300 prepay speed</rdfs:label>
+		<skos:definition xml:lang="en">Public Securities Association (PSA) speed used for the underlying collateral for cash-flow calculations in the &quot;down 300&quot; scenario.</skos:definition>
+		<skos:editorialNote xml:lang="en">Detailed parameters to follow, but basically these three PSA terms are differentiated by the fact that they reference 3 different prepayment models, so each of these will refer to a sub-type of the term &quot;Loan Pool Prepayment Model&quot;. For now the semantics are defined only in this written definition. Add model variants and terms in a future version.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;FFIECUp300PrepaySpeed">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;PrepaymentSpeed"/>
+		<rdfs:label xml:lang="en">f f i e c up 300 prepay speed</rdfs:label>
+		<skos:definition xml:lang="en">Public Securities Association (PSA) speed used for the underlying collateral for cash-flow calculations in the &quot;up 300&quot; scenario.</skos:definition>
+		<skos:editorialNote xml:lang="en">Detailed parameters to follow, but basically these three PSA terms are differentiated by the fact that they reference 3 different prepayment models, so each of these will refer to a sub-type of the term &quot;Loan Pool Prepayment Model&quot;. For now the semantics are defined only in this written definition. Add model variants and terms in a future version.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;ICMAYieldFormula">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationFormula"/>
+		<rdfs:label xml:lang="en">i c m a yield formula</rdfs:label>
+		<skos:definition xml:lang="en">The calculation method specified by ICMA (formerly ISMA) for determination of yield for fixed-rate bonds.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This basic formula is used across many markets, including the US and most of Europe. While individual markets may have different flavors (French round their bonds to 5 decimals, UK Gilts have ex-div), the formula is still the same. This would be the formula used by &quot;Wall Street Yield&quot;, &quot;US Treasury Yield&quot;, &quot;Corporate Bond Yield&quot; etc. Notes Origin:Fidessa</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;ImpliedForwardRate">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;InterestRate"/>
+		<rdfs:label xml:lang="en">implied forward rate</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;InternallyDeterminedPriceSpread">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtPriceSpread"/>
+		<rdfs:label xml:lang="en">internally determined price spread</rdfs:label>
+		<skos:definition xml:lang="en">The spread determined internally within the organisation from information available at their own trading desks. Further Notes Internal prices within a bank would be determined by surveying their own traders. So e.g. corporate desk trades these 30 bonds, get the daily spreads on those at the end of the day and calculate the price. The traders determine the pricing during the based on market movements. (this is all for OTC traded bonds, not exchange traded bonds).</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;JapaneseCompoundYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:label xml:lang="en">japanese compound yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">No definition in selection list.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;JapaneseSimpleYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:label xml:lang="en">japanese simple yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">No definition.Term put here from memory. 02 Dec changed from Japanese Yield to Japanese Simple Yield. note hat Japanese Compound yield also here (from FIBIM or anothe rlist, added 25 nov with the rest).</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;KeyRateDuration">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DurationAnalytic"/>
+		<rdfs:label xml:lang="en">key rate duration</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;LifeAnalytic">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">life analytic</rdfs:label>
+		<skos:definition xml:lang="en">Some measure of the life of a security, other than the actual time to maturity itself. This is a derived figure, based on certain parameters as appropriate to that type of instrument, to give a figure that is equivalent to and similar to the basic maturity of the instrument, for the purposes of analysing that security.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;LoanPoolPrepaymentModel">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;Formula"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;LoanPrepaymentFormula"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">loan pool prepayment model</rdfs:label>
+		<skos:definition xml:lang="en">Model of the prepayments of loans in a pool of individual loans, such as a mortgage pool or loan pool.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This model captures the parameters that may influence the prepayment of loans or mortgages and relates these mathematically.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;LoanPrepaymentFormula">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;Formula"/>
+		<rdfs:label xml:lang="en">loan prepayment formula</rdfs:label>
+		<skos:definition xml:lang="en">The formula which embodies the model for loan pool prepayment speed.</skos:definition>
+		<skos:editorialNote xml:lang="en">From SMER sessions: This is a model. Includes other factors such as homogeniety. To model this more completely we need to identify the parameters that go in to this formula. Among these is the above homogeneity measure - need to know how that is measured and in what terms it is expressed, e.g. as a percentage, with reference to some mean or standard deviation and so on. Also some of the parameters used in this model would presumably make reference to standard mathematical model constructs such as normal distribution, variaous deviation measures, Chi squared and so on. These are not presently in the semantics model, but can be modeled semantically if required. This would not however be a mathematical model - we only need to identify these and show meaningful relationships (not mathematical relationships) between them.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;MacCaulaysDurationAnalytic">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DurationAnalytic"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-ip;InternalRateOfReturn"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">MacCaulays Duration Analytic</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;MaturityEquivalentPSA">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;PrepaymentSpeed"/>
+		<rdfs:label xml:lang="en">maturity equivalent p s a</rdfs:label>
+		<skos:definition xml:lang="en">Prepayment speed that results in the same average life as that computed for the Collateralized Mortgage Obligation (CMO), Asset Backed Securities (ABS) or Mortgage Backed Securities (MBS) using the Maturity Prepay Model.</skos:definition>
+		<skos:editorialNote xml:lang="en">Detailed parameters to follow, but basically these three PSA terms are differentiated by the fact that they reference 3 different prepayment models, so each of these will refer to a sub-type of the term &quot;Loan Pool Prepayment Model&quot;. For now the semantics are defined only in this written definition. Add model variants and terms in a future version.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;ModifiedDurationAnalytic">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DurationAnalytic"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;MacCaulaysDurationAnalytic"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">modified duration analytic</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-md-dbtx-aly;MacCaulaysDurationAnalytic"/>
+		<skos:definition xml:lang="en">The percentage price change of a security for a given change in yield. The higher the modified duration of a security, the higher its risk. Ad/ModDuration = [duration / {1 + (IRR/M)}]; where IRR is the internal rate of return and M is the number of compounding periods per year.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The higher the MD the greater the change in price for a given change in yield.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;NativeYield">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;RelativelyDefinedDebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;NativeYieldCalculationMethod"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">native yield</rdfs:label>
+		<skos:definition xml:lang="en">The yield of the security as determined using the Yield Calculation Method that is the default for the market that the security is traded in.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">conventional yield for that security type and geo location, ie. would be in relation too</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;NativeYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;RelativeYieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;isDefaultMethodFor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-dbti;TradableDebtInstrument"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">native yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">The convention used in the marketplace for that security.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;NextCall">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;CallEvent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasDate"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;NextCallDate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">next call</rdfs:label>
+		<skos:definition xml:lang="en">The next call of the issue, as at the current time.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;NextCallDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;Date"/>
+		<rdfs:label xml:lang="en">next call date</rdfs:label>
+		<skos:definition xml:lang="en">The next date on which the issue can be called, from the present date.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;NextPut">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;PutEvent"/>
+		<rdfs:label xml:lang="en">next put</rdfs:label>
+		<skos:definition xml:lang="en">The next available put date for the issue, as at the current time.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;OTCBondMarketPrice">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-ip;SecurityPrice"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-ip;hasPricingSource"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DebtSecuritiesMarketMaker"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">o t c bond market price</rdfs:label>
+		<skos:definition xml:lang="en">The price determined for the marketplace for a bond which is traded over the counter.</skos:definition>
+		<skos:editorialNote xml:lang="en">Review comment: Must include Attribution. This is in the model in the form of tha Market Maker (an actor in the activity of secondary market trading for OTC-traded debt).</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;OptionAdjustedYield">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:label xml:lang="en">option adjusted yield</rdfs:label>
+		<skos:definition xml:lang="en">NB specified as a spread. synonym: OAS Based on different Int Rate paths. There are different OAS models just like there are different Yield methods. Also would make reference to the Yield Curve - but these are parameters that go into that model. Limit this model at the point where it distinguishes the difference between things - we are not in a position to mathematically model the things themselves, just capture the basic facts.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;PartialCallsEstimationModel">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;Formula"/>
+		<rdfs:label xml:lang="en">partial calls estimation model</rdfs:label>
+		<skos:definition xml:lang="en">A model of how the early partial calls are estimated.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;PoolFactor">
+		<rdfs:subClassOf rdf:resource="&cmns-qtu;Percentage"/>
+		<rdfs:label xml:lang="en">pool factor</rdfs:label>
+		<skos:definition xml:lang="en">How much of the original pool is still outstanding. This is a number below one. Expressed as percentage.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Would multiply the factor by the starting value of the pool. This determines how much it is paying down. Would take the form of a 10 digit decimal factor showing how much of the pool is outstanding. You get Factor information every month or so which includes the WAM figure (and the WALA and WAC). The rate can be derived from this. that would be the rate at which the pool is paying down. These all come from the issuer.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;PoolPaydownRate">
+		<rdfs:subClassOf rdf:resource="&cmns-qtu;Ratio"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-acc-cur;hasRateValue"/>
+				<owl:onDataRange rdf:resource="&xsd;decimal"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;PoolFactor"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">pool paydown rate</rdfs:label>
+		<skos:definition xml:lang="en">The rate at which the pool is paying down. This is based on observed factor. CPR, SMM, etc. etc. Measured differently for different kinds of security. CBO might have a prepayment rate for example if the underlying bond is callable. with a non agency mortgge dela, defualts will effect this. so for instance there is principal is no lnger inthe pool because the mortgagee defaults. With agency these are not taken out in the case of default but for non agency these mortgages are removed from the pool if and when a mortgagee defualts.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;PriceValueOfBasisPoint">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">price value of basis point</rdfs:label>
+		<skos:definition xml:lang="en">Sensitivity of the price for one basis point change in yield, defined as the difference in price given 1 bp change in yield.</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">PVBP</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">Price value of Basis Point Definition: The difference in price given 1 bp change in yield. This is like Duration but normalized to 1 basis point. Synonym DV01</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;RelativeYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:label xml:lang="en">relative yield calculation method</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;RelativelyDefinedDebtInstrumentYield">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:label xml:lang="en">relatively defined debt instrument yield</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;RussianYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-utl-alx;hasFormula"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;RussianYieldFormula"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">russian yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">The method used in determining Yield in the Russian markets. This is based on an effective yield with fundamentally different math. To give an example of the use of a different &quot;yield type&quot;, we have Russia, which trades based on an effective yield. The price-yield math is fundamentally different. Notes Origin:Fidessa Uses a trade space and effective yield formula. MAy have same day types but different math.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;RussianYieldFormula">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationFormula"/>
+		<rdfs:label xml:lang="en">russian yield formula</rdfs:label>
+		<skos:definition xml:lang="en">This is based on a different Effective Yield than on another market.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;SimpleYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-ip;DirtyPrice"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">simple yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">The annual rate of return expressed as a percentage. This is the return divided by the outlay and multiplied by 100 to express the figure as a percentage.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This is yield in its simplest sense, expressed as a percentage of return to outlay. As such, this is the same way that yield is determined for any investments, not just financial instruments or debt investments.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;SpanishYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:label xml:lang="en">spanish yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">The method used in determining annual yield in Spanish corporate bonds.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;USCorporateBondYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-utl-alx;hasFormula"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;ICMAYieldFormula"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">u s corporate bond yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">This has 30/360 and semi-annual compounding.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;USTreasuryYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-utl-alx;hasFormula"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;ICMAYieldFormula"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">u s treasury yield calculation method</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;WallStreetYieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-utl-alx;hasFormula"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;ICMAYieldFormula"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">wall street yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">No definition.Term put here from memory.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;WeightedAverageTimeToReceiptOfCashflows">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;Formula"/>
+		<rdfs:label xml:lang="en">weighted average time to receipt of cashflows</rdfs:label>
+		<skos:definition xml:lang="en">The weighted average time to the receipt of cashflows for an instrument.</skos:definition>
+		<skos:editorialNote xml:lang="en">A formal definition is needed for this. The name is almost self defining, but only to those who already know what this means. In particular we should define how the weighted average is weighted, and what this means, along with a formula for calculating this at the most generic level (cashflow, time, without assumptions about particular types of instrument).</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;WorstCall">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;CallEvent"/>
+		<rdfs:label xml:lang="en">worst call</rdfs:label>
+		<skos:definition xml:lang="en">call event representing the worst case with respect to when the instrument might be called</skos:definition>
+		<skos:editorialNote xml:lang="en">Note that the actual date associated with an occurrence of a worst call event might be calculated or explicit.</skos:editorialNote>
+		<skos:editorialNote xml:lang="en">We should refine what we mean by worst here - soonest, or most distant?</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;YieldCalculationFormula">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;Formula"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">yield calculation formula</rdfs:label>
+		<skos:definition xml:lang="en">The formula used in determining the Yield.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The subject of this Formula is the Yield. The formula has an expression which can be defined either in tectual terms or by further local extension of the term &quot;Formula Expression&quot; to define the parameters used.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;YieldCalculationMethod">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;Formula"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasCompoundingFrequency"/>
+				<owl:allValuesFrom rdf:resource="&fibo-fnd-dt-fd;RecurrenceInterval"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:allValuesFrom rdf:resource="&cmns-qtu;Variable"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-utl-alx;hasFormula"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;YieldCalculationFormula"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">yield calculation method</rdfs:label>
+		<skos:definition xml:lang="en">The method by which the yield is calculated. This includes a formula for calculation and a specific day count convention and compounding. You would apply this calculation method on top of the underlying terms and conditions, do for example the holiday calenders and so on, are used in these formulae. For final cash flow: Japanese yield will round down accrued interest. Add: The actual underlying math. Wall Street uses the same ICMA formula.</skos:definition>
+		<skos:editorialNote xml:lang="en">Initial reviewer notes 18 Nov: this uses the combination of the day count and the compounding gives you the name of the yield calculation method. Names are associated with algorithms. What yield you use to determining the present value. These are typically defined in a prospectus (for exchange traded) or Info Memorandum if it&apos;s traded in an OTC market. where it also defines the method itself. Action: look at some prospecti or get this from a vendor. Additional features 25 nov: Question - maybe Holiday calendar? Also date roll rules and roll back rules. These all apply. YC feeds in to Yield itself.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-md-dbtx-aly;YieldToNextPut">
+		<rdfs:subClassOf rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasOutlookPeriod"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;NextPut"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">yield to next put</rdfs:label>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;calculationFollowing">
+		<rdfs:label xml:lang="en">calculation following</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:range rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-md-dbtx-aly;decimalPlaces">
+		<rdfs:label xml:lang="en">decimal places</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;PoolFactor"/>
+		<rdfs:range rdf:resource="&xsd;integer"/>
+		<skos:definition xml:lang="en">The number of decimal places used in the publication of the factor value.</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;defaultRateValue">
+		<rdfs:label xml:lang="en">default rate value</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-pbs;DefaultRate"/>
+		<rdfs:range rdf:resource="&cmns-qtu;Percentage"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;determinesMarketPriceForDebt">
+		<rdfs:label xml:lang="en">determines market price for debt</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;DebtSecuritiesMarketMaker"/>
+		<rdfs:range rdf:resource="&fibo-md-dbtx-aly;OTCBondMarketPrice"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;equivalentLifeValue">
+		<rdfs:label xml:lang="en">equivalent life value</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;EquivalentLifeAnalytic"/>
+		<rdfs:range rdf:resource="&cmns-dt;Duration"/>
+		<skos:definition xml:lang="en">The Equivalent Life in years at the stated date.</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasAnalytic">
+		<rdfs:label xml:lang="en">has analytic</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasDefaultRate">
+		<rdfs:label xml:lang="en">has default rate</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;DefaultRate"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasFactor">
+		<rdfs:label xml:lang="en">has factor</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+		<rdfs:range rdf:resource="&fibo-md-dbtx-aly;PoolFactor"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasMeasure">
+		<rdfs:label xml:lang="en">has measure</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;PrepaymentSpeed"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasOutlookPeriod">
+		<rdfs:label xml:lang="en">has outlook period</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:range>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-md-dbtx-aly;LifeAnalytic">
+					</rdf:Description>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasOriginalTimeToMaturity"/>
+						<owl:someValuesFrom rdf:resource="&cmns-dt;ExplicitDuration"/>
+					</owl:Restriction>
+					<rdf:Description rdf:about="&fibo-sec-dbt-dbti;PrescriptiveEvent">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-sec-dbt-dbti;RedemptionEvent">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:range>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasWac">
+		<rdfs:label xml:lang="en">has wac</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurity"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;WeightedAverageCoupon"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;hasYield">
+		<rdfs:label xml:lang="en">has yield</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-dbti;TradableDebtInstrument"/>
+		<rdfs:range rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;isAggregateOf">
+		<rdfs:label xml:lang="en">is aggregate of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-md-dbtx-aly;isCompounded">
+		<rdfs:label xml:lang="en">is compounded</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">Definition needed Moved from Yield - assume this can only be about debt instrument or loan / debt yields i..e where the income relates to interest payments. .</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;isDefaultMethodFor">
+		<rdfs:label xml:lang="en">is default method for</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;NativeYieldCalculationMethod"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-dbti;TradableDebtInstrument"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;isRateOfChangeOf">
+		<rdfs:label xml:lang="en">is rate of change of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;DebtConvexityAnalytic"/>
+		<rdfs:range rdf:resource="&fibo-md-dbtx-aly;DurationAnalytic"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-md-dbtx-aly;modifiedDurationValue">
+		<rdfs:label xml:lang="en">modified duration value</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;ModifiedDurationAnalytic"/>
+		<rdfs:range rdf:resource="&cmns-dt;Duration"/>
+		<skos:definition xml:lang="en">The Modified Duration in Years.</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-md-dbtx-aly;priceIsTraded">
+		<rdfs:label xml:lang="en">price is traded</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;ExchangeTradedBondPrice"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">The highest valuation over the period specified. Notes from Equity review, may apply to Debt also: this can be regarded as a derived price. See also note in LowPrice Difference: different rules used. May be based on trade OR quote price Analytic or Price?? this is a derived type but with a much simpler rule.</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-md-dbtx-aly;priceQuotedExDividend">
+		<rdfs:label xml:lang="en">price quoted ex dividend</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">Whether or not the yield is based on a price which is quoted ex-dividend. When a bond is said to trade ex-dividend it means that there is a period of time prior to each coupon payment during which a bond purchaser does not receive custody of the next coupon. That payment is made to the previous bond holder and accrued interest is therefore negative during the ex-dividend period.</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-md-dbtx-aly;quotedExDividend">
+		<rdfs:label xml:lang="en">quoted ex dividend</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-fi-ip;SecurityPrice"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">Whether or not the price is quoted ex-dividend. When a bond is said to trade ex-dividend it means that there is a period of time prior to each coupon payment during which a bond purchaser does not receive custody of the next coupon. That payment is made to the previous bond holder and accrued interest is therefore negative during the ex-dividend period.</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-md-dbtx-aly;roundingConvention">
+		<rdfs:label xml:lang="en">rounding convention</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-md-dbtx-aly;YieldCalculationMethod"/>
+		<rdfs:range rdf:resource="&xsd;string"/>
+		<skos:definition xml:lang="en">The rounding convention used in the calculation method.</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-dbti;TradableDebtInstrument">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasYield"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;DebtInstrumentYield"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;MortgageBackedSecurity">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasWac"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-pbs;WeightedAverageCoupon"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;PrepaymentSpeed">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;LoanPoolPrepaymentModel"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<skos:editorialNote xml:lang="en">This is a model. Includes other factors such as homogeniety. Earlier notes: Same as Payment. Curtailment. Paydown is normally scheduled payments of the mortgage. Prepayment is when someone pays off the mortgage early I may send in 1500 when my monthly amount is 1000 a month. So the 500 is a prepayment. Scheduled principal payment. More notes 25 nov: Also factor in changes to the pool constituents where this is allowed for that kind of MBS. So we make estimates of how face value will will change. face value won&apos;t change but the underlying value of the Pf changes, so eg. the current mortgage factor. Model update note June 2010: Detailed types of &quot;Prepayment Speed&quot; analytic received from thomson Reuters, now modeled as sub types of this term. So term origin is PSA by extension, since this is the common super class of 3 specific prepayment speed analytic types defined by PSA. PSA stands for Public Securities Association. Type: PSA gives this as numeric, however definitions imply percentage, so defined as dated percentage for now. Many data models use numbers which are interpreted later as percentages so this may be the case here.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;WeightedAverageLifeAtIssue">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;WeightedAverageLife"/>
+		<rdfs:label xml:lang="en">average life at issue</rdfs:label>
+		<skos:definition xml:lang="en">The Average Life analytic at the time the security was issued.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-pls;DebtPool">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasAnalytic"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasDefaultRate"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-pbs;DefaultRate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasFactor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-md-dbtx-aly;PoolFactor"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-md-dbtx-aly;hasMeasure"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-pbs;PrepaymentSpeed"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+
+</rdf:RDF>

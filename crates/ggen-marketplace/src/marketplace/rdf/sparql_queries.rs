@@ -100,18 +100,24 @@ impl MarketplaceQueries {
                 "?published",
             ])
             .where_pattern("?package a ggen:Package")
+            // Property::PackageName now resolves to ggen:name, matching the
+            // canonical insert side. The version node carries ggen:version
+            // (not ggen:versionNumber) per rdf_mapper::package_to_rdf.
             .where_triple("?package", Property::PackageName, "?name")
             .where_pattern("?package ggen:hasVersion ?versionNode")
-            .where_pattern("?versionNode ggen:versionNumber ?version");
+            .where_pattern("?versionNode ggen:version ?version");
 
-        // Optional fields
-        query = query.where_pattern("OPTIONAL { ?package dc:description ?description }");
+        // Optional fields — all predicates match what rdf_mapper inserts
+        // under MARKETPLACE_NS (description, hasAuthor + foaf:name, downloads,
+        // createdAt). ?rating is left as ggen:rating: it is a distinct concept
+        // from ggen:qualityScore and is simply absent for unrated packages.
+        query = query.where_pattern("OPTIONAL { ?package ggen:description ?description }");
         query = query.where_pattern(
-            "OPTIONAL { ?package foaf:maker ?authorNode . ?authorNode foaf:name ?author }",
+            "OPTIONAL { ?package ggen:hasAuthor ?authorNode . ?authorNode foaf:name ?author }",
         );
         query = query.where_pattern("OPTIONAL { ?package ggen:rating ?rating }");
-        query = query.where_pattern("OPTIONAL { ?package ggen:downloadCount ?downloads }");
-        query = query.where_pattern("OPTIONAL { ?versionNode dc:created ?published }");
+        query = query.where_pattern("OPTIONAL { ?package ggen:downloads ?downloads }");
+        query = query.where_pattern("OPTIONAL { ?package ggen:createdAt ?published }");
 
         // Apply filters
         if let Some(search_query) = &params.query {
@@ -174,16 +180,32 @@ impl MarketplaceQueries {
                 "?license",
                 "?author",
             ])
+            // Property URIs MUST match the canonical insert side
+            // (`rdf_mapper::package_to_rdf`), which writes ggen:name,
+            // ggen:description, ggen:license, ggen:homepageUrl,
+            // ggen:repositoryUrl, ggen:hasAuthor (+ foaf:name on the author
+            // node) under MARKETPLACE_NS. Previously these used dc:/foaf:
+            // terms that no inserted triple carried, yielding empty results.
             .where_pattern(&format!("<{package_id}> a ggen:Package"))
-            .where_pattern(&format!("<{package_id}> dc:title ?name"))
-            .where_pattern("OPTIONAL { ?package dc:description ?description }")
-            .where_pattern("OPTIONAL { ?package foaf:homepage ?homepage }")
-            .where_pattern("OPTIONAL { ?package ggen:repository ?repository }")
-            .where_pattern("OPTIONAL { ?package ggen:readme ?readme }")
-            .where_pattern("OPTIONAL { ?package dc:license ?license }")
-            .where_pattern(
-                "OPTIONAL { ?package foaf:maker ?authorNode . ?authorNode foaf:name ?author }",
-            )
+            .where_pattern(&format!("<{package_id}> ggen:name ?name"))
+            .where_pattern(&format!(
+                "OPTIONAL {{ <{package_id}> ggen:description ?description }}"
+            ))
+            .where_pattern(&format!(
+                "OPTIONAL {{ <{package_id}> ggen:homepageUrl ?homepage }}"
+            ))
+            .where_pattern(&format!(
+                "OPTIONAL {{ <{package_id}> ggen:repositoryUrl ?repository }}"
+            ))
+            .where_pattern(&format!(
+                "OPTIONAL {{ <{package_id}> ggen:readme ?readme }}"
+            ))
+            .where_pattern(&format!(
+                "OPTIONAL {{ <{package_id}> ggen:license ?license }}"
+            ))
+            .where_pattern(&format!(
+                "OPTIONAL {{ <{package_id}> ggen:hasAuthor ?authorNode . ?authorNode foaf:name ?author }}"
+            ))
             .validate()
     }
 
@@ -205,9 +227,12 @@ impl MarketplaceQueries {
                 "?deprecated",
                 "?yanked",
             ])
+            // Version nodes carry ggen:version (the string) and ggen:releasedAt
+            // (the publish date) per rdf_mapper. Previously this queried
+            // ggen:versionNumber + dc:created, neither of which is inserted.
             .where_pattern(&format!("<{package_id}> ggen:hasVersion ?version"))
-            .where_pattern("?version ggen:versionNumber ?versionNumber")
-            .where_pattern("?version dc:created ?published")
+            .where_pattern("?version ggen:version ?versionNumber")
+            .where_pattern("OPTIONAL { ?version ggen:releasedAt ?published }")
             .where_pattern("OPTIONAL { ?version ggen:deprecated ?deprecated }")
             .where_pattern("OPTIONAL { ?version ggen:yanked ?yanked }")
             .order_by("DESC(?published)")
@@ -232,10 +257,11 @@ impl MarketplaceQueries {
                 "?optional",
             ])
             .where_pattern(&format!("<{package_id}> ggen:hasVersion ?versionNode"))
-            .where_pattern(&format!("?versionNode ggen:versionNumber \"{version}\""))
+            .where_pattern(&format!("?versionNode ggen:version \"{version}\""))
             .where_pattern("?versionNode ggen:hasDependency ?dep")
             .where_pattern("?dep ggen:dependsOn ?depPackage")
-            .where_pattern("?depPackage dc:title ?depName")
+            // ggen:name matches the canonical insert (was dc:title).
+            .where_pattern("?depPackage ggen:name ?depName")
             .where_pattern("?dep ggen:dependencyVersion ?depVersion")
             .where_pattern("?dep ggen:dependencyType ?depType")
             .where_pattern("OPTIONAL { ?dep ggen:isOptional ?optional }")
@@ -315,7 +341,8 @@ INSERT DATA {{
             .prefix("prov", namespaces::PROV)
             .select(&["?result", "?status", "?validatedAt", "?violations"])
             .where_pattern(&format!("<{package_id}> ggen:hasVersion ?versionNode"))
-            .where_pattern(&format!("?versionNode ggen:versionNumber \"{version}\""))
+            // Version-node string predicate is ggen:version (canonical insert).
+            .where_pattern(&format!("?versionNode ggen:version \"{version}\""))
             .where_pattern("?versionNode ggen:hasValidation ?result")
             .where_pattern("?result a ggen:ValidationResult")
             .where_pattern("?result ggen:validationStatus ?status")
@@ -388,10 +415,14 @@ INSERT DATA {{
                 "(AVG(?rating) AS ?avgRating)",
                 "(COUNT(DISTINCT ?author) AS ?totalAuthors)",
             ])
+            // All predicates use the ggen: prefix (MARKETPLACE_NS) to match the
+            // canonical insert side. Previously this referenced foaf:maker
+            // without declaring the foaf prefix (parse failure) and
+            // ggen:downloadCount (never inserted).
             .where_pattern("?package a ggen:Package")
-            .where_pattern("OPTIONAL { ?package ggen:downloadCount ?downloads }")
+            .where_pattern("OPTIONAL { ?package ggen:downloads ?downloads }")
             .where_pattern("OPTIONAL { ?package ggen:rating ?rating }")
-            .where_pattern("OPTIONAL { ?package foaf:maker ?author }")
+            .where_pattern("OPTIONAL { ?package ggen:hasAuthor ?author }")
             .validate()
     }
 
@@ -409,7 +440,8 @@ INSERT DATA {{
             .select(&["?package", "?name", "?downloads", "?rating"])
             .where_pattern("?package a ggen:Package")
             .where_triple("?package", Property::PackageName, "?name")
-            .where_pattern("?package ggen:downloadCount ?downloads")
+            // ggen:downloads matches the canonical insert (was ggen:downloadCount).
+            .where_pattern("?package ggen:downloads ?downloads")
             .where_pattern("OPTIONAL { ?package ggen:rating ?rating }")
             .order_by("DESC(?downloads)")
             .limit(limit)
@@ -431,8 +463,10 @@ INSERT DATA {{
             .where_pattern("?package a ggen:Package")
             .where_triple("?package", Property::PackageName, "?name")
             .where_pattern("?package ggen:hasVersion ?versionNode")
-            .where_pattern("?versionNode ggen:versionNumber ?version")
-            .where_pattern("?versionNode dc:created ?published")
+            // Version string is ggen:version; the package publish date is
+            // ggen:createdAt on the package node (canonical insert).
+            .where_pattern("?versionNode ggen:version ?version")
+            .where_pattern("?package ggen:createdAt ?published")
             .order_by("DESC(?published)")
             .limit(limit)
             .validate()
@@ -454,7 +488,7 @@ INSERT DATA {{
             .where_triple("?package", Property::PackageName, "?name")
             .where_pattern("?package ggen:hasCategory ?cat")
             .where_pattern(&format!("?cat rdfs:label \"{category}\""))
-            .where_pattern("OPTIONAL { ?package dc:description ?description }")
+            .where_pattern("OPTIONAL { ?package ggen:description ?description }")
             .validate()
     }
 
@@ -473,9 +507,12 @@ INSERT DATA {{
             .select(&["?package", "?name", "?description"])
             .where_pattern("?package a ggen:Package")
             .where_triple("?package", Property::PackageName, "?name")
-            .where_pattern("?package foaf:maker ?authorNode")
+            // Author link is ggen:hasAuthor (canonical insert); the author
+            // node's name is foaf:name (genuine standard vocab, used on both
+            // sides). Was foaf:maker, which no inserted triple carries.
+            .where_pattern("?package ggen:hasAuthor ?authorNode")
             .where_pattern(&format!("?authorNode foaf:name \"{author}\""))
-            .where_pattern("OPTIONAL { ?package dc:description ?description }")
+            .where_pattern("OPTIONAL { ?package ggen:description ?description }")
             .validate()
     }
 
@@ -510,13 +547,13 @@ INSERT DATA {{
             r"PREFIX ggen: <{}>
 
 DELETE {{
-    <{package_id}> ggen:downloadCount ?oldCount .
+    <{package_id}> ggen:downloads ?oldCount .
 }}
 INSERT {{
-    <{package_id}> ggen:downloadCount ?newCount .
+    <{package_id}> ggen:downloads ?newCount .
 }}
 WHERE {{
-    <{package_id}> ggen:downloadCount ?oldCount .
+    <{package_id}> ggen:downloads ?oldCount .
     BIND(?oldCount + 1 AS ?newCount)
 }}",
             namespaces::GGEN,
@@ -567,7 +604,7 @@ INSERT {{
 }}
 WHERE {{
     <{package_id}> ggen:hasVersion ?versionNode .
-    ?versionNode ggen:versionNumber "{version}" .
+    ?versionNode ggen:version "{version}" .
 }}"#,
             namespaces::GGEN,
             namespaces::XSD,
@@ -592,7 +629,7 @@ INSERT {{
 }}
 WHERE {{
     <{package_id}> ggen:hasVersion ?versionNode .
-    ?versionNode ggen:versionNumber "{version}" .
+    ?versionNode ggen:version "{version}" .
 }}"#,
             namespaces::GGEN,
             namespaces::XSD,
@@ -620,8 +657,10 @@ WHERE {{
             .prefix("dc", namespaces::DC)
             .select(&["?dep", "?depName", "?depVersion"])
             .where_pattern(&format!("<{package_id}> {depth_path} ?dep"))
-            .where_pattern("?dep dc:title ?depName")
-            .where_pattern("?dep ggen:hasVersion/ggen:versionNumber ?depVersion")
+            // ggen:name + ggen:version match the canonical insert (were
+            // dc:title + ggen:versionNumber).
+            .where_pattern("?dep ggen:name ?depName")
+            .where_pattern("?dep ggen:hasVersion/ggen:version ?depVersion")
             .validate()
     }
 }
@@ -676,6 +715,8 @@ mod tests {
         let sparql = MarketplaceQueries::increment_download_count("http://ggen.dev/packages/test");
         assert!(sparql.contains("DELETE"));
         assert!(sparql.contains("INSERT"));
-        assert!(sparql.contains("downloadCount"));
+        // Uses ggen:downloads (canonical insert predicate), not the legacy
+        // ggen:downloadCount which no inserted triple carried.
+        assert!(sparql.contains("ggen:downloads"));
     }
 }

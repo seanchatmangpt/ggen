@@ -3,11 +3,30 @@
 //! This module defines the complete RDF ontology for the marketplace,
 //! including all classes, properties, and relationships using standard
 //! vocabularies (FOAF, Dublin Core, PROV-O, etc.) plus custom extensions.
+//!
+//! ## Single Canonical Namespace (P0-03 fix)
+//!
+//! The marketplace namespace is owned by [`crate::marketplace::ontology`]
+//! (`MARKETPLACE_NS = "https://ggen.io/marketplace/"`). This module re-exports
+//! that constant rather than declaring a second source of truth, so the
+//! enum-based [`Class`]/[`Property`] URIs cannot drift away from the
+//! string-based `Classes`/`Properties` helpers used by the production
+//! insert path (`rdf_mapper.rs`) and query path (`registry_rdf.rs`).
+//!
+//! Concretely: data-bearing package properties such as [`Property::PackageName`]
+//! and [`Property::PackageDescription`] MUST resolve under `MARKETPLACE_NS`
+//! using the exact local names emitted by
+//! [`crate::marketplace::ontology::Properties`]. Routing them to `dc:`/`foaf:`
+//! caused silent SPARQL data loss: triples were inserted under
+//! `https://ggen.io/marketplace/name` but queried under
+//! `http://purl.org/dc/terms/title`, so `SELECT`s returned empty.
 
 use std::fmt;
 
-/// Canonical marketplace namespace (v1) — single source of truth
-pub const MARKETPLACE_NS: &str = "https://ggen.io/marketplace/";
+// Re-export the single canonical marketplace namespace. Declaring it here
+// (rather than as a fresh literal) guarantees the enum-based URIs below stay
+// byte-identical to the string-based `Properties`/`Classes` helpers.
+pub use crate::marketplace::ontology::MARKETPLACE_NS;
 
 /// Namespace prefix definitions
 pub mod namespaces {
@@ -232,23 +251,33 @@ pub enum Property {
 impl Property {
     #[must_use]
     pub fn uri(&self) -> String {
+        use crate::marketplace::ontology::Properties as Canonical;
+
         match self {
-            // Use standard vocabularies where appropriate
-            Self::PackageName => format!("{}title", namespaces::DC),
-            Self::PackageDescription => format!("{}description", namespaces::DC),
-            Self::PackageHomepage => format!("{}homepage", namespaces::FOAF),
-            Self::HasAuthor => format!("{}maker", namespaces::FOAF),
-            Self::PublishedAt => format!("{}created", namespaces::DC),
-            Self::PackageLicense => format!("{}license", namespaces::DC),
+            // Data-bearing package fields: these MUST resolve under
+            // MARKETPLACE_NS using the exact local names emitted by the
+            // canonical string-based `Properties` helper, because that is
+            // what the production insert path (`rdf_mapper::package_to_rdf`)
+            // and query path (`registry_rdf::search_packages`) write/read.
+            // Previously these were routed to dc:/foaf:, which produced
+            // triples that no canonical SELECT could find (silent data loss).
+            Self::PackageName => Canonical::name(),
+            Self::PackageDescription => Canonical::description(),
+            Self::PackageLicense => Canonical::license(),
+            Self::PackageHomepage => Canonical::homepage_url(),
+            Self::PackageRepository => Canonical::repository_url(),
+            Self::HasVersion => Canonical::has_version(),
+            Self::HasDependency => Canonical::has_dependency(),
+            Self::HasAuthor => Canonical::has_author(),
+            Self::PublicKey => Canonical::public_key(),
+
+            // Genuine standard-vocabulary terms used consistently on both
+            // insert and query sides (provenance + SHACL). These are not
+            // package-identity data and never cross the canonical helpers.
             Self::WasGeneratedBy => format!("{}wasGeneratedBy", namespaces::PROV),
             Self::WasAttributedTo => format!("{}wasAttributedTo", namespaces::PROV),
             Self::WasDerivedFrom => format!("{}wasDerivedFrom", namespaces::PROV),
             Self::AtTime => format!("{}atTime", namespaces::PROV),
-
-            // KGC-4D
-            Self::HasObservable => format!("{}hasObservable", namespaces::GGEN),
-            Self::HasCausality => format!("{}hasCausality", namespaces::GGEN),
-            Self::HasGitCommit => format!("{}hasGitCommit", namespaces::GGEN),
 
             // SHACL properties
             Self::TargetClass => format!("{}targetClass", namespaces::SHACL),
@@ -258,7 +287,8 @@ impl Property {
             Self::Datatype => format!("{}datatype", namespaces::SHACL),
             Self::Pattern => format!("{}pattern", namespaces::SHACL),
 
-            // Custom ggen properties
+            // All remaining custom ggen properties live under MARKETPLACE_NS
+            // using their local name (KGC-4D, security, config, stats, etc.).
             _ => format!("{}{}", namespaces::GGEN, self.local_name()),
         }
     }
@@ -266,11 +296,14 @@ impl Property {
     #[must_use]
     pub fn local_name(&self) -> &'static str {
         match self {
-            Self::PackageName => "packageName",
-            Self::PackageVersion => "packageVersion",
+            // Local names for the data-bearing package fields are kept
+            // byte-identical to the canonical `Properties` helper so that
+            // `MARKETPLACE_NS + local_name() == uri()` holds (no drift).
+            Self::PackageName => "name",
+            Self::PackageVersion => "version",
             Self::PackageDescription => "description",
-            Self::PackageHomepage => "homepage",
-            Self::PackageRepository => "repository",
+            Self::PackageHomepage => "homepageUrl",
+            Self::PackageRepository => "repositoryUrl",
             Self::PackageReadme => "readme",
             Self::PackageLicense => "license",
             Self::PackageKeywords => "keywords",
@@ -645,14 +678,46 @@ mod tests {
 
     #[test]
     fn test_property_uris() {
+        // P0-03: data-bearing package properties resolve under MARKETPLACE_NS,
+        // byte-identical to the canonical string-based `Properties` helper.
+        // Previously PackageName resolved to dc:title, which no canonical
+        // SELECT could find against rdf_mapper-inserted triples.
         assert_eq!(
             Property::PackageName.uri(),
-            "http://purl.org/dc/terms/title"
+            "https://ggen.io/marketplace/name"
+        );
+        assert_eq!(
+            Property::PackageName.uri(),
+            crate::marketplace::ontology::Properties::name()
+        );
+        assert_eq!(
+            Property::PackageDescription.uri(),
+            crate::marketplace::ontology::Properties::description()
         );
         assert_eq!(
             Property::HasVersion.uri(),
             "https://ggen.io/marketplace/hasVersion"
         );
+        // Standard-vocabulary provenance terms are intentionally preserved.
+        assert_eq!(
+            Property::WasGeneratedBy.uri(),
+            "http://www.w3.org/ns/prov#wasGeneratedBy"
+        );
+        // Invariant: for every redirected data property, uri() == ns + local_name().
+        for prop in [
+            Property::PackageName,
+            Property::PackageDescription,
+            Property::PackageLicense,
+            Property::HasVersion,
+            Property::HasDependency,
+            Property::HasAuthor,
+        ] {
+            assert_eq!(
+                prop.uri(),
+                format!("{}{}", MARKETPLACE_NS, prop.local_name()),
+                "uri()/local_name() drift for {prop:?}"
+            );
+        }
     }
 
     #[test]

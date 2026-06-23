@@ -1,0 +1,1 @@
+{"status":401,"error":"            You must provide an API Key either using the query-string parameter `apikey` or the `Authorization` header: `Authorization: apikey token=my_apikey`. \n            Your API Key can be obtained by logging in at bioportal.bioontology.org/account\"\n"}

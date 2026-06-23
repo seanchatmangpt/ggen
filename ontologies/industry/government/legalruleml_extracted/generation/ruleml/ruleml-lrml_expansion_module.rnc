@@ -1,0 +1,21 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace ruleml = "http://ruleml.org/spec"
+
+start |= notAllowed 
+commonNode.attlist &= xmlid.attlist?
+degree.attlist &= xmlid.attlist?
+body_Implies.attlist &= xmlid.attlist?
+head_Implies.attlist &= xmlid.attlist?
+oid.attlist &= xmlid.attlist?
+repo.attlist &= xmlid.attlist?
+resl.attlist &= xmlid.attlist?
+reslot.attlist &= xmlid.attlist?
+time_anycontent.attlist &= xmlid.attlist?
+spatial_anycontent.attlist &= xmlid.attlist?
+if_Rule.attlist &= xmlid.attlist?
+then_Rule.attlist &= xmlid.attlist?
+# 
+# a dummy element to assist in XSD conversion
+#
+DummyTopElement.def = element Dummy { text }

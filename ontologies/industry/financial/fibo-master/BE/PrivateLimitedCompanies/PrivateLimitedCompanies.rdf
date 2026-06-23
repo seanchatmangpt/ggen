@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-be-oac-cpty "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/">
+	<!ENTITY fibo-be-oac-exec "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/">
+	<!ENTITY fibo-be-oac-opty "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/">
+	<!ENTITY fibo-be-plc-plc "https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/PrivateLimitedCompanies/">
+	<!ENTITY fibo-fnd-oac-own "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/PrivateLimitedCompanies/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-be-oac-cpty="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/"
+	xmlns:fibo-be-oac-exec="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/"
+	xmlns:fibo-be-oac-opty="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"
+	xmlns:fibo-be-plc-plc="https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/PrivateLimitedCompanies/"
+	xmlns:fibo-fnd-oac-own="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/PrivateLimitedCompanies/">
+		<rdfs:label>Private Limited Companies Ontology</rdfs:label>
+		<dct:abstract>This ontology defines the fundamental concepts for representing private limited companies -- i.e., companies that have characteristics of corporations and of partnerships but are neither.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+		Copyright (c) 2013-2025 Object Management Group, Inc.
+		
+		Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/ControlParties/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20250301/PrivateLimitedCompanies/PrivateLimitedCompanies/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20160201/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of this ontology was modified per the FIBO 2.0 RFC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20180801/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of this ontology was modified to simplify / merge the legal person and formal organization class hierarchies, and add limited liability company, limited liability company taxed as a corporation, managing member, and private limited company.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20201201/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of this ontology was modified to eliminate a smart quote in an explanatory note on manager-managed limited liability company, and to reflect the move of OrganizationMember from Parties to Organizations in FND</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20210401/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of this ontology was modified to fix spelling errors.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20211201/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230201/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230301/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20240101/PrivateLimitedCompanies/PrivateLimitedCompanies.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2016-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2016-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;LimitedLiabilityCompany">
+		<rdfs:subClassOf rdf:resource="&fibo-be-plc-plc;PrivateCompanyWithLimitedLiability"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;playsRole"/>
+				<owl:onClass>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-be-plc-plc;hasManagingMember"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-plc-plc;ManagingMember"/>
+					</owl:Restriction>
+				</owl:onClass>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;playsRole"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-be-oac-cpty;hasControllingOrganizationMember"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompanyMember"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>limited liability company</rdfs:label>
+		<skos:definition>private limited company that combines the pass through taxation of a sole proprietorship or partnership with the limited liability of a corporation</skos:definition>
+		<cmns-av:abbreviation>LLC</cmns-av:abbreviation>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;LimitedLiabilityCompanyMember">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;DeJureControllingInterestParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-cpty;EntityControllingParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;EntityOwner"/>
+		<rdfs:subClassOf rdf:resource="&cmns-org;OrganizationMember"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-oac-cpty;isControllingMemberOf"/>
+				<owl:onClass>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompany"/>
+					</owl:Restriction>
+				</owl:onClass>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-le-lp;LegallyCompetentNaturalPerson"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-col;isMemberOf"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompany"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>limited liability company member</rdfs:label>
+		<skos:definition>owner of an interest in a limited liability company</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;LimitedLiabilityCompanyTaxedAsACorporation">
+		<rdfs:subClassOf rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompany"/>
+		<rdfs:label>limited liability company taxed as a corporation</rdfs:label>
+		<skos:definition>limited liability company that has elected to have corporate tax status</skos:definition>
+		<cmns-av:abbreviation>C-LLC</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>In the United States, LLCs that elect to be taxed as a corporation do so by filing an IRS Form 8832.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;ManagerManagedLimitedLiabilityCompany">
+		<rdfs:subClassOf rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompany"/>
+		<rdfs:label>manager-managed limited liability company</rdfs:label>
+		<skos:definition>limited liability company in which the members appoint one or more managers to handle the daily operations and administrative responsibilities of the organization</skos:definition>
+		<cmns-av:explanatoryNote>If no members are interested in managing the LLC, an external manager (someone who doesn&apos;t own any portion of the LLC) can be hired to run the business operations, including, in some jurisdictions, a third-party entity, such as another company.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;ManagingMember">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-exec;PrincipalParty"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompanyMember"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-plc-plc;isManagingMemberOf"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-plc-plc;LimitedLiabilityCompany"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>managing member</rdfs:label>
+		<skos:definition>owner of an interest in a limited liability company who also runs the day-to-day business operations</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;PrivateCompanyWithLimitedLiability">
+		<rdfs:subClassOf rdf:resource="&fibo-be-le-lp;BusinessEntity"/>
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:label>private company with limited liability</rdfs:label>
+		<skos:definition>hybrid business entity having characteristics of both a corporation and a partnership or sole proprietorship (depending on how many owners there are)</skos:definition>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://en.wikipedia.org/wiki/Limited_liability_company#Overview</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>A private company with limited liability, although a business entity, is not a corporation. The primary characteristic this legal form shares with a corporation is limited liability, and the primary characteristic it shares with a partnership is the availability of pass-through income taxation. It is often more flexible than a corporation, and it is well-suited for companies with a single owner.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-plc-plc;PrivateLimitedCompany">
+		<rdfs:subClassOf rdf:resource="&fibo-be-plc-plc;PrivateCompanyWithLimitedLiability"/>
+		<rdfs:label>private limited company</rdfs:label>
+		<skos:definition>private limited company whose shareholders&apos; liability is limited to the capital they originally invested</skos:definition>
+		<cmns-av:abbreviation>Ltd.</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>Private limited companies are common in countries including the U.K., Ireland, and Canada. They have one or more members, also called shareholders or owners, who buy in through private sales. Directors are company employees who keep up with all administrative tasks and tax filings but do not need to be shareholders.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-plc-plc;hasManagingMember">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cpty;hasControllingOrganizationMember"/>
+		<rdfs:label>has managing member</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-be-plc-plc;ManagingMember"/>
+		<skos:definition>indicates a managing member in a controlling role of a limited liability company that has responsibility for the day-to-day business operations</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-plc-plc;isManagingMemberOf">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-oac-cpty;isControllingMemberOf"/>
+		<rdfs:label>is managing member of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-plc-plc;ManagingMember"/>
+		<owl:inverseOf rdf:resource="&fibo-be-plc-plc;hasManagingMember"/>
+		<skos:definition>indicates the controlled limited liability company that the managing member runs</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

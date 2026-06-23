@@ -1,0 +1,208 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace xs = "http://www.w3.org/2001/XMLSchema"
+namespace xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+
+dcterms:title [ "RuleML Explicit Datatype Emulation" ]
+dcterms:identifier ["http://deliberation.ruleml.org/1.02/relaxng/modules/explicit_datatyping_expansion_module.rnc"]
+dcterms:isPartOf [ "http://deliberation.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "RuleML, explicit datatype" ]
+dcterms:description ["The expansion module for explicit datatyping."]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://deliberation.ruleml.org" ]
+start |= notAllowed
+
+## Union Datatypes
+## Because of a Trang bug 
+## (http://code.google.com/p/jing-trang/issues/detail?id=132&q=xsi&colspec=ID%20Type%20Status%20Priority%20Stars%20Module%20Summary)
+## this module should not be included when translating from RNC to XSD.
+Data_any.Node.choice |=
+  
+  ## <Data>: May contain arbitrary simple or complex content. See 
+  ## http://deliberation.ruleml.org/1.02/glossary/#gloss-Data
+  element Data { Data_any_explicit.type.def }
+Data_any_explicit.type.def =
+  (Data-datt.choice & reData.attlist)
+  & attribute xsi:type { xsd:QName "xs:anyType" }
+  & text
+  & anyElement.choice*
+
+##
+Data_simple-node.choice |= Data_simple_typed.Node.def
+Data_simple_typed.Node.def = element Data { Data_simple_typed.Node.content }
+
+##
+Data_simple_typed.Node.content |=
+  duration.datatype.choice
+  | dateTime.datatype.choice
+  | time.datatype.choice
+  | date.datatype.choice
+  | gYearMonth.datatype.choice
+  | gYear.datatype.choice
+  | gMonthDay.datatype.choice
+  | gDay.datatype.choice
+  | gMonth.datatype.choice
+  | boolean.datatype.choice
+  | base64Binary.datatype.choice
+  | hexBinary.datatype.choice
+  | float.datatype.choice
+  | decimal.datatype.choice
+  | double.datatype.choice
+  | anyURI.datatype.choice
+  | QName.datatype.choice
+  | NOTATION.datatype.choice
+  | String.datatype.choice
+  | normalizedString.datatype.choice
+  | Token.datatype.choice
+  | language.datatype.choice
+  | Name.datatype.choice
+  | NCName.datatype.choice
+  | NMTOKEN.datatype.choice
+  | NMTOKENS.datatype.choice
+  | ENTITY.datatype.choice
+  | ENTITIES.datatype.choice
+  | integer.datatype.choice
+  | nonPositiveInteger.datatype.choice
+  | negativeInteger.datatype.choice
+  | long.datatype.choice
+  | int.datatype.choice
+  | short.datatype.choice
+  | byte.datatype.choice
+  | nonNegativeInteger.datatype.choice
+  | unsignedLong.datatype.choice
+  | unsignedInt.datatype.choice
+  | unsignedByte.datatype.choice
+  | positiveInteger.datatype.choice
+  | anySimpleType.datatype.choice
+# ur type
+anySimpleType.datatype.choice |=
+  attribute xsi:type { anySimpleType.value },
+  text
+# Primitive Datatypes
+duration.datatype.choice |=
+  attribute xsi:type { duration.value },
+  xsd:duration
+dateTime.datatype.choice |=
+  attribute xsi:type { dateTime.value },
+  xsd:dateTime
+time.datatype.choice |=
+  attribute xsi:type { time.value },
+  xsd:time
+date.datatype.choice |=
+  attribute xsi:type { date.value },
+  xsd:date
+gYearMonth.datatype.choice |=
+  attribute xsi:type { gYearMonth.value },
+  xsd:gYearMonth
+gYear.datatype.choice |=
+  attribute xsi:type { gYear.value },
+  xsd:gYear
+gMonthDay.datatype.choice |=
+  attribute xsi:type { gMonthDay.value },
+  xsd:gMonthDay
+gDay.datatype.choice |=
+  attribute xsi:type { gDay.value },
+  xsd:gDay
+gMonth.datatype.choice |=
+  attribute xsi:type { gMonth.value },
+  xsd:gMonth
+boolean.datatype.choice |=
+  attribute xsi:type { boolean.value },
+  xsd:boolean
+base64Binary.datatype.choice |=
+  attribute xsi:type { base64Binary.value },
+  xsd:base64Binary
+hexBinary.datatype.choice |=
+  attribute xsi:type { hexBinary.value },
+  xsd:hexBinary
+float.datatype.choice |=
+  attribute xsi:type { float.value },
+  xsd:float
+decimal.datatype.choice |=
+  attribute xsi:type { decimal.value },
+  xsd:decimal
+double.datatype.choice |=
+  attribute xsi:type { double.value },
+  xsd:double
+anyURI.datatype.choice |=
+  attribute xsi:type { anyURI.value },
+  xsd:anyURI
+QName.datatype.choice |=
+  attribute xsi:type { QName.value },
+  xsd:QName
+NOTATION.datatype.choice |=
+  attribute xsi:type { NOTATION.value },
+  xsd:NOTATION
+String.datatype.choice |=
+  attribute xsi:type { String.value },
+  xsd:string
+# Derived Types
+normalizedString.datatype.choice |=
+  attribute xsi:type { normalizedString.value },
+  xsd:normalizedString
+Token.datatype.choice |=
+  attribute xsi:type { Token.value },
+  xsd:token
+language.datatype.choice |=
+  attribute xsi:type { language.value },
+  xsd:language
+Name.datatype.choice |=
+  attribute xsi:type { Name.value },
+  xsd:Name
+NCName.datatype.choice |=
+  attribute xsi:type { NCName.value },
+  xsd:NCName
+NMTOKEN.datatype.choice |=
+  attribute xsi:type { NMTOKEN.value },
+  xsd:NMTOKEN
+NMTOKENS.datatype.choice |=
+  attribute xsi:type { NMTOKENS.value },
+  xsd:NMTOKENS
+ENTITY.datatype.choice |=
+  attribute xsi:type { ENTITY.value },
+  xsd:ENTITY
+ENTITIES.datatype.choice |=
+  attribute xsi:type { ENTITIES.value },
+  xsd:ENTITIES
+integer.datatype.choice |=
+  attribute xsi:type { integer.value },
+  xsd:integer
+nonPositiveInteger.datatype.choice |=
+  attribute xsi:type { nonPositiveInteger.value },
+  xsd:nonPositiveInteger
+negativeInteger.datatype.choice |=
+  attribute xsi:type { negativeInteger.value },
+  xsd:negativeInteger
+long.datatype.choice |=
+  attribute xsi:type { long.value },
+  xsd:long
+int.datatype.choice |=
+  attribute xsi:type { int.value },
+  xsd:int
+short.datatype.choice |=
+  attribute xsi:type { short.value },
+  xsd:short
+byte.datatype.choice |=
+  attribute xsi:type { byte.value },
+  xsd:byte
+nonNegativeInteger.datatype.choice |=
+  attribute xsi:type { nonNegativeInteger.value },
+  xsd:nonNegativeInteger
+unsignedLong.datatype.choice |=
+  attribute xsi:type { unsignedLong.value },
+  xsd:unsignedLong
+unsignedInt.datatype.choice |=
+  attribute xsi:type { unsignedInt.value },
+  xsd:unsignedInt
+unsignedByte.datatype.choice |=
+  attribute xsi:type { unsignedByte.value },
+  xsd:unsignedByte
+positiveInteger.datatype.choice |=
+  attribute xsi:type { positiveInteger.value },
+  xsd:positiveInteger

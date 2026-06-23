@@ -634,7 +634,16 @@ impl RdfControlPlane {
             "Draft",
         )?;
 
-        // Use cached query execution for better performance
+        // Use cached query execution for better performance.
+        //
+        // Local property names MUST match the single canonical vocabulary in
+        // `crate::marketplace::ontology::Properties` so packages created here
+        // are findable by the canonical query builders (`MarketplaceQueries`)
+        // and the production registry (`registry_rdf`). In particular this
+        // writes `packageId` and `createdAt` (NOT the previous `id` /
+        // `hasCreatedTime`, which no canonical SELECT reads). The `mp:` prefix
+        // expands to MARKETPLACE_NS, so `mp:name` == `ggen:name` == the
+        // canonical `Properties::name()` URI.
         #[allow(clippy::uninlined_format_args)]
         let insert_query = format!(
             r#"
@@ -642,13 +651,13 @@ impl RdfControlPlane {
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             INSERT DATA {{
                 <{1}{2}> a mp:Package ;
-                    mp:id "{3}" ;
+                    mp:packageId "{3}" ;
                     mp:name "{4}" ;
                     mp:description "{5}" ;
                     mp:latestVersion "{6}" ;
                     mp:license "{7}" ;
                     mp:state "Draft" ;
-                    mp:hasCreatedTime "{8}"^^xsd:dateTime .
+                    mp:createdAt "{8}"^^xsd:dateTime .
             }}
             "#,
             MARKETPLACE_NS,

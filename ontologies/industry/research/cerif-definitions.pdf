@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML+RDFa 1.1//EN">
+<html lang="en" dir="ltr" version="HTML+RDFa 1.1"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:dc="http://purl.org/dc/terms/"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:og="http://ogp.me/ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:sioc="http://rdfs.org/sioc/ns#"
+  xmlns:sioct="http://rdfs.org/sioc/types#"
+  xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+<head profile="http://www.w3.org/1999/xhtml/vocab">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="https://eurocris.org/sites/default/files/favicon.ico" type="image/vnd.microsoft.icon" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+<meta name="generator" content="Drupal 7 (https://www.drupal.org)" />
+<link rel="canonical" href="https://eurocris.org/" />
+<link rel="shortlink" href="https://eurocris.org/" />
+<meta itemprop="name" content="euroCRIS" />
+  <title>Page not found | euroCRIS</title>  
+  <style type="text/css" media="all">
+@import url("https://eurocris.org/modules/system/system.base.css?tbmo09");
+@import url("https://eurocris.org/modules/system/system.menus.css?tbmo09");
+@import url("https://eurocris.org/modules/system/system.messages.css?tbmo09");
+@import url("https://eurocris.org/modules/system/system.theme.css?tbmo09");
+</style>
+<style type="text/css" media="all">
+@import url("https://eurocris.org/sites/all/modules/blazy/css/blazy.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/blazy/css/components/blazy.filter.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/blazy/css/components/blazy.ratio.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/blazy/css/components/blazy.loading.css?tbmo09");
+</style>
+<style type="text/css" media="all">
+@import url("https://eurocris.org/modules/aggregator/aggregator.css?tbmo09");
+@import url("https://eurocris.org/modules/comment/comment.css?tbmo09");
+@import url("https://eurocris.org/modules/field/theme/field.css?tbmo09");
+@import url("https://eurocris.org/modules/node/node.css?tbmo09");
+@import url("https://eurocris.org/modules/search/search.css?tbmo09");
+@import url("https://eurocris.org/modules/user/user.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/views/css/views.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/ckeditor/css/ckeditor.css?tbmo09");
+</style>
+<style type="text/css" media="all">
+@import url("https://eurocris.org/sites/all/themes/marlon/css/fontawesome-free-5.13.0-web/css/all.min.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/colorbox/styles/default/colorbox_style.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/ctools/css/ctools.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/panels/css/panels.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/tagclouds/tagclouds.css?tbmo09");
+@import url("https://eurocris.org/sites/all/modules/custom_search/custom_search.css?tbmo09");
+</style>
+<style type="text/css" media="all">
+@import url("https://eurocris.org/sites/all/modules/cookie_banner/css/cookie_banner.css?tbmo09");
+</style>
+<style type="text/css" media="all">
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/alpha-reset.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/alpha-mobile.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/alpha-alpha.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/omega/css/formalize.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/omega/css/omega-text.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/omega/css/omega-branding.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/omega/css/omega-menu.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/omega/css/omega-forms.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/omega/css/omega-visuals.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/marlon/css/global.css?tbmo09");
+</style>
+
+<!--[if (lt IE 9)&(!IEMobile)]>
+<style type="text/css" media="all">
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default-normal.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/grid/alpha_default/normal/alpha-default-normal-12.css?tbmo09");
+</style>
+<![endif]-->
+
+<!--[if gte IE 9]><!-->
+<style type="text/css" media="all and (min-width: 740px) and (min-device-width: 740px), (max-device-width: 800px) and (min-width: 740px) and (orientation:landscape)">
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default-narrow.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/grid/alpha_default/narrow/alpha-default-narrow-12.css?tbmo09");
+</style>
+<!--<![endif]-->
+
+<!--[if gte IE 9]><!-->
+<style type="text/css" media="all and (min-width: 980px) and (min-device-width: 980px), all and (max-device-width: 1024px) and (min-width: 1024px) and (orientation:landscape)">
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default-normal.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/grid/alpha_default/normal/alpha-default-normal-12.css?tbmo09");
+</style>
+<!--<![endif]-->
+
+<!--[if gte IE 9]><!-->
+<style type="text/css" media="all and (min-width: 1220px)">
+@import url("https://eurocris.org/sites/all/themes/marlon/css/marlon-alpha-default.css?tbmo09");
+@import url("https://eurocris.org/sites/all/themes/omega/alpha/css/grid/alpha_default/wide/alpha-default-wide-12.css?tbmo09");
+</style>
+<!--<![endif]-->
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+window.jQuery || document.write("<script src='/sites/all/modules/jquery_update/replace/jquery/1.12/jquery.min.js'>\x3C/script>")
+//--><!]]>
+</script>
+<script type="text/javascript" src="https://eurocris.org/sites/default/files/js/js_GOikDsJOX04Aww72M-XK1hkq4qiL_1XgGsRdkL0XlDo.js"></script>
+<script type="text/javascript" src="https://eurocris.org/sites/default/files/js/js_g-Y3QR-XWhcIRapwHr8jQnHRg8FJgR8ALy1QTmpUJoY.js"></script>
+<script type="text/javascript" src="https://eurocris.org/sites/default/files/js/js_gHk2gWJ_Qw_jU2qRiUmSl7d8oly1Cx7lQFrqcp3RXcI.js"></script>
+<script type="text/javascript" src="https://eurocris.org/sites/default/files/js/js_MoYdiQzIXfRZHSEkr6QXuOHCCqqYGgWrJ9oikYdaxCU.js"></script>
+<script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-92272508-1"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments)};gtag("js", new Date());gtag("set", "developer_id.dMDhkMT", true);gtag("config", "UA-92272508-1", {"groups":"default","anonymize_ip":true,"page_path":"/404.html?page=" + document.location.pathname + document.location.search + "&from=" + document.referrer});
+//--><!]]>
+</script>
+<script type="text/javascript" src="https://eurocris.org/sites/default/files/js/js_D7zYFMmTv8ieQtVInb9Vb0d8cVNyX5WvM8VpvTwQVF4.js"></script>
+<script type="text/javascript" src="https://eurocris.org/sites/default/files/js/js_0nlshe5RVtmEErmTuoJKMuEAh1idWkWDsrRXYfqpGtw.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","setHasJsCookie":0,"ajaxPageState":{"theme":"marlon","theme_token":"JFPS4LRfdDYWcfWhnqzYPwlAmWXJqju3qUnxB42WCmg","js":{"\/\/ajax.googleapis.com\/ajax\/libs\/jquery\/1.12.4\/jquery.min.js":1,"0":1,"misc\/jquery-extend-3.4.0.js":1,"misc\/jquery-html-prefilter-3.5.0-backport.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"sites\/all\/modules\/jquery_update\/js\/jquery_browser.js":1,"sites\/all\/libraries\/blazy\/blazy.min.js":1,"sites\/all\/modules\/blazy\/js\/dblazy.min.js":1,"sites\/all\/modules\/blazy\/js\/bio.min.js":1,"sites\/all\/modules\/blazy\/js\/bio.media.min.js":1,"sites\/all\/modules\/blazy\/js\/blazy.load.min.js":1,"misc\/form-single-submit.js":1,"sites\/all\/modules\/entityreference\/js\/entityreference.js":1,"sites\/all\/themes\/marlon\/js\/script.js":1,"sites\/all\/themes\/marlon\/js\/jquery.fitvids.js":1,"sites\/all\/themes\/marlon\/js\/jquery.rwdImageMaps.min.js":1,"sites\/all\/libraries\/colorbox\/jquery.colorbox-min.js":1,"sites\/all\/libraries\/DOMPurify\/purify.min.js":1,"sites\/all\/modules\/colorbox\/js\/colorbox.js":1,"sites\/all\/modules\/colorbox\/styles\/default\/colorbox_style.js":1,"sites\/all\/modules\/colorbox\/js\/colorbox_load.js":1,"sites\/all\/modules\/custom_search\/js\/custom_search.js":1,"sites\/all\/modules\/google_analytics\/googleanalytics.js":1,"https:\/\/www.googletagmanager.com\/gtag\/js?id=UA-92272508-1":1,"1":1,"sites\/all\/modules\/cookie_banner\/js\/cookie_banner.js":1,"sites\/all\/themes\/omega\/omega\/js\/jquery.formalize.js":1,"sites\/all\/themes\/omega\/omega\/js\/omega-mediaqueries.js":1},"css":{"modules\/system\/system.base.css":1,"modules\/system\/system.menus.css":1,"modules\/system\/system.messages.css":1,"modules\/system\/system.theme.css":1,"sites\/all\/modules\/blazy\/css\/blazy.css":1,"sites\/all\/modules\/blazy\/css\/components\/blazy.filter.css":1,"sites\/all\/modules\/blazy\/css\/components\/blazy.ratio.css":1,"sites\/all\/modules\/blazy\/css\/components\/blazy.loading.css":1,"modules\/aggregator\/aggregator.css":1,"modules\/comment\/comment.css":1,"modules\/field\/theme\/field.css":1,"modules\/node\/node.css":1,"modules\/search\/search.css":1,"modules\/user\/user.css":1,"sites\/all\/modules\/views\/css\/views.css":1,"sites\/all\/modules\/ckeditor\/css\/ckeditor.css":1,"sites\/all\/themes\/marlon\/css\/fontawesome-free-5.13.0-web\/css\/all.min.css":1,"sites\/all\/modules\/colorbox\/styles\/default\/colorbox_style.css":1,"sites\/all\/modules\/ctools\/css\/ctools.css":1,"sites\/all\/modules\/panels\/css\/panels.css":1,"sites\/all\/modules\/tagclouds\/tagclouds.css":1,"sites\/all\/modules\/custom_search\/custom_search.css":1,"sites\/all\/modules\/cookie_banner\/css\/cookie_banner.css":1,"sites\/all\/themes\/omega\/alpha\/css\/alpha-reset.css":1,"sites\/all\/themes\/omega\/alpha\/css\/alpha-mobile.css":1,"sites\/all\/themes\/omega\/alpha\/css\/alpha-alpha.css":1,"sites\/all\/themes\/omega\/omega\/css\/formalize.css":1,"sites\/all\/themes\/omega\/omega\/css\/omega-text.css":1,"sites\/all\/themes\/omega\/omega\/css\/omega-branding.css":1,"sites\/all\/themes\/omega\/omega\/css\/omega-menu.css":1,"sites\/all\/themes\/omega\/omega\/css\/omega-forms.css":1,"sites\/all\/themes\/omega\/omega\/css\/omega-visuals.css":1,"sites\/all\/themes\/marlon\/css\/global.css":1,"ie::normal::sites\/all\/themes\/marlon\/css\/marlon-alpha-default.css":1,"ie::normal::sites\/all\/themes\/marlon\/css\/marlon-alpha-default-normal.css":1,"ie::normal::sites\/all\/themes\/omega\/alpha\/css\/grid\/alpha_default\/normal\/alpha-default-normal-12.css":1,"narrow::sites\/all\/themes\/marlon\/css\/marlon-alpha-default.css":1,"narrow::sites\/all\/themes\/marlon\/css\/marlon-alpha-default-narrow.css":1,"sites\/all\/themes\/omega\/alpha\/css\/grid\/alpha_default\/narrow\/alpha-default-narrow-12.css":1,"normal::sites\/all\/themes\/marlon\/css\/marlon-alpha-default.css":1,"normal::sites\/all\/themes\/marlon\/css\/marlon-alpha-default-normal.css":1,"sites\/all\/themes\/omega\/alpha\/css\/grid\/alpha_default\/normal\/alpha-default-normal-12.css":1,"wide::sites\/all\/themes\/marlon\/css\/marlon-alpha-default.css":1,"sites\/all\/themes\/omega\/alpha\/css\/grid\/alpha_default\/wide\/alpha-default-wide-12.css":1}},"colorbox":{"opacity":"0.85","current":"{current} of {total}","previous":"\u00ab Prev","next":"Next \u00bb","close":"Close","maxWidth":"98%","maxHeight":"98%","fixed":true,"mobiledetect":true,"mobiledevicewidth":"480px","file_public_path":"\/sites\/default\/files","specificPagesDefaultValue":"admin*\nimagebrowser*\nimg_assist*\nimce*\nnode\/add\/*\nnode\/*\/edit\nprint\/*\nprintpdf\/*\nsystem\/ajax\nsystem\/ajax\/*"},"jcarousel":{"ajaxPath":"\/jcarousel\/ajax\/views"},"custom_search":{"form_target":"_self","solr":0},"googleanalytics":{"account":["UA-92272508-1"],"trackOutbound":1,"trackMailto":1,"trackDownload":1,"trackDownloadExtensions":"7z|aac|arc|arj|asf|asx|avi|bin|csv|doc(x|m)?|dot(x|m)?|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt(x|m)?|pot(x|m)?|pps(x|m)?|ppam|sld(x|m)?|thmx|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls(x|m|b)?|xlt(x|m)|xlam|xml|z|zip","trackColorbox":1},"cookie_banner":{"cookie_banner_message":"\n\u003Cdiv id=\u0022cookie-banner\u0022\u003E\n  \u003Cp\u003E\n    euroCRIS stores cookies on your device to improve your user experience. By using our website, you agree to the use of cookies.    \u003Ca href=\u0022\/privacy\u0022\u003ELearn more about cookies.\u003C\/a\u003E\n  \u003C\/p\u003E\n\n  \u003Cbutton class=\u0022close\u0022\u003E\n    \u003Cspan\u003EClose cookie notice\u003C\/span\u003E\n  \u003C\/button\u003E\n\u003C\/div\u003E\n","cookie_banner_name":"eurocris-org-eu-cookie","cookie_banner_duration":1789969962},"urlIsAjaxTrusted":{"\/cerif\/CERIF_XML_1.6_DataType_Definitions_v1.0.pdf":true},"omega":{"layouts":{"primary":"normal","order":["narrow","normal","wide"],"queries":{"narrow":"all and (min-width: 740px) and (min-device-width: 740px), (max-device-width: 800px) and (min-width: 740px) and (orientation:landscape)","normal":"all and (min-width: 980px) and (min-device-width: 980px), all and (max-device-width: 1024px) and (min-width: 1024px) and (orientation:landscape)","wide":"all and (min-width: 1220px)"}}},"blazy":{"loadInvisible":false,"offset":100,"saveViewportOffsetDelay":50,"validateDelay":25,"container":""},"blazyIo":{"enabled":false,"disconnect":false,"rootMargin":"0px","threshold":[0]}});
+//--><!]]>
+</script>
+  <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script async src="https://app.clubcollect.com/widgets.js"></script>
+</head>
+<body class="html not-front not-logged-in page-cerif page-cerif-cerif-xml-16-datatype-definitions-v10pdf context-cerif" >
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
+  </div>
+  <div class="region region-page-top" id="region-page-top">
+  <div class="region-inner region-page-top-inner">
+      </div>
+</div>  <div class="page clearfix" id="page">
+      <header id="section-header" class="section section-header">
+  <div id="zone-user-wrapper" class="zone-wrapper zone-user-wrapper clearfix">  
+  <div id="zone-user" class="zone zone-user clearfix container-12">
+    <div class="grid-4 region region-user-second" id="region-user-second">
+  <div class="region-inner region-user-second-inner">
+    <div class="block block-block block-4 block-block-4 odd block-without-title" id="block-block-4">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <p class="fontawesome-list" id="button-mobile"><a href="/"><img src="/sites/all/themes/marlon/img/mobile_home.png" title="home" /></a> <img id="button-mobile-menu" src="/sites/all/themes/marlon/img/mobile_menu.png" title="open menu" /></p>
+    </div>
+  </div>
+</div>  </div>
+</div>  </div>
+</div><div id="zone-branding-wrapper" class="zone-wrapper zone-branding-wrapper clearfix">  
+  <div id="zone-branding" class="zone zone-branding clearfix container-12">
+    <div class="grid-6 region region-branding" id="region-branding">
+  <div class="region-inner region-branding-inner">
+        <div class="branding-data clearfix">
+            <div class="logo-img">
+        <a href="/" rel="home" title=""><img src="https://eurocris.org/sites/default/files/Eurocris-logo-met-text-def.png" alt="" id="logo" /></a>      </div>
+                </div>
+          </div>
+</div><div class="grid-6 region region-search" id="region-search">
+  <div class="region-inner region-search-inner">
+    <div class="block block-custom-search-blocks block-2 block-custom-search-blocks-2 odd block-without-title" id="block-custom-search-blocks-2">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <form class="search-form" role="search" action="/cerif/CERIF_XML_1.6_DataType_Definitions_v1.0.pdf" method="post" id="custom-search-blocks-form-2" accept-charset="UTF-8"><div><div class="form-item form-type-textfield form-item-custom-search-blocks-form-2">
+  <label class="element-invisible" for="edit-custom-search-blocks-form-2--2">Search this site </label>
+ <input title="Enter the terms you wish to search for." class="custom-search-box form-text" placeholder="" type="text" id="edit-custom-search-blocks-form-2--2" name="custom_search_blocks_form_2" value="" size="15" maxlength="128" />
+</div>
+<input type="hidden" name="delta" value="2" />
+<input type="hidden" name="form_build_id" value="form-26NITYt6-7rDK2ePh-9gewJeH04Libh1qwe7KBCkWRo" />
+<input type="hidden" name="form_id" value="custom_search_blocks_form_2" />
+<div class="form-actions form-wrapper" id="edit-actions"><input alt="Search" class="custom-search-button form-submit" type="image" id="edit-submit" name="op" src="https://eurocris.org/sites/default/files/custom_search/search.png" /></div></div></form>    </div>
+  </div>
+</div>  </div>
+</div>  </div>
+</div><div id="zone-menu-wrapper" class="zone-wrapper zone-menu-wrapper clearfix">  
+  <div id="zone-menu" class="zone zone-menu clearfix container-12">
+    <div class="grid-12 region region-menu" id="region-menu">
+  <div class="region-inner region-menu-inner">
+          </div>
+</div>
+  </div>
+</div></header>    
+      <section id="section-content" class="section section-content">
+  <div id="zone-content-wrapper" class="zone-wrapper zone-content-wrapper clearfix">  
+  <div id="zone-content" class="zone zone-content clearfix container-12">    
+        
+        <div class="grid-9 region region-content" id="region-content">
+  <div class="region-inner region-content-inner">
+    <a id="main-content"></a>
+                <h1 class="title" id="page-title">Page not found</h1>
+                        <div class="block block-system block-main block-system-main odd block-without-title" id="block-system-main">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      The requested page "/cerif/CERIF_XML_1.6_DataType_Definitions_v1.0.pdf" could not be found.    </div>
+  </div>
+</div>      </div>
+</div><aside class="grid-3 region region-sidebar-second" id="region-sidebar-second">
+  <div class="region-inner region-sidebar-second-inner">
+      </div>
+</aside>  </div>
+</div></section>    
+  
+      <footer id="section-footer" class="section section-footer">
+  <div id="zone-footer-wrapper" class="zone-wrapper zone-footer-wrapper clearfix">  
+  <div id="zone-footer" class="zone zone-footer clearfix container-12">
+    <div class="grid-4 region region-footer-first" id="region-footer-first">
+  <div class="region-inner region-footer-first-inner">
+        <p><img alt="EuroCris" src="/sites/default/files/Eurocris-logo-icon-def.png" style="height:75px; width:auto" /></p>
+
+  </div>
+</div><div class="grid-12 region region-footer-bottom" id="region-footer-bottom">
+  <div class="region-inner region-footer-bottom-inner">
+    <div class="block block-block block-34 block-block-34 odd block-without-title" id="block-block-34">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      Copyright 2025 by euroCRIS    </div>
+  </div>
+</div><div class="block block-block block-38 block-block-38 even block-without-title" id="block-block-38">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <p><a href="http://eurocris.org/privacy">Privacy statement</a></p>
+    </div>
+  </div>
+</div><div class="block block-block block-35 block-block-35 odd block-without-title" id="block-block-35">
+  <div class="block-inner clearfix">
+                
+    <div class="content clearfix">
+      <p> </p>
+      <ul class="follow-us-links">
+            <li><a href="#" class="fab fa-blogger-b"></a></li>
+            <li><a href="mailto:eurocris@eurocris.org" class="fas fa-envelope"></a></li>
+            <li><a href="https://twitter.com/euroCRIS_Org" target="_blank" class="fab fa-twitter"></a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+  </div>
+</div>  </div>
+</div></footer>  </div>  <div class="region region-page-bottom" id="region-page-bottom">
+  <div class="region-inner region-page-bottom-inner">
+      </div>
+</div>
+</body>
+</html>

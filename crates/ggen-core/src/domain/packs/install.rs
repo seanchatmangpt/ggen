@@ -46,7 +46,14 @@ pub struct InstallOutput {
 /// declared package set, and declared dependencies). It is deterministic for a
 /// given pack definition and never empty for a real (non-dry-run) install,
 /// satisfying lockfile invariant 4.1 (`digest` must be a non-empty SHA-256).
-fn compute_pack_digest(pack: &Pack) -> String {
+///
+/// Exposed at `pub(crate)` so the `--locked` sync precondition
+/// (`crate::domain::sync_profile`) can re-derive the digest from the on-disk
+/// pack and compare it to the stored `integrity` field (lockfile invariant
+/// 4.3.3 — re-verify digests at `sync --locked` time). The algorithm MUST NOT
+/// be changed independently of that re-verification path, or re-derivation will
+/// diverge from install-time digests.
+pub(crate) fn compute_pack_digest(pack: &Pack) -> String {
     let mut hasher = Sha256::new();
     hasher.update(pack.id.as_bytes());
     hasher.update([0u8]);

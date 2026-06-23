@@ -1,0 +1,26 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Alternatives" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Alternatives" ]
+dc:description [ "The expansion module for Alternatives." ]
+dc:language [ "en" ]
+start |= AlternativeCollection.Node.def
+
+##
+AlternativeCollection.Node.choice |= AlternativeCollection.Node.def
+AlternativeCollection.Node.def =
+  
+  ## a mutually exclusive collection where every member is a LegalRuleML rendering of one or more Legal Norms.
+  element Alternatives { AlternativeCollection.type.def }
+AlternativeCollection.type.def = AlternativeCollection.attlist, AlternativeCollection.main
+
+##
+AlternativeCollection.attlist &= commonCollection.attlist?

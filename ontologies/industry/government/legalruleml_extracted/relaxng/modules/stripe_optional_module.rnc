@@ -1,0 +1,358 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Optional Stripe Module" ]
+dc:version [ "1.0." ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, stripe-skipping" ]
+dc:description [ "expansion module for optional stripes." ]
+dc:language [ "en" ]
+start |= notAllowed
+# All the LegalRuleML roles below are optional because
+# it is possible to reconstruct the edge element from
+# the type and/or position of the child Node element.
+# This stripes do not have a leaf form.
+# 
+# This module is included only in the normalized serialization.
+
+##
+hasAgentCollection.edge.choice |= hasAgentCollection.edge.def
+hasAgentCollection.edge.def =
+  
+  ## a collection of Agents.
+  element hasAgents { hasAgentCollection.type.def }
+hasAgentCollection.type.def = hasAgentCollection.attlist, hasAgentCollection.content
+hasAgentCollection.attlist &= empty
+
+##
+hasAgent.edge.choice |= hasAgent.edge.def
+hasAgent.edge.def =
+  
+  ## an Agent in the collection.
+  element hasAgent { hasAgent.type.def }
+hasAgent.type.def = hasAgent.attlist, hasAgent.content
+hasAgent.attlist &= empty
+
+##
+hasAlternativeCollection.edge.choice |= hasAlternativeCollection.edge.def
+hasAlternativeCollection.edge.def =
+  
+  ## a collection of Alternatives.
+  element hasAlternatives { hasAlternativeCollection.type.def }
+hasAlternativeCollection.type.def =
+  hasAlternativeCollection.attlist, hasAlternativeCollection.content
+hasAlternativeCollection.attlist &= empty
+
+##
+hasAssociationCollection.edge.choice |= hasAssociationCollection.edge.def
+hasAssociationCollection.edge.def =
+  
+  ## a collection of Associations.
+  element hasAssociations { hasAssociationCollection.type.def }
+hasAssociationCollection.type.def =
+  hasAssociationCollection.attlist, hasAssociationCollection.content
+hasAssociationCollection.attlist &= empty
+
+##
+hasAssociation.edge.choice |= hasAssociation.edge.def
+hasAssociation.edge.def =
+  
+  ## an Association in the collection.
+  element hasAssociation { hasAssociation.type.def }
+hasAssociation.type.def = hasAssociation.attlist, hasAssociation.content
+hasAssociation.attlist &= empty
+
+##
+hasAuthorityCollection.edge.choice |= hasAuthorityCollection.edge.def
+hasAuthorityCollection.edge.def =
+  
+  ## a collection of Authorities.
+  element hasAuthorities { hasAuthorityCollection.type.def }
+hasAuthorityCollection.type.def = hasAuthorityCollection.attlist, hasAuthorityCollection.content
+hasAuthorityCollection.attlist &= empty
+
+##
+hasAuthority.edge.choice |= hasAuthority.edge.def
+hasAuthority.edge.def =
+  
+  ## an Authority in the collection.
+  element hasAuthority { hasAuthority.type.def }
+hasAuthority.type.def = hasAuthority.attlist, hasAuthority.content
+hasAuthority.attlist &= empty
+
+##
+hasContext.edge.choice |= hasContext.edge.def
+hasContext.edge.def =
+  
+  ## a Context described in the LegalRuleML document.
+  element hasContext { hasContext.type.def }
+hasContext.type.def = hasContext.attlist, hasContext.content
+hasContext.attlist &= empty
+
+##
+hasFigureCollection.edge.choice |= hasFigureCollection.edge.def
+hasFigureCollection.edge.def =
+  
+  ## a collection of Figures.
+  element hasFigures { hasFigureCollection.type.def }
+hasFigureCollection.type.def = hasFigureCollection.attlist, hasFigureCollection.content
+hasFigureCollection.attlist &= empty
+
+##
+hasFigure.edge.choice |= hasFigure.edge.def
+hasFigure.edge.def =
+  
+  ## a Figure in the collection.
+  element hasFigure { hasFigure.type.def }
+hasFigure.type.def = hasFigure.attlist, hasFigure.content
+hasFigure.attlist &= empty
+
+##
+hasJurisdictionCollection.edge.choice |= hasJurisdictionCollection.edge.def
+hasJurisdictionCollection.edge.def =
+  
+  ## a collection of Jurisdictions.
+  element hasJurisdictions { hasJurisdictionCollection.type.def }
+hasJurisdictionCollection.type.def =
+  hasJurisdictionCollection.attlist, hasJurisdictionCollection.content
+hasJurisdictionCollection.attlist &= empty
+
+##
+hasJurisdiction.edge.choice |= hasJurisdiction.edge.def
+hasJurisdiction.edge.def =
+  
+  ## a Jurisdiction in the collection.
+  element hasJurisdiction { hasJurisdiction.type.def }
+hasJurisdiction.type.def = hasJurisdiction.attlist, hasJurisdiction.content
+hasJurisdiction.attlist &= empty
+
+##
+hasLegalSourceCollection.edge.choice |= hasLegalSourceCollection.edge.def
+hasLegalSourceCollection.edge.def =
+  
+  ## a collection of LegalSources.
+  element hasLegalSources { hasLegalSourceCollection.type.def }
+hasLegalSourceCollection.type.def = hasSourceCollection.attlist, hasLegalSourceCollection.content
+
+##
+hasSourceCollection.edge.choice |= hasSourceCollection.edge.def
+hasSourceCollection.edge.def =
+  
+  ## a collection of Sources.
+  element hasSources { hasSourceCollection.type.def }
+hasSourceCollection.type.def = hasSourceCollection.attlist, hasSourceCollection.content
+hasSourceCollection.attlist &= empty
+
+##
+hasLegalSource.edge.choice |= hasLegalSource.edge.def
+hasLegalSource.edge.def =
+  
+  ## a LegalSource in the collection.
+  element hasLegalSource { hasLegalSource.type.def }
+hasLegalSource.type.def = hasSource.attlist, hasLegalSource.content
+
+##
+hasSource.edge.choice |= hasSource.edge.def
+hasSource.edge.def =
+  
+  ## a Source in the collection.
+  element hasSource { hasSource.type.def }
+hasSource.type.def = hasSource.attlist, hasSource.content
+
+##
+hasSource.attlist &= empty
+
+##
+hasPrefix.edge.choice |= hasPrefix.edge.def
+hasPrefix.edge.def =
+  
+  ## a Prefix declared in the LegalRuleML document.
+  element hasPrefix { hasPrefix.type.def }
+hasPrefix.type.def = hasPrefix.attlist, hasPrefix.content
+hasPrefix.attlist &= empty
+
+##
+hasLegalReferenceCollection.edge.choice |= hasLegalReferenceCollection.edge.def
+hasLegalReferenceCollection.edge.def =
+  
+  ## a collection of LegalReferences.
+  element hasLegalReferences { hasLegalReferenceCollection.type.def }
+hasLegalReferenceCollection.type.def =
+  hasReferenceCollection.attlist, hasLegalReferenceCollection.content
+
+##
+hasLegalReference.edge.choice |= hasLegalReference.edge.def
+hasLegalReference.edge.def =
+  
+  ## a LegalReference in the collection.
+  element hasLegalReference { hasLegalReference.type.def }
+hasLegalReference.type.def = hasReference.attlist, hasLegalReference.content
+
+##
+hasReferenceCollection.edge.choice |= hasReferenceCollection.edge.def
+hasReferenceCollection.edge.def =
+  
+  ## a collection of References.
+  element hasReferences { hasReferenceCollection.type.def }
+hasReferenceCollection.type.def = hasReferenceCollection.attlist, hasReferenceCollection.content
+hasReferenceCollection.attlist &= empty
+
+##
+hasReference.edge.choice |= hasReference.edge.def
+hasReference.edge.def =
+  
+  ## a Reference in the collection.
+  element hasReference { hasReference.type.def }
+hasReference.type.def = hasReference.attlist, hasReference.content
+hasReference.attlist &= empty
+
+##
+hasRoleCollection.edge.choice |= hasRoleCollection.edge.def
+hasRoleCollection.edge.def =
+  
+  ## a collection of Roles.
+  element hasRoles { hasRoleCollection.type.def }
+hasRoleCollection.type.def = hasRoleCollection.attlist, hasRoleCollection.content
+hasRoleCollection.attlist &= empty
+
+##
+hasRole.edge.choice |= hasRole.edge.def
+hasRole.edge.def =
+  
+  ## a Role in the collection.
+  element hasRole { hasRole.type.def }
+hasRole.type.def = hasRole.attlist, hasRole.content
+hasRole.attlist &= empty
+
+##
+hasStatementCollection.edge.choice |= hasStatementCollection.edge.def
+hasStatementCollection.edge.def =
+  
+  ## a collection of Legal Statements.
+  element hasStatements { hasStatementCollection.type.def }
+hasStatementCollection.type.def = hasStatementCollection.attlist, hasStatementCollection.content
+hasStatementCollection.attlist &= empty
+
+##
+hasStatement.edge.choice |= hasStatement.edge.def
+hasStatement.edge.def =
+  
+  ## a Legal Statement in the collection.
+  element hasStatement { hasStatement.type.def }
+hasStatement.type.def = hasStatement.attlist, hasStatement.content
+hasStatement.attlist &= empty
+
+##
+hasComment.edge.choice |= hasComment.edge.def
+hasComment.edge.def =
+  
+  ## a comment on the parent Node Element.
+  element hasComment { hasComment.type.def }
+hasComment.type.def = hasComment.attlist, hasComment.content
+hasComment.attlist &= empty
+
+##  
+hasParaphrase.edge.choice |= hasParaphrase.edge.def
+hasParaphrase.edge.def =
+  
+  ## a Paraphrase of the parent Node Element (e.g. a Legal Rule).
+  element hasParaphrase { hasParaphrase.type.def }
+
+##
+hasParaphrase.type.def = hasParaphrase.attlist, hasParaphrase.content
+hasParaphrase.attlist &= empty
+
+##
+hasTemplate-Constitutive.edge.choice |= hasTemplate-Constitutive.edge.def
+hasTemplate-Constitutive.edge.def =
+  
+  ## the template of a ConstitutiveStatement.
+  element hasTemplate { hasTemplate-Constitutive.type.def }
+hasTemplate-Constitutive.type.def =
+  hasTemplate-Constitutive.attlist, hasTemplate-Constitutive.content
+hasTemplate-Constitutive.attlist &= empty
+
+##
+hasTemplate-Override.edge.choice |= hasTemplate-Override.edge.def
+hasTemplate-Override.edge.def =
+  
+  ## the template of a OverrideStatement.
+  element hasTemplate { hasTemplate-Override.type.def }
+hasTemplate-Override.type.def = hasTemplate-Override.attlist, hasTemplate-Override.content
+hasTemplate-Override.attlist &= empty
+
+##
+hasTemplate-Penalty.edge.choice |= hasTemplate-Penalty.edge.def
+hasTemplate-Penalty.edge.def =
+  
+  ## the template of a PenaltyStatement.
+  element hasTemplate { hasTemplate-Penalty.type.def }
+hasTemplate-Penalty.type.def = hasTemplate-Penalty.attlist, hasTemplate-Penalty.content
+hasTemplate-Penalty.attlist &= empty
+
+##
+hasTemplate-Prescriptive.edge.choice |= hasTemplate-Prescriptive.edge.def
+hasTemplate-Prescriptive.edge.def =
+  
+  ## the template of a PrescriptiveStatement.
+  element hasTemplate { hasTemplate-Prescriptive.type.def }
+hasTemplate-Prescriptive.type.def =
+  hasTemplate-Prescriptive.attlist, hasTemplate-Prescriptive.content
+hasTemplate-Prescriptive.attlist &= empty
+
+##
+hasTemplate-Reparation.edge.choice |= hasTemplate-Reparation.edge.def
+hasTemplate-Reparation.edge.def =
+  
+  ## the template of a ReparationStatement.
+  element hasTemplate { hasTemplate-Reparation.type.def }
+hasTemplate-Reparation.type.def = hasTemplate-Reparation.attlist, hasTemplate-Reparation.content
+hasTemplate-Reparation.attlist &= empty
+
+##
+hasTemporalCharacteristics.edge.choice |= hasTemporalCharacteristics.edge.def
+hasTemporalCharacteristics.edge.def =
+  
+  ## a collection of TemporalCharacteristics.
+  element hasTemporalCharacteristics { hasTemporalCharacteristics.type.def }
+
+##
+hasTemporalCharacteristics.type.def =
+  hasTemporalCharacteristics.attlist, hasTemporalCharacteristics.content
+hasTemporalCharacteristics.attlist &= empty
+
+##
+hasTemporalCharacteristic.edge.choice |= hasTemporalCharacteristic.edge.def
+hasTemporalCharacteristic.edge.def =
+  
+  ## a TemporalCharacteristic in the collection.
+  element hasTemporalCharacteristic { hasTemporalCharacteristic.type.def }
+
+##
+hasTemporalCharacteristic.type.def =
+  hasTemporalCharacteristic.attlist, hasTemporalCharacteristic.content
+hasTemporalCharacteristic.attlist &= empty
+
+##
+hasTimeCollection.edge.choice |= hasTimeCollection.edge.def
+hasTimeCollection.edge.def =
+  
+  ## a collection of Times.
+  element hasTimes { hasTimeCollection.type.def }
+hasTimeCollection.type.def = hasTimeCollection.attlist, hasTimeCollection.content
+hasTimeCollection.attlist &= empty
+
+##
+hasTime.edge.choice |= hasTime.edge.def
+hasTime.edge.def =
+  
+  ## a Time in the collection.
+  element hasTime { hasTime.type.def }
+hasTime.type.def = hasTime.attlist, hasTime.content
+hasTime.attlist &= empty
+

@@ -1,0 +1,38 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Authorities" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Author" ]
+dc:description [ "The expansion module for LegalRuleML Authorities." ]
+dc:language [ "en" ]
+start |= AuthorityCollection.Node.def | Authority.Node.def
+
+##
+AuthorityCollection.Node.choice |= AuthorityCollection.Node.def
+AuthorityCollection.Node.def =
+  
+  ## a collection where every member is an Authority.
+  element Authorities { AuthorityCollection.type.def }
+AuthorityCollection.type.def = AuthorityCollection.attlist, AuthorityCollection.main
+
+##
+AuthorityCollection.attlist &= commonCollection.attlist?
+
+##
+Authority.Node.choice |= Authority.Node.def
+Authority.Node.def =
+  
+  ## a person or organization with the power to create, endorse, or enforce Legal Norms.
+  element Authority { Authority.type.def }
+Authority.type.def = Authority.attlist, Authority.main
+
+##
+Authority.attlist &= commonLRMLNodeInit.attlist?
+Authority.attlist &= sameAs.attrib.opt.choice?

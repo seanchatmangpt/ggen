@@ -1,0 +1,37 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Associations" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Association" ]
+dc:description [ "LegalRuleML Associations to targets." ]
+dc:language [ "en" ]
+start |= AssociationCollection.Node.def | Association.Node.def
+
+##
+AssociationCollection.Node.choice |= AssociationCollection.Node.def
+AssociationCollection.Node.def =
+  
+  ## a collection where every member is an Association.
+  element Associations { AssociationCollection.type.def }
+AssociationCollection.type.def = AssociationCollection.attlist, AssociationCollection.main
+
+##
+AssociationCollection.attlist &= commonCollection.attlist?
+
+##
+Association.Node.choice |= Association.Node.def
+Association.Node.def =
+  
+  ## a partial description of the extension of some relations where each non-target entity is paired with every target entity. 
+  element Association { Association.type.def }
+Association.type.def = Association.attlist, Association.main
+
+##
+Association.attlist &= commonLRMLNodeInit.attlist?

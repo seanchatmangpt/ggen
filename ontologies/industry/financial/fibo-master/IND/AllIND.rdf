@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-all "https://spec.edmcouncil.org/fibo/ontology/IND/AllIND/">
+	<!ENTITY fibo-ind-ei-ei "https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/EconomicIndicators/">
+	<!ENTITY fibo-ind-fx-fx "https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/">
+	<!ENTITY fibo-ind-ind-ind "https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/">
+	<!ENTITY fibo-ind-ir-ir "https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/">
+	<!ENTITY fibo-ind-mkt-bas "https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/BasketIndices/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/IND/AllIND/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-all="https://spec.edmcouncil.org/fibo/ontology/IND/AllIND/"
+	xmlns:fibo-ind-ei-ei="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/EconomicIndicators/"
+	xmlns:fibo-ind-fx-fx="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/"
+	xmlns:fibo-ind-ind-ind="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"
+	xmlns:fibo-ind-ir-ir="https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/"
+	xmlns:fibo-ind-mkt-bas="https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/BasketIndices/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/IND/AllIND/">
+		<rdfs:label>Indices and Indicators Domain</rdfs:label>
+		<dct:abstract>The FIBO Indices and Indicators (IND) Domain covers market indices and reference rates including economic indicators, foreign exchange, interest rates, and other benchmarks. The ontologies cover quoted interest rates, economic measures such as employment rates, and quoted indices required to support baskets of securities, including specific kinds of securities in share indices or bond indices, as well as credit indices.</dct:abstract>
+		<dct:contributor>88 Solutions</dct:contributor>
+		<dct:contributor>Adaptive, Inc.</dct:contributor>
+		<dct:contributor>Bank of New York Mellon</dct:contributor>
+		<dct:contributor>Bloomberg LP</dct:contributor>
+		<dct:contributor>Bureau of Economic Analysis (BEA, US Department of Commerce)</dct:contributor>
+		<dct:contributor>Bureau of Labor Statistics (BLS, US Department of Commerce)</dct:contributor>
+		<dct:contributor>Census Bureau (US Department of Commerce)</dct:contributor>
+		<dct:contributor>Citigroup</dct:contributor>
+		<dct:contributor>Dassault Systemes/No Magic</dct:contributor>
+		<dct:contributor>Deutsche Bank</dct:contributor>
+		<dct:contributor>Federal Reserve Bank of Kansas City</dct:contributor>
+		<dct:contributor>HP Enterprise / Mphasis</dct:contributor>
+		<dct:contributor>John F. Gemski</dct:contributor>
+		<dct:contributor>John F. Tierney</dct:contributor>
+		<dct:contributor>Nordea Bank AB</dct:contributor>
+		<dct:contributor>Office of Financial Research (OFR), U.S. Department of the Treasury</dct:contributor>
+		<dct:contributor>Pinnacle Bank (Morgan Hill, California)</dct:contributor>
+		<dct:contributor>State Street Bank and Trust</dct:contributor>
+		<dct:contributor>Statistics Canada</dct:contributor>
+		<dct:contributor>Tahoe Blue Ltd</dct:contributor>
+		<dct:contributor>Thematix Partners LLC</dct:contributor>
+		<dct:contributor>Wells Fargo Bank, N. A.</dct:contributor>
+		<dct:contributor>agnos.ai UK Ltd</dct:contributor>
+		<dct:issued rdf:datatype="&xsd;dateTime">2018-08-27T18:00:00</dct:issued>
+		<dct:license rdf:datatype="&xsd;anyURI">https://opensource.org/licenses/MIT</dct:license>
+		<dct:modified rdf:datatype="&xsd;dateTime">2023-02-06T18:00:00</dct:modified>
+		<dct:title>Financial Industry Business Ontology (FIBO) Indices and Indicators (IND) Domain</dct:title>
+		<rdfs:seeAlso rdf:resource="https://www.edmcouncil.org/fibo/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/AllFBC/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/EconomicIndicators/EconomicIndicators/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/InterestRates/InterestRates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/MarketIndices/BasketIndices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/EquityInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Baskets/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesClassification/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/20230201/AllIND/"/>
+		<cmns-av:copyright>Copyright (c) 2014-2023 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2014-2023 Object Management Group, Inc.</cmns-av:copyright>
+		<cmns-av:explanatoryNote>The &apos;all&apos; ontology for IND is provided for convenience for FIBO users. It imports most of the Production (Released) ontologies that comprise the FIBO Foundations (FND), Business Entities (BE), Financial Business and Commerce (FBC), and Indices and Indicators (IND) domains, excluding individuals for governments and jurisdictions, financial services, regulatory organizations and related registries, and reference individuals, as well as the LCC region-specific ontologies.</cmns-av:explanatoryNote>
+	</owl:Ontology>
+
+</rdf:RDF>

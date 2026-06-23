@@ -1,0 +1,27 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Collections" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, collection" ]
+dc:description [ "Expansion module for collections." ]
+dc:language [ "en" ]
+start |= notAllowed
+
+## attribute group for LegalRuleML Collections
+commonCollection.attlist &= commonLRMLNodeInit.attlist?
+commonCollection.attlist &= memberType.attrib.choice?
+
+##
+memberType.attrib.choice |= memberType.attrib.def
+memberType.attrib.def =
+  
+  ##  the type or class of members of the collection.
+  attribute memberType { iri.lrml.datatype }
+DummyCollection = element DummyCollection { commonCollection.attlist? }

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-qtu "https://www.omg.org/spec/Commons/QuantitiesAndUnits/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-pub "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/">
+	<!ENTITY fibo-fbc-fct-fse "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/">
+	<!ENTITY fibo-fbc-fct-mkt "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/">
+	<!ENTITY fibo-fbc-pas-fpas "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-ind-fx-fx "https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/">
+	<!ENTITY fibo-ind-ind-ind "https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-qtu="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-pub="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"
+	xmlns:fibo-fbc-fct-fse="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/"
+	xmlns:fibo-fbc-fct-mkt="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/"
+	xmlns:fibo-fbc-pas-fpas="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-ind-fx-fx="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/"
+	xmlns:fibo-ind-ind-ind="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/IND/ForeignExchange/ForeignExchange/">
+		<rdfs:label>Foreign Exchange Ontology</rdfs:label>
+		<dct:abstract>This ontology provides the parameters for foreign exchange rates, covering spot and forward rates, as well as foreign exchange spot rate volatilities.</dct:abstract>
+		<dct:license>Copyright (c) 2014-2025 EDM Council, Inc.
+Copyright (c) 2014-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/Publishers/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/Markets/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/Indicators/Indicators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/IND/20250701/ForeignExchange/ForeignExchange/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20140601/ForeignExchange/ForeignExchange.rdf version of this ontology was modified per the issue resolutions identified in the FIBO IND 1.0 FTF 1 report.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20150501/ForeignExchange/ForeignExchange.rdf version of this ontology was modified per the issue resolutions identified in the FIBO IND 1.0 FTF 2 report, namely, to take advantage of content added via the FIBO FND 1.1 with respect to higher-level concepts of Rate, ExchangeRate, and InterestRate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20160801/ForeignExchange/ForeignExchange.rdf version of this ontology was modified per the FIBO 2.0 RFC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20180801/ForeignExchange/ForeignExchange.rdf version of this ontology was modified to eliminate deprecated elements.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20190901/ForeignExchange/ForeignExchange.rdf version of this ontology was modified to eliminate unnecessary references, some of which had incorrect datatypes, rename FxSpotVolatility to CurrencySpotVolatility and improve its definition and related volatility definitions more generally.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20210301/ForeignExchange/ForeignExchange.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20230201/ForeignExchange/ForeignExchange.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20230301/ForeignExchange/ForeignExchange.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20231201/ForeignExchange/ForeignExchange.rdf version of this ontology was modified to add the source for a quoted exchange rate (DER-143).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/IND/20240801/ForeignExchange/ForeignExchange.rdf version of the ontology was modified to replace hasConstituent with hasMember for better semantic consistency (FND-396).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2014-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2014-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencyConversionService">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;ForeignExchangeService"/>
+		<rdfs:label>currency conversion service</rdfs:label>
+		<skos:definition>foreign exchange service involving the conversion of currency of one country or group of countries for another, typically, but not always, as a counter transaction</skos:definition>
+		<cmns-av:explanatoryNote>A currency exchange service may be provided by a stand-alone business or may be part of the services offered by a bank or other financial institution. The currency exchange profits from its services either through adjusting the exchange rate or taking a commission.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencyForwardRate">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;QuotedExchangeRate"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-fpas;hasSettlementDate"/>
+				<owl:allValuesFrom rdf:resource="&cmns-dt;Date"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>currency forward rate</rdfs:label>
+		<skos:definition>rate of exchange between two currencies for settlement at some future point in time, expressed as a premium on the spot rate</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencyForwardRateVolatility">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;ExchangeRateVolatility"/>
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ind-ind;ImpliedVolatility"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-ind-ind-ind;isVolatilityOf"/>
+				<owl:allValuesFrom rdf:resource="&fibo-ind-fx-fx;CurrencyForwardRate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>currency forward rate volatility</rdfs:label>
+		<skos:definition>measure of exchange rate fluctuation based on a range of projected values for exchange rates</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencySpotBuyRate">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;CurrencySpotRate"/>
+		<rdfs:label>currency spot buy rate</rdfs:label>
+		<skos:definition>indicative spot buying market rate as observed by the reporting source</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencySpotMidRate">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;CurrencySpotRate"/>
+		<rdfs:label>currency spot mid rate</rdfs:label>
+		<skos:definition>indicative middle market (mean of spot buying and selling) rate as observed by the reporting source</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencySpotRate">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;QuotedExchangeRate"/>
+		<rdfs:label>currency spot rate</rdfs:label>
+		<skos:definition>rate at which one currency may be exchanged for another for immediate delivery</skos:definition>
+		<cmns-av:explanatoryNote>Spot rates represent the prices buyers pay in one currency to purchase a second currency. Although the spot exchange rate is for delivery on the earliest value date, the standard settlement date for most spot transactions is two business days after the transaction date.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencySpotSellRate">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;CurrencySpotRate"/>
+		<rdfs:label>currency spot sell rate</rdfs:label>
+		<skos:definition>indicative spot selling market rate as observed by the reporting source</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;CurrencySpotVolatility">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;ExchangeRateVolatility"/>
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ind-ind;HistoricalVolatility"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-ind-ind-ind;isVolatilityOf"/>
+				<owl:allValuesFrom rdf:resource="&fibo-ind-fx-fx;CurrencySpotRate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>currency spot volatility</rdfs:label>
+		<skos:definition>measure of exchange rate fluctuation based on a range of past actual values for exchange rates</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;ExchangeRateStructure">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;DatedStructuredCollection"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-acc-cur;ExchangeRate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>exchange rate structure</rdfs:label>
+		<skos:definition>structured collection of quoted or projected exchange rates, such that volatility may be constructed for the structure</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;ExchangeRateVolatility">
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ind-ind;Volatility"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;hasArgument"/>
+				<owl:someValuesFrom rdf:resource="&fibo-ind-fx-fx;ExchangeRateStructure"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>exchange rate volatility</rdfs:label>
+		<skos:definition>statistical measure of the rate of change in the rate at which one currency can be exchanged for another</skos:definition>
+		<cmns-av:usageNote>Volatility is modeled here using a structured collection, comprised of a series of individual exchange rates (either projected or prior quoted rates), dates, and the source for those rates for some overall period of time</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;ForeignExchangeService">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;FinancialService"/>
+		<rdfs:label>foreign exchange service</rdfs:label>
+		<skos:definition>financial service involving the exchange of one currency for another, conversion of one currency for another, and transfer of money from one country to another whereby currency conversion is required</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;InternationalElectronicFundsTransferService">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fct-fse;ElectronicFundsTransferService"/>
+		<rdfs:subClassOf rdf:resource="&fibo-ind-fx-fx;ForeignExchangeService"/>
+		<rdfs:label>international electronic funds transfer service</rdfs:label>
+		<skos:definition>electronic funds transfer (EFT) service involving the transfer of funds across national borders, that may also involve currency conversion</skos:definition>
+		<cmns-av:synonym>international wire transfer</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-ind-fx-fx;QuotedExchangeRate">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;ExchangeRate"/>
+		<rdfs:subClassOf rdf:resource="&fibo-ind-ind-ind;MarketRate"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-ind-fx-fx;hasQuoteCurrency"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;Currency"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-ind-fx-fx;hasExchangeRateQuotationSource"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-be-fct-pub;Publisher">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-pas-fpas;FinancialServiceProvider">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-fct-mkt;Exchange">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>quoted exchange rate</rdfs:label>
+		<skos:definition>exchange rate quoted at a specific point in time, for a given block amount of currency as quoted against another (base) currency</skos:definition>
+		<cmns-av:explanatoryNote>An exchange rate of R represents a rate of R units of the quoted currency to 1 unit of the base currency.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-ind-fx-fx;hasExchangeRateQuotationSource">
+		<rdfs:subPropertyOf rdf:resource="&cmns-doc;refersTo"/>
+		<rdfs:label xml:lang="en">has exchange rate quotation source</rdfs:label>
+		<rdfs:range>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-be-fct-pub;Publisher">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fbc-pas-fpas;FinancialServiceProvider">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fbc-fct-mkt;Exchange">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:range>
+		<skos:definition xml:lang="en">indicates the origin of a quoted exchange rate</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-ind-fx-fx;hasQuotationBlockAmountBasis">
+		<rdfs:label>has quotation block amount basis</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-ind-fx-fx;QuotedExchangeRate"/>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition>indicates the amount of the dealt currency which would be exchanged in a trade for which the stated spot rate applies</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-ind-fx-fx;hasQuotationSettlementBasis">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDuration"/>
+		<rdfs:label>has quotation settlement basis</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-ind-fx-fx;QuotedExchangeRate"/>
+		<rdfs:range rdf:resource="&cmns-dt;Duration"/>
+		<skos:definition>indicates the settlement period for a trade for which the stated spot rate applies</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-ind-fx-fx;hasQuoteCurrency">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasDealtCurrency"/>
+		<rdfs:label>has quote currency</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;Currency"/>
+		<skos:definition>indicates the quote currency in an exchange rate; R units of this currency represent one unit of the base currency</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-ind-fx-fx;hasQuotedExchangeRate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-qtu;hasQuantityValue"/>
+		<rdfs:label xml:lang="en">has quoted exchange rate</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-ind-fx-fx;QuotedExchangeRate"/>
+		<skos:definition xml:lang="en">rate of exchange between two currencies as specified as of some date and time as quoted by a specific source</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-ind-fx-fx;isPremiumOn">
+		<rdfs:label>is premium on</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-ind-fx-fx;CurrencyForwardRate"/>
+		<rdfs:range rdf:resource="&fibo-ind-fx-fx;QuotedExchangeRate"/>
+		<skos:definition>an exchange rate expressed as a premium on the spot rate for the currency pair</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

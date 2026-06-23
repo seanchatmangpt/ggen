@@ -147,24 +147,45 @@ fn test_sabotage_delete_verifying_key_receipt_verify_returns_invalid() {
         .stdout(predicate::str::contains("\"is_valid\":false"));
 }
 
-/// Test 5: Empty packs cache dir with GGEN_OFFLINE=true, install should exit non-zero
+/// Test 5: Empty packs cache dir with GGEN_OFFLINE=true, add should exit non-zero
+///
+/// Intent preserved: adding a pack that is absent from the registry/cache must fail
+/// loudly (no fail-open). Migrated from the removed `packs install` to the live
+/// `pack add` verb. NOTE: the live `add` verb (crates/ggen-cli/src/cmds/pack.rs)
+/// returns `Ok(AddOutput { status: "not_found", .. })` on a missing pack rather than
+/// a non-zero exit, so — mirroring proof_pack_test.rs::
+/// test_add_nonexistent_pack_does_not_fake_success_or_emit_receipt — this asserts
+/// "loud failure" as EITHER a non-zero exit OR a `not_found` / "not found" marker in
+/// stdout+stderr, instead of `.failure()` alone.
 #[test]
 fn test_sabotage_empty_packs_dir_install_exits_nonzero() {
     let empty_cache = TempDir::new().unwrap();
     let temp_dir = TempDir::new().unwrap();
 
-    ggen()
-        .arg("packs")
-        .arg("install")
+    let assert = ggen()
+        .arg("pack")
+        .arg("add")
         .arg("acme/base")
         .current_dir(temp_dir.path())
         .env("GGEN_PACK_CACHE_DIR", empty_cache.path())
         .env("GGEN_OFFLINE", "true")
-        .assert()
-        .failure()
-        .stderr(
-            predicate::str::contains("not found")
-                .or(predicate::str::contains("GGEN_OFFLINE"))
-                .or(predicate::str::contains("cache")),
-        );
+        .assert();
+
+    let output = assert.get_output().clone();
+    let code = output.status.code();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let combined = format!("{stdout}{stderr}");
+
+    let loud = code != Some(0)
+        || combined.contains("not_found")
+        || combined.contains("not found")
+        || combined.contains("GGEN_OFFLINE")
+        || combined.contains("cache");
+    assert!(
+        loud,
+        "FAIL-OPEN DEFECT: adding an absent pack offline must fail loudly. \
+         Got exit {:?}, output: {}",
+        code, combined
+    );
 }

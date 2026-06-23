@@ -1,0 +1,74 @@
+================================================================================
+RDF ONTOLOGY DOWNLOAD REPORT
+Date: 2026-06-23
+Directory: /home/user/ggen/ontologies/people
+================================================================================
+
+1. vcard.rdf
+   Name: vCard RDF Schema (W3C Official)
+   Source URL: https://www.w3.org/2006/vcard/vcard.rdf
+   Size: 77,696 bytes (76K)
+   Lines: 1,793
+   RDF/XML Elements: 3 rdf:RDF, 7 class/property definitions
+   Namespace: http://www.w3.org/2006/vcard/ns#
+   Authority: World Wide Web Consortium (W3C)
+   Download Status: SUCCESS
+
+2. vcard-w3c-spec.rdf
+   Name: vCard Ontology (W3C Namespace RDF)
+   Source URL: https://www.w3.org/2006/vcard/ns (Content-Negotiated)
+   HTTP Headers: Accept: application/rdf+xml
+   Size: 120,104 bytes (118K)
+   Lines: 1,391
+   RDF/XML Elements: 2 rdf:RDF, 506 rdf:Description entries
+   Namespace: http://www.w3.org/2006/vcard/ns
+   Authority: World Wide Web Consortium (W3C)
+   Download Status: SUCCESS
+
+3. foaf.rdf
+   Name: FOAF (Friend of a Friend) Vocabulary
+   Source URL: http://xmlns.com/foaf/0.1/ (Content-Negotiated)
+   HTTP Headers: Accept: application/rdf+xml
+   Size: 44,209 bytes (43K)
+   Lines: 609
+   RDF/XML Elements: 2 rdf:RDF, 2 ontology definitions
+   Namespace: http://xmlns.com/foaf/0.1/
+   Authority: FOAF Project (foaf-project.org)
+   Format: RDF/XML with W3C RDFS and OWL
+   Download Status: SUCCESS
+
+4. org.rdf
+   Name: W3C Organization Ontology
+   Source URL: https://www.w3.org/ns/org.rdf
+   Size: 104,006 bytes (102K)
+   Lines: 880
+   RDF/XML Elements: 2 rdf:RDF, 8 class/property definitions
+   Namespace: http://www.w3.org/ns/org#
+   Authority: World Wide Web Consortium (W3C)
+   Download Status: SUCCESS
+
+================================================================================
+SUMMARY
+================================================================================
+
+Total Files Downloaded: 4
+Total Size: 346,015 bytes (338K)
+Download Method: HTTP GET with content negotiation
+All Files Valid: YES (verified RDF/XML structure)
+
+Contents by Type:
+- W3C vCard Variants: 2 files (197.8K)
+- FOAF Person Vocabulary: 1 file (43.2K)
+- Organization Ontology: 1 file (102K)
+
+Key Namespaces Available:
+- http://www.w3.org/2006/vcard/ns# (vCard)
+- http://xmlns.com/foaf/0.1/ (FOAF Person)
+- http://www.w3.org/ns/org# (Organization)
+
+Next Steps:
+1. Integrate with ggen RDF pipeline via .specify/specs/
+2. Create SPARQL queries over vcard + foaf person properties
+3. Design code templates using Tera from RDF-derived bindings
+4. Run: ggen validate /home/user/ggen/ontologies/people/*.rdf
+

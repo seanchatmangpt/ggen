@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE RDF [
+   <!ENTITY dcterms "http://purl.org/dc/terms">  
+   <!ENTITY owl "http://www.w3.org/2002/07/owl">  
+   <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">  
+   <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">  
+   <!ENTITY xs "http://www.w3.org/2001/XMLSchema">    
+   <!ENTITY rulemm "http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel">  
+   <!ENTITY lrmlmm "http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel">  
+ ]>
+<rdf:RDF   xmlns:owl="&owl;#" 
+  xmlns:dc="&dcterms;/"
+  xmlns:rdf="&rdf;#" xmlns:rdfs="&rdfs;#" xmlns:xs="&xs;"
+  xmlns:rulemm="&rulemm;#" xmlns:lrmlmm="&lrmlmm;#" xml:base="&lrmlmm;">
+  <!--<owl:Ontology rdf:about="&lrmlmm;/modules/upper.rdfs" dc:title="The LegalRuleML MetaModel Upper vocabulary"/>-->
+  
+  <rdfs:Class rdf:about="#Associable">
+    <rdfs:label>associable</rdfs:label>
+    <rdfs:comment>an entity that can be applied by an association</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Commentable"/>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#Collection">
+    <rdfs:label>collection</rdfs:label>
+    <rdfs:subClassOf rdf:resource="&rdf;#List"/>
+    <rdfs:subClassOf rdf:resource="#Commentable"/>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#Collector">
+    <rdfs:label>collector</rdfs:label>
+    <rdfs:comment>an entity that can have a collection</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Commentable"/>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#Creatable">
+    <rdfs:label>creatable</rdfs:label>
+    <rdfs:comment>an entity that can have a creation date</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Commentable"/>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#Comment">
+    <rdfs:label>comment</rdfs:label>
+    <rdfs:comment>a comment, which has no semantic effect.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#XMLLiteralWrapper"/>
+  </rdfs:Class>  
+  
+  <rdfs:Class rdf:about="#Commentable">
+    <rdfs:label>commentable</rdfs:label>
+    <rdfs:comment>an entity that can have an attached comment</rdfs:comment>
+  </rdfs:Class>
+
+  <rdfs:Class rdf:about="#Collectable">
+    <rdfs:label>collectable</rdfs:label>
+    <rdfs:comment>an entity that can be a member of a LegalRuleML collection</rdfs:comment>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#LegalRuleMLDocument">
+    <rdfs:label>LegalRuleML document</rdfs:label>
+    <rdfs:comment>a formal representation of one or more LegalSources using the LegalRuleML Specifications.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Collector"/>
+    <rdfs:subClassOf rdf:resource="#Creatable"/>
+    <rdfs:subClassOf rdf:resource="http://purl.org/vocab/frbr/core#Expression"/>
+  </rdfs:Class>
+    
+  <rdf:Property rdf:about="#hasCollection">
+    <rdfs:label>has collection</rdfs:label>
+    <rdfs:comment>a collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Collector"/>
+    <rdfs:range rdf:resource="#Collection"/>
+  </rdf:Property>
+  
+  <rdf:Property rdf:about="#hasComment">
+    <rdfs:label>has comment</rdfs:label>
+    <rdfs:comment>a Comment on the parent Node Element.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Commentable"/>
+    <rdfs:range rdf:resource="#Comment"/> 
+  </rdf:Property>
+  
+  <rdf:Property rdf:about="#hasCreationDate">
+    <rdfs:label>has creation date</rdfs:label>
+    <rdfs:comment>the creation date of the Context or LegalRuleML document.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Creatable"/>
+    <rdfs:range rdf:resource="&rulemm;#Time"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="&dcterms;/created">
+        <rdfs:isDefinedBy
+          rdf:resource="http://dublincore.org/documents/2012/06/14/dcmi-terms/"/>
+      </rdf:Property>
+    </rdfs:subPropertyOf>
+  </rdf:Property>  
+
+  <rdf:Property rdf:about="#hasMember">
+    <rdfs:label>has member</rdfs:label>
+    <rdfs:comment>an entity in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Collection"/>
+    <rdfs:range rdf:resource="#Collectable"/>
+  </rdf:Property>
+  
+  <rdf:Property rdf:about="#hasMemberType">
+    <rdfs:label>has member type</rdfs:label>
+    <rdfs:comment>the type or class of members of the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Collection"/>
+  </rdf:Property>
+    
+</rdf:RDF>
