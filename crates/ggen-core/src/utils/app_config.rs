@@ -29,9 +29,9 @@
 //! ### Initializing Configuration
 //!
 //! ```rust,no_run
-//! use crate::utils::app_config::AppConfig;
+//! use ggen_core::utils::app_config::AppConfig;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! // Initialize with default config
 //! AppConfig::init(Some("debug = false\n"))?;
 //!
@@ -45,9 +45,9 @@
 //! ### Accessing Configuration Values
 //!
 //! ```rust,no_run
-//! use crate::utils::app_config::AppConfig;
+//! use ggen_core::utils::app_config::AppConfig;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! // Get a single value
 //! let debug: bool = AppConfig::get("debug")?;
 //!
