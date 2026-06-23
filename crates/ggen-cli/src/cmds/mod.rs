@@ -43,6 +43,8 @@ pub mod wizard;
 pub mod a2a;
 pub mod doctor;
 pub mod agent; // AGI-facing lifecycle surface over ggen_core::agent::PackAgent (`ggen agent <verb>`)
+pub mod capability; // capability surfaces → atomic packs (`ggen capability enable/list/inspect`)
+pub mod packs; // lockfile-oriented multi-pack management (`ggen packs install/list/validate/show`)
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;

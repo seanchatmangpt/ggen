@@ -29,6 +29,22 @@ drive the full project-bring-up lifecycle from the CLI alone:
 ggen agent capabilities → search → compatibility → install → status → verify → remove
 ```
 
+### Project-workflow nouns (`packs`, `capability`)
+
+Two further CLI nouns serve the *multi-pack project* workflow (lockfile-oriented,
+JSON output), complementing the strict, single-pack `ggen agent`/`ggen pack`
+surfaces:
+
+| Noun | Verbs | Purpose |
+|------|-------|---------|
+| `ggen packs` | `install --pack-id`, `list`, `validate --pack-id`, `show --pack-id` | Track packs in the project lockfile. `install` is *lenient*: a pack absent from any registry is recorded as a declared dependency (`status: declared`) — still pinned with a non-empty digest and a signed receipt — so an agent can compose a dependency set before the packs are fetched. |
+| `ggen capability` | `enable <surface> [--projection]`, `list`, `inspect <surface>` | Expand a capability surface (e.g. `mcp`) to its atomic packs and record them in the lockfile, so a subsequent `ggen sync` generates from them. |
+
+These are covered by `crates/ggen-cli/tests/e2e_pack_workflow_test.rs` (15 tests,
+`--features integration`), which plays an agent bringing a project up:
+`capability enable → packs install → packs list → validate`, asserting on each
+verb's JSON and the durable lockfile + receipt state.
+
 ```
 agent (MCP tool call)         agent (A2A task)            Rust caller
         │                            │                          │

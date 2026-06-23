@@ -174,6 +174,8 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_core::utils::error::Result<
         "doctor",
         "pack",
         "agent",
+        "packs",
+        "capability",
         "graph",
         "receipt",
         "utils",
