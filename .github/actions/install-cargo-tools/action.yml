@@ -71,5 +71,5 @@ runs:
 
     - name: Install wpm (wasm4pm process oracle)
       if: contains(inputs.tools, 'wpm')
-      run: cargo install --git https://github.com/seanchatmangpt/wasm4pm --package wasm4pm-cli --bin wpm --locked
+      run: cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked
       shell: bash
