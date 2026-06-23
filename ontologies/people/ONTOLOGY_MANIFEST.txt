@@ -1,0 +1,37 @@
+# Downloaded RDF Ontologies for People/Organization Data
+# Downloaded: 2026-06-23
+
+=== vcard.rdf ===
+Source URL: https://www.w3.org/2006/vcard/vcard.rdf
+Description: W3C vCard RDF schema (namespace: http://www.w3.org/2006/vcard/ns#)
+Size: 77,696 bytes (76K)
+Lines: 1,793
+Format: XML 1.0 RDF/XML
+Authority: W3C
+
+=== vcard-w3c-spec.rdf ===
+Source URL: https://www.w3.org/2006/vcard/ns (Content-Negotiated, Accept: application/rdf+xml)
+Description: W3C vCard ontology in RDF/XML format (canonical namespace representation)
+Size: 121,053 bytes (118K)
+Lines: 1,391
+Format: XML 1.0 RDF/XML
+Authority: W3C
+
+=== foaf.rdf ===
+Source URL: http://xmlns.com/foaf/0.1/ (Content-Negotiated, Accept: application/rdf+xml)
+Description: FOAF (Friend of a Friend) RDF vocabulary for person properties
+Size: 188,952 bytes (185K)
+Lines: 3,618
+Format: SGML/RDF with W3C RDFS and OWL markup
+Authority: FOAF Project (http://www.foaf-project.org/)
+
+=== org.rdf ===
+Source URL: https://www.w3.org/ns/org.rdf
+Description: W3C Organization ontology for organizational structures
+Size: 104,006 bytes (102K)
+Lines: 880
+Format: XML 1.0 RDF/XML
+Authority: W3C
+
+Download Date: 2026-06-23T05:48:00 UTC
+Total Size: 491,707 bytes (480K)

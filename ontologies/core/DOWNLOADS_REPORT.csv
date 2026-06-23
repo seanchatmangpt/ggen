@@ -1,0 +1,13 @@
+Filename,W3C Source URL,Vocabulary URI,Format,File Size (bytes),Lines,Download Status,W3C Status
+rdf-syntax-ns.ttl,https://www.w3.org/1999/02/22-rdf-syntax-ns#,http://www.w3.org/1999/02/22-rdf-syntax-ns#,Turtle,6004,154,Success,W3C Recommendation
+rdf-schema.ttl,https://www.w3.org/2000/01/rdf-schema#,http://www.w3.org/2000/01/rdf-schema#,Turtle,3790,108,Success,W3C Recommendation
+owl.ttl,https://www.w3.org/2002/07/owl#,http://www.w3.org/2002/07/owl#,Turtle,24545,551,Success,W3C Recommendation
+skos.ttl,https://www.w3.org/2004/02/skos/core#,http://www.w3.org/2004/02/skos/core#,Turtle,28966,468,Success,W3C Recommendation
+skos-xl.ttl,https://www.w3.org/2008/05/skos-xl#,http://www.w3.org/2008/05/skos-xl#,Turtle,7614,129,Success,W3C Recommendation
+dcterms.ttl,https://purl.org/dc/terms/,http://purl.org/dc/terms/,Turtle,47834,868,Success,DCMI Recommended
+dcat.ttl,https://www.w3.org/ns/dcat#,http://www.w3.org/ns/dcat#,Turtle,200345,1840,Success,W3C Recommendation (DCAT 3.0)
+prov-o.ttl,https://www.w3.org/ns/prov#,http://www.w3.org/ns/prov#,Turtle,7868,250,Success,W3C Recommendation
+shacl.ttl,https://www.w3.org/ns/shacl#,http://www.w3.org/ns/shacl#,Turtle,8661,152,Success,W3C Recommendation
+ocel2.ttl,https://www.w3.org/2024/ocel2#,http://www.w3.org/2024/ocel2#,Turtle,22070,499,Success,Emerging Standard
+owl2.ttl,https://www.w3.org/2002/07/owl#,http://www.w3.org/2002/07/owl#,Turtle,5723,218,Success,W3C Recommendation (OWL 2.0)
+xmlschema-datatypes.ttl,https://www.w3.org/2001/XMLSchema#,http://www.w3.org/2001/XMLSchema#,Turtle,3204,60,Success,W3C Recommendation

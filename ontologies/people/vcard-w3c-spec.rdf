@@ -1,0 +1,1392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xml:base="http://www.w3.org/2006/vcard/ns" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#AddressBook">
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://raw.githack.com/solid/contacts/refs/heads/main/vcard-extension-addressbook.ttl"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This term is not part of vCard as defined by the IETF</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="">
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Ontology for vCard</label>
+        <versionInfo xmlns="http://www.w3.org/2002/07/owl#" xml:lang="en">Final</versionInfo>
+    </rdf:Description>
+    <rdf:Description rdf:about="#groupIndex">
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://raw.githack.com/solid/contacts/refs/heads/main/vcard-extension-addressbook.ttl"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This term is not part of vCard as defined by the IETF</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="">
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Ontology for vCard based on RFC6350</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="#includesGroup">
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://raw.githack.com/solid/contacts/refs/heads/main/vcard-extension-addressbook.ttl"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This term is not part of vCard as defined by the IETF</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="#nameEmailIndex">
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://raw.githack.com/solid/contacts/refs/heads/main/vcard-extension-addressbook.ttl"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This term is not part of vCard as defined by the IETF</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="#adr">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#inAddressBook">
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://raw.githack.com/solid/contacts/refs/heads/main/vcard-extension-addressbook.ttl"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This term is not part of vCard as defined by the IETF</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="#adr">
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">address</label>
+    </rdf:Description>
+    <rdf:Description rdf:about="#WebID">
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="https://raw.githack.com/solid/contacts/refs/heads/main/vcard-extension-addressbook.ttl"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This term is not part of vCard as defined by the IETF</comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="#adr">
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasAddress"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#agent">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">agent</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#email">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">email</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasEmail"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#geo">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">geo</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasGeo"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasAdditionalName">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has additional name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the additional name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasAddress">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has address</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the components of the delivery address for the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Address"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasCalendarBusy">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has calendar busy</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the busy time associated with the object. (Was called FBURL in RFC6350)</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasCalendarLink">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has calendar link</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the calendar associated with the object. (Was called CALURI in RFC6350)</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasCalendarRequest">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has calendar request</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the calendar user address to which a scheduling request be sent for the object. (Was called CALADRURI in RFC6350)</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasCategory">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has category</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the category data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasCountryName">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has country name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the country name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasEmail">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has email</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the electronic mail address for communication with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Email"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasFN">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has formatted name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the formatted name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasFamilyName">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has family name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the family name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasGender">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has gender</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify  the sex or gender identity of the object. URIs are recommended to enable interoperable sex and gender codes to be used.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasGeo">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has geo</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify information related to the global positioning of the object. May also be used as a property parameter.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasGivenName">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has given name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the given name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasHonorificPrefix">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has honorific prefix</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the honorific prefix data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasHonorificSuffix">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has honorific suffix</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the honorific suffix data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasInstantMessage">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has messaging</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the instant messaging and presence protocol communications with the object. (Was called IMPP in RFC6350)</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasKey">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has key</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify a public key or authentication certificate associated with the object</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#key"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasLanguage">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has language</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the language data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasLocality">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has locality</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the locality data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasLogo">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has logo</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify a graphic image of a logo associated with the object </comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#logo"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasMember">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has member</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To include a member in the group this object represents. (This property can only be used by Group individuals)</comment>
+        <domain xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Group"/>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Kind"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasName">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the components of the name of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Name"/>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#n"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasNickname">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has nickname</label>
+        <seeAlso xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#nickname"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the nickname data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasNote">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has note</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the note data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasOrganizationName">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has organization name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the organization name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasOrganizationUnit">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has organization unit name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the organization unit name data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasPhoto">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has photo</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify an image or photograph information that annotates some aspect of the object</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#photo"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasPostalCode">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has postal code</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the postal code data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasRegion">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has region</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the region data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasRelated">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has related</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify a relationship between another entity and the entity represented by this object</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasRole">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has role</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the role data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasSound">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has sound</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify a digital sound content information that annotates some aspect of the object</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#sound"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasSource">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has source</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To identify the source of directory information of the object</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasStreetAddress">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has street address</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the street address data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasTelephone">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has telephone</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the telephone number for telephony communication with the object</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#tel"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasTitle">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has title</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to support property parameters for the title data property</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasUID">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has uid</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify a value that represents a globally unique identifier corresponding to the object</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasURL">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has url</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify a uniform resource locator associated with the object</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#url"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#hasValue">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">has value</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to indicate the resource value of an object property that requires property parameters</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#key">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">key</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasKey"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#logo">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">logo</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasLogo"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#n">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">name</label>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasName"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#org">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">organization</label>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#organization-name"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped. Use the organization-name data property.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#photo">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">photo</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasPhoto"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#sound">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">sound</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasSound"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#tel">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">telephone</label>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasTelephone"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#url">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">url</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This object property has been mapped</comment>
+        <equivalentProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasURL"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#additional-name">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">additional name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The additional name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#anniversary">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">anniversary</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The date of marriage, or equivalent, of the object</comment>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000055_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2000/01/rdf-schema#Datatype"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000058_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000059_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000058_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000055_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <unionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000059_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#anniversary">
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:nodeID="riog00000055_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#bday">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">birth date</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the birth date of the object</comment>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000061_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2000/01/rdf-schema#Datatype"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000065_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000066_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTimeStamp"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000065_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000067_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000066_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000061_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <unionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000067_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#bday">
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:nodeID="riog00000061_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#category">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">category</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The category information about the object, also known as tags</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#class">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">class</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#country-name">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">country name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The country name associated with the address of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#extended-address">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">extended address</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#family-name">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">family name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The family name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#fn">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">formatted name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The formatted text corresponding to the name of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#given-name">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">given name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The given name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#honorific-prefix">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">honorific prefix</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The honorific prefix of the name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#honorific-suffix">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">honorific suffix</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The honorific suffix of the name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#label">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">label</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#language">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">language</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the language that may be used for contacting the object. May also be used as a property parameter.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#latitude">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">latitude</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated. See hasGeo</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#locality">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">locality</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The locality (e.g. city or town) associated with the address of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#longitude">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">longitude</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated. See hasGeo</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#mailer">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">mailer</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#nickname">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">nickname</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The nick name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#note">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">note</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">A note associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#organization-name">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">organization name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the organizational name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#organization-unit">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">organizational unit name</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the organizational unit name associated with the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <subPropertyOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#organization-name"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#post-office-box">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">post office box</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This data property has been deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#postal-code">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">postal code</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The postal code associated with the address of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#prodid">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">product id</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the identifier for the product that created the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#region">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">region</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The region (e.g. state or province) associated with the address of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#rev">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">revision</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify revision information about the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#role">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">role</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the function or part played in a particular situation by the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#sort-string">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">sort as</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the string to be used for national-language-specific sorting. Used as a property parameter only.</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#street-address">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">street address</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The street address associated with the address of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#title">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">title</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the position or job of the object</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#tz">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">time zone</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To indicate time zone information that is specific to the object. May also be used as a property parameter.</comment>
+        <range xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#value">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">value</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used to indicate the literal value of a data property that requires property parameters</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Acquaintance">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Acquaintance</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Address">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Address</label>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000100_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000101_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000102_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#country-name"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000103_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#country-name"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000104_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000103_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000105_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000102_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000104_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000101_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000105_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000106_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000107_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#locality"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000108_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#locality"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000109_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000108_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000110_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000107_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000109_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000106_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000110_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000111_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000112_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#postal-code"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000113_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#postal-code"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000114_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000113_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000115_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000112_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000114_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000111_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000115_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000116_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000117_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#region"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000118_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#region"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000119_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000118_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000120_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000117_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000119_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000116_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000120_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000121_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000122_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#street-address"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000123_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#street-address"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000124_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000123_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000125_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000122_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000124_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000121_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000125_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000126_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000121_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000127_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000116_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000126_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000128_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000111_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000127_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000129_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000106_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000128_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000130_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000101_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000129_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000100_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <unionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000130_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Address">
+        <equivalentClass xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000100_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the components of the delivery address for the  object</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Agent">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Agent</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#BBS">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">BBS</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Car">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Car</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Cell">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Cell</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Also called mobile telephone</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Child">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Child</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Colleague">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Colleague</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Contact">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Contact</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Coresident">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Coresident</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Coworker">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Coworker</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Crush">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Crush</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Date">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Date</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Dom">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Dom</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Email">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Email</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the electronic mail address for communication with the object the vCard represents. Use the hasEmail object property.</comment>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Emergency">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Emergency</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Fax">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Fax</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Female">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Female</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Gender"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Friend">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Friend</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Gender">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Gender</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used for gender codes. The URI of the gender code must be used as the value for Gender.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Group">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Group</label>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000150_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000151_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasMember"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Kind"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000152_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#hasMember"/>
+        <onClass xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Kind"/>
+        <minQualifiedCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</minQualifiedCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000153_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000152_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000154_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000151_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000153_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000150_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000154_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Group">
+        <equivalentClass xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000150_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Kind"/>
+        <disjointWith xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Individual"/>
+        <disjointWith xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Location"/>
+        <disjointWith xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Organization"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Object representing a group of persons or entities.  A group object will usually contain hasMember properties to specify the members of the group.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Home">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Home</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This implies that the property is related to an individual&apos;s personal life</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#ISDN">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">ISDN</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Individual">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Individual</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Kind"/>
+        <disjointWith xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Location"/>
+        <disjointWith xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Organization"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">An object representing a single person or entity</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Internet">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Internet</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Intl">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Intl</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Kin">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Kin</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Kind">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Kind</label>
+        <equivalentClass xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#VCard"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000162_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#fn"/>
+        <minQualifiedCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</minQualifiedCardinality>
+        <onDataRange xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Kind">
+        <equivalentClass xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000162_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The parent class for all objects</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Label">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Label</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Location">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Location</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Kind"/>
+        <disjointWith xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Organization"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">An object representing a named geographical place</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Male">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Male</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Gender"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Me">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Me</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Met">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Met</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Modem">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Modem</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Msg">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Msg</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Muse">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Muse</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Name">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Name</label>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000172_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000173_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000174_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#additional-name"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000175_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#additional-name"/>
+        <minCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</minCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000176_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000175_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000177_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000174_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000176_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000173_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000177_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000178_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000179_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#family-name"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000180_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#family-name"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000181_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000180_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000182_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000179_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000181_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000178_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000182_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000183_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000184_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#given-name"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000185_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#given-name"/>
+        <maxCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</maxCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000186_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000185_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000187_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000184_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000186_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000183_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000187_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000188_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000189_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#honorific-prefix"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000190_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#honorific-prefix"/>
+        <minCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</minCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000191_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000190_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000192_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000189_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000191_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000188_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000192_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000193_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000194_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#honorific-suffix"/>
+        <someValuesFrom xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000195_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+        <onProperty xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#honorific-suffix"/>
+        <minCardinality xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</minCardinality>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000196_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000195_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000197_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000194_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000196_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000193_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <intersectionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000197_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000198_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000193_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000199_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000188_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000198_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000200_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000183_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000199_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000201_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000178_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000200_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000202_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <first xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000173_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <rest xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="riog00000201_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="riog00000172_ae88de9dcc9c4c0ab4f27d2396203e41">
+        <unionOf xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000202_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Name">
+        <equivalentClass xmlns="http://www.w3.org/2002/07/owl#" rdf:nodeID="riog00000172_ae88de9dcc9c4c0ab4f27d2396203e41"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">To specify the components of the name of the object</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Neighbor">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Neighbor</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#None">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">None</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Gender"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Organization">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Organization</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Kind"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">An object representing an organization.  An organization is a single entity, and might represent a business or government, a department or division within a business or government, a club, an association, or the like.
+</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Other">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Other</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Gender"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#PCS">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">PCS</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Pager">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Pager</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Parcel">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Parcel</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Parent">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Parent</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Postal">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Postal</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Pref">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Pref</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#RelatedType">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Relation Type</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used for relation type codes. The URI of the relation type code must be used as the value for the Relation Type.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Sibling">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Sibling</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Spouse">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Spouse</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Sweetheart">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Sweetheart</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#RelatedType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Tel">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Tel</label>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated. Use the hasTelephone object property.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#TelephoneType">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Phone</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used for telephone type codes. The URI of the telephone type code must be used as the value for the Telephone Type.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Text">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Text</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Also called sms telephone</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#TextPhone">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Text phone</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Type">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Type</label>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Used for type codes. The URI of the type code must be used as the value for Type.</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Unknown">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Unknown</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Gender"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#VCard">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">VCard</label>
+        <equivalentClass xmlns="http://www.w3.org/2002/07/owl#" rdf:resource="#Kind"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">The vCard class is  equivalent to the new Kind class, which is the parent for the four explicit types of vCards (Individual, Organization, Location, Group)</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Video">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Video</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Voice">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Voice</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#TelephoneType"/>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#Work">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Work</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This implies that the property is related to an individual&apos;s work place</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+    <rdf:Description rdf:about="#X400">
+        <type xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+        <label xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">X400</label>
+        <subClassOf xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource="#Type"/>
+        <deprecated xmlns="http://www.w3.org/2002/07/owl#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</deprecated>
+        <comment xmlns="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">This class is deprecated</comment>
+        <isDefinedBy xmlns="http://www.w3.org/2000/01/rdf-schema#" rdf:resource=""/>
+    </rdf:Description>
+</rdf:RDF>

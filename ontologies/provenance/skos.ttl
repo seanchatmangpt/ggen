@@ -1,0 +1,13 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<title>300 Multiple Choices</title>
+</head><body>
+<h1>Multiple Choices</h1>
+The document name you requested (<code>/2004/02/skos/core.ttl</code>) could not be found on this server.
+However, we found documents with names similar to the one you requested.<p>Available documents:
+<ul>
+<li><a href="/2004/02/skos/core">/2004/02/skos/core</a> (common basename)
+<li><a href="/2004/02/skos/core.rdf.xml">/2004/02/skos/core.rdf.xml</a> (common basename)
+<li><a href="/2004/02/skos/core.rdf">/2004/02/skos/core.rdf</a> (common basename)
+</ul>
+</body></html>
