@@ -13,12 +13,17 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Compute sanitized tools cache key
+      id: tools-key
+      run: echo "key=$(echo '${{ inputs.tools }}' | tr ',' '-')" >> "$GITHUB_OUTPUT"
+      shell: bash
+
     - name: Cache cargo tools
       if: inputs.cache-tools == 'true'
       uses: actions/cache@v4
       with:
         path: ~/.cargo/bin/
-        key: ${{ runner.os }}-cargo-tools-${{ inputs.tools }}
+        key: ${{ runner.os }}-cargo-tools-${{ steps.tools-key.outputs.key }}
 
     - name: Install cargo-make
       if: contains(inputs.tools, 'make')
