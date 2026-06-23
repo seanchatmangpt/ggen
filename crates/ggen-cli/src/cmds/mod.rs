@@ -30,6 +30,7 @@ pub mod helpers;
 // Core commands: ggen sync & ggen init
 pub mod git_hooks;
 pub mod init;
+pub mod inverse_sync;
 pub mod sync;
 // ARCHIVED (v26.5.28): ambiguous noun, gated behind default-off `experimental`.
 #[cfg(feature = "experimental")]

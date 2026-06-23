@@ -157,45 +157,65 @@ fn test_event_log_hash_mismatch_against_expectation() {
     assert!(!report.admitted);
 }
 
-// ─── Cross-pole hash comparison: Rule 6 (O hash vs L hash) ─────────────────────
+// ─── Cross-pole coherence fracture: Rule 6 (one pole stable, one drifted) ────────
 
 #[test]
-fn test_rule_6_ontology_differs_from_event_log_hash() {
-    // Arrange: create three distinct poles with different content
-    // O: has triples, A: empty, L: has events, but O and L hashes differ
+fn test_rule_6_cross_pole_coherence_fracture() {
+    // Arrange: O matches expectation but L drifted (or vice versa)
     let triples = ["<s> <p> <o> ."];
-    let events = [r#"{"activity":"x"}"#];
+    let old_events = [r#"{"activity":"sync"}"#];
+    let new_events = [r#"{"activity":"sync"}"#, r#"{"activity":"validate"}"#];
 
-    let o = CoherenceChecker::fingerprint_ontology(&triples);
-    let a = CoherenceChecker::fingerprint_artifacts(&[]);
-    let l = CoherenceChecker::fingerprint_event_log(&events);
+    // Compute the expected hashes for both O and L
+    let expected_o = CoherenceChecker::fingerprint_ontology(&triples).hash;
+    let expected_l = CoherenceChecker::fingerprint_event_log(&old_events).hash;
 
-    // Verify that O and L hashes differ (they almost certainly will with different inputs)
+    // Compute fresh: O unchanged (matches expected), L changed (differs from expected)
+    let o_fresh = CoherenceChecker::fingerprint_ontology(&triples);
+    let a_fresh = CoherenceChecker::fingerprint_artifacts(&[("src/lib.rs", 256)]);
+    let l_fresh = CoherenceChecker::fingerprint_event_log(&new_events);
+
+    // Verify preconditions
+    assert_eq!(
+        o_fresh.hash, expected_o,
+        "test setup: O should match expectation"
+    );
     assert_ne!(
-        o.hash, l.hash,
-        "test setup: ontology and event-log hashes must differ"
+        l_fresh.hash, expected_l,
+        "test setup: L should differ from expectation"
     );
 
-    // Act: check with expectations that O and L have different hashes
-    // (Rule 6: if O hash differs from L hash, emit cross-pole drift)
+    // Act: check with expectations for both O and L
     let mut expectations = HashMap::new();
-    expectations.insert(Pole::Ontology, o.hash.clone());
-    expectations.insert(Pole::EventLog, l.hash.clone());
+    expectations.insert(Pole::Ontology, expected_o);
+    expectations.insert(Pole::EventLog, expected_l);
 
-    let report = CoherenceChecker::check_with_expectations(&[o, a, l], &expectations);
+    let report = CoherenceChecker::check_with_expectations(&[o_fresh, a_fresh, l_fresh], &expectations);
 
-    // Assert: no HashMismatch because we're checking fresh against their own expected values
-    // (This test verifies that matching expectations don't trigger mismatches)
-    let hash_mismatches = report
+    // Assert: Rule 6 emits a cross-pole fracture drift (O stable, L drifted)
+    let cross_pole_drifts: Vec<&CoherenceDrift> = report
         .drifts
         .iter()
-        .filter(|d| d.kind == DriftKind::HashMismatch)
-        .count();
-    assert_eq!(
-        hash_mismatches, 0,
-        "matching fresh vs expected hashes should not emit HashMismatch; got drifts: {:?}",
+        .filter(|d| {
+            d.kind == DriftKind::HashMismatch
+                && d.source_pole == Pole::Ontology
+                && d.target_pole == Pole::EventLog
+        })
+        .collect();
+
+    assert!(
+        !cross_pole_drifts.is_empty(),
+        "expected a cross-pole coherence fracture drift; got drifts: {:?}",
         report.drifts
     );
+
+    // Assert: the detail describes the fracture
+    assert!(
+        cross_pole_drifts[0].detail.contains("stable") && cross_pole_drifts[0].detail.contains("drifted"),
+        "drift detail should explain the fracture"
+    );
+
+    assert!(!report.admitted, "coherence fracture must block admission");
 }
 
 // ─── Multiple poles with mismatches (Rule 6 in effect) ────────────────────────
