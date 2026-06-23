@@ -188,3 +188,11 @@ evidence-audit:
 # Scan changed .rs files for anti-LLM admissibility violations
 lsp-check:
     cargo cicd lsp check
+
+# wpm oracle process conformance gate (TRUTHFUL/VARIANCE/DECEPTIVE/BLOCKED)
+status-audit:
+    cargo cicd status audit
+
+# IEC 61508 / ISO 26262 compliance evidence summary
+certification-show:
+    cargo cicd certification show

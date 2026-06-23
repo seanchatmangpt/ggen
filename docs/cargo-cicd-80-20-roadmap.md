@@ -11,8 +11,8 @@
 | 1 | `affidavit seal` / `verify` as CI gate | ✅ Done — cargo-cicd job seals + verifies after pipeline run |
 | 2 | `lsp check` (anti-llm-cheat) on changed `.rs` | ✅ Done — cargo-cicd job runs lsp check post-pipeline |
 | 3 | `workspace sync` in `comprehensive-test` | ✅ Done — builds ggen binary, then calls workspace sync |
-| 4 | `status audit` as release gate | ⏳ Blocked on `wpm` binary availability in CI |
-| 5 | `certification show` verb | ⏳ Needs new verb added to cargo-cicd itself |
+| 4 | `status audit` as release gate | ✅ Done — `wpm` installed in CI; release-health + cargo-cicd jobs run status audit |
+| 5 | `certification show` verb | ✅ Done — `CertificationNoun` + `ShowVerb` added to cargo-cicd; reads evidence journal, evaluates IEC 61508 SIL 1 + ISO 26262 ASIL A coverage |
 
 ---
 
@@ -61,59 +61,59 @@ prove the declared A = μ(O) formula executed lawfully.
 
 ---
 
-## 4. ⏳ `cargo cicd status audit` as release gate
+## 4. ✅ `cargo cicd status audit` as release gate
 
-**What**: In `release.yml`, after `workspace doctor`, run `cargo cicd status audit`. This
-shells to the `wpm` oracle on `events.xes` and returns ACCEPT or REFUSE. Only ACCEPT allows
-the release to proceed.
-
-**Prerequisite**: Install `wpm` in CI:
+`wpm` is now a supported tool in `install-cargo-tools/action.yml`:
 ```yaml
-- name: Install wpm oracle
+- name: Install wpm (wasm4pm process oracle)
+  if: contains(inputs.tools, 'wpm')
   run: cargo install --git https://github.com/seanchatmangpt/wasm4pm --bin wpm --locked
+  shell: bash
 ```
 
-Add `wpm` as a supported tool in `install-cargo-tools/action.yml`. Then update `release.yml`
-`release-health` job to include:
+`release.yml` `release-health` job now installs `cicd,wpm` and runs `cargo cicd status audit`:
 ```yaml
-- name: Install wpm oracle
+- name: Install cargo-cicd and wpm oracle
   uses: ./.github/actions/install-cargo-tools
   with:
     tools: cicd,wpm
     cache-tools: 'true'
 
+- name: Workspace doctor
+  run: cargo cicd workspace doctor
+
 - name: Process conformance gate (status audit)
   run: cargo cicd status audit
 ```
+
+The `cargo-cicd` job in `ci.yml` also runs `cargo cicd status audit` after `affidavit verify`,
+so both CI and release flows are gated. **Graceful degradation**: when `wpm` is absent, the
+verb prints `BLOCKED` and returns `Ok(())` — CI never fails on a missing binary.
 
 **Threshold**: The wpm oracle accepts at fitness ≥ 0.95 (TRUTHFUL verdict). Below that:
 VARIANCE (warn), DECEPTIVE (block), BLOCKED (wpm unavailable, skip).
 
 ---
 
-## 5. ⏳ `cargo cicd certification show` verb
+## 5. ✅ `cargo cicd certification show` verb
 
-**What**: Add a `show` verb to the existing `certification` noun in cargo-cicd. The
-`iec_61508.rs` and `iso_26262.rs` modules already map cargo-cicd commands to clause numbers
-and ASIL requirements — they just need a verb that calls `compliance_summary()` and prints.
+`src/nouns/certification.rs` implements `CertificationNoun` with a single `ShowVerb`:
 
-**Implementation in cargo-cicd** (`src/nouns/certification.rs`, new file):
-```rust
-pub struct CertificationShowVerb;
-impl VerbCommand for CertificationShowVerb {
-    fn name(&self) -> &'static str { "show" }
-    fn about(&self) -> &'static str {
-        "Print IEC 61508 / ISO 26262 compliance evidence summary"
-    }
-    fn run(&self, _args: &VerbArgs) -> Result<()> {
-        println!("{}", iec_61508::compliance_summary());
-        println!("{}", iso_26262::compliance_summary());
-        Ok(())
-    }
-}
+1. Reads the evidence journal (`target/cargo-cicd/evidence/events.jsonl`) via `read_journal()`
+2. Extracts unique `complete`-lifecycle commands from the journal
+3. Evaluates all IEC 61508 SIL 1 requirements against executed commands via `check_requirement()`
+4. Evaluates all ISO 26262 ASIL A requirements against executed commands via `check_requirement()`
+5. Prints both `compliance_summary()` outputs + the evidence command list
+
+The noun is registered unconditionally in `main.rs` (no feature flag needed — no external binary
+dependency). Wire into CI as a certification artifact:
+
+```yaml
+- name: Certification compliance summary
+  if: always()
+  run: cargo cicd certification show
+  # Upload the output as a release artifact for auditors
 ```
-
-Once added, wire into CI as an artifact upload step in the `cargo-cicd` job.
 
 ---
 

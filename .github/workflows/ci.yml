@@ -47,8 +47,15 @@ jobs:
       - name: Verify sealed receipt
         run: cargo cicd affidavit verify
 
+      - name: Process conformance audit (wpm oracle — degrades gracefully if absent)
+        run: cargo cicd status audit
+
       - name: Anti-LLM admissibility check (changed .rs files)
         run: cargo cicd lsp check
+
+      - name: Certification compliance summary (IEC 61508 / ISO 26262)
+        if: always()
+        run: cargo cicd certification show
 
       - name: Show evidence summary
         if: always()

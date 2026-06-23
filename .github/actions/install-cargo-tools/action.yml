@@ -59,3 +59,8 @@ runs:
       if: contains(inputs.tools, 'affi')
       run: cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --bin affi --locked
       shell: bash
+
+    - name: Install wpm (wasm4pm process oracle)
+      if: contains(inputs.tools, 'wpm')
+      run: cargo install --git https://github.com/seanchatmangpt/wasm4pm --bin wpm --locked
+      shell: bash

@@ -26,14 +26,17 @@ jobs:
           toolchain: stable
           cache-key-suffix: cicd-release-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install cargo-cicd
+      - name: Install cargo-cicd and wpm oracle
         uses: ./.github/actions/install-cargo-tools
         with:
-          tools: cicd
+          tools: cicd,wpm
           cache-tools: 'true'
 
       - name: Workspace doctor
         run: cargo cicd workspace doctor
+
+      - name: Process conformance gate (status audit)
+        run: cargo cicd status audit
 
   build-release:
     name: Build Release
