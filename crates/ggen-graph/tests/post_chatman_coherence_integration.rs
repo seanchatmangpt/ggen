@@ -22,7 +22,7 @@ fn test_three_pole_full_coherence_all_poles_present() {
     // Arrange: real ontology triples (N-Triples format)
     let triples = [
         "<https://example.org/ggen> <https://example.org/type> <https://example.org/Tool> .",
-        "<https://example.org/ggen> <https://example.org/version> \"26.6.11\" .",
+        "<https://example.org/ggen> <https://example.org/version> \"26.6.23\" .",
     ];
 
     // Arrange: real artifact inventory (path, byte_size)

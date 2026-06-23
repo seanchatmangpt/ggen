@@ -2188,3 +2188,64 @@ Generate a comprehensive, structured markdown report documenting the state of th
   - Completeness State (e.g., Complete, Draft, Placeholder/Stub, Has TODOs)
   - Action Items / Recommendations
 - [ ] A validation check must prove that the number of files listed in the report matches the number of `.md` files found by a standard shell command like `find . -name "*.md"` (excluding ignored directories).
+
+## Follow-up — 2026-06-23T00:12:24Z
+
+Replace the custom TOML parsing and validation system in `ggen-config` with the `star-toml` library, extending `star-toml` with any necessary validation helpers first.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Star-TOML Validation Extensions
+Extend the `star-toml` crate's `Validator` struct (in `crates/star-toml`) with built-in validation helper methods to cover all parsing/validating needs in `ggen-config`. Specifically, add:
+- Semver validation check (basic semver structure)
+- IP/Domain hostname validation check
+- Path validation check (non-empty or safe directory/file paths)
+
+### R2. GgenConfig Validate Trait Implementation
+Implement the `star_toml::Validate` trait for the `GgenConfig` structure and all of its sub-configuration structures (`ProjectConfig`, `AiConfig`, `TelemetryConfig`, `TemplatesConfig`, `McpConfig`, `A2AConfig`, etc.). The trait implementations must cover all checks previously implemented in `ConfigValidator`.
+
+### R3. Migration of ggen-config
+Refactor `crates/ggen-config` to use `star-toml` for loading, env-var expansion, and validation:
+- Modify `ConfigLoader` to use `star_toml::Loader` or `star_toml::load_file`.
+- Modify `ConfigValidator` to delegate validation to `star_toml`'s validation engine.
+- Map or wrap `star_toml::ValidationErrors` in `ConfigError`.
+- Ensure all existing workspace tests pass cleanly.
+
+## Acceptance Criteria
+
+### Correctness & Compatibility
+- [ ] `star-toml` compiles successfully with the new validation helpers.
+- [ ] `ggen-config` is fully migrated to use `star-toml` for loading and validating configuration files.
+- [ ] Running `cargo check` and `cargo test` in the workspace finishes with a green pass.
+- [ ] No regression is introduced in existing `ggen-config` or workspace tests.
+
+## Follow-up — 2026-06-23T04:17:11Z
+
+Implement a prototype of the 1000x praxis active self-healing and validation system in `/Users/sac/praxis/playground`.
+
+Working directory: /Users/sac/praxis/playground
+Integrity mode: development
+
+## Requirements
+
+### R1. Active Hygiene Reconciler (`praxis-reconciler`)
+Build a Rust tool/daemon (`praxis-reconciler`) that actively monitors standard repository configurations (e.g. `rustfmt.toml`, `deny.toml`, `.editorconfig`) against a reference set (from `/Users/sac/praxis/template`). If any of the monitored files are modified, tampered with, or deleted, the tool must automatically detect the drift and overwrite the files back to match the reference state.
+
+### R2. Cryptographic Compliance Guard (`praxis-guard`)
+Build a Rust tool (`praxis-guard`) that verifies project checks (compilation and tests). Upon a successful run, it must compute a BLAKE3 content-addressed digest of the project source files, sign it, and emit an unforgeable compliance receipt (`receipt.json`) detailing the state of verification.
+
+### R3. Demonstration Playground
+Set up a sample workspace/crate structure in `/Users/sac/praxis/playground` demonstrating the integration. Provide a script or execution path that:
+1. Simulates drift (e.g. modifying `rustfmt.toml`) and shows `praxis-reconciler` restoring it.
+2. Runs `praxis-guard` to generate a valid cryptographic receipt on a clean project, and verifies that the receipt fails if any source files are modified or check commands fail.
+
+## Acceptance Criteria
+
+### Correctness & Compliance
+- [ ] Both `praxis-reconciler` and `praxis-guard` are implemented in Rust and compile cleanly.
+- [ ] An automated test suite in `/Users/sac/praxis/playground` verifies that `praxis-reconciler` successfully restores modified/deleted config files within seconds.
+- [ ] An automated test verifies that `praxis-guard` produces a valid `receipt.json` on success, and rejects execution or fails verification if source files do not match the receipt's BLAKE3 hashes.
+- [ ] Running the workspace tests with `cargo test` returns a clean, green pass.

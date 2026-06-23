@@ -45,7 +45,7 @@ pub fn inlay_hints(file_type: FileType, content: &str, range: Range) -> Option<V
         FileType::Rdf => rdf_hints(content),
         FileType::Toml => toml_hints(content),
         FileType::Sparql => sparql_hints(content),
-        FileType::Tera | FileType::Unknown | FileType::Usd | FileType::Mtlx => Vec::new(),
+        FileType::Tera | FileType::Unknown => Vec::new(),
     };
 
     let in_range: Vec<InlayHint> = hints

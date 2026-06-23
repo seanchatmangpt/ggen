@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.6.11"
+version = "26.6.23"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -119,12 +119,12 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.29 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.6.11" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.11" }
+ggen-core = { path = "crates/ggen-core", version = "26.6.23" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.6.23" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
-genesis-types = { path = "crates/genesis-types-v2", version = "26.6.11" }
-genesis-schema = { path = "crates/genesis-schema-v2", version = "26.6.11" }
+genesis-types = { path = "crates/genesis-types-v2", version = "26.6.23" }
+genesis-schema = { path = "crates/genesis-schema-v2", version = "26.6.23" }
 genesis-core = { path = "crates/genesis-core" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
@@ -541,7 +541,7 @@ tracing-subscriber = "0.3"
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 # Example definitions removed - examples now discovered automatically by Cargo
 [dev-dependencies]
-ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "26.6.11" }
+ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "26.6.23" }
 assert_cmd = "2.0.17"
 predicates = "3.1.3"
 serde_json = "1.0"

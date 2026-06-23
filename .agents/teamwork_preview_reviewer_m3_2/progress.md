@@ -1,12 +1,9 @@
 # Progress
 
-Last visited: 2026-06-09T05:15:40Z
+- [x] Initialized workspace and briefing.
+- [x] Read and inspect files to review.
+- [x] Run build and test suite.
+- [x] Write review and challenge findings to `review.md`.
+- [x] Send handoff message.
 
-- [x] Initialize briefing and progress.md
-- [x] Inspect modified files using git diff/status
-- [x] Verify rust-toolchain.toml
-- [x] Verify modified Cargo.toml files for version 26.6.9
-- [x] Verify `GgenManifest` in crates/ggen-core/
-- [x] Run build, test, and clippy to verify changes
-- [x] Formulate adversarial review and stress-test assumptions
-- [x] Write handoff.md and send final message
+Last visited: 2026-06-23T00:28:00Z

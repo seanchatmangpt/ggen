@@ -230,6 +230,39 @@ impl ExtractionPass {
         Ok(())
     }
 
+    /// Append inference queries from GgenManifest.
+    pub fn extend_with_manifest_inference_rules(
+        &mut self, config: &crate::manifest::types::InferenceConfig,
+    ) -> crate::utils::error::Result<()> {
+        let base_order = self
+            .tensor_queries
+            .iter()
+            .map(|q| q.order)
+            .max()
+            .unwrap_or(0);
+
+        for (i, rule) in config.rules.iter().enumerate() {
+            let order_offset = i32::try_from(i).unwrap_or(0); // Safely fallback if too many rules
+
+            self.tensor_queries.push(TensorQuery {
+                name: format!("manifest::{}", rule.name),
+                construct: rule.construct.clone(),
+                target_predicates: vec![format!(
+                    "http://ggen.dev/v26_5_19/manifest-query#{}",
+                    rule.name
+                )],
+                order: if rule.order != 0 {
+                    rule.order
+                } else {
+                    base_order.saturating_add(1).saturating_add(order_offset)
+                },
+                description: rule.when.clone(),
+            });
+        }
+        self.tensor_queries.sort_by_key(|q| q.order);
+        Ok(())
+    }
+
     /// Verify all queries are CONSTRUCT-only (SELECT/ASK/DESCRIBE gate)
     ///
     /// This is a critical Andon gate - any violation stops the line.

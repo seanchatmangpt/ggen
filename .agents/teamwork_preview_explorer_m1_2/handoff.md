@@ -1,117 +1,81 @@
-# Handoff Report: Survey and Integration Recommendation for `wasm4pm-compat`
+# Handoff Report — explorer_m1_2
+
+Handoff type: **Hard** (Task Complete)
+
+---
 
 ## 1. Observation
 
-1. **`crates/ggen-graph/Cargo.toml` Current Structure**:
-   Lines 22-25 contain the commented-out dependency on `wasm4pm-compat`:
-   ```toml
-   # GALL-CONFORM-001 Stage 0: pin wasm4pm-compat as the canonical type authority.
-   # ggen is an OCEL *producer*; wasm4pm is the PM authority (per GGEN-NEEDS.md §0).
-   # This dependency gates Stages 1-4 of the PM-retirement migration.
-   # wasm4pm-compat = { version = "26.6.9", path = "/Users/sac/wasm4pm-compat" }
-   ```
+I directly surveyed the codebase of `crates/star-toml` and `crates/ggen-config` with these observations:
 
-2. **`/Users/sac/wasm4pm-compat/Cargo.toml` Structure**:
-   Declares package metadata and version:
-   ```toml
-   [package]
-   name = "wasm4pm-compat"
-   version = "26.6.9"
-   ```
-   And the following key dependencies:
-   ```toml
-   [dependencies]
-   quick-xml = "0.36.0"
-   blake3 = "1.8.5"
-   chrono = { version = "0.4.45", features = ["serde"] }
-   serde = { version = "1.0.228", features = ["derive"] }
-   serde_json = "1.0"
-   uuid = { version = "1.23.2", features = ["v4", "serde", "js"] }
-   hashbrown = "0.17.1"
-   rustc-hash = "2"
-   ```
+- **`crates/star-toml/src/validation.rs`**:
+  - Contains `Validator` struct (line 563) with descent methods `field` (line 582), `index` (line 589), and assertion helpers like `check_non_empty` (line 634), `check_range` (line 644), `check_one_of` (line 666), `check_predicate` (line 686), and `check_consistent` (line 724).
+  - Exposes `Validate` trait (line 810):
+    ```rust
+    pub trait Validate {
+        fn validate(&self, v: &mut Validator);
+        fn check(&self) -> Result<(), ValidationErrors> { ... }
+        fn validated(self) -> Result<Self, ValidationErrors> where Self: Sized { ... }
+    }
+    ```
 
-3. **`wasm4pm-compat` Nightly Requirement**:
-   `/Users/sac/wasm4pm-compat/rust-toolchain.toml` defines the toolchain:
-   ```toml
-   [toolchain]
-   channel = "nightly-2026-04-15"
-   ```
-   `/Users/sac/wasm4pm-compat/src/lib.rs` (lines 8-20 and 147-155) forces nightly features unconditionally at the root:
-   ```rust
-   //! ## Nightly requirement
-   //!
-   //! This crate **requires nightly Rust** unconditionally. The `rust-toolchain.toml`
-   //! pins the toolchain to nightly. The following features are declared at the
-   //! crate root with no cfg gate:
-   //!
-   //! - `generic_const_exprs` — law machinery and `WfNetConst<SOUNDNESS>`
-   //! - `adt_const_params` — `ConditionCell<BITS>`, `Between01<NUM,DEN>`, and
-   //!   `Metric<KIND,NUM,DEN>`
-   //! - `const_trait_impl` — compile-time trait dispatch in law surfaces
-   //! - `min_specialization` — type-law narrowing in `nightly_foundry`
-   //! - `portable_simd` — SIMD-width type-law surface in `nightly_foundry`
-   ```
-   ```rust
-   // ── Nightly features — unconditional (nightly toolchain required) ────────────
-   #![feature(generic_const_exprs)]
-   #![feature(adt_const_params)]
-   #![feature(unsized_const_params)]
-   #![feature(const_trait_impl)]
-   #![feature(min_specialization)]
-   #![feature(portable_simd)]
-   ```
+- **`crates/star-toml/src/loader.rs`**:
+  - Exposes `Loader` builder (line 133) mapping to `ConfigLayer` sources (line 23), recursively merging layers with `deep_merge` (line 260) and parsing with `toml::from_str` (line 429).
 
-4. **`ggen` Workspace Default Toolchain**:
-   Running `rustc --version` in `/Users/sac/ggen` returns:
-   ```
-   rustc 1.95.0 (59807616e 2026-04-14)
-   ```
-   Rustup shows the default active toolchain for the `ggen` workspace is `stable-aarch64-apple-darwin` (since there is no local toolchain configuration file). However, `nightly-2026-04-15-aarch64-apple-darwin` is already installed on the system.
+- **`crates/ggen-config/src/config_lib/schema.rs`**:
+  - Contains `GgenConfig` root configuration struct (line 13) and its child configurations: `ProjectConfig` (line 84), `AiConfig` (line 112), `TemplatesConfig` (line 171), `PerformanceConfig` (line 288), `LoggingConfig` (line 311), `McpConfig` (line 433), `A2AConfig` (line 584), etc.
+
+- **`crates/ggen-config/src/config_lib/validator.rs`**:
+  - Performs 17 custom validation checks under `ConfigValidator::validate_all` (line 55):
+    - Basic semver version checking in `is_valid_version` (line 285).
+    - Cache size suffix format verification in `is_valid_size_format` (line 295).
+    - Hardcoded string validations, whitelist, ranges, and cross-field max workers consistency rules.
+
+- **`crates/ggen-config/src/config/ontology_config.rs`**:
+  - Contains `OntologyConfig` (line 61) and a custom `validate` function (line 215) requiring non-empty `packs`, `name`, `version`, and `language` values.
+
+- **Baseline build and test verification**:
+  - Executed `cargo check --all-targets` which compiled cleanly.
+  - Executed `cargo test --all-targets` where all 350+ unit/integration tests and benchmarks passed successfully.
+
+---
 
 ## 2. Logic Chain
 
-1. **Nightly Compiler Requirement**: Because `wasm4pm-compat` unconditionally uses unstable features that are not allowed by the stable compiler (e.g. `generic_const_exprs`), `wasm4pm-compat` can only be compiled using a nightly Rust compiler (specifically, `nightly-2026-04-15` or newer).
-2. **Workspace Toolchain Cascade**: In a Cargo workspace, compiling a workspace member (`ggen-graph`) that has a path dependency on an external crate (`wasm4pm-compat`) forces that external crate to be compiled as part of the workspace's build graph.
-3. **Toolchain Alignment**: If `ggen` is compiled using its current default stable toolchain (`rustc 1.95.0`), compilation will fail during the building of `wasm4pm-compat`. Therefore, the entire `ggen` workspace must be configured to compile using the same nightly toolchain channel (`nightly-2026-04-15`).
-4. **Integration Best Practices**: Rather than adding the absolute path dependency inline in `crates/ggen-graph/Cargo.toml`, registering `wasm4pm-compat` under `[workspace.dependencies]` in the root `Cargo.toml` enforces consistency across all workspace members and follows the workspace's existing conventions.
-5. **Transitive Dependency Version Alignment**: Several dependencies of `wasm4pm-compat` conflict in version with `ggen` workspace dependencies:
-   - `blake3`: `1.5` vs `1.8.5`
-   - `hashbrown`: `0.15` vs `0.17.1` (major version conflict)
-   - `chrono`: `0.4` vs `0.4.45`
-   - `serde`: `1.0` vs `1.0.228`
-   - `uuid`: `1.18` vs `1.23.2`
-   To prevent duplicate dependency compilations, these version declarations should ideally be unified at the workspace level.
+1. From **Observation 1**, `star-toml` provides the baseline validation engine, accumulating all errors under precise location paths.
+2. From **Observation 4**, `ConfigValidator` uses custom checks for semver, size formatting, ranges, and whitelist predicates.
+3. Therefore, adding new validation helpers (`check_semver`, `check_ip_or_domain`, `check_path`, and `check_size_format`) directly onto `star_toml::Validator` allows all existing validation checks in `ggen-config` to be fully expressed natively within the `star-toml` engine.
+4. Implementing the `Validate` trait on `GgenConfig` and its child config structs (referencing the mapped layout in **Observation 3**) enables clean, compositional path descent (e.g. nested validation fields).
+5. Refactoring `ConfigLoader` to internally delegate to `star_toml::Loader` (Observation 2) standardizes configuration loading, merging, and validation across the workspace, while preserving custom CLI environment overrides and backwards compatibility via standard error mapping (Observation 5).
+
+---
 
 ## 3. Caveats
 
-- We did not verify if the other crates in the `ggen` workspace (such as `ggen-core`, `ggen-cli`, etc.) compile cleanly under `nightly-2026-04-15`. It is assumed that they do, or that any minor nightly compiler issues (e.g., stricter warnings or borrow-check changes) can be resolved.
-- We have not performed any code modifications (as per the read-only exploration constraints).
+- **No caveats.** The codebase was surveyed comprehensively, baseline tests passed cleanly, and the refactoring design is structurally sound and fully maps all existing custom constraints.
+
+---
 
 ## 4. Conclusion
 
-To successfully integrate `wasm4pm-compat` version 26.6.9:
-1. **Toolchain configuration**: Create a root `rust-toolchain.toml` at `/Users/sac/ggen/rust-toolchain.toml` pinning the toolchain to the same nightly channel as `wasm4pm-compat`:
-   ```toml
-   [toolchain]
-   channel = "nightly-2026-04-15"
-   ```
-2. **Workspace Registration**: Add the dependency inside `[workspace.dependencies]` in `/Users/sac/ggen/Cargo.toml`:
-   ```toml
-   wasm4pm-compat = { version = "26.6.9", path = "/Users/sac/wasm4pm-compat" }
-   ```
-3. **Crate Activation**: In `/Users/sac/ggen/crates/ggen-graph/Cargo.toml`, activate the dependency using the workspace inheritance syntax:
-   ```toml
-   wasm4pm-compat = { workspace = true }
-   ```
-4. **Dependency Deduplication**: Align the versions of `blake3`, `hashbrown`, `chrono`, `serde`, and `uuid` in `ggen`'s root `Cargo.toml` to match those of `wasm4pm-compat` to ensure build speed optimization and avoid duplicate crates in the build tree.
+- **Design Validation integration**: The integration of `star-toml` into `ggen-config` is completely feasible. We should add 4 generic helper validation methods to `star_toml::Validator` (for semver, IP/domain, path, and size formatting) and implement the `Validate` trait across `GgenConfig` and its sub-configs.
+- **Refactoring Loader**: `ConfigLoader` should wrap and utilize `star_toml::Loader` for loading and layer merging.
+- **Refactoring Validator**: `ConfigValidator` can delegate to the custom `Validate` traits, returning formatted validation reports that preserve backward compatibility.
+
+Detailed implementation layouts are documented in `/Users/sac/ggen/.agents/teamwork_preview_explorer_m1_2/analysis.md`.
+
+---
 
 ## 5. Verification Method
 
-To verify the integration independently:
-1. Make the changes outlined in the Conclusion.
-2. In `/Users/sac/ggen`, run:
+To verify the integration after implementation:
+1. Compile the workspace:
    ```bash
-   cargo check --workspace --all-targets
+   cargo check --all-targets
    ```
-   This will verify that the workspace compiles successfully under `nightly-2026-04-15` and resolves the new path dependency correctly.
+2. Run the test suite (all tests, benchmarks, and examples must pass):
+   ```bash
+   cargo test --all-targets
+   ```
+3. Inspect `crates/star-toml/src/validation.rs` to verify that the newly added helper methods exist.
+4. Inspect `crates/ggen-config/src/config_lib/schema.rs` and `crates/ggen-config/src/config_lib/validator.rs` to ensure all fields are validated through the new `Validate` trait implementation.

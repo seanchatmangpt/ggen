@@ -1,6 +1,6 @@
 [package]
 name = "genesis-core"
-version = "26.6.11"
+version = "26.6.23"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Pure mathematical foundation for the Genesis-bearing interchangeable parts architecture (A = μ(O))."
