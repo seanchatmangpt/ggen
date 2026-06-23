@@ -235,10 +235,17 @@ fn test_sync_produces_coherence_report() {
         .expect("sync must produce a coherence_report");
 
     // Claim: all three poles are present in the report
-    assert_eq!(report.poles.len(), 3, "three-pole report must have exactly 3 poles");
+    assert_eq!(
+        report.poles.len(),
+        3,
+        "three-pole report must have exactly 3 poles"
+    );
 
     // Claim: ontology pole has a non-empty hash
-    let ont_pole = report.poles.iter().find(|p| p.pole == Pole::Ontology)
+    let ont_pole = report
+        .poles
+        .iter()
+        .find(|p| p.pole == Pole::Ontology)
         .expect("ontology pole must be present");
     assert!(
         !ont_pole.hash.is_empty(),
@@ -246,7 +253,10 @@ fn test_sync_produces_coherence_report() {
     );
 
     // Claim: artifact pole has a non-empty hash
-    let art_pole = report.poles.iter().find(|p| p.pole == Pole::Artifact)
+    let art_pole = report
+        .poles
+        .iter()
+        .find(|p| p.pole == Pole::Artifact)
         .expect("artifact pole must be present");
     assert!(
         !art_pole.hash.is_empty(),
@@ -254,7 +264,10 @@ fn test_sync_produces_coherence_report() {
     );
 
     // Claim: coherence-latest.json was written to .ggen/receipts/
-    let receipt_path = output_dir.join(".ggen").join("receipts").join("coherence-latest.json");
+    let receipt_path = output_dir
+        .join(".ggen")
+        .join("receipts")
+        .join("coherence-latest.json");
     assert!(
         receipt_path.exists(),
         "coherence-latest.json must exist at {:?}",
@@ -264,8 +277,8 @@ fn test_sync_produces_coherence_report() {
     // Claim: the JSON is valid and contains the 'poles' field
     let json_content = fs::read_to_string(&receipt_path).expect("read coherence json");
     assert!(!json_content.is_empty(), "coherence JSON must be non-empty");
-    let parsed: serde_json::Value = serde_json::from_str(&json_content)
-        .expect("coherence JSON must be valid");
+    let parsed: serde_json::Value =
+        serde_json::from_str(&json_content).expect("coherence JSON must be valid");
     assert!(
         parsed.get("poles").is_some(),
         "coherence JSON must contain 'poles' field"

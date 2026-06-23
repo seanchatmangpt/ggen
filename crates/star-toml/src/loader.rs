@@ -345,8 +345,7 @@ pub fn find_config_file(file_name: &str, start: impl AsRef<Path>) -> Option<Path
 /// Returns [`Error::FileNotFound`] when no matching file exists anywhere in the
 /// directory tree.
 pub fn find_and_load<T: DeserializeOwned>(
-    file_name: &str,
-    start: impl AsRef<Path>,
+    file_name: &str, start: impl AsRef<Path>,
 ) -> Result<(PathBuf, T)> {
     let path = find_config_file(file_name, start)
         .ok_or_else(|| Error::FileNotFound(PathBuf::from(file_name)))?;
@@ -547,10 +546,7 @@ mod tests {
         write_toml(&dir, "app.toml", "name = \"app\"\n");
         let path = dir.path().join("app.toml");
 
-        let cf: ConfigFile<Simple> = Loader::new()
-            .layer_file(&path)
-            .load_file()
-            .unwrap();
+        let cf: ConfigFile<Simple> = Loader::new().layer_file(&path).load_file().unwrap();
 
         let resolved = cf.resolve("templates/foo.tera");
         assert_eq!(resolved, dir.path().join("templates/foo.tera"));

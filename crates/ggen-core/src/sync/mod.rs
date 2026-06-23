@@ -47,11 +47,11 @@ use crate::utils::error::Error as GgenError;
 use crate::validation::soundness_gates::{
     check_boundedness, check_deadlock_freedom, check_liveness, SoundnessViolation,
 };
+use ggen_graph::{CoherenceChecker, CoherenceReport};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use ggen_graph::{CoherenceChecker, CoherenceReport};
 use std::time::{Duration, Instant};
 
 // ---------------------------------------------------------------------------

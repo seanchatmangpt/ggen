@@ -76,20 +76,39 @@ use toml::Value;
 #[derive(Debug, Clone)]
 enum Constraint {
     NonEmpty,
-    RangeI64 { lo: i64, hi: i64 },
-    RangeF64 { lo: f64, hi: f64 },
-    OneOf { allowed: Vec<String> },
+    RangeI64 {
+        lo: i64,
+        hi: i64,
+    },
+    RangeF64 {
+        lo: f64,
+        hi: f64,
+    },
+    OneOf {
+        allowed: Vec<String>,
+    },
     Required,
-    Predicate { code: &'static str, msg: String, test: fn(&Value) -> bool },
+    Predicate {
+        code: &'static str,
+        msg: String,
+        test: fn(&Value) -> bool,
+    },
 }
 
 impl Constraint {
-    fn check(&self, field: &str, value: Option<&Value>, checks_run: &mut usize) -> Option<ValidationError> {
+    fn check(
+        &self, field: &str, value: Option<&Value>, checks_run: &mut usize,
+    ) -> Option<ValidationError> {
         *checks_run += 1;
         match self {
             Self::Required => {
                 if value.is_none() {
-                    return Some(make_err(field, ErrorKind::Missing, None, "field is required"));
+                    return Some(make_err(
+                        field,
+                        ErrorKind::Missing,
+                        None,
+                        "field is required",
+                    ));
                 }
                 None
             }
@@ -143,7 +162,9 @@ impl Constraint {
                     let msg = format!("must be one of: {}", allowed.join(", "));
                     return Some(make_err(
                         field,
-                        ErrorKind::NotOneOf { allowed: allowed.clone() },
+                        ErrorKind::NotOneOf {
+                            allowed: allowed.clone(),
+                        },
                         Some(s.to_string()),
                         msg,
                     ));
@@ -165,7 +186,9 @@ impl Constraint {
     }
 }
 
-fn make_err(field: &str, kind: ErrorKind, input: Option<String>, msg: impl Into<String>) -> ValidationError {
+fn make_err(
+    field: &str, kind: ErrorKind, input: Option<String>, msg: impl Into<String>,
+) -> ValidationError {
     ValidationError {
         loc: Loc(vec![LocSegment::Key(field.to_string())]),
         kind,
@@ -216,8 +239,14 @@ impl<'a> FieldBuilder<'a> {
     }
 
     /// Fail with `code` when `test(value)` returns false.
-    pub fn predicate(self, code: &'static str, msg: impl Into<String>, test: fn(&Value) -> bool) -> Self {
-        self.add(Constraint::Predicate { code, msg: msg.into(), test })
+    pub fn predicate(
+        self, code: &'static str, msg: impl Into<String>, test: fn(&Value) -> bool,
+    ) -> Self {
+        self.add(Constraint::Predicate {
+            code,
+            msg: msg.into(),
+            test,
+        })
     }
 
     fn add(self, c: Constraint) -> Self {
@@ -280,7 +309,10 @@ impl Schema {
     ///
     /// Returns a [`FieldBuilder`]; call `.done()` to return to the schema.
     pub fn field(&mut self, name: &str) -> FieldBuilder<'_> {
-        FieldBuilder { schema: self, name: name.to_string() }
+        FieldBuilder {
+            schema: self,
+            name: name.to_string(),
+        }
     }
 
     /// Add a nested sub-schema for table key `name`.
@@ -315,7 +347,11 @@ impl Schema {
         if errors.is_empty() {
             Ok(())
         } else {
-            Err(ValidationErrors { errors, title: None, checks_run })
+            Err(ValidationErrors {
+                errors,
+                title: None,
+                checks_run,
+            })
         }
     }
 
@@ -331,7 +367,9 @@ impl Schema {
             Err(e) => {
                 let err = ValidationError {
                     loc: Loc::default(),
-                    kind: ErrorKind::Predicate { code: "parse_error" },
+                    kind: ErrorKind::Predicate {
+                        code: "parse_error",
+                    },
                     severity: Severity::Fatal,
                     input: None,
                     msg: e.to_string(),
@@ -352,17 +390,18 @@ impl Schema {
     #[must_use]
     pub fn constraint_count(&self) -> usize {
         let direct: usize = self.fields.iter().map(|(_, cs)| cs.len()).sum();
-        let nested: usize = self.sections.iter().map(|(_, s)| s.constraint_count()).sum();
+        let nested: usize = self
+            .sections
+            .iter()
+            .map(|(_, s)| s.constraint_count())
+            .sum();
         direct + nested
     }
 
     // -- internal ----------------------------------------------------------
 
     fn check_value(
-        &self,
-        value: &Value,
-        prefix: &[LocSegment],
-        errors: &mut Vec<ValidationError>,
+        &self, value: &Value, prefix: &[LocSegment], errors: &mut Vec<ValidationError>,
         checks_run: &mut usize,
     ) {
         for (name, constraints) in &self.fields {
@@ -384,17 +423,19 @@ impl Schema {
                 Some(v) => sub_schema.check_value(v, &sub_prefix, errors, checks_run),
                 None => {
                     // If the section is absent, each required field in it is missing
-                    sub_schema.report_section_missing(section_name, &sub_prefix, errors, checks_run);
+                    sub_schema.report_section_missing(
+                        section_name,
+                        &sub_prefix,
+                        errors,
+                        checks_run,
+                    );
                 }
             }
         }
     }
 
     fn report_section_missing(
-        &self,
-        _section: &str,
-        prefix: &[LocSegment],
-        errors: &mut Vec<ValidationError>,
+        &self, _section: &str, prefix: &[LocSegment], errors: &mut Vec<ValidationError>,
         checks_run: &mut usize,
     ) {
         for (name, constraints) in &self.fields {
@@ -420,15 +461,25 @@ mod tests {
 
     fn server_schema() -> Schema {
         Schema::new()
-            .field("host").non_empty().done()
-            .field("port").range_i64(1, 65535).done()
+            .field("host")
+            .non_empty()
+            .done()
+            .field("port")
+            .range_i64(1, 65535)
+            .done()
     }
 
     fn app_schema() -> Schema {
         Schema::new()
-            .field("name").non_empty().done()
-            .field("workers").range_i64(1, 1024).done()
-            .field("log_level").one_of(&["trace", "debug", "info", "warn", "error"]).done()
+            .field("name")
+            .non_empty()
+            .done()
+            .field("workers")
+            .range_i64(1, 1024)
+            .done()
+            .field("log_level")
+            .one_of(&["trace", "debug", "info", "warn", "error"])
+            .done()
             .section("server", server_schema())
     }
 
@@ -476,7 +527,8 @@ port = 0
 
     #[test]
     fn variant_id_stable_across_equal_error_patterns() {
-        let toml = "name = \"\"\nworkers = 1\nlog_level = \"info\"\n[server]\nhost = \"h\"\nport = 80\n";
+        let toml =
+            "name = \"\"\nworkers = 1\nlog_level = \"info\"\n[server]\nhost = \"h\"\nport = 80\n";
         let id1 = app_schema().validate_str(toml).unwrap_err().variant_id();
         let id2 = app_schema().validate_str(toml).unwrap_err().variant_id();
         assert_eq!(id1, id2);
@@ -484,7 +536,9 @@ port = 0
 
     #[test]
     fn parse_error_produces_fatal_error() {
-        let errs = Schema::new().validate_str("not valid toml :::").unwrap_err();
+        let errs = Schema::new()
+            .validate_str("not valid toml :::")
+            .unwrap_err();
         assert!(errs.errors()[0].is_fatal());
         assert_eq!(errs.errors()[0].code(), "parse_error");
     }
@@ -492,7 +546,9 @@ port = 0
     #[test]
     fn one_of_constraint() {
         let schema = Schema::new()
-            .field("level").one_of(&["info", "warn", "error"]).done();
+            .field("level")
+            .one_of(&["info", "warn", "error"])
+            .done();
         assert!(schema.validate_str("level = \"info\"").is_ok());
         let errs = schema.validate_str("level = \"verbose\"").unwrap_err();
         assert_eq!(errs.errors()[0].code(), "not_one_of");
@@ -500,8 +556,7 @@ port = 0
 
     #[test]
     fn range_f64_constraint() {
-        let schema = Schema::new()
-            .field("ratio").range_f64(0.0, 1.0).done();
+        let schema = Schema::new().field("ratio").range_f64(0.0, 1.0).done();
         assert!(schema.validate_str("ratio = 0.5").is_ok());
         let errs = schema.validate_str("ratio = 2.0").unwrap_err();
         assert_eq!(errs.errors()[0].code(), "out_of_range");
@@ -510,11 +565,11 @@ port = 0
     #[test]
     fn predicate_constraint() {
         let schema = Schema::new()
-            .field("port").predicate(
-                "no_well_known",
-                "prefer ports above 1024",
-                |v| v.as_integer().map_or(true, |n| n > 1024),
-            ).done();
+            .field("port")
+            .predicate("no_well_known", "prefer ports above 1024", |v| {
+                v.as_integer().map_or(true, |n| n > 1024)
+            })
+            .done();
         assert!(schema.validate_str("port = 8080").is_ok());
         let errs = schema.validate_str("port = 80").unwrap_err();
         assert_eq!(errs.errors()[0].code(), "no_well_known");
@@ -522,7 +577,8 @@ port = 0
 
     #[test]
     fn by_section_grouping_works_on_schema_errors() {
-        let toml = "name = \"\"\nworkers = 0\nlog_level = \"info\"\n[server]\nhost = \"\"\nport = 8080\n";
+        let toml =
+            "name = \"\"\nworkers = 0\nlog_level = \"info\"\n[server]\nhost = \"\"\nport = 8080\n";
         let errs = app_schema().validate_str(toml).unwrap_err();
         let by_sec = errs.by_section();
         assert!(by_sec.contains_key("name"));
