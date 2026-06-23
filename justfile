@@ -98,9 +98,14 @@ test-mutation:
 # Full pre-commit gate: fmt → check → lint → test-lib (in sequence, fail fast)
 pre-commit: fmt-check check lint test-lib
 
-# Performance SLO validation
+# Performance SLO validation — all registered SLO benchmark suites in test mode
+# (--test runs Criterion benchmarks as pass/fail assertions, not timed runs)
 slo-check:
     cargo bench --bench cli_startup_performance -- --test
+    cargo bench --bench ggen_benchmarks -- --test
+    cargo bench --bench comprehensive_slo_benchmarks -- --test
+    cargo bench --bench schema_layer_slo -- --test
+    cargo bench --bench marketplace_performance -- --test
 
 # Security vulnerability scan
 audit:

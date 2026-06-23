@@ -53,11 +53,30 @@ impl Registry {
     ///
     /// # Errors
     ///
-    /// This function currently always returns `Ok(())`. Future implementations may return:
-    /// * `Error::PackageAlreadyExists` - When a package with the same ID already exists
+    /// * `Error::PackageAlreadyExists` - When a package with the same ID already exists.
+    ///   Call `update()` to replace an existing package intentionally.
     /// * `Error::InvalidPackageId` - When the package ID format is invalid
     pub fn insert(&self, package: &Package) -> Result<()> {
         let package_id = package.metadata.id.clone();
+
+        // Reject duplicate package IDs — silent overwrite is decorative completion.
+        // The caller must call `update()` to replace an existing package.
+        if self.packages.contains_key(&package_id) {
+            return Err(crate::marketplace::error::Error::PackageAlreadyExists {
+                package_id: package_id.to_string(),
+            });
+        }
+
+        // Version collision check — no two entries may share an @version key.
+        for version in &package.versions {
+            let key = format!("{package_id}@{version}");
+            if self.version_index.contains_key(&key) {
+                return Err(crate::marketplace::error::Error::VersionAlreadyExists {
+                    package_id: package_id.to_string(),
+                    version: version.to_string(),
+                });
+            }
+        }
 
         // Add to primary storage
         self.packages.insert(package_id.clone(), package.clone());

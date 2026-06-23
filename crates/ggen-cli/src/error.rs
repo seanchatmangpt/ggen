@@ -85,6 +85,30 @@ pub enum GgenError {
     InvalidInput(String),
 }
 
+impl GgenError {
+    /// Returns the semantic exit code for this error type.
+    ///
+    /// Agents and scripts use these codes to distinguish failure classes
+    /// without parsing error message text.
+    pub fn exit_code(&self) -> i32 {
+        match self {
+            Self::ValidationError(_) | Self::InvalidInput(_) => 1,
+            Self::SparqlError(_) => 2,
+            Self::TemplateError(_) => 3,
+            Self::OutputInvalid(_) => 4,
+            Self::Timeout(_) => 5,
+            Self::FileError(_) | Self::FileErrorWithPath { .. } => 6,
+            Self::NetworkError(_) => 7,
+            Self::ConfigError(_) => 8,
+            Self::JsonError(_) => 9,
+            Self::CommandError(_) => 10,
+            Self::ExternalServiceError(_) => 11,
+            Self::PaasError(_) | Self::PackReceiptError(_) => 12,
+            Self::Internal(_) => 127,
+        }
+    }
+}
+
 impl From<std::io::Error> for GgenError {
     fn from(err: std::io::Error) -> Self {
         GgenError::FileError(err.to_string())

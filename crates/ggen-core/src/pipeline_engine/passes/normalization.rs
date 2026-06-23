@@ -210,55 +210,60 @@ impl NormalizationPass {
     }
 
     /// Run SHACL validation as a quality gate
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if shapes are not loaded (fail-closed: no shapes = no pass)
+    /// or if any SHACL violation is detected (Andon Protocol stop-the-line).
     fn validate_shacl_gate(&self, ctx: &PassContext<'_>) -> Result<ValidationResult> {
-        if !self.enable_shacl_gate {
-            // Return a passing result if validation is disabled
-            return Ok(ValidationResult::pass(0));
+        // Shapes are mandatory. An absent or empty shape set is a configuration
+        // error, not a pass — the caller must explicitly load shapes via
+        // `with_shacl_shapes()` before the gate can produce a result.
+        let shapes = self
+            .shacl_shapes
+            .as_ref()
+            .ok_or_else(|| Error::new("SHACL gate requires shapes but none were loaded. \
+                Call with_shacl_shapes() or disable validation explicitly with \
+                with_shacl_gate(false) only in test scaffolding."))?;
+
+        if shapes.is_empty() {
+            return Err(Error::new("SHACL shape set is empty — ontology validation \
+                cannot proceed. Provide at least one sh:NodeShape."));
         }
 
-        if let Some(ref shapes) = self.shacl_shapes {
-            if shapes.is_empty() {
-                // No shapes to validate against
-                return Ok(ValidationResult::pass(0));
-            }
+        let validator = SparqlValidator::new();
+        let report = validator
+            .validate_shapes(ctx.graph, shapes)
+            .map_err(|e| Error::new(&e.to_string()))?;
 
-            let validator = SparqlValidator::new();
-            let report = validator
-                .validate_shapes(ctx.graph, shapes)
-                .map_err(|e| Error::new(&e.to_string()))?;
+        // Fail-fast: Any violation stops the line (Andon Protocol)
+        if !report.passed {
+            let violation_count = report.violations.len();
+            let messages: Vec<String> = report
+                .violations
+                .iter()
+                .take(5)
+                .map(|v| format!("  - {}: {}", v.constraint_type, v.message))
+                .collect();
 
-            // Fail-fast: Any violation stops the line
-            if !report.passed {
-                let violation_count = report.violations.len();
-                let messages: Vec<String> = report
+            return Err(Error::new(&format!(
+                "SHACL Validation Failed: {} violation(s) detected\n\n\
+                 mu1:normalization STOPPED THE LINE (Andon Protocol)\n\n\
+                 First {} violations:\n{}\n\n\
+                 Fix violations before proceeding.\n\n\
+                 Constraint types violated: {:?}",
+                violation_count,
+                messages.len(),
+                messages.join("\n"),
+                report
                     .violations
                     .iter()
-                    .take(5)
-                    .map(|v| format!("  - {}: {}", v.constraint_type, v.message))
-                    .collect();
-
-                return Err(Error::new(&format!(
-                    "🚨 SHACL Validation Failed: {} violation(s) detected\n\n\
-                     μ₁:normalization STOPPED THE LINE (Andon Protocol)\n\n\
-                     First {} violations:\n{}\n\n\
-                     Fix violations before proceeding.\n\n\
-                     Constraint types violated: {:?}",
-                    violation_count,
-                    messages.len(),
-                    messages.join("\n"),
-                    report
-                        .violations
-                        .iter()
-                        .map(|v| v.constraint_type)
-                        .collect::<std::collections::HashSet<_>>()
-                )));
-            }
-
-            Ok(report)
-        } else {
-            // No shapes configured
-            Ok(ValidationResult::pass(0))
+                    .map(|v| v.constraint_type)
+                    .collect::<std::collections::HashSet<_>>()
+            )));
         }
+
+        Ok(report)
     }
 
     /// Check if a rule should be executed based on its WHEN condition

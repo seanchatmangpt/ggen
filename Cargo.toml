@@ -653,6 +653,18 @@ harness = false
 [[bench]]
 name = "canonical_bench"
 harness = false
+[[bench]]
+name = "ggen_benchmarks"
+harness = false
+[[bench]]
+name = "comprehensive_slo_benchmarks"
+harness = false
+[[bench]]
+name = "schema_layer_slo"
+harness = false
+[[bench]]
+name = "v2_performance"
+harness = false
 [[test]]
 name = "testcontainer_marketplace_git_hooks"
 path = "tests/integration/testcontainer_marketplace_git_hooks.rs"
