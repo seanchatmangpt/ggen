@@ -341,7 +341,8 @@ INSERT DATA {{
             .prefix("prov", namespaces::PROV)
             .select(&["?result", "?status", "?validatedAt", "?violations"])
             .where_pattern(&format!("<{package_id}> ggen:hasVersion ?versionNode"))
-            .where_pattern(&format!("?versionNode ggen:versionNumber \"{version}\""))
+            // Version-node string predicate is ggen:version (canonical insert).
+            .where_pattern(&format!("?versionNode ggen:version \"{version}\""))
             .where_pattern("?versionNode ggen:hasValidation ?result")
             .where_pattern("?result a ggen:ValidationResult")
             .where_pattern("?result ggen:validationStatus ?status")
@@ -546,13 +547,13 @@ INSERT DATA {{
             r"PREFIX ggen: <{}>
 
 DELETE {{
-    <{package_id}> ggen:downloadCount ?oldCount .
+    <{package_id}> ggen:downloads ?oldCount .
 }}
 INSERT {{
-    <{package_id}> ggen:downloadCount ?newCount .
+    <{package_id}> ggen:downloads ?newCount .
 }}
 WHERE {{
-    <{package_id}> ggen:downloadCount ?oldCount .
+    <{package_id}> ggen:downloads ?oldCount .
     BIND(?oldCount + 1 AS ?newCount)
 }}",
             namespaces::GGEN,
@@ -603,7 +604,7 @@ INSERT {{
 }}
 WHERE {{
     <{package_id}> ggen:hasVersion ?versionNode .
-    ?versionNode ggen:versionNumber "{version}" .
+    ?versionNode ggen:version "{version}" .
 }}"#,
             namespaces::GGEN,
             namespaces::XSD,
@@ -628,7 +629,7 @@ INSERT {{
 }}
 WHERE {{
     <{package_id}> ggen:hasVersion ?versionNode .
-    ?versionNode ggen:versionNumber "{version}" .
+    ?versionNode ggen:version "{version}" .
 }}"#,
             namespaces::GGEN,
             namespaces::XSD,
@@ -714,6 +715,8 @@ mod tests {
         let sparql = MarketplaceQueries::increment_download_count("http://ggen.dev/packages/test");
         assert!(sparql.contains("DELETE"));
         assert!(sparql.contains("INSERT"));
-        assert!(sparql.contains("downloadCount"));
+        // Uses ggen:downloads (canonical insert predicate), not the legacy
+        // ggen:downloadCount which no inserted triple carried.
+        assert!(sparql.contains("ggen:downloads"));
     }
 }
