@@ -1,28 +1,36 @@
-# BRIEFING — 2026-06-11T19:18:48Z
+# BRIEFING — 2026-06-23T08:42:30Z
 
 ## Mission
-Conduct a comprehensive user onboarding, installation, documentation, CLI interface, and developer experience audit of the ggen tool.
+Analyze the current status of packs and the marketplace, and explore the implications of a "post-Chatman Equation" world. Additionally, investigate and execute the transition of the `~/praxis` directory to a ggen-first architecture using a 20-agent swarm.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/sac/ggen/.agents/sentinel/
-- Orchestrator: ca4e11d0-7d29-4d50-be40-df4b21c34b20
-- Victory Auditor: 452ceeae-1a9b-4454-bc64-43a9381b55e7
-- Active Orchestrator: ca4e11d0-7d29-4d50-be40-df4b21c34b20
-- Successor Orchestrator: TBD
-- Victory Auditor ID: 452ceeae-1a9b-4454-bc64-43a9381b55e7
-- Cron 1 Task ID: 2fecdc82-38ce-409a-b121-6039f97d3f8b/task-31
-- Cron 2 Task ID: 2fecdc82-38ce-409a-b121-6039f97d3f8b/task-33
+- Orchestrator: 2ad6d043-08f9-4408-b75e-dcdfbdedbc8c
+- Victory Auditor: f5670948-922a-4510-be2f-01f128602da9
+- Active Orchestrator: 236ca035-f2d5-4ca8-90fd-0233858ab26e
+- Successor Orchestrator: 236ca035-f2d5-4ca8-90fd-0233858ab26e
+- Cron 1 Task ID: cancelled
+- Cron 2 Task ID: cancelled
+- Active Orchestrator (Praxis): 7f3068c0-71db-4e8b-9fcd-8a0791ee93fb
+- Cron 1 (Praxis): task-27
+- Cron 2 (Praxis): task-29
+- Victory Auditor (Praxis): TBD
+- Active Orchestrator (Swarm): fedf9317-b00c-443b-aa9d-1bf0d0d67a05
+- Cron 1 (Swarm): cancelled (was task-31)
+- Cron 2 (Swarm): cancelled (was task-33)
+- Victory Auditor (Swarm): a5fe11ee-76a8-4de6-9f2e-9dedcf699e6b
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Audit scope must include R1, R2, R3, R4, and R5.
+- Audit scope must include R1, R2, and R3
+- 20-Agent Swarm dynamics verification
 
 ## User Context
-- **Last user request**: Run a new-user onboarding usability, environment setup, CLI, documentation, and codebase architecture audit for the ggen tool, incorporating a Rails-inspired comparative DX evaluation.
+- **Last user request**: Conduct AGI-level PhD research on ggen packs/marketplace status, the "post-Chatman Equation" world, and transition the `~/praxis` directory to a ggen-first architecture using a 20-agent swarm.
 - **Pending clarifications**: none
-- **Delivered results**: none
+- **Delivered results**: Synthesis research paper, OWL/RDF ontology schemas, ggen configuration files, active healing daemon configurations, compile-time ZST lifecycle type assertions, and a cryptographically signed compliance receipt.
 
 ## Project Status
 - **Phase**: complete

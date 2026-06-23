@@ -3,6 +3,7 @@
 //! This module provides validation logic for ggen configuration.
 
 use crate::config_lib::{ConfigError, GgenConfig, Result};
+use star_toml::Validate;
 use std::collections::HashSet;
 
 /// Configuration validator
@@ -46,21 +47,19 @@ impl<'a> ConfigValidator<'a> {
     /// # }
     /// ```
     pub fn validate(config: &'a GgenConfig) -> Result<()> {
-        let mut validator = Self::new(config);
-        validator.validate_all()?;
-        Ok(())
+        config.check().map_err(|errs| {
+            ConfigError::Validation(crate::config_lib::error::format_star_toml_errors(&errs))
+        })
     }
 
     /// Run all validation checks
     fn validate_all(&mut self) -> Result<()> {
-        self.validate_project();
-        self.validate_ai();
-        self.validate_templates();
-        Self::validate_security();
-        self.validate_performance();
-        self.validate_logging();
-        self.validate_mcp();
-        self.validate_a2a();
+        if let Err(errs) = self.config.check() {
+            for err in errs.errors() {
+                let formatted = crate::config_lib::error::format_single_star_toml_error(err);
+                self.errors.push(formatted);
+            }
+        }
 
         if self.errors.is_empty() {
             Ok(())

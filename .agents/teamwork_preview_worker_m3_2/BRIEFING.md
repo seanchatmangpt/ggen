@@ -1,45 +1,55 @@
-# BRIEFING — 2026-06-08T23:19:50-07:00
+# BRIEFING — 2026-06-23T00:40:50Z
 
 ## Mission
-Perform build, test, and clippy remediation on ggen codebase.
+Fix compilation issues and validation gaps in `crates/ggen-config`.
 
 ## 🔒 My Identity
 - Archetype: teamwork_preview_worker
 - Roles: implementer, qa, specialist
 - Working directory: /Users/sac/ggen/.agents/teamwork_preview_worker_m3_2/
-- Original parent: 6fd56682-eed8-4195-a712-b264ed30c178
-- Milestone: m3_2
+- Original parent: 2ad6d043-08f9-4408-b75e-dcdfbdedbc8c
+- Milestone: crates/ggen-config validation and compilation fixes (completed)
 
 ## 🔒 Key Constraints
-- CODE_ONLY network mode: no external internet/HTTP requests.
-- No cheating, no mocks, no placeholders.
-- Follow chicago TDD and verification guidelines in AGENTS.md / GEMINI.md.
+- CODE_ONLY network mode: no external HTTP/curl/wget/etc.
+- Absolute path target check
+- Real boundaries, no mock verification, no hardcoded returns.
+- No stream editing using sed/awk.
 
 ## Current Parent
-- Conversation ID: 6fd56682-eed8-4195-a712-b264ed30c178
-- Updated: not yet
+- Conversation ID: 2ad6d043-08f9-4408-b75e-dcdfbdedbc8c
+- Updated: yes
 
 ## Task Summary
-- **What to build**: Ignore obsolete AI tests in crates/ggen-cli/tests/integration_ai_e2e.rs. Restrict benchmarks module feature gate in crates/ggen-a2a-mcp/src/a2a_generated/mod.rs. Add Serialize and Deserialize derives/imports in crates/ggen-a2a-mcp/src/a2a_generated/message.rs.
-- **Success criteria**: All cargo tests pass. Cargo clippy passes on all features with no warnings.
-- **Interface contracts**: crates/ggen-a2a-mcp/src/a2a_generated/message.rs
-- **Code layout**: Standard cargo workspace layout.
+- **What to build**: Fix struct initializers for `A2ATransportConfig`, `A2AOrchestrationConfig`, and `McpTransportConfig` in tests to include required fields. Add `v.check_path(...)` validations to specific config paths.
+- **Success criteria**: Clean compilation (`cargo check --all-targets`) and passing tests (`cargo test`).
+- **Interface contracts**: `crates/ggen-config/src/config_lib/schema.rs` and related validation paths.
+- **Code layout**: Rust workspace layout.
 
 ## Key Decisions Made
-- Initial setup and briefing initialization.
+- Derived `Default` on config structs to allow robust test initialization.
+- Integrated comprehensive path validation across all designated configurations.
+- Asserted negative test outcomes on unsafe path traversals and null byte paths.
 
 ## Artifact Index
-- /Users/sac/ggen/.agents/teamwork_preview_worker_m3_2/handoff.md — Handoff report
+- changes.md — list of changes made
+- handoff.md — 5-component handoff report
+- progress.md — task progress log
 
 ## Change Tracker
-- **Files modified**: None yet
-- **Build status**: TBD
+- **Files modified**:
+  - `crates/ggen-config/src/config_lib/schema.rs` — Derived `Default`, added path check to `TemplatesConfig`, `LoggingConfig`, `McpTlsConfig`, `McpToolsConfig`, `A2AMessagingConfig`. Updated tests.
+  - `crates/ggen-config/tests/adversarial_tests.rs` — Updated test struct initializers with `..Default::default()`.
+  - `crates/ggen-config/src/config/ontology_config.rs` — Added path check to `TargetConfig`, `LockConfig`. Updated tests.
+- **Build status**: Pass (checked all targets successfully)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: TBD
-- **Lint status**: TBD
-- **Tests added/modified**: None yet
+- **Build/test result**: Pass (78 unit tests, 6 adversarial tests, and all workspace tests pass)
+- **Lint status**: 0 clippy violations in `ggen-config`
+- **Tests added/modified**: Updated `test_ggen_config_path_validation_gaps` and `test_ontology_config_star_toml_validate` to assert path validation failure on unsafe paths.
 
 ## Loaded Skills
-- None
+- **Source**: /Users/sac/.gemini/antigravity-cli/builtin/skills/antigravity_guide/SKILL.md
+- **Local copy**: /Users/sac/ggen/.agents/teamwork_preview_worker_m3_2/skills/antigravity_guide/SKILL.md
+- **Core methodology**: Provides a comprehensive guide, quick reference, and sitemap for Google Antigravity (AGY).

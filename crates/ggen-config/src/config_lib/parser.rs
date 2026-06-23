@@ -84,7 +84,7 @@ impl ConfigLoader {
     /// # }
     /// ```
     pub fn from_str(content: &str) -> Result<GgenConfig> {
-        let config: GgenConfig = toml::from_str(content)?;
+        let config: GgenConfig = star_toml::from_str::<GgenConfig>(content)?;
         Ok(config)
     }
 
@@ -94,8 +94,8 @@ impl ConfigLoader {
     ///
     /// Returns an error if the file cannot be read or parsed
     pub fn load(&self) -> Result<GgenConfig> {
-        let content = fs::read_to_string(&self.path)?;
-        Self::from_str(&content)
+        let config = star_toml::load_file::<GgenConfig>(&self.path)?;
+        Ok(config)
     }
 
     /// Find and load ggen.toml from current or parent directories
@@ -129,26 +129,13 @@ impl ConfigLoader {
     ///
     /// Returns an error if no configuration file is found
     pub fn find_config_file() -> Result<PathBuf> {
-        let mut current = std::env::current_dir().map_err(|e| {
+        let current = std::env::current_dir().map_err(|e| {
             ConfigError::Validation(format!("Failed to get current directory: {e}"))
         })?;
 
-        loop {
-            let candidate = current.join("ggen.toml");
-
-            if candidate.exists() {
-                return Ok(candidate);
-            }
-
-            // Try parent directory
-            if let Some(parent) = current.parent() {
-                current = parent.to_path_buf();
-            } else {
-                return Err(ConfigError::FileNotFound(PathBuf::from(
-                    "ggen.toml (searched all parent directories)",
-                )));
-            }
-        }
+        star_toml::find_config_file("ggen.toml", current).ok_or_else(|| {
+            ConfigError::FileNotFound(PathBuf::from("ggen.toml (searched all parent directories)"))
+        })
     }
 
     /// Load configuration with environment-specific overrides

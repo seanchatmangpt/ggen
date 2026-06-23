@@ -54,3 +54,6 @@ pub async fn handle_code_action(
         Some(actions)
     })
 }
+
+// GGEN-PROJECTED
+// GGEN-DRIFT

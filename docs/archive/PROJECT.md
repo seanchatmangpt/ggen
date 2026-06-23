@@ -1,25 +1,25 @@
-# Project: Ggen Release v26.6.9
+# Project: ggen star-toml Config Migration
 
 ## Architecture
-- `ggen` is a deterministic, language-agnostic code generation framework.
-- Core packages are in `crates/` including `ggen-core`, `ggen-cli`, `ggen-graph`, `ggen-marketplace`, etc.
-- Dependencies between workspace crates are configured in the root `Cargo.toml` or individual crate `Cargo.toml` files.
+- `star-toml` (`crates/star-toml`): Parsing, deserialization, env-var expansion, and structured validation of TOML configs.
+- `ggen-config` (`crates/ggen-config`): Configuration schema (`GgenConfig` and sub-configs), custom validation rules, and config loading logic.
+- Integration: `ggen-config` relies on `star-toml` for loading files, resolving environment variables, and running validations by implementing the `star_toml::Validate` trait.
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| 1 | Exploration & Survey | Discover version upgrade targets & marketplace structure | none | DONE |
-| 2 | Version & Dependency Upgrades | Upgrade Cargo.tomls to v26.6.9 & integrate wasm4pm-compat | M1 | DONE |
-| 3 | Verification (Build & Test) | Verify workspace builds, tests, clippy checks | M2 | DONE |
-| 4 | Marketplace Verification | Validate ggen-marketplace taxonomy & metadata | M3 | DONE |
+| 1 | Exploration & Survey | Inspect star-toml and ggen-config to map validation rules and types | None | DONE |
+| 2 | star-toml Extensions | Implement semver, IP/domain, path validation helpers on star-toml's Validator | M1 | DONE |
+| 3 | Validate Trait Implementation | Implement star_toml::Validate for GgenConfig and all sub-configs | M2 | DONE |
+| 4 | ggen-config Migration | Refactor loader, parser, validator in ggen-config to use star-toml and verify tests | M3 | IN_PROGRESS |
 
 ## Interface Contracts
-### `ggen-graph` ↔ `wasm4pm-compat`
-- `ggen-graph` integrates `wasm4pm-compat` as an active dependency, importing types and trait implementations.
-- Path to `wasm4pm-compat` must be `/Users/sac/wasm4pm-compat`.
-- Version of `wasm4pm-compat` must be `26.6.9`.
+### `star-toml` ↔ `ggen-config`
+- `star_toml::Validate`: Trait implemented by configurations to perform validation checks using a `star_toml::Validator`.
+- `star_toml::Validator`: Provides validation helpers (e.g. `check_semver`, `check_ip_domain`, `check_path`).
+- `star_toml::ValidationErrors`: Returned when validation fails; mapped to `ggen_config::ConfigError`.
 
 ## Code Layout
-- Root: `Cargo.toml`
-- Crates: `crates/*`
-- Coordinate Metadata: `.agents/teamwork_preview_orchestrator_release_v26_6_9/`
+- `crates/star-toml/`: TOML validation/parsing library
+- `crates/ggen-config/`: Ggen configurations library
+- Coord Metadata: `.agents/orchestrator/`

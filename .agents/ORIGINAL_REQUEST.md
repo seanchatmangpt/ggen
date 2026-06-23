@@ -76,3 +76,127 @@ Provide a comparative critique of ggen from the perspective of a Ruby on Rails C
 
 ### Updated Acceptance Criteria
 - [ ] Include a dedicated section in the audit report comparing ggen with Rails philosophies and outlining 3-5 high-impact Rails-inspired lessons for ggen.
+
+## Follow-up — 2026-06-22T22:54:41Z
+
+Document the state of all `.md` files in the repository by reading their contents and producing a comprehensive report detailing the status, purpose, and completeness of each file.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Markdown File Discovery
+Find all `.md` files in the repository root and subdirectories (excluding standard ignore folders like `target`, `.git`, `.venv_shacl`, and node_modules).
+
+### R2. Content Analysis
+For each discovered `.md` file, analyze its content to determine its primary purpose, structural state (e.g., whether it contains placeholders, stubs, TODOs, or is fully complete), and any potential alignment with repository rules/AGENTS.md.
+
+### R3. Executive Report Generation
+Generate a comprehensive, structured markdown report documenting the state of the repository's documentation. The report must be saved as `DOCUMENTATION_AUDIT_REPORT.md` in the workspace root.
+
+## Acceptance Criteria
+
+### Audit Scope & Verification
+- [ ] Every `.md` file in the workspace (excluding ignored directories like target, .git, etc.) must be identified and visited.
+- [ ] A final audit report file `DOCUMENTATION_AUDIT_REPORT.md` must be created in the workspace root.
+- [ ] The generated report must contain a table covering all discovered `.md` files with columns for:
+  - File Path (relative to workspace root)
+  - Primary Purpose (brief summary of what the file describes)
+  - Completeness State (e.g., Complete, Draft, Placeholder/Stub, Has TODOs)
+  - Action Items / Recommendations
+- [ ] A validation check must prove that the number of files listed in the report matches the number of `.md` files found by a standard shell command like `find . -name "*.md"` (excluding ignored directories).
+
+## Follow-up — 2026-06-23T00:12:24Z
+
+Replace the custom TOML parsing and validation system in `ggen-config` with the `star-toml` library, extending `star-toml` with any necessary validation helpers first.
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Star-TOML Validation Extensions
+Extend the `star-toml` crate's `Validator` struct (in `crates/star-toml`) with built-in validation helper methods to cover all parsing/validating needs in `ggen-config`. Specifically, add:
+- Semver validation check (basic semver structure)
+- IP/Domain hostname validation check
+- Path validation check (non-empty or safe directory/file paths)
+
+### R2. GgenConfig Validate Trait Implementation
+Implement the `star_toml::Validate` trait for the `GgenConfig` structure and all of its sub-configuration structures (`ProjectConfig`, `AiConfig`, `TelemetryConfig`, `TemplatesConfig`, `McpConfig`, `A2AConfig`, etc.). The trait implementations must cover all checks previously implemented in `ConfigValidator`.
+
+### R3. Migration of ggen-config
+Refactor `crates/ggen-config` to use `star-toml` for loading, env-var expansion, and validation:
+- Modify `ConfigLoader` to use `star_toml::Loader` or `star_toml::load_file`.
+- Modify `ConfigValidator` to delegate validation to `star_toml`'s validation engine.
+- Map or wrap `star_toml::ValidationErrors` in `ConfigError`.
+- Ensure all existing workspace tests pass cleanly.
+
+## Acceptance Criteria
+
+### Correctness & Compatibility
+- [ ] `star-toml` compiles successfully with the new validation helpers.
+- [ ] `ggen-config` is fully migrated to use `star-toml` for loading and validating configuration files.
+- [ ] Running `cargo check` and `cargo test` in the workspace finishes with a green pass.
+- [ ] No regression is introduced in existing `ggen-config` or workspace tests.
+
+## Follow-up — 2026-06-23T04:17:11Z
+
+Implement a prototype of the 1000x praxis active self-healing and validation system in `/Users/sac/praxis/playground`.
+
+Working directory: /Users/sac/praxis/playground
+Integrity mode: development
+
+## Requirements
+
+### R1. Active Hygiene Reconciler (`praxis-reconciler`)
+Build a Rust tool/daemon (`praxis-reconciler`) that actively monitors standard repository configurations (e.g. `rustfmt.toml`, `deny.toml`, `.editorconfig`) against a reference set (from `/Users/sac/praxis/template`). If any of the monitored files are modified, tampered with, or deleted, the tool must automatically detect the drift and overwrite the files back to match the reference state.
+
+### R2. Cryptographic Compliance Guard (`praxis-guard`)
+Build a Rust tool (`praxis-guard`) that verifies project checks (compilation and tests). Upon a successful run, it must compute a BLAKE3 content-addressed digest of the project source files, sign it, and emit an unforgeable compliance receipt (`receipt.json`) detailing the state of verification.
+
+### R3. Demonstration Playground
+Set up a sample workspace/crate structure in `/Users/sac/praxis/playground` demonstrating the integration. Provide a script or execution path that:
+1. Simulates drift (e.g. modifying `rustfmt.toml`) and shows `praxis-reconciler` restoring it.
+2. Runs `praxis-guard` to generate a valid cryptographic receipt on a clean project, and verifies that the receipt fails if any source files are modified or check commands fail.
+
+## Acceptance Criteria
+
+### Correctness & Compliance
+- [ ] Both `praxis-reconciler` and `praxis-guard` are implemented in Rust and compile cleanly.
+- [ ] An automated test suite in `/Users/sac/praxis/playground` verifies that `praxis-reconciler` successfully restores modified/deleted config files within seconds.
+- [ ] An automated test verifies that `praxis-guard` produces a valid `receipt.json` on success, and rejects execution or fails verification if source files do not match the receipt's BLAKE3 hashes.
+- [ ] Running the workspace tests with `cargo test` returns a clean, green pass.
+
+## Follow-up — 2026-06-23T05:39:31Z
+
+Conduct AGI-level PhD research to analyze the current status of packs and the marketplace, and explore the implications of a "post-Chatman Equation" world. Additionally, investigate and execute the transition of the `~/praxis` directory to a ggen-first architecture. The team should self-organize to simulate a 20-agent swarm.
+
+Working directory: ~/praxis
+Integrity mode: development
+
+## Requirements
+
+### R1. Research the Packs and Marketplace Status
+Analyze the current state of the ggen packs and marketplace. The team has full autonomy over the format of the output.
+
+### R2. Post-Chatman Equation Analysis
+Conduct an academic-level exploration of the "post-Chatman Equation" world, theorizing on its structural and architectural implications.
+
+### R3. Transition ~/praxis to ggen-first
+Evaluate and transition the `~/praxis` environment to a ggen-first architecture. The exact scope and approach are left to the agent team's discretion.
+
+### R4. 20-Agent Swarm Dynamics
+The work must be distributed and conducted using a 20-agent research swarm methodology, leveraging multiple subagents for specialized analysis, debate, and execution.
+
+## Acceptance Criteria
+
+### Research Quality & Depth (Agent-as-Judge)
+- [ ] An independent reviewer agent confirms the research outputs demonstrate PhD-level analytical depth, correctly interpreting Ostar/Chatman principles.
+- [ ] The research outputs synthesize the state of the marketplace and packs comprehensively.
+
+### Praxis Transition (Agent-as-Judge)
+- [ ] An independent reviewer agent verifies that the `~/praxis` directory reflects a clear "ggen-first" methodology or contains a fully actionable, evidence-based transition execution.
+
+### Swarm Execution
+- [ ] The execution log must demonstrate multi-agent collaboration (e.g., via subagents), with evidence of specialized delegation.

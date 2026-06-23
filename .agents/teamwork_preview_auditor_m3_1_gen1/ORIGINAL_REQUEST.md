@@ -1,14 +1,6 @@
-## 2026-06-09T06:17:24Z
-You are teamwork_preview_auditor.
-Your working directory is /Users/sac/ggen/.agents/teamwork_preview_auditor_m3_1_gen1/.
-Your workspace is /Users/sac/ggen/.
-Your identity is teamwork_preview_auditor.
-
-Task:
-Perform a full integrity and compliance audit of the repository for release v26.6.9.
-Note: Target directories have already been cleaned and stale locks cleared.
-Verify that:
-1. No mocks or stubs of primary evidence paths have been introduced in the workspace.
-2. No TODOs, FIXMEs, or dummy/facade implementations exist in the modified or added code.
-3. All code modifications are genuine and satisfy the AGENTS.md / GEMINI.md verification constitution.
-Save your audit verdict (CLEAN or VIOLATION) and detailed findings in handoff.md in your working directory and notify the parent orchestrator via send_message.
+## 2026-06-23T00:41:14Z
+Run systematic checks (static analysis, review for placeholder/TODO laundering, check compliance with AGENTS.md and GEMINI.md) on the compilation fixes and path validations.
+Verify there are no forbidden surfaces, no stubs, no fake-success patterns, and no mock testing.
+Write your verdict and audit evidence to `audit.md` in your working directory and send a handoff message back to the parent (conversation ID: 2ad6d043-08f9-4408-b75e-dcdfbdedbc8c).
+Your working directory is: /Users/sac/ggen/.agents/teamwork_preview_auditor_m3_1_gen1/
+Your identity is auditor_m3_1_gen1 (archetype: teamwork_preview_auditor).
