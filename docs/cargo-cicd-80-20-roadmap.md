@@ -2,6 +2,11 @@
 
 20% of additions that deliver 80% of the remaining value, ordered by impact.
 
+**Design principle: TPS + DfLSS.** Every gate either passes or pulls the Andon cord. No WARN
+verdicts that silently pass. No BLOCKED states that skip checks. Required binaries are installed
+and verified by pre-flight before use — a missing binary is a defect in the process, not an
+expected runtime condition.
+
 ---
 
 ## Status
@@ -11,8 +16,8 @@
 | 1 | `affidavit seal` / `verify` as CI gate | ✅ Done — cargo-cicd job seals + verifies after pipeline run |
 | 2 | `lsp check` (anti-llm-cheat) on changed `.rs` | ✅ Done — cargo-cicd job runs lsp check post-pipeline |
 | 3 | `workspace sync` in `comprehensive-test` | ✅ Done — builds ggen binary, then calls workspace sync |
-| 4 | `status audit` as release gate | ✅ Done — `wpm` installed in CI; release-health + cargo-cicd jobs run status audit |
-| 5 | `certification show` verb | ✅ Done — `CertificationNoun` + `ShowVerb` added to cargo-cicd; reads evidence journal, evaluates IEC 61508 SIL 1 + ISO 26262 ASIL A coverage |
+| 4 | `status audit` as release gate | ✅ Done — `wpm` installed + pre-flight verified; CI and release both gate on status audit |
+| 5 | `certification show` verb | ✅ Done — `CertificationNoun` + `ShowVerb` in cargo-cicd; reads evidence journal, evaluates IEC 61508 SIL 1 + ISO 26262 ASIL A coverage |
 
 ---
 
@@ -21,8 +26,8 @@
 After `pipeline run`, the cargo-cicd job seals the accumulated XES evidence into a BLAKE3
 receipt via `cargo cicd affidavit seal`, then certifies it with `cargo cicd affidavit verify`.
 
-Both commands degrade gracefully when `affi` is absent (verdict `WARN`, never crash).
-`affi` is installed in CI via the `install-cargo-tools` action with `tools: cicd,affi`.
+`affi` is installed in CI via `tools: cicd,affi,wpm` and verified on PATH by the pre-flight step
+before any evidence command runs. A missing binary fails the job immediately (Andon).
 
 **Why this closes a gap**: Without the seal, evidence logs can be regenerated or overwritten
 silently between runs. The BLAKE3 chain makes any post-hoc modification detectable — one
@@ -35,15 +40,15 @@ aligns with ggen's own `.ggen/receipts/` BLAKE3 provenance pattern.
 ## 2. ✅ `cargo cicd lsp check` on changed `.rs` files
 
 The cargo-cicd job runs `cargo cicd lsp check` after the pipeline. This requires the
-`anti-llm-cheat` feature, now compiled in via `--features autonomic,affidavit,anti-llm-cheat`.
+`anti-llm-cheat` feature, compiled in via `--features autonomic,affidavit,anti-llm-cheat`.
 
 The check scans every `.rs` file changed since `origin/main` for:
 - Undeclared external dependencies (London TDD patterns)
 - Fabricated examples without real evidence (OTEL/test gaps)
 - Stub implementations marked as complete
 
-Blocking violations exit `FAIL`; warnings exit `WARN` but don't block CI. This converts the
-no-fabrication and Chicago TDD rules from conventions into a structural CI gate.
+Blocking violations exit `FAIL` and stop CI. This converts the no-fabrication and Chicago TDD
+rules from conventions into a structural CI gate.
 
 ---
 
@@ -63,7 +68,7 @@ prove the declared A = μ(O) formula executed lawfully.
 
 ## 4. ✅ `cargo cicd status audit` as release gate
 
-`wpm` is now a supported tool in `install-cargo-tools/action.yml`:
+`wpm` is a supported tool in `install-cargo-tools/action.yml`:
 ```yaml
 - name: Install wpm (wasm4pm process oracle)
   if: contains(inputs.tools, 'wpm')
@@ -71,33 +76,30 @@ prove the declared A = μ(O) formula executed lawfully.
   shell: bash
 ```
 
-`release.yml` `release-health` job now installs `cicd,wpm` and runs `cargo cicd status audit`:
+Both the `cargo-cicd` CI job (tools: `cicd,affi,wpm`) and the `release-health` job (tools:
+`cicd,wpm`) include a pre-flight step that exits non-zero if either binary is not found:
 ```yaml
-- name: Install cargo-cicd and wpm oracle
-  uses: ./.github/actions/install-cargo-tools
-  with:
-    tools: cicd,wpm
-    cache-tools: 'true'
-
-- name: Workspace doctor
-  run: cargo cicd workspace doctor
-
-- name: Process conformance gate (status audit)
-  run: cargo cicd status audit
+- name: Pre-flight — verify affi and wpm on PATH (ANDON if missing)
+  run: |
+    set -euo pipefail
+    command -v affi || (echo "ANDON: affi not found — pull the cord"; exit 1)
+    command -v wpm  || (echo "ANDON: wpm not found — pull the cord"; exit 1)
 ```
 
-The `cargo-cicd` job in `ci.yml` also runs `cargo cicd status audit` after `affidavit verify`,
-so both CI and release flows are gated. **Graceful degradation**: when `wpm` is absent, the
-verb prints `BLOCKED` and returns `Ok(())` — CI never fails on a missing binary.
+The `status audit` step runs **after** the pre-flight; by the time it executes, wpm is
+guaranteed on PATH. The BLOCKED code path inside cargo-cicd is never reached in this pipeline.
 
-**Threshold**: The wpm oracle accepts at fitness ≥ 0.95 (TRUTHFUL verdict). Below that:
-VARIANCE (warn), DECEPTIVE (block), BLOCKED (wpm unavailable, skip).
+**Oracle verdicts** (all terminal — no non-blocking states):
+- TRUTHFUL (fitness ≥ 0.95): process matches declared model → CI passes
+- VARIANCE (0.70–0.95): divergence detected → CI fails (Andon)
+- DECEPTIVE (<0.70): severe mismatch → CI fails (Andon)
 
 ---
 
 ## 5. ✅ `cargo cicd certification show` verb
 
-`src/nouns/certification.rs` implements `CertificationNoun` with a single `ShowVerb`:
+`src/nouns/certification.rs` in the cargo-cicd source implements `CertificationNoun` with a
+single `ShowVerb`:
 
 1. Reads the evidence journal (`target/cargo-cicd/evidence/events.jsonl`) via `read_journal()`
 2. Extracts unique `complete`-lifecycle commands from the journal
@@ -105,14 +107,13 @@ VARIANCE (warn), DECEPTIVE (block), BLOCKED (wpm unavailable, skip).
 4. Evaluates all ISO 26262 ASIL A requirements against executed commands via `check_requirement()`
 5. Prints both `compliance_summary()` outputs + the evidence command list
 
-The noun is registered unconditionally in `main.rs` (no feature flag needed — no external binary
-dependency). Wire into CI as a certification artifact:
+The noun is registered unconditionally in `main.rs` (no feature flag — no external binary
+dependency). Once pushed to the upstream `seanchatmangpt/cargo-cicd` repo, add to CI:
 
 ```yaml
-- name: Certification compliance summary
+- name: Certification compliance summary (IEC 61508 / ISO 26262)
   if: always()
   run: cargo cicd certification show
-  # Upload the output as a release artifact for auditors
 ```
 
 ---
@@ -137,13 +138,12 @@ cargo cicd affidavit seal
 
 cargo cicd affidavit verify
   → ACCEPT: chain is intact, no events modified post-hoc
-  → REJECT: bit-flip detected, evidence compromised
+  → REJECT: bit-flip detected, evidence compromised — CI fails (Andon)
 
-cargo cicd status audit (wpm oracle)
-  → TRUTHFUL  (fitness ≥ 0.95): process matches declared model
-  → VARIANCE  (0.70–0.95): divergence detected, non-blocking
-  → DECEPTIVE (<0.70): process severely mismatches model, blocking
-  → BLOCKED   (wpm absent): skip, non-blocking
+cargo cicd status audit (wpm oracle — wpm guaranteed on PATH by pre-flight)
+  → TRUTHFUL  (fitness ≥ 0.95): process matches declared model → pass
+  → VARIANCE  (0.70–0.95): divergence detected → CI fails (Andon)
+  → DECEPTIVE (<0.70): severe mismatch → CI fails (Andon)
 ```
 
 **Van der Aalst's 8 success criteria** and which steps satisfy them:

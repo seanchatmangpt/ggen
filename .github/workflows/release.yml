@@ -32,10 +32,19 @@ jobs:
           tools: cicd,wpm
           cache-tools: 'true'
 
+      - name: Pre-flight — verify wpm on PATH (ANDON if missing)
+        run: |
+          set -euo pipefail
+          if ! command -v wpm >/dev/null 2>&1; then
+            echo "ANDON: wpm not found after install step — pull the cord"
+            exit 1
+          fi
+          echo "wpm: $(wpm --version 2>/dev/null || which wpm)"
+
       - name: Workspace doctor
         run: cargo cicd workspace doctor
 
-      - name: Process conformance gate (status audit)
+      - name: Process conformance gate (wpm oracle)
         run: cargo cicd status audit
 
   build-release:

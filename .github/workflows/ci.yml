@@ -29,11 +29,25 @@ jobs:
           toolchain: stable
           cache-key-suffix: cicd-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install cargo-cicd and affi
+      - name: Install cargo-cicd, affi, and wpm
         uses: ./.github/actions/install-cargo-tools
         with:
-          tools: cicd,affi
+          tools: cicd,affi,wpm
           cache-tools: 'true'
+
+      - name: Pre-flight — verify affi and wpm on PATH (ANDON if missing)
+        run: |
+          set -euo pipefail
+          if ! command -v affi >/dev/null 2>&1; then
+            echo "ANDON: affi not found after install step — pull the cord"
+            exit 1
+          fi
+          if ! command -v wpm >/dev/null 2>&1; then
+            echo "ANDON: wpm not found after install step — pull the cord"
+            exit 1
+          fi
+          echo "affi: $(affi --version 2>/dev/null || which affi)"
+          echo "wpm:  $(wpm --version 2>/dev/null || which wpm)"
 
       - name: Validate pipeline preconditions
         run: cargo cicd pipeline validate
@@ -47,15 +61,11 @@ jobs:
       - name: Verify sealed receipt
         run: cargo cicd affidavit verify
 
-      - name: Process conformance audit (wpm oracle — degrades gracefully if absent)
+      - name: Process conformance gate (wpm oracle)
         run: cargo cicd status audit
 
       - name: Anti-LLM admissibility check (changed .rs files)
         run: cargo cicd lsp check
-
-      - name: Certification compliance summary (IEC 61508 / ISO 26262)
-        if: always()
-        run: cargo cicd certification show
 
       - name: Show evidence summary
         if: always()
