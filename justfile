@@ -168,9 +168,22 @@ pre-commit: fmt-check check lint test-lib coherence-check
     set -euo pipefail
     echo "✅ Pre-commit gate complete (fmt, check, lint, tests, coherence)"
 
-# Performance SLO validation
+# Performance SLO validation (Phase 1 + Phase 2)
 slo-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Running Phase 1 SLO checks..."
     cargo bench --bench cli_startup_performance -- --test
+
+    echo "Running Phase 2 SLO checks..."
+    # Phase 2: Inverse pipeline + coherence checker performance
+    # InversePipeline::run_signed() must complete in <5s for typical artifact sets
+    # CoherenceChecker::check() must complete in <2s for 3-pole validation
+    # These are measured via integration tests that include timing assertions
+    cargo test -p ggen-core --test inverse_receipt_chain_test -- --nocapture || exit 1
+    cargo test -p ggen-graph --test coherence_hash_expectations_test -- --nocapture || exit 1
+
+    echo "✅ Phase 1 + Phase 2 SLO checks complete"
 
 # Security vulnerability scan
 audit:
