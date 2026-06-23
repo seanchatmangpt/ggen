@@ -1,68 +1,63 @@
 [project]
-name = "my-ggen-project"
-version = "0.1.0"
-description = "A ggen project initialized with default templates"
-authors = ["ggen init"]
+name = "ggen"
+version = "26.6.11"
+description = "Specification-driven code generation from RDF ontologies — A = μ(O)"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
-
-# BIG BANG 80/20: Specification Closure First
-# Before using ggen, confirm:
-# 1. Do you have real user data (CSV/JSON)? Not promised—actual files.
-# 2. Can you find one existing standard ontology (schema.org, FOAF, Dublin Core, SKOS)?
-#    Should take 5 minutes. If it takes 3 months, you're building custom (wrong path).
-# 3. Can you explain your problem in one sentence? No 100-page documents.
-# 4. Has anyone (not a friend, not a co-founder) committed to this?
-#    Email, contract, payment—proof, not enthusiasm.
-# 5. Can you validate with 10 real users in 48 hours?
-#
-# If you answered NO to any of these, stop. Talk to Sean before proceeding.
+repository = "https://github.com/seanchatmangpt/ggen"
 
 [ontology]
-# REQUIRED: Path to your RDF ontology file (Turtle format)
-# Approved: schema.org, FOAF, Dublin Core, SKOS, Big Five
-# Replace with your chosen standard ontology below.
-source = "schema/domain.ttl"
-# Use standard ontologies only (BIG BANG 80/20 gate)
-standard_only = true
+source = ".specify/cli-commands.ttl"
+base_iri = "http://ggen.org/cli#"
 
-# Example: Using schema.org for e-commerce domain
-# [[ontology.pack]]
-# name = "schema-org"
-# version = "^3.13.0"
-# namespace = "https://schema.org/"
+[ontology.prefixes]
+cli     = "http://ggen.org/cli#"
+paas    = "http://ggen.org/paas#"
+rdf     = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs    = "http://www.w3.org/2000/01/rdf-schema#"
+owl     = "http://www.w3.org/2002/07/owl#"
+xsd     = "http://www.w3.org/2001/XMLSchema#"
+dcterms = "http://purl.org/dc/terms/"
+skos    = "http://www.w3.org/2004/02/skos/core#"
+
+[inference]
+
+[[inference.rules]]
+name = "command-projection"
+construct = """
+PREFIX cli:   <http://ggen.org/cli#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT {
+  ?cmd a cli:Command ;
+       rdfs:label ?label ;
+       rdfs:comment ?comment .
+}
+WHERE {
+  ?cmd a cli:Command ;
+       rdfs:label ?label .
+  OPTIONAL { ?cmd rdfs:comment ?comment . }
+}
+ORDER BY ?label
+"""
 
 [generation]
 output_dir = "."
 
-# Define inference rules (required for DMAIC quality gates)
-[inference]
-rules = [
-    { name = "standard-normalization", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
-]
-
-# Define at least one generation rule (required)
-# This example rule generates Rust structs from the Person ontology
 [[generation.rules]]
-name = "example-rule"
-# SPARQL SELECT query to extract ontology concepts
+name = "cli-commands-reference"
 query = { inline = """
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX cli:  <http://ggen.org/cli#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX schema: <https://schema.org/>
-
-SELECT ?class ?label ?comment
+SELECT ?cmd ?label ?comment
 WHERE {
-  ?class a rdfs:Class ;
-         rdfs:label ?label .
-  OPTIONAL { ?class rdfs:comment ?comment . }
+  ?cmd a cli:Command ;
+       rdfs:label ?label .
+  OPTIONAL { ?cmd rdfs:comment ?comment . }
 }
-LIMIT 10
+ORDER BY ?label
 """ }
-# Template file to render (relative to templates directory)
-template = { file = "templates/example.txt.tera" }
-# Output file path (relative to output_dir)
-output_file = "ontology-summary.txt"
-# How to handle existing output files
+template = { file = ".specify/templates/cli/help.rs.tera" }
+output_file = "crates/ggen-cli/src/generated_commands.rs"
 mode = "Overwrite"
 
 [sync]
@@ -74,13 +69,13 @@ conflict_mode = "fail"
 [rdf]
 formats = ["turtle"]
 default_format = "turtle"
-strict_validation = false
+strict_validation = true
 
 [templates]
 enable_caching = true
-auto_reload = true
+auto_reload = false
 
 [output]
 formatting = "default"
 line_length = 100
-indent = 2
+indent = 4

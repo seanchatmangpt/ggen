@@ -105,6 +105,7 @@ itertools = "0.13"
 bcinr = "26.4.22"
 urlencoding = "2.1"
 wasm4pm-compat = { version = "26.6.9", path = "../wasm4pm-compat" }
+cargo-cicd = { git = "https://github.com/seanchatmangpt/cargo-cicd", branch = "main" }
 
 rayon = "1.11"
 regex = "1.12"

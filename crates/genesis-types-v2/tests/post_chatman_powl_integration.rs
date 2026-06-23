@@ -132,7 +132,10 @@ fn test_vision_snap_loop_admission_full_flow() {
     );
     assert_eq!(report.graph_id, "vision-snap-loop-001");
     assert_eq!(report.gates.len(), 2);
-    assert!(!report.operation_id.is_empty(), "operation_id must be non-empty");
+    assert!(
+        !report.operation_id.is_empty(),
+        "operation_id must be non-empty"
+    );
 
     // Assert: evidence hashes are preserved
     assert_eq!(
@@ -172,10 +175,7 @@ fn test_partial_alive_propagates_when_one_gate_partial() {
         AdmissionStatus::PartialAlive,
         "mixed Alive + PartialAlive should compute PartialAlive"
     );
-    assert!(
-        !status.is_admitted(),
-        "PartialAlive must not be admitted"
-    );
+    assert!(!status.is_admitted(), "PartialAlive must not be admitted");
     assert!(
         status.should_continue_repair(),
         "PartialAlive must signal that repair should continue"
@@ -255,8 +255,16 @@ fn test_powl_graph_with_loop_is_structurally_valid() {
             },
         ],
         edges: vec![
-            PowlEdge { from: "start".to_string(), to: "work".to_string(), condition: None },
-            PowlEdge { from: "work".to_string(), to: "check".to_string(), condition: None },
+            PowlEdge {
+                from: "start".to_string(),
+                to: "work".to_string(),
+                condition: None,
+            },
+            PowlEdge {
+                from: "work".to_string(),
+                to: "check".to_string(),
+                condition: None,
+            },
             PowlEdge {
                 from: "check".to_string(),
                 to: "work".to_string(), // loop
@@ -283,15 +291,13 @@ fn test_powl_graph_with_loop_is_structurally_valid() {
 
 #[test]
 fn test_process_admission_report_roundtrip_json() {
-    let gates = vec![
-        GateResult {
-            gate_id: "roundtrip-gate".to_string(),
-            gate_name: "RoundtripCheck".to_string(),
-            status: AdmissionStatus::Alive,
-            detail: "all clear".to_string(),
-            evidence_hash: Some("cafe1234".to_string()),
-        },
-    ];
+    let gates = vec![GateResult {
+        gate_id: "roundtrip-gate".to_string(),
+        gate_name: "RoundtripCheck".to_string(),
+        status: AdmissionStatus::Alive,
+        detail: "all clear".to_string(),
+        evidence_hash: Some("cafe1234".to_string()),
+    }];
     let original = ProcessAdmissionReport {
         operation_id: uuid::Uuid::new_v4().to_string(),
         graph_id: "test-graph-42".to_string(),
@@ -308,10 +314,7 @@ fn test_process_admission_report_roundtrip_json() {
     assert_eq!(original.graph_id, restored.graph_id);
     assert_eq!(original.status, restored.status);
     assert_eq!(original.gates.len(), restored.gates.len());
-    assert_eq!(
-        restored.gates[0].evidence_hash.as_deref(),
-        Some("cafe1234")
-    );
+    assert_eq!(restored.gates[0].evidence_hash.as_deref(), Some("cafe1234"));
     assert_eq!(original.receipt_hash, restored.receipt_hash);
 }
 

@@ -351,7 +351,10 @@ impl ValidationError {
             ErrorKind::TooShort { min, .. } => format!("provide at least {min} items/characters"),
             ErrorKind::TooLong { max, .. } => format!("use at most {max} items/characters"),
             ErrorKind::Inconsistent { related, .. } => {
-                format!("ensure this field is consistent with: {}", related.join(", "))
+                format!(
+                    "ensure this field is consistent with: {}",
+                    related.join(", ")
+                )
             }
             ErrorKind::Predicate { .. } => self.msg.clone(),
         }
@@ -467,7 +470,11 @@ impl ValidationErrors {
         if self.checks_run == 0 {
             return 1.0;
         }
-        let failed = self.errors.iter().filter(|e| e.severity >= Severity::Error).count();
+        let failed = self
+            .errors
+            .iter()
+            .filter(|e| e.severity >= Severity::Error)
+            .count();
         let passed = self.checks_run.saturating_sub(failed);
         passed as f64 / self.checks_run as f64
     }
@@ -618,10 +625,7 @@ impl Validator {
 
     /// Record an error at the current location, capturing an offending value.
     pub fn error_with(
-        &mut self,
-        kind: ErrorKind,
-        input: impl fmt::Display,
-        msg: impl Into<String>,
+        &mut self, kind: ErrorKind, input: impl fmt::Display, msg: impl Into<String>,
     ) {
         self.record(kind, Some(input.to_string()), msg.into());
     }
@@ -680,11 +684,7 @@ impl Validator {
     ///
     /// The escape hatch for arbitrary domain rules.
     pub fn check_predicate(
-        &mut self,
-        field: &str,
-        passed: bool,
-        code: &'static str,
-        msg: impl Into<String>,
+        &mut self, field: &str, passed: bool, code: &'static str, msg: impl Into<String>,
     ) {
         self.checks_run += 1;
         if !passed {
@@ -722,12 +722,8 @@ impl Validator {
     /// assert_eq!(errs.errors()[0].code(), "tls_cert_required");
     /// ```
     pub fn check_consistent(
-        &mut self,
-        primary_field: &str,
-        related_fields: &[&str],
-        condition: bool,
-        code: &'static str,
-        msg: impl Into<String>,
+        &mut self, primary_field: &str, related_fields: &[&str], condition: bool,
+        code: &'static str, msg: impl Into<String>,
     ) {
         self.checks_run += 1;
         if !condition {
@@ -1054,7 +1050,11 @@ mod tests {
                 });
             }
         }
-        let errs = Cfg { log_dir: String::new() }.check().unwrap_err();
+        let errs = Cfg {
+            log_dir: String::new(),
+        }
+        .check()
+        .unwrap_err();
         assert_eq!(errs.errors()[0].severity, Severity::Warning);
         assert!(!errs.has_fatal());
     }

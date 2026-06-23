@@ -18,6 +18,7 @@ use std::collections::BTreeSet;
 use std::fmt;
 
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
+pub use mtlx_analyzer::{MtlxAnalyzer, GGEN_MTLX_001};
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use source_law_analyzer::{do_not_edit_diagnostics, GGEN_SRC_002, GGEN_SRC_003};
 pub use sparql_analyzer::SparqlAnalyzer;
@@ -28,7 +29,6 @@ pub use tera_analyzer::{
     TeraAnalyzer, GGEN_OUT_001, GGEN_PACK_001, GGEN_QUERY_002, GGEN_RULE_001, GGEN_TPL_001,
     GGEN_YIELD_001, GGEN_YIELD_003, GGEN_YIELD_004, GGEN_YIELD_005,
 };
-pub use mtlx_analyzer::{MtlxAnalyzer, GGEN_MTLX_001};
 pub use toml_analyzer::{source_caste_path_violation, TomlAnalyzer, GGEN_SRC_001};
 pub use usd_analyzer::{UsdAnalyzer, GGEN_USD_001, GGEN_USD_002, GGEN_USD_003};
 
