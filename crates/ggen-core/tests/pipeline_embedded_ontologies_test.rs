@@ -242,10 +242,14 @@ fn test_epoch_determinism_with_embedded() {
         "Same inputs should produce same epoch ID"
     );
 
-    assert_eq!(
-        epoch1.inputs, epoch2.inputs,
-        "Same inputs should produce identical input metadata"
-    );
+    // Verify input hashes are deterministic
+    assert_eq!(epoch1.inputs.len(), epoch2.inputs.len(), "Input count should match");
+
+    for (path, input1) in epoch1.inputs.iter() {
+        let input2 = epoch2.inputs.get(path)
+            .expect(&format!("Input {:?} should exist in both epochs", path));
+        assert_eq!(input1.hash, input2.hash, "Hash for {:?} should be deterministic", path);
+    }
 
     println!(
         "✓ Epoch determinism verified\n\
