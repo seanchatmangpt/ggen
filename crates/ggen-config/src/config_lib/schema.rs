@@ -10,6 +10,7 @@ use std::collections::HashMap;
 /// `PartialEq` without Eq: Contains nested config structs via composition
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct GgenConfig {
     /// Project metadata
     pub project: ProjectConfig,

@@ -343,7 +343,7 @@ Current ggen workflow requires manual specification authoring in RDF/Turtle synt
 
 Use neural networks to extract semantic information from code:
 
-\begin{definition}[Code Embedding]}
+\begin{definition}[Code Embedding]
     For code snippet $C$, compute embedding $e \in \mathbb{R}^d$:
     \begin{equation}
         e = \text{CodeBERT}(C)
@@ -382,7 +382,7 @@ RDF/Turtle syntax is powerful but intimidating. Can we support multiple specific
 
 \subsubsection{Multi-Modal Pipeline}
 
-\begin{theorem}[Multi-Modal Equivalence]}
+\begin{theorem}[Multi-Modal Equivalence]
     For specification inputs $I_1, I_2, \ldots, I_n$ in different modalities (text, diagram, code), if semantic equivalence holds:
     \begin{equation}
         \text{Meaning}(I_1) = \text{Meaning}(I_2) = \cdots = \text{Meaning}(I_n)
@@ -446,7 +446,7 @@ Extract specifications from UI mockups and wireframes:
 
 Learn from examples instead of explicit specification:
 
-\begin{definition}[Inductive Specification]}
+\begin{definition}[Inductive Specification]
     Given examples $E = \{(input_1, output_1), \ldots, (input_n, output_n)\}$, find specification $O$ such that:
     \begin{equation}
         \forall (i, o) \in E: \mu(O)(i) = o
@@ -513,7 +513,7 @@ Large systems require multiple stakeholders to agree on specifications. How do w
 
 \subsubsection{Conflict Resolution}
 
-\begin{definition}[Specification Conflict]}
+\begin{definition}[Specification Conflict]
     Two proposals $P_1, P_2$ conflict if:
     \begin{equation}
         \exists t \in P_1.triples, t' \in P_2.triples : \text{Conflicts}(t, t')
@@ -533,7 +533,7 @@ Large systems require multiple stakeholders to agree on specifications. How do w
 
 Enable specification trading and licensing:
 
-\begin{definition}[Specification NFT]}
+\begin{definition}[Specification NFT]
     A specification NFT represents ownership:
     \begin{equation}
         NFT = (O_{content}, owner, license, price)
@@ -559,7 +559,7 @@ Software requirements evolve. Specifications must evolve with them while maintai
 
 \subsubsection{Semantic Versioning for Specifications}
 
-\begin{definition}[Specification SemVer]}
+\begin{definition}[Specification SemVer]
     Specification version $v = M.m.p$ where:
     \begin{itemize}
         \item $M$ (Major): Breaking changes (remove entities, change types)
@@ -568,7 +568,7 @@ Software requirements evolve. Specifications must evolve with them while maintai
     \end{itemize}
 \end{definition}
 
-\begin{theorem}[Backward Compatibility]}
+\begin{theorem}[Backward Compatibility]
     If $O_1$ (version $1.0.0$) and $O_2$ (version $1.1.0$) differ only by additive changes, then:
     \begin{equation}
         \mu(O_1) \subseteq \mu(O_2)
@@ -606,7 +606,7 @@ Software requirements evolve. Specifications must evolve with them while maintai
 
 Specifications evolve under selective pressure:
 
-\begin{definition}[Specification Fitness]}
+\begin{definition}[Specification Fitness]
     Fitness function $f(O)$ measures:
     \begin{equation}
         f(O) = w_1 \cdot \text{Coverage}(O) + w_2 \cdot \text{Precision}(O) + w_3 \cdot \frac{1}{\text{Complexity}(O)}
@@ -640,7 +640,7 @@ Current ggen assumes static specifications. Can specifications evolve in real-ti
 
 \subsubsection{Hot-Reload Specifications}
 
-\begin{theorem}[Hot-Reload Safety]}
+\begin{theorem}[Hot-Reload Safety]
     If specification change $\Delta$ from $O_{old}$ to $O_{new}$ satisfies:
     \begin{enumerate}
         \item No breaking changes to active entities
@@ -698,7 +698,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
 
 \subsubsection{Specification Composition Operators}
 
-\begin{definition}[Specification Union]}
+\begin{definition}[Specification Union]
     For specifications $O_1, O_2$, the union $O = O_1 \cup O_2$ is:
     \begin{equation}
         O = \{t \mid t \in O_1 \lor t \in O_2\}
@@ -706,7 +706,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
     provided namespace conflicts are resolved.
 \end{definition}
 
-\begin{definition}[Specification Intersection]}
+\begin{definition}[Specification Intersection]
     The intersection $O = O_1 \cap O_2$ captures shared concepts:
     \begin{equation}
         O = \{t \mid t \in O_1 \land t \in O_2\}
@@ -714,7 +714,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
     Useful for identifying integration points.
 \end{definition}
 
-\begin{definition}[Specification Difference]}
+\begin{definition}[Specification Difference]
     The difference $O = O_1 \setminus O_2$ removes $O_2$ concepts from $O_1$:
     \begin{equation}
         O = \{t \mid t \in O_1 \land t \notin O_2\}
@@ -724,7 +724,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
 
 \subsubsection{Composition Theorems}
 
-\begin{theorem}[Composition Preservation]}
+\begin{theorem}[Composition Preservation]
     If $O_1, O_2$ achieve ontological closure, then:
     \begin{equation}
         \mu(O_1 \cup O_2) = \mu(O_1) \cup \mu(O_2)
@@ -732,7 +732,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
     Generation distributes over union.
 \end{theorem}
 
-\begin{theorem}[Type Preservation Under Composition]}
+\begin{theorem}[Type Preservation Under Composition]
     If $O_1 \models \Sigma_1$ and $O_2 \models \Sigma_2$ (type signatures), then:
     \begin{equation}
         O_1 \cup O_2 \models \Sigma_1 \cup \Sigma_2
@@ -744,7 +744,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
 
 Compose cross-cutting concerns:
 
-\begin{definition}[Aspect Specification]}
+\begin{definition}[Aspect Specification]
     An aspect $A = (P, A)$ where:
     \begin{itemize}
         \item $P$ is pointcut (where to apply)
@@ -770,7 +770,7 @@ How do we verify specifications are correct, complete, and consistent?
 
 \subsubsection{Specification Satisfiability}
 
-\begin{definition}[Satisfiable Specification]}
+\begin{definition}[Satisfiable Specification]
     Specification $O$ is satisfiable if there exists at least one model $M$ such that:
     \begin{equation}
         M \models O
@@ -799,7 +799,7 @@ How do we verify specifications are correct, complete, and consistent?
 
 \subsubsection{Consistency Checking}
 
-\begin{definition}[Consistent Specification]}
+\begin{definition}[Consistent Specification]
     Specification $O$ is consistent if it contains no contradictions:
     \begin{equation}
         \nexists t_1, t_2 \in O : t_1 = (s, p, o) \land t_2 = (s, p, o') \land o \neq o'
@@ -850,7 +850,7 @@ Fully automated generation can produce technically correct but aesthetically poo
 
 \subsubsection{Preference Injection}
 
-\begin{definition}[Preference-Guided Generation]}
+\begin{definition}[Preference-Guided Generation]
     Let $P$ be a set of human preferences (naming conventions, style rules, optimization targets). Preference-guided generation:
     \begin{equation}
         \mu_P(O) = \text{argmin}_{A \in \{A' \mid A' = \mu(O)\}} \text{Cost}(A, P)
@@ -893,7 +893,7 @@ Fully automated generation can produce technically correct but aesthetically poo
 
 Provide explanations for generation decisions:
 
-\begin{definition}[Generation Provenance]}
+\begin{definition}[Generation Provenance]
     For generated artifact $A$, provenance $P$ traces:
     \begin{equation}
         P = \{(a, o) \mid a \in A, o \in O, a \text{ derived from } o\}
@@ -918,7 +918,7 @@ Can we learn specification patterns from one domain and apply them to another?
 
 \subsubsection{Domain Adaptation}
 
-\begin{definition}[Specification Pattern]}
+\begin{definition}[Specification Pattern]
     A pattern $\Pi = (Template, Constraints)$ where:
     \begin{itemize}
         \item $Template$ is a parametrized RDF structure
@@ -962,7 +962,7 @@ Can we learn specification patterns from one domain and apply them to another?
 
 Learn how to learn specifications:
 
-\begin{definition}[Meta-Specification]}
+\begin{definition}[Meta-Specification]
     A meta-specification $\mathcal{M}$ defines:
     \begin{equation}
         \mathcal{M}: \mathcal{D} \rightarrow \mathcal{O}
@@ -997,7 +997,7 @@ How do we measure specification quality beyond ontological closure?
 
 \subsubsection{Quality Metrics}
 
-\begin{definition}[Specification Complexity]}
+\begin{definition}[Specification Complexity]
     \begin{equation}
         \text{Complexity}(O) = \alpha \cdot |O| + \beta \cdot H(O) + \gamma \cdot D(O)
     \end{equation}
@@ -1010,14 +1010,14 @@ How do we measure specification quality beyond ontological closure?
     \end{itemize}
 \end{definition}
 
-\begin{definition}[Specification Cohesion]}
+\begin{definition}[Specification Cohesion]
     \begin{equation}
         \text{Cohesion}(O) = \frac{\text{InternalReferences}(O)}{\text{TotalReferences}(O)}
     \end{equation}
     High cohesion means entities reference others in same domain.
 \end{definition}
 
-\begin{definition}[Specification Coupling]}
+\begin{definition}[Specification Coupling]
     \begin{equation}
         \text{Coupling}(O) = \frac{\text{ExternalReferences}(O)}{\text{TotalReferences}(O)}
     \end{equation}
@@ -1026,7 +1026,7 @@ How do we measure specification quality beyond ontological closure?
 
 \subsubsection{Predictive Validity}
 
-\begin{theorem}[Metrics Predict Generation Success]}
+\begin{theorem}[Metrics Predict Generation Success]
     For specifications $O_1, O_2, \ldots, O_n$ with generation outcomes $S_1, S_2, \ldots, S_n$ (success/failure), there exists a predictor:
     \begin{equation}
         P(O) = \sigma\left(\sum_{i} w_i \cdot M_i(O)\right)
@@ -1068,7 +1068,7 @@ RDF/Turtle syntax is powerful but intimidating. Can we support multiple specific
 
 \subsubsection{Multi-Modal Pipeline}
 
-\begin{theorem}[Multi-Modal Equivalence]}
+\begin{theorem}[Multi-Modal Equivalence]
     For specification inputs $I_1, I_2, \ldots, I_n$ in different modalities (text, diagram, code), if semantic equivalence holds:
     \begin{equation}
         \text{Meaning}(I_1) = \text{Meaning}(I_2) = \cdots = \text{Meaning}(I_n)
@@ -1112,7 +1112,7 @@ Output RDF:
 
 Extract structure from UML, ER diagrams, entity-relationship diagrams:
 
-\begin{definition}[Diagram Extraction]}
+\begin{definition}[Diagram Extraction]
     For diagram $D$ with entities $E$ and edges $R$:
     \begin{equation}
         O = \{(e_1, r, e_2) \mid e_1, e_2 \in E, r \in R\}
@@ -1163,7 +1163,7 @@ Large systems require multiple stakeholders to agree on specifications. How do w
 
 \subsubsection{Conflict Resolution}
 
-\begin{definition}[Specification Conflict]}
+\begin{definition}[Specification Conflict]
     Two proposals $P_1, P_2$ conflict if:
     \begin{equation}
         \exists t \in P_1.triples, t' \in P_2.triples : \text{Conflicts}(t, t')
@@ -1189,7 +1189,7 @@ Software requirements evolve. Specifications must evolve with them while maintai
 
 \subsubsection{Semantic Versioning for Specifications}
 
-\begin{definition}[Specification SemVer]}
+\begin{definition}[Specification SemVer]
     Specification version $v = M.m.p$ where:
     \begin{itemize}
         \item $M$ (Major): Breaking changes (remove entities, change types)
@@ -1198,7 +1198,7 @@ Software requirements evolve. Specifications must evolve with them while maintai
     \end{itemize}
 \end{definition}
 
-\begin{theorem}[Backward Compatibility]}
+\begin{theorem}[Backward Compatibility]
     If $O_1$ (version $1.0.0$) and $O_2$ (version $1.1.0$) differ only by additive changes, then:
     \begin{equation}
         \mu(O_1) \subseteq \mu(O_2)
@@ -1242,7 +1242,7 @@ Current ggen assumes static specifications. Can specifications evolve in real-ti
 
 \subsubsection{Hot-Reload Specifications}
 
-\begin{theorem}[Hot-Reload Safety]}
+\begin{theorem}[Hot-Reload Safety]
     If specification change $\Delta$ from $O_{old}$ to $O_{new}$ satisfies:
     \begin{enumerate}
         \item No breaking changes to active entities
@@ -1274,7 +1274,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
 
 \subsubsection{Specification Composition Operators}
 
-\begin{definition}[Specification Union]}
+\begin{definition}[Specification Union]
     For specifications $O_1, O_2$, the union $O = O_1 \cup O_2$ is:
     \begin{equation}
         O = \{t \mid t \in O_1 \lor t \in O_2\}
@@ -1282,7 +1282,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
     provided namespace conflicts are resolved.
 \end{definition}
 
-\begin{definition}[Specification Intersection]}
+\begin{definition}[Specification Intersection]
     The intersection $O = O_1 \cap O_2$ captures shared concepts:
     \begin{equation}
         O = \{t \mid t \in O_1 \land t \in O_2\}
@@ -1290,7 +1290,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
     Useful for identifying integration points.
 \end{definition}
 
-\begin{definition}[Specification Difference]}
+\begin{definition}[Specification Difference]
     The difference $O = O_1 \setminus O_2$ removes $O_2$ concepts from $O_1$:
     \begin{equation}
         O = \{t \mid t \in O_1 \land t \notin O_2\}
@@ -1300,7 +1300,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
 
 \subsubsection{Composition Theorems}
 
-\begin{theorem}[Composition Preservation]}
+\begin{theorem}[Composition Preservation]
     If $O_1, O_2$ achieve ontological closure, then:
     \begin{equation}
         \mu(O_1 \cup O_2) = \mu(O_1) \cup \mu(O_2)
@@ -1308,7 +1308,7 @@ Large systems are composed of subsystems. Can specifications compose modularly?
     Generation distributes over union.
 \end{theorem}
 
-\begin{theorem}[Type Preservation Under Composition]}
+\begin{theorem}[Type Preservation Under Composition]
     If $O_1 \models \Sigma_1$ and $O_2 \models \Sigma_2$ (type signatures), then:
     \begin{equation}
         O_1 \cup O_2 \models \Sigma_1 \cup \Sigma_2
@@ -1326,7 +1326,7 @@ How do we verify specifications are correct, complete, and consistent?
 
 \subsubsection{Specification Satisfiability}
 
-\begin{definition}[Satisfiable Specification]}
+\begin{definition}[Satisfiable Specification]
     Specification $O$ is satisfiable if there exists at least one model $M$ such that:
     \begin{equation}
         M \models O
@@ -1355,7 +1355,7 @@ How do we verify specifications are correct, complete, and consistent?
 
 \subsubsection{Consistency Checking}
 
-\begin{definition}[Consistent Specification]}
+\begin{definition}[Consistent Specification]
     Specification $O$ is consistent if it contains no contradictions:
     \begin{equation}
         \nexists t_1, t_2 \in O : t_1 = (s, p, o) \land t_2 = (s, p, o') \land o \neq o'
@@ -1381,7 +1381,7 @@ Fully automated generation can produce technically correct but aesthetically poo
 
 \subsubsection{Preference Injection}
 
-\begin{definition}[Preference-Guided Generation]}
+\begin{definition}[Preference-Guided Generation]
     Let $P$ be a set of human preferences (naming conventions, style rules, optimization targets). Preference-guided generation:
     \begin{equation}
         \mu_P(O) = \text{argmin}_{A \in \{A' \mid A' = \mu(O)\}} \text{Cost}(A, P)
@@ -1430,7 +1430,7 @@ Can we learn specification patterns from one domain and apply them to another?
 
 \subsubsection{Domain Adaptation}
 
-\begin{definition}[Specification Pattern]}
+\begin{definition}[Specification Pattern]
     A pattern $\Pi = (Template, Constraints)$ where:
     \begin{itemize}
         \item $Template$ is a parametrized RDF structure
@@ -1480,7 +1480,7 @@ How do we measure specification quality beyond ontological closure?
 
 \subsubsection{Quality Metrics}
 
-\begin{definition}[Specification Complexity]}
+\begin{definition}[Specification Complexity]
     \begin{equation}
         \text{Complexity}(O) = \alpha \cdot |O| + \beta \cdot H(O) + \gamma \cdot D(O)
     \end{equation}
@@ -1493,14 +1493,14 @@ How do we measure specification quality beyond ontological closure?
     \end{itemize}
 \end{definition}
 
-\begin{definition}[Specification Cohesion]}
+\begin{definition}[Specification Cohesion]
     \begin{equation}
         \text{Cohesion}(O) = \frac{\text{InternalReferences}(O)}{\text{TotalReferences}(O)}
     \end{equation}
     High cohesion means entities reference others in same domain.
 \end{definition}
 
-\begin{definition}[Specification Coupling]}
+\begin{definition}[Specification Coupling]
     \begin{equation}
         \text{Coupling}(O) = \frac{\text{ExternalReferences}(O)}{\text{TotalReferences}(O)}
     \end{equation}
@@ -1509,7 +1509,7 @@ How do we measure specification quality beyond ontological closure?
 
 \subsubsection{Predictive Validity}
 
-\begin{theorem}[Metrics Predict Generation Success]}
+\begin{theorem}[Metrics Predict Generation Success]
     For specifications $O_1, O_2, \ldots, O_n$ with generation outcomes $S_1, S_2, \ldots, S_n$ (success/failure), there exists a predictor:
     \begin{equation}
         P(O) = \sigma\left(\sum_{i} w_i \cdot M_i(O)\right)
@@ -1637,7 +1637,7 @@ Open source currently shares:
 \textbf{Current}: Fork code, modify implementation, maintain forever \\
 \textbf{Future}: Fork spec, regenerate, merge upstream improvements
 
-\begin{theorem}[Specification Merge]}
+\begin{theorem}[Specification Merge]
     If $O_{fork} = O_{upstream} \cup \Delta_{local}$ and $O_{upstream}' = O_{upstream} \cup \Delta_{upstream}$, then:
     \begin{equation}
         O_{merged} = O_{upstream}' \cup \Delta_{local}
@@ -1690,7 +1690,7 @@ Open source currently shares:
     \item Cryptographic proof of alignment
 \end{itemize}
 
-\begin{definition}[Verified AI Agent]}
+\begin{definition}[Verified AI Agent]
     AI agent $A$ is verified if:
     \begin{enumerate}
         \item Specification $O$ defines safe behavior region $B$

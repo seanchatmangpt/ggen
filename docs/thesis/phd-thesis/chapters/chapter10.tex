@@ -47,7 +47,7 @@ class GeneratedModel(nn.Module):
 
 \subsection{Deterministic Initialization}
 
-\begin{theorem}[Reproducible Training]}
+\begin{theorem}[Reproducible Training]
     If random seed is specified in RDF, training is reproducible.
 \end{theorem}
 
@@ -189,7 +189,7 @@ Java & classes, interfaces \\
 
 \subsection{Language Idiom Preservation}
 
-\begin{theorem}[Idiom Preservation]}
+\begin{theorem}[Idiom Preservation]
     Generated code follows language-specific idioms.
 \end{theorem}
 
@@ -206,7 +206,7 @@ Java & classes, interfaces \\
 
 \subsection{Cross-Language Type Safety}
 
-\begin{definition}[Type Equivalence]}
+\begin{definition}[Type Equivalence]
     Types \(T_1\) (Language 1) and \(T_2\) (Language 2) are equivalent if:
     \begin{equation}
         \text{serialize}(T_1) = \text{serialize}(T_2)
@@ -303,7 +303,7 @@ The key insight is that most specification changes affect only a small subset of
 
 Each pipeline stage can execute concurrently on different entity subsets while maintaining global determinism through careful ordering.
 
-\begin{theorem}[Parallel Determinism]}
+\begin{theorem}[Parallel Determinism]
     If pipeline stages $\mu_1, \mu_2, \mu_3, \mu_4, \mu_5$ are deterministic and entity sets $E_1, E_2, \ldots, E_n$ are disjoint, then:
     \begin{equation}
         \bigoplus_{i=1}^{n} \mu(E_i) = \mu\left(\bigcup_{i=1}^{n} E_i\right)
@@ -348,7 +348,7 @@ For petabyte-scale ontologies spanning millions of entities, distributed generat
 
 Byzantine fault tolerance ensures correct generation even if some workers fail or produce incorrect results.
 
-\begin{theorem}[Byzantine Fault Tolerance for Generation]}
+\begin{theorem}[Byzantine Fault Tolerance for Generation]
     With $3f+1$ workers and $f$ faulty workers, consensus protocol guarantees correct generation result.
 \end{theorem}
 
@@ -410,7 +410,7 @@ Frequently accessed SPARQL queries are pre-computed and cached:
 
 RDFS/OWL reasoning is expensive ($O(n^3)$ for full closure). Incremental reasoning computes only the delta:
 
-\begin{theorem}[Incremental Reasoning Correctness]}
+\begin{theorem}[Incremental Reasoning Correctness]
     If $C_{old}$ is the reasoning closure of $O_{old}$ and $\Delta$ is the set of new triples, then:
     \begin{equation}
         C_{new} = C_{old} \cup \text{Reason}(\Delta \cup \text{Affected}(C_{old}, \Delta))
@@ -474,7 +474,7 @@ impl AccessControl {
 
 Generate Software Bill of Materials (SBOM) automatically from specifications:
 
-\begin{definition}[Specification-Derived SBOM]}
+\begin{definition}[Specification-Derived SBOM]
     For ontology $O$ and generated artifacts $A = \mu(O)$, the SBOM is:
     \begin{equation}
         \text{SBOM}(O, A) = \{(o, a, h) \mid o \in O, a \in A, h = \text{hash}(a)\}
@@ -621,7 +621,7 @@ pub extern "C" fn user_data_free(ptr: *mut UserData) {
 
 Generate WebAssembly modules from RDF for browser execution:
 
-\begin{theorem}[WASM Determinism]}
+\begin{theorem}[WASM Determinism]
     If RDF ontology $O$ is deterministic, then generated WASM module $W = \mu_{WASM}(O)$ produces identical execution across all platforms.
 \end{theorem}
 
@@ -697,7 +697,7 @@ The OSIRIS supervisor system monitors generated code performance and triggers re
 
 Generate Coq proofs of type safety and correctness alongside code:
 
-\begin{theorem}[Automated Proof Generation]}
+\begin{theorem}[Automated Proof Generation]
     For ontology $O$ with type signature $\Sigma$, the generation pipeline produces:
     \begin{enumerate}
         \item Generated code $A = \mu(O)$
@@ -749,7 +749,7 @@ Generate Promela models for SPIN model checker:
 
 Templates can compose hierarchically for complex artifact generation:
 
-\begin{definition}[Template Composition]}
+\begin{definition}[Template Composition]
     For templates $T_1, T_2, \ldots, T_n$, the composition $T = T_1 \circ T_2 \circ \cdots \circ T_n$ is defined by:
     \begin{equation}
         T(data) = T_n(T_{n-1}(\cdots T_2(T_1(data))\cdots))
@@ -789,7 +789,7 @@ pub metadata: EntityMetadata,  {# Add field #}
 
 Generate specialized templates for different domains:
 
-\begin{theorem}[Template Specialization Correctness]}
+\begin{theorem}[Template Specialization Correctness]
     If base template $T_{base}$ generates correct code for domain $D$, and specialized template $T_{spec}$ refines $T_{base}$ for subdomain $S \subseteq D$, then $T_{spec}$ generates correct code for $S$.
 \end{theorem}
 
@@ -807,7 +807,7 @@ Generate specialized templates for different domains:
 
 Generate quantum-resistant cryptographic primitives:
 
-\begin{definition}[Quantum-Safe Receipt]}
+\begin{definition}[Quantum-Safe Receipt]
     Replace classical signatures with post-quantum signatures:
     \begin{equation}
         receipt.sig = \text{Sign}_{Dilithium}(H_O \| H_A)
@@ -847,7 +847,7 @@ Generate quantum algorithm implementations from specifications:
 
 Generate neural network architectures optimized for specific tasks:
 
-\begin{definition}[Architecture Specification]}
+\begin{definition}[Architecture Specification]
     RDF specification defines:
     \begin{itemize}
         \item Input tensor shape and data type
@@ -882,7 +882,7 @@ class GeneratedModel(nn.Module):
 
 Specify training procedure with reproducible results:
 
-\begin{theorem}[Deterministic Training]}
+\begin{theorem}[Deterministic Training]
     If training specification includes:
     \begin{enumerate}
         \item Random seed for weight initialization
@@ -944,7 +944,7 @@ Generate formal verification of model properties:
 
 Generate hyperparameter search procedures from specifications:
 
-\begin{definition}[Hyperparameter Space]}
+\begin{definition}[Hyperparameter Space]
     For model $M$, the hyperparameter space $\mathcal{H}$ is the Cartesian product of all hyperparameter domains:
     \begin{equation}
         \mathcal{H} = \prod_{i=1}^{n} [h_i^{min}, h_i^{max}]
@@ -1011,7 +1011,7 @@ def optimize_hyperparameters(
 
 Generate data augmentation pipelines from specifications:
 
-\begin{theorem}[Augmentation Correctness]}
+\begin{theorem}[Augmentation Correctness]
     If augmentation specification $\mathcal{A}$ preserves label semantics, then:
     \begin{equation}
         \forall (x, y) \in \mathcal{D}: \text{label}(\mathcal{A}(x)) = \text{label}(x) = y
@@ -1058,7 +1058,7 @@ class ImageAugmentation:
 
 Generate compressed models for deployment:
 
-\begin{definition}[Model Compression]}
+\begin{definition}[Model Compression]
     For model $M$ with parameters $\theta$, compression produces $M'$ with:
     \begin{equation}
         |\theta'| < |\theta| \land \text{Accuracy}(M') \geq \text{Accuracy}(M) - \epsilon
@@ -1119,7 +1119,7 @@ Generate federated learning protocols for privacy-preserving training:
 
 \textbf{Privacy Guarantees}:
 
-\begin{theorem}[Differential Privacy in Federated Learning]}
+\begin{theorem}[Differential Privacy in Federated Learning]
     If client updates are clipped with threshold $C$ and noise with scale $\sigma$ is added:
     \begin{equation}
         \epsilon = \frac{C \sqrt{2 \log(1.25/\delta)}}{\sigma}
@@ -1169,7 +1169,7 @@ class FederatedClient:
 
 Generate explanations for model predictions:
 
-\begin{definition}[Attribution-Based Explanation]}
+\begin{definition}[Attribution-Based Explanation]
     For input $x$ and prediction $\hat{y}$, attribution $A(x, \hat{y})$ assigns importance score to each feature:
     \begin{equation}
         A_i = \frac{\partial \hat{y}}{\partial x_i}
@@ -1217,7 +1217,7 @@ class ModelExplainer:
 
 Generate models that learn continuously without catastrophic forgetting:
 
-\begin{theorem}[Elastic Weight Consolidation]}
+\begin{theorem}[Elastic Weight Consolidation]
     To prevent forgetting, penalize changes to important parameters:
     \begin{equation}
         \mathcal{L}_{EWC} = \mathcal{L}_{new} + \frac{\lambda}{2} \sum_i F_i (\theta_i - \theta^*_{A,i})^2
@@ -1280,7 +1280,7 @@ class ContinualLearner:
 
 Generate models that learn how to learn:
 
-\begin{definition}[MAML (Model-Agnostic Meta-Learning)}
+\begin{definition}[MAML (Model-Agnostic Meta-Learning)]
     Meta-learner finds initialization $\theta$ such that:
     \begin{equation}
         \theta^* = \arg\min_{\theta} \sum_{\tau_i \sim p(\tau)} \mathcal{L}_{\tau_i}(U_{\tau_i}(\theta))
@@ -1313,7 +1313,7 @@ Generate models that learn how to learn:
 
 Generate domain-specific languages tailored to specific domains:
 
-\begin{theorem}[DSL Type Safety]}
+\begin{theorem}[DSL Type Safety]
     If RDF ontology $O$ defines type-safe operations, then generated DSL $D = \mu_{DSL}(O)$ guarantees type safety via the Curry-Howard correspondence:
     \begin{equation}
         \text{Types}(D) \leftrightarrow \text{Propositions}(O)
@@ -1354,7 +1354,7 @@ impl FinancialTransaction for Transfer {
 
 Multiple DSLs compose for complex domains:
 
-\begin{definition}[DSL Product]}
+\begin{definition}[DSL Product]
     For DSLs $D_1, D_2, \ldots, D_n$, the product DSL $D = D_1 \times D_2 \times \cdots \times D_n$ combines their syntax and semantics:
     \begin{equation}
         \text{Lang}(D) = \bigcup_{i=1}^{n} \text{Lang}(D_i)
@@ -1378,7 +1378,7 @@ Multiple DSLs compose for complex domains:
 
 Generate autonomous agent systems with coordination primitives:
 
-\begin{definition}[Agent Specification]}
+\begin{definition}[Agent Specification]
     An agent specification $\mathcal{A} = (S, A, T, \delta)$ where:
     \begin{itemize}
         \item $S$ is the state space
@@ -1470,7 +1470,7 @@ Generate coordination mechanisms for multiple agents:
 
 Generate Byzantine-resilient agent systems:
 
-\begin{theorem}[Byzantine Agreement]}
+\begin{theorem}[Byzantine Agreement]
     With $3f+1$ agents and at most $f$ faulty agents, the consensus protocol guarantees agreement.
 \end{theorem}
 
@@ -1658,7 +1658,7 @@ impl HealthMonitor {
 
 Generate swarm-based optimization algorithms:
 
-\begin{definition}[Particle Swarm Optimization]}
+\begin{definition}[Particle Swarm Optimization]
     For $N$ particles searching in $D$-dimensional space:
     \begin{equation}
         v_{i}^{t+1} = w v_{i}^{t} + c_1 r_1 (p_{i,best} - x_{i}^{t}) + c_2 r_2 (g_{best} - x_{i}^{t})
@@ -1704,7 +1704,7 @@ Generate swarm-based optimization algorithms:
 
 Generate RL agents with exploration strategies:
 
-\begin{definition}[Markov Decision Process]}
+\begin{definition}[Markov Decision Process]
     An MDP is a tuple $(\mathcal{S}, \mathcal{A}, P, R, \gamma)$ where:
     \begin{itemize}
         \item $\mathcal{S}$ is state space
@@ -1779,7 +1779,7 @@ where
 
 Generate blockchain-based systems for specification version control:
 
-\begin{definition}[Specification Transaction]}
+\begin{definition}[Specification Transaction]
     A specification transaction $T = (O_{prev}, O_{new}, sig, ts)$ where:
     \begin{itemize}
         \item $O_{prev}$ is previous specification hash
@@ -1864,7 +1864,7 @@ contract SpecificationRegistry {
 
 Store generation receipts on blockchain for auditability:
 
-\begin{definition}[Blockchain Receipt]}
+\begin{definition}[Blockchain Receipt]
     A receipt $R$ stored on blockchain contains:
     \begin{equation}
         R = (H_O, H_A, \text{sig}, \text{timestamp}, \text{block\_number})
@@ -1905,7 +1905,7 @@ Use IPFS for distributed specification storage:
 
 Generate code at runtime for performance-critical paths:
 
-\begin{theorem}[JIT Generation Correctness]}
+\begin{theorem}[JIT Generation Correctness]
     If runtime specification $O_{runtime}$ is consistent with compile-time specification $O_{static}$:
     \begin{equation}
         O_{runtime} \supseteq O_{static}
@@ -1934,7 +1934,7 @@ Generate code at runtime for performance-critical paths:
 
 Generate GPU/TPU-optimized code for compute-intensive tasks:
 
-\begin{definition}[Kernel Specification]}
+\begin{definition}[Kernel Specification]
     GPU kernel specification $K$ includes:
     \begin{itemize}
         \item Thread block configuration (blockDim, gridDim)
