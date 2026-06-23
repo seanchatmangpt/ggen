@@ -18,11 +18,16 @@ fake success).
 | Facade (library API) | `ggen_core::agent` (`PackAgent`) | The single authoritative agent entry point. Wraps the existing install / lockfile / receipt pipeline; returns structured [`agent::types`] outcomes. |
 | MCP tools | `ggen_a2a_mcp::mcp_server` (`GgenMcpServer`) | `ggen.packs.*` tools registered on the MCP server, alongside `ggen.construct`. |
 | A2A adapter | `ggen_a2a_mcp::mcp_packs::PackToolsAdapter` | Exposes the same operations over the A2A `Adapter` trait + an agent card. |
+| CLI noun | `ggen_cli::cmds::agent` (`ggen agent <verb>`) | The same operations as `ggen` subcommands, each emitting structured JSON (`--format json`) an agent can parse and chain. |
 
-The MCP tools and the A2A adapter both call the **same** pure result functions in
-`ggen_a2a_mcp::mcp_packs` (`search_result`, `install_result`, …), which in turn
-call `PackAgent`. There is exactly one implementation of each operation, so the
-three surfaces (library, MCP, A2A) cannot drift.
+The MCP tools, the A2A adapter, and the `ggen agent` CLI verbs all call the
+**same** `PackAgent`. There is exactly one implementation of each operation, so
+the four surfaces (library, MCP, A2A, CLI) cannot drift. An autonomous agent can
+drive the full project-bring-up lifecycle from the CLI alone:
+
+```
+ggen agent capabilities → search → compatibility → install → status → verify → remove
+```
 
 ```
 agent (MCP tool call)         agent (A2A task)            Rust caller
@@ -99,8 +104,8 @@ Every refusal is a typed `ggen_core::agent::AgentError` (serialized as
 
 ## Tests
 
-Two Chicago TDD suites, real collaborators only (real `TempDir` registries, real
-`.ggen/packs.lock` files, real Ed25519-signed receipts — no mocks):
+Three Chicago TDD suites, real collaborators only (real `TempDir` registries,
+real `.ggen/packs.lock` files, real Ed25519-signed receipts — no mocks):
 
 - `crates/ggen-core/tests/agent_facade_test.rs` — 24 tests over `PackAgent`. The
   full install→status→verify lifecycle, capability resolution, multi-pack
@@ -113,4 +118,11 @@ Two Chicago TDD suites, real collaborators only (real `TempDir` registries, real
   and real receipts; asserts on the structured JSON result. Covers verify of a
   real receipt (and a tampered one through the wire), fail-closed unknown-tool /
   invalid-id handling, and agent-card ↔ `PACK_TOOLS` no-drift.
+- `crates/ggen-cli/tests/agent_lifecycle_test.rs` — 4 tests over the CLI noun,
+  driving the REAL `ggen` binary. The headline test plays an AGI completing a
+  project end-to-end (`capabilities → search → compatibility → install → status
+  → verify → remove`), asserting on each verb's JSON AND the durable state
+  (lockfile digest, signed receipt that verifies). Sabotage: nonexistent-pack
+  install fails closed (no lockfile), a tampered receipt fails verification, and
+  `--dry_run` writes no durable state.
 

@@ -42,6 +42,7 @@ pub mod wizard;
 #[cfg(feature = "experimental")]
 pub mod a2a;
 pub mod doctor;
+pub mod agent; // AGI-facing lifecycle surface over ggen_core::agent::PackAgent (`ggen agent <verb>`)
 #[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;

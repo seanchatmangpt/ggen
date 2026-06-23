@@ -78,7 +78,7 @@ fn dispatch_capabilities_returns_the_operation_set() {
         "list",
         "show",
         "resolve",
-        "check_compatibility",
+        "compatibility",
         "status",
         "verify",
         "install",

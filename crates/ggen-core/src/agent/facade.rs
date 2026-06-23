@@ -94,7 +94,7 @@ impl PackAgent {
                 mutating: false,
             },
             OperationRef {
-                name: "check_compatibility".to_string(),
+                name: "compatibility".to_string(),
                 description: "Check whether a set of packs can be composed without conflicts."
                     .to_string(),
                 mutating: false,
