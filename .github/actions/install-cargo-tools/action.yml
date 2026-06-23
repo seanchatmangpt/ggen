@@ -56,7 +56,12 @@ runs:
 
     - name: Install cargo-cicd
       if: contains(inputs.tools, 'cicd')
-      run: cargo install --git https://github.com/seanchatmangpt/cargo-cicd cargo-cicd --branch main --features autonomic,affidavit --locked
+      run: |
+        for attempt in 1 2 3; do
+          cargo install --git https://github.com/seanchatmangpt/cargo-cicd cargo-cicd --branch main --features autonomic,affidavit --locked && break
+          echo "cargo-cicd install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          sleep $((attempt * 8))
+        done
       shell: bash
 
     - name: Install affi (affidavit provenance CLI)
@@ -71,5 +76,10 @@ runs:
 
     - name: Install wpm (wasm4pm process oracle)
       if: contains(inputs.tools, 'wpm')
-      run: cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked
+      run: |
+        for attempt in 1 2 3; do
+          cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked && break
+          echo "wpm install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          sleep $((attempt * 8))
+        done
       shell: bash
