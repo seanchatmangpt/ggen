@@ -99,8 +99,18 @@ Every refusal is a typed `ggen_core::agent::AgentError` (serialized as
 
 ## Tests
 
-`crates/ggen-core/tests/agent_facade_test.rs` — 20 Chicago TDD tests using real
-`TempDir` registries, real `.ggen/packs.lock` files, and real Ed25519-signed
-receipts. Coverage includes the full install→status→verify lifecycle and
-sabotage paths (empty digest, tampered signature, malformed/missing-key receipt,
-absent-pack install/remove). No mocks, no test doubles.
+Two Chicago TDD suites, real collaborators only (real `TempDir` registries, real
+`.ggen/packs.lock` files, real Ed25519-signed receipts — no mocks):
+
+- `crates/ggen-core/tests/agent_facade_test.rs` — 24 tests over `PackAgent`. The
+  full install→status→verify lifecycle, capability resolution, multi-pack
+  compatibility, and sabotage paths (empty digest, tampered signature,
+  malformed/missing-key receipt, absent-pack install/remove, missing-pack
+  compatibility — a falsifiability guard on the `load_pack` de-mock).
+- `crates/ggen-a2a-mcp/tests/pack_tools_test.rs` — 10 tests over the wire layer.
+  A tool name + JSON arguments are dispatched (`dispatch_pack_tool`,
+  `PackToolsAdapter::from_a2a`) through to the facade against a real filesystem
+  and real receipts; asserts on the structured JSON result. Covers verify of a
+  real receipt (and a tampered one through the wire), fail-closed unknown-tool /
+  invalid-id handling, and agent-card ↔ `PACK_TOOLS` no-drift.
+
