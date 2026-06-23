@@ -15,7 +15,6 @@ pub use crate::error::Result;
 pub use crate::runtime_helper;
 
 // clap-noun-verb types (use carefully - convert to GgenError)
-pub use clap::Args;
 pub use clap_noun_verb::Result as ClapNounVerbResult;
 pub use clap_noun_verb_macros::verb;
 

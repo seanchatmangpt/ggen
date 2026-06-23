@@ -8,11 +8,6 @@ path = "tests/e2e.rs"
 required-features = [ "integration",]
 
 [[test]]
-name = "paas_integration_test"
-path = "tests/paas_integration_test.rs"
-required-features = [ "integration",]
-
-[[test]]
 name = "sabotage_tests"
 path = "tests/sabotage_tests.rs"
 required-features = [ "integration",]
@@ -65,7 +60,6 @@ blake3.workspace = true
 
 [features]
 autonomic = []
-paas = []
 live-llm-tests = []
 integration = []
 # Umbrella feature for the LSP/MCP delivery plane (the `ggen lsp` noun + all its
