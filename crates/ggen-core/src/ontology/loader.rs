@@ -70,7 +70,7 @@ impl OntologyLoader {
     /// Get ontology metadata for a namespace URI
     ///
     /// Returns metadata about the ontology if available in core bundle
-    pub fn get_metadata(uri: &str) -> Option<&'static crate::ontology::OntologyMetadata> {
+    pub fn get_metadata(uri: &str) -> Option<&'static crate::ontology::core_bundle::OntologyMetadata> {
         crate::ontology::CoreOntologyBundle::by_namespace(uri)
             .or_else(|| crate::ontology::CoreOntologyBundle::by_name(uri))
     }
