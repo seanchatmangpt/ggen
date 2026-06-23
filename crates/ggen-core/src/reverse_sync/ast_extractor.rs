@@ -79,11 +79,13 @@ pub struct Method {
 
 /// Represents an enum variant.
 ///
-/// Only the variant name is captured; variant payloads (tuple/struct fields) are
-/// not modeled by the regex extractor.
+/// Captures variant name and optional payload information (tuple or struct fields).
+/// Payloads are stored as raw strings without full parsing.
 #[derive(Debug, Clone)]
 pub struct Variant {
     pub name: String,
+    /// Optional payload: `"(u32, String)"` for tuple variants, `"{ field: Type, ... }"` for struct variants
+    pub payload: Option<String>,
 }
 
 /// Complete service definition extracted from source code
@@ -101,6 +103,9 @@ pub struct ServiceDef {
     /// Generic type parameters captured as raw strings (e.g. `T`, `K`, `V`).
     /// Bounds and lifetimes are not separated out.
     pub type_params: Vec<String>,
+    /// Trait bounds mapped from type parameter to list of bounds.
+    /// E.g. { "T" => ["Clone", "Send"], "U" => ["Default"] }
+    pub trait_bounds: std::collections::HashMap<String, Vec<String>>,
 }
 
 /// Extract Rust struct definitions from a file
@@ -162,6 +167,8 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
 
         let fields = parse_struct_fields(body)?;
 
+        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
+
         services.push(ServiceDef {
             name,
             language: Language::Rust,
@@ -170,6 +177,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
             methods: Vec::new(),
             variants: Vec::new(),
             type_params,
+            trait_bounds,
         });
     }
 
@@ -188,6 +196,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
         let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let variants = parse_enum_variants(body)?;
+        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
 
         services.push(ServiceDef {
             name,
@@ -197,6 +206,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
             methods: Vec::new(),
             variants,
             type_params,
+            trait_bounds,
         });
     }
 
@@ -219,6 +229,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
         let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let methods = parse_rust_fn_signatures(body)?;
+        let trait_bounds = extract_bounds_from_type_params(cap.get(2).map(|m| m.as_str()).unwrap_or(""));
 
         services.push(ServiceDef {
             name,
@@ -228,6 +239,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
             methods,
             variants: Vec::new(),
             type_params,
+            trait_bounds,
         });
     }
 
@@ -269,6 +281,7 @@ pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
                 methods,
                 variants: Vec::new(),
                 type_params: Vec::new(),
+                trait_bounds: std::collections::HashMap::new(),
             });
         }
     }
@@ -332,19 +345,60 @@ fn parse_type_params(raw: &str) -> Vec<String> {
         .collect()
 }
 
-/// Parse enum variant names from an enum body.
+/// Extract trait bounds from a raw type parameter string.
+///
+/// Given `T: Clone + Send, U, V: Default`, returns a HashMap:
+/// - "T" => ["Clone", "Send"]
+/// - "V" => ["Default"]
+/// (U has no bounds, so it is not included in the map)
+fn extract_bounds_from_type_params(raw: &str) -> std::collections::HashMap<String, Vec<String>> {
+    use std::collections::HashMap;
+    let mut bounds_map: HashMap<String, Vec<String>> = HashMap::new();
+
+    for param_spec in raw.split(',') {
+        let param_spec = param_spec.trim();
+        if param_spec.is_empty() {
+            continue;
+        }
+
+        // Split on `:` to separate param name from bounds
+        let parts: Vec<&str> = param_spec.split(':').collect();
+        if parts.len() < 2 {
+            // No bounds for this param
+            continue;
+        }
+
+        let param_name = parts[0].trim().to_string();
+        let bounds_str = parts[1..].join(":"); // Rejoin in case of nested `:` (rare)
+
+        // Split bounds on `+` and collect as strings
+        let bounds: Vec<String> = bounds_str
+            .split('+')
+            .map(|b| b.trim().to_string())
+            .filter(|b| !b.is_empty())
+            .collect();
+
+        if !bounds.is_empty() {
+            bounds_map.insert(param_name, bounds);
+        }
+    }
+
+    bounds_map
+}
+
+/// Parse enum variant names and payloads from an enum body.
 ///
 /// Splits the body on top-level commas (commas at brace/paren/angle depth 0) so
-/// payloads do not introduce spurious separators, then takes the leading
-/// identifier of each segment. Handles `Variant`, `Variant(T)`,
+/// payloads do not introduce spurious separators, then extracts the leading
+/// identifier and any payload. Handles `Variant`, `Variant(T)`,
 /// `Variant { .. }`, and `Variant = 1` forms on one line or many. Tuple/struct
-/// payloads and explicit discriminants are ignored (only the name is captured).
+/// payloads are captured as raw strings; explicit discriminants are ignored.
 fn parse_enum_variants(body: &str) -> Result<Vec<Variant>> {
     let mut variants = Vec::new();
 
     // Leading identifier of a segment, allowing leading whitespace, attributes,
     // and doc comments to be skipped by the trim below.
-    let ident_re = Regex::new(r"^\s*(?:#\[[^\]]*\]\s*)*(\w+)")
+    let ident_re = Regex::new(r"^\s*(?:#\[[^\]]*\]\s*)*(\w+)(.*)")
         .map_err(|e| Error::new(&format!("Failed to compile variant ident regex: {}", e)))?;
 
     for segment in split_top_level_commas(body) {
@@ -354,10 +408,18 @@ fn parse_enum_variants(body: &str) -> Result<Vec<Variant>> {
         }
         if let Some(cap) = ident_re.captures(segment) {
             let name = cap_str(&cap, 1);
-            // Skip lines that are clearly not variants (e.g. a stray attribute
-            // word). A real variant identifier is non-empty.
+            // Skip lines that are clearly not variants (e.g. a stray attribute word).
             if !name.is_empty() {
-                variants.push(Variant { name });
+                let rest = cap.get(2).map(|m| m.as_str().trim()).unwrap_or("");
+                // Extract payload if present (before `=` for explicit discriminant)
+                let payload = if rest.starts_with('(') || rest.starts_with('{') {
+                    let payload_end = rest.find('=').unwrap_or(rest.len());
+                    let raw = &rest[..payload_end].trim();
+                    if raw.is_empty() { None } else { Some(raw.to_string()) }
+                } else {
+                    None
+                };
+                variants.push(Variant { name, payload });
             }
         }
     }
@@ -490,6 +552,7 @@ pub fn extract_elixir_genserver(file_path: &str) -> Result<Vec<ServiceDef>> {
             methods,
             variants: Vec::new(),
             type_params: Vec::new(),
+            trait_bounds: std::collections::HashMap::new(),
         });
     }
 
@@ -564,6 +627,7 @@ pub fn extract_go_service(file_path: &str) -> Result<Vec<ServiceDef>> {
             methods,
             variants: Vec::new(),
             type_params: Vec::new(),
+            trait_bounds: std::collections::HashMap::new(),
         });
     }
 
@@ -681,6 +745,12 @@ pub fn convert_to_rdf(services: &[ServiceDef]) -> Result<String> {
         if !service.type_params.is_empty() {
             for tp in &service.type_params {
                 turtle.push_str(&format!("    code:typeParam \"{}\" ;\n", tp));
+                // Emit trait bounds for this parameter if present
+                if let Some(bounds) = service.trait_bounds.get(tp) {
+                    for bound in bounds {
+                        turtle.push_str(&format!("    code:traitBound \"{}\" ;\n", bound));
+                    }
+                }
             }
         }
 

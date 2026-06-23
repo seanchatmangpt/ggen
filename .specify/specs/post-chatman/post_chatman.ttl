@@ -480,3 +480,176 @@ crates/ggen-core/src/reverse_sync/inverse_pipeline.rs has NO `signature` field a
 this writing. The SHACL shape requires it; the code does not yet emit it. This is a
 deliberate, documented divergence flagging required future work, not an assertion
 that the field exists."""@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 2: Receipt and transformation path abstractions (generalized)
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:ReceiptChain
+    a owl:Class ;
+    rdfs:label "Receipt Chain"@en ;
+    rdfs:comment """A generalized receipt chain abstraction for ordered sequences of
+cryptographic transitions. Binds operation IDs to cumulative BLAKE3 hashes,
+enabling O→A and A→O (and reverse) paths to be audited as ordered sequences
+rather than isolated events. The chain captures causal ordering and cumulative
+transformation evidence."""@en .
+
+pc:chainHash
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:ReceiptChain ;
+    rdfs:range  xsd:string ;
+    rdfs:label "chain hash"@en ;
+    rdfs:comment "BLAKE3 hex digest of the entire ordered sequence of operations. 64 hex characters. Enables the entire chain to be authenticated as an atomic unit."@en .
+
+pc:chainLength
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:ReceiptChain ;
+    rdfs:range  xsd:positiveInteger ;
+    rdfs:label "chain length"@en ;
+    rdfs:comment "Number of receipts in the chain. Must be >= 1. Tracks the depth of transformations."@en .
+
+pc:hasOperations
+    a owl:ObjectProperty ;
+    rdfs:domain pc:ReceiptChain ;
+    rdfs:range  rdf:Seq ;
+    rdfs:label "has operations"@en ;
+    rdfs:comment "Ordered sequence of operation IDs (UUID v4 strings) that form the chain. Order is causal (earliest first)."@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 2: Transformation paths — forward, inverse, and round-trip
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:TransformationPath
+    a owl:Class ;
+    rdfs:label "Transformation Path"@en ;
+    rdfs:comment """Abstract classification of directed transformations in the post-Chatman
+isomorphism space. Instances (ForwardPath, InversePath, RoundTripPath) name the
+direction and extent of the transformation."""@en .
+
+pc:ForwardPath
+    a pc:TransformationPath ;
+    rdfs:label "Forward Path"@en ;
+    rdfs:comment """The O→A transformation: ontology to artifact. Represents the
+forward direction of the μ₁-μ₅ pipeline (code generation from RDF)."""@en .
+
+pc:InversePath
+    a pc:TransformationPath ;
+    rdfs:label "Inverse Path"@en ;
+    rdfs:comment """The A→O transformation: artifact to ontology. Represents the
+inverse direction μ⁻¹ (ontology recovery from generated code/assets)."""@en .
+
+pc:RoundTripPath
+    a pc:TransformationPath ;
+    rdfs:label "Round-Trip Path"@en ;
+    rdfs:comment """The O→A→O full cycle: ontology through artifact and back to
+recovered ontology. Represents a complete provenance cycle for isomorphism
+verification (the post-Chatman envelope)."""@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 2: Inverse synthesis pipeline stage
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:InverseSynthesisStage
+    a pc:InverseStage ;
+    rdfs:label "Inverse Synthesis Stage"@en ;
+    rdfs:comment """Meta-stage representing the entire inverse synthesis pipeline (μ⁻¹)
+as a unified transformation endpoint. Appears after forward synthesis in
+round-trip proof chains. Code: may wrap orchestration of Scan-Extract-Convert-Validate-Emit."""@en ;
+    pc:stageOrder 0 .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 2: Provenance envelope — the O→A→O round-trip proof
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:ProvenanceEnvelope
+    a owl:Class ;
+    rdfs:label "Provenance Envelope"@en ;
+    rdfs:comment """Encapsulates a complete O→A→O round-trip transformation. Binds
+forward (μ) and inverse (μ⁻¹) receipts into a single, auditable envelope that
+witnesses isomorphism by proving both directions are coherent. The envelope is
+the proof object of the post-Chatman equation A ≅ O ≅ L."""@en .
+
+pc:hasForwardReceipt
+    a owl:ObjectProperty ;
+    rdfs:domain pc:ProvenanceEnvelope ;
+    rdfs:comment """The Receipt (or subclass) documenting the O→A forward synthesis.
+Represents code generation from the ontology."""@en ;
+    rdfs:label "has forward receipt"@en .
+
+pc:hasInverseReceipt
+    a owl:ObjectProperty ;
+    rdfs:domain pc:ProvenanceEnvelope ;
+    rdfs:comment """The InverseReceipt documenting the A→O inverse recovery.
+Represents ontology reconstruction from generated artifacts."""@en ;
+    rdfs:label "has inverse receipt"@en .
+
+pc:envelopeHash
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:ProvenanceEnvelope ;
+    rdfs:range  xsd:string ;
+    rdfs:label "envelope hash"@en ;
+    rdfs:comment """BLAKE3 hex digest of the entire envelope (combining forward and
+inverse receipt hashes). 64 hex characters. Enables the full O→A→O cycle to be
+cryptographically bound as a single atomic proof object."""@en .
+
+pc:operationChain
+    a owl:ObjectProperty ;
+    rdfs:domain pc:ProvenanceEnvelope ;
+    rdfs:range  rdf:Seq ;
+    rdfs:label "operation chain"@en ;
+    rdfs:comment """Ordered sequence of operation IDs (UUID v4 strings) in causal
+order: [forward_op_id, inverse_op_id, ...]. Documents the sequence of
+transformations that constitute the round trip."""@en .
+
+pc:linkedAt
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:ProvenanceEnvelope ;
+    rdfs:range  xsd:dateTime ;
+    rdfs:label "linked at"@en ;
+    rdfs:comment """RFC-3339 timestamp at which the envelope was assembled. Records
+the moment the forward and inverse receipts were bound together into a
+coherence proof."""@en .
+
+pc:roundTripPath
+    a owl:ObjectProperty ;
+    rdfs:domain pc:ProvenanceEnvelope ;
+    rdfs:range  pc:RoundTripPath ;
+    rdfs:label "round trip path"@en ;
+    rdfs:comment "Links the envelope to the RoundTripPath instance, naming it as a complete cycle."@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 2: Round-trip coherence criterion
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:RoundTripCriterion
+    a pc:CoherenceCriterion ;
+    rdfs:label "Round-Trip Coherence Criterion"@en ;
+    rdfs:comment """Asserts that both the forward (O→A) and inverse (A→O) paths must
+individually demonstrate coherence. The conjunction of forward and inverse
+success witnesses the post-Chatman isomorphism A ≅ O ≅ L. Binds the forward
+CoherenceReport and the InverseReceipt SHACL validation into a single
+two-directional criterion."""@en ;
+    pc:approximates pc:isomorphicTo .
+
+pc:coherenceBeforeInverse
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:RoundTripCriterion ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label "coherence before inverse"@en ;
+    rdfs:comment "Result of the forward synthesis coherence check (O and A poles)."@en .
+
+pc:coherenceAfterInverse
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:RoundTripCriterion ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label "coherence after inverse"@en ;
+    rdfs:comment "Result of the inverse synthesis validation (A pole recovery to O)."@en .
+
+pc:requireBothTrue
+    a rdfs:Comment ;
+    rdfs:label "require both true"@en ;
+    rdfs:comment """For a RoundTripCriterion to be satisfied (admitted), BOTH
+coherenceBeforeInverse AND coherenceAfterInverse must be true. Only then is
+the post-Chatman isomorphism witnessed. A failing criterion means either
+forward or inverse synthesis broke coherence, and the O→A→O cycle is not
+closed."""@en .
