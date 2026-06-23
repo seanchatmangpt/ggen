@@ -22,4 +22,7 @@ pub use a2a::{
 pub use a2a_generated::{Agent, AgentFactory, Message, Port, UnifiedAgent, UnifiedAgentBuilder};
 pub use a2a_registry::{AgentEntry, AgentQuery, AgentRegistry, HealthMonitor, HealthStatus};
 
+pub mod mcp_packs;
 pub mod mcp_server;
+
+pub use mcp_packs::{dispatch_pack_tool, pack_agent_card, PackToolsAdapter, PACK_TOOLS};

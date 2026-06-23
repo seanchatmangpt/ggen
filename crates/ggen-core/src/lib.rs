@@ -144,6 +144,7 @@
     clippy::suspicious_doc_comments,
     clippy::ignored_unit_patterns
 )]
+pub mod agent;
 pub mod audit;
 pub mod cache;
 pub mod canonical;
