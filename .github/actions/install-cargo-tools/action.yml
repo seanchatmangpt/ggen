@@ -13,12 +13,17 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Compute sanitized tools cache key
+      id: tools-key
+      run: echo "key=$(echo '${{ inputs.tools }}' | tr ',' '-')" >> "$GITHUB_OUTPUT"
+      shell: bash
+
     - name: Cache cargo tools
       if: inputs.cache-tools == 'true'
       uses: actions/cache@v4
       with:
         path: ~/.cargo/bin/
-        key: ${{ runner.os }}-cargo-tools-${{ inputs.tools }}
+        key: ${{ runner.os }}-cargo-tools-${{ steps.tools-key.outputs.key }}
 
     - name: Install cargo-make
       if: contains(inputs.tools, 'make')
@@ -48,4 +53,33 @@ runs:
     - name: Install cargo-nextest
       if: contains(inputs.tools, 'nextest')
       uses: taiki-e/install-action@cargo-nextest
+
+    - name: Install cargo-cicd
+      if: contains(inputs.tools, 'cicd')
+      run: |
+        for attempt in 1 2 3; do
+          cargo install --git https://github.com/seanchatmangpt/cargo-cicd cargo-cicd --branch main --features autonomic,affidavit --locked && break
+          echo "cargo-cicd install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          sleep $((attempt * 8))
+        done
+      shell: bash
+
+    - name: Install affi (affidavit provenance CLI)
+      if: contains(inputs.tools, 'affi')
+      run: |
+        for attempt in 1 2 3; do
+          cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --bin affi --locked && break
+          echo "affi install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          sleep $((attempt * 8))
+        done
+      shell: bash
+
+    - name: Install wpm (wasm4pm process oracle)
+      if: contains(inputs.tools, 'wpm')
+      run: |
+        for attempt in 1 2 3; do
+          cargo install --git https://github.com/seanchatmangpt/wasm4pm wasm4pm-cli --bin wpm --locked && break
+          echo "wpm install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          sleep $((attempt * 8))
+        done
       shell: bash

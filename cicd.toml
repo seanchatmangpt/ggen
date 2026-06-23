@@ -1,0 +1,38 @@
+[workspace]
+name = "ggen"
+toolchain = "nightly-2026-04-15"
+target_dir = "target"
+
+[state]
+dirty = false
+target_size_gb = 0.0
+changed_files = 0
+changed_tests = 0
+changed_trybuild_fixtures = 0
+
+[target]
+max_size_gb = 20
+prune_after_days = 14
+
+[test.changed]
+enabled = true
+base = "origin/main"
+
+[trybuild.changed]
+enabled = false
+snapshot_mode = "changed-only"
+
+[git.phase]
+require_clean_tree = true
+commit_after_phase = false
+
+[autonomic]
+enabled = true
+mode = "suggest"
+
+[process_data]
+output_path = ".cicd/events.xes"
+
+[[events]]
+kind = "status"
+verdict = "pass"

@@ -336,8 +336,7 @@ mod tests {
     #[test]
     fn test_all_poles_present_no_drift() {
         // Arrange — real fingerprint calls on real data structures (Chicago TDD).
-        let o =
-            CoherenceChecker::fingerprint_ontology(&["<s> <p> <o> .", "<s2> <p2> <o2> ."]);
+        let o = CoherenceChecker::fingerprint_ontology(&["<s> <p> <o> .", "<s2> <p2> <o2> ."]);
         let a = CoherenceChecker::fingerprint_artifacts(&[("crates/foo/src/lib.rs", 1024)]);
         let l = CoherenceChecker::fingerprint_event_log(&[
             r#"{"activity":"sync","timestamp":"2026-06-20"}"#,
@@ -352,7 +351,10 @@ mod tests {
             "expected no drift but got: {:?}",
             report.drifts
         );
-        assert!(report.admitted, "report should be admitted when all poles present");
+        assert!(
+            report.admitted,
+            "report should be admitted when all poles present"
+        );
         assert_eq!(report.poles.len(), 3);
         assert!(!report.operation_id.is_empty());
     }
@@ -372,7 +374,10 @@ mod tests {
             "expected a Missing drift but got: {:?}",
             report.drifts
         );
-        assert!(!report.admitted, "report should not be admitted with a missing pole");
+        assert!(
+            !report.admitted,
+            "report should not be admitted with a missing pole"
+        );
     }
 
     #[test]
@@ -387,7 +392,10 @@ mod tests {
 
         // Assert — CountDiscrepancy between O and A
         assert!(
-            report.drifts.iter().any(|d| d.kind == DriftKind::CountDiscrepancy),
+            report
+                .drifts
+                .iter()
+                .any(|d| d.kind == DriftKind::CountDiscrepancy),
             "expected a CountDiscrepancy drift but got: {:?}",
             report.drifts
         );
