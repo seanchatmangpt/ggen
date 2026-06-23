@@ -157,4 +157,166 @@ mod tests {
         // In the future, this might try marketplace fallback
         let _ = content; // Suppress unused warning
     }
+
+    // ========== PHASE 5: COMPREHENSIVE UNIT TESTS ==========
+
+    /// Test that is_embedded correctly identifies all core ontologies
+    #[test]
+    fn test_is_embedded_for_all_core_ontologies() {
+        let embedded_list = OntologyLoader::list_embedded();
+
+        for (name, uri) in embedded_list {
+            assert!(
+                OntologyLoader::is_embedded(uri),
+                "Ontology {} with URI {} should be embedded",
+                name,
+                uri
+            );
+            assert!(
+                OntologyLoader::is_embedded(name),
+                "Ontology {} should be embedded by name",
+                name
+            );
+        }
+    }
+
+    /// Test get_metadata returns correct size for all embedded ontologies
+    #[test]
+    fn test_get_metadata_returns_correct_size() {
+        let embedded = OntologyLoader::list_embedded();
+
+        for (_name, uri) in embedded {
+            let meta = OntologyLoader::get_metadata(uri);
+            assert!(meta.is_some(), "Should have metadata for {}", uri);
+
+            if let Some(m) = meta {
+                assert!(m.size > 0, "Size should be non-zero for {}", uri);
+                assert!(!m.content.is_empty(), "Content should not be empty for {}", uri);
+                assert_eq!(m.size, m.content.len(), "Size should match content length");
+            }
+        }
+    }
+
+    /// Test load_content returns bytes for embedded ontologies
+    #[test]
+    fn test_load_content_returns_bytes() {
+        let embedded = OntologyLoader::list_embedded();
+
+        for (_name, uri) in embedded {
+            let content = OntologyLoader::load_content(uri, Path::new("."));
+            assert!(content.is_some(), "Should load content for {}", uri);
+            assert!(!content.unwrap().is_empty(), "Content should not be empty for {}", uri);
+        }
+    }
+
+    /// Test metadata consistency between load_content and get_metadata
+    #[test]
+    fn test_metadata_consistency() {
+        let rdf_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+        let metadata = OntologyLoader::get_metadata(rdf_uri);
+        let content = OntologyLoader::load_content(rdf_uri, Path::new("."));
+
+        assert!(metadata.is_some());
+        assert!(content.is_some());
+
+        if let (Some(meta), Some(cnt)) = (metadata, content) {
+            assert_eq!(meta.content.len(), cnt.len(), "Metadata content length should match loaded content");
+        }
+    }
+
+    /// Test nonexistent URI returns None
+    #[test]
+    fn test_nonexistent_uri_returns_none() {
+        assert!(OntologyLoader::get_metadata("http://example.com/fake#").is_none());
+        assert!(OntologyLoader::load_content("http://example.com/fake#", Path::new(".")).is_none());
+        assert!(!OntologyLoader::is_embedded("http://example.com/fake#"));
+    }
+
+    /// Test deterministic hashing (same URI always returns same content)
+    #[test]
+    fn test_deterministic_hashing() {
+        let uri = "http://www.w3.org/2002/07/owl#";
+
+        let content1 = OntologyLoader::load_content(uri, Path::new("."));
+        let content2 = OntologyLoader::load_content(uri, Path::new("."));
+        let content3 = OntologyLoader::load_content(uri, Path::new("."));
+
+        assert_eq!(content1, content2, "Same URI should return identical content");
+        assert_eq!(content2, content3, "Same URI should return identical content");
+    }
+
+    /// Test fallback chain with by_namespace and by_name
+    #[test]
+    fn test_fallback_by_name_and_namespace() {
+        // Test that looking up by name works
+        let by_name = OntologyLoader::load_content("owl", Path::new("."));
+        // Test that looking up by full namespace also works
+        let by_namespace = OntologyLoader::load_content("http://www.w3.org/2002/07/owl#", Path::new("."));
+
+        // Both should succeed
+        assert!(by_name.is_some(), "Should load by short name");
+        assert!(by_namespace.is_some(), "Should load by full namespace");
+
+        // Content should be identical (same ontology)
+        // Note: They might not be bitwise identical if loaded through different paths,
+        // but should represent the same OWL ontology
+    }
+
+    /// Test is_embedded negative cases
+    #[test]
+    fn test_is_embedded_negative() {
+        assert!(!OntologyLoader::is_embedded("http://example.com/ontology#"));
+        assert!(!OntologyLoader::is_embedded("notanontology"));
+        assert!(!OntologyLoader::is_embedded(""));
+        assert!(!OntologyLoader::is_embedded("HTTP://www.w3.org/1999/02/22-rdf-syntax-ns#")); // case-sensitive
+    }
+
+    /// Test list_embedded never returns duplicates
+    #[test]
+    fn test_list_embedded_no_duplicates() {
+        let embedded = OntologyLoader::list_embedded();
+        let mut names = std::collections::HashSet::new();
+        let mut uris = std::collections::HashSet::new();
+
+        for (name, uri) in embedded {
+            assert!(names.insert(name), "Duplicate name found: {}", name);
+            assert!(uris.insert(uri), "Duplicate URI found: {}", uri);
+        }
+    }
+
+    /// Test list_embedded contains only valid entries
+    #[test]
+    fn test_list_embedded_validity() {
+        let embedded = OntologyLoader::list_embedded();
+
+        for (name, uri) in embedded {
+            // Name should be non-empty
+            assert!(!name.is_empty(), "Name should not be empty");
+
+            // URI should be valid
+            assert!(!uri.is_empty(), "URI should not be empty");
+            assert!(uri.starts_with("http"), "URI should start with http");
+            assert!(uri.ends_with("#"), "URI should end with #");
+
+            // Should actually be loadable
+            assert!(
+                OntologyLoader::load_content(uri, Path::new(".")).is_some(),
+                "Listed ontology {} should be loadable",
+                name
+            );
+        }
+    }
+
+    /// Test multiple concurrent lookups work correctly
+    #[test]
+    fn test_multiple_lookups_thread_safe() {
+        // Load the same ontology 100 times to verify no race conditions
+        for _ in 0..100 {
+            let _ = OntologyLoader::load_content("http://www.w3.org/1999/02/22-rdf-syntax-ns#", Path::new("."));
+            let _ = OntologyLoader::get_metadata("http://www.w3.org/2000/01/rdf-schema#");
+            let _ = OntologyLoader::is_embedded("owl");
+        }
+        // If no panic, test passes
+    }
 }

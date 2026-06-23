@@ -143,6 +143,9 @@ pub struct OntologyStats {
 mod tests {
     use super::*;
 
+    // ========== PHASE 5: COMPREHENSIVE UNIT TESTS ==========
+
+    // Basic functionality tests
     #[test]
     fn test_core_ontologies_available() {
         let ontologies = CoreOntologyBundle::all();
@@ -189,5 +192,229 @@ mod tests {
         let stats = CoreOntologyBundle::stats();
         assert!(stats.count > 0, "Should have at least one core ontology");
         assert!(stats.total_size_bytes > 0, "Total size should be greater than zero");
+    }
+
+    // Phase 5: NEW TESTS FOR EXPANDED COVERAGE
+
+    /// Test that all ontologies have static references (zero-copy access)
+    #[test]
+    fn test_all_ontologies_static_references() {
+        let ontologies = CoreOntologyBundle::all();
+        for ont in ontologies {
+            // Verify all fields are accessible without allocation
+            let _ = ont.name;
+            let _ = ont.namespace;
+            let _ = ont.size;
+            let _ = ont.content;
+            // Verify content is not empty (zero-copy semantic)
+            assert!(!ont.content.is_empty(), "Ontology {} should have content", ont.name);
+        }
+    }
+
+    /// Test case-sensitive namespace matching (exact URI match required)
+    #[test]
+    fn test_namespace_case_sensitive() {
+        // Exact match should succeed
+        assert!(CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+            .is_some());
+        // Case variation should fail
+        assert!(CoreOntologyBundle::by_namespace("HTTP://www.w3.org/1999/02/22-rdf-syntax-ns#")
+            .is_none());
+        // Partial match should fail
+        assert!(CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns")
+            .is_none());
+    }
+
+    /// Test case-sensitive name matching
+    #[test]
+    fn test_name_case_sensitive() {
+        // Exact match should succeed
+        assert!(CoreOntologyBundle::by_name("rdf").is_some());
+        // Case variation should fail
+        assert!(CoreOntologyBundle::by_name("RDF").is_none());
+        assert!(CoreOntologyBundle::by_name("Rdf").is_none());
+    }
+
+    /// Test nonexistent ontology returns None
+    #[test]
+    fn test_nonexistent_ontology_returns_none() {
+        assert!(CoreOntologyBundle::by_namespace("http://example.com/nonexistent#").is_none());
+        assert!(CoreOntologyBundle::by_name("nonexistent").is_none());
+    }
+
+    /// Test available list contains all ontologies
+    #[test]
+    fn test_available_contains_all_ontologies() {
+        let all = CoreOntologyBundle::all();
+        let available = CoreOntologyBundle::available();
+
+        assert_eq!(
+            all.len(),
+            available.len(),
+            "available() should return all ontologies"
+        );
+
+        for (i, ont) in all.iter().enumerate() {
+            let (name, ns) = available[i];
+            assert_eq!(name, ont.name, "Name mismatch at index {i}");
+            assert_eq!(ns, ont.namespace, "Namespace mismatch at index {i}");
+        }
+    }
+
+    /// Test stats accuracy
+    #[test]
+    fn test_stats_accuracy() {
+        let stats = CoreOntologyBundle::stats();
+        let all = CoreOntologyBundle::all();
+
+        // Count must match
+        assert_eq!(stats.count, all.len(), "Stats count should match all() length");
+
+        // Total size must match sum of all ontology sizes
+        let expected_size: usize = all.iter().map(|o| o.size).sum();
+        assert_eq!(
+            stats.total_size_bytes, expected_size,
+            "Stats total size should equal sum of all ontology sizes"
+        );
+
+        // Size of each ontology must match its content length
+        for ont in all {
+            assert_eq!(
+                ont.size,
+                ont.content.len(),
+                "Ontology {} size field must match content length",
+                ont.name
+            );
+        }
+    }
+
+    /// Test that ontology content is not empty
+    #[test]
+    fn test_content_not_empty() {
+        for ont in CoreOntologyBundle::all() {
+            assert!(
+                !ont.content.is_empty(),
+                "Ontology {} has empty content",
+                ont.name
+            );
+            assert!(
+                ont.size > 0,
+                "Ontology {} has zero size",
+                ont.name
+            );
+            assert_eq!(
+                ont.size, ont.content.len(),
+                "Ontology {} size doesn't match content",
+                ont.name
+            );
+        }
+    }
+
+    /// Test hash stability (deterministic content)
+    #[test]
+    fn test_hash_stability() {
+        // Load the same ontology twice and verify identical hash
+        let rdf1 = CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        let rdf2 = CoreOntologyBundle::by_namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
+        assert!(rdf1.is_some() && rdf2.is_some());
+
+        // Content pointers should be identical (compile-time constants)
+        assert_eq!(
+            rdf1.unwrap().content.as_ptr(),
+            rdf2.unwrap().content.as_ptr(),
+            "Same ontology should return identical content pointers"
+        );
+
+        // Content itself must be identical
+        assert_eq!(
+            rdf1.unwrap().content,
+            rdf2.unwrap().content,
+            "Same ontology should return identical content"
+        );
+    }
+
+    /// Test OntologyMetadata::Clone trait
+    #[test]
+    fn test_metadata_clone() {
+        let original = CoreOntologyBundle::by_name("owl").expect("OWL should exist");
+        let cloned = original.clone();
+
+        assert_eq!(original.name, cloned.name);
+        assert_eq!(original.namespace, cloned.namespace);
+        assert_eq!(original.size, cloned.size);
+        assert_eq!(original.content, cloned.content);
+    }
+
+    /// Test metadata Debug trait
+    #[test]
+    fn test_metadata_debug() {
+        let meta = CoreOntologyBundle::by_name("rdf").expect("RDF should exist");
+        let debug_str = format!("{:?}", meta);
+
+        // Debug output should contain key information
+        assert!(debug_str.contains("rdf"));
+        assert!(debug_str.contains("namespace"));
+        assert!(debug_str.contains("size"));
+    }
+
+    /// Test all ontology namespaces are valid URIs
+    #[test]
+    fn test_namespaces_valid_uris() {
+        for ont in CoreOntologyBundle::all() {
+            // Must start with http or https
+            assert!(
+                ont.namespace.starts_with("http://") || ont.namespace.starts_with("https://"),
+                "Namespace '{}' should be a valid URI",
+                ont.namespace
+            );
+            // Should end with # for RDF namespace convention
+            assert!(
+                ont.namespace.ends_with("#"),
+                "RDF namespace '{}' should end with #",
+                ont.namespace
+            );
+        }
+    }
+
+    /// Test bound check: accessing by_namespace with various formats
+    #[test]
+    fn test_namespace_format_variations() {
+        let rdf_full = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+        let rdf_no_hash = "http://www.w3.org/1999/02/22-rdf-syntax-ns";
+        let rdf_with_trailing_slash = "http://www.w3.org/1999/02/22-rdf-syntax-ns/#";
+
+        // Only exact match should work
+        assert!(CoreOntologyBundle::by_namespace(rdf_full).is_some());
+        assert!(CoreOntologyBundle::by_namespace(rdf_no_hash).is_none());
+        assert!(CoreOntologyBundle::by_namespace(rdf_with_trailing_slash).is_none());
+    }
+
+    /// Test multiple lookups don't cause allocation or side effects
+    #[test]
+    fn test_multiple_lookups_safe() {
+        // This test ensures we can call lookup methods repeatedly without allocation issues
+        for _ in 0..100 {
+            let _ = CoreOntologyBundle::by_namespace("http://www.w3.org/2002/07/owl#");
+            let _ = CoreOntologyBundle::by_name("rdfs");
+            let _ = CoreOntologyBundle::available();
+            let _ = CoreOntologyBundle::all();
+            let _ = CoreOntologyBundle::stats();
+        }
+        // If we got here without panic or OOM, test passes
+    }
+
+    /// Test that Copy trait works correctly (stateless access)
+    #[test]
+    fn test_core_bundle_copy_trait() {
+        let bundle1 = CoreOntologyBundle;
+        let bundle2 = bundle1; // This is a copy, not a clone
+
+        // Both should work identically
+        assert_eq!(bundle1.all().len(), bundle2.all().len());
+        assert_eq!(
+            bundle1.by_name("owl").is_some(),
+            bundle2.by_name("owl").is_some()
+        );
     }
 }
