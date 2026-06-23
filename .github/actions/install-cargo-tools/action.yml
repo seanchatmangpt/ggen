@@ -61,7 +61,12 @@ runs:
 
     - name: Install affi (affidavit provenance CLI)
       if: contains(inputs.tools, 'affi')
-      run: cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --bin affi --locked
+      run: |
+        for attempt in 1 2 3; do
+          cargo install --git https://github.com/seanchatmangpt/affidavit --branch main --bin affi --locked && break
+          echo "affi install attempt $attempt failed (likely crates.io HTTP flake), retrying in $((attempt * 8))s..."
+          sleep $((attempt * 8))
+        done
       shell: bash
 
     - name: Install wpm (wasm4pm process oracle)
