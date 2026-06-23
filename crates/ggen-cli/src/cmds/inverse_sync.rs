@@ -21,8 +21,8 @@ use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use ed25519_dalek::SigningKey;
 use ggen_core::receipt::{generate_keypair, ProvenanceEnvelope};
-use ggen_core::reverse_sync::inverse_pipeline::{InversePipeline, InverseStage};
-use ggen_graph::coherence::{CoherenceChecker, Pole, PoleState};
+use ggen_core::reverse_sync::inverse_pipeline::InversePipeline;
+use ggen_graph::{CoherenceChecker, Pole, PoleState};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fs;
@@ -249,15 +249,24 @@ fn do_inverse_sync(
     };
 
     // === Step 9: Create ProvenanceEnvelope ===
+    // Note: CoherenceReport from ggen_graph is used for the semantic check,
+    // but ProvenanceEnvelope expects a different structure. We convert the ggen_graph
+    // CoherenceReport to the envelope's CoherenceReport.
     let mut envelope = ProvenanceEnvelope::from_inverse(inverse_receipt.clone());
-    envelope = envelope
-        .add_coherence(ggen_core::receipt::provenance_envelope::CoherenceReport::new(
+
+    // Build the envelope's CoherenceReport from the ggen_graph coherence check
+    let envelope_coherence_report = {
+        use ggen_core::receipt::provenance_envelope::CoherenceReport as EnvelopeCoherenceReport;
+        EnvelopeCoherenceReport::new(
             Uuid::new_v4().to_string(),
             a_pole.hash.clone(),
             inverse_receipt.output_hash.clone(),
             coherence_admitted,
             if coherence_admitted { None } else { coherence_drifts.as_ref().map(|d| d.join("; ")) },
-        ));
+        )
+    };
+
+    envelope = envelope.add_coherence(envelope_coherence_report);
 
     // === Step 10: Serialize envelope to JSON ===
     let envelope_json = envelope.to_json().map_err(|e| {

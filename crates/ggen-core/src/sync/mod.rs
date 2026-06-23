@@ -1,13 +1,15 @@
 //! Sync orchestrator — full platform regeneration pipeline
 //!
-//! Implements the five-stage pipeline that drives `ggen sync`:
+//! Implements the five-stage pipeline (with 4.5 coherence gate) that drives `ggen sync`:
 //!
 //! ```text
-//! Stage 1 — Load    : Read .ttl ontology → in-memory Graph
-//! Stage 2 — Extract : Execute .rq SPARQL SELECT files → row bindings
-//! Stage 3 — Generate: Call language-specific codegen from bindings
-//! Stage 4 — Validate: Run WvdA soundness gates on generated source text
-//! Stage 5 — Write   : Flush files to disk; compute sha256 receipt
+//! Stage 1    — Load    : Read .ttl ontology → in-memory Graph
+//! Stage 2    — Extract : Execute .rq SPARQL SELECT files → row bindings
+//! Stage 3    — Generate: Call language-specific codegen from bindings
+//! Stage 4    — Validate: Run WvdA soundness gates on generated source text (non-fatal)
+//! Stage 4.5  — Coherence: Check O ≅ A ≅ L three-pole isomorphism (FATAL — blocks Stage 5)
+//! Stage 5    — Write   : Flush files to disk; compute sha256 receipt (only if Stage 4.5 admits)
+//! Stage 5b   — Report  : Write coherence report to disk (observability only)
 //! ```
 //!
 //! ## Armstrong / WvdA compliance
@@ -256,18 +258,22 @@ impl From<GgenError> for SyncError {
 ///
 /// ## Stages
 ///
-/// | Stage | Description | Timeout |
-/// |-------|-------------|---------|
-/// | 1 | Load ontology | — |
-/// | 2 | Execute SPARQL queries | 30 s each |
-/// | 3 | Generate code | — |
-/// | 4 | Validate soundness (if enabled) | — |
-/// | 5 | Write files and compute receipt | — |
+/// | Stage | Description | Timeout | Fatal? |
+/// |-------|-------------|---------|--------|
+/// | 1 | Load ontology | — | Yes |
+/// | 2 | Execute SPARQL queries | 30 s each | Yes |
+/// | 3 | Generate code | — | Yes |
+/// | 4 | Validate soundness (if enabled) | — | No |
+/// | 4.5 | Coherence gate (O ≅ A ≅ L) | — | Yes |
+/// | 5 | Write files and compute receipt | — | Yes |
+/// | 5b | Write coherence report | — | No |
 ///
 /// ## Error handling
 ///
 /// Returns `Err(SyncError)` on the **first fatal error** in any stage.
-/// Soundness violations from Stage 4 are *non-fatal* and accumulate in `SyncResult`.
+/// - **Non-fatal errors**: Soundness violations from Stage 4 accumulate in `SyncResult`.
+/// - **Fatal errors**: Any error in Stages 1, 2, 3, 4.5, or 5 aborts the pipeline.
+/// - **Coherence violations** from Stage 4.5 return `SyncError::CoherenceViolation` and block Stage 5 write.
 pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
     let start = Instant::now();
 
@@ -287,7 +293,7 @@ pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
     let generated = generate_code(&config, &bindings)?;
 
     // ------------------------------------------------------------------
-    // Stage 4 — Validate soundness (optional)
+    // Stage 4 — Validate soundness (optional, non-fatal)
     // ------------------------------------------------------------------
     let mut soundness_violations = Vec::new();
     if config.validate {
@@ -299,34 +305,43 @@ pub fn sync(config: SyncConfig) -> Result<SyncResult, SyncError> {
     }
 
     // ------------------------------------------------------------------
+    // Stage 4.5 — Coherence gate (FATAL — blocks Stage 5 write if violated)
+    // ------------------------------------------------------------------
+    // In dry-run mode, skip event-log pole (no events produced).
+    // In normal mode, check all three poles.
+    let coherence_gate_config = CoherenceGateConfig {
+        allow_count_discrepancy: false,
+        check_event_log: !config.dry_run,
+        expectations: None,
+    };
+    let gate = CoherenceGate::new(coherence_gate_config);
+
+    // Construct (path, content) pairs for artifact fingerprinting.
+    let generated_pairs: Vec<(String, String)> = generated
+        .iter()
+        .map(|(p, c)| (p.to_string_lossy().to_string(), c.clone()))
+        .collect();
+
+    let coherence_report = gate.validate(&ontology_bytes, &generated_pairs, &[])?;
+
+    // ------------------------------------------------------------------
     // Stage 5 — Write files and compute receipt
+    // (Only reached if Stage 4.5 coherence gate admitted)
     // ------------------------------------------------------------------
     let files_generated = write_files(&config, &generated)?;
 
     let receipt = compute_receipt(&ontology_bytes, &generated);
 
     // ------------------------------------------------------------------
-    // Stage 5b — Coherence check (A ≅ O ≅ L three-pole fingerprint)
+    // Stage 5b — Write coherence report to disk (observability only)
     // ------------------------------------------------------------------
-    let coherence_report = {
-        let ontology_str = std::str::from_utf8(&ontology_bytes).unwrap_or("");
-        let ontology_pole = CoherenceChecker::fingerprint_ontology(&[ontology_str]);
-        let artifact_pairs: Vec<(&str, u64)> = generated
-            .iter()
-            .map(|(p, content)| (p.to_str().unwrap_or(""), content.len() as u64))
-            .collect();
-        let artifact_pole = CoherenceChecker::fingerprint_artifacts(&artifact_pairs);
-        let event_log_pole = CoherenceChecker::fingerprint_event_log(&[]);
-        let report = CoherenceChecker::check(&[ontology_pole, artifact_pole, event_log_pole]);
-        if !config.dry_run {
-            if let Ok(json) = serde_json::to_string_pretty(&report) {
-                let receipts_dir = config.output_dir.join(".ggen").join("receipts");
-                std::fs::create_dir_all(&receipts_dir).ok();
-                std::fs::write(receipts_dir.join("coherence-latest.json"), json).ok();
-            }
+    if !config.dry_run {
+        if let Ok(json) = serde_json::to_string_pretty(&coherence_report) {
+            let receipts_dir = config.output_dir.join(".ggen").join("receipts");
+            let _ = std::fs::create_dir_all(&receipts_dir);
+            let _ = std::fs::write(receipts_dir.join("coherence-latest.json"), json);
         }
-        report
-    };
+    }
 
     let elapsed_ms = u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX);
 

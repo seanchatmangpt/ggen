@@ -13,6 +13,26 @@
 //! real BLAKE3 hashing, real coherence checks. No mocks, no test doubles, no fixtures
 //! beyond real data structures. State-based assertions on observable outcomes:
 //! CoherenceReport admitted flag, drift emissions, signature verification.
+//!
+//! # OTEL Verification
+//!
+//! To verify this test with OpenTelemetry spans (when integrated with InversePipeline
+//! and ProvenanceEnvelope components), run:
+//!
+//! ```bash
+//! RUST_LOG=trace,ggen_graph=trace,coherence=trace cargo test -p ggen-graph --test post_chatman_roundtrip_full_test -- --nocapture 2>&1 | grep -E "(coherence|fingerprint|hash|drift|admitted)"
+//! ```
+//!
+//! Expected OTEL spans in full integration:
+//! - `coherence.fingerprint_ontology` — compute O pole hash
+//! - `coherence.fingerprint_artifacts` — compute A pole hash
+//! - `coherence.fingerprint_event_log` — compute L pole hash
+//! - `coherence.check` — run coherence checker
+//! - `coherence.report` — emit CoherenceReport with admitted flag and drifts
+//!
+//! Proof of completion: CoherenceReport.admitted == true (with zero drifts) or
+//! CoherenceReport.admitted == false (with appropriate drift observations),
+//! depending on sabotage scenario.
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,

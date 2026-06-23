@@ -185,6 +185,7 @@ pub mod rdf;
 pub mod register;
 pub mod registry;
 pub mod resolver;
+pub mod reverse_sync;
 pub mod schema;
 pub mod semantic_bit;
 pub mod simple_tracing;
