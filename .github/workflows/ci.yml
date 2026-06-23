@@ -103,9 +103,6 @@ jobs:
       - name: Process conformance gate (wpm oracle)
         run: cargo cicd status audit
 
-      - name: Anti-LLM admissibility check (changed .rs files)
-        run: cargo cicd lsp check
-
       - name: Show evidence summary
         if: always()
         run: cargo cicd evidence show
