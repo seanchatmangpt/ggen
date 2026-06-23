@@ -40,6 +40,9 @@
 #[cfg(test)]
 mod tests;
 
+pub mod coherence_gate;
+pub use coherence_gate::{CoherenceGate, CoherenceGateConfig};
+
 use crate::codegen::go::GoCodeGenerator;
 use crate::graph::types::CachedResult;
 use crate::graph::Graph;
@@ -227,6 +230,15 @@ pub enum SyncError {
     /// The requested language string is not recognised
     #[error("unknown language '{0}'; valid values: go, elixir, rust, typescript, python, auto")]
     InvalidLanguage(String),
+
+    /// Stage 4.5: coherence check failed (O ≅ A ≅ L violation) — FATAL, blocks Stage 5 write
+    #[error("coherence violation: {detail}")]
+    CoherenceViolation {
+        /// Human-readable summary of the drift(s) detected
+        detail: String,
+        /// Full coherence report with pole states and drift observations
+        report: CoherenceReport,
+    },
 }
 
 // Allow converting ggen_utils errors so we can use ? in internal helpers.
