@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fbc-pas-caa "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-plc-rp "https://spec.edmcouncil.org/fibo/ontology/FND/Places/RealProperty/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-loan-ln-ln "https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/">
+	<!ENTITY fibo-loan-reln-cnst "https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/ConstructionLoans/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/ConstructionLoans/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fbc-pas-caa="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-plc-rp="https://spec.edmcouncil.org/fibo/ontology/FND/Places/RealProperty/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-loan-ln-ln="https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/"
+	xmlns:fibo-loan-reln-cnst="https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/ConstructionLoans/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/ConstructionLoans/">
+		<rdfs:label xml:lang="en">Construction Loans Ontology</rdfs:label>
+		<dct:abstract>Construction loans are credit facilities with separate draw-downs (which may be specified through sub-facilities for large projects) allowed given evidence of completion, or substantial completion, of agreed milestones of the construction project.</dct:abstract>
+		<dct:license rdf:datatype="&xsd;anyURI">https://opensource.org/licenses/MIT</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Places/RealProperty/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/LOAN/LoansGeneral/Loans/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/ConstructionLoans/"/>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Provisional"/>
+		<cmns-av:copyright>Copyright (c) 2016-2024 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2016-2024 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-loan-reln-cnst;ConstructionLoan">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-dbt;CreditFacility"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;MasterAgreement"/>
+		<rdfs:subClassOf rdf:resource="&fibo-loan-ln-ln;CollateralizedLoan"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasMilestoneProvision"/>
+				<owl:onClass rdf:resource="&fibo-fnd-agr-ctr;ContractMilestone"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isCollateralizedBy"/>
+				<owl:onClass rdf:resource="&fibo-fnd-plc-rp;RealProperty"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">construction loan</rdfs:label>
+		<skos:definition xml:lang="en">loan covering construction and development costs, secured by a mortgage on the property financed</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A construction loan credit facility tranche (sub-facility) is a portion of a construction loan that is released in stages, or tranches, to fund specific phases of a construction project. Each tranche (committed sub-facility) is released once the borrower reaches a certain milestone, such as pouring concrete or completing the foundation. The borrower typically only pays interest on the amount that has been released at any given time.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">The Project Management Institute (PMI) breaks down most construction projects into five phases, which are initiation, planning, execution, monitoring and control, and closeout. Construction loans also typically include milestones at which a portion of the total facility is advanced to the borrower given proof of completion or meeting other requirements with respect to the work.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-reln-cnst;hasMaximumAllowedBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-dae-dbt;hasAvailableAmount"/>
+		<rdfs:label xml:lang="en">has maximum allowed balance</rdfs:label>
+		<rdfs:domain>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-loan-reln-cnst;ConstructionLoan">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fbc-dae-dbt;SubFacility">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:domain>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">maximum balance that may be outstanding at any time, below the credit limit, for loans with flexible re-draw facilities</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-reln-cnst;hasMaximumAnticipatedBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-dae-dbt;hasAvailableAmount"/>
+		<rdfs:label xml:lang="en">has maximum anticipated balance</rdfs:label>
+		<rdfs:domain>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-loan-reln-cnst;ConstructionLoan">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fbc-dae-dbt;SubFacility">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:domain>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">maximum balance the borrower believes they might need, below the credit limit, for planning purposes, for loans with flexible re-draw facilities</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-loan-reln-cnst;hasMilestoneMaximumDrawdownAmount">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-dae-dbt;hasAvailableAmount"/>
+		<rdfs:label xml:lang="en">has milestone maximum drawdown amount</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fnd-agr-ctr;ContractMilestone"/>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">maximum amount of the loan that can be drawn by the borrower on completion of the milestone</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

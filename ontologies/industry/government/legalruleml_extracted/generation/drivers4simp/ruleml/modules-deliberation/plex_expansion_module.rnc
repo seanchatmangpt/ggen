@@ -1,0 +1,74 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "RuleML Generalized Lists" ]
+dcterms:identifier [ "http://deliberation.ruleml.org/1.02/relaxng/modules/plex_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://deliberation.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "RuleML, plex, generalized lists" ]
+dcterms:description [ "The expansion module for generalized lists." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://deliberation.ruleml.org" ]
+start |= Plex_Any.Node.def
+Node.choice |= Plex_Any.Node.def
+# This module declares the following RuleML elements and attributes:
+#            * <Plex>
+
+## an extension point for specializations of the generalized list tag name.  
+Plex_Any-node.choice |= Plex_Any.Node.def
+Plex_Any.Node.def =
+  
+  ## A collection of (ordered) arguments (optionally enclosed by <arg>) and/or (unordered) user-defined slots (<slot>), 
+  ## identical to an uninterpreted expression (<Expr in="no">) except not having a user-specified function name (equivalent 
+  ## to having a system-specified constructor 'Plex'). Rest variables (<repo> and <resl>) are also permitted.
+  ##        See http://deliberation.ruleml.org/1.02/glossary/#gloss-Plex
+  ## within Atom
+  element Plex { Plex_Any.type.def }
+Plex_Any.type.def = (Plex-datt.choice & rePlex.attlist), Plex.header, Plex_Any.main
+rePlex.attlist &= commonNode.attlist?
+
+## Generalized lists accept the header pattern common to Nodes.
+Plex.header &= Node.header?
+# For the declaration of the Node header, see the modules meta_expansion_module).
+
+## A generalized list contains a generalized term sequence, which may be empty.
+Plex_Any.main |= argumentsForExpressions.sequence
+# The pattern for argument sequences is serialization-dependent, 
+# see the serialization modules (orderlax_module, orderstrict_module, ordermix_module).
+
+## an extension point for specializations of the generalized list tag name.  
+Plex_repo-node.choice |= Plex_repo.Node.def
+Plex_repo.Node.def =
+  
+  ## A collection of (ordered) arguments (optionally enclosed by <arg>) and/or (unordered) user-defined slots (<slot>), 
+  ## identical to an uninterpreted expression (<Expr in="no">) except not having a user-specified function name (equivalent 
+  ## to having a system-specified constructor 'Plex'). Rest variables (<repo> and <resl>) are also permitted.
+  ##        See http://deliberation.ruleml.org/1.02/glossary/#gloss-Plex
+  ## within repo
+  element Plex { Plex_repo.type.def }
+Plex_repo.type.def = (Plex-datt.choice & rePlex.attlist), Plex.header, Plex_repo.main
+
+## A generalized list within a positional rest variable contains a positional argument sequence
+Plex_repo.main |= positionalArgumentsForExpressions.sequence
+# The pattern for positional argument sequences is arity-dependent,
+# see the arity modules (posseq_bin_module, posseq_module).
+
+## an extension point for specializations of the generalized list tag name.  
+Plex_resl-node.choice |= Plex_resl.Node.def
+Plex_resl.Node.def =
+  
+  ## A collection of (ordered) arguments (optionally enclosed by <arg>) and/or (unordered) user-defined slots (<slot>), 
+  ## identical to an uninterpreted expression (<Expr in="no">) except not having a user-specified function name (equivalent 
+  ## to having a system-specified constructor 'Plex'). Rest variables (<repo> and <resl>) are also permitted.
+  ##        See http://deliberation.ruleml.org/1.02/glossary/#gloss-Plex
+  ## within resl
+  element Plex { Plex_resl.type.def }
+Plex_resl.type.def = (Plex-datt.choice & rePlex.attlist), Plex.header, Plex_resl.main
+
+## A generalized list within a slotted rest variable contains a slotted argument sequence
+Plex_resl.main |= slotsForExpressions.sequence
+# For the declaration of slot sequences, see the slot module (slot_module).

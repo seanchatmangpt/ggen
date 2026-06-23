@@ -1,0 +1,46 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Common Patterns" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, common" ]
+dc:description [ "expansion module for common patterns." ]
+dc:language [ "en" ]
+start |= notAllowed
+
+# Common Patterns
+## common attribute group for LegalRuleML elements
+commonLRMLInit.attlist &= empty
+## common attribute group for LegalRuleML Nodes
+commonLRMLNodeInit.attlist &= commonLRMLInit.attlist?
+commonLRMLNodeInit.attlist &= NodeLabel.attrib.choice?
+commonLRMLNodeInit.attlist &= NodeReference.attrib.opt.choice?
+commonLRMLNodeInit.attlist &= type.lrml.attrib.choice?
+
+## common attribute group for LegalRuleML edges
+commonLRMLEdgeInit.attlist &= commonLRMLInit.attlist?
+commonLRMLEdgeInit.attlist &= xml-id.choice?
+
+##
+iri.lrml.attrib.opt.choice |= iri.lrml.attrib.def?
+iri.lrml.attrib.choice |= iri.lrml.attrib.def
+iri.lrml.attrib.def =
+  
+  ## an IRI providing details regarding the parent Node Element.
+  attribute iri { iri.lrml.datatype }
+
+##
+type.lrml.attrib.choice |= type.lrml.attrib.def
+type.lrml.attrib.def =
+  
+  ## the type or class of the parent Node Element.
+  attribute type { iri.lrml.datatype }
+
+##
+DummyCommon = element DummyCommon { commonLRMLNodeInit.attlist, iri.lrml.attrib.opt.choice?, iri.lrml.datatype }

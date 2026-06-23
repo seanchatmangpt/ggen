@@ -1,0 +1,105 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace ruleml = "http://ruleml.org/spec"
+
+dc:title [ "RuleML Optional Stripe Module" ]
+dc:version [ "1.0." ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, stripe-skipping" ]
+dc:description [ "expansion module for optional stripes in RuleML namespace." ]
+dc:language [ "en" ]
+start |= notAllowed
+# This module extends the following RuleML choice patterns:
+
+# All the LegalRuleML edges below are optional because
+# it is possible to reconstruct the edge element from
+# the type and/or position of the child Node element
+# 
+# To allow only explicit striping (normal form), include
+# the stripe_optional module, but not the stripe_skipping module
+# 
+# To allow only stripe-skippining (compact form), include
+# the stripe_skipping module, but not the stripe_optional module
+# 
+# To allow either explicit striping or stripe-skippining (relaxed form), include
+# both the stripe_skipping module and the stripe_optional module
+
+##
+formula_And-const-edge.choice |= formula_And-const.edge.def
+formula_And-const.edge.def =
+  
+  ## a formula of the conjunction.
+  element ruleml:formula { formula_And-const.type.def }
+formula_And-const.type.def = (formula_And-datt.choice & formula_And.attlist), formula_And-const.content
+
+##
+formula_Deontic.edge.choice |= formula_Deontic.edge.def
+formula_Deontic.edge.def =
+  
+  ## the formula of the deontic operator.
+  element ruleml:formula { formula_Deontic.type.def }
+formula_Deontic.type.def = formula_Deontic.attlist, formula_Deontic.content
+formula_Deontic.attlist &= commonInit.attlist?
+
+##
+formula_Exists-const-edge.choice |= formula_Exists-const.edge.def
+formula_Exists-const.edge.def =
+  
+  ## the formula of the existential.
+  element ruleml:formula { formula_Exists-const.type.def }
+formula_Exists-const.type.def = formula_Exists.attlist, formula_Exists-const.content
+
+##
+formula_Forall-const-edge.choice |= formula_Forall-const.edge.def
+formula_Forall-const.edge.def =
+  
+  ## the formula of the universal.
+  element ruleml:formula { formula_Forall-const.type.def }
+formula_Forall-const.type.def = formula_Forall.attlist, formula_Forall-const.content
+
+##
+formula_Or-const-edge.choice |= formula_Or-const.edge.def
+formula_Or-const.edge.def =
+  
+  ## a formula of the disjunction.
+  element ruleml:formula { formula_Or-const.type.def }
+formula_Or-const.type.def = (formula_Or-datt.choice & formula_Or.attlist), formula_Or-const.content
+
+##
+formula_Suborder.edge.choice |= formula_Suborder.edge.def
+formula_Suborder.edge.def =
+  
+  ## a formula of the suborder list.
+  element ruleml:formula { formula_Suborder.type.def }
+formula_Suborder.type.def =
+  (index-attrib.choice & formula_Suborder.attlist), formula_Suborder.content
+formula_Suborder.attlist &= commonInit.attlist?
+
+##
+strong-const-edge.choice |= strong-const.edge.def
+strong-const.edge.def =
+  
+  ## the formula of the strong negation.
+  element ruleml:strong { strong-const.type.def }
+strong-const.type.def = strong.attlist,  strong-const.content
+
+##
+torso-const-edge.choice |= torso-const.edge.def
+torso-const.edge.def =
+  
+  ## a formula of the equivalence.
+  element ruleml:torso { torso-const.type.def }
+torso-const.type.def = torso.attlist, torso-const.content
+
+##
+argTimeData.edge.choice |= argTimeData.edge.def
+argTimeData.edge.def =
+  
+  ## data for a time expression.
+  element ruleml:arg { argTimeData.type.def }
+argTimeData.type.def = (index-attrib.choice & arg_time.attlist), argTimeData.content

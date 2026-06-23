@@ -1,0 +1,40 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "Consumer RuleML Generic Negation" ]
+dcterms:identifier [ "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_negation_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, Negation" ]
+dcterms:description [ "The expansion module for generic negation." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= Negation.Node.def
+Node.choice |= Negation.Node.def
+edge.choice |= formula-negation.edge.def
+# This module declares the following Consumer RuleML elements:
+#             * Negation generic polymorphic negation
+#             * formula
+
+## the Negation attribute list
+Negation-node.choice |= Negation.Node.def
+Negation.Node.def =
+  
+  ## <Negation>: a generic polymorphic negation, which is interpreted by the intended semantics (i.e. semantic profile). See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Negation
+  element Negation { Negation.type.def }
+Negation.type.def = Negation.attlist & Negation.content
+Negation.attlist &= generic-Formula.attlist?
+Negation.content |= Node.header, formula-negation-edge.choice
+
+##
+formula-negation-edge.choice |= formula-negation.edge.def
+formula-negation.edge.def = element formula { formula-negation.type.def }
+formula-negation.type.def = formula-negation.attlist & formula-negation.content
+formula-negation.attlist &= commonInit.attlist?
+formula-negation.content |= NegFormula.choice

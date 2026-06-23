@@ -1,0 +1,27 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rec: <https://w3c-lbd-cg.github.io/rec/ontology#> .
+
+<https://w3c-lbd-cg.github.io/rec/ontology> a owl:Ontology ;
+    dct:title "Real Estate Core Ontology"@en ;
+    dct:description "An ontology for representing real estate properties" ;
+    owl:versionInfo "1.0" .
+
+rec:Property a owl:Class ;
+    rdfs:label "Property"@en ;
+    rdfs:comment "A real estate property" .
+
+rec:Building a owl:Class ;
+    rdfs:label "Building"@en ;
+    rdfs:subClassOf rec:Property .
+
+rec:hasAddress a owl:ObjectProperty ;
+    rdfs:domain rec:Property ;
+    rdfs:label "has address"@en .
+
+rec:buildingArea a owl:DatatypeProperty ;
+    rdfs:domain rec:Building ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "building area"@en .

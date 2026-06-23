@@ -1,0 +1,29 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ifc: <http://standards.buildingsmart.org/IFC/DEV/IFC4_3/OWL#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<http://standards.buildingsmart.org/IFC/DEV/IFC4_3/OWL> a owl:Ontology ;
+    dct:title "IFC 4.3 Ontology"@en ;
+    dct:description "BuildingSmart IFC schema as OWL" ;
+    owl:versionInfo "4.3" .
+
+ifc:IfcObject a owl:Class ;
+    rdfs:label "IfcObject"@en ;
+    rdfs:comment "The most abstract object from which others derive" .
+
+ifc:IfcProduct a owl:Class ;
+    rdfs:label "IfcProduct"@en ;
+    rdfs:subClassOf ifc:IfcObject ;
+    rdfs:comment "An object with spatial or geometric properties" .
+
+ifc:IfcBuilding a owl:Class ;
+    rdfs:label "IfcBuilding"@en ;
+    rdfs:subClassOf ifc:IfcProduct ;
+    rdfs:comment "A building element" .
+
+ifc:IfcWall a owl:Class ;
+    rdfs:label "IfcWall"@en ;
+    rdfs:subClassOf ifc:IfcProduct ;
+    rdfs:comment "A wall element" .

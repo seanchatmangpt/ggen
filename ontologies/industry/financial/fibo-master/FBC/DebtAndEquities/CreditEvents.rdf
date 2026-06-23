@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fbc-dae-cre "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-dt-oc "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/">
+	<!ENTITY fibo-fnd-law-lcap "https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/">
+	<!ENTITY fibo-fnd-pas-psch "https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fbc-dae-cre="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-dt-oc="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"
+	xmlns:fibo-fnd-law-lcap="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/"
+	xmlns:fibo-fnd-pas-psch="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditEvents/">
+		<rdfs:label xml:lang="en">Credit Events Ontology</rdfs:label>
+		<dct:abstract>This ontology defines a range of credit events, that is events in which some payment or payments are not made. These include credit events relating to a specific debt obligation and events relating to the business entity as a whole. 
+		Note: the events defined herein are primarily business rather than consumer oriented, and are specified fairly generally. Many credit events are jurisdiction-specific, such as Chapter 11 restructuring and Chapter 7 bankruptcy in the United States. This ontology is designed to facilitate jurisdiction and instrument-specific extensions as needed.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/20250401/DebtAndEquities/CreditEvents/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20200901/DebtAndEquities/CreditEvents.rdf version of this ontology was revised to move a restriction involving breach of covenant from credit event, since not all credit events involve breaches, to default event, and loosen the constraint since a breach depends on the contract.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20220401/DebtAndEquities/CreditEvents.rdf version of this ontology was revised to address text formatting issues uncovered by hygiene testing.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20220801/DebtAndEquities/CreditEvents.rdf version of this ontology was revised to augment the definition of obligation-specific event with an optional default threshold to better support credit default swaps.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20221001/DebtAndEquities/CreditEvents.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20230101/DebtAndEquities/CreditEvents.rdf version of this ontology was modified to move the property, &apos;is conferred on&apos; to the Legal Capacity ontology and to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20230301/DebtAndEquities/CreditEvents.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20240101/DebtAndEquities/CreditEvents.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20250301/DebtAndEquities/CreditEvents.rdf version of this ontology was modified to add the currency pertinent to a credit agreement (DER-55).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2018-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2020-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;Bankruptcy">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;EntitySpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">bankruptcy</rdfs:label>
+		<skos:definition xml:lang="en">credit event involving a change in state or condition in which a party becomes insolvent</skos:definition>
+		<cmns-av:adaptedFrom>Barron&apos;s Dictionary of Banking Terms, Sixth Edition, 2012</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://thelawdictionary.org/bankruptcy/</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;CreditEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-oc;Occurrence"/>
+		<rdfs:label xml:lang="en">credit event</rdfs:label>
+		<skos:definition xml:lang="en">event signifying a sudden change in credit standing, such as bankruptcy or a violation of a bond indenture or loan agreement, that raises doubts about the party&apos;s ability to meet current or future obligations</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;CrossDefaultProvision">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ConditionPrecedent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-cre;hasDefaultThresholdAmount"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-dbt;CreditAgreement"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">cross default provision</rdfs:label>
+		<skos:definition>contract provision that triggers a default under one contract if the borrower defaults on another related obligation</skos:definition>
+		<cmns-av:explanatoryNote>Cross default provisions are commonly found in loans, bond indentures, syndicated loans, and other instruments such as certain master agreements (e.g., derivatives transactions master agreements).</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;DefaultEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;exemplifies"/>
+				<owl:onClass rdf:resource="&fibo-fnd-agr-ctr;BreachOfCovenant"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">default event</rdfs:label>
+		<skos:definition xml:lang="en">credit event representing a failure to meet a contractual obligation, such as failure to repay a debt including interest or principal on a loan or security</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A default can occur when a borrower is unable to make timely payments, misses payments, or avoids or stops making payments, typically with respect to a single transaction. A default has adverse effects on the borrower&apos;s credit and ability to borrow in the future, and allows the creditor to demand immediate repayment of the obligation in full.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;DistressedRatingsDowngrade">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;Downgrade"/>
+		<rdfs:label xml:lang="en">distressed ratings downgrade</rdfs:label>
+		<skos:definition xml:lang="en">credit event triggered when the credit rating of an obligation is downgraded to a distressed debt level</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;Downgrade">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;CreditEvent"/>
+		<rdfs:label xml:lang="en">downgrade</rdfs:label>
+		<skos:definition xml:lang="en">credit event triggered when the credit rating of a party or obligation is lowered</skos:definition>
+		<skos:example xml:lang="en">On October 17, 2013, Dagong Global Credit Rating downgraded the United States from A to A- and maintained a negative outlook on the country&apos;s credit.</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;EntitySpecificCreditEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;CreditEvent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&cmns-org;LegalPerson"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">entity-specific credit event</rdfs:label>
+		<skos:definition xml:lang="en">credit event that applies to a given legal person</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;FailureToPay">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;DefaultEvent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-cre;hasGracePeriod"/>
+				<owl:onClass rdf:resource="&cmns-dt;DatePeriod"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">failure to pay</rdfs:label>
+		<skos:definition xml:lang="en">default event that is triggered following any applicable grace period in which a payment obligation is missed</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;FailureToPayInterest">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;FailureToPay"/>
+		<rdfs:label xml:lang="en">failure to pay interest</rdfs:label>
+		<skos:definition xml:lang="en">default event that where either an expected interest payment is missed altogether or the amount paid is less than the required amount</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;FailureToPayPrincipal">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;FailureToPay"/>
+		<rdfs:label xml:lang="en">failure to pay principal</rdfs:label>
+		<skos:definition xml:lang="en">default event that where either an expected principal payment is missed altogether or the amount paid is less than the required amount</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;FilingForBankruptcy">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;EntitySpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">filing for bankruptcy</rdfs:label>
+		<skos:definition xml:lang="en">credit event that involves a request to a court to be recognized as bankrupt</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The bankruptcy process is initiated via a petition filed by the debtor or on behalf of creditors. The debtor&apos;s assets may be used to repay a portion of outstanding debt as specified by the court or a court-appointed individual.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;HardCreditEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;DefaultEvent"/>
+		<rdfs:label xml:lang="en">hard credit event</rdfs:label>
+		<skos:definition xml:lang="en">default event that is not repairable</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;InstallmentDefault">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;DefaultEvent"/>
+		<rdfs:label xml:lang="en">installment default</rdfs:label>
+		<skos:definition xml:lang="en">default event involving non-payment of several installment payments as scheduled in the terms of the agreement, or non-payment of a call by the beneficial owner</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">The latter may result in a court action by the issuer or the sale of the securities to recover costs and/or a forfeit of partially paid securities.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;InterestObligationInLightOfDefault">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-law-lcap;ContingentObligation"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-law-lcap;ContractualObligation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-cre;hasDefaultInterestCompoundingBasis"/>
+				<owl:onClass rdf:resource="&cmns-dt;DatePeriod"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-cre;isDefaultInterestApplicable"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isMandatedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-pas-psch;PaymentObligation"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-dae-dbt;CreditAgreement">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fnd-pas-psch;PaymentObligation">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">interest obligation in light of default</rdfs:label>
+		<skos:definition xml:lang="en">obligation in respect of default(s) in the performance of any payment obligation</skos:definition>
+		<skos:example xml:lang="en">Prior to the occurrence or effective designation of an early termination date in respect of the relevant transaction, a party that defaults in the performance of any payment obligation will, to the extent permitted by law (and in the case of an ISDA Master Agreement is subject to Section 6(c)), be required to pay interest (before as well as after judgment) on the overdue amount to the other party on demand in the same currency as such overdue amount, for the period from (and including) the original due date for payment to (but excluding) the date of actual payment, at the default rate. Such interest will be calculated on the basis of daily compounding and the actual number of days elapsed.</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;MaturityExtension">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">maturity extension</rdfs:label>
+		<skos:definition xml:lang="en">credit event involving extension of payments beyond the original maturity date of the obligation</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">As stipulated in the terms and conditions for a bond, for example, the issuer or the bondholder may prolong the maturity date. After extension, the security may differ from original issue (new rate or maturity date). May be subject to bondholder&apos;s approval.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;Moratorium">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;EntitySpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">moratorium</rdfs:label>
+		<skos:definition xml:lang="en">entity-specific credit event involving a temporary suspension of payments until related issues are resolved</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A moratorium may be a legally-mandated hiatus in debt collection as a part of a bankruptcy process.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;ObligationAcceleration">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">obligation acceleration</rdfs:label>
+		<skos:definition xml:lang="en">credit event triggered when one or more reference obligations become immediately due and payable as a result of a default or covenant breach on the reference entity&apos;s other debt instruments, subject to a materiality threshold</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;ObligationDefault">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;DefaultEvent"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">obligation default</rdfs:label>
+		<skos:definition xml:lang="en">credit event triggered as a result of an obligation-specific default</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;ObligationRestructuring">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">obligation restructuring</rdfs:label>
+		<skos:definition xml:lang="en">credit event that materially impacts an obligation, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;CreditEvent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-cre;hasDefaultThresholdAmount"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-dbt;CreditAgreement"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">obligation-specific credit event</rdfs:label>
+		<skos:definition xml:lang="en">credit event that relates to an individual credit agreement or debt instrument (reference obligation)</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;Repudiation">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">repudiation</rdfs:label>
+		<skos:definition xml:lang="en">credit event involving the refusal to honor the terms of a contract</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;SoftCreditEvent">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;DefaultEvent"/>
+		<rdfs:label xml:lang="en">soft credit event</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fbc-dae-cre;HardCreditEvent"/>
+		<skos:definition xml:lang="en">default event that is repairable</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">If the default is not repaired within a grace period, then a failure to repair (failure to pay) credit event is triggered, potentially as a hard default.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-cre;WriteDown">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-cre;ObligationSpecificCreditEvent"/>
+		<rdfs:label xml:lang="en">write-down</rdfs:label>
+		<skos:definition xml:lang="en">obligation-specific credit event whereby the book value of the obligation, such as the outstanding principal amount, is reduced</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-cre;hasDefaultInterestCompoundingBasis">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDatePeriod"/>
+		<rdfs:label xml:lang="en">has default interest compounding basis</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-dae-cre;InterestObligationInLightOfDefault"/>
+		<rdfs:range rdf:resource="&cmns-dt;DatePeriod"/>
+		<skos:definition xml:lang="en">indicates the basis on which default interest is to be calculated, as a period of time</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-cre;hasDefaultThresholdAmount">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasMonetaryAmount"/>
+		<rdfs:label xml:lang="en">has default threshold amount</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">specifies an amount of money that triggers a failure to pay, repudiation/moratorium or restructuring event</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-cre;hasGracePeriod">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDatePeriod"/>
+		<rdfs:label xml:lang="en">has grace period</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;DatePeriod"/>
+		<skos:definition xml:lang="en">window following any payment due date during which a party must fulfill its obligations before a failure to pay credit event occurs</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Note that this may be a period denominated in business days or calendar days.</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fbc-dae-cre;involvesMultipleEvents">
+		<rdfs:label xml:lang="en">involves multiple events</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-dae-cre;ObligationRestructuring"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates that the restructuring spans more than one credit event</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fbc-dae-cre;isDefaultInterestApplicable">
+		<rdfs:label xml:lang="en">is default interest applicable</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-dae-cre;InterestObligationInLightOfDefault"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether a party that defaults in the performance of any payment obligation is, to the extent permitted by law and the applicable agreement, required to pay interest (before as well as after judgment) on the overdue amount to the other party on demand in the same currency as such overdue amount, for the period from (and including) the original due date for payment to (but excluding) the date of actual payment</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fbc-dae-cre;isGracePeriodExtendable">
+		<rdfs:label xml:lang="en">is grace period extendable</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether or not the grace period may be extended, which may be jurisdiction specific</skos:definition>
+	</owl:DatatypeProperty>
+
+</rdf:RDF>

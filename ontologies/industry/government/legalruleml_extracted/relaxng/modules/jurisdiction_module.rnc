@@ -1,0 +1,40 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Jurisdictions" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Jurisdiction" ]
+dc:description [ "The expansion module for LegalRuleML jurisdictions." ]
+dc:language [ "en" ]
+start |= JurisdictionCollection.Node.def | Jurisdiction.Node.def
+
+##
+JurisdictionCollection.Node.choice |= JurisdictionCollection.Node.def
+
+##
+JurisdictionCollection.Node.def =
+  
+  ## a collection where every member is a Jurisdication.
+  element Jurisdictions { JurisdictionCollection.type.def }
+JurisdictionCollection.type.def = JurisdictionCollection.attlist, JurisdictionCollection.main
+
+##
+JurisdictionCollection.attlist &= commonCollection.attlist?
+
+##
+Jurisdiction.Node.choice |= Jurisdiction.Node.def
+Jurisdiction.Node.def =
+  
+  ## a geographic area or subject-matter over which an Authority applies its legal power.
+  element Jurisdiction { Jurisdiction.type.def }
+Jurisdiction.type.def = Jurisdiction.attlist, Jurisdiction.main
+
+##
+Jurisdiction.attlist &= commonLRMLNodeInit.attlist?
+Jurisdiction.attlist &= sameAs.attrib.opt.choice?

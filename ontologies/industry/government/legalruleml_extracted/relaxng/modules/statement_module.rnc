@@ -1,0 +1,125 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Legal Statement" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Legal Statement" ]
+dc:description [
+  "Expansion module for statements, including consitutive, prescriptive, factual, penalties and reparation."
+]
+dc:language [ "en" ]
+start |= StatementCollection.Node.def
+start |= ConstitutiveStatement.Node.def
+start |= PrescriptiveStatement.Node.def
+start |= FactualStatement.Node.def
+start |= OverrideStatement.Node.def
+start |= PenaltyStatement.Node.def
+start |= ReparationStatement.Node.def
+
+##
+Scope.Node.choice |= StatementCollection.Node.choice
+Scope.Node.choice |= Statement.Node.choice
+
+##
+StatementCollection.Node.choice |= StatementCollection.Node.def
+StatementCollection.Node.def =
+  
+  ## a collection where every member is a Legal Statement or a FactualStatement.
+  element Statements { StatementCollection.type.def }
+StatementCollection.type.def = StatementCollection.attlist, StatementCollection.main
+
+##
+StatementCollection.attlist &= commonCollection.attlist?
+
+Statement.Node.choice |=
+  LegalStatement.Node.choice
+  | FactualStatement.Node.choice
+  
+## Legal Statement : a LegalRuleML expression of a Legal Rule or a part of a Legal Rule.
+LegalStatement.Node.choice |=
+  ConstitutiveStatement.Node.choice
+  | PrescriptiveStatement.Node.choice
+  | OverrideStatement.Node.choice
+  | PenaltyStatement.Node.choice
+  | ReparationStatement.Node.choice
+
+##
+ConstitutiveStatement.Node.choice |= ConstitutiveStatement.Node.def
+ConstitutiveStatement.Node.def =
+  
+  ## a Legal Statement which defines concepts and does not prescribe behaviours.
+  element ConstitutiveStatement { ConstitutiveStatement.type.def }
+ConstitutiveStatement.type.def = ConstitutiveStatement.attlist, ConstitutiveStatement.main
+
+##
+ConstitutiveStatement.attlist &= commonLRMLNodeInit.attlist?
+
+##
+PrescriptiveStatement.Node.choice |= PrescriptiveStatement.Node.def
+PrescriptiveStatement.Node.def =
+  
+  ## a Legal Statement which prescribes behaviours, e.g. with Permissions, Obligations, or Prohibitions on states, actions, or courses of actions.
+  element PrescriptiveStatement { PrescriptiveStatement.type.def }
+PrescriptiveStatement.type.def = PrescriptiveStatement.attlist, PrescriptiveStatement.main
+
+##
+PrescriptiveStatement.attlist &= commonLRMLNodeInit.attlist?
+
+##
+FactualStatement.Node.choice |= FactualStatement.Node.def
+FactualStatement.Node.def =
+  
+  ## an expression of fact.
+  element FactualStatement { FactualStatement.type.def }
+FactualStatement.type.def = FactualStatement.attlist, FactualStatement.main
+
+##
+FactualStatement.attlist &= commonLRMLNodeInit.attlist?
+
+##
+OverrideStatement.Node.choice |= OverrideStatement.Node.def
+OverrideStatement.Node.def =
+  
+  ## a Legal Statement of an Override.
+  element OverrideStatement { OverrideStatement.type.def }
+OverrideStatement.type.def = OverrideStatement.attlist, OverrideStatement.main
+
+##
+OverrideStatement.attlist &= commonLRMLNodeInit.attlist?
+
+##
+PenaltyStatement.Node.choice |= PenaltyStatement.Node.def
+PenaltyStatement.Node.def =
+  
+  ## a Legal Statement of a sanction (e.g. a punishment or a correction).
+  element PenaltyStatement { PenaltyStatement.type.def }
+PenaltyStatement.type.def = PenaltyStatement.attlist, PenaltyStatement.main
+
+##
+PenaltyStatement.attlist &= commonLRMLNodeInit.attlist?
+
+##
+ReparationStatement.Node.choice |= ReparationStatement.Node.def
+ReparationStatement.Node.def =
+  
+  ## a Legal Statement of a Reparation.
+  element ReparationStatement { ReparationStatement.type.def }
+ReparationStatement.type.def = ReparationStatement.attlist, ReparationStatement.main
+
+##
+ReparationStatement.attlist &= commonLRMLNodeInit.attlist?
+
+##
+ConstitutiveStatementFormula.choice |= ConstitutiveRule-node.choice
+FactualStatementFormula.choice |= ConstitutiveConclusionFormula.choice
+OverrideStatementFormula.choice |= Override.Node.choice
+PenaltyStatementFormula.choice |= PrescriptiveConclusionFormula.choice
+PrescriptiveStatementFormula.choice |= PrescriptiveRule-node.choice
+ReparationStatementFormula.choice |= Reparation.Node.choice
+

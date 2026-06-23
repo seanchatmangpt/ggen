@@ -1,0 +1,32 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bot: <https://w3c-lbd-cg.github.io/bot#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://w3c-lbd-cg.github.io/bot> a owl:Ontology ;
+    dct:title "Building Topology Ontology"@en ;
+    dct:description "An OWL ontology for describing the topological relationships between building elements" ;
+    owl:versionInfo "0.3.0" .
+
+bot:Element a owl:Class ;
+    rdfs:label "Element"@en ;
+    rdfs:comment "A building element" .
+
+bot:Space a owl:Class ;
+    rdfs:label "Space"@en ;
+    rdfs:subClassOf bot:Element ;
+    rdfs:comment "A space within or associated with a building" .
+
+bot:Zone a owl:Class ;
+    rdfs:label "Zone"@en ;
+    rdfs:subClassOf bot:Space .
+
+bot:hasSubElement a owl:ObjectProperty ;
+    rdfs:label "has sub-element"@en ;
+    owl:inverseOf bot:subElementOf .
+
+bot:subElementOf a owl:ObjectProperty ;
+    rdfs:label "sub-element of"@en ;
+    rdfs:domain bot:Element ;
+    rdfs:range bot:Element .

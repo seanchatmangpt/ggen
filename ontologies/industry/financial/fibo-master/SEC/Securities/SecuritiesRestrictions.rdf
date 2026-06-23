@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dsg "https://www.omg.org/spec/Commons/Designators/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-be-oac-opty "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/">
+	<!ENTITY fibo-fbc-fi-fi "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-law-cor "https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCore/">
+	<!ENTITY fibo-fnd-law-lcap "https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-sec-sec-lst "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesListings/">
+	<!ENTITY fibo-sec-sec-rst "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dsg="https://www.omg.org/spec/Commons/Designators/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-be-oac-opty="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"
+	xmlns:fibo-fbc-fi-fi="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-law-cor="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCore/"
+	xmlns:fibo-fnd-law-lcap="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-sec-sec-lst="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesListings/"
+	xmlns:fibo-sec-sec-rst="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/">
+		<rdfs:label>Securities Restrictions Ontology</rdfs:label>
+		<dct:abstract>This ontology defines the concepts related to restrictions on finanicial instruments, securities and listings.</dct:abstract>
+		<dct:license>Copyright (c) 2016-2025 EDM Council, Inc.
+Copyright (c) 2018-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCore/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesListings/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Designators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/20250301/Securities/SecuritiesRestrictions/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20180801/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to simplify the hierarchy with respect to regulatory requirements and eliminate deprecated elements.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20180901/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to reflect the change in representation of a listing.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20191201/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to eliminate duplication of concepts in LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20200201/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to eliminate an unused ontology import and to augment the information associated with references needed to define depositary receipts.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20210401/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to fix spelling errors.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20211201/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230201/Securities/SecuritiesRestrictions.rdf version of this ontology was modified to move the property, &apos;is conferred on&apos; to the Legal Capacity ontology and to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230301/Securities/SecuritiesRestrictions.rdf version of this ontology was revised to reuse the representation of institutions based on their definitions in the law.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230401/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to eliminate deprecations that are more than 6 months old.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20231101/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20240101/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to add a definition for institutional investor and move jurisdiction-specific definitions to new ontologies for those jurisdictions (SEC-113).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20240601/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to eliminate elements that have been deprecated over 6 months (FND-386).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20241101/Securities/SecuritiesRestrictions.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2016-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2018-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fbc-fi-fi;FinancialInstrument">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-sec-rst;hasRestriction"/>
+				<owl:onClass rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-lst;Listing">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-sec-rst;hasRestriction"/>
+				<owl:onClass rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;ContractualRestriction">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractualCommitment"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isMandatedBy"/>
+				<owl:allValuesFrom rdf:resource="&fibo-fnd-agr-ctr;Contract"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>contractual restriction</rdfs:label>
+		<skos:definition>contract terms setting out restrictions on either the holder or the issuer of the security, as specified in the terms of the instrument itself</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;IndividualInvestor">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;Investor"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:allValuesFrom rdf:resource="&fibo-be-le-lp;LegallyCompetentNaturalPerson"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>individual investor</rdfs:label>
+		<skos:definition>investor that is a person, rather than an organization, who may or may not be considered a qualified investor from a legal perspective</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;InstitutionalInvestor">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;Investor"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:allValuesFrom rdf:resource="&cmns-org;LegalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>institutional investor</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-sec-rst;IndividualInvestor"/>
+		<skos:definition>investor that pools money to purchase securities, real property, and other investment assets or originates loans</skos:definition>
+		<cmns-av:explanatoryNote>Institutional investors typically buy, sell, and manage stocks, bonds, and other investment securities on behalf of its clients, customers, members, or shareholders. These include endowment funds, commercial banks, mutual funds, hedge funds, pension funds, and insurance companies. Institutional investors are able to invest in riskier securities and ventures than average investors because they are more sophisticated with respect to their investment methodologies.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;InvestorsDomicileRestriction">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-rst;LegalHoldingRestriction"/>
+		<rdfs:label>investors&apos; domicile restriction</rdfs:label>
+		<skos:definition>legal holding restriction that specifies where holders of a security may be domiciled</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;LegalHoldingRestriction">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+		<rdfs:label>legal holding restriction</rdfs:label>
+		<skos:definition>security restriction applicable to holding the security</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;QualifiedInvestorRestriction">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-rst;LegalHoldingRestriction"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-sec-rst;hasHoldingPeriod"/>
+				<owl:allValuesFrom rdf:resource="&cmns-dt;DatePeriod"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>qualified investor restriction</rdfs:label>
+		<skos:definition>legal holding restriction that defines the concept of a qualified investor for a given purpose and specifies that only such qualified investors may hold the security</skos:definition>
+		<cmns-av:explanatoryNote>If a holding period is not defined, then the period for which the restriction applies is indefinite.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;SecuritiesRegulation">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-law-lcap;Regulation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;defines"/>
+				<owl:allValuesFrom rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isConferredBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-law-cor;StatuteLaw"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>securities regulation</rdfs:label>
+		<skos:definition>regulation codified in law specific to securities and investments</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;SecuritiesRestriction">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-law-lcap;LegalObligation"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:allValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-fi-fi;FinancialInstrument">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-sec-sec-lst;Listing">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:allValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isMandatedBy"/>
+				<owl:allValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fnd-law-cor;StatuteLaw">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-sec-sec-rst;SecuritiesRegulation">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fnd-agr-ctr;Contract">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:allValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>securities restriction</rdfs:label>
+		<skos:definition>legal obligation that is applicable to a financial instrument or listing as mandated in a law or by contract</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-sec-rst;TradingRestriction">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+		<rdfs:label>trading restriction</rdfs:label>
+		<skos:definition>restriction that limits trading in some manner, typically summarized on term sheets or in other documentation, including but not limited to restrictions on day trading</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-sec-rst;hasHoldingPeriod">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDatePeriod"/>
+		<rdfs:label>has holding period</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;DatePeriod"/>
+		<skos:definition>identifies a holding period applicable to some financial asset</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-sec-rst;hasRestriction">
+		<rdfs:subPropertyOf rdf:resource="&cmns-doc;specifies"/>
+		<rdfs:label>has restriction</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-sec-sec-rst;SecuritiesRestriction"/>
+		<skos:definition>identifies a restriction applicable to a given financial instrument or listing</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

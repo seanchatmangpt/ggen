@@ -1,0 +1,70 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "RuleML Equivalences" ]
+dcterms:identifier [ "http://deliberation.ruleml.org/1.02/relaxng/modules/equivalent_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://deliberation.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "RuleML, equivalence" ]
+dcterms:description [ "The expansion module for equivalances." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://deliberation.ruleml.org" ]
+start |= Equivalent.Node.def | torso.edge.def
+Node.choice |= Equivalent.Node.def
+edge.choice |= torso.edge.def
+# 
+# This module declares the following RuleML elements and attributes:
+#           * <Equivalent>
+#           * <torso>
+
+## an extension point for specializations of the equivalence tag name.  
+Equivalent-node.choice |= Equivalent.Node.def
+
+## An equivalence expression, which is "syntactic sugar" for a pair of conjoined converse implication rules (<Implies>). 
+## It consists of a pair of (optionally skipped) <torso> roles. 
+## For example, "A person owning an object is equivalent to an object belonging to a person":
+## See http://deliberation.ruleml.org/1.02/glossary/#gloss-Equivalent 
+Equivalent.Node.def =
+  
+  ## <Equivalent>: Syntactic sugar for two implications. See 
+  ## http://deliberation.ruleml.org/1.02/glossary/#gloss-Equivalent 
+  element Equivalent { Equivalent.type.def }
+Equivalent.type.def =
+  (Equivalent-datt.choice & reEquivalent.attlist), Equivalent.header, Equivalent.main
+
+## Equivalences may have an optional closure attribute 
+## and will accept a scoped closure attribute at full first-order logic.
+reEquivalent.attlist &= closure-att.choice?
+reEquivalent.attlist &= mapClosure-att-fo.choice?
+# For the declaration of the closure attribute pattern, see the quantification closure module (closure_expansion_module)
+
+## Equivalences accept the header patter common to truth-valued connectives.
+Equivalent.header &= TruthValuedConnective.header?
+# For the declaration of the TruthValuedConnective header, see the modules ordered_groups_expansion_module and unordered_groups_expansion_module).
+
+## the main content model of equivalances consists of two "torso" formulas
+Equivalent.main |= torso-edge.choice, torso-edge.choice
+
+## an extension point for stripe skipping as well as specializations of the torso tag name in equivalences.  
+torso-edge.choice |= torso.edge.def
+
+##  A symmetric role used in an equivalence expression (<Equivalent>) combining the asymmetric <then> and <if>.
+torso.edge.def =
+  
+  ## <torso>: contains one formula within an equivalence. See 
+  ## http://deliberation.ruleml.org/1.02/glossary/#gloss-torso 
+  element torso { torso.type.def }
+torso.type.def = torso.attlist? & torso.content
+torso.attlist &= commonInit.attlist?
+
+## An equivalance is syntactic sugar for two implications.
+## In all RuleML languages, formulas allowed as premises are the same or more general than those allowed as conclusions,
+## because this is a requirement for the statement "P implies P" to be syntactically valid whenever P is a valid conclusion.
+## Therefore, formulas allowed in equivalences are the same as those allowed in conclusions.
+torso.content |= ConclusionFormula.choice
+# For the declaration of the conclusion pattern, see the implication module (implication_expansion_module).
+reEquivalent.attlist &= commonNode.attlist?

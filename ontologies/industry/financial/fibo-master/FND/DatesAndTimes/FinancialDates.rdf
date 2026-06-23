@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+		<rdfs:label>Financial Dates Ontology</rdfs:label>
+		<dct:abstract>This ontology provides definitions of date and schedule concepts for use in other FIBO ontologies.</dct:abstract>
+		<dct:license>Copyright (c) 2014-2025 EDM Council, Inc.
+Copyright (c) 2014-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/20250701/DatesAndTimes/FinancialDates/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20141101/DatesAndTimes/FinancialDates/ version of this ontology was revised by the FIBO FND 1.2 RTF in order to introduce the definition of a time interval, which is a location, to ground some of the concepts such as a date period, and duration as well as to support the definition of business recurrence intervals for use in parametric schedules for securities.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20170201/DatesAndTimes/FinancialDates/ version of this ontology was revised by the FIBO 2.0 RFC in order to introduce the definition of a time instant, to eliminate a reasoning issue with relative dates, and remove a circular dependency inadvertently incorporated in the ontology with a FIBO FND 1.2 modification.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20180801/DatesAndTimes/FinancialDates/ version of this ontology was revised to introduce a composite date datatype to allow for cases whereby the representation of a date for certain purposes, such as GLEIF LEI data, is inconsistent, and to facilitate mapping FIBO to multiple data sources in user environments.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20190201/DatesAndTimes/FinancialDates/ version of this ontology was revised to eliminate deprecated elements.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20200201/DatesAndTimes/FinancialDates/ version of this ontology was revised to add the &apos;has date added&apos; property, which is needed for the date a constituent is added to a basket, among other purposes, to add a TimeOfDay class, needed for representing rate reset times, eliminate duplication with concepts in LCC, and make AdHocScheduleEntry a child of DatedCollectionConstituent.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20200301/DatesAndTimes/FinancialDates/ version of this ontology was revised to move dated collection and dated collection constituent as well as hasObservedDateTime and hasAcquisitionDate to financial dates in order to improve usability, simplify reasoning, made definitions ISO 704 compliant, and eliminate redundant restrictions on ad hoc schedule entry.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20200701/DatesAndTimes/FinancialDates/ version of this ontology was revised to add hasOpeningDateTime and hasClosingDateTime for use in defining trading days and sessions and eliminated the functional property declaration on hasExplicitDate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20201201/DatesAndTimes/FinancialDates/ version of this ontology was revised to add the concept of age and a corresponding property that supports its use.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20210601/DatesAndTimes/FinancialDates.rdf version of this ontology was modified to add notes on the custom CombinedDateTime datatype indicating that it is outside the RL profile and that if someone wants to use this ontology with OWL 2 RL rules they might want to comment this out / eliminate it where it is used.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20210901/DatesAndTimes/FinancialDates.rdf version of this ontology was modified to remove a functional declaration on hasObservedDateTime, which causes reasoning inconsistencies when there are multiple uses of that property for certain individuals, such as for LEI registration.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20211201/DatesAndTimes/FinancialDates.rdf version of this ontology was modified to address hygiene issues with respect to text formatting.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20220701/DatesAndTimes/FinancialDates.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20230101/DatesAndTimes/FinancialDates.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20230301/DatesAndTimes/FinancialDates.rdf version of the ontology was modified to eliminate deprecations that are more than 6 months old.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20231101/DatesAndTimes/FinancialDates.rdf version of the ontology was modified to add the general notions of explicit anchor date and calculation period (FBC-317) and to add the concept of a business calendar (FBC-319).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20240301/DatesAndTimes/FinancialDates.rdf version of the ontology was modified to eliminate elements that have been deprecated for several quarters (FND-386).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FND/20241101/DatesAndTimes/FinancialDates.rdf version of the ontology was modified to replace hasConstituent with hasMember for better semantic consistency (FND-396).</skos:changeNote>
+		<skos:changeNote>This ontology was added to Foundations in advance of the December 2014 Long Beach meeting in support of the SEC specification. It is also needed to provide temporal relationships for Ownership and Control.
+
+These three ontologies are designed for use together:
+
+	* FinancialDates -- financial Dates and Schedules
+	* BusinessDates -- business day adjustments
+	* Occurrences -- occurrences (events) and kinds of occurrences
+
+They are modularized this way to minimize the ontological committments that are imposed upon ontologies that rely upon them. Ontologies can import FinancialDates alone, or FinancialDates + BusinessDates, or FinancialDates + Occurrences, or all three together.</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2014-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2014-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;AdHocSchedule">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;Schedule"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-dt-fd;AdHocScheduleEntry"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>ad hoc schedule</rdfs:label>
+		<skos:definition>schedule consisting of some number of individual events that are not necessarily recurring</skos:definition>
+		<cmns-av:usageNote>Other ontologies can extend AdHocSchedule and/or AdHocScheduleEntry as needed to relate the date to something. In particular, the Occurrences ontology extends AdHocScheduleEntry to associate an OccurrenceKind with each entry. The intended meaning is that an Occurrence of the OccurrenceKind happens on the corresponding Date.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;AdHocScheduleEntry">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;DatedCollectionConstituent"/>
+		<rdfs:label>ad hoc schedule entry</rdfs:label>
+		<skos:definition>entry, including a date or date and time, among multiple non-regularly-recurring entries in a schedule</skos:definition>
+		<cmns-av:usageNote>Other ontologies can extend AdHocScheduleEntry as needed. In particular, the Occurrences ontology extends AdHocScheduleEntry to consist of occurrences (events) of a given OccurrenceKind. The meaning is that an ad hoc schedule entry comprises a date and an event which is scheduled to occur on that date.</cmns-av:usageNote>
+		<cmns-av:usageNote>The Date of an AdHocScheduleEntry can be an ExplicitDate or any kind of CalculatedDate, such as:
+
+* An OccurrenceBasedDate -- a Date that itself is defined by an Occurrence (see the Occurrences ontology)
+* A RelativeDate - a Date relative to another Date, such as T+3
+* A SpecifiedDate - a Date that is defined by an arbitrary rule</cmns-av:usageNote>
+		<cmns-av:usageNote>The cmns-dt;hasDate property may be used to reify a date, if it is important to do so for a given application, or if not and typically, the inherited cmns-dt;hasObservedDateTime property may be used together with a cmns-dt;CombinedDateTime value, as long as the resulting schedule is consistent in using one or the other.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;Age">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;Duration"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasAsOfDate"/>
+				<owl:someValuesFrom rdf:resource="&cmns-dt;ExplicitDate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>age</rdfs:label>
+		<skos:definition>length of time that something or someone has been alive or existed</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;AnchorDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDate"/>
+		<rdfs:label>anchor date</rdfs:label>
+		<skos:definition>fixed reference point within a series or timeline</skos:definition>
+		<cmns-av:explanatoryNote>It is an explicit date chosen to provide context or structure for analyzing data or events.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;BusinessCalendar">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;Schedule"/>
+		<rdfs:label>business calendar</rdfs:label>
+		<skos:definition>schedule and communications tool used to manage meetings, plan events, and coordinate activities within and/or across organizations</skos:definition>
+		<skos:example>academic calendar, bank holiday calendar</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;CalculatedDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;Date"/>
+		<rdfs:label>calculated date</rdfs:label>
+		<owl:disjointWith rdf:resource="&cmns-dt;ExplicitDate"/>
+		<skos:definition>date that is or will be determined based on some formula</skos:definition>
+		<cmns-av:explanatoryNote>The hasDateValue property of a CalculatedDate is not set until the Date is calculated. Since the calculation may depend upon future events that may or may not ever happen, the hasDateValue property may never be set.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;CalculationPeriod">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDatePeriod"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasDuration"/>
+				<owl:onClass rdf:resource="&fibo-fnd-dt-fd;CalculationPeriodLength"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>calculation period</rdfs:label>
+		<skos:definition>explicit period from the start to the end of a specific interval or range within which a computational process or operation occurs</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;CalculationPeriodLength">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDuration"/>
+		<rdfs:label>calculation period length</rdfs:label>
+		<skos:definition>explicit number of days from the adjusted effective or start date to the adjusted termination or end date calculated in accordance with the applicable day count fraction</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;CalendarMonth">
+		<rdf:type rdf:resource="&fibo-fnd-dt-fd;CalendarPeriod"/>
+		<rdfs:label>calendar month</rdfs:label>
+		<skos:definition>time interval resulting from the division of a calendar year in 12 time intervals, each with a specific name and containing a specific number of calendar days</skos:definition>
+		<cmns-av:adaptedFrom>ISO 8601, clause 2.2.11</cmns-av:adaptedFrom>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;CalendarPeriod">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>calendar period</rdfs:label>
+		<skos:definition>time interval that occurs within a system that fixes the beginning and length of a segment of the year with respect to that system</skos:definition>
+		<skos:editorialNote>The terms &apos;calendar xxx&apos; are intended to reinforce that these are periods on a calendar, not durations. 
+
+For example, a calendar year always starts on a January 1 and ends on a December 31. The term &apos;calendar year&apos; does not mean the same thing as a duration (an amount of time) of 1 year, nor can a calendar year start on any arbitrary day of a year. For example, a calendar year never starts on September 1.
+
+Similar points apply to other kinds of calendar periods, such as calendar week, calendar month, and calendar quarter.</skos:editorialNote>
+		<cmns-av:explanatoryNote>A calendar-specified date may be figured with respect to a calendar week, a calendar month, a calendar quarter, or a calendar year.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;CalendarQuarter">
+		<rdf:type rdf:resource="&fibo-fnd-dt-fd;CalendarPeriod"/>
+		<rdfs:label>calendar quarter</rdfs:label>
+		<skos:definition>time interval of 3 months, starting on January 1, April 1, July 1, or October 1</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;CalendarSpecifiedInterval">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;RecurrenceInterval"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasCalendarPeriod"/>
+				<owl:onClass rdf:resource="&fibo-fnd-dt-fd;CalendarPeriod"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasTimeDirection"/>
+				<owl:onClass rdf:resource="&fibo-fnd-dt-fd;TimeDirection"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasOrdinalNumber"/>
+				<owl:onDataRange rdf:resource="&xsd;integer"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>calendar-specified interval</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fnd-dt-fd;ExplicitRecurrenceInterval"/>
+		<skos:definition>recurrence interval that is defined as the nth day of some calendar period (such as a calendar month), and a time direction (forward from the beginning of the month, or backwards from the end)</skos:definition>
+		<skos:example>The 15th day of each calendar month.</skos:example>
+		<skos:example>The last day of each quarter, specified as RelativeDay 1, and TimeDirection set to FromEnd.</skos:example>
+		<cmns-av:explanatoryNote>The nth day is an ordinal number, not a cardinal number. &apos;1&apos; means the first day of the calendar period.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;CalendarWeek">
+		<rdf:type rdf:resource="&fibo-fnd-dt-fd;CalendarPeriod"/>
+		<rdfs:label>calendar week</rdfs:label>
+		<skos:definition>time interval of seven calendar days starting on a Monday</skos:definition>
+		<cmns-av:adaptedFrom>ISO 8601, clause 2.2.8</cmns-av:adaptedFrom>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;CalendarYear">
+		<rdf:type rdf:resource="&fibo-fnd-dt-fd;CalendarPeriod"/>
+		<rdfs:label>calendar year</rdfs:label>
+		<skos:definition>cyclic time interval in a calendar which is required for one revolution of the Earth around the Sun and approximated to an integral number of calendar days; a year in the Gregorian calendar</skos:definition>
+		<cmns-av:adaptedFrom>ISO 8601 clause 2.2.13</cmns-av:adaptedFrom>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;DatedCollectionConstituent">
+		<rdfs:subClassOf rdf:resource="&cmns-col;Constituent"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasObservedDateTime"/>
+				<owl:someValuesFrom rdf:resource="&cmns-dt;CombinedDateTime"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>dated collection constituent</rdfs:label>
+		<skos:definition>element of a collection that is associated with a date and time</skos:definition>
+		<cmns-av:explanatoryNote>Note that the use of several options for the representation of a date and time stamp enables extensions for milliseconds, nanoseconds using an xsd:string that has the format of an xsd:dateTime datatype but extends the level of granularity consistently. An example of where this is required is to represent prices that change multiple times in a given day.</cmns-av:explanatoryNote>
+		<cmns-av:usageNote>The use of custom datatypes is outside the OWL 2 RL profile and so users should consider commenting out the restriction on hasObservedDateTime altogether or change the data range to rdfs:Literal in applications that are constrained to OWL 2 RL.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;DatedStructuredCollection">
+		<rdfs:subClassOf rdf:resource="&cmns-col;StructuredCollection"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-dt-fd;DatedCollectionConstituent"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>dated structured collection</rdfs:label>
+		<skos:definition>structured collection whose elements are required to have a date and time</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;ExplicitRecurrenceInterval">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;RecurrenceInterval"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasDurationValue"/>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>explicit recurrence interval</rdfs:label>
+		<skos:definition>recurrence interval defined via an explicit duration</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Friday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Friday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Saturday</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;FromEnd">
+		<rdf:type rdf:resource="&fibo-fnd-dt-fd;TimeDirection"/>
+		<rdfs:label>from the end</rdfs:label>
+		<skos:definition>time direction indicating that a calendar-specified date is the nth date from the end of a calendar period</skos:definition>
+		<skos:example>Two days before the end of a calendar month.</skos:example>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;FromStart">
+		<rdf:type rdf:resource="&fibo-fnd-dt-fd;TimeDirection"/>
+		<rdfs:label>from the start</rdfs:label>
+		<skos:definition>time direction indicating that a calendar-specified date is the nth day from the beginning of a calendar period.</skos:definition>
+		<skos:example>The first day of a calendar quarter. (The offsetDay is zero.)</skos:example>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Monday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Monday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Tuesday</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;RecurrenceInterval">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>recurrence interval</rdfs:label>
+		<skos:definition>time interval that is consistent between elements of a regular schedule</skos:definition>
+		<cmns-av:synonym>frequency</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;RegularSchedule">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;Schedule"/>
+		<rdfs:subClassOf rdf:resource="&cmns-col;StructuredCollection"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasAnchorDate"/>
+				<owl:onClass rdf:resource="&fibo-fnd-dt-fd;AnchorDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasFinalStub"/>
+				<owl:onClass rdf:resource="&fibo-fnd-dt-fd;ScheduleStub"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasInitialStub"/>
+				<owl:onClass rdf:resource="&fibo-fnd-dt-fd;ScheduleStub"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasCount"/>
+				<owl:onDataRange rdf:resource="&xsd;positiveInteger"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasRecurrenceInterval"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-dt-fd;RecurrenceInterval"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasStartDate"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fnd-dt-fd;CalculatedDate">
+							</rdf:Description>
+							<rdf:Description rdf:about="&cmns-dt;ExplicitDate">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>regular schedule</rdfs:label>
+		<skos:definition>schedule whose time intervals recur regularly</skos:definition>
+		<skos:editorialNote>The BusinessDates ontology extends &apos;RegularSchedule&apos; with an optional BusinessDayAdjustment that specifies what should happen if a scheduled date falls on a weekend or a holiday.</skos:editorialNote>
+		<skos:example>A 30 year mortgage is payable monthly on the 10th of the month, starting July 2015. The mortgage is issued on June 15, 2015 so the first payment is for the period June 15-June 30, and the last payment is for June 1-14 2045.
+
+The payment schedule is a RegularSchedule with these properties:
+
+* comprises: regular payment OccurrenceKind (with payment details) (see the &apos;comprises&apos; property of the Occurrences ontology)
+* hasInitialStub: June 15-30, 2015 for initial payment
+* hasFinalStub: June 1-14, 2045 for final payment
+* hasCount: 358
+* hasOverallPeriod starting Date: June 15, 2015 with a duration of 30 years
+* hasRecurrenceInterval: specifies 10th day of each calendar month
+* hasRecurrenceStartDate: July 1, 2015</skos:example>
+		<skos:example>A corporate bond pays interest for 10 years starting on the first day of 2015. Interest payments are due 15 days after the expiration of each 6 month period: on July 15 and January 16.
+
+The payment schedule is a RegularSchedule, with these properties:
+
+* comprises: identifies the interest payment details
+* overall DatePeriod starting date is &apos;2015-01-01&apos;, ending date is &apos;2025-01-15&apos;, and duration is &apos;P10Y15D&apos;
+* hasCount is 20 (2 payments per year for 10 years)
+* hasRecurrenceInterval is &apos;P6M&apos;
+* hasRecurrenceStartDate is &apos;2015-01-15&apos;</skos:example>
+		<cmns-av:explanatoryNote>A RegularSchedule is a Schedule defined as a set of Dates that start on a recurrence start date and repeat after each recurrence interval. The size of this set is defined by a count.
+
+The &apos;initial ScheduleStub&apos; associated with a RegularSchedule identifies any special treatment applied before the recurrence start date. Similarly, a &apos;final ScheduleStub&apos; identifies any special handling at the end of the recurrences. For example, a mortgage loan that is due each calendar month may have an initial payment due before the first calendar month, or a final payment due after the last monthly payment.</cmns-av:explanatoryNote>
+		<cmns-av:usageNote>Other ontologies can extend RegularSchedule as needed.
+
+In particular, the Occurrences ontology extends RegularSchedule to &apos;comprise&apos; an &apos;OccurrenceKind&apos;. The intended meaning is that a regular schedule comprises a number of scheduled dates and an event which is scheduled to occur on each of those dates, in other words an Occurrence of the OccurrenceKind should happen on each Date defined by the RegularSchedule.</cmns-av:usageNote>
+		<cmns-av:usageNote>The recurrence start date can be an ExplicitDate or any kind of CalculatedDate. Hence, the starting date could be relative to another Date (e.g. T+3) or triggered by the Occurrence of an OccurrenceKind, etc.
+
+The recurrence start date can also be relative to the starting Date of the overall DatePeriod of the Schedule.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;RelativeDate">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;CalculatedDate"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;isRelativeTo"/>
+				<owl:onClass rdf:resource="&cmns-dt;Date"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasRelativeDuration"/>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>relative date</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fnd-dt-fd;SpecifiedDate"/>
+		<skos:definition>calculated date that is some duration before or after another date</skos:definition>
+		<skos:example>A settlement date, defined as T+3: three days after the trade date. The &apos;hasRelativeDuration&apos; property is set to &apos;3D&apos;.</skos:example>
+		<cmns-av:explanatoryNote>When the &apos;hasRelativeDuration&apos; property is negative, the RelativeDate is before the &apos;isRelativeTo&apos; Date; otherwise the RelativeDate is after the &apos;isRelativeTo&apos; Date.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Saturday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Saturday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Sunday</skos:definition>
+		<cmns-av:explanatoryNote>One Saturday is the time interval that has duration 1 day and that starts Gregorian year 2000. This requirement anchors the repeating sequence of days of week to specific Gregorian days. It requires that January 1, 2000 is a Saturday. It follows that January 2, 2000 must be the Sunday that it meets, and so on.</cmns-av:explanatoryNote>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;Schedule">
+		<rdfs:subClassOf rdf:resource="&cmns-col;Collection"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasOverallPeriod"/>
+				<owl:someValuesFrom rdf:resource="&cmns-dt;DatePeriod"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>schedule</rdfs:label>
+		<skos:definition>collection of events, observations, or other occurrences and the associated dates and/or times when they will be done</skos:definition>
+		<cmns-av:explanatoryNote>The overall period covers the entire DatePeriod of the Schedule, from the earliest Date to the final Date of the Schedule. Schedules may be ad hoc, essentially a list of dates and events without any consistency in the durations between events, regular, in which case there is a consistently recurring interval between events, or a combination of the two. There may be a single overall period, or more than one if the schedule is extended for some reason.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;ScheduleStub">
+		<rdfs:subClassOf rdf:resource="&cmns-col;Collection"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dt;hasDatePeriod"/>
+				<owl:onClass rdf:resource="&cmns-dt;DatePeriod"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>schedule stub</rdfs:label>
+		<skos:definition>date period before the start of the recurring part of a schedule or after the end of the recurring part, which may be associated with a specific occurrence kind</skos:definition>
+		<skos:editorialNote>The Occurrences ontology extends ScheduleStub to &apos;comprise&apos; an OccurrenceKind. The meaning is that a schedule stub comprises a date period and an event which is scheduled to occur during that date period; in other words that an Occurrence of the OccurrenceKind should happen during the DatePeriod of the ScheduleStub.</skos:editorialNote>
+		<skos:example>A 30 year mortgage calls for monthly payments on the first day of each month, according to a RegularSchedule. If the mortgage does not start on the first day of a calendar month, then an initial ScheduleStub specifies the payment due for the DatePeriod up to the first day of the next calendar month. Similarly, a final ScheduleStub specifies the last payment due for the DatePeriod after the end of the last full calendar month.</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;SpecifiedDate">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;CalculatedDate"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasDateSpecification"/>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>specified date</rdfs:label>
+		<skos:definition>calculated date that is defined by a rule that is captured as a string by the &apos;hasDateSpecification&apos; property</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Sunday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Sunday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Monday</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Thursday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Thursday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Friday</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fnd-dt-fd;TimeDirection">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;TemporalEntity"/>
+		<rdfs:label>time direction</rdfs:label>
+		<skos:definition>enumeration that indicates whether a calendar-specified date is figured from the start or the end of a calendar period</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Tuesday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Tuesday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Wednesday</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fnd-dt-fd;Wednesday">
+		<rdf:type rdf:resource="&cmns-dt;TimeInterval"/>
+		<rdfs:label>Wednesday</rdfs:label>
+		<skos:definition>time interval that has duration 1 day and that meets a Thursday</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasAcquisitionDate">
+		<rdf:type rdf:resource="&owl;FunctionalProperty"/>
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasObservedDateTime"/>
+		<rdfs:label>has acquisition date</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;CombinedDateTime"/>
+		<skos:definition>links an asset or owner/controller/controllee to the date or date and time of purchase</skos:definition>
+		<cmns-av:usageNote>The use of custom datatypes is outside the OWL 2 RL profile and so users should consider commenting out the range restriction or change the range to rdfs:Literal in applications that are constrained to OWL 2 RL.</cmns-av:usageNote>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasAge">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDuration"/>
+		<rdfs:label>has age</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;Duration"/>
+		<skos:definition>relates something to the length of time it has existed</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasAnchorDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:label>has anchor date</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-dt-fd;AnchorDate"/>
+		<skos:definition>specifies a fixed reference point within a series or timeline</skos:definition>
+		<skos:example>With respect to a scoped measure, such as an economic indicator, the anchor date specifies the reference date against which the value of a numeric index for a more recent date is compared (i.e., the starting point from which it stems).</skos:example>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasAsOfDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDate"/>
+		<rdfs:label>has as-of date</rdfs:label>
+		<skos:definition>relates something to the date on which it is accurate or valid (e.g. a credit report has an asOfDate that means the date when the information was drawn)</skos:definition>
+		<cmns-av:explanatoryNote>It is different from the creation date and need not be the last date of the DatePeriod covered.</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasCalendarPeriod">
+		<rdfs:label>has calendar period</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-dt-fd;CalendarPeriod"/>
+		<skos:definition>identifies a period of time used in computing a calendar-specified date, such as a calendar week, calendar month, calendar quarter, or calendar year</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasClosingDateTime">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasObservedDateTime"/>
+		<rdfs:label xml:lang="en">has closing date time</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;CombinedDateTime"/>
+		<skos:definition xml:lang="en">the day and time at which something closes</skos:definition>
+		<cmns-av:usageNote>The use of custom datatypes is outside the OWL 2 RL profile and so users should consider commenting out the range restriction or change the range to rdfs:Literal in applications that are constrained to OWL 2 RL.</cmns-av:usageNote>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasCount">
+		<rdfs:label>has count</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;positiveInteger"/>
+		<skos:definition>specifies the total number of things in a collection, such as the number of entries in a regular schedule</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasDateAdded">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasStartDate"/>
+		<rdfs:label>has date added</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;ExplicitDate"/>
+		<skos:definition>indicates the date something was included in something else</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasDateReceived">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDate"/>
+		<rdfs:label>has date received</rdfs:label>
+		<skos:definition>relates something to the date it arrived or was delivered, e.g., a loan application request</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasDateSpecification">
+		<rdfs:label>has date specification</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fnd-dt-fd;SpecifiedDate"/>
+		<rdfs:range rdf:resource="&xsd;string"/>
+		<skos:definition>rule that specifies how a specified date is computed</skos:definition>
+		<skos:editorialNote>The rule is modeled as a simple String because OWL2 provides no way to model the semantics of such a rule.</skos:editorialNote>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasFinalStub">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-dt-fd;hasStub"/>
+		<rdfs:label>has final stub</rdfs:label>
+		<skos:definition>identifies any special period at the end of a regular schedule</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasInitialStub">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-dt-fd;hasStub"/>
+		<rdfs:label>has initial stub</rdfs:label>
+		<skos:definition>identifies any special period at the start of a regular schedule</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasOpeningDateTime">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasObservedDateTime"/>
+		<rdfs:label xml:lang="en">has opening date time</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;CombinedDateTime"/>
+		<skos:definition xml:lang="en">the day and time at which something opens</skos:definition>
+		<cmns-av:usageNote>The use of custom datatypes is outside the OWL 2 RL profile and so users should consider commenting out the range restriction or change the range to rdfs:Literal in applications that are constrained to OWL 2 RL.</cmns-av:usageNote>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasOrdinalNumber">
+		<rdfs:label>has ordinal number</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;integer"/>
+		<skos:definition>specifies a number designating place in an ordered sequence, i.e., 1st, 2nd, 3rd, etc.</skos:definition>
+		<cmns-av:explanatoryNote>Negative ordinal numbers mean 1st before, 2nd before, etc.</cmns-av:explanatoryNote>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasOverallPeriod">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDatePeriod"/>
+		<rdfs:label>has overall period</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fnd-dt-fd;Schedule"/>
+		<skos:definition>identifies a date period that includes all the dates of a schedule, including any schedule stubs</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasRecurrenceInterval">
+		<rdfs:label>has recurrence interval</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-dt-fd;RecurrenceInterval"/>
+		<skos:definition>indicates the frequency with which some event or publication occurs</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fnd-dt-fd;hasRelativeDuration">
+		<rdfs:label>has relative duration</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;string"/>
+		<skos:definition>duration between two explicit dates</skos:definition>
+		<cmns-av:explanatoryNote>A relative duration may be negative.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>Note that this property is distinct from hasDurationValue, as a relative duration may resolve to a relative date or date time (both of which are time points) rather than an interval, which would result in a logical inconsistency if its parent property is hasDurationValue.</cmns-av:explanatoryNote>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasSchedule">
+		<rdfs:label>has schedule</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-dt-fd;Schedule"/>
+		<skos:definition>indicates a schedule for something</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasStub">
+		<rdfs:label>has stub</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fnd-dt-fd;RegularSchedule"/>
+		<rdfs:range rdf:resource="&fibo-fnd-dt-fd;ScheduleStub"/>
+		<skos:definition>links an abbreviated period at the start or end of some schedule to the overall schedule</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;hasTimeDirection">
+		<rdfs:label>has time direction</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fnd-dt-fd;TimeDirection"/>
+		<skos:definition>indicates whether a calendar-specified date is figured from the beginning or end of a calendar period</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fnd-dt-fd;isRelativeTo">
+		<rdfs:label>is relative to</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;Date"/>
+		<skos:definition>identifies a specific date that a relative date or relative date period references</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

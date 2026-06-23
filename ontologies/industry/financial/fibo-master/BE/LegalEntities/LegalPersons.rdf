@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY cmns-rga "https://www.omg.org/spec/Commons/RegulatoryAgencies/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-fnd-aap-ppl "https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/">
+	<!ENTITY fibo-fnd-agr-agr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-arr-doc "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/">
+	<!ENTITY fibo-fnd-gao-obj "https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/">
+	<!ENTITY fibo-fnd-law-lcap "https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:cmns-rga="https://www.omg.org/spec/Commons/RegulatoryAgencies/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-fnd-aap-ppl="https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/"
+	xmlns:fibo-fnd-agr-agr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-arr-doc="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"
+	xmlns:fibo-fnd-gao-obj="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/"
+	xmlns:fibo-fnd-law-lcap="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+		<rdfs:label>Legal Persons Ontology</rdfs:label>
+		<dct:abstract>This ontology defines legal personhood concepts. A legal person as defined here is any natural person or organization which is capable of accruing liability on its own part.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCapacity/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RegulatoryAgencies/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20251201/LegalEntities/LegalPersons/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20131101/LegalEntities/LegalPersons.rdf version of this ontology was modified per the issue resolutions identified in the FIBO BE 1.0 FTF report.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20160201/LegalEntities/LegalPersons.rdf version of this ontology was modified per the FIBO 2.0 RFC to normalize restrictions on business license.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20180801/LegalEntities/LegalPersons.rdf version of this ontology was modified to rationalize natural person and legally capable person in a new concept, namely legally competent natural person, simplify / merge the legal person and formal organization class hierarchies, and correct certain definitions, including power of attorney.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20181201/LegalEntities/LegalPersons.rdf version of this ontology was modified to move business objective to FND to enable higher level reuse.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20190401/LegalEntities/LegalPersons.rdf version of this ontology was modified to eliminate deprecated elements.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20190901/LegalEntities/LegalPersons.rdf version of this ontology was modified to clarify the definition of legal person.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200101/LegalEntities/LegalPersons.rdf version of this ontology was modified to move the concept of a signatory and related properties to the executives ontology for better semantic integration.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200601/LegalEntities/LegalPersons.rdf version of this ontology was modified to augment the definition of a contract party to be a legal person.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20201101/LegalEntities/LegalPersons.rdf version of this ontology was modified to eliminate references to external dictionary sites that no longer resolve.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20210101/LegalEntities/LegalPersons.rdf version of this ontology was modified to make legal person a subclass of independent party rather than autonomous agent.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20210401/LegalEntities/LegalPersons.rdf version of this ontology was modified to fix spelling errors.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20211201/LegalEntities/LegalPersons.rdf version of this ontology was modified to incorporate the concept of employment, required to support regulatory reporting, and add the concept of a special purpose vehicle.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20220101/LegalEntities/LegalPersons.rdf version of this ontology was modified to address text formatting hygiene issues.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20220801/LegalEntities/LegalPersons.rdf version of this ontology was modified to add the definition of a variable interest entity and eliminate or loosen restrictions that are unnecessarily burdensome on FIBO users, such as that a legal person has liability capacity, which is true by definition but would never be realized when mapped to any data source.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20221201/LegalEntities/LegalPersons.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230101/LegalEntities/LegalPersons.rdf version of the ontology was modified to move the property, &apos;is conferred on&apos; from Relations to the Legal Capacity ontology.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230301/LegalEntities/LegalPersons.rdf version of the ontology was modified to add a French label to special purpose vehicle.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230401/LegalEntities/LegalPersons.rdf version of the ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20240101/LegalEntities/LegalPersons.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20250301/LegalEntities/LegalPersons.rdf version of the ontology was modified to add a property for intended liquidation date, which may apply to a temporary entity such as an SPV (SEC-200).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20250801/LegalEntities/LegalPersons.rdf version of the ontology was modified to remove deprecations that reflect changes made in Commons v1.2 (FBC-399).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;BusinessEntity">
+		<rdfs:subClassOf rdf:resource="&cmns-org;FormalOrganization"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasObjective"/>
+				<owl:onClass rdf:resource="&fibo-fnd-gao-obj;BusinessObjective"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:onClass rdf:resource="&fibo-fnd-law-lcap;License"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>business entity</rdfs:label>
+		<skos:definition>entity that is formed and administered as per commercial law in order to engage in business activities</skos:definition>
+		<cmns-av:explanatoryNote>There are many types of business entities defined in the legal systems of various countries. These include corporations, cooperatives, partnerships, sole proprietorships, sole traders, limited liability companies, certain trusts and trust companies, and so forth. The rules vary by country and by state or province. Some of the more widely recognized types in the US, UK, and EU are defined in FIBO, by region. However, the regulations governing particular types of entity, even those described as roughly equivalent, differ from jurisdiction to jurisdiction.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;BusinessLicense">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-law-lcap;License"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:onClass rdf:resource="&fibo-be-le-lp;BusinessEntity"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;isRecognizedIn"/>
+				<owl:someValuesFrom rdf:resource="&cmns-rga;Jurisdiction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>business license</rdfs:label>
+		<skos:definition>license that allows the holder to conduct business or carry out a specific profession within some jurisdiction for some period of time</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;CharteredLegalPerson">
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:label>chartered legal person</rdfs:label>
+		<skos:definition>a legal person created by a royal charter or decree</skos:definition>
+		<skos:example>Anything with &apos;Royal Institute&apos; in the name. Also universities are generally set up by royal charter in a monarchy or principality, (often pre-dating any Privy Council i.e. directly be the monarch in the case of older universities). The Bank of England and the British Broadcasting Council (BBC) are also incorporated through Royal Charter.</skos:example>
+		<cmns-av:explanatoryNote>In a monarchy or principality, the monarch typically vests the power to create such bodies, in an entity called (for example) the Privy Council.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;LegallyCompetentNaturalPerson">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-aap-ppl;Person"/>
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalPerson"/>
+		<rdfs:label>legally competent natural person</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fnd-aap-ppl;IncapacitatedAdult"/>
+		<skos:definition>person who is considered competent, under the circumstances, to enter into a contract, conduct business, or participate in other activities that generally require the mental ability to understand problems and make decisions on his or her own behalf</skos:definition>
+		<cmns-av:explanatoryNote>The definition of mental competence, and potentially of the age of majority, is a function of the situation and law in a given jurisdiction.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;NotForProfitObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+		<rdfs:label>not for profit objective</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-be-le-lp;ProfitObjective"/>
+		<skos:definition>objective that reflects the charitable, educational, religious, humanitarian, public services, or other not for profit goals of an organization</skos:definition>
+		<cmns-av:explanatoryNote>The objective of all business activities is not to earn profits for its owners. All of the money earned by or donated to a not for profit organization is used in pursuing the organization&apos;s objectives.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>nonprofit objective</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;PowerOfAttorney">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-law-lcap;LegalCapacity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasEffectiveDate"/>
+				<owl:onClass rdf:resource="&cmns-dt;Date"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-law-lcap;isConferredOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-le-lp;LegallyCompetentNaturalPerson"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>power of attorney</rdfs:label>
+		<skos:definition>legal authorization given by one party (the principal) to another (the agent or attorney-in-fact) to perform certain acts on the principal&apos;s behalf</skos:definition>
+		<cmns-av:explanatoryNote>The appointment can be effective immediately or if the principal is unable to make decisions or perform certain actions on their own. It may be a (1) general power of attorney that authorizes the agent to act generally on behalf of the principal, such as to transfer funds from one account to another, pay debts, make investments, and so forth, or (2) limited to a specific act or situation, such as for management of an individual&apos;s finances in a single account, such as a brokerage account, or for management of healthcare. Decisions made and actions taken by an attorney in fact (within the scope of his or her authority) are legally binding on the principal.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;ProfitObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;BusinessObjective"/>
+		<rdfs:label>profit objective</rdfs:label>
+		<skos:definition>objective that reflects pursuit of a financial benefit that may be realized when the amount of revenue gained from a business activity exceeds the expenses, costs and taxes needed to sustain that activity</skos:definition>
+		<cmns-av:explanatoryNote>Any profit that is gained goes to the business&apos;s owners, who may or may not decide to spend it on the business.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>for profit objective</cmns-av:synonym>
+		<cmns-av:synonym>profit motive</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;PublicPurpose">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-gao-obj;Objective"/>
+		<rdfs:label>public purpose</rdfs:label>
+		<skos:definition>objective that reflects values generally thought to be shared by and that is intended to benefit the populace as a whole</skos:definition>
+		<cmns-av:synonym>public interest</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;ReligiousObjective">
+		<rdfs:subClassOf rdf:resource="&fibo-be-le-lp;NotForProfitObjective"/>
+		<rdfs:label>religious objective</rdfs:label>
+		<skos:definition>not-for-profit objective that reflects the religious goals of an organization</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;SpecialPurposeVehicle">
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-le-lp;hasIntendedLiquidationDate"/>
+				<owl:onClass rdf:resource="&cmns-dt;Date"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="fr-FR">fonds commun de placement</rdfs:label>
+		<rdfs:label xml:lang="en-US">special purpose vehicle</rdfs:label>
+		<skos:definition xml:lang="en">legal entity created to fulfill narrow, specific, and frequently temporary objectives</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">SPE</cmns-av:abbreviation>
+		<cmns-av:abbreviation xml:lang="en">SPV</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A special purpose vehicle (SPV), also known as a special purpose entity (SPE), refers to a legal entity, typically a limited company or partnership, created to isolate a parent company from financial risk, including bankruptcy.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">special purpose entity</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;StatutoryBody">
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:label>statutory body</rdfs:label>
+		<skos:definition>legal entity established by a government to consider evidence and make judgements in some field of activity</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-le-lp;VariableInterestEntity">
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:label xml:lang="en">variable interest entity</rdfs:label>
+		<skos:definition xml:lang="en">legal entity whose shareholders are entitled to a percentage of a named company&apos;s profits via a private contract</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">VIE</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">Variable interest entity (VIE) is a term used by the Financial Accounting Standards Board (FASB) to refer to a legal entity with certain characteristics such that a public company with a financial interest in the entity is subject to certain financial reporting requirements. Examples include certain Chinese companies, such as Alibaba, that leverage VIEs to gain access to foreign capital that would otherwise not be available due to Chinese government regulations.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">shell company</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-le-lp;hasIntendedLiquidationDate">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-arr-doc;hasTerminationDate"/>
+		<rdfs:label xml:lang="en">has intended liquidation date</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;Date"/>
+		<skos:definition xml:lang="en">links an agreement, contract, or legal entity to a date on which it is scheduled to be sold</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:Class rdf:about="&cmns-org;LegalEntity">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;isOrganizedIn"/>
+				<owl:onClass rdf:resource="&cmns-rga;Jurisdiction"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<skos:example>Examples of eligible legal entities include, without limitation:
+- all financial intermediaries;
+- banks and finance companies;
+- all entities that issue equity, debt or other securities for other capital structures;
+- all entities listed on an exchange;
+- all entities that trade stock or debt, investment vehicles, including mutual funds, pension funds and alternative investment vehicles constituted as corporate entities or collective investment agreements (including umbrella funds as well as funds under an umbrella structure, hedge funds, private equity funds, etc.);
+- all entities under the purview of a financial regulator and their affiliates, subsidiaries and holding companies;
+- counterparties to financial transactions.</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&cmns-org;LegalPerson">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;isRecognizedIn"/>
+				<owl:someValuesFrom rdf:resource="&cmns-rga;Jurisdiction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&cmns-rga;isRecognizedIn">
+		<rdfs:domain>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&cmns-org;LegalPerson">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fnd-agr-agr;Agreement">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:domain>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

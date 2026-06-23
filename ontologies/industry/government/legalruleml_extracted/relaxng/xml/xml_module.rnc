@@ -1,0 +1,29 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Agents" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, XML, base, id" ]
+dc:description [ "The expansion module for attributes in the xml namespace." ]
+dc:language [ "en" ]
+start |= notAllowed
+##
+xml-base.choice |= xml-base.attrib.def
+xml-base.attrib.def = 
+##
+attribute xml:base{xml-base.datatype}
+xml-base.datatype |= xsd:anyURI
+
+
+##
+xml-id.choice |= xml-id.attrib.def
+xml-id.attrib.def = 
+##
+attribute xml:id{xml-id.datatype}
+xml-id.datatype |= id.datatype

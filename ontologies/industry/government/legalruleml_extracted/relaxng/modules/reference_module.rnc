@@ -1,0 +1,100 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "References" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Reference" ]
+dc:description [ "The expansion module for LegalRuleML references." ]
+dc:language [ "en" ]
+start |= LegalReferenceCollection.Node.def | LegalReference.Node.def|ReferenceCollection.Node.def | Reference.Node.def
+
+##
+LegalReferenceCollection.Node.choice |= LegalReferenceCollection.Node.def
+LegalReferenceCollection.Node.def =
+  
+  ## a collection where every member is a LegalReference.
+  element LegalReferences { LegalReferenceCollection.type.def }
+LegalReferenceCollection.type.def = ReferenceCollection.attlist, LegalReferenceCollection.main
+
+##
+ReferenceCollection.Node.choice |= ReferenceCollection.Node.def
+ReferenceCollection.Node.def =
+  
+  ## a collection where every member is a Reference.
+  element References { ReferenceCollection.type.def }
+ReferenceCollection.type.def = ReferenceCollection.attlist, ReferenceCollection.main
+
+##
+ReferenceCollection.attlist &= commonLRMLNodeInit.attlist?
+ReferenceCollection.attlist &= refType.attrib.opt.choice?
+ReferenceCollection.attlist &= refIDSystemName.attrib.opt.choice?
+ReferenceCollection.attlist &= refIDSystemSource.attrib.opt.choice?
+
+##
+LegalReference.Node.choice |= LegalReference.Node.def
+LegalReference.Node.def =
+  
+  ## a pair consisting of an internal ID and an enriched non-IRI identifier, where the non-IRI is paired with some additional information that is sufficient to disambiguate the non-IRI to a unique LegalSource.
+  element LegalReference { LegalReference.type.def }
+LegalReference.type.def =
+  (refersTo.attrib.choice & refID.attrib.choice & Reference.attlist), Reference.main
+
+##
+Reference.Node.choice |= Reference.Node.def
+Reference.Node.def =
+  
+  ## a pair consisting of an internal ID and an enriched non-IRI identifier, where the non-IRI is paired with some additional information that is sufficient to disambiguate the non-IRI to a unique Source.
+  element Reference { Reference.type.def }
+Reference.type.def =
+  (refersTo.attrib.choice & refID.attrib.choice & Reference.attlist), Reference.main
+# 
+# Note: can't use commonLRMLNodeInit.attlist here because more than one attribute of type xsd:ID (@refersTo)
+Reference.attlist &= commonLRMLInit.attlist?
+
+##
+Reference.attlist &= refType.attrib.opt.choice?
+Reference.attlist &= refIDSystemName.attrib.opt.choice?
+Reference.attlist &= refIDSystemSource.attrib.opt.choice?
+Reference.main |= hasComment.edge.choice?
+
+##
+refType.attrib.opt.choice |= refType.attrib.def?
+refType.attrib.def =
+  
+  ## the conceptual type of the Reference (or of references contained by the References collection).
+  attribute refType { iri.lrml.datatype }
+
+##
+refIDSystemName.attrib.opt.choice |= refIDSystemName.attrib.def?
+refIDSystemName.attrib.def =
+  
+  ## the name of the ID system of the Reference (or of References contained by the References collection).
+  attribute refIDSystemName { xsd:string }
+
+##
+refIDSystemSource.attrib.opt.choice |= refIDSystemSource.attrib.def?
+refIDSystemSource.attrib.def =
+  
+  ## the IRI source of the ID system of the Reference (or of References contained by the References collection). 
+  attribute refIDSystemSource { iri.lrml.datatype }
+
+##
+refersTo.attrib.choice |= refersTo.attrib.def
+refersTo.attrib.def =
+  
+  ## the internal ID of the Reference.
+  attribute refersTo { id.datatype }
+
+##
+refID.attrib.choice |= refID.attrib.def
+refID.attrib.def =
+  
+  ## the external ID of the Reference or Prefix.
+  attribute refID { refID.datatype }
+refID.datatype |= xsd:string

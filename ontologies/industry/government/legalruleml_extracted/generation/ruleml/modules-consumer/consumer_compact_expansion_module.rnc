@@ -1,0 +1,160 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "Consumer RuleML Compact Serialization" ]
+dcterms:identifier [
+  "http://consumer.ruleml.org/1.02/modules/consumer_compact_expansion_modoule.rnc"
+]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "Consumer RuleML, compact" ]
+dcterms:description [
+  "expansion module for the compact serialization of the consuemr RuleML supremum."
+]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org/1.02" ]
+# 
+# ATOMIC FORMULAS REDEFINED
+#
+include "../modules-deliberation/atom_expansion_module.rnc" {
+  start |= notAllowed
+  operatorForAtoms-edge.choice |= notAllowed
+  op_Atom.edge.def = notAllowed
+  op.type.def = notAllowed
+}
+# 
+# CONJUNCTIONS AND DISJUNCTIONS REDEFINED
+#
+include "../modules-deliberation/andor_expansion_module.rnc" {
+  start |= notAllowed
+  formula_And-edge.choice |= notAllowed
+  formula_Or-edge.choice |= notAllowed
+  formula_And.edge.def = notAllowed
+  formula_Or.edge.def = notAllowed
+  formula_And.type.def = notAllowed
+  formula_Or.type.def = notAllowed
+}
+# 
+# QUANTIFICATION OVER VARIABLES REDEFINED
+#
+include "../modules-deliberation/quantification_expansion_module.rnc" {
+  start |= notAllowed
+  formula_Exists-edge.choice |= notAllowed
+  formula_Forall-edge.choice |= notAllowed
+  declare-edge.choice |= notAllowed
+  formula_Exists.edge.def = notAllowed
+  formula_Forall.edge.def = notAllowed
+  declare.edge.def = notAllowed
+  formula_Exists.type.def = notAllowed
+  formula_Forall.type.def = notAllowed
+  declare.type.def = notAllowed
+}
+# 
+# EXPRESSIONS REDEFINED
+#
+include "../modules-deliberation/expr_expansion_module.rnc" {
+  start |= notAllowed
+  operatorForExpressions-edge.choice |= notAllowed
+  op_Expr.edge.def = notAllowed
+  op_Expr.type.def = notAllowed
+}
+# 
+# STRONG NEGATION REDEFINED
+#
+include "../modules-deliberation/neg_expansion_module.rnc" {
+  start |= notAllowed
+  strong-edge.choice |= notAllowed
+  strong.edge.def = notAllowed
+  strong.type.def = notAllowed
+}
+# 
+# WEAK NEGATIONS REDEFINED
+#
+include "../modules-deliberation/naf_expansion_module.rnc" {
+  start |= notAllowed
+  weak-edge.choice |= notAllowed
+  weak.edge.def = notAllowed
+  weak.type.def = notAllowed
+}
+# 
+# EQUIVALENCES REDEFINED
+#
+include "../modules-deliberation/equivalent_expansion_module.rnc" {
+  start |= notAllowed
+  torso-edge.choice |= notAllowed
+  torso.edge.def = notAllowed
+  torso.type.def = notAllowed
+}
+# 
+# EQUATIONS REDEFINED
+#
+include "../modules-deliberation/equal_expansion_module.rnc" {
+  start |= notAllowed
+  leftSide-edge.choice |= notAllowed
+  rightSide-edge.choice |= notAllowed
+  left.edge.def = notAllowed
+  right.edge.def = notAllowed
+  left.type.def = notAllowed
+  right.type.def = notAllowed
+}
+# 
+# INDIVIDUAL TERMS (INTERPRETED NAMES) ARE REDEFINED
+#
+include "../modules-deliberation/individual_expansion_module.rnc" {
+  start |= notAllowed
+  positionalArgument-edge.choice |= notAllowed
+  arg.type.def = notAllowed
+  arg.edge.def = notAllowed
+  arg-datt.choice |= notAllowed
+}
+# 
+# INCLUDE INTERVAL TERMS AND FORMULAS
+#
+include "consumer_interval_expansion_module.rnc" {
+  start |= notAllowed
+  arg_interval_term-edge.choice |= notAllowed
+  arg_interval_formula-edge.choice |= notAllowed
+  arg_interval_term.edge.def = notAllowed
+  arg_interval_formula.edge.def = notAllowed
+}
+# 
+# INCLUDE GENERIC NEGATION OPERATOR
+#
+include "consumer_negation_expansion_module.rnc" {
+  start |= notAllowed
+  formula-negation-edge.choice |= notAllowed
+  formula-negation.edge.def = notAllowed
+  formula-negation.type.def = notAllowed
+}
+# 
+# INCLUDE GENERIC OPERATOR
+#
+include "consumer_operation_expansion_module.rnc" {
+  start |= notAllowed
+  formula-Operation-edge.choice |= notAllowed
+  formula-Operation.edge.def = notAllowed
+  formula-Operation.type.def = notAllowed
+  formula_Operation-datt.choice |= notAllowed
+}
+# 
+# INCLUDE SPATIAL TERMS AND FORMULAS 
+#
+include "consumer_spatial_expansion_module.rnc" {
+  start |= notAllowed
+  arg_spatial-edge.choice |= notAllowed
+  arg_spatial.edge.def = notAllowed
+  arg_spatial.type.def = notAllowed
+}
+# 
+# INCLUDE TEMPORAL TERMS AND FORMULAS
+#
+include "consumer_time_expansion_module.rnc" {
+  start |= notAllowed
+  arg_time-edge.choice |= notAllowed
+  arg_time.edge.def = notAllowed
+  arg_time.type.def = notAllowed
+}

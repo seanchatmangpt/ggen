@@ -1,0 +1,404 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Initializing Base Patterns" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, initialize, base patterns" ]
+dc:description [ "expansion module for initializing base patterns." ]
+dc:language [ "en" ]
+start |= notAllowed
+#include "init_type_def_module.rnc"
+# 
+# attrib.choice |=
+# 
+memberType.attrib.choice |= notAllowed
+iri.lrml.attrib.opt.choice |= notAllowed
+iri.lrml.attrib.choice |= notAllowed
+type.lrml.attrib.choice |= notAllowed
+over.attrib.choice |= notAllowed
+under.attrib.choice |= notAllowed
+strength.attrib.opt.choice |= notAllowed
+NodeLabel.attrib.choice |= notAllowed
+NodeReference.attrib.choice |= notAllowed
+pre.attrib.choice |= notAllowed
+refType.attrib.choice |= notAllowed
+refIDSystemName.attrib.choice |= notAllowed
+refIDSystemSource.attrib.choice |= notAllowed
+refersTo.attrib.choice |= notAllowed
+refID.attrib.choice |= notAllowed
+sameAs.attrib.choice |= notAllowed
+hasCreationDate.attrib.opt.choice |= notAllowed
+#
+# attrib.opt.choice |=
+#
+NodeReference.attrib.opt.choice |= notAllowed
+sameAs.attrib.opt.choice |= empty
+
+# 
+# edge.choice |=
+
+# 
+# stripe_optional_leaf
+atTime.edge.choice |= notAllowed
+filledBy.edge.choice |= notAllowed
+hasActor.edge.choice |= notAllowed
+hasLegalSourceCollection.edge.choice |= notAllowed
+hasLegalSource.edge.choice |= notAllowed
+hasSourceCollection.edge.choice |= notAllowed
+hasSource.edge.choice |= notAllowed
+hasStrength.edge.choice |= notAllowed
+hasTemplate-Constitutive.edge.choice |= notAllowed
+hasTemplate-Factual.edge.choice |= notAllowed
+hasTemplate-Override.edge.choice |= notAllowed
+hasTemplate-Penalty.edge.choice |= notAllowed
+hasTemplate-Prescriptive.edge.choice |= notAllowed
+hasTemplate-Reparation.edge.choice |= notAllowed
+hasTemporalCharacteristics.edge.choice |= notAllowed
+hasTemporalCharacteristic.edge.choice |= notAllowed
+inScope.edge.choice |= notAllowed
+# 
+# stripe_optional
+hasAgentCollection.edge.choice |= notAllowed
+hasAgent.edge.choice |= notAllowed
+hasAlternativeCollection.edge.choice |= notAllowed
+hasAssociationCollection.edge.choice |= notAllowed
+hasAssociation.edge.choice |= notAllowed
+hasAuthorityCollection.edge.choice |= notAllowed
+hasAuthority.edge.choice |= notAllowed
+hasContext.edge.choice |= notAllowed
+hasFigureCollection.edge.choice |= notAllowed
+hasFigure.edge.choice |= notAllowed
+hasJurisdictionCollection.edge.choice |= notAllowed
+hasJurisdiction.edge.choice |= notAllowed
+hasPrefix.edge.choice |= notAllowed
+hasLegalReferenceCollection.edge.choice |= notAllowed
+hasLegalReference.edge.choice |= notAllowed
+hasReferenceCollection.edge.choice |= notAllowed
+hasReference.edge.choice |= notAllowed
+hasRoleCollection.edge.choice |= notAllowed
+hasRole.edge.choice |= notAllowed
+hasStatementCollection.edge.choice |= notAllowed
+hasStatement.edge.choice |= notAllowed
+hasTimeCollection.edge.choice |= notAllowed
+hasTime.edge.choice |= notAllowed
+# 
+# stripe_required
+# 
+#     no leaf form
+hasQualification.edge.choice |= notAllowed
+# 
+#     optional leaf form
+appliesAlternativeCollection.edge.choice |= notAllowed
+appliesAssociationCollection.edge.choice |= notAllowed
+appliesAssociation.edge.choice |= notAllowed
+appliesAuthority.edge.choice |= notAllowed
+appliesJurisdiction.edge.choice |= notAllowed
+appliesPenalty.edge.choice |= notAllowed
+appliesStrength.edge.choice |= notAllowed
+appliesTemporalCharacteristics.edge.choice |= notAllowed
+appliesTemporalCharacteristic.edge.choice |= notAllowed
+fromLegalSources.edge.choice |= notAllowed
+# 
+#    obligatory leaf form
+appliesModality.edge.choice |= notAllowed
+appliesSource.edge.choice |= notAllowed
+forExpression.edge.choice |= notAllowed
+forStatus.edge.choice |= notAllowed
+hasAlternative.edge.choice |= notAllowed
+hasComment.edge.choice |= notAllowed
+hasParaphrase.edge.choice |= notAllowed
+hasFunction.edge.choice |= notAllowed
+hasStatusDevelopment.edge.choice |= notAllowed
+hasMemberType.edge.choice |= notAllowed
+hasType.edge.choice |= notAllowed
+toPrescriptiveStatement.edge.choice |= notAllowed
+toTarget.edge.choice |= notAllowed
+# 
+# .content |=
+# 
+#    stripe_content (skippable stripes only)
+# 
+#       no leaf form
+hasAgentCollection.content |= notAllowed
+hasAgent.content |= notAllowed
+hasAlternativeCollection.content |= notAllowed
+hasAssociationCollection.content |= notAllowed
+hasAssociation.content |= notAllowed
+hasAuthorityCollection.content |= notAllowed
+hasAuthority.content |= notAllowed
+hasContext.content |= notAllowed
+hasFigureCollection.content |= notAllowed
+hasFigure.content |= notAllowed
+hasJurisdictionCollection.content |= notAllowed
+hasJurisdiction.content |= notAllowed
+hasLegalSourceCollection.content |= notAllowed
+hasLegalSource.content |= notAllowed
+hasSourceCollection.content |= notAllowed
+hasSource.content |= notAllowed
+hasPrefix.content |= notAllowed
+hasLegalReferenceCollection.content |= notAllowed
+hasLegalReference.content |= notAllowed
+hasReferenceCollection.content |= notAllowed
+hasReference.content |= notAllowed
+hasRoleCollection.content |= notAllowed
+hasRole.content |= notAllowed
+hasStatementCollection.content |= notAllowed
+hasStatement.content |= notAllowed
+hasTemplate-Constitutive.content |= notAllowed
+hasTemplate-Prescriptive.content |= notAllowed
+hasTemplate-Override.content |= notAllowed
+hasTemplate-Penalty.content |= notAllowed
+hasTemplate-Factual.content |= notAllowed
+hasTemplate-Reparation.content |= notAllowed
+hasTimeCollection.content |= notAllowed
+hasTime.content |= notAllowed
+hasTemporalCharacteristics.content |= notAllowed
+hasTemporalCharacteristic.content |= notAllowed
+# 
+# also have leaf form
+appliesAlternativeCollection.content |= notAllowed
+appliesAssociationCollection.content |= notAllowed
+appliesAssociation.content |= notAllowed
+appliesAuthority.content |= notAllowed
+appliesJurisdiction.content |= notAllowed
+appliesPenalty.content |= notAllowed
+toPrescriptiveStatement.content |= notAllowed
+appliesStrength.content |= notAllowed
+appliesTemporalCharacteristics.content |= notAllowed
+appliesTemporalCharacteristic.content |= notAllowed
+hasComment.content |= notAllowed
+hasParaphrase.content |= notAllowed
+hasQualification.content |= notAllowed
+fromLegalSources.content |= notAllowed
+
+#
+atTime.content |= notAllowed
+filledBy.content |= notAllowed
+hasActor.content |= notAllowed
+hasStrength.content |= notAllowed
+inScope.content |= notAllowed
+# 
+# not necessary to declare required stripes in init
+# 
+# Node.choice |=
+AgentCollection.Node.choice |= notAllowed
+Agent.Node.choice |= notAllowed
+FigureCollection.Node.choice |= notAllowed
+Figure.Node.choice |= notAllowed
+Actor.Node.choice |= notAllowed
+RoleCollection.Node.choice |= notAllowed
+Role.Node.choice |= notAllowed
+AlternativeCollection.Node.choice |= notAllowed
+AssociationCollection.Node.choice |= notAllowed
+Association.Node.choice |= notAllowed
+AuthorityCollection.Node.choice |= notAllowed
+Authority.Node.choice |= notAllowed
+Comment.Node.choice |= notAllowed
+Paraphrase.Node.choice |= notAllowed
+Context.Node.choice |= notAllowed
+Override.Node.choice |= notAllowed
+Strength.Node.choice |= notAllowed
+DefeasibleStrength.Node.choice |= notAllowed
+StrictStrength.Node.choice |= notAllowed
+Defeater.Node.choice |= notAllowed
+Violation.Node.choice |= notAllowed
+Compliance.Node.choice |= notAllowed
+DeonticRole.Node.choice |= notAllowed
+Bearer.Node.choice |= notAllowed
+AuxiliaryParty.Node.choice |= notAllowed
+Deontic.Node.choice |= notAllowed
+Obligation.Node.choice |= notAllowed
+Permission.Node.choice |= notAllowed
+Prohibition.Node.choice |= notAllowed
+Reparation.Node.choice |= notAllowed
+Right.Node.choice |= notAllowed
+LegalRuleMLDocument.Node.choice |= notAllowed
+JurisdictionCollection.Node.choice |= notAllowed
+Jurisdiction.Node.choice |= notAllowed
+LegalSourceCollection.Node.choice |= notAllowed
+LegalSource.Node.choice |= notAllowed
+SourceCollection.Node.choice |= notAllowed
+Source.Node.choice |= notAllowed
+Prefix.Node.choice |= notAllowed
+LegalReferenceCollection.Node.choice |= notAllowed
+LegalReference.Node.choice |= notAllowed
+ReferenceCollection.Node.choice |= notAllowed
+Reference.Node.choice |= notAllowed
+Scope.Node.choice |= notAllowed
+StatementCollection.Node.choice |= notAllowed
+Statement.Node.choice |= notAllowed
+ConstitutiveStatement.Node.choice |= notAllowed
+PrescriptiveStatement.Node.choice |= notAllowed
+FactualStatement.Node.choice |= notAllowed
+OverrideStatement.Node.choice |= notAllowed
+PenaltyStatement.Node.choice |= notAllowed
+ReparationStatement.Node.choice |= notAllowed
+SuborderList.Node.choice |= notAllowed
+TemporalCharacteristicCollection.Node.choice |= notAllowed
+TemporalCharacteristic.Node.choice |= notAllowed
+TimeCollection.Node.choice |= notAllowed
+# 
+# .main |=  
+# 
+#   in individual modules, is empty or just a comment
+Comment.main |= notAllowed
+Paraphrase.main |= notAllowed
+Override.main |= notAllowed
+DefeasibleStrength.main |= notAllowed
+StrictStrength.main |= notAllowed
+Defeater.main |= notAllowed
+Violation.main |= notAllowed
+Compliance.main |= notAllowed
+Bearer.main |= notAllowed
+AuxiliaryParty.main |= notAllowed
+LegalReference.main |= notAllowed
+Reference.main |= notAllowed
+# 
+#  ordered
+LegalRuleMLDocument.main |= notAllowed
+LegalReferenceCollection.main |= notAllowed
+ReferenceCollection.main |= notAllowed
+LegalSourceCollection.main |= notAllowed
+LegalSource.main |= notAllowed
+SourceCollection.main |= notAllowed
+Source.main |= notAllowed
+TimeCollection.main |= notAllowed
+TemporalCharacteristicCollection.main |= notAllowed
+TemporalCharacteristic.main |= notAllowed
+AgentCollection.main |= notAllowed
+Agent.main |= notAllowed
+FigureCollection.main |= notAllowed
+Figure.main |= notAllowed
+RoleCollection.main |= notAllowed
+Role.main |= notAllowed
+AuthorityCollection.main |= notAllowed
+Authority.main |= notAllowed
+JurisdictionCollection.main |= notAllowed
+Jurisdiction.main |= notAllowed
+AssociationCollection.main |= notAllowed
+Association.main |= notAllowed
+AlternativeCollection.main |= notAllowed
+Context.main |= notAllowed
+StatementCollection.main |= notAllowed
+ConstitutiveStatement.main |= notAllowed
+PrescriptiveStatement.main |= notAllowed
+FactualStatement.main |= notAllowed
+OverrideStatement.main |= notAllowed
+PenaltyStatement.main |= notAllowed
+ReparationStatement.main |= notAllowed
+Obligation.main |= notAllowed
+Permission.main |= notAllowed
+Prefix.main |= notAllowed
+Prohibition.main |= notAllowed
+Reparation.main |= notAllowed
+Right.main |= notAllowed
+SuborderList.main |= notAllowed
+# 
+# Formula.choice  (ordered according to stripe_content, then stripe_required)
+# 
+# 
+# stripe_content
+ConstitutiveAndFormula.choice |= notAllowed
+DeonticFormula.choice |= notAllowed
+ConstitutiveExistsFormula.choice |= notAllowed
+ConstitutiveForallFormula.choice |= notAllowed
+ConstitutiveOrFormula.choice |= notAllowed
+SuborderFormula.choice |= notAllowed
+ConstitutiveStatementFormula.choice |= notAllowed
+FactualStatementFormula.choice |= notAllowed
+OverrideStatementFormula.choice |= notAllowed
+PenaltyStatementFormula.choice |= notAllowed
+PrescriptiveStatementFormula.choice |= notAllowed
+ReparationStatementFormula.choice |= notAllowed
+ConstitutiveNegFormula.choice |= notAllowed
+ConstitutiveConclusionFormula.choice |= notAllowed
+ConstitutivePremiseFormula.choice |= notAllowed
+PremiseFormula.choice |= notAllowed
+ConclusionFormula.choice |= notAllowed
+PrescriptiveConclusionFormula.choice |= notAllowed
+QualificationFormula.choice |= notAllowed
+# 
+# 
+# 
+# from RuleML
+AnyTerm.choice |= notAllowed
+AssertRetractFormula.choice |= notAllowed
+boundVariables.choice |= notAllowed
+anyElement.choice |= notAllowed
+# done to here
+# 
+# .datatype |=
+strength.datatype |= notAllowed
+id.datatype |= notAllowed
+iri.lrml.datatype |= notAllowed
+curieOrIRI.datatype |= notAllowed
+curieOrAbsIRI.datatype |= notAllowed
+absIRI.datatype |= notAllowed
+curie.datatype |= notAllowed
+refID.datatype |= notAllowed
+keyref.lrml.datatype |= notAllowed 
+# .type.choice |=
+any.type.choice |= notAllowed
+# 
+# = (,*?).attlist
+appliesAlternativeCollection.attlist &= empty
+appliesAssociationCollection.attlist &= empty
+appliesAssociation.attlist &= empty
+appliesAuthority.attlist &= empty
+hasActor.attlist &= empty
+hasComment.attlist &= empty
+hasFunction.attlist &= empty
+hasParaphrase.attlist &= empty
+appliesJurisdiction.attlist &= empty
+appliesPenalty.attlist &= empty
+appliesStrength.attlist &= empty
+appliesTemporalCharacteristics.attlist &= empty
+appliesTemporalCharacteristic.attlist &= empty
+fromLegalSources.attlist &= empty
+fromLegalSource.attlist &= empty
+# 
+# common
+commonLRMLInit.attlist &= empty
+commonLRMLNodeInit.attlist &= empty
+commonLRMLEdgeInit.attlist &= empty
+commonCollection.attlist &= empty
+# 
+#
+body_ConstitutiveRule.attlist &= empty
+head_ConstitutiveRule.attlist &= empty
+reImplies.attlist &= empty
+Implies.header &= empty
+reEquivalent.attlist &= empty
+Equivalent.header &= empty
+reForall.attlist &= empty
+Forall.header &= empty
+reExists.attlist &= empty
+Exists.header &= empty
+reNeg.attlist &= empty
+Neg.header &= empty
+reOr.attlist &= empty
+Or.header &= empty
+reAnd.attlist &= empty
+And.header &= empty
+body_PrescriptiveRule.attlist &= empty
+head_PrescriptiveRule.attlist &= empty
+TimeData.attlist &= empty
+formula_Deontic.attlist &= empty
+formula_Suborder.attlist &= empty
+Obligation.attlist &= empty
+# 
+# 
+# XML namespace
+xml-base.choice |= notAllowed
+xml-id.choice |= notAllowed
+#
+# XSI namespace
+xsi-schemalocation.choice |= notAllowed
+
+DummyLRMLInit = element DummyLRMLInit {commonLRMLInit.attlist}

@@ -1,0 +1,119 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace ruleml = "http://ruleml.org/spec"
+
+start |= notAllowed
+
+##
+ConstitutiveRule-node.choice |= ConstitutiveRule.Node.def
+ConstitutiveRule.Node.def =
+  
+  ## a RuleML Rule encoding a Constitutive Statement.
+  element ruleml:Rule { ConstitutiveRule.type.def }
+ConstitutiveRule.type.def =
+  (ConstitutiveRule-datt.choice & reConstitutiveRule.attlist),
+  ConstitutiveRule.header,
+  ConstitutiveRule.main
+
+##
+And-const-node.choice |= And-const.Node.def
+And-const.Node.def =
+  
+  ## logical conjunction within a Constitutive Statement.
+  element ruleml:And { (And-datt.choice & reAnd.attlist), And.header, And-const.main }
+
+##
+Or-const-node.choice |= Or-const.Node.def
+Or-const.Node.def =
+  
+  ## logical disjunction within a Constitutive Statement.
+  element ruleml:Or { (Or-datt.choice & reOr.attlist), Or.header, Or-const.main }
+
+##
+Implication-const-node.choice |= Implies-const-node.choice | Equivalent-const-node.choice
+Implies-const-node.choice |= Implies-const.Node.def
+Implies-const.Node.def =
+  
+  ## logical implication within a Constitutive Statement.
+  element ruleml:Implies {
+    (Implies-datt.choice & reImplies.attlist), Implies.header, Implies-const.main
+  }
+
+##  
+Equivalent-const-node.choice |= Equivalent-const.Node.def
+Equivalent-const.Node.def =
+  
+  ## logical equivalence within a Constitutive Statement.
+  element ruleml:Equivalent {
+    (Equivalent-datt.choice & reEquivalent.attlist), Equivalent.header, Equivalent-const.main
+  }
+
+##
+Forall-const-node.choice |= Forall-const.Node.def
+Forall-const.Node.def =
+  
+  ## universal quantification within a Constitutive Statement.   
+  element ruleml:Forall {
+    (Forall-datt.choice & reForall.attlist), Forall.header, Forall-const.main
+  }
+
+##
+Exists-const-node.choice |= Exists-const.Node.def
+Exists-const.Node.def =
+  
+  ## existential quantification within a Constitutive Statement.
+  element ruleml:Exists {
+    (Exists-datt.choice & reExists.attlist), Exists.header, Exists-const.main
+  }
+
+##
+Negation-const-node.choice |= Neg-const.Node.def
+Neg-const.Node.def =
+  
+  ## logical negation within a Constitutive Statement.
+  element ruleml:Neg { (Neg-datt.choice & reNeg.attlist), Neg.header, Neg-const.main }
+
+##
+PrescriptiveRule-node.choice |= PrescriptiveRule.Node.def
+PrescriptiveRule.Node.def =
+  
+  ## a RuleML Rule encoding a Prescriptive Statement.
+  element ruleml:Rule { PrescriptiveRule.type.def }
+PrescriptiveRule.type.def =
+  (PrescriptiveRule-datt.choice & rePrescriptiveRule.attlist),
+  PrescriptiveRule.header,
+  PrescriptiveRule.main
+
+##
+Node.header &= (hasComment.edge.choice?,  hasParaphrase.edge.choice?)?
+
+##
+#reRule.attlist &= commonNode.attlist?
+#reRule.attlist &= closure-att.choice?
+#reRule.attlist &= mapClosure-att-fo.choice?
+
+##
+reConstitutiveRule.attlist &= reRule.attlist?
+reConstitutiveRule.attlist &= strength.attrib.opt.choice?
+
+##
+ConstitutiveRule-datt.choice |= empty
+ConstitutiveRule.header &= (Node.header?, hasStrength.edge.choice?)?
+# 
+# Note: to enable different levels of RuleML expressivity, split into fo and dis modules.
+# fo
+And-const-fo-node.choice |= And-const-node.choice
+Or-const-fo-node.choice |= Or-const-node.choice
+Negation-const-fo-node.choice |= Negation-const-node.choice
+Implication-const-fo-node.choice |= Implication-const-node.choice
+Forall-const-fo-node.choice |= Forall-const-node.choice
+Exists-const-fo-node.choice |= Exists-const-node.choice
+# 
+# dis
+Or-const-dis-node.choice |= Or-const-node.choice
+
+##
+PrescriptiveRule-datt.choice |= empty
+PrescriptiveRule.header &= (Node.header?, hasStrength.edge.choice?)?
+rePrescriptiveRule.attlist &= reRule.attlist?
+rePrescriptiveRule.attlist &= strength.attrib.opt.choice?

@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-dsg "https://www.omg.org/spec/Commons/Designators/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-ge-easj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/AsianJurisdiction/EasternAsiaGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-be-ge-euj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/EuropeanJurisdiction/EUGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-be-ge-sasj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/AsianJurisdiction/SouthernAsiaGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-be-ge-usj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/USGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-be-ge-weuj "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/EuropeanJurisdiction/WesternEuropeGovernmentEntitiesAndJurisdictions/">
+	<!ENTITY fibo-fbc-fi-fi "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-sec-dbt-dbti "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/">
+	<!ENTITY fibo-sec-eq-dr "https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/DepositaryReceipts/">
+	<!ENTITY fibo-sec-eq-eq "https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/EquityInstruments/">
+	<!ENTITY fibo-sec-sec-cls "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesClassification/">
+	<!ENTITY fibo-sec-sec-rst "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/">
+	<!ENTITY fibo-sec-sec-usrst "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/NorthAmericanSecurities/USSecuritiesRestrictions/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/DepositaryReceipts/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-dsg="https://www.omg.org/spec/Commons/Designators/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-ge-easj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/AsianJurisdiction/EasternAsiaGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-be-ge-euj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/EuropeanJurisdiction/EUGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-be-ge-sasj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/AsianJurisdiction/SouthernAsiaGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-be-ge-usj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/USGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-be-ge-weuj="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/EuropeanJurisdiction/WesternEuropeGovernmentEntitiesAndJurisdictions/"
+	xmlns:fibo-fbc-fi-fi="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-sec-dbt-dbti="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"
+	xmlns:fibo-sec-eq-dr="https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/DepositaryReceipts/"
+	xmlns:fibo-sec-eq-eq="https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/EquityInstruments/"
+	xmlns:fibo-sec-sec-cls="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesClassification/"
+	xmlns:fibo-sec-sec-rst="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/"
+	xmlns:fibo-sec-sec-usrst="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/NorthAmericanSecurities/USSecuritiesRestrictions/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/DepositaryReceipts/">
+		<rdfs:label xml:lang="en">Depositary Receipts</rdfs:label>
+		<dct:abstract>Depositary receipts are certificates which represent ownership of some underlying security. They are issued by a bank and give the holder the ability to participate in the returns on an instrument that they may not be able to hold directly.</dct:abstract>
+		<dct:license rdf:datatype="&xsd;anyURI">http://opensource.org/licenses/MIT</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/AsianJurisdiction/EasternAsiaGovernmentEntitiesAndJurisdictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/AsianJurisdiction/SouthernAsiaGovernmentEntitiesAndJurisdictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/EuropeanJurisdiction/EUGovernmentEntitiesAndJurisdictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/EuropeanJurisdiction/WesternEuropeGovernmentEntitiesAndJurisdictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/NorthAmericanJurisdiction/USGovernmentEntitiesAndJurisdictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Equities/EquityInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/NorthAmericanSecurities/USSecuritiesRestrictions/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesClassification/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesRestrictions/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Designators/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/20230301/Equities/DepositaryReceipts/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/20221001/Equities/DepositaryReceipts.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20210501/Equities/DepositaryReceipts.rdf version of this ontology was modified to expand the definition of a depositary receipt to cover a broader range of securities.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20211101/Equities/DepositaryReceipts.rdf version of this ontology was modified to further refine the definition of a depositary receipt, add participatory notes, and broaden explanatory notes to allow for coverage of Chinese ADRs.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20220101/Equities/DepositaryReceipts.rdf version of this ontology was modified to address text formatting hygiene issues.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20220801/Equities/DepositaryReceipts.rdf version of this ontology was modified to add the concept of a Chinese depositary receipt.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230201/Equities/DepositaryReceipts.rdf version of this ontology was modified to move the property, &apos;is conferred on&apos; to the Legal Capacity ontology and to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/2023020120230301/Equities/DepositaryReceipts.rdf version of this ontology was modified to address a deprecated term that was replaced with a new term over 6 months ago (FND-386) and eliminate punning issues (LOAN-169).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2024 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2024 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;AmericanDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-usj;UnitedStatesJurisdiction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevel"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">American depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">depositary receipt that represents securities of a foreign company and allows that company&apos;s securities to trade in the U.S. financial markets</skos:definition>
+		<skos:example xml:lang="en">For example, Accton Technology is traded on the Taiwanese exchange. In order for Accton Technology to be traded in the United States, Citibank, acting as a domestic custodian bank, purchases shares of Accton Technology and creates a security, ISIN US00437R1032, which can be traded on a U.S. exchange, in this case PORTAL. Note that the depositary shares do not have to equal the number of original shares. In the case of Accton Technology, one depositary share is equivalent to two original shares.</skos:example>
+		<cmns-av:abbreviation xml:lang="en">ADR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">Most ADRs are issued by a domestic custodian bank when the underlying securities are deposited in a foreign depositary bank, usually by a broker who has purchased the securities in the open market local to the foreign company. An ADR can represent a fraction of a share, a single share, or multiple shares of a foreign security. The holder of an ADR has the right to obtain the underlying foreign security that the ADR represents, but investors usually find it more convenient to own the ADR. The price of an ADR generally tracks the price of the foreign security in its home market, adjusted for the ratio of ADRs to foreign company shares. In the case of companies domiciled in the United Kingdom, creation of ADRs attracts a 1.5 percent creation fee; this creation fee is different than stamp duty reserve tax charge by the UK government. Depositary banks have various responsibilities to ADR holders and to the issuing foreign company the ADR represents.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevel">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-cls;FinancialInstrumentClassifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;classifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceipt"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;isDefinedIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevelScheme"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">American depositary receipt level</rdfs:label>
+		<skos:definition xml:lang="en">classifier for American depositary receipts that categorizes ADRs into levels based on the extent to which the foreign company has access to the U.S. market</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">ADR level</cmns-av:abbreviation>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevelScheme">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-cls;FinancialInstrumentClassificationScheme"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;defines"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevel"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">American depositary receipt level scheme</rdfs:label>
+		<skos:definition xml:lang="en">classifier for American depositary receipts that categorizes ADRs into levels based on the extent to which the foreign company has access to the U.S. market</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">ADR level</cmns-av:abbreviation>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;ChineseDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;GlobalDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-easj;JurisdictionOfTheRepublicOfChina"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">Chinese depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">global depositary receipt that represents ownership in the securities of a non-Chinese company that trades on a public exchange in China</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">CDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">It refers to shares in non-Chinese companies that trade in China the same way that American depositary receipts (ADRs) allow non-U.S. company shares to trade on American exchanges.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;DepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-fi;Security"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-eq-dr;hasMultiplier"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;decimal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-eq-dr;hasTradedSecurity"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-fi;Security"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">negotiable financial instrument issued by a trust company, security depositary, or bank that is evidence of the deposit of publicly traded securities and that facilitates the ownership of securities traded in other jurisdictions</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">DR</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom xml:lang="en">ISO 10962, Securities and related financial instruments - Classification of financial instruments (CFI) code, Fourth Edition, October 2019</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">Depositary receipts are widely used in order to allow the trading of securities in jurisdictions other than
+the one where the original securities were issued, such as in a local market. Depositary receipts facilitate buying securities in foreign companies, because the securities do not have to leave the home country. They enable domestic investors to buy securities of foreign companies without the accompanying risks or inconveniences of cross-border and cross-currency transactions.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">depositary receipt</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;EuropeanDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;GlobalDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-euj;EuropeanUnionJurisdiction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">European depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">global depositary receipt that represents ownership in the securities of a non-European company that trades in European financial markets</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">EDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A European depositary receipt is a European equivalent of the original American depositary receipt (ADR). The EDR is issued by a bank in Europe representing securities traded on an exchange outside of the bank&apos;s home country.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;GlobalDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:label xml:lang="en">global depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">depositary receipt where a certificate issued by a depositary bank, which purchases securities of foreign companies, creates a security on a local exchange backed by those securities</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">GDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">Global depositary receipts are the global equivalent of the original American depositary receipts (ADR) on which they are based. GDRs represent ownership of an underlying number of securities of a foreign company and are commonly used to invest in companies from developing or emerging markets by investors in developed markets.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">international depositary receipt</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;HongKongDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;GlobalDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-easj;JurisdictionOfHongKong"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">Hong Kong depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">global depositary receipt that represents the purchase, or ownership, of foreign assets which are deposited in a depositary bank in Hong Kong</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">HKDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A Hong Kong Depositary Receipt (HDR) is a negotiable instrument issued by a depositary bank that evidences ownership of securities in a corporation organized outside Hong Kong. HDRs trade on the Hong Kong Stock Exchange (HKEx), thus enabling foreign issuers to tap the Hong Kong market and local investors to efficiently invest in quality international companies.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;IndianDepositoryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;GlobalDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-sasj;JurisdictionOfIndia"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">Indian depositary receipt</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://en.wikipedia.org/wiki/Indian_Depository_Receipt"/>
+		<skos:definition xml:lang="en">global depositary receipt that represents the purchase, or ownership, of foreign assets which are deposited in a Indian account managed by the Domestic Depository in India</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">IDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">An Indian Depository Receipt (IDR) is an instrument denominated in Indian Rupees in the form of a depositary receipt created by a Domestic Depository (custodian of securities registered with the Securities and Exchange Board of India) against the underlying securities of issuing company to enable foreign companies to raise funds from the Indian securities Markets.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;JapaneseDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;GlobalDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-easj;JurisdictionOfJapan"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">Japanese depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">global depositary receipt that represents the purchase, or ownership, of foreign assets which are deposited in a trust bank in Japan</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">JDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A Japanese Depositary Receipt (JDR) is an instrument issued by a trust bank in Japan that evidences ownership of securities in a corporation organized outside Japan. JDRs trade on the Tokyo Stock Exchange (TSE) in yen, and in accordance with Japanese market conventions, enabling foreign issuers to tap the Japanese capital market and local investors to efficiently invest in quality international companies.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-sec-eq-dr;LevelIAmericanDepositaryReceipt">
+		<rdf:type rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevel"/>
+		<rdfs:label xml:lang="en">Level I American depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">American Depositary Receipt level indicating that the ADR can only be traded over-the-counter in the U.S.</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">Level I ADR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">This level can apply to sponsored and unsponsored ADRs. However, this is the only level available for unsponsored ADRs. A Level I ADR is easier to set up for foreign companies since it does not require the same disclosures or the need to abide by generally accepted accounting principles (GAAP). There is some degree of risk with Level I ADRs given their relative lack of transparency.</cmns-av:explanatoryNote>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-sec-eq-dr;LevelIIAmericanDepositaryReceipt">
+		<rdf:type rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevel"/>
+		<rdfs:label xml:lang="en">Level II American depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">American Depositary Receipt level that is sponsored and can be listed on an exchange</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">Level II ADR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">This level is visible to a wider market and requires the company to comply with the SEC regulatory rules. However, they cannot be used to raise capital.</cmns-av:explanatoryNote>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-sec-eq-dr;LevelIIIAmericanDepositaryReceipt">
+		<rdf:type rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceiptLevel"/>
+		<rdfs:label xml:lang="en">Level III American depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">American Depositary Receipt level that can be listed on an exchange and permit companies to issue shares to raise capital for the foreign issuer, but require the highest level of compliance and disclosure</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">Level III ADR</cmns-av:abbreviation>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;LuxembourgDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;GlobalDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;isLegallyRecordedIn"/>
+				<owl:hasValue rdf:resource="&fibo-be-ge-weuj;JurisdictionOfLuxembourg"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">Luxembourg depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">global depositary receipt that represents the purchase, or ownership, of foreign assets which are deposited in a Luxembourg-based account</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">LDR</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A Luxembourg Depositary Receipt (LDR) is a certificate which represents the purchase, or ownership, of foreign assets which are deposited in a Luxembourg-based account. An LDR functions in much the same way as a global depositary receipt (GDR). LDRs may represent ownership of either an underlying number of shares or a notional amount of bonds.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;OffshoreDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;SponsoredDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-sec-rst;hasRestriction"/>
+				<owl:hasValue rdf:resource="&fibo-sec-sec-usrst;RegulationS"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">offshore depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">depositary receipt issued under SEC Regulation S</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This regulation means that the securities are not, and will not be registered with any U.S. securities regulation authority. Regulation S shares cannot be held or traded by any &apos;U.S. person&apos; as defined by SEC Regulation S rules. The shares are registered and issued to offshore, non-U.S. residents.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;ParticipatoryNote">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;TradableDebtInstrument"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-eq-dr;hasTradedSecurity"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-dbti;TradableDebtInstrument"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">participatory note</rdfs:label>
+		<skos:definition xml:lang="en">tradable debt instrument that facilitates the ownership of securities traded in other jurisdictions</skos:definition>
+		<skos:example xml:lang="en">Participation notes are required by investors or hedge funds to invest in Indian securities without having to register with the Securities and Exchange Board of India (SEBI). P-Notes are among the group of investments considered to be Offshore Derivative Investments (ODIs) in Indian markets.</skos:example>
+		<cmns-av:abbreviation xml:lang="en">P-Note</cmns-av:abbreviation>
+		<cmns-av:abbreviation xml:lang="en">PN</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom xml:lang="en">ISO 10962, Securities and related financial instruments - Classification of financial instruments (CFI) code, Fourth Edition, October 2019</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">Depository receipts are widely used in order to allow the trading of debt instruments in
+jurisdictions other than the one where the original debt instruments were issued</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">Typically P-Notes are SPVs that are created to allow participation from outside that market. The SPV purchases a security on shore and issues a note that represents that security to offshore investors. They are similar to an ADR but always a debt security.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">participation note</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;PrivatelyPlacedDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;SponsoredDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-sec-rst;hasRestriction"/>
+				<owl:hasValue rdf:resource="&fibo-sec-sec-usrst;Rule144A"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">privately placed depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">depositary receipt that represents shares in a private placement under the SEC Rule 144-A</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Some foreign companies will set up an ADR program under SEC Rule 144-A. This provision makes the issuance of shares a private placement. Shares of companies registered under Rule 144-A are restricted stock and may only be issued to or traded by qualified institutional buyers (QIBs). U.S. public shareholders are generally not permitted to invest in these ADR programs, and most are held exclusively through the Depository Trust &amp; Clearing Corporation, so there is often very little information on these companies.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;SponsoredDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceipt"/>
+		<rdfs:label xml:lang="en">sponsored depositary receipt</rdfs:label>
+		<skos:definition xml:lang="en">depositary receipt that is issued in collaboration with the foreign company enabling them to tap into international capital markets directly</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Although a sponsored ADR would be listed in the United States, the issuing company still has its revenue and profit denominated in its home currency.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-eq-dr;UnsponsoredDepositaryReceipt">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-eq-dr;AmericanDepositaryReceipt"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:hasValue rdf:resource="&fibo-sec-eq-dr;LevelIAmericanDepositaryReceipt"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">unsponsored depositary receipt</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-eq-dr;SponsoredDepositaryReceipt"/>
+		<skos:definition xml:lang="en">depositary receipt that is established without the company&apos;s cooperation</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">For an unsponsored ADR, a depositary entity can issue certificates when there&apos;s heavy demand from investors for ownership in a specific company from abroad. The issuing entity is normally a broker-dealer that owns common stock in the company. Because they&apos;re issued without the consent or cooperation of the foreign company, unsponsored ADRs generally trade over-the-counter (OTC)—rather than on a stock exchange. Also, shareholder benefits and voting rights may not be extended to the holders of these particular securities. Many large global corporations use unsponsored ADRs to attract American capital. For example, American investors can invest in Royal Mail PLC, a postal and delivery service company from the United Kingdom that was founded by Henry VIII. The company&apos;s unsponsored ADR trades OTC under the ticker symbol ROYMY.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-sec-eq-dr;hasMultiplier">
+		<rdfs:label xml:lang="en">has multiplier</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:range rdf:resource="&xsd;decimal"/>
+		<skos:definition xml:lang="en">indicates the number of underlying shares (whether multiple or fractional) represented by a single depositary receipt</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-sec-eq-dr;hasNumberOfDepositaryReceiptsIssued">
+		<rdfs:label xml:lang="en">has number of depositary receipts issued</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:range rdf:resource="&xsd;positiveInteger"/>
+		<skos:definition xml:lang="en">indicates the number of receipts issued to the general public</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-eq-dr;hasTradedSecurity">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dsg;denotes"/>
+		<rdfs:label xml:lang="en">has traded security</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:range rdf:resource="&fibo-fbc-fi-fi;Security"/>
+		<skos:definition xml:lang="en">links a depositary receipt to the instrument that it represents</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-eq-dr;hasTradedShare">
+		<rdfs:subPropertyOf rdf:resource="&fibo-sec-eq-dr;hasTradedSecurity"/>
+		<rdfs:label xml:lang="en">has traded share</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-eq-dr;DepositaryReceipt"/>
+		<rdfs:range rdf:resource="&fibo-sec-eq-eq;Share"/>
+		<skos:definition xml:lang="en">links a depositary receipt to the instrument (equity or exchange-traded fund) that it represents</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>
