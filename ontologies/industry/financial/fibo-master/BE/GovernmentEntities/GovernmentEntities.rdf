@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-bauth "https://www.omg.org/spec/Commons/BusinessAuthorizations/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-loc "https://www.omg.org/spec/Commons/Locations/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-rga "https://www.omg.org/spec/Commons/RegulatoryAgencies/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-fct "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/">
+	<!ENTITY fibo-be-ge-ge "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-be-oac-exec "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/">
+	<!ENTITY fibo-fnd-aap-ppl "https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/">
+	<!ENTITY fibo-fnd-gao-obj "https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/">
+	<!ENTITY fibo-fnd-law-cor "https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCore/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-bauth="https://www.omg.org/spec/Commons/BusinessAuthorizations/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-loc="https://www.omg.org/spec/Commons/Locations/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-rga="https://www.omg.org/spec/Commons/RegulatoryAgencies/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-fct="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/"
+	xmlns:fibo-be-ge-ge="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-be-oac-exec="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/"
+	xmlns:fibo-fnd-aap-ppl="https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/"
+	xmlns:fibo-fnd-gao-obj="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/"
+	xmlns:fibo-fnd-law-cor="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCore/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/GovernmentEntities/">
+		<rdfs:label>Government Entities Ontology</rdfs:label>
+		<dct:abstract>This ontology defines the fundamental concepts for representing polities and government entities and their relations.</dct:abstract>
+		<dct:license>Copyright (c) 2016-2025 EDM Council, Inc.
+Copyright (c) 2016-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/GoalsAndObjectives/Objectives/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Law/LegalCore/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/BusinessAuthorizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Locations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RegulatoryAgencies/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20251201/GovernmentEntities/GovernmentEntities/"/>
+		<skos:changeNote>The http://www.omg.org/spec/EDMC-FIBO/BE/20160801/GovernmentEntities/GovernmentEntities.rdf version of this ontology was added to Business Entities, per the issue resolutions identified in the FIBO BE 1.1 RTF report.</skos:changeNote>
+		<skos:changeNote>The http://www.omg.org/spec/EDMC-FIBO/BE/20160801/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified per the issue resolutions identified in the FIBO BE 1.2 RTF report.</skos:changeNote>
+		<skos:changeNote>The http://www.omg.org/spec/EDMC-FIBO/BE/20170201/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified per the FIBO 2.0 RFC to integrate LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20180201/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to to rationalize natural person and legally capable person in a new concept, competent natural person, simplify / merge the legal person and formal organization class hierarchies, and revise certain definitions, such as for supranational entity, to correspond to ISO definitions.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20181201/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to reflect the move of hasObjective to FND to enable higher level reuse and eliminate a reasoning error.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20190501/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to eliminate duplication of concepts in LCC and merge the countries ontology with locations.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200301/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to replace isAppointedBy with isDesignatedBy due to a name change in Relations, and to add a class for devolved government.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200701/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to eliminate references to external dictionary sites that no longer resolve, revise circular or ambiguous definitions, and to eliminate &apos;hasPartialSovereigntyOver&apos; in favor of &apos;hasSharedSovereigntyOver&apos;.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20210201/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to fix spelling errors.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20211201/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to address text formatting hygiene issues and to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230101/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230301/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to augment the definition of instrumentality with additional notes.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230901/GovernmentEntities/GovernmentEntities.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 and loosened restrictions causing reasoning and representational challenges (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20240101/GovernmentEntities/GovernmentEntities.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20250301/GovernmentEntities/GovernmentEntities.rdf version of the ontology was modified to replace hasConstituent with hasMember for better semantic consistency (FND-396) and to further reflect changes made in Commons v1.2 (FBC-338).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20251001/GovernmentEntities/GovernmentEntities.rdf version of the ontology was modified to remove deprecations that reflect changes made in Commons v1.2 (FBC-399) and to use new constructs from the Commons 1.3 Business Authorizations ontology (FND-401).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2016-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2016-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;BranchOfGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+		<rdfs:label>branch of government</rdfs:label>
+		<skos:definition>division of the government of a state, with separate and independent powers and areas of responsibility so that the powers of one branch are not in conflict with the powers associated with the other branches</skos:definition>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://www.usa.gov/branches-of-government</cmns-av:adaptedFrom>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;DevolvedGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Government"/>
+		<rdfs:label>devolved government</rdfs:label>
+		<skos:definition>government and the politicians that that run a subnational territory with powers that may be temporary and reversible, ultimately residing with the central government</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;ExecutiveBranch">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;BranchOfGovernment"/>
+		<rdfs:label>executive branch</rdfs:label>
+		<skos:definition>the branch of government that is authorized and responsible for the daily administration of the government</skos:definition>
+		<cmns-av:adaptedFrom rdf:datatype="&xsd;anyURI">https://www.usa.gov/branches-of-government</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>The executive branch executes and enforces the law.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;FederalGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:intersectionOf rdf:parseType="Collection">
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+						<owl:onClass rdf:resource="&cmns-loc;FederalCapitalArea"/>
+						<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+					</owl:Restriction>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+						<owl:someValuesFrom rdf:resource="&cmns-loc;FederalState"/>
+					</owl:Restriction>
+				</owl:intersectionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:label>federal government</rdfs:label>
+		<skos:definition>union of states under a central government distinct from the individual governments of the separate states</skos:definition>
+		<cmns-av:explanatoryNote>A federation is a political entity characterized by a union of partially self-governing states or regions under a central (federal) government. In a federation, the self-governing status of the component states, as well as the division of power between them and the central government, are typically constitutionally entrenched and may not be altered by a unilateral decision of either party, the states or the federal political body.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;FederatedSovereignty">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;SovereignState"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:intersectionOf rdf:parseType="Collection">
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasFullSovereigntyOver"/>
+						<owl:someValuesFrom rdf:resource="&cmns-loc;Country"/>
+					</owl:Restriction>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasSharedSovereigntyOver"/>
+						<owl:someValuesFrom rdf:resource="&cmns-loc;FederalState"/>
+					</owl:Restriction>
+				</owl:intersectionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:intersectionOf rdf:parseType="Collection">
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;RegionalGovernment"/>
+					</owl:Restriction>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+						<owl:onClass rdf:resource="&fibo-be-ge-ge;FederalGovernment"/>
+						<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+					</owl:Restriction>
+				</owl:intersectionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:label>federated sovereignty</rdfs:label>
+		<skos:definition>polity characterized by a union of partially self-governing states or regions under a central (federal) government</skos:definition>
+		<cmns-av:explanatoryNote>The federated sovereignty is the legal entity that can incur debt for a federal government, as distinct from the Federal government.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;Government">
+		<rdfs:subClassOf rdf:resource="&fibo-be-fct-fct;FunctionalEntity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:onClass>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-be-ge-ge;BranchOfGovernment">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-be-ge-ge;GovernmentAgency">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-be-ge-ge;GovernmentDepartment">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:onClass>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;GeopoliticalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>government</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-be-ge-ge;Instrumentality"/>
+		<skos:definition>system by which a state or community is controlled</skos:definition>
+		<cmns-av:explanatoryNote>In the Commonwealth of Nations, the word government is also used more narrowly to refer to the collective group of people that exercises executive authority in a state. This usage is analogous to what is called an &apos;administration&apos; in American English. Furthermore, especially in American English, the concepts of the state and the government may be used synonymously to refer to the person or group of people exercising authority over a politically organized territory.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;GovernmentAgency">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isManagedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-ge-ge;GovernmentAppointee"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>government agency</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-be-ge-ge;GovernmentDepartment"/>
+		<skos:definition>permanent or semi-permanent organization, often an appointed commission, in the machinery of government that is responsible for the oversight and administration of specific functions</skos:definition>
+		<cmns-av:explanatoryNote>There is a notable variety of agency types. Although usage differs, a government agency is normally distinct both from a department or ministry, and other types of public body established by government. The functions of an agency are normally executive in character, since different types of organizations (such as commissions) are most often constituted in an advisory role; this distinction is often blurred in practice however.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;GovernmentAppointee">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentOfficial"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-exec;Executive"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:onClass>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-org;isDesignatedBy"/>
+						<owl:onClass rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+						<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+					</owl:Restriction>
+				</owl:onClass>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>government appointee</rdfs:label>
+		<skos:definition>individual designated by government decree to lead, or participate in some capacity in a government body</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;GovernmentBody">
+		<rdfs:subClassOf rdf:resource="&cmns-org;FormalOrganization"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-gao-obj;hasObjective"/>
+				<owl:onClass rdf:resource="&fibo-be-le-lp;PublicPurpose"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>government body</rdfs:label>
+		<skos:definition>formal organization that is an agency, instrumentality, or other body of a supranational, national, federal, state, or local government, including certain multijurisdictional agencies and departments that carry out the business of government</skos:definition>
+		<cmns-av:explanatoryNote>Identifying government bodies is a pre-requisite for identifying government officials. This information is needed to help ensure compliance with applicable laws relating to bribery or corruption, including the U.S. Foreign Corrupt Practices Act (FCPA), the UK Bribery Act 2010 (UKBA), the U.S. Bank Bribery Act (Bribery Act), and other anti-bribery and corruption laws in the jurisdictions where financial institutions conduct business.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;GovernmentDepartment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isManagedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-ge-ge;GovernmentMinister"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>government department</rdfs:label>
+		<skos:definition>specialized organization responsible for a sector of government public administration</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;GovernmentMinister">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentOfficial"/>
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-exec;Executive"/>
+		<rdfs:label>government minister</rdfs:label>
+		<skos:definition>government official that is an executive, who is either appointed or elected to a high office in the government</skos:definition>
+		<skos:example>Minister of Finance, Secretary of State, Attorney General of California</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;GovernmentOfficial">
+		<rdfs:subClassOf rdf:resource="&cmns-bauth;ResponsibleParty"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-le-lp;LegallyCompetentNaturalPerson"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-col;isMemberOf"/>
+						<owl:onClass rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+						<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>government official</rdfs:label>
+		<skos:definition>person elected or appointed to administer some aspect of a government</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;Instrumentality">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalEntity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isMandatedBy"/>
+				<owl:onClass rdf:resource="&fibo-fnd-law-cor;StatuteLaw"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isInstrumentOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;Government"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>instrumentality</rdfs:label>
+		<skos:definition>organization that serves a public purpose and is closely tied to a government, but is not a government agency</skos:definition>
+		<cmns-av:explanatoryNote>An instrumentality is a non-governmental agency that acts independently but whose obligations are backed by a government because of its role in providing a public service. Many instrumentalities are private companies, and some are chartered directly by government. Instrumentalities are subject to a unique set of laws that shape their activities. Certain organizations, such as Sallie Mae in the United States, may be considered instrumentalities from some perspectives but not others. Sallie Mae&apos;s status was changed in 2004, when it was privatized, and since that time it is no longer considered a government-sponsored enterprise (GSE).</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;Judiciary">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;BranchOfGovernment"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasPart"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-law-cor;CourtOfLaw"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>judiciary</rdfs:label>
+		<skos:definition>branch of government that comprises the system of courts that interprets and applies the law in the name of the supranational, national, federal, or regional government, depending on its jurisdiction</skos:definition>
+		<cmns-av:explanatoryNote>The judiciary also provides a mechanism for the resolution of disputes. Under the doctrine of the separation of powers, the judiciary generally does not make law (that is, in a plenary fashion, which is the responsibility of the legislature) or enforce law (which is the responsibility of the executive), but rather interprets law and applies it to the facts of each case.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;Legislature">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;BranchOfGovernment"/>
+		<rdfs:label>legislature</rdfs:label>
+		<skos:definition>the law-making body of a political unit, usually a national government, that has power to enact, amend, and repeal public policy</skos:definition>
+		<cmns-av:explanatoryNote>Laws enacted by legislatures are known as legislation. Legislatures observe and steer governing actions and usually have exclusive authority to amend the budget or budgets involved in the process.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;MunicipalEntity">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Polity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasSovereigntyOver"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;Municipality"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;MunicipalGovernment"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>municipal entity</rdfs:label>
+		<skos:definition>polity that typically represents a city, township, or other administrative subdivision having corporate status and powers of self-government or jurisdiction</skos:definition>
+		<cmns-av:explanatoryNote>Municipal entity in the sense of a legal entity, that is, what it is that incurs debt for a municipality, as distinct from the Municipal government. A municipal entity has a Government which sets laws applicable within the geographical area corresponding to its jurisdiction.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>municipality</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;MunicipalGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Government"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;Municipality"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>municipal government</rdfs:label>
+		<skos:definition>regional government of a city, township, or other administrative subdivision</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;NationalGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Government"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;Country"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>national government</rdfs:label>
+		<skos:definition>government and the politicians that that run a country as a whole (as opposed to local government)</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;Polity">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+		<rdfs:subClassOf rdf:resource="&cmns-org;LegalPerson"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasSovereigntyOver"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;GeopoliticalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;Government"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>polity</rdfs:label>
+		<skos:definition>legal person that is a supranational entity, crown, state, or subordinate civil authority, such as a province, prefecture, county, municipality, city, or district representing the people of that entity</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;RegionalGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Government"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;GeopoliticalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>regional government</rdfs:label>
+		<skos:definition>administrative body for a geographic area, such as a county, smaller town, or other similar community</skos:definition>
+		<cmns-av:explanatoryNote>A local government will typically only have control over their specific geographical region, and cannot pass or enforce laws that will affect a wider area. Local governments can elect officials, enact taxes, and do many other things that a national government would do, just on a smaller scale.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>local government</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;RegionalSovereignty">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Polity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasSharedSovereigntyOver"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;GeopoliticalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;RegionalGovernment"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>regional sovereignty</rdfs:label>
+		<skos:definition>legal person that corresponds to an administrative division, administrative unit, administrative entity or country subdivision (or, sometimes, geopolitical division or subnational entity), that has the capacity to incur debt, issue contracts, and enter into relations with other similar entities</skos:definition>
+		<skos:example>A country may be divided into provinces, which, in turn, are divided into counties, which, in turn, may be divided in whole or in part into municipalities; and so on.</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;SovereignState">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Polity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasFullSovereigntyOver"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;Country"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;NationalGovernment"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>sovereign state</rdfs:label>
+		<skos:definition>non-physical juridical entity that is represented by one centralized government that has sovereignty over a geographic area</skos:definition>
+		<cmns-av:explanatoryNote>A legal entity that is represented by one centralized government, has a permanent population, defined territory, and the capacity to enter into relations with other sovereign states.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;SupranationalEntity">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Polity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasSharedSovereigntyOver"/>
+				<owl:someValuesFrom rdf:resource="&cmns-loc;Country"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;GovernmentBody"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>supranational entity</rdfs:label>
+		<skos:definition>governmental or non-governmental entity that is established by international law or treaty or incorporated at an international level</skos:definition>
+		<cmns-av:adaptedFrom>ISO 20275:2017, Financial services - Entity legal forms (ELF), First Edition, July 2017.</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom>Kiljunen, Kimmo (2004). The European Constitution in the Making. Centre for European Policy Studies. pp. 21-26. ISBN 978-92-9079-493-6</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>A supranational union is a supranational polity which lies somewhere between a confederation that is an association of states and a federation that is a state. Unlike states in a federal super-state, member states retain ultimate sovereignty, although some sovereignty is shared with, or ceded to, the supranational body.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;TribalArea">
+		<rdfs:subClassOf rdf:resource="&cmns-loc;GeopoliticalEntity"/>
+		<rdfs:label>tribal area</rdfs:label>
+		<skos:definition>designation for geographic region administered by a group of indigenous people rather than by a sovereign state or regional governmental entity</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;TribalEntity">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Polity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;hasSharedSovereigntyOver"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;TribalArea"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-ge-ge;isRepresentedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;TribalGovernment"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>tribal entity</rdfs:label>
+		<skos:definition>legal entity that represents fundamental unit of sovereign tribal (indigenous) government</skos:definition>
+		<cmns-av:explanatoryNote>Any indigenous group or community which is recognized as having rights and obligations independent of the central government.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-ge-ge;TribalGovernment">
+		<rdfs:subClassOf rdf:resource="&fibo-be-ge-ge;Government"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rga;governs"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-ge-ge;TribalArea"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>tribal government</rdfs:label>
+		<skos:definition>government representing a group of indigenous people that has legal authority to govern those people, including authority to legislate the existence of tribal entities</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-ge-ge;hasFullSovereigntyOver">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-ge-ge;hasSovereigntyOver"/>
+		<rdfs:label>has full sovereignty over</rdfs:label>
+		<skos:definition>relates a polity to a geopolitical entity where the polity has absolute, supreme and ultimate dominion and authority of a political state subject to no higher power, expressed within its territory in full self-government and in complete freedom from any outside influence</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-ge-ge;hasSharedSovereigntyOver">
+		<rdfs:subPropertyOf rdf:resource="&fibo-be-ge-ge;hasSovereigntyOver"/>
+		<rdfs:label>has shared sovereignty over</rdfs:label>
+		<skos:definition>relates a polity to a geopolitical entity where the polity exercises shared dominion and authority of a political state</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-ge-ge;hasSovereigntyOver">
+		<rdfs:subPropertyOf rdf:resource="&cmns-rga;governs"/>
+		<rdfs:label>has sovereignty over</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-ge-ge;Polity"/>
+		<rdfs:range rdf:resource="&cmns-loc;GeopoliticalEntity"/>
+		<skos:definition>relates a polity to a geopolitical entity where the polity exercises dominion and authority of a political state</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-ge-ge;isElectedBy">
+		<rdfs:label>is elected by</rdfs:label>
+		<owl:inverseOf rdf:resource="&fibo-be-oac-exec;elects"/>
+		<skos:definition>identifies an official or government chosen to hold office by voting</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-ge-ge;isInstrumentOf">
+		<rdfs:label>is an instrument of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-ge-ge;Instrumentality"/>
+		<rdfs:range rdf:resource="&fibo-be-ge-ge;Government"/>
+		<skos:definition>relates an instrumentality of some government to the government that it supports</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-ge-ge;isRepresentedBy">
+		<rdfs:label>is represented by</rdfs:label>
+		<skos:definition>relates a system of governance to its chosen representatives</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:Class rdf:about="&fibo-fnd-aap-ppl;IdentityDocument">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isIssuedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-ge-ge;Government"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fnd-aap-ppl;NationalIdentificationNumber">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isIssuedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-ge-ge;Government"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+
+</rdf:RDF>

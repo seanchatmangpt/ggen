@@ -44,6 +44,7 @@ pub mod metadata;
 pub mod metrics;
 pub mod migration;
 pub mod models;
+pub mod network;
 pub mod ontology;
 pub mod ownership;
 pub mod policy;
@@ -66,6 +67,7 @@ pub use install::Installer;
 pub use metrics::MetricsCollector;
 pub use migration::{Migrator, UpgradeEdge};
 pub use models::*;
+pub use network::{MarketplaceClient, PackageMetadata as NetworkPackageMetadata};
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
 pub use search::SearchEngine;
@@ -84,6 +86,7 @@ pub mod prelude {
         metrics::MetricsCollector,
         migration::{Migrator, UpgradeEdge},
         models::{Manifest, Package, PackageId, PackageMetadata, PackageVersion},
+        network::{MarketplaceClient, PackageMetadata as NetworkPackageMetadata},
         registry::Registry,
         registry_rdf::RdfRegistry,
         search::SearchEngine,

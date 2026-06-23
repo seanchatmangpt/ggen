@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <schemaSystemId>file:/Users/taraathan/Repositories/LegalRuleMLWebdav/trunk/schemas/xsd/xsd-normal/lrml-normal.xsd</schemaSystemId>
+  <documentRoot>LegalRuleML</documentRoot>
+  <outputFolder>/Users/taraathan/Repositories/LegalRuleMLWebdav/trunk/schemas/xsd/xsd-normal</outputFolder>
+  <filenamePrefix>instance</filenamePrefix>
+  <filenameExtension>xml</filenameExtension>
+  <noOfInstances>1</noOfInstances>
+  <openFirstInstance>false</openFirstInstance>
+  <defaultNamespace>&lt;NO_NAMESPACE></defaultNamespace>
+  <valuesMaxLength>30</valuesMaxLength>
+  <isUseIncrementalNamesForValues>true</isUseIncrementalNamesForValues>
+  <discardOptionalElementsAfterNestedLevel>6</discardOptionalElementsAfterNestedLevel>
+  <namespaceMapping ns="http://ruleml.org/spec" proxy="ruleml"/>
+  <namespaceMapping ns="http://docs.oasis-open.org/legalruleml/ns/v1.0/" proxy="lrml"/>
+  <element namespace="&lt;ANY>" name="&lt;ANY>">
+    <generateOptionalElements>true</generateOptionalElements>
+    <generateOptionalAttributes>true</generateOptionalAttributes>
+    <valuesForContentType>DEFAULT</valuesForContentType>
+    <preferredNumberOfRepetitions>2</preferredNumberOfRepetitions>
+    <maximumRecursivityLevel>1</maximumRecursivityLevel>
+    <alternativeStrategy>RANDOM</alternativeStrategy>
+    <choicesAndSubstitutions strategy="RANDOM" generateOthersAsComments="false"/>
+    <attribute namespace="&lt;ANY>" name="&lt;ANY>">
+    </attribute>
+  </element>
+</settings>

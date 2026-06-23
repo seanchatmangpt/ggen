@@ -1,0 +1,213 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "Consumer RuleML Spatial-Temporal Algebra" ]
+dcterms:identifier [ "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_sti_algebra_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, spatial, temporal, algebra" ]
+dcterms:description [ "The expansion module for spatial-temporal algebra." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= notAllowed
+Node.choice |= After.Node.def
+Node.choice |= Before.Node.def
+Node.choice |= Every.Node.def
+Node.choice |= Any.Node.def
+Node.choice |= Timer.Node.def
+Node.choice |= During.Node.def
+Node.choice |= Overlaps.Node.def
+Node.choice |= Starts.Node.def
+Node.choice |= Precedes.Node.def
+Node.choice |= Succeeds.Node.def
+Node.choice |= Meets.Node.def
+Node.choice |= Finishes.Node.def
+# This module declares the following Consumer RuleML elements:
+#                  
+#                  Spatial, Temporal, Interval Function Constructs 
+#                  
+#                  * <After>
+#                  * <Before>
+#				           * <Every>
+#                  * <Any>
+#                  * <Timer>
+#                  
+#                  (Allen's) Interval Relations
+#                  
+#                  * <During>
+#                  * <Overlaps>
+#                  * <Starts>
+#                  * <Precedes>
+#                  * <Succeeds>
+#                  * <Meets>
+#                  * <Finishes>
+spatial_temporal_algebra_group.content |= After-node.choice
+spatial_temporal_algebra_group.content |= Before-node.choice
+spatial_temporal_algebra_group.content |= Every-node.choice
+spatial_temporal_algebra_group.content |= Any-node.choice
+spatial_temporal_algebra_group.content |= Timer-node.choice
+#
+interval_algebra_group.content |= During-node.choice
+interval_algebra_group.content |= Overlaps-node.choice
+interval_algebra_group.content |= Starts-node.choice
+interval_algebra_group.content |= Precedes-node.choice
+interval_algebra_group.content |= Succeeds-node.choice
+interval_algebra_group.content |= Meets-node.choice
+interval_algebra_group.content |= Finishes-node.choice
+#
+
+## an extension point for the before constructor category.  
+Before-node.choice |= Before.Node.def
+
+## An interval constructor that decrements by a duration
+Before.Node.def =
+  
+  ## <Before>: an interval constructor "d before (t)". See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Before
+  element Before { BeforeAfter.type.def }
+
+## an extension point for the after constructor category.  
+After-node.choice |= After.Node.def
+
+## An interval constructor that increments by a duration
+After.Node.def =
+  
+  ## <After>: an interval constructor "d after (t)". See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-After
+  element After { BeforeAfter.type.def }
+BeforeAfter.type.def = BeforeAfter.attlist & BeforeAfter.content
+BeforeAfter.attlist &= IntervalAlgebraConstructor.attlist?
+BeforeAfter.content |= Interval_term.content
+
+## an extension point for the every constructor category.  
+Every-node.choice |= Every.Node.def
+
+## An interval constructor that repeats
+Every.Node.def =
+  
+  ## <Every>: an interval constructor "every d". See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Every
+  element Every { Every.type.def }
+Every.type.def = Every.attlist & Every.content
+Every.attlist &= IntervalAlgebraConstructor.attlist?
+Every.content |= Node.header, arg_interval_term-edge.choice?
+
+## an extension point for the every constructor category.  
+Any-node.choice |= Any.Node.def
+
+## An interval constructor that choices
+Any.Node.def =
+  
+  ## <Any>: an interval constructor "any t1, .., tn". See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Any
+  element Any { Any.type.def }
+Any.type.def = Any.content, Any.attlist
+Any.attlist &= IntervalAlgebraConstructor.attlist?
+Any.content |= Node.header, arg_interval_term-edge.choice*
+
+## an extension point for the every constructor category.  
+Timer-node.choice |= Timer.Node.def
+
+## An interval constructor that combines after and every
+Timer.Node.def =
+  
+  ## <Timer>: an interval constructor "After t Every d". See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Timer
+  element Timer { Timer.type.def }
+Timer.type.def = Timer.attlist & Timer.content
+Timer.attlist &= IntervalAlgebraConstructor.attlist?
+Timer.content |= Interval_term.content
+
+##
+IntervalAlgebraConstructor.attlist &= generic-Node.attlist?
+# *** (During | Overlaps | Starts | Precedes | Succeeds | Meets | Equals | Finishes) ***
+
+## an extension point for the during operator category.  
+During-node.choice |= During.Node.def
+
+## An interval algebra operator for 'during'
+During.Node.def =
+  
+  ## <During>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-During
+  element During { IntervalAlgebraOperation.type.def }
+
+## an extension point for the overlaps operator category.  
+Overlaps-node.choice |= Overlaps.Node.def
+
+## An interval algebra operator for 'overlaps'
+Overlaps.Node.def =
+  
+  ## <Overlaps>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Overlaps
+  element Overlaps { IntervalAlgebraOperation.type.def }
+
+## an extension point for the starts operator category.  
+Starts-node.choice |= Starts.Node.def
+
+## An interval algebra operator for 'starts'
+Starts.Node.def =
+  
+  ## <Starts>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Starts
+  element Starts { IntervalAlgebraOperation.type.def }
+
+## an extension point for the preceds operator category.  
+Precedes-node.choice |= Precedes.Node.def
+
+## An interval algebra operator for 'precedes'
+Precedes.Node.def =
+  
+  ## <Precedes>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Precedes
+  element Precedes { IntervalAlgebraOperation.type.def }
+
+## an extension point for the succeeds operator category.  
+Succeeds-node.choice |= Succeeds.Node.def
+
+## An interval algebra operator for 'succeeds'
+Succeeds.Node.def =
+  
+  ## <Succeeds>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Succeeds
+  element Succeeds { IntervalAlgebraOperation.type.def }
+
+## an extension point for the meets operator category.  
+Meets-node.choice |= Meets.Node.def
+
+## An interval algebra operator for 'meets'
+Meets.Node.def =
+  
+  ## <Meets>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Meets
+  element Meets { IntervalAlgebraOperation.type.def }
+
+## an extension point for the finishes operator category.  
+Finishes-node.choice |= Finishes.Node.def
+
+## An interval algebra operator for 'finishes'
+Finishes.Node.def =
+  
+  ## <Finishes>: an interval operator. See
+  ## http://consumer.ruleml.org/1.02/glossary/#gloss-Finishes
+  element Finishes { IntervalAlgebraOperation.type.def }
+
+## Usage
+Atom-node.choice |= interval_algebra_group.content
+Expression-node.choice |= spatial_temporal_algebra_group.content
+
+## Common Patterns for Interval Algebra
+IntervalAlgebraOperation.type.def =
+  IntervalAlgebraOperation.attlist & IntervalAlgebraOperation.content
+IntervalAlgebraOperation.attlist &= operator-interface.attlist?
+IntervalAlgebraOperation.attlist &= commonNode.attlist?
+IntervalAlgebraOperation.content |=
+  Node.header, arg_interval_term-edge.choice, arg_interval_term-edge.choice
+
+## Extend the attributes of the usual Equal element to make it generic
+reEqual.attlist &= type-att.choice?

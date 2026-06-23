@@ -1,0 +1,21 @@
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://hl7.org/fhir/ontology>
+  a owl:Ontology ;
+  rdfs:label "HL7 FHIR Ontology" ;
+  rdfs:comment "Fast Healthcare Interoperability Resources - Core Ontology" ;
+  owl:versionInfo "4.0.1" .
+
+fhir:Patient a owl:Class ;
+  rdfs:label "Patient" ;
+  rdfs:comment "Demographics and other administrative information about an individual or animal receiving care or other health-related services." .
+
+fhir:Procedure a owl:Class ;
+  rdfs:label "Procedure" ;
+  rdfs:comment "An action that is or was performed on or for a patient. This can be a physical intervention like an operation, or less invasive like long term services, counseling, or hypnotherapy." .
+
+fhir:Observation a owl:Class ;
+  rdfs:label "Observation" ;
+  rdfs:comment "Measurements and simple assertions made about a patient, device or other subject." .

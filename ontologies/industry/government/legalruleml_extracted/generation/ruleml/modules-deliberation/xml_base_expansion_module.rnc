@@ -1,0 +1,24 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+
+dcterms:title [ "XML Base" ]
+dcterms:identifier [ "http://deliberation.ruleml.org/1.02/relaxng/modules/xml_base_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://deliberation.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dc:subject [ "XML, base" ]
+dcterms:description [ "The expansion module for xml:base." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://deliberation.ruleml.org" ]
+start |= notAllowed
+
+##  
+xmlbase.attlist &= attribute xml:base { xsd:anyURI }?
+# 
+# a dummy element to assist in XSD conversion
+#
+DummyXmlBaseElement.def = element DummyXmlBase { xmlbase.attlist }

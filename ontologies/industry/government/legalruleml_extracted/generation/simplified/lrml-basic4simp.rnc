@@ -1,0 +1,4696 @@
+default namespace = "http://docs.oasis-open.org/legalruleml/ns/v1.0/"
+namespace ns1 = "http://ruleml.org/spec"
+namespace ns2 = "http://www.w3.org/2001/XMLSchema-instance"
+
+start = LegalRuleML
+LegalRuleML =
+  element LegalRuleML {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute xml:base { xsd:anyURI }?
+     & attribute hasCreationDate {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute ns2:schemaLocation { text }?),
+    (Comment*
+     & ((LegalReferences
+         | LegalSources
+         | References
+         | Sources
+         | Times
+         | TemporalCharacteristics
+         | Agents
+         | Figures
+         | Roles
+         | Authorities
+         | Jurisdictions)*,
+        Associations*,
+        (Alternatives | Context | Statements)*))
+  }
+Comment =
+  element Comment {
+    (attribute iri {
+       xsd:string {
+         minLength = "1"
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+       }
+       | xsd:anyURI
+     }?
+     & attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    (text & _1*)
+  }
+LegalReferences =
+  element LegalReferences {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute refType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute refIDSystemName { xsd:string }?
+     & attribute refIDSystemSource {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    LegalReference*
+  }
+LegalSources =
+  element LegalSources {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    (LegalSource | LegalSources)*
+  }
+References =
+  element References {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute refType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute refIDSystemName { xsd:string }?
+     & attribute refIDSystemSource {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Reference*
+  }
+Sources =
+  element Sources {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    (Source | Sources)*
+  }
+Times =
+  element Times {
+    attribute key { xsd:NCName }?
+    & attribute keyref {
+        xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          minLength = "1"
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        }
+        | xsd:anyURI
+      }?
+    & attribute memberType {
+        xsd:string {
+          minLength = "1"
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        }
+        | xsd:anyURI
+      }?
+    & (Comment?, hasMemberType*, Time*)
+  }
+TemporalCharacteristics =
+  element TemporalCharacteristics {
+    attribute key { xsd:NCName }?
+    & attribute keyref {
+        xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          minLength = "1"
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        }
+        | xsd:anyURI
+      }?
+    & attribute memberType {
+        xsd:string {
+          minLength = "1"
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        }
+        | xsd:anyURI
+      }?
+    & (Comment?, hasMemberType*, TemporalCharacteristic*)
+  }
+Agents =
+  element Agents {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    Agent*
+  }
+Figures =
+  element Figures {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    Figure*
+  }
+Roles =
+  element Roles {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    Role*
+  }
+Authorities =
+  element Authorities {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    Authority*
+  }
+Jurisdictions =
+  element Jurisdictions {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    Jurisdiction*
+  }
+Associations =
+  element Associations {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    Association*
+  }
+Alternatives =
+  element Alternatives {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    fromLegalSources?,
+    hasAlternative*
+  }
+Context =
+  element Context {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute hasCreationDate {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    (appliesSource
+     | appliesTemporalCharacteristics
+     | appliesTemporalCharacteristic
+     | appliesStrength
+     | appliesStrength_2
+     | appliesModality
+     | appliesAuthority
+     | appliesJurisdiction)*,
+    (appliesAssociations | appliesAssociation)*,
+    appliesAlternatives*,
+    inScope*
+  }
+Statements =
+  element Statements {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute memberType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasMemberType*,
+    ((hasQualification | hasQualification_2)*
+     & (ConstitutiveStatement
+        | PrescriptiveStatement
+        | OverrideStatement
+        | PenaltyStatement
+        | ReparationStatement
+        | FactualStatement)*
+     & Statements*)
+  }
+_1 =
+  element * {
+    attribute * { text }*,
+    (text & _1*)
+  }
+LegalReference =
+  element LegalReference {
+    (attribute refersTo { xsd:NCName }
+     & attribute refID { xsd:string }
+     & attribute refType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute refIDSystemName { xsd:string }?
+     & attribute refIDSystemSource {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+hasMemberType =
+  element hasMemberType {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+LegalSource =
+  element LegalSource {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute sameAs {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*
+  }
+Reference =
+  element Reference {
+    (attribute refersTo { xsd:NCName }
+     & attribute refID { xsd:string }
+     & attribute refType {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute refIDSystemName { xsd:string }?
+     & attribute refIDSystemSource {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+Source =
+  element Source {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute sameAs {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*
+  }
+Time =
+  element ns1:Time {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?),
+    Comment?,
+    hasType*,
+    Data?
+  }
+TemporalCharacteristic =
+  element TemporalCharacteristic {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    forStatus?,
+    hasStatusDevelopment?,
+    atTime?
+  }
+Agent =
+  element Agent {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute sameAs {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*
+  }
+Figure =
+  element Figure {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    hasFunction*,
+    hasActor*
+  }
+Role =
+  element Role {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    filledBy*,
+    forExpression*
+  }
+Authority =
+  element Authority {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute sameAs {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*
+  }
+Jurisdiction =
+  element Jurisdiction {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute sameAs {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*
+  }
+Association =
+  element Association {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    (appliesSource
+     | appliesTemporalCharacteristics
+     | appliesTemporalCharacteristic
+     | appliesStrength
+     | appliesStrength_2
+     | appliesModality
+     | appliesAuthority
+     | appliesJurisdiction)*,
+    toTarget*
+  }
+fromLegalSources =
+  element fromLegalSources {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+hasAlternative =
+  element hasAlternative {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesSource =
+  element appliesSource {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesTemporalCharacteristics =
+  element appliesTemporalCharacteristics {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesTemporalCharacteristic =
+  element appliesTemporalCharacteristic {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesStrength =
+  element appliesStrength {
+    attribute xml:id { xsd:NCName }?,
+    (DefeasibleStrength | StrictStrength | Defeater)?
+  }
+appliesStrength_2 =
+  element appliesStrength {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesModality =
+  element appliesModality {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesAuthority =
+  element appliesAuthority {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesJurisdiction =
+  element appliesJurisdiction {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesAssociations =
+  element appliesAssociations {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesAssociation =
+  element appliesAssociation {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+appliesAlternatives =
+  element appliesAlternatives {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+inScope =
+  element inScope {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+hasQualification =
+  element hasQualification {
+    attribute xml:id { xsd:NCName }?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)?
+  }
+hasQualification_2 =
+  element hasQualification {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+ConstitutiveStatement =
+  element ConstitutiveStatement {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    Rule?
+  }
+PrescriptiveStatement =
+  element PrescriptiveStatement {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    Rule_2?
+  }
+OverrideStatement =
+  element OverrideStatement {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    Override?
+  }
+PenaltyStatement =
+  element PenaltyStatement {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    (SuborderList
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)?
+  }
+ReparationStatement =
+  element ReparationStatement {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    Reparation?
+  }
+FactualStatement =
+  element FactualStatement {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    hasType*,
+    (hasTemplate | hasTemplate_2)?
+  }
+hasType =
+  element hasType {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+Data = element ns1:Data { xsd:dateTime | xsd:date | xsd:duration }
+forStatus =
+  element forStatus {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+hasStatusDevelopment =
+  element hasStatusDevelopment {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+atTime =
+  element atTime {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+hasFunction =
+  element hasFunction {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+hasActor =
+  element hasActor {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    },
+    attribute xml:id { xsd:NCName }?
+  }
+filledBy =
+  element filledBy {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    },
+    attribute xml:id { xsd:NCName }?
+  }
+forExpression =
+  element forExpression {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+toTarget =
+  element toTarget {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+DefeasibleStrength =
+  element DefeasibleStrength {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+StrictStrength =
+  element StrictStrength {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+Defeater =
+  element Defeater {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+Override =
+  element Override {
+    (attribute over {
+       xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+     }
+     & attribute under {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }
+     & attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?
+  }
+Atom =
+  element ns1:Atom {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    oid?,
+    degree?,
+    ((Rel,
+      (Skolem
+       | Ind
+       | Data_2
+       | Interval_2
+       | Spatial_2
+       | Time_3
+       | Var
+       | Expr
+       | After
+       | Before
+       | Every
+       | Any
+       | Timer
+       | Plex)*,
+      repo?,
+      slot*,
+      resl?)?
+     | ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)*,
+        repo?,
+        slot*,
+        resl?))
+  }
+Interval =
+  element ns1:Interval {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       oid?,
+       degree?,
+       ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex),
+        (Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)?)?)
+  }
+Spatial =
+  element ns1:Spatial {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       oid?,
+       degree?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex)*,
+       repo?,
+       slot*,
+       resl?)
+  }
+Time_2 =
+  element ns1:Time {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute style {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       oid?,
+       degree?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex)*,
+       repo?,
+       slot*,
+       resl?)
+  }
+During =
+  element ns1:During {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Overlaps =
+  element ns1:Overlaps {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Starts =
+  element ns1:Starts {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Precedes =
+  element ns1:Precedes {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Succeeds =
+  element ns1:Succeeds {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Meets =
+  element ns1:Meets {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Finishes =
+  element ns1:Finishes {
+    attribute style {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex),
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex))
+  }
+Equal =
+  element ns1:Equal {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute type {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    ((Skolem
+      | Ind
+      | Data_2
+      | Interval_2
+      | Spatial_2
+      | Time_3
+      | Var
+      | Expr
+      | After
+      | Before
+      | Every
+      | Any
+      | Timer
+      | Plex),
+     (Skolem
+      | Ind
+      | Data_2
+      | Interval_2
+      | Spatial_2
+      | Time_3
+      | Var
+      | Expr
+      | After
+      | Before
+      | Every
+      | Any
+      | Timer
+      | Plex))?
+  }
+And =
+  element ns1:And {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Naf
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)*
+  }
+Or =
+  element ns1:Or {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Naf
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)*
+  }
+Neg =
+  element ns1:Neg {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)
+  }
+Negation =
+  element ns1:Negation {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute style {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute closure {
+        "universal"
+        | "existential"
+        | xsd:string {
+            pattern =
+              "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+            minLength = "1"
+          }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Obligation
+        | Permission
+        | Prohibition
+        | Right
+        | Violation
+        | Compliance
+        | Reparation
+        | Override
+        | Atom
+        | Interval
+        | Spatial
+        | Time_2
+        | During
+        | Overlaps
+        | Starts
+        | Precedes
+        | Succeeds
+        | Meets
+        | Finishes
+        | Equal
+        | And
+        | Or
+        | Neg
+        | Negation
+        | Implies
+        | Equivalent
+        | Forall
+        | Exists
+        | Operation))
+  }
+Implies =
+  element ns1:Implies {
+    (attribute material {
+       "yes"
+       | "no"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    if,
+    then
+  }
+Equivalent =
+  element ns1:Equivalent {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Operation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists),
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Operation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists)
+  }
+Forall =
+  element ns1:Forall {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    Var+,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)
+  }
+Exists =
+  element ns1:Exists {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    Var+,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)
+  }
+Obligation =
+  element Obligation {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    slot_2*,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)?
+  }
+Permission =
+  element Permission {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    slot_2*,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)?
+  }
+Prohibition =
+  element Prohibition {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?,
+    slot_2*,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)?
+  }
+Right =
+  element Right {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?,
+    slot_2*,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)?
+  }
+Violation =
+  element Violation {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?
+  }
+Compliance =
+  element Compliance {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?
+  }
+Reparation =
+  element Reparation {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?,
+    appliesPenalty*,
+    toPrescriptiveStatement*
+  }
+Rule =
+  element ns1:Rule {
+    (attribute style {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute strength {
+         "StrictStrength" | "defeasible" | "defeater"
+       }?),
+    Comment?,
+    Paraphrase?,
+    (hasStrength | hasStrength_2)?,
+    if_2?,
+    then_2?
+  }
+Rule_2 =
+  element ns1:Rule {
+    (attribute style {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute strength {
+         "StrictStrength" | "defeasible" | "defeater"
+       }?),
+    Comment?,
+    Paraphrase?,
+    (hasStrength | hasStrength_2)?,
+    if_3?,
+    then_3?
+  }
+SuborderList =
+  element SuborderList {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?,
+    Paraphrase?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)*
+  }
+Operation =
+  element ns1:Operation {
+    Comment?,
+    Paraphrase?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Naf
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)*,
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?)
+  }
+hasTemplate =
+  element hasTemplate {
+    attribute xml:id { xsd:NCName }?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)?
+  }
+hasTemplate_2 =
+  element hasTemplate {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+Paraphrase =
+  element Paraphrase {
+    (attribute iri {
+       xsd:string {
+         minLength = "1"
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+       }
+       | xsd:anyURI
+     }?
+     & attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    (text & _1*)
+  }
+oid =
+  element ns1:oid {
+    attribute xml:id { xsd:NCName }?
+    & (Skolem
+       | Ind
+       | Data_2
+       | Interval_2
+       | Spatial_2
+       | Time_3
+       | Var
+       | Expr
+       | After
+       | Before
+       | Every
+       | Any
+       | Timer
+       | Plex)
+  }
+degree =
+  element ns1:degree {
+    attribute xml:id { xsd:NCName }?
+    & Data_2
+  }
+Rel =
+  element ns1:Rel {
+    (attribute iri {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    xsd:token
+  }
+Skolem =
+  element ns1:Skolem {
+    (attribute type {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?),
+    xsd:token
+  }
+Ind =
+  element ns1:Ind {
+    (attribute iri {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute type {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?),
+    xsd:token
+  }
+Data_2 =
+  element ns1:Data {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & text
+    & _1*
+  }
+Interval_2 =
+  element ns1:Interval {
+    attribute type {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex),
+        (Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)?)?)
+  }
+Spatial_2 =
+  element ns1:Spatial {
+    attribute type {
+      xsd:string {
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+        minLength = "1"
+      }
+      | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+    }?
+    & attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex)*,
+       repo?,
+       slot*,
+       resl?)
+  }
+Time_3 =
+  element ns1:Time {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex)*,
+       repo?,
+       slot*,
+       resl?)
+  }
+Var =
+  element ns1:Var {
+    (attribute type {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?),
+    xsd:token
+  }
+Expr =
+  element ns1:Expr {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    ((Fun,
+      (Skolem
+       | Ind
+       | Data_2
+       | Interval_2
+       | Spatial_2
+       | Time_3
+       | Var
+       | Expr
+       | After
+       | Before
+       | Every
+       | Any
+       | Timer
+       | Plex)*,
+      repo?,
+      slot*,
+      resl?)
+     | ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)*,
+        repo?,
+        slot*,
+        resl?))
+  }
+After =
+  element ns1:After {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute style {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex),
+        (Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)?)?)
+  }
+Before =
+  element ns1:Before {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute style {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex),
+        (Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)?)?)
+  }
+Every =
+  element ns1:Every {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute style {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       (Skolem
+        | Ind
+        | Data_2
+        | Interval_2
+        | Spatial_2
+        | Time_3
+        | Var
+        | Expr
+        | After
+        | Before
+        | Every
+        | Any
+        | Timer
+        | Plex)?)
+  }
+Any =
+  element ns1:Any {
+    Comment?,
+    Paraphrase?,
+    (Skolem
+     | Ind
+     | Data_2
+     | Interval_2
+     | Spatial_2
+     | Time_3
+     | Var
+     | Expr
+     | After
+     | Before
+     | Every
+     | Any
+     | Timer
+     | Plex)*,
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?)
+  }
+Timer =
+  element ns1:Timer {
+    attribute xml:id { xsd:NCName }?
+    & attribute key {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute keyref {
+        xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+      }?
+    & attribute type {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & attribute style {
+        xsd:string {
+          pattern =
+            "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+          minLength = "1"
+        }
+        | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+      }?
+    & (Comment?,
+       Paraphrase?,
+       ((Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex),
+        (Skolem
+         | Ind
+         | Data_2
+         | Interval_2
+         | Spatial_2
+         | Time_3
+         | Var
+         | Expr
+         | After
+         | Before
+         | Every
+         | Any
+         | Timer
+         | Plex)?)?)
+  }
+Plex =
+  element ns1:Plex {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    (Skolem
+     | Ind
+     | Data_2
+     | Interval_2
+     | Spatial_2
+     | Time_3
+     | Var
+     | Expr
+     | After
+     | Before
+     | Every
+     | Any
+     | Timer
+     | Plex)*,
+    repo?,
+    slot*,
+    resl?
+  }
+repo =
+  element ns1:repo {
+    attribute xml:id { xsd:NCName }?
+    & (Var | Plex_2)
+  }
+slot =
+  element ns1:slot {
+    (attribute xml:id { xsd:NCName }?
+     & attribute card { xsd:nonNegativeInteger }?),
+    (Ind
+     | Data_2
+     | Interval_2
+     | Spatial_2
+     | Time_3
+     | Expr
+     | After
+     | Before
+     | Every
+     | Any
+     | Timer
+     | Plex),
+    (Skolem
+     | Ind
+     | Data_2
+     | Interval_2
+     | Spatial_2
+     | Time_3
+     | Var
+     | Expr
+     | After
+     | Before
+     | Every
+     | Any
+     | Timer
+     | Plex)
+  }
+resl =
+  element ns1:resl {
+    attribute xml:id { xsd:NCName }?
+    & (Var | Plex_3)
+  }
+Naf =
+  element ns1:Naf {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation)
+  }
+if =
+  element ns1:if {
+    attribute xml:id { xsd:NCName }?
+    & (Obligation
+       | Permission
+       | Prohibition
+       | Right
+       | Violation
+       | Compliance
+       | Reparation
+       | Operation
+       | Override
+       | Atom
+       | Interval
+       | Spatial
+       | Time_2
+       | During
+       | Overlaps
+       | Starts
+       | Precedes
+       | Succeeds
+       | Meets
+       | Finishes
+       | Equal
+       | And
+       | Or
+       | Neg
+       | Negation
+       | Naf
+       | Implies
+       | Equivalent
+       | Forall
+       | Exists)
+  }
+then =
+  element ns1:then {
+    attribute xml:id { xsd:NCName }?
+    & (Obligation
+       | Permission
+       | Prohibition
+       | Right
+       | Violation
+       | Compliance
+       | Reparation
+       | Operation
+       | Override
+       | Atom
+       | Interval
+       | Spatial
+       | Time_2
+       | During
+       | Overlaps
+       | Starts
+       | Precedes
+       | Succeeds
+       | Meets
+       | Finishes
+       | Equal
+       | And
+       | Or
+       | Neg
+       | Negation
+       | Implies
+       | Equivalent
+       | Forall
+       | Exists)
+  }
+slot_2 =
+  element ns1:slot {
+    (attribute xml:id { xsd:NCName }?
+     & attribute card { xsd:nonNegativeInteger }?),
+    (AuxiliaryParty | Bearer),
+    (Skolem
+     | Ind
+     | Data_2
+     | Interval_2
+     | Spatial_2
+     | Time_3
+     | Var
+     | Expr
+     | After
+     | Before
+     | Every
+     | Any
+     | Timer
+     | Plex)
+  }
+appliesPenalty =
+  element appliesPenalty {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+toPrescriptiveStatement =
+  element toPrescriptiveStatement {
+    attribute keyref {
+      xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+hasStrength =
+  element hasStrength {
+    attribute xml:id { xsd:NCName }?,
+    (DefeasibleStrength | StrictStrength | Defeater)?
+  }
+hasStrength_2 =
+  element hasStrength {
+    attribute iri {
+      xsd:string {
+        minLength = "1"
+        pattern =
+          "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+      }
+      | xsd:anyURI
+    }
+    & attribute xml:id { xsd:NCName }?
+  }
+if_2 =
+  element ns1:if {
+    attribute xml:id { xsd:NCName }?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Operation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Naf
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists)
+  }
+then_2 =
+  element ns1:then {
+    attribute xml:id { xsd:NCName }?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)
+  }
+if_3 =
+  element ns1:if {
+    attribute xml:id { xsd:NCName }?,
+    (Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation
+     | Operation
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Naf
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists)
+  }
+then_3 =
+  element ns1:then {
+    attribute xml:id { xsd:NCName }?,
+    (SuborderList
+     | Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And
+     | Or
+     | Neg
+     | Negation
+     | Implies
+     | Equivalent
+     | Forall
+     | Exists
+     | Operation
+     | Obligation
+     | Permission
+     | Prohibition
+     | Right
+     | Violation
+     | Compliance
+     | Reparation)
+  }
+And_2 =
+  element ns1:And {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)*
+  }
+Or_2 =
+  element ns1:Or {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)*
+  }
+Neg_2 =
+  element ns1:Neg {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)
+  }
+Implies_2 =
+  element ns1:Implies {
+    (attribute material {
+       "yes"
+       | "no"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute closure {
+         "universal"
+         | "existential"
+         | xsd:string {
+             pattern =
+               "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+             minLength = "1"
+           }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    if_4,
+    then_4
+  }
+Equivalent_2 =
+  element ns1:Equivalent {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2),
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)
+  }
+Forall_2 =
+  element ns1:Forall {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    Var+,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)
+  }
+Exists_2 =
+  element ns1:Exists {
+    (attribute closure {
+       "universal"
+       | "existential"
+       | xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    degree?,
+    Var+,
+    (Override
+     | Atom
+     | Interval
+     | Spatial
+     | Time_2
+     | During
+     | Overlaps
+     | Starts
+     | Precedes
+     | Succeeds
+     | Meets
+     | Finishes
+     | Equal
+     | And_2
+     | Or_2
+     | Neg_2
+     | Implies_2
+     | Equivalent_2
+     | Forall_2
+     | Exists_2)
+  }
+Fun =
+  element ns1:Fun {
+    (attribute iri {
+       xsd:string {
+         pattern =
+           "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         minLength = "1"
+       }
+       | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+     }?
+     & attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    xsd:token
+  }
+Plex_2 =
+  element ns1:Plex {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    (Skolem
+     | Ind
+     | Data_2
+     | Interval_2
+     | Spatial_2
+     | Time_3
+     | Var
+     | Expr
+     | After
+     | Before
+     | Every
+     | Any
+     | Timer
+     | Plex)*,
+    repo?
+  }
+Plex_3 =
+  element ns1:Plex {
+    (attribute xml:id { xsd:NCName }?
+     & attribute key {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?
+     & attribute keyref {
+         xsd:string { pattern = ":[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute style {
+         xsd:string {
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+           minLength = "1"
+         }
+         | xsd:string { pattern = "[\i-[:]][\c-[:]]+:.+" }
+       }?),
+    Comment?,
+    Paraphrase?,
+    slot*,
+    resl?
+  }
+AuxiliaryParty =
+  element AuxiliaryParty {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+Bearer =
+  element Bearer {
+    (attribute key { xsd:NCName }?
+     & attribute keyref {
+         xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+       }?
+     & attribute type {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?
+     & attribute iri {
+         xsd:string {
+           minLength = "1"
+           pattern =
+             "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+         }
+         | xsd:anyURI
+       }?),
+    Comment?
+  }
+if_4 =
+  element ns1:if {
+    attribute xml:id { xsd:NCName }?
+    & (Override
+       | Atom
+       | Interval
+       | Spatial
+       | Time_2
+       | During
+       | Overlaps
+       | Starts
+       | Precedes
+       | Succeeds
+       | Meets
+       | Finishes
+       | Equal
+       | And_2
+       | Or_2
+       | Neg_2
+       | Implies_2
+       | Equivalent_2
+       | Forall_2
+       | Exists_2)
+  }
+then_4 =
+  element ns1:then {
+    attribute xml:id { xsd:NCName }?
+    & (Override
+       | Atom
+       | Interval
+       | Spatial
+       | Time_2
+       | During
+       | Overlaps
+       | Starts
+       | Precedes
+       | Succeeds
+       | Meets
+       | Finishes
+       | Equal
+       | And_2
+       | Or_2
+       | Neg_2
+       | Implies_2
+       | Equivalent_2
+       | Forall_2
+       | Exists_2)
+  }

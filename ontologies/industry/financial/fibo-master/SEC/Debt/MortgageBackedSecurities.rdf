@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-fct "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-bp-iss-dbti "https://spec.edmcouncil.org/fibo/ontology/BP/SecuritiesIssuance/DebtIssuance/">
+	<!ENTITY fibo-fbc-fct-fse "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/">
+	<!ENTITY fibo-fbc-fi-fi "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-arr-lif "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Lifecycles/">
+	<!ENTITY fibo-fnd-dt-bd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/BusinessDates/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-oac-own "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/">
+	<!ENTITY fibo-fnd-pas-psch "https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-loan-reln-mtg "https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/Mortgages/">
+	<!ENTITY fibo-sec-dbt-abs "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/AssetBackedSecurities/">
+	<!ENTITY fibo-sec-dbt-dbti "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/">
+	<!ENTITY fibo-sec-dbt-mbs "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/">
+	<!ENTITY fibo-sec-dbt-pbs "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/">
+	<!ENTITY fibo-sec-fund-fund "https://spec.edmcouncil.org/fibo/ontology/SEC/Funds/Funds/">
+	<!ENTITY fibo-sec-sec-iss "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesIssuance/">
+	<!ENTITY fibo-sec-sec-pls "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-fct="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-bp-iss-dbti="https://spec.edmcouncil.org/fibo/ontology/BP/SecuritiesIssuance/DebtIssuance/"
+	xmlns:fibo-fbc-fct-fse="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/"
+	xmlns:fibo-fbc-fi-fi="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-arr-lif="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Lifecycles/"
+	xmlns:fibo-fnd-dt-bd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/BusinessDates/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-oac-own="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"
+	xmlns:fibo-fnd-pas-psch="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-loan-reln-mtg="https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/Mortgages/"
+	xmlns:fibo-sec-dbt-abs="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/AssetBackedSecurities/"
+	xmlns:fibo-sec-dbt-dbti="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"
+	xmlns:fibo-sec-dbt-mbs="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/"
+	xmlns:fibo-sec-dbt-pbs="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/"
+	xmlns:fibo-sec-fund-fund="https://spec.edmcouncil.org/fibo/ontology/SEC/Funds/Funds/"
+	xmlns:fibo-sec-sec-iss="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesIssuance/"
+	xmlns:fibo-sec-sec-pls="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/">
+		<rdfs:label xml:lang="en">Mortgage-backed Securities Ontology</rdfs:label>
+		<dct:abstract>Mortgage backed securities are like asset backed securities except that the underlying loan pool is a pool of mortgage loans.</dct:abstract>
+		<dct:license>Copyright (c) 2015-2025 EDM Council, Inc.
+Copyright (c) 2015-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BP/SecuritiesIssuance/DebtIssuance/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Lifecycles/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/BusinessDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/PaymentsAndSchedules/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/LOAN/RealEstateLoans/Mortgages/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/AssetBackedSecurities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Funds/Funds/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/SecuritiesIssuance/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/MortgageBackedSecurities/"/>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Provisional"/>
+		<cmns-av:copyright>Copyright (c) 2015-2025 EDM Council, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-abs;HomeEquityLineOfCreditPool">
+		<owl:disjointWith rdf:resource="&fibo-sec-dbt-mbs;MortgagePool"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;AgencyMBSDeal">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;DebtOffering"/>
+		<rdfs:label xml:lang="en">agency m b s deal</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-dbt-mbs;PrivateLabelMBSDeal"/>
+		<skos:definition xml:lang="en">An issue of securities backed by pools of mortgages held by government agencies.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">These are Ginnie Mae, Freddie Mac and Fannie Mae (for the US). Of these agencies, GNMA (Ginnie Mae) issues mortgages in its own right (Investorwords differs on this). Fannie Mae and Freddie Mac purchase mortgages. Those mortgages are issued by banks. Before one of these agencies purchases a mortgage, there are certain criteria that have to be met. These are specified in terms of, for example, the balance of the mortgage, limits to credit ratings.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;AgencyMBSIssuer">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;GovernmentMortgageAgency"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MBSIssuer"/>
+		<rdfs:label xml:lang="en">agency m b s issuer</rdfs:label>
+		<skos:definition xml:lang="en">The issuer of the pass through MBS is an Agency issuer. This is identified as being some kind of agency that is set up specifically to issue these instruments.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;AgencyMBSPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MBSPool"/>
+		<rdfs:label xml:lang="en">agency m b s pool</rdfs:label>
+		<skos:definition xml:lang="en">A pool investment consisting of a collection of Agency MBS instruments.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This pool may be used as the underlying for an agency CMO. Non agency CMOs do not exist.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;AgencyMortgagePool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgagePool"/>
+		<rdfs:label xml:lang="en">agency mortgage pool</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-dbt-mbs;NonAgencyMortgagePool"/>
+		<skos:definition xml:lang="en">A pool of agency mortgages.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;CommercialMBS">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurity"/>
+		<rdfs:label xml:lang="en">commercial m b s</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-dbt-mbs;ResidentialMBS"/>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;FHLMC-GoldPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:label xml:lang="en">FHLMC Gold pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;FHLMC-Pool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:label xml:lang="en">FHLMC pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;FNMA-Pool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:label xml:lang="en">FNMA pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;GNMA-IIPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:label xml:lang="en">GNMA-II pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;GNMA-PlatinumPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:label xml:lang="en">GNMA Platinum pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;GNMA-iPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:label xml:lang="en">GNMA-i pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;GovernmentMortgageAgency">
+		<rdfs:subClassOf rdf:resource="&fibo-be-fct-fct;FunctionalEntity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom rdf:resource="&cmns-org;LegalEntity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">government mortgage agency</rdfs:label>
+		<skos:definition xml:lang="en">An agency set up by a government for the purpose of issuing mortgages.</skos:definition>
+		<skos:scopeNote xml:lang="en">There are three such agencies in the United States: FNMA, GNMA and FHLMC (Fannie Mae, Ginnie Mae and Freddie Mac respectively), and there may be others outside of the US.</skos:scopeNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;IssuedAndSecuritizedAgencyMortagePool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;AgencyMortgagePool"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-lif;hasStage"/>
+				<owl:someValuesFrom rdf:resource="&fibo-bp-iss-dbti;Issued"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">issued and securitized agency mortage pool</rdfs:label>
+		<skos:definition xml:lang="en">An agency mortgage pool which has been securitized as part of an agency Mortgage Backed Security.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;IssuedAndSecuritizedNonAgencyMortgagePool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;NonAgencyMortgagePool"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-lif;hasStage"/>
+				<owl:someValuesFrom rdf:resource="&fibo-bp-iss-dbti;Issued"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">issued and securitized non agency mortgage pool</rdfs:label>
+		<skos:definition xml:lang="en">A non agency mortgage pool which has been securitized as part of a tranched Mortgage Backed Security.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;MBSIssuer">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-fi;Issuer"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-sec-dbt-mbs;GovernmentMortgageAgency">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fbc-fct-fse;Bank">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-sec-dbt-mbs;SpecialistMortgageIssuer">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">m b s issuer</rdfs:label>
+		<skos:definition xml:lang="en">The issuer of a Mortgage Backed Security.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">This can be an agency that exists for this purpose or it may be the issuer of the original mortgages in the pool.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;MBSPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+		<rdfs:label xml:lang="en">m b s pool</rdfs:label>
+		<skos:definition xml:lang="en">A pool investment consisting of a collection of MBS instruments.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;MortgageBackedSecurity">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;PoolBackedSecurity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isIssuedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-mbs;MBSIssuer"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isCharacterizedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-pbs;WeightedAverageRemainingTerm"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">mortgage-backed security</rdfs:label>
+		<skos:definition xml:lang="en">debt obligations that represent claims to the cash flows from pools of mortgage loans, most commonly on residential property</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">MBS</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom>ISO 10962, Securities and related financial instruments - Classification of Financial Instruments (CFI code), Fourth edition, 2019-10-01.</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>Mortgage loans are purchased from banks, mortgage companies and other originators, and then assembled into pools by a governmental, quasigovernmental or private entity. The entity then issues securities that represent claims on the principal and interest payments made by borrowers on the loans in the pool, a process known as securitization.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;MortgageBackedSecurityOfferingProspectus">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-iss;Prospectus"/>
+		<rdfs:label xml:lang="en">mortgage-backed security offering prospectus</rdfs:label>
+		<skos:definition xml:lang="en">Prospectus describing the terms of the issue and each of the instruments included in the mortgage backed security issue. Term origin:SMER</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;MortgagePool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;hasMember"/>
+				<owl:someValuesFrom rdf:resource="&fibo-loan-reln-mtg;LoanSecuredByRealEstate"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">mortgage pool</rdfs:label>
+		<skos:definition xml:lang="en">loan pool consisting of mortgages that are held in trust as collateral for the issuance of a mortgage-backed security</skos:definition>
+		<skos:editorialNote xml:lang="en">Analytics review session notes: Dated facts (for non agency mortgage pools): Aggregate of : Scheduled payments (% and $) Payments Prepayments (% and $ notional) Default amounts (statistics: Prepayments: (start at 0 and ramp up and then level off (why?)) SMM basic measure monthly Basis CPR C? Prepayment Rate based on SMM annualised PSA based on CPR takes the COR and applies a curve to the rate of prepayments on the model. (%) e.g. 100% PSA is applied to model. 200% PSA implies x%CPR per month Tries to reflect how prepayments in a pool will accelerate and then burn out. This reflects the nature of a mortgage pool, elgl why people will prepay, refinance, address selection and so on i.e. local economy facts. so those will drop out of the pool and you are left with those who will not. that&apos;s why it levels off. So who originates these figures? Is it measured ongoing?: No . Used to determine a pricing speed when marketing the security to investors. So this is part of the primary market / issuance where there is marketing. These are the estimated figures as they will be at issue. PSA may also be used as triggers. 100 - 400% PSA band - if you go outside that band, may change payment behaviour of those classes. Defaults: measures or rate of default CDR conditional default rate (annual) MDR Monhtly default rate - like CPR = Rate over time. - both defined as Rates. (%) Figures are originated by the servicer of the debt pool. Each serviceer will have their own formats but will do info on prepayments, llosses, detauls on specific loans and so on.</skos:editorialNote>
+		<skos:editorialNote xml:lang="en">The class Mortgage Pool originally had a property &apos;pool type&apos; referring to a selection list of textual stylings of pool types. Those are now replaced with actual sub types of mortgage pool. Here are the original notes and definition that went with the enumerated list of pool types: 
+
+The type of pool for a pool backed security. Each of these pool types represents pools of mortgages that have conformed to certain standards (that change periodically) that make them &quot;conforming&quot; -- such as mortgage balance under a certain threshold, creditworthiness, loan-to-value, etc.
+
+Further Notes:
+Non Agency signifies a tranched security, for which there will also be a Tranche Type for the security tranche itself. All other pool types are Agency pool types. 
+
+List Populated from Cutter document Page 5. 
+
+Additional terms from Adept Advistory:
+Under Agency mortgages, basically you have various types of pools under the various agencies. You have:
+-GNMA-I
+-GNMA-II
+-GNMA Platinum
+-FNMA 
+-FHLMC
+-FHLMC Gold
+As far as definitions:The simple definition is that each of these pool types represents pools of mortgages that have conformed to certain standards (that change periodically) that make them &quot;conforming&quot; -- such as mortgage balance under a certain threshold, creditworthiness, loan-to-value, etc. Also, GNMA is explicitly backed by the US government, while FNMA and FHLMC are only implicitly backed by the US government. Perhaps there needs to be some research done on the parameters for what makes a loan conforming or not. 
+
+Consensus:Review.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;NonAgencyMBSIssuer">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MBSIssuer"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-fbc-fct-fse;Bank">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-sec-dbt-mbs;SpecialistMortgageIssuer">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">non agency m b s issuer</rdfs:label>
+		<skos:definition xml:lang="en">A party which is a non agency issuer of MBS securities. The identity of this party may be a bank or a specialist (non agency) mortgage company. Term origin:MBS PoC Reviews</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;NonAgencyMortgagePool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgagePool"/>
+		<rdfs:label xml:lang="en">non agency mortgage pool</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;Pass-throughPool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgagePool"/>
+		<rdfs:label xml:lang="en">pass-through pool</rdfs:label>
+		<skos:editorialNote xml:lang="en">REVIEW: These are all Pass-through so not clear why this term is here. Term originates with Cutter SME review but seems redundant. If not, this would be non mutually exclusive with agency pool. In general, agency MBS pools are pass through and non agency are tranched, but this reflects a business necessity not a logical necessity.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PassThroughMBSDeal">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;DebtOffering"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-mbs;isAlso"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-mbs;AgencyMBSDeal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">pass through m b s deal</rdfs:label>
+		<skos:definition xml:lang="en">An issue of Mortgage Backed Security instruments in which payments on the pool are passed through to investors</skos:definition>
+		<skos:editorialNote xml:lang="en">The cashflows from interest and principal payments on the mortgages in the underlying pool are passed on to investors, usually with the deduction of fees in for them of a reduction in a mumber of percentage points or a monetary amount. Modeling note: Thinking about this further, and after more PoC reviews, it seems to me that we should simply define two kinds of Deal which are Tranched and Pass Thtrough, just below the level of Pool Backed Securities Deal. Investigaiton of various SMOs and REMICs and the like suggests that the original PoC term duality shown here (Tranched = Non Agency; Pass Through = Agency) is too simplistic.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PassThroughMBSDealProspectus">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurityOfferingProspectus"/>
+		<rdfs:label xml:lang="en">pass through m b s deal prospectus</rdfs:label>
+		<skos:definition xml:lang="en">The written prospectus for an agency, pass through issue of Mortgage Backed Securities</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PassThroughMBSInstrument">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-mbs;hasNote"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-dbt-mbs;PassThroughMBSInstrumentNote"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">pass through m b s instrument</rdfs:label>
+		<skos:definition xml:lang="en">A security in which the cash flows from the underlying asset pool are passed through to the investor by way of redemption payments.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PassThroughMBSInstrumentNote">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-fi;PromissoryNote"/>
+		<rdfs:label xml:lang="en">pass through m b s instrument note</rdfs:label>
+		<skos:definition xml:lang="en">An individual note of a pass through instrument.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PassThroughMBSIssueUnderwriter">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-sec-iss;SecurityUnderwriter"/>
+		<rdfs:label xml:lang="en">pass through m b s issue underwriter</rdfs:label>
+		<skos:definition xml:lang="en">The party which agrees to buy any certificates that are not bought by investors Term origin:MBS PoC Reviews</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PayingAgent">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-mbs;responsibleFor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-pas-psch;Payment"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">paying agent</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;PrivateLabelMBSDeal">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;DebtOffering"/>
+		<rdfs:label xml:lang="en">private label m b s deal</rdfs:label>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;RealEstateMortgageInvestmentConduit">
+		<rdfs:subClassOf rdf:resource="&fibo-be-le-lp;SpecialPurposeVehicle"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-oac-own;owns"/>
+				<owl:onClass rdf:resource="&fibo-sec-dbt-mbs;MortgagePool"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">real estate mortgage investment conduit</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.investopedia.com/terms/r/real-estate-mortgage-investment-conduit-remic.asp"/>
+		<skos:definition xml:lang="en">special purpose vehicle that pools mortgage loans together and issues mortgage-backed securities</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">REMIC</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A real estate mortgage investment conduit may be organized as a partnership, a trust, a corporation, or an association and is exempt from federal taxes.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;ResidentialMBS">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurity"/>
+		<rdfs:label xml:lang="en">residential m b s</rdfs:label>
+		<skos:definition xml:lang="en">Residential Mortgage-Backed Securities, which are trust certificates (bonds) backed by a pool of residential mortgage loans.</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Notes from CESR: They are issued by banks and backed by an underlying pool of residential mortgages. There can be some distinctions between prime RMBS and sub-prime/non-conforming RMBS although there is no consensus about what constitutes a sub-prime/non-conforming mortgage in Europe.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;SBA-Pool">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-mbs;MortgagePool"/>
+		<rdfs:label xml:lang="en">SBA pool</rdfs:label>
+		<skos:editorialNote xml:lang="en">Unknown pool type, from Cutter SME reviews; other pool types listed under Agency are from or validated by AdeptAdvisory SME review.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-mbs;SpecialistMortgageIssuer">
+		<rdfs:subClassOf rdf:resource="&fibo-be-fct-fct;FunctionalBusinessEntity"/>
+		<rdfs:label xml:lang="en">specialist mortgage issuer</rdfs:label>
+		<skos:definition xml:lang="en">A business organization that specialises in and exists for the issuance of mortgages to the general public.</skos:definition>
+		<skos:editorialNote xml:lang="en">Possibly add: Building Society. these exist in the UK (though almost extinct) but have not come up in US-based reviews of the model. Also known as Friendly Societies. There may be analogous organisations in other parts of the world, e.g. South America??</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-mbs;denomination.1">
+		<rdfs:label xml:lang="en">denomination</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-mbs;PassThroughMBSInstrumentNote"/>
+		<rdfs:range rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<skos:definition xml:lang="en">The currency amount in which the Note is denominated, for example $500 notes. This term added by symmettry with MBS Tranche Note. needs to be reviewed and validated.</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-mbs;hasNote">
+		<rdfs:subPropertyOf rdf:resource="&cmns-col;hasPart"/>
+		<rdfs:label xml:lang="en">has note</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurity"/>
+		<rdfs:range rdf:resource="&fibo-fbc-fi-fi;PromissoryNote"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-mbs;isAlso">
+		<rdfs:label xml:lang="en">is also</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-mbs;PassThroughMBSDeal"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-mbs;AgencyMBSDeal"/>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-mbs;isSliceOf">
+		<rdfs:subPropertyOf rdf:resource="&cmns-col;isPartOf"/>
+		<rdfs:label xml:lang="en">is slice of</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-fi-fi;PromissoryNote"/>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-mbs;MortgageBackedSecurity"/>
+		<owl:inverseOf rdf:resource="&fibo-sec-dbt-mbs;hasNote"/>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-sec-dbt-mbs;prime">
+		<rdfs:label xml:lang="en">prime</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-mbs;ResidentialMBS"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">Whether the mortage pool is identified as Prime or not.</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-mbs;responsibleFor">
+		<rdfs:label xml:lang="en">responsible for</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-mbs;PayingAgent"/>
+		<rdfs:range rdf:resource="&fibo-fnd-pas-psch;Payment"/>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

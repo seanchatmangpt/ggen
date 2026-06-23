@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-le-fbo "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalBusinessOrganizations/">
+	<!ENTITY fibo-be-le-lei "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-be-oac-opty "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/">
+	<!ENTITY fibo-fnd-acc-aeq "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/AccountingEquity/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-oac-ctl "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Control/">
+	<!ENTITY fibo-fnd-oac-own "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-le-fbo="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalBusinessOrganizations/"
+	xmlns:fibo-be-le-lei="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-be-oac-opty="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/"
+	xmlns:fibo-fnd-acc-aeq="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/AccountingEquity/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-oac-ctl="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Control/"
+	xmlns:fibo-fnd-oac-own="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/OwnershipParties/">
+		<rdfs:label>Ownership Parties Ontology</rdfs:label>
+		<dct:abstract>This ontology defines concepts relating to types of organization owning parties. The concepts defined here are party in role concepts, which define the nature of some entity such as an organization or a legal person, in some role such as that of owning equity in the entity. These roles are defined in terms of the ownership enjoyed by the party, with distinctions between constitutional ownership i.e. ownership defined in terms of stockholder equity, and investment ownership more generally.</dct:abstract>
+		<dct:license>Copyright (c) 2013-2025 EDM Council, Inc.
+Copyright (c) 2013-2025 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalBusinessOrganizations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LEIEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/AccountingEquity/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Control/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20250301/OwnershipAndControl/OwnershipParties/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20131101/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified per the issue resolutions identified in the FIBO BE 1.0 FTF report.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20160201/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified per the FIBO 2.0 RFC to address missing labels and comments, and revise terminology related to shareholders&apos; equity due to requirements for SEC/Equities.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20180801/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified as a part of a simplification strategy for the organizational class hierarchy and to support GLEIF LEI Level 2 ownership relationships.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20181201/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to eliminate deprecated elements.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20190901/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to eliminate duplication of concepts in LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200201/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to integrate the concept of a situation, situational roles, and corresponding relations with the definition of entity ownership, and eliminate unused and logically inconsistent properties.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200601/OwnershipAndControl/OwnershipParties.rdf version of this ontology was revised to reflect the name change in FND from &apos;hasPrimaryParty&apos; to &apos;hasActiveParty&apos; to be more consistent with other role related properties.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200701/OwnershipAndControl/OwnershipParties.rdf version of this ontology was revised to align isEquityHeldBy and hasInvestor with the situational pattern.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20200901/OwnershipAndControl/OwnershipParties.rdf version of this ontology was revised to eliminate references to guarantee providing member, which duplicates the concept of a guarantor and references a concept that is no longer needed, namely &apos;body incorporated with guarantee&apos;.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20201201/OwnershipAndControl/OwnershipParties.rdf version of this ontology was revised to add a restriction on entity ownership for the ownership percentage.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20210401/OwnershipAndControl/OwnershipParties.rdf version of this ontology was revised to eliminate a dead link that was not necessary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20220801/OwnershipAndControl/OwnershipParties.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230101/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC) and to eliminate redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230301/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to replace concepts from several FIBO FND ontologies with their counterparts added to the Commons Ontology Library (Commons) v1.1 and clean up a few definitions.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20231201/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to replace additional concepts from FIBO FND with their counterparts added to the Commons Ontology Library (Commons) v1.1.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20240101/OwnershipAndControl/OwnershipParties.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20240101/OwnershipAndControl/OwnershipParties.rdf version of this ontology was modified to add a parent class of contract party to the definition of investory (SEC-113).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2013-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2013-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-be-le-lei;RelationshipRecord">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;records"/>
+				<owl:onClass rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;ConstitutionalOwner">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;EntityOwner"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-acc-aeq;ShareholdersEquity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>constitutional owner</rdfs:label>
+		<skos:definition>entity owner that holds an equity stake in said entity, in the form of shareholders&apos; equity</skos:definition>
+		<cmns-av:explanatoryNote>Typically this would be share ownership or the holding of partnership equity. Ownership in this &apos;constitutional&apos; sense means that the owner is in some way a member of the organization, such as an employee or director, as distinct from some outside investor.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;ControllingEquity">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-aeq;ShareholdersEquity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;confers"/>
+				<owl:allValuesFrom rdf:resource="&fibo-fnd-oac-ctl;DeJureControl"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>controlling equity</rdfs:label>
+		<skos:definition>shareholders&apos;s equity that formally confers control in the entity, either by law or as explicitly stated in a corresponding equity instrument</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;DirectConsolidation">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<rdfs:label>direct consolidation</rdfs:label>
+		<skos:definition>direct ownership of an entity recorded as accounting consolidation</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;EntityOwner">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-oac-own;Owner"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-acc-aeq;OwnersEquity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>entity owner</rdfs:label>
+		<skos:definition>owner (person, group of people, or other business entity) that owns, or holds an ownership interest in, a formal business organization</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;EntityOwnership">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-oac-own;Ownership"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;isQualifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-le-lei;RelationshipQualifier"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isConferredBy"/>
+				<owl:onClass>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fnd-acc-aeq;OwnersEquity">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fnd-agr-ctr;Contract">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:onClass>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-le-lei;hasOwnershipPercentage"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;decimal"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-be-le-lei;RelationshipStatus"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-oac-opty;hasOwnedEntity"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-be-le-fbo;NotForProfitOrganization">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-be-le-lp;BusinessEntity">
+							</rdf:Description>
+							<rdf:Description rdf:about="&cmns-org;LegalEntity">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-be-oac-opty;hasOwningEntity"/>
+				<owl:someValuesFrom rdf:resource="&cmns-org;LegalPerson"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>entity ownership</rdfs:label>
+		<skos:definition>ownership by some party of an interest in some non-governmental formal organization</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;ForeignBranchOwnership">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<rdfs:label>foreign branch ownership</rdfs:label>
+		<skos:definition>ownership by some party of some formal organization or organizational sub-unit that is a foreign affiliate and legally part of the owning entity</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;InvestmentEquity">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-aeq;OwnersEquity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isHeldBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-oac-opty;Investor"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>investment equity</rdfs:label>
+		<skos:definition>equity that represents an ownership interest in some entity, but may or may not take the form of shareholders&apos;s equity</skos:definition>
+		<skos:editorialNote>Typically an investment in some entity may take the form of shares (issued or privately held), i.e., shareholders&apos; equity, or it may take the form of some capital amount which is not reflected in shareholders&apos; equity. In each case, there would typically be a contractual basis for the investment setting out what controls or other benefits accrue to the investor.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;Investor">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;EntityOwner"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;ContractParty"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-oac-opty;InvestmentEquity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>investor</rdfs:label>
+		<skos:definition>party that owns some stake in some organization by way of investment</skos:definition>
+		<skos:editorialNote>This is regardless of whether or not the investor is also a constitutional owner (e.g. shareholder) in the entity.</skos:editorialNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;InvestorContract">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-agr-ctr;WrittenContract"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;definesTermsFor"/>
+				<owl:someValuesFrom rdf:resource="&fibo-be-oac-opty;InvestmentEquity"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>investor contract</rdfs:label>
+		<skos:definition>Contract setting out the terms under which some investor invests in the entity and setting out the rights which are conferred on that investor.</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-be-oac-opty;UltimateConsolidation">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<rdfs:label>ultimate ownership</rdfs:label>
+		<skos:definition>highest-level (top, end) ancestral ownership, evidenced by accounting consolidation, by some party of some other legal entity</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;guarantees">
+		<rdfs:label>guarantees</rdfs:label>
+		<skos:definition>provides a formal assurance or promise, esp. that certain conditions shall be fulfilled relating to a product, service, or transaction</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;hasDirectOwnership">
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;experiences"/>
+		<rdfs:label>has direct ownership</rdfs:label>
+		<rdfs:domain>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-be-le-fbo;NotForProfitOrganization">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-be-le-lp;BusinessEntity">
+					</rdf:Description>
+					<rdf:Description rdf:about="&cmns-org;LegalEntity">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:domain>
+		<rdfs:range rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<owl:inverseOf rdf:resource="&fibo-be-oac-opty;hasOwnedEntity"/>
+		<skos:definition>relates a formal organization to the situation in which it is owned directly by another entity</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;hasDirectOwningEntity">
+		<rdfs:label>has direct owning entity</rdfs:label>
+		<owl:propertyChainAxiom rdf:parseType="Collection">
+			<rdf:Description rdf:about="&fibo-be-oac-opty;hasDirectOwnership">
+			</rdf:Description>
+			<rdf:Description rdf:about="&fibo-be-oac-opty;hasOwningEntity">
+			</rdf:Description>
+		</owl:propertyChainAxiom>
+		<skos:definition>relates a formal organization to a direct legal person / owner</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;hasInvestmentEntity">
+		<rdfs:label>has investment entity</rdfs:label>
+		<owl:propertyChainAxiom rdf:parseType="Collection">
+			<rdf:Description rdf:about="&fibo-be-oac-opty;hasInvestmentOwnership">
+			</rdf:Description>
+			<rdf:Description rdf:about="&fibo-be-oac-opty;hasOwnedEntity">
+			</rdf:Description>
+		</owl:propertyChainAxiom>
+		<skos:definition>relates a legal person to a directly owned formal organization or subsidiary, depending on the percent ownership interest</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;hasInvestmentOwnership">
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;playsActiveRoleIn"/>
+		<rdfs:label>has investment ownership</rdfs:label>
+		<rdfs:domain rdf:resource="&cmns-org;LegalPerson"/>
+		<rdfs:range rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<owl:inverseOf rdf:resource="&fibo-be-oac-opty;hasOwningEntity"/>
+		<skos:definition>relates a legal person to the context in which it owns a formal organization</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;hasOwnedEntity">
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;isExperiencedBy"/>
+		<rdfs:label>has owned entity</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<rdfs:range>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-be-le-fbo;NotForProfitOrganization">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-be-le-lp;BusinessEntity">
+					</rdf:Description>
+					<rdf:Description rdf:about="&cmns-org;LegalEntity">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:range>
+		<skos:definition>indicates a formal organization, including potentially a sole proprietorship, that is owned by a legal person</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-be-oac-opty;hasOwningEntity">
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;hasActiveParty"/>
+		<rdfs:label>has owning entity</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-be-oac-opty;EntityOwnership"/>
+		<rdfs:range rdf:resource="&cmns-org;LegalPerson"/>
+		<skos:definition>indicates a party that owns a formal organization</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

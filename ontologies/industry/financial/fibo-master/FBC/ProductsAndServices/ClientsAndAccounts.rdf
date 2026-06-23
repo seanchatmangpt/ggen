@@ -1,0 +1,1284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-bauth "https://www.omg.org/spec/Commons/BusinessAuthorizations/">
+	<!ENTITY cmns-cds "https://www.omg.org/spec/Commons/CodesAndCodeSets/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-cxtid "https://www.omg.org/spec/Commons/ContextualIdentifiers/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dsg "https://www.omg.org/spec/Commons/Designators/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-id "https://www.omg.org/spec/Commons/Identifiers/">
+	<!ENTITY cmns-loc "https://www.omg.org/spec/Commons/Locations/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY cmns-ra "https://www.omg.org/spec/Commons/RegistrationAuthorities/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY cmns-txt "https://www.omg.org/spec/Commons/TextDatatype/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-fct "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/">
+	<!ENTITY fibo-be-oac-exec "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fbc-fct-breg "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/BusinessRegistries/">
+	<!ENTITY fibo-fbc-fct-fse "https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/">
+	<!ENTITY fibo-fbc-fi-fi "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/">
+	<!ENTITY fibo-fbc-pas-caa "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/">
+	<!ENTITY fibo-fbc-pas-fpas "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/">
+	<!ENTITY fibo-fnd-acc-aeq "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/AccountingEquity/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-agr-ctr "https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/">
+	<!ENTITY fibo-fnd-arr-doc "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-dt-oc "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/">
+	<!ENTITY fibo-fnd-oac-own "https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/">
+	<!ENTITY fibo-fnd-pas-pas "https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-bauth="https://www.omg.org/spec/Commons/BusinessAuthorizations/"
+	xmlns:cmns-cds="https://www.omg.org/spec/Commons/CodesAndCodeSets/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-cxtid="https://www.omg.org/spec/Commons/ContextualIdentifiers/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dsg="https://www.omg.org/spec/Commons/Designators/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-id="https://www.omg.org/spec/Commons/Identifiers/"
+	xmlns:cmns-loc="https://www.omg.org/spec/Commons/Locations/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:cmns-ra="https://www.omg.org/spec/Commons/RegistrationAuthorities/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:cmns-txt="https://www.omg.org/spec/Commons/TextDatatype/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-fct="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/"
+	xmlns:fibo-be-oac-exec="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fbc-fct-breg="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/BusinessRegistries/"
+	xmlns:fibo-fbc-fct-fse="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/"
+	xmlns:fibo-fbc-fi-fi="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"
+	xmlns:fibo-fbc-pas-caa="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"
+	xmlns:fibo-fbc-pas-fpas="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"
+	xmlns:fibo-fnd-acc-aeq="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/AccountingEquity/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-agr-ctr="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"
+	xmlns:fibo-fnd-arr-doc="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-dt-oc="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"
+	xmlns:fibo-fnd-oac-own="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"
+	xmlns:fibo-fnd-pas-pas="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/">
+		<rdfs:label>Clients and Accounts Ontology</rdfs:label>
+		<dct:abstract>This ontology provides basic concepts related to accounts, including internal accounts such as ledger accounts as well as accounts managed for external parties, that are commonly used by financial services providers.</dct:abstract>
+		<dct:license>Copyright (c) 2015-2026 EDM Association dba EDM Council, Inc.
+Copyright (c) 2015-2026 Object Management Group, Inc.
+		
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/FunctionalEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/Executives/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/BusinessRegistries/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FunctionalEntities/FinancialServicesEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/AccountingEquity/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Documents/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/Occurrences/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/OwnershipAndControl/Ownership/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/BusinessAuthorizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/CodesAndCodeSets/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualIdentifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Designators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Identifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Locations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RegistrationAuthorities/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/TextDatatype/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/20260301/ProductsAndServices/ClientsAndAccounts/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20160801/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised per the FIBO 2.0 RFC with respect to the definitions for accounts and account identifiers, such as BBAN and IBAN identifiers, including but not limited to bank accounts.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20180801/ProductsAndServices/ClientsAndAccounts/ version of this ontology was modified to support the addition of maturity-related properties to financial instruments.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20181101/ProductsAndServices/ClientsAndAccounts/ version of this ontology was modified to replace hasDefinition with isDefinedIn to clarify intent.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20190701/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to eliminate deprecated elements.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20190901/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to eliminate the disjointness between a deposit account and investment account to allow for certain portfolio management accounts that have characteristics of both.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20191201/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to add definitions for balance, fee, general ledger, ledger account, income and related properties, revise definitions to be ISO 704 compliant, and eliminate duplication with concepts in LCC.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20200201/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to add definitions for transaction records, which are needed to represent statements of various sorts, to add the concept of an account statement, and to clean up and augment definitions related to accounts, account holders, etc. as required for the purpose of representing credit card accounts.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20200901/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to generalize the definition of customer account and eliminate ambiguity in others.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20201201/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to change a property on CertificateOfDeposit from has notional amount to has nominal value for the sake of consistency.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20210301/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to rename ownership related properties for consistent alignment with the ownership situational pattern.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20210401/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to reflect the move of certain organization-specific concepts from BE to FND, to incorporate the concept of a composite identifier for BBAN and IBAN definition, loosen the definition of bank identifier with respect to the nature of the functional entity it identifies, and clarify the identifier hierarchy and fix spelling.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20211201/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to reflect the move of hasTerm from FinancialInstruments to Contracts and add the definition of a lending officer.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20220101/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to link a credit agreement with an account and loosen transaction-related constraints such that the notion of a transaction can be applied to credit agreements generally.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20220301/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to clean up dead links and address text formatting hygiene issues.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20220801/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20230101/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC) and to eliminate redundancies in FIBO as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20230301/ProductsAndServices/ClientsAndAccounts.rdf version of this ontology was revised to clarify and extend definitions related to non-bank financial institutions.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20230401/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to replace concepts from several FIBO FND ontologies with their counterparts added to the Commons Ontology Library (Commons) v1.1.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20231201/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to replace additional concepts from several FIBO FND ontologies with their counterparts added to the Commons Ontology Library (Commons) v1.1.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20240101/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to eliminate deprecated elements that were deprecated more than six months ago (FND-386).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20241101/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.2 (FND-389).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20250301/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to use new constructs from the Commons 1.3 Business Authorizations ontology (FND-401).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/FBC/20251201/ProductsAndServices/ClientsAndAccounts.rdf version of the ontology was modified to add the concept of a chart of accounts (FND-398).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2015-2026 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2015-2026 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-dbt;CreditAgreement">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasCorrespondingAccount"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;LoanOrCreditAccount"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-fct-fse;Bank">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;provides"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;CommercialLendingService"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;provides"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;DemandDepositAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-fct-fse;DepositoryInstitution">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;provides"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;DepositAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;Account">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isHeldBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;AccountHolder"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;AccountIdentifier"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasCloseDate"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;CloseDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-doc;hasRecord"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionRecord"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasOpenDate"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;OpenDate"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasBalance"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;AccountProvider"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account</rdfs:label>
+		<skos:definition>container for records associated with a business arrangement for regular transactions and services</skos:definition>
+		<cmns-av:explanatoryNote>In general, an account is associated with a contractual relationship between a buyer and seller under which payment may be made at a later time. General ledger accounts are an exception to this, however, and typically do not have account holders, including internal account holders. They may, on the other hand, have responsible parties.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountAsAnAsset">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-aeq;FinancialAsset"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-oac-own;isAssetOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;AccountHolder"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account as an asset</rdfs:label>
+		<skos:definition>financial asset in the form of an account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountHolder">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-oac-own;Owner"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&fibo-fnd-oac-own;owns"/>
+						<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-pts;isAPartyTo"/>
+						<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account holder</rdfs:label>
+		<skos:definition>party that owns an account</skos:definition>
+		<cmns-av:explanatoryNote>An account holder is named on the account and is authorized to conduct transactions associated with the account. Authorization is typically evidenced by signatures maintained on file by the account provider.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>Note that this concept of account holder applies to internal accounts that are non-general ledger accounts also have account holders, such as payroll accounts, internal checking accounts associated with cashier&apos;s checks, and so forth.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountIdentifier">
+		<rdfs:subClassOf rdf:resource="&cmns-ra;RegisteredIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Account"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account identifier</rdfs:label>
+		<skos:definition>identifier that denotes an account</skos:definition>
+		<cmns-av:adaptedFrom>ISO 13616-1:2007 Financial services - International bank account number (IBAN)</cmns-av:adaptedFrom>
+		<cmns-av:synonym>account number</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountOwnership">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;Holding"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-oac-own;hasOwnedAsset"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;AccountAsAnAsset"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-oac-own;hasOwningParty"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;AccountHolder"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account ownership</rdfs:label>
+		<skos:definition>holding of an account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountProvider">
+		<rdfs:subClassOf rdf:resource="&cmns-org;ServiceProvider"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-pts;isAPartyTo"/>
+						<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account provider</rdfs:label>
+		<skos:definition>party that provides and services an account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountSpecificServiceAgreement">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-pas;ServiceAgreement"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasContractParty"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;AccountHolder"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasContractParty"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;AccountProvider"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account-specific service agreement</rdfs:label>
+		<skos:definition>service-agreement that is account-specific, applicable in cases where a client might hold multiple accounts with differing terms and conditions</skos:definition>
+		<cmns-av:explanatoryNote>Customers of financial service providers frequently hold multiple accounts - brokerage accounts, checking and savings accounts, trust accounts, and so forth - which may have specific terms and conditions associated with them.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountStatement">
+		<rdfs:subClassOf rdf:resource="&cmns-doc;LegalDocument"/>
+		<rdfs:subClassOf rdf:resource="&cmns-doc;Record"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasEndingBalance"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasStartingBalance"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-doc;hasReportingPeriod"/>
+				<owl:onClass rdf:resource="&cmns-dt;ExplicitDatePeriod"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;appliesToAccount"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Account"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;recordsTransaction"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>account statement</rdfs:label>
+		<skos:definition>periodic summary of account activity for a given period of time</skos:definition>
+		<cmns-av:explanatoryNote>Common kinds of account statements include checking account statements, usually provided monthly, and brokerage account statements, which are provided monthly or quarterly, depending on the terms of the account agreement. Monthly credit card bills are also considered account statements.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;AccountingTransaction">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-pas;TransactionEvent"/>
+		<rdfs:label>accounting transaction</rdfs:label>
+		<skos:definition>event recognized by an entry in the records of an account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;Balance">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<rdfs:label>balance</rdfs:label>
+		<skos:definition>amount of money available or owed</skos:definition>
+		<cmns-av:explanatoryNote>The balance is the net amount after factoring in all debits and credits, including service charges and fees.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;BankAccountIdentifier">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;AccountIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;DemandDepositAccount"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>bank account identifier</rdfs:label>
+		<skos:definition>identifier that identifies a demand deposit account provided by a bank</skos:definition>
+		<cmns-av:adaptedFrom>ISO 13616-1:2007 Financial services - International bank account number (IBAN)</cmns-av:adaptedFrom>
+		<cmns-av:synonym>bank account number</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;BankIdentifier">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fct-fse;FinancialServiceProviderIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:onClass rdf:resource="&fibo-fbc-fct-fse;FinancialInstitution"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>bank identifier</rdfs:label>
+		<skos:definition>identifier that uniquely identifies the financial institution and, when appropriate, the branch of that financial institution servicing an account</skos:definition>
+		<cmns-av:adaptedFrom>ISO 13616-1:2007 Financial services - International bank account number (IBAN)</cmns-av:adaptedFrom>
+		<cmns-av:synonym>bank number</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;BasicBankAccountIdentifier">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;BankAccountIdentifier"/>
+		<rdfs:subClassOf rdf:resource="&cmns-cxtid;StructuredIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;BankAccountIdentifier"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;BankIdentifier"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>basic bank account identifier</rdfs:label>
+		<skos:definition>identifier that uniquely identifies an individual account at a specific financial institution in a particular country and which includes a bank identifier of the financial institution servicing that account</skos:definition>
+		<cmns-av:abbreviation>BBAN</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom>ISO 13616-1:2007 Financial services - International bank account number (IBAN)</cmns-av:adaptedFrom>
+		<cmns-av:synonym>basic bank account number</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;BrokerageAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;InvestmentAccount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-fct-fse;Bank">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-fct-fse;BrokerageFirm">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-fct-fse;FuturesCommissionMerchant">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>brokerage account</rdfs:label>
+		<skos:definition>account offered by a broker that allows the investor to deposit funds and place investment orders</skos:definition>
+		<cmns-av:explanatoryNote>The investor owns the assets contained in the brokerage account and must usually claim as income any capital gains incurred.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;CertificateOfDeposit">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fi-fi;CashInstrument"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;hasInterestRate"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;InterestRate"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-fi-fi;hasNominalValue"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-agr-ctr;hasContractDuration"/>
+				<owl:onClass rdf:resource="&cmns-dt;Duration"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">certificate of deposit</rdfs:label>
+		<skos:definition xml:lang="en">cash instrument associated with a time deposit account that cannot be withdrawn for a certain period of time (term)</skos:definition>
+		<cmns-av:abbreviation>CD</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>When the term is over it can be withdrawn or it can be held for another term. The longer the term the better the yield on the money.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;ChartOfAccounts">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-doc;FinancialRecord"/>
+		<rdfs:subClassOf rdf:resource="&cmns-col;Arrangement"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;characterizes"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;LedgerAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>chart of accounts</rdfs:label>
+		<skos:definition>structured system of financial account codes used to classify, record, and organize an entity&apos;s financial transactions in accordance with applicable legal, regulatory, and reporting requirements</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;CloseDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDate"/>
+		<rdfs:label>close date</rdfs:label>
+		<skos:definition>date on which something was closed</skos:definition>
+		<skos:example>account close date, transaction record close date, and so forth</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;CommercialLendingService">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;FinancialService"/>
+		<rdfs:label>commercial lending service</rdfs:label>
+		<skos:definition>service involving the extension of credit to support business activities</skos:definition>
+		<skos:example>Examples include operating lines of credit and term loans for property, plant and equipment (PP&amp;E).</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;CustomerAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;Account"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;exemplifies"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:unionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-pas-fpas;FinancialProduct">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-pas-fpas;FinancialService">
+							</rdf:Description>
+						</owl:unionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isHeldBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;CustomerAccountHolder"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;isDefinedIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-pas-pas;ServiceAgreement"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;AccountIdentifier"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom>
+					<owl:Class>
+						<owl:intersectionOf rdf:parseType="Collection">
+							<rdf:Description rdf:about="&fibo-fbc-pas-caa;AccountProvider">
+							</rdf:Description>
+							<rdf:Description rdf:about="&fibo-fbc-pas-fpas;FinancialServiceProvider">
+							</rdf:Description>
+						</owl:intersectionOf>
+					</owl:Class>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>customer account</rdfs:label>
+		<skos:definition>account that represents an identified, named collection of balances and cumulative totals used to summarize customer transaction-related activity over a designated period of time</skos:definition>
+		<cmns-av:synonym>financial service account</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;CustomerAccountHolder">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;AccountHolder"/>
+		<rdfs:subClassOf>
+			<owl:Class>
+				<owl:unionOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="&fibo-fnd-pas-pas;Client">
+					</rdf:Description>
+					<rdf:Description rdf:about="&fibo-fnd-pas-pas;Customer">
+					</rdf:Description>
+				</owl:unionOf>
+			</owl:Class>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;holds"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;CustomerAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>customer account holder</rdfs:label>
+		<skos:definition>party that owns a customer account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;DemandDepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;TransactionDepositAccount"/>
+		<rdfs:label>demand deposit account</rdfs:label>
+		<skos:definition>non-interest-bearing deposit account in which deposits are payable immediately on demand, or that are issued with an original maturity or required notice period of less than seven days, or that represent funds for which the depository institution does not reserve the right to require at least seven days&apos; written notice of an intended withdrawal</skos:definition>
+		<cmns-av:abbreviation>DDA</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>Demand deposits include any matured time deposits without automatic renewal provisions, unless the deposit agreement provides for the funds to be transferred at maturity to another type of account. Demand deposits do not include: (i) money market deposit accounts (MMDAs) or (ii) NOW accounts.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;DepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-fct-fse;BankingProduct"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;InvestmentOrDepositAccount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fct-fse;DepositoryInstitution"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>deposit account</rdfs:label>
+		<skos:definition>account that provides a record of money placed with a depository institution for safekeeping and management</skos:definition>
+		<skos:example>Deposit accounts include savings accounts, money market accounts, and transactional accounts, such as demand deposit accounts, among others.</skos:example>
+		<cmns-av:explanatoryNote>The account holder has the right to withdraw deposited funds, as set forth in the terms and conditions governing the account agreement. Deposit accounts may be insured up to a certain amount, depending on the jurisdiction.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;Fee">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+		<rdfs:label>fee</rdfs:label>
+		<skos:definition>charge for services performed</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;GeneralLedger">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-doc;FinancialRecord"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;LedgerAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>general ledger</rdfs:label>
+		<skos:definition>organized collection of ledger accounts used to record and summarize changes in position as transactions are posted during an accounting period</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;IndividualTransaction">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;DatedCollectionConstituent"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-oc;Occurrence"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-ra;isRegisteredIn"/>
+				<owl:allValuesFrom rdf:resource="&fibo-fbc-pas-caa;TransactionRecord"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionIdentifier"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;involvesMerchant"/>
+				<owl:onClass rdf:resource="&fibo-be-fct-fct;Merchant"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionCategory"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionSubcategory"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;exemplifies"/>
+				<owl:onClass rdf:resource="&fibo-fnd-pas-pas;TransactionEvent"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasTransactionDescription"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;appliesToAccount"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Account"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasPostingDate"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;PostingDate"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasTransactionDate"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionDate"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-acc-cur;hasMonetaryAmount"/>
+				<owl:onClass rdf:resource="&fibo-fnd-acc-cur;MonetaryAmount"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>individual transaction</rdfs:label>
+		<skos:definition>event that has a monetary impact and is documented in the records associated with an account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;InternationalBankAccountIdentifier">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;BankAccountIdentifier"/>
+		<rdfs:subClassOf rdf:resource="&cmns-cxtid;StructuredIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;BasicBankAccountIdentifier"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&cmns-loc;GeographicRegionIdentifier"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>international bank account identifier</rdfs:label>
+		<skos:definition>identifier for a bank account that is an expanded version of the basic bank account number (BBAN), intended for use internationally</skos:definition>
+		<skos:example>For an account in Switzerland, suppose that an example domestic account number is 762 1162-3852.957. Suppose further that the bank identifier portion of that domestic account number is 762, or normalized for the BBAN is &apos;00762&apos;. For that example, the corresponding BBAN is &apos;00762011623852957&apos; and IBAN is &apos;CH9300762011623852957&apos;.</skos:example>
+		<cmns-av:abbreviation>IBAN</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom>ISO 13616-1:2007 Financial services - International bank account number (IBAN)</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote>Note that international bank account numbers are formatted uniquely by country. A description of the country-specific formats is available from SWIFT (https://www.swift.com/), which is the ISO registrar for ISO 13616.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>The IBAN structure is defined in ISO 13616-1 and consists of a two-letter ISO 3166-1 country code, followed by two check digits and up to thirty alphanumeric characters for a BBAN (Basic Bank Account Number) which has a fixed length per country and, included within it, a bank identifier with a fixed position and a fixed length per country. The check digits are calculated based on the scheme defined in ISO/IEC 7064 (MOD97-10).</cmns-av:explanatoryNote>
+		<cmns-av:synonym>international bank account number</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;InvestmentAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;InvestmentOrDepositAccount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isProvidedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fct-fse;FinancialInstitution"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>investment account</rdfs:label>
+		<skos:definition>account that provides a record of deposits of funds and/or securities held at a financial institution</skos:definition>
+		<cmns-av:explanatoryNote>The typical objectives of an investment account are to achieve long term growth, income or capital preservation from the deposited asset portfolio. Investment accounts are typically not insured.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;InvestmentOrDepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;Account"/>
+		<rdfs:label>investment or deposit account</rdfs:label>
+		<skos:definition>account associated with a product or service that requires the account holder to provide funds for management by the account provider</skos:definition>
+		<cmns-av:explanatoryNote>The account holder may or may not be entitled to consideration in exchange for providing such funds, for example, interest, depending on the type of account and the terms and conditions associated with it. Also, there may be fees associated with management services provided by the account provider. Note too that this may be an internal account held on behalf of an institution or a customer account.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;LedgerAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;Account"/>
+		<rdfs:label>ledger account</rdfs:label>
+		<skos:definition>individual record for one element or sub-element in a ledger that records and summarizes increases, decreases, and balances associated with that specific element</skos:definition>
+		<cmns-av:explanatoryNote>Ledger accounts are internal to a legal entity&apos;s accounting system(s).</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme">
+		<rdf:type rdf:resource="&cmns-cls;ClassificationScheme"/>
+		<rdf:type rdf:resource="&cmns-cds;CodeSet"/>
+		<rdf:type>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;defines"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassifier"/>
+			</owl:Restriction>
+		</rdf:type>
+		<rdfs:label>ledger account classification scheme</rdfs:label>
+		<skos:definition>classification scheme used to organize an entity&apos;s financial accounts in accordance with applicable legal, regulatory, and reporting requirements</skos:definition>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassifier">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;isDefinedIn"/>
+				<owl:hasValue rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;classifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;LedgerAccount"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>ledger account classifier</rdfs:label>
+		<skos:definition>classifier used to organize an entity&apos;s financial accounts in accordance with applicable legal, regulatory, and reporting requirements</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassifier-Assets">
+		<rdf:type rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassifier"/>
+		<rdfs:label>ledger account classifier - assets</rdfs:label>
+		<dct:source>&apos;Conceptual Framework for Financial Reporting&apos;, September 2024, Financial Accounting Standards Board (FASB).</dct:source>
+		<skos:definition>classifier for ledger accounts used to track present rights of an entity to an economic benefit</skos:definition>
+		<cmns-av:explanatoryNote>A present right of an entity to an economic benefit entitles the entity to the economic benefit and the ability to restrict others&apos; access to the benefit to which the entity is entitled. Assets are economic resources that an entity controls as a result of past events and that it expects to generate future economic benefits.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>Assets commonly have features that help identify them - for example, assets may be contractual, tangible, exchangeable, or separable. However, those features are not essential characteristics of assets. Their absence is not sufficient to preclude an item from qualifying as an asset.</cmns-av:explanatoryNote>
+		<cmns-col:isMemberOf rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-dsg:isDefinedIn rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-txt:hasTextValue>Assets</cmns-txt:hasTextValue>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassifier-Equity">
+		<rdf:type rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassifier"/>
+		<rdfs:label>ledger account classifier - equity</rdfs:label>
+		<dct:source>&apos;Conceptual Framework for Financial Reporting&apos;, September 2024, Financial Accounting Standards Board (FASB).</dct:source>
+		<skos:definition>classifier for ledger accounts used to track the residual interest in the assets of an entity that remains after deducting its liabilities</skos:definition>
+		<cmns-av:synonym>Net Assets</cmns-av:synonym>
+		<cmns-col:isMemberOf rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-dsg:isDefinedIn rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-txt:hasTextValue>Equity</cmns-txt:hasTextValue>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassifier-Expenses">
+		<rdf:type rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassifier"/>
+		<rdfs:label>ledger account classifier - expenses</rdfs:label>
+		<dct:source>&apos;Conceptual Framework for Financial Reporting&apos;, September 2024, Financial Accounting Standards Board (FASB).</dct:source>
+		<skos:definition>classifier for ledger accounts used to track outflows or other using up of assets of an entity or incurrences of its liabilities (or a combination of both) from delivering or producing goods, rendering services, or carrying out other activities</skos:definition>
+		<cmns-col:isMemberOf rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-dsg:isDefinedIn rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-txt:hasTextValue>Expenses</cmns-txt:hasTextValue>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassifier-Liabilities">
+		<rdf:type rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassifier"/>
+		<rdfs:label>ledger account classifier - liabilities</rdfs:label>
+		<dct:source>&apos;Conceptual Framework for Financial Reporting&apos;, September 2024, Financial Accounting Standards Board (FASB).</dct:source>
+		<skos:definition>classifier for ledger accounts used to track present obligations of an entity to transfer an economic benefit</skos:definition>
+		<cmns-av:explanatoryNote>Liabilities are obligations whose settlement is expected to involve transferring assets, providing services, or other outflows of resources.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote>Liabilities commonly have features that help identify them. For example, many liabilities require the obligated entity to pay cash to one or more identified other entities. Liabilities may not require an entity to pay cash but may require the entity to convey other assets, provide services, or transfer other economic benefits or to be ready to do so.</cmns-av:explanatoryNote>
+		<cmns-col:isMemberOf rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-dsg:isDefinedIn rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-txt:hasTextValue>Liabilities</cmns-txt:hasTextValue>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-pas-caa;LedgerAccountClassifier-Revenue">
+		<rdf:type rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassifier"/>
+		<rdfs:label>ledger account classifier - revenue</rdfs:label>
+		<dct:source>&apos;Conceptual Framework for Financial Reporting&apos;, September 2024, Financial Accounting Standards Board (FASB).</dct:source>
+		<skos:definition>classifier for ledger accounts used to track inflows or other enhancements of assets of an entity or settlements of its liabilities (or a combination of both) from delivering or producing goods, rendering services, or carrying out other activities</skos:definition>
+		<cmns-col:isMemberOf rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-dsg:isDefinedIn rdf:resource="&fibo-fbc-pas-caa;LedgerAccountClassificationScheme"/>
+		<cmns-txt:hasTextValue>Revenue</cmns-txt:hasTextValue>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;LendingOfficer">
+		<rdfs:subClassOf rdf:resource="&fibo-be-oac-exec;CorporateOfficer"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;RelationshipManager"/>
+		<rdfs:label>lending officer</rdfs:label>
+		<skos:definition>corporate officer that has overarching responsibility for the relationship with a specific borrower or account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;LoanOrCreditAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;Account"/>
+		<rdfs:label>loan or credit account</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fbc-pas-caa;InvestmentOrDepositAccount"/>
+		<skos:definition>account associated with a service in which the account holder receives funds from the account provider under certain terms and conditions for repayment</skos:definition>
+		<cmns-av:explanatoryNote>Note that this may be an internal account held on behalf of an institution or a customer account, such as a line of credit account associated with an internal line of business.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;NonTransactionDepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;DepositAccount"/>
+		<rdfs:label>non-transaction deposit account</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fbc-pas-caa;TransactionDepositAccount"/>
+		<skos:definition>any deposit account that is not explicitly considered a transaction account</skos:definition>
+		<cmns-av:explanatoryNote>Non-transaction accounts include: (a) savings deposits ((i) money market deposit accounts (MMDAs) and (ii) other savings deposits) and (b) time deposits ((i) time certificates of deposit and (ii) time deposits, open account).</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;OpenDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDate"/>
+		<rdfs:label>open date</rdfs:label>
+		<skos:definition>date on which something was created</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;PaymentDueDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDate"/>
+		<rdfs:label>payment due date</rdfs:label>
+		<skos:definition>date by which payment of the current outstanding balance, part thereof, or a minimum amount due must be made to the creditor</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;PostingDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDate"/>
+		<rdfs:label>posting date</rdfs:label>
+		<skos:definition>date that determines in which posting period a document or journal entry is added to an account record</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;RelationshipManager">
+		<rdfs:subClassOf rdf:resource="&cmns-bauth;ResponsibleParty"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;manages"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>relationship manager</rdfs:label>
+		<skos:definition>responsible party who manages a client&apos;s account and oversees their relationship with the service provider</skos:definition>
+		<cmns-av:synonym>account manager</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TimeCertificateOfDepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;TimeDepositAccount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isExemplifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;CertificateOfDeposit"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>time certificate of deposit account</rdfs:label>
+		<skos:definition>time deposit account that allows deposits evidenced by a negotiable or nonnegotiable instrument, or a deposit in book entry form evidenced by a receipt or similar acknowledgement issued by the bank, that provides, on its face, that the amount of such deposit is payable to the bearer, to any specified person, or to the order of a specified person, as follows: (1) on a certain date not less than seven days after the date of deposit, (2) at the expiration of a specified period not less than seven days after the date of the deposit, or (3) upon written notice to the bank which is to be given not less than seven days before the date of withdrawal.</skos:definition>
+		<cmns-av:abbreviation>CDA</cmns-av:abbreviation>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TimeDepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;NonTransactionDepositAccount"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-pas;ContractualProduct"/>
+		<rdfs:label>time deposit account</rdfs:label>
+		<skos:definition>deposit account that the depositor does not have a right, and is not permitted, to make withdrawals from within six days after the date of deposit unless the deposit is subject to an early withdrawal penalty of at least seven days&apos; simple interest on amounts withdrawn within the first six days after deposit</skos:definition>
+		<cmns-av:explanatoryNote>A time deposit from which partial early withdrawals are permitted must impose additional early withdrawal penalties of at least seven days&apos; simple interest on amounts withdrawn within six days after each partial withdrawal. If such additional early withdrawal penalties are not imposed, the account ceases to be a time deposit. The account may become a savings deposit if it meets the requirements for a savings deposit; otherwise it becomes a demand deposit.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TimeDepositOpenAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;TimeDepositAccount"/>
+		<rdfs:label>time deposit open account</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-fbc-pas-caa;TimeCertificateOfDepositAccount"/>
+		<skos:definition>time deposit account that allows deposits (other than time certificates of deposit) for which there is in force a written contract with the depositor that neither the whole nor any part of such deposit may be withdrawn prior to (1) the date of maturity, which shall be not less than seven days after the date of the deposit, or (2) the expiration of a specified period of written notice of not less than seven days</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionCategory">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:subClassOf rdf:resource="&cmns-cds;CodeElement"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;hasTag"/>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;classifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>transaction category</rdfs:label>
+		<skos:definition>high-level classifier for an individual transaction</skos:definition>
+		<skos:example>credit, debit, fee</skos:example>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionDate">
+		<rdfs:subClassOf rdf:resource="&cmns-dt;ExplicitDate"/>
+		<rdfs:label>transaction date</rdfs:label>
+		<skos:definition>date on which a specific transaction was initiated</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionDepositAccount">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-caa;DepositAccount"/>
+		<rdfs:label>transaction deposit account</rdfs:label>
+		<skos:definition>deposit account from which the depositor / account holder is permitted to make transfers or withdrawals by negotiable / transferable instruments, payment orders of withdrawal, telephone transfers, and so forth, and that may be accessible via an electronic device such as an automated teller machine (ATM), remote service unit (RSU), mobile device, and by debit card</skos:definition>
+		<cmns-av:explanatoryNote>Excluded from transaction accounts are savings deposits (both money market deposit accounts (MMDAs) and other savings deposits), even though such deposits permit some third-party transfers. However, an account that otherwise meets the definition of a savings deposit but that authorizes or permits the depositor to exceed the transfer limitations specified for that account shall be reported as a transaction account.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionIdentifier">
+		<rdfs:subClassOf rdf:resource="&cmns-id;Identifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>transaction identifier</rdfs:label>
+		<skos:definition>identifier for an individual transaction associated with an account</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionRecord">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-dt-fd;DatedStructuredCollection"/>
+		<rdfs:subClassOf rdf:resource="&cmns-doc;Record"/>
+		<rdfs:subClassOf rdf:resource="&cmns-ra;Registry"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionRecordIdentifier"/>
+				<owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasCloseDate"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;CloseDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasOpenDate"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;OpenDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;hasTransactionRecordStatus"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-pas-caa;appliesToAccount"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;Account"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isManagedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;AccountProvider"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>transaction record</rdfs:label>
+		<skos:definition>record of transactions associated with an account</skos:definition>
+		<cmns-av:usageNote>The date a particular transaction record is closed typically corresponds to (and may precede) the date the account is closed, though in the case of certain accounts, such as a credit card account, if a customer is issued a new account or card number due to loss, fraud, or for some other reason, it is possible that multiple transaction records would be associated with the account. In that case, the close date might correspond to the date that a hold was placed on the original account.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionRecordIdentifier">
+		<rdfs:subClassOf rdf:resource="&cmns-ra;RegisteredIdentifier"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;identifies"/>
+				<owl:onClass rdf:resource="&fibo-fbc-pas-caa;TransactionRecord"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;hasTag"/>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>transaction record identifier</rdfs:label>
+		<skos:definition>unique identifier for record of transactions</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-pas-caa;TransactionSubcategory">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:subClassOf rdf:resource="&cmns-cds;CodeElement"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;hasTag"/>
+				<owl:onDataRange rdf:resource="&xsd;string"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;classifies"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>transaction subcategory</rdfs:label>
+		<skos:definition>second-level classifier for a transaction, e.g., direct deposit, check, cash advance, withdrawal, payment, purchase, and so forth</skos:definition>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;appliesToAccount">
+		<rdfs:subPropertyOf rdf:resource="&cmns-cxtdsg;appliesTo"/>
+		<rdfs:label>applies to account</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;Account"/>
+		<skos:definition>indicates the account to which the transaction record or individual transaction applies</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-acc-cur;hasMonetaryAmount"/>
+		<rdfs:label>has balance</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+		<skos:definition>relates an account to the net amount of money available in that account</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasCloseDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasEndDate"/>
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:label>has close date</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;CloseDate"/>
+		<skos:definition>relates something to the date that it was closed</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasCorrespondingAccount">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-pas-fpas;relatesTo"/>
+		<rdfs:label>has corresponding account</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-dae-dbt;CreditAgreement"/>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;LoanOrCreditAccount"/>
+		<skos:definition>relates a credit agreement to an account used as the basis for managing transactions</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasEndingBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-pas-caa;hasBalance"/>
+		<rdfs:label>has ending balance</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-pas-caa;AccountStatement"/>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+		<skos:definition>relates an account statement to the amount of money available in that account at the end of the statement period</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasOpenDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasStartDate"/>
+		<rdfs:label>has open date</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;OpenDate"/>
+		<skos:definition>relates something to the date that it was created</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasPaymentDueDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:label>has payment due date</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;PaymentDueDate"/>
+		<skos:definition>indicates the date by which payment of some amount must be made to the creditor</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasPostingDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:label>has posting date</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;PostingDate"/>
+		<skos:definition>indicates the date that the transaction was posted to the account</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasPrimaryAccountHolder">
+		<rdf:type rdf:resource="&owl;FunctionalProperty"/>
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-rel-rel;isHeldBy"/>
+		<rdfs:label>has primary account holder</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-pas-caa;CustomerAccount"/>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;CustomerAccountHolder"/>
+		<skos:definition>relates an account to a client or customer that is considered the primary owner of the account</skos:definition>
+		<cmns-av:explanatoryNote>Note that for many financial institutions, there must be a client or customer designated as the primary owner. In cases where there is a tax identifier associated with the account, it is that of the primary owner.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>has primary account owner</cmns-av:synonym>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasSecondaryAccountHolder">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-rel-rel;isHeldBy"/>
+		<rdfs:label>has secondary account holder</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-pas-caa;CustomerAccount"/>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;CustomerAccountHolder"/>
+		<skos:definition>relates an account to a client or customer that is considered a secondary, co-owner of the account</skos:definition>
+		<cmns-av:synonym>has account co-owner</cmns-av:synonym>
+		<cmns-av:synonym>has secondary account owner</cmns-av:synonym>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasStartingBalance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-pas-caa;hasBalance"/>
+		<rdfs:label>has starting balance</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-pas-caa;AccountStatement"/>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;Balance"/>
+		<skos:definition>relates an account statement to the amount of money available in that account at the beginning of the statement period</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;hasTransactionDate">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasExplicitDate"/>
+		<rdfs:label>has transaction date</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;TransactionDate"/>
+		<skos:definition>indicates the date on which the transaction actually occurred</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fbc-pas-caa;hasTransactionDescription">
+		<rdfs:label>has transaction description</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-pas-caa;IndividualTransaction"/>
+		<rdfs:range rdf:resource="&xsd;string"/>
+		<skos:definition>provides a textual description of the transaction</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-fbc-pas-caa;hasTransactionRecordStatus">
+		<rdfs:label>has transaction record status</rdfs:label>
+		<rdfs:range rdf:resource="&xsd;string"/>
+		<skos:definition>indicates the status of the transaction record</skos:definition>
+	</owl:DatatypeProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;involvesMerchant">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-rel-rel;involves"/>
+		<rdfs:label>involves merchant</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-be-fct-fct;Merchant"/>
+		<skos:definition>indicates the merchant (seller) involved in the transaction</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;isLinkedToAccount">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fbc-pas-fpas;relatesTo"/>
+		<rdfs:label>is linked to account</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-pas-caa;CustomerAccount"/>
+		<rdfs:range rdf:resource="&fibo-fbc-pas-caa;CustomerAccount"/>
+		<skos:definition>connects a given customer account to another customer account</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-pas-caa;recordsTransaction">
+		<rdfs:label>records transaction</rdfs:label>
+		<owl:propertyChainAxiom rdf:parseType="Collection">
+			<rdf:Description rdf:about="&fibo-fbc-pas-caa;appliesToAccount">
+			</rdf:Description>
+			<rdf:Description rdf:about="&fibo-fnd-arr-doc;hasRecord">
+			</rdf:Description>
+			<rdf:Description rdf:about="&cmns-col;comprises">
+			</rdf:Description>
+		</owl:propertyChainAxiom>
+		<skos:definition>links an account statement to the individual transactions it documents</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:Class rdf:about="&fibo-fnd-pas-pas;ContractualProduct">
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isExemplifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-agr-ctr;Contract"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+
+</rdf:RDF>

@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dsg "https://www.omg.org/spec/Commons/Designators/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-id "https://www.omg.org/spec/Commons/Identifiers/">
+	<!ENTITY cmns-org "https://www.omg.org/spec/Commons/Organizations/">
+	<!ENTITY cmns-pts "https://www.omg.org/spec/Commons/PartiesAndSituations/">
+	<!ENTITY cmns-qtu "https://www.omg.org/spec/Commons/QuantitiesAndUnits/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-fbc-dae-crt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditRatings/">
+	<!ENTITY fibo-fbc-fi-fi "https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/">
+	<!ENTITY fibo-fbc-pas-caa "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/">
+	<!ENTITY fibo-fbc-pas-fpas "https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/">
+	<!ENTITY fibo-fnd-arr-rep "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Reporting/">
+	<!ENTITY fibo-fnd-arr-rt "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Ratings/">
+	<!ENTITY fibo-fnd-dt-fd "https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/">
+	<!ENTITY fibo-fnd-pas-pas "https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditRatings/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dsg="https://www.omg.org/spec/Commons/Designators/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-id="https://www.omg.org/spec/Commons/Identifiers/"
+	xmlns:cmns-org="https://www.omg.org/spec/Commons/Organizations/"
+	xmlns:cmns-pts="https://www.omg.org/spec/Commons/PartiesAndSituations/"
+	xmlns:cmns-qtu="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-fbc-dae-crt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditRatings/"
+	xmlns:fibo-fbc-fi-fi="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"
+	xmlns:fibo-fbc-pas-caa="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"
+	xmlns:fibo-fbc-pas-fpas="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"
+	xmlns:fibo-fnd-arr-rep="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Reporting/"
+	xmlns:fibo-fnd-arr-rt="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Ratings/"
+	xmlns:fibo-fnd-dt-fd="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"
+	xmlns:fibo-fnd-pas-pas="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditRatings/">
+		<rdfs:label xml:lang="en">Credit Ratings Ontology</rdfs:label>
+		<dct:abstract>This ontology defines the concept of a credit rating, along with credit watch and outlook qualifying terms. There are credit ratings for individuals, for organizations and for instruments. 
+		These are referenced extensively in the securities models but are also applicable to business entities generally and in the context of lending and account maintenance.</dct:abstract>
+		<dct:license>Copyright (c) 2018-2025 EDM Council, Inc.
+		Copyright (c) 2018-2025 Object Management Group, Inc.
+		
+		Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Ratings/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Reporting/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Designators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Identifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Organizations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/PartiesAndSituations/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/CreditRatings/"/>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Provisional"/>
+		<cmns-av:copyright>Copyright (c) 2018-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2018-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;AlertCreditMessage">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditMessageType"/>
+		<rdfs:label>alert credit message</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;AlternativeAQuality">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditQuality"/>
+		<rdfs:label>alternative-A quality</rdfs:label>
+		<skos:definition>classifier for mortgages that are considered to be riskier than prime quality but less risky than subprime quality</skos:definition>
+		<cmns-av:abbreviation>Alt-A</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote>Typically Alt-A mortgages are characterized by borrowers with less than full documentation, average credit scores, higher loan-to-values, and more investment properties and secondary homes.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>Alternative A-paper</cmns-av:synonym>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditInquiry">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rep;RequestActivity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-crt;concernsParty"/>
+				<owl:someValuesFrom rdf:resource="&cmns-pts;Party"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-rep;isRequestedOf"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingAgency"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditInquiryType"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>credit inquiry</rdfs:label>
+		<skos:definition>request from a lender to a credit repository to obtain information regarding a prospective borrower&apos;s creditworthiness</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditInquiryType">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:label>credit inquiry type</rdfs:label>
+		<skos:definition>classifier indicating whether a credit inquiry is a result of a borrower&apos;s direct authorization or by some indirect means</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditMessage">
+		<rdfs:subClassOf rdf:resource="&cmns-doc;Notice"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditMessageType"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>credit message</rdfs:label>
+		<skos:definition>notice on a credit report to alert a reviewer of special or exceptional information</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditMessageType">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:label>credit message type</rdfs:label>
+		<skos:definition>classifier that categorizes credit messages</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditQuality">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rt;RatingScore"/>
+		<rdfs:label>credit quality</rdfs:label>
+		<skos:definition>classifier for borrowers, rates, or holdings in the lending market with respect to the quality of the credit</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditRating">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rt;Rating"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;isDerivedFrom"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditRatingModel"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isIssuedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingAgency"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit rating</rdfs:label>
+		<skos:definition xml:lang="en">assessment of creditworthiness of a borrower generally or with respect to a particular debt or financial obligation</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">Typically, a credit rating is provided as a detailed report based on the financial history of borrowing or lending and creditworthiness of the entity or person derived from income statements, historical records related to borrowing, etc. with an aim to determine their ability to meet debt obligations.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditRatingAgency">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;FinancialServiceProvider"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rt;RatingAgency"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;issues"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRating"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;manages"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingScale"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit rating agency</rdfs:label>
+		<skos:definition xml:lang="en">rating agency that publishes reports assessing the creditworthiness of a borrower or legal entity, either generally or with respect to a specific obligation</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditRatingModel">
+		<rdfs:subClassOf rdf:resource="&cmns-qtu;Expression"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;produces"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fnd-arr-rt;RatingScore"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingModelType"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-dsg;hasTextualName"/>
+				<owl:someValuesFrom rdf:resource="&xsd;string"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>credit rating model</rdfs:label>
+		<skos:definition>algorithm for computing a credit rating</skos:definition>
+		<cmns-av:usageNote>Use dct:hasVersion to specify a version for the credit score model.</cmns-av:usageNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditRatingModelType">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:label>credit score model type</rdfs:label>
+		<skos:definition>a type corresonding to a family of credit scoring algorithms sharing common characteristics</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditRatingScale">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rt;RatingScale"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-org;isManagedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingAgency"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">credit rating scale</rdfs:label>
+		<skos:definition xml:lang="en">rating scale for assigning a credit rating to individual, entity, or instrument, including defining a set of codes or numeric scores and indicating how an assessment that is assigned a score based on that scale means</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditReport">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rt;RatingReport"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditInquiry"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditMessage"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditRating"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isProducedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditRatingAgency"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isClassifiedBy"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditReportCategory"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;exemplifies"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditReportProduct"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-crt;CreditTradeline"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-id;isIdentifiedBy"/>
+				<owl:onClass rdf:resource="&cmns-id;Identifier"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;hasDataSource"/>
+				<owl:onClass>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rlcmp;playsRole"/>
+						<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingAgency"/>
+					</owl:Restriction>
+				</owl:onClass>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-crt;concernsParty"/>
+				<owl:someValuesFrom rdf:resource="&cmns-pts;Party"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-crt;hasCoveragePeriod"/>
+				<owl:someValuesFrom rdf:resource="&cmns-dt;DatePeriod"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-dt-fd;hasAsOfDate"/>
+				<owl:someValuesFrom rdf:resource="&cmns-dt;Date"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>credit report</rdfs:label>
+		<skos:definition>report describing the creditworthiness and related credit attributes of a borrower</skos:definition>
+		<cmns-av:explanatoryNote>This is typically provided by a credit rating agency but could be produced by an internal proprietary model as well.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditReportCategory">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:label>credit report category</rdfs:label>
+		<skos:definition>classifier for credit reports, often available from multiple vendors</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditReportProduct">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-pas-fpas;FinancialProduct"/>
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-pas-pas;OffTheShelfProduct"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isProducedBy"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditRatingAgency"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>credit report product</rdfs:label>
+		<skos:definition>branded credit report offered in the marketplace</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditTradeline">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rep;Report"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;isIncludedIn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-dae-crt;CreditReport"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-qtu;isDerivedFrom"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-pas-caa;Account"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label>credit tradeline</rdfs:label>
+		<skos:definition>report derived from the transaction history of a credit account</skos:definition>
+		<cmns-av:explanatoryNote>A tradeline on a credit report refers to a specific credit account. Tradelines report snapshot details derived from a combination of account features and payment history, and are used by credit reporting agencies as inputs to the analysis process that determines a party&apos;s credit rating.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditWatchDirection">
+		<rdfs:subClassOf rdf:resource="&cmns-cls;Classifier"/>
+		<rdfs:label xml:lang="en">credit watch direction</rdfs:label>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;CreditWatchDowngrade">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditWatchDirection"/>
+		<rdfs:label xml:lang="en">credit watch downgrade</rdfs:label>
+		<skos:example xml:lang="en">On April 22, 2022, OppFi (NYSE:OPFI) was downgraded by Zacks Investment Research from a &apos;hold&apos; rating to a &apos;sell&apos; rating in a research report issued to clients and investors on Friday, Zacks.com reports.</skos:example>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;CreditWatchOutlook">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-arr-rt;Rating"/>
+		<rdfs:label xml:lang="en">credit watch outlook</rdfs:label>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;CreditWatchUpgrade">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditWatchDirection"/>
+		<rdfs:label xml:lang="en">credit watch upgrade</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;FreezeCreditMessage">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditMessageType"/>
+		<rdfs:label>freeze credit message</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;HardCreditInquiry">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditInquiryType"/>
+		<rdfs:label>hard credit inquiry</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;InstrumentCreditRating">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-crt;InvestmentCreditRating"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-rt;rates"/>
+				<owl:someValuesFrom rdf:resource="&fibo-fbc-fi-fi;FinancialInstrument"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">instrument credit rating</rdfs:label>
+		<skos:definition xml:lang="en">investment credit rating that provides an opinion of creditworthiness of an instrument, typically with some relationship to the creditworthiness of the issuer(s)</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;InvestmentCreditRating">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-crt;CreditRating"/>
+		<rdfs:label xml:lang="en">investment credit rating</rdfs:label>
+		<skos:definition xml:lang="en">credit rating that provides an opinion of creditworthiness of an investment, including but not limited to an instrument or organization</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;InvestmentGradeQuality">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditQuality"/>
+		<rdfs:label>investment grade quality</rdfs:label>
+		<skos:definition>classifier for debt instruments that are considered to be of high quality and have a low risk of default</skos:definition>
+		<cmns-av:explanatoryNote>Bond rating firms use different designations, often consisting of the upper- and lower-case letters to identify a bond&apos;s credit quality rating. &apos;AAA&apos; and &apos;AA&apos; (high credit quality) and &apos;A&apos; and &apos;BBB&apos; (medium credit quality) are considered investment grade. Credit ratings for bonds below these designations (&apos;BB,&apos; &apos;B,&apos; &apos;CCC,&apos; etc.) are considered low credit quality, and are commonly referred to as &apos;junk bonds.&apos;</cmns-av:explanatoryNote>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;NonprimeQuality">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditQuality"/>
+		<rdfs:label>nonprime quality</rdfs:label>
+		<skos:definition>classifier for borrowers, rates, or holdings that have poor quality, such as borrowers with poor credit history due to a short sale, bankruptcy, foreclosure and/or other negative credit events within the last several years</skos:definition>
+		<cmns-av:explanatoryNote>Nonprime loans may be offered to individuals who are unable to qualify for a conventional loan.</cmns-av:explanatoryNote>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;OnWatchOutlook">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditWatchOutlook"/>
+		<rdfs:label xml:lang="en">on watch outlook</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;OrganizationCreditRating">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-crt;CreditRating"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-rt;rates"/>
+				<owl:someValuesFrom rdf:resource="&cmns-org;FormalOrganization"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">organization credit rating</rdfs:label>
+		<skos:definition xml:lang="en">credit rating that provides an opinion of creditworthiness of an organization</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;PrimeQuality">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditQuality"/>
+		<rdfs:label>prime quality</rdfs:label>
+		<skos:definition>classifier for borrowers, rates, or holdings that are considered to be of high quality</skos:definition>
+		<cmns-av:explanatoryNote>This classification often refers to loans made to high-quality borrowers that are offered prime or relatively low interest rates. Prime loans have low default risk.</cmns-av:explanatoryNote>
+		<cmns-av:synonym>A-paper</cmns-av:synonym>
+	</owl:NamedIndividual>
+	
+	<owl:Class rdf:about="&fibo-fbc-dae-crt;ShortTermCreditRating">
+		<rdfs:subClassOf rdf:resource="&fibo-fbc-dae-crt;InvestmentCreditRating"/>
+		<rdfs:label xml:lang="en">short term credit rating</rdfs:label>
+		<skos:definition xml:lang="en">credit rating that provides an opinion of the probability of an individual or organization going into default within a year</skos:definition>
+	</owl:Class>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;SoftCreditInquiry">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditInquiryType"/>
+		<rdfs:label>soft credit inquiry</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;StableOutlook">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditWatchOutlook"/>
+		<rdfs:label xml:lang="en">stable outlook</rdfs:label>
+	</owl:NamedIndividual>
+	
+	<owl:NamedIndividual rdf:about="&fibo-fbc-dae-crt;SubprimeQuality">
+		<rdf:type rdf:resource="&fibo-fbc-dae-crt;CreditQuality"/>
+		<rdfs:label>subprime quality</rdfs:label>
+		<skos:definition>classifier for borrowers, rates, or holdings that are considered below-average quality, such as borrowers with a tarnished or limited credit history, and may be subject to higher than average interest rates</skos:definition>
+		<cmns-av:explanatoryNote>Subprime refers to borrowers or loans, usually offered at rates well above the prime rate. Subprime lending is higher risk, given the lower credit rating of borrowers.</cmns-av:explanatoryNote>
+	</owl:NamedIndividual>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-crt;concernsParty">
+		<rdfs:subPropertyOf rdf:resource="&cmns-pts;hasParty"/>
+		<rdfs:label>concerns party</rdfs:label>
+		<skos:definition>indicates the party for which something is being or has been requested</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-crt;hasCoveragePeriod">
+		<rdfs:subPropertyOf rdf:resource="&cmns-dt;hasDatePeriod"/>
+		<rdfs:label>has coverage period</rdfs:label>
+		<rdfs:range rdf:resource="&cmns-dt;DatePeriod"/>
+		<skos:definition>relates something (e.g. a credit report or insurance policy) to the specific time period that it covers</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-crt;hasWatchDirection">
+		<rdfs:label xml:lang="en">watch direction</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-dae-crt;InvestmentCreditRating"/>
+		<rdfs:range rdf:resource="&fibo-fbc-dae-crt;CreditWatchDirection"/>
+		<skos:definition xml:lang="en">indicates direction in which an investment credit rating is expected to move in cases where that rating is on watch</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-fbc-dae-crt;hasWatchOutlook">
+		<rdfs:label xml:lang="en">watch outlook</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-fbc-dae-crt;InvestmentCreditRating"/>
+		<rdfs:range rdf:resource="&fibo-fbc-dae-crt;CreditWatchOutlook"/>
+		<skos:definition xml:lang="en">indicates the expected outlook for the rated entity</skos:definition>
+	</owl:ObjectProperty>
+
+</rdf:RDF>

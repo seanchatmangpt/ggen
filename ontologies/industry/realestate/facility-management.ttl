@@ -1,0 +1,26 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix fm: <https://w3c-lbd-cg.github.io/fm#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://w3c-lbd-cg.github.io/fm> a owl:Ontology ;
+    dct:title "Facility Management Ontology"@en ;
+    dct:description "An ontology for facility management concepts" ;
+    owl:versionInfo "1.0" .
+
+fm:Facility a owl:Class ;
+    rdfs:label "Facility"@en ;
+    rdfs:comment "A built environment that can be managed" .
+
+fm:Asset a owl:Class ;
+    rdfs:label "Asset"@en ;
+    rdfs:comment "A managed asset within a facility" .
+
+fm:Maintenance a owl:Class ;
+    rdfs:label "Maintenance"@en ;
+    rdfs:comment "A maintenance activity" .
+
+fm:hasMaintenance a owl:ObjectProperty ;
+    rdfs:domain fm:Asset ;
+    rdfs:range fm:Maintenance .

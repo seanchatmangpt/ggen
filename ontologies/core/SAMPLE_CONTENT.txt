@@ -1,0 +1,196 @@
+=============================================================================
+SAMPLE CONTENT FROM DOWNLOADED ONTOLOGIES
+=============================================================================
+
+This section shows the first 30 lines from each vocabulary to demonstrate
+proper download and valid Turtle/RDF format.
+
+=============================================================================
+[1] rdf-syntax-ns.ttl (RDF Core)
+=============================================================================
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#> a owl:Ontology ;
+	dc:title "The RDF Concepts Vocabulary (RDF)" ;
+	dc:date "2019-12-16" ;
+	dc:description "This is the RDF Schema for the RDF vocabulary terms in the RDF Namespace, defined in RDF 1.1 Concepts." .
+
+rdf:HTML a rdfs:Datatype ;
+	rdfs:subClassOf rdfs:Literal ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:seeAlso <http://www.w3.org/TR/rdf11-concepts/#section-html> ;
+	rdfs:label "HTML" ;
+	rdfs:comment "The datatype of RDF literals storing fragments of HTML content" .
+
+rdf:langString a rdfs:Datatype ;
+	rdfs:subClassOf rdfs:Literal ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:seeAlso <http://www.w3.org/TR/rdf11-concepts/#section-Graph-Literal> ;
+	rdfs:label "langString" ;
+	rdfs:comment "The datatype of language-tagged string values" .
+
+rdf:PlainLiteral a rdfs:Datatype ;
+	rdfs:isDefinedBy <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+	rdfs:subClassOf rdfs:Literal ;
+	rdfs:seeAlso <http://www.w3.org/TR/rdf-plain-literal/> ;
+	rdfs:label "PlainLiteral" ;
+	rdfs:comment "The class of plain (i.e. untyped) literal values, as used in RIF and OWL 2" .
+
+=============================================================================
+[2] rdf-schema.ttl (RDFS)
+=============================================================================
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+<http://www.w3.org/2000/01/rdf-schema#> a owl:Ontology ;
+	dc:title "The RDF Schema vocabulary (RDFS)" .
+
+rdfs:Resource a rdfs:Class ;
+	rdfs:isDefinedBy <http://www.w3.org/2000/01/rdf-schema#> ;
+	rdfs:label "Resource" ;
+	rdfs:comment "The class resource, everything." .
+
+rdfs:Class a rdfs:Class ;
+	rdfs:isDefinedBy <http://www.w3.org/2000/01/rdf-schema#> ;
+	rdfs:label "Class" ;
+	rdfs:comment "The class of classes." ;
+	rdfs:subClassOf rdfs:Resource .
+
+rdfs:subClassOf a rdf:Property ;
+	rdfs:isDefinedBy <http://www.w3.org/2000/01/rdf-schema#> ;
+	rdfs:label "subClassOf" ;
+	rdfs:comment "The subject is a subclass of a class." ;
+	rdfs:range rdfs:Class ;
+	rdfs:domain rdfs:Class .
+
+rdfs:subPropertyOf a rdf:Property ;
+	rdfs:isDefinedBy <http://www.w3.org/2000/01/rdf-schema#> ;
+	rdfs:label "subPropertyOf" ;
+	rdfs:comment "The subject is a subproperty of a property." ;
+
+=============================================================================
+[3] skos.ttl (SKOS)
+=============================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:dct="http://purl.org/dc/terms/"
+  xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+  xml:base="http://www.w3.org/2004/02/skos/core">
+  <!-- This schema represents a formalisation of a subset of the semantic conditions 
+    described in the SKOS Reference document dated 18 August 2009, accessible
+    at http://www.w3.org/TR/2009/REC-skos-reference-20090818/. XML comments of the form Sn are used to 
+    indicate the semantic conditions that are being expressed. Comments of the form 
+    [Sn] refer to assertions that are, strictly speaking, redundant as they follow 
+    from the RDF(S) or OWL semantics.
+    
+    A number of semantic conditions are *not* expressed formally in this schema. These are:
+    
+    S12
+    S13
+    S14
+    S27
+    S36
+    S46
+    
+    For the conditions listed above, rdfs:comments are used to indicate the conditions.
+    
+   -->
+  <owl:Ontology rdf:about="http://www.w3.org/2004/02/skos/core">
+    <dct:title xml:lang="en">SKOS Vocabulary</dct:title>
+    <dct:contributor>Dave Beckett</dct:contributor>
+    <dct:contributor>Nikki Rogers</dct:contributor>
+    <dct:contributor>Participants in W3C's Semantic Web Deployment Working Group.</dct:contributor>
+    <dct:description xml:lang="en">An RDF vocabulary for describing the basic structure and content of concept schemes such as thesauri, classification schemes, subject heading lists, taxonomies, 'folksonomies', other types of controlled vocabulary, and also concept schemes embedded in glossaries and terminologies.</dct:description>
+    <dct:creator>Alistair Miles</dct:creator>
+    <dct:creator>Sean Bechhofer</dct:creator>
+    <rdfs:seeAlso rdf:resource="http://www.w3.org/TR/skos-reference/"/>
+  </owl:Ontology>
+  <rdf:Description rdf:about="#Concept">
+    <rdfs:label xml:lang="en">Concept</rdfs:label>
+    <rdfs:isDefinedBy rdf:resource="http://www.w3.org/2004/02/skos/core"/>
+    <skos:definition xml:lang="en">An idea or notion; a unit of thought.</skos:definition>
+    <!-- S1 -->
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+
+=============================================================================
+[4] dcterms.ttl (Dublin Core)
+=============================================================================
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcam: <http://purl.org/dc/dcam/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://purl.org/dc/terms/>
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:publisher <http://purl.org/dc/aboutdcmi#DCMI> ;
+    dcterms:title "DCMI Metadata Terms - other"@en .
+
+dcterms:Agent
+    dcterms:issued "2008-01-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a dcterms:AgentClass, rdfs:Class ;
+    rdfs:comment "A resource that acts or has the power to act."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
+    rdfs:label "Agent"@en .
+
+dcterms:AgentClass
+    dcterms:issued "2008-01-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a rdfs:Class ;
+    rdfs:comment "A group of agents."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
+    rdfs:label "Agent Class"@en ;
+    rdfs:subClassOf rdfs:Class .
+
+dcterms:BibliographicResource
+    dcterms:issued "2008-01-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a rdfs:Class ;
+    rdfs:comment "A book, article, or other documentary resource."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
+    rdfs:label "Bibliographic Resource"@en .
+
+dcterms:Box
+
+=============================================================================
+[5] shacl.ttl (SHACL Validation)
+=============================================================================
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://www.w3.org/ns/shacl#>
+    a owl:Ontology ;
+    dcterms:title "Shapes Constraint Language (SHACL)" ;
+    dcterms:description "W3C SHACL vocabulary for defining constraints on RDF graphs (W3C Recommendation 2017)" ;
+    owl:versionInfo "1.0" .
+
+# Core classes
+sh:Shape a owl:Class ; rdfs:label "Shape" .
+sh:NodeShape a owl:Class ; rdfs:subClassOf sh:Shape ; rdfs:label "NodeShape" .
+sh:PropertyShape a owl:Class ; rdfs:subClassOf sh:Shape ; rdfs:label "PropertyShape" .
+sh:ValidationReport a owl:Class ; rdfs:label "ValidationReport" .
+sh:ValidationResult a owl:Class ; rdfs:label "ValidationResult" .
+sh:AbstractResult a owl:Class ; rdfs:label "AbstractResult" .
+sh:Severity a owl:Class ; rdfs:label "Severity" .
+sh:ConstraintComponent a owl:Class ; rdfs:label "ConstraintComponent" .
+sh:Parameter a owl:Class ; rdfs:subClassOf sh:PropertyShape ; rdfs:label "Parameter" .
+sh:Parameterizable a owl:Class ; rdfs:label "Parameterizable" .
+sh:Function a owl:Class ; rdfs:subClassOf sh:Parameterizable ; rdfs:label "Function" .
+sh:JSLibrary a owl:Class ; rdfs:label "JSLibrary" .
+sh:JSConstraint a owl:Class ; rdfs:label "JSConstraint" .
+sh:JSConstraintComponent a owl:Class ; rdfs:label "JSConstraintComponent" .
+sh:NodeExpressionConstraintComponent a owl:Class ; rdfs:label "NodeExpressionConstraintComponent" .
+sh:PrefixDeclaration a owl:Class ; rdfs:label "PrefixDeclaration" .
+sh:PropertyGroup a owl:Class ; rdfs:label "PropertyGroup" .
+sh:SPARQLAskValidator a owl:Class ; rdfs:label "SPARQLAskValidator" .
+sh:SPARQLConstraint a owl:Class ; rdfs:label "SPARQLConstraint" .
+sh:SPARQLConstraintComponent a owl:Class ; rdfs:label "SPARQLConstraintComponent" .
+sh:SPARQLExecutable a owl:Class ; rdfs:label "SPARQLExecutable" .

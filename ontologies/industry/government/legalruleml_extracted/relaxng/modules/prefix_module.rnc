@@ -1,0 +1,43 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Document" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, Prefix" ]
+dc:description [ "The expansion module for LegalRuleML Prefix declarations." ]
+dc:language [ "en" ]
+start |= Prefix.Node.def
+
+##
+Prefix.Node.choice |= Prefix.Node.def
+Prefix.Node.def =
+  
+  ## a non-empty prefix declaration in a LegalRuleML document.
+  element Prefix { Prefix.type.def }
+Prefix.type.def = pre.attrib.choice, prerefID.attrib.choice, Prefix.attlist, Prefix.main
+
+##
+Prefix.attlist &= commonLRMLNodeInit.attlist?
+
+##
+pre.attrib.choice |= pre.attrib.def
+pre.attrib.def =
+  
+  ## the (non-empty) prefix in a Prefix declaration, following CURIE conventions.
+  attribute pre {
+    xsd:string { pattern = "[\i-[:]][\c-[:]]*" }
+  }
+
+##
+prerefID.attrib.choice |= prerefID.attrib.def
+prerefID.attrib.def =
+  
+  ## the external ID of the Reference or Prefix.
+  attribute refID { prerefID.datatype }
+prerefID.datatype |= xsd:string { pattern = "[^:].*"}

@@ -1,0 +1,58 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dcterms:title [ "Consumer RuleML Initialization" ]
+dcterms:identifier [ "http://consumer.ruleml.org/1.02/relaxng/modules/consumer_init_expansion_module.rnc" ]
+dcterms:isPartOf [ "http://consumer.ruleml.org/1.02/spec" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Athant" ]
+dcterms:creator [ "http://wiki.ruleml.org/index.php/User:Paschkea" ]
+dc:subject [ "RuleML, Consumer, initialization" ]
+dcterms:description [ "The expansion module for initialization." ]
+dcterms:language [ "en" ]
+dc:rights [
+  'Copyright 2015 RuleML Inc. -- Licensed under the RuleML Specification License, Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://ruleml.org/licensing/RSL1.0-RuleML. Disclaimer: THIS SPECIFICATION IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES, ..., EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. See the License for the specifics governing permissions and limitations under the License.'
+]
+dcterms:rights [ "http://ruleml.org/licensing/RSL1.0-RuleML" ]
+dcterms:relation [ "http://consumer.ruleml.org" ]
+start |= notAllowed
+# attribute
+type-att.choice |= notAllowed
+formula-interface.attlist &= empty
+operator-interface.attlist &= empty
+# ordered_groups
+arg_spatial-edge.choice |= notAllowed
+arg_time-edge.choice |= notAllowed
+# optional_op
+argumentsForAtoms.sequence |= notAllowed
+argumentsForExpressions.sequence |= notAllowed
+# rule
+PremiseFormula.choice |= notAllowed
+Rule.header &= empty
+Rule.main |= notAllowed
+# spatial
+argumentsForSpatial.sequence |= notAllowed
+# time
+argumentsForTime.sequence |= notAllowed
+# stripe-skipping
+formula_Operation.content |= notAllowed
+formula-negation.content |= notAllowed
+if_Rule.content |= notAllowed
+if_Rule-edge.choice |= notAllowed
+then_Rule.content |= notAllowed
+then_Rule-edge.choice |= notAllowed
+spatial_primitives.content |= notAllowed
+time_primitives.content |= notAllowed
+Interval_term.content |= notAllowed
+arg_interval_term.content |= notAllowed
+arg_interval_formula.content |= notAllowed
+# algebra
+arg_interval_formula-edge.choice |= notAllowed
+arg_interval_term-edge.choice |= notAllowed
+# negation
+NegFormula.choice |= notAllowed
+generic-Node.attlist &= empty
+generic-Formula.attlist &= empty
+# 
+# a dummy element to assist in XSD conversion
+#
+InitElement.def = element Init { text }

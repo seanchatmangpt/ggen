@@ -1,0 +1,15 @@
+namespace lrml = "http://docs.oasis-open.org/legalruleml/ns/v1.0/"
+namespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+namespace ruleml = "http://ruleml.org/spec"
+
+include "core.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/stripe_optional_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../modules/stripe_optional_ruleml_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+
+

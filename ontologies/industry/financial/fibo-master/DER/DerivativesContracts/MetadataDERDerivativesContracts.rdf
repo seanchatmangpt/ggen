@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-der-drc-mod "https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/MetadataDERDerivativesContracts/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/MetadataDERDerivativesContracts/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-der-drc-mod="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/MetadataDERDerivativesContracts/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/MetadataDERDerivativesContracts/">
+		<rdfs:label>Metadata about the EDMC-FIBO Derivatives (DER) Derivatives Contracts Module</rdfs:label>
+		<dct:abstract>The derivatives contracts module includes the contractual components common to all derivatives or to entire classes of derivatives.</dct:abstract>
+		<dct:issued rdf:datatype="&xsd;dateTime">2018-03-31T18:00:00</dct:issued>
+		<dct:license>Copyright (c) 2018-2025 EDM Council, Inc.
+Copyright (c) 2018-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+		See https://opensource.org/licenses/MIT.</dct:license>
+		<dct:modified rdf:datatype="&xsd;dateTime">2025-6-24T18:00:00</dct:modified>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/20230401/DerivativesContracts/MetadataDERDerivativesContracts/"/>
+		<cmns-av:copyright>Copyright (c) 2018-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2018-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:NamedIndividual rdf:about="&fibo-der-drc-mod;DerivativesContractsModule">
+		<rdf:type rdf:resource="&fibo-fnd-utl-av;Module"/>
+		<rdfs:label>derivatives contracts module</rdfs:label>
+		<dct:abstract>The derivatives contracts module includes the contractual components common to all derivatives or to entire classes of derivatives.</dct:abstract>
+		<dct:contributor>Adaptive, Inc.</dct:contributor>
+		<dct:contributor>Bloomberg LP</dct:contributor>
+		<dct:contributor>Citigroup</dct:contributor>
+		<dct:contributor>Commodities Futures Trading Commission (CFTC)</dct:contributor>
+		<dct:contributor>Credit Suisse</dct:contributor>
+		<dct:contributor>Deutsche Bank</dct:contributor>
+		<dct:contributor>Exprentis</dct:contributor>
+		<dct:contributor>Federated Knowledge LLC</dct:contributor>
+		<dct:contributor>John F. Gemski</dct:contributor>
+		<dct:contributor>John F. Tierney</dct:contributor>
+		<dct:contributor>Mizuho Financial Group, Inc.</dct:contributor>
+		<dct:contributor>Nordea Bank AB</dct:contributor>
+		<dct:contributor>Office of Financial Research (US Dept of the Treasury)</dct:contributor>
+		<dct:contributor>Quarule</dct:contributor>
+		<dct:contributor>State Street Bank and Trust</dct:contributor>
+		<dct:contributor>Tahoe Blue Ltd</dct:contributor>
+		<dct:contributor>Thematix Partners LLC</dct:contributor>
+		<dct:contributor>Wells Fargo Bank, N.A.</dct:contributor>
+		<dct:contributor>Working Ontologist</dct:contributor>
+		<dct:contributor>agnos.ai</dct:contributor>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/CommoditiesContracts/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/CurrencyContracts/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesBasics/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/DerivativesMasterAgreements/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/ExoticOptions/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/FuturesAndForwards/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Options/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/RightsAndWarrants/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/StructuredInstruments/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/Swaps/"/>
+		<dct:hasPart rdf:resource="https://spec.edmcouncil.org/fibo/ontology/DER/DerivativesContracts/SwapsIndividuals/"/>
+		<dct:license rdf:datatype="&xsd;anyURI">http://opensource.org/licenses/MIT</dct:license>
+		<dct:title>FIBO DER Derivatives Contracts Module</dct:title>
+		<dct:title>Financial Industry Business Ontology (FIBO) Derivatives (DER) Derivatives Contracts Module</dct:title>
+		<rdfs:seeAlso rdf:datatype="&xsd;anyURI">https://spec.edmcouncil.org/fibo/</rdfs:seeAlso>
+		<cmns-av:copyright>Copyright (c) 2018-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2018-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:NamedIndividual>
+
+</rdf:RDF>

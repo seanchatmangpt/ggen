@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE RDF [
+   <!ENTITY dcterms "http://purl.org/dc/terms">  
+   <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">  
+   <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">  
+   <!ENTITY xs "http://www.w3.org/2001/XMLSchema">    
+   <!ENTITY rulemm "http://docs.oasis-open.org/legalruleml/ns/v1.0/rule-metamodel">  
+   <!ENTITY lrmlmm "http://docs.oasis-open.org/legalruleml/ns/v1.0/metamodel">  
+ ]>
+<rdf:RDF xmlns:rdf="&rdf;#" xmlns:rdfs="&rdfs;#" xmlns:xs="&xs;"
+  xmlns:rulemm="&rulemm;#" xmlns:lrmlmm="&lrmlmm;#" xml:base="&lrmlmm;">
+  <!--<owl:Ontology rdf:about="&lrmlmm;/modules/context.rdfs" dc:title="The LegalRuleML MetaModel Alternative vocabulary"/>-->
+
+  <rdfs:Class rdf:about="#Alternative">
+    <rdfs:label>alternative</rdfs:label>
+    <rdfs:comment>a LegalRuleML rendering of one or more Legal Norms.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Expression"/>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#Alternatives">
+    <rdfs:label>alternative collection</rdfs:label>
+    <rdfs:comment>a mutually exclusive collection where every member is a LegalRuleML rendering of one or more Legal Norms.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Collection"/>
+  </rdfs:Class>
+
+  <rdfs:Class rdf:about="#Expression">
+    <rdfs:label>expression</rdfs:label>
+    <rdfs:comment>a rendering of one or more Legal Norms or a fragment of a Legal Norm</rdfs:comment>
+    <!--FIXME <rdfs:subClassOf rdf:resource="http://purl.org/vocab/frbr/core#Expression"/>-->
+    <rdfs:subClassOf rdf:resource="#Commentable"/>
+  </rdfs:Class>
+    
+  <rdf:Property rdf:about="#appliesAlternatives">
+    <rdfs:label>applies alternatives</rdfs:label>
+    <rdfs:comment>a collection of Alternatives applied by the Context.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Context"/>
+    <rdfs:range rdf:resource="#Alternatives"/>
+    <rdfs:subPropertyOf rdf:resource="#applies"/>    
+  </rdf:Property>
+
+  <rdf:Property rdf:about="#fromLegalSources">
+    <rdfs:label>from legal source collection</rdfs:label>
+    <rdfs:comment>the LegalSources from which the Alternatives are derived.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Alternatives"/>
+    <rdfs:range rdf:resource="#LegalSources"/>
+  </rdf:Property>
+  
+  <rdf:Property rdf:about="#hasAlternative">
+    <rdfs:label>has member alternative</rdfs:label>
+    <rdfs:comment>an Alternative in the collection.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Alternatives"/>
+    <rdfs:range rdf:resource="#Alternative"/>
+    <rdfs:subPropertyOf rdf:resource="#hasCollection"/>    
+  </rdf:Property>
+   
+  <rdf:Property rdf:about="#hasAlternatives">
+    <rdfs:label>has alternative collection</rdfs:label>
+    <rdfs:comment>a collection of Alternatives.</rdfs:comment>
+    <rdfs:domain rdf:resource="#LegalRuleMLDocument"/>
+    <rdfs:range rdf:resource="#Alternatives"/>
+    <rdfs:subPropertyOf rdf:resource="#hasCollection"/>    
+  </rdf:Property>
+  
+  <rdfs:Class rdf:about="#Statement">
+    <rdfs:subClassOf rdf:resource="#Alternative"/>
+  </rdfs:Class>
+  
+  <rdfs:Class rdf:about="#Statements">
+    <rdfs:subClassOf rdf:resource="#Alternative"/>
+  </rdfs:Class>
+
+  <!-- Duplicate from context.rdfs for diagramming purposes -->
+  <rdf:Property rdf:about="#applies">
+    <rdfs:domain rdf:resource="#Associator"/>
+    <rdfs:range rdf:resource="#Associable"/>
+  </rdf:Property>
+  
+    
+</rdf:RDF>

@@ -1,0 +1,13 @@
+@prefix fma: <http://purl.org/sig/ont/fma/fma> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://purl.org/sig/ont/fma/anatomy>
+  a owl:Ontology ;
+  rdfs:label "Foundational Model of Anatomy" ;
+  rdfs:comment "Comprehensive ontology of anatomical entities and their relationships" ;
+  owl:versionInfo "2024" .
+
+fma:Body_part a owl:Class ;
+  rdfs:label "Body part" ;
+  rdfs:comment "An anatomical entity that is a part of an organism." .

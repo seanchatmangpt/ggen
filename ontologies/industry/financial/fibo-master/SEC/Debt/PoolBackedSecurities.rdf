@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY cmns-cls "https://www.omg.org/spec/Commons/Classifiers/">
+	<!ENTITY cmns-col "https://www.omg.org/spec/Commons/Collections/">
+	<!ENTITY cmns-cxtdsg "https://www.omg.org/spec/Commons/ContextualDesignators/">
+	<!ENTITY cmns-doc "https://www.omg.org/spec/Commons/Documents/">
+	<!ENTITY cmns-dt "https://www.omg.org/spec/Commons/DatesAndTimes/">
+	<!ENTITY cmns-qtu "https://www.omg.org/spec/Commons/QuantitiesAndUnits/">
+	<!ENTITY cmns-rlcmp "https://www.omg.org/spec/Commons/RolesAndCompositions/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-le-lp "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/">
+	<!ENTITY fibo-fbc-dae-dbt "https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/">
+	<!ENTITY fibo-fnd-acc-cur "https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/">
+	<!ENTITY fibo-fnd-arr-asmt "https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Assessments/">
+	<!ENTITY fibo-fnd-rel-rel "https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/">
+	<!ENTITY fibo-fnd-utl-alx "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY fibo-sec-dbt-dbti "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/">
+	<!ENTITY fibo-sec-dbt-pbs "https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/">
+	<!ENTITY fibo-sec-sec-pls "https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:cmns-cls="https://www.omg.org/spec/Commons/Classifiers/"
+	xmlns:cmns-col="https://www.omg.org/spec/Commons/Collections/"
+	xmlns:cmns-cxtdsg="https://www.omg.org/spec/Commons/ContextualDesignators/"
+	xmlns:cmns-doc="https://www.omg.org/spec/Commons/Documents/"
+	xmlns:cmns-dt="https://www.omg.org/spec/Commons/DatesAndTimes/"
+	xmlns:cmns-qtu="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"
+	xmlns:cmns-rlcmp="https://www.omg.org/spec/Commons/RolesAndCompositions/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-le-lp="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"
+	xmlns:fibo-fbc-dae-dbt="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"
+	xmlns:fibo-fnd-acc-cur="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"
+	xmlns:fibo-fnd-arr-asmt="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Assessments/"
+	xmlns:fibo-fnd-rel-rel="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"
+	xmlns:fibo-fnd-utl-alx="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:fibo-sec-dbt-dbti="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"
+	xmlns:fibo-sec-dbt-pbs="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/"
+	xmlns:fibo-sec-sec-pls="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/PoolBackedSecurities/">
+		<rdfs:label xml:lang="en">Pool-backed Securities Ontology</rdfs:label>
+		<dct:abstract>This ontology defines concepts that are common to asset-backed and mortgage-backed securities, including pools, as well as structured finance instruments.</dct:abstract>
+		<dct:license>Copyright (c) 2015-2025 EDM Council, Inc.
+Copyright (c) 2015-2025 Object Management Group, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FBC/DebtAndEquities/Debt/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/Assessments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/Analytics/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/DebtInstruments/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/Securities/Pools/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Classifiers/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Collections/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/ContextualDesignators/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/DatesAndTimes/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/Documents/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/QuantitiesAndUnits/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/RolesAndCompositions/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/SEC/20250301/Debt/PoolBackedSecurities/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20220101/Debt/PoolBackedSecurities.rdf version of the ontology was modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230201/Debt/PoolBackedSecurities.rdf version of this ontology was modified to use the Commons Ontology Library (Commons) rather than the OMG&apos;s Languages, Countries and Codes (LCC), eliminating redundancies in FIBO as appropriate, and added an explanatory note to ABS.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230301/Debt/PoolBackedSecurities.rdf version of this ontology was modified to add a number of commonly used pool-backed security related statistical measures.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20230501/Debt/PoolBackedSecurities.rdf version of this ontology was modified to add the starting point value of the total collateral of a given tranche at the time it was created (DER-138).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20231001/Debt/PoolBackedSecurities.rdf version of this ontology was modified to replace content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20231201/Debt/PoolBackedSecurities.rdf version of this ontology was modified to replace additional content that is now available in the OMG Commons Ontology Library (Commons) v1.1 (FND-380).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/SEC/20240101/Debt/PoolBackedSecurities.rdf version of this ontology was modified to normalize the relationship between a pool and its constituents (SEC-203).</skos:changeNote>
+		<fibo-fnd-utl-av:hasMaturityLevel rdf:resource="&fibo-fnd-utl-av;Release"/>
+		<cmns-av:copyright>Copyright (c) 2015-2025 EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2015-2025 Object Management Group, Inc.</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;AbsolutePrepaymentRate">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">absolute prepayment rate</rdfs:label>
+		<skos:definition xml:lang="en">measure of the monthly rate of loan prepayments as a percentage of the original pool balance</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">ABS</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">ABS is defined by the following formula where SMM refers to Single Monthly Mortality, which measures the percentage of dollars prepaid in a given month expressed as a percentage of the scheduled loan balance. ABS = (100 * SMM)/100 + (SMM X (Age - 1).</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">The ABS measurement differs from conditional prepayment rate (CPR) used in the mortgage industry, which measures prepayment as an annualized percentage of the current pool balance.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;AssetBackedSecurity">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;PoolBackedSecurity"/>
+		<rdfs:label xml:lang="en">asset-backed security</rdfs:label>
+		<skos:definition xml:lang="en">debt instrument backed by receivables other than those arising out of real estate loans or mortgages</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">ABS</cmns-av:abbreviation>
+		<cmns-av:adaptedFrom>ISO 10962, Securities and related financial instruments - Classification of Financial Instruments (CFI code), Fourth edition, 2019-10-01</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">An asset-backed security (ABS) is a type of financial investment that is collateralized by an underlying pool of assets—usually ones that generate a cash flow from debt, such as loans, leases, credit card balances, or receivables. It takes the form of a bond or note, paying income at a fixed rate for a set amount of time, until maturity. ABS are financial securities backed by income-generating assets such as credit card receivables, home equity loans, student loans, and auto loans. Pooling assets into an ABS is a process called securitization. One difference between an ABS and a collateralized debt obligation (CDO) is that the CDO issuer is generally a special purpose vehicle (SPV) or trust.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">Asset-backed securities, for example home equity loans (HEL), credit cards, and so forth are backed by receivables [payments] that are either secured (such as HEL) or unsecured (for example, credit cards). They are typically tranched based on default risk.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;AttachmentPoint">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;PercentageMonetaryAmount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-asmt;isEstimatedValueOf"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-dbt;CollateralValueAsOfDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">attachment point</rdfs:label>
+		<skos:definition xml:lang="en">lower tranche boundary of a tranche defined as a percentage of the value of the total pool of collateral, either at issuance or as of some point in time</skos:definition>
+		<cmns-av:adaptedFrom xml:lang="en">Alexander Veremyev, Peter Tsyurmasto, and Stan Uryasev. &quot;Optimal Structuring of CDO contracts: Optimization Approach&quot;. https://www.ise.ufl.edu/uryasev/files/2012/10/structuring_CDO_JCR_oct12.pdf</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom xml:lang="en">https://fincyclopedia.net/finance/</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">A CDO tranche becomes liable for losses when the total amount of defaults or losses in the underlying debt pool exceeds a certain threshold, called the attachment point. The attachment point is expressed as a percentage of the total value of the debt pool. In other words, the attachment point is the level of subordination above which a given tranche stands. Note that the notion of &apos;liability for loss&apos; is in a financial or econonmic sense rather than a legal sense.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">The higher the attachment point, the lower the risk and the return for the tranche. The lower the attachment point, the higher the risk and the return for the tranche. The most senior tranches have the highest attachment points and are paid first from the cash flows of the debt pool. The most junior tranches have the lowest attachment points and are paid last from the cash flows of the debt pool. The junior tranches also bear the first losses when defaults occur in the debt pool.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;QualifiedMeasure"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;hasApplicablePeriod"/>
+				<owl:onClass rdf:resource="&cmns-dt;DatePeriod"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cxtdsg;appliesTo"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-sec-pls;DebtPool"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">debt pool statistical measure</rdfs:label>
+		<skos:definition xml:lang="en">qualified measure of some aspect of the behavior of one or more debt instrument(s) that may vary over time</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;DefaultRate">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:subClassOf rdf:resource="&cmns-qtu;Ratio"/>
+		<rdfs:label xml:lang="en">default rate</rdfs:label>
+		<skos:definition xml:lang="en">qualified measure of the rate at which holders of the debt instruments in the pool default on those instruments</skos:definition>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;DetachmentPoint">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-acc-cur;PercentageMonetaryAmount"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-arr-asmt;isEstimatedValueOf"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-dbt;CollateralValueAsOfDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">detachment point</rdfs:label>
+		<skos:definition xml:lang="en">upper tranche boundary of a tranche defined as a percentage of the value of the total pool of collateral, either at issuance or as of some point in time</skos:definition>
+		<cmns-av:adaptedFrom xml:lang="en">Alexander Veremyev, Peter Tsyurmasto, and Stan Uryasev. &quot;Optimal Structuring of CDO contracts: Optimization Approach&quot;. https://www.ise.ufl.edu/uryasev/files/2012/10/structuring_CDO_JCR_oct12.pdf</cmns-av:adaptedFrom>
+		<cmns-av:adaptedFrom xml:lang="en">https://fincyclopedia.net/finance/</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">The CDO tranche loss arises when the cumulative collateral loss exceeds the tranche&apos;s attachment point. The detachment point corresponds to the amount of pool losses that will completely wipe out the respective tranche. The detachment point is the maximum of pool-level losses at which a given tranche becomes liable for losses.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;PoolBackedSecurity">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-dbti;TradableDebtInstrument"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-pbs;hasEstimatedTotalCollateralValueAtIssuance"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-dbt;CollateralValueAsOfDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-cls;isCharacterizedBy"/>
+				<owl:onClass rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-pbs;isPassThrough"/>
+				<owl:onDataRange rdf:resource="&xsd;boolean"/>
+				<owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fbc-dae-dbt;isBasedOn"/>
+				<owl:someValuesFrom rdf:resource="&fibo-sec-sec-pls;InstrumentPool"/>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">pool-backed security</rdfs:label>
+		<skos:definition xml:lang="en">debt instrument that derives its cashflow from an underlying pool of mortgage loans or other receivables</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">If the security is a component of a collateralized debt obligation, then the underlying pool is typically segmented into various tranches, each of which provides cash flows to hedge particular risks, or that offset other gains by time to maturity or other factors.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;PrepaymentSpeed">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">prepayment speed</rdfs:label>
+		<skos:definition xml:lang="en">estimated rate at which a debt or part of a debt is paid off ahead of schedule</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A prepayment model is used to estimate the level of prepayments (speed) on a loan portfolio that will occur in a set period of time, given possible changes in interest rates. Understanding prepayment speed is critical in assessing the value of mortgage pass-through securities. Prepayment models are based on mathematical equations and usually involve the analysis of historical prepayment trends to predict what will happen in the future. Prepayment models are often used to value mortgage pools such as GNMA securities or other securitized debt products, including mortgage-backed securities (MBS).</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;PrincipalProtectedNote">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;StructuredFinanceInstrument"/>
+		<rdfs:label xml:lang="en">principal protected note</rdfs:label>
+		<skos:definition xml:lang="en">structured finance that offers investors exposure to chosen underlying assets using various approaches and asymmetric pay-off profiles</skos:definition>
+		<cmns-av:adaptedFrom>ISO 10962, Securities and related financial instruments - Classification of Financial Instruments (CFI code), Fourth edition, 2019-10-01.</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">There are one or more reference entities underlying the product. Redemption is made at least in the amount of the conditional capital protection at maturity, provided that no credit event by the reference entity has occurred. Conditional capital protection only applies to the nominal amount and not to the purchase price. The general functioning of a capital guaranteed structured instrument is as follows: the notional amount is split into a zero bond, that will deliver the capital guarantee at maturity, and the difference between the zero bond&apos;s value (= present value of the guarantee level at maturity) and the notional amount is used for structuring the performance component with options which deliver the agreed pay-off profile of the structured instrument.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">capital protected note</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;SingleMonthlyMortality">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:subClassOf rdf:resource="&cmns-qtu;Percentage"/>
+		<rdfs:label xml:lang="en">single monthly mortality</rdfs:label>
+		<skos:definition xml:lang="en">estimated per-month percentage of mortgages in an MBS pool that will be paid off early</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">SMM</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">Single monthly mortality (SMM) is a way to gauge the prepayment risk of a mortgage-backed security.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;StructuredFinanceInstrument">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;PoolBackedSecurity"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-fnd-rel-rel;isIssuedBy"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-rlcmp;isPlayedBy"/>
+						<owl:someValuesFrom rdf:resource="&fibo-be-le-lp;SpecialPurposeVehicle"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">structured finance instrument</rdfs:label>
+		<rdfs:seeAlso rdf:resource="https://www.bis.org/publ/cgfs23mitchell.pdf"/>
+		<skos:definition xml:lang="en">pool-backed security wherein the risk associated with the pool has been uncoupled from the risk associated with the originating institution through a special purpose vehicle</skos:definition>
+		<skos:example xml:lang="en">Collateralized debt obligations (CDOs), synthetic financial instruments, collateralized bond obligations (CBOs), and syndicated loans are examples of structured finance instruments.</skos:example>
+		<cmns-av:explanatoryNote xml:lang="en">Structured finance instruments represent a form of securitization technology which can be defined by three key characteristics: (1) pooling of financial assets, such as loans, bonds, or credit-default swaps; (2) de-linking of the credit risk of the asset pool from the credit risk of the originating firm, usually through use of a finite-lived, stand-alone special purpose vehicle (SPV); and (3) issuance by the SPV of &quot;tranched&quot; liabilities backed by the asset pool. Structured finance instruments are typically presented to large financial institutions or companies with complicated financing needs that are unsatisfied with conventional financial products.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">structured finance</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;StructuredFinanceWithoutPrincipalProtection">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;StructuredFinanceInstrument"/>
+		<rdfs:label xml:lang="en">structured finance without principal protection</rdfs:label>
+		<owl:disjointWith rdf:resource="&fibo-sec-dbt-pbs;PrincipalProtectedNote"/>
+		<skos:definition xml:lang="en">structured finance that is a short-term note linked to an underlying asset that offers a steady stream of income</skos:definition>
+		<cmns-av:adaptedFrom>ISO 10962, Securities and related financial instruments - Classification of Financial Instruments (CFI code), Fourth edition, 2019-10-01.</cmns-av:adaptedFrom>
+		<cmns-av:explanatoryNote xml:lang="en">The redemption at the end of the term is determined on the basis of the performance and final fixing of the underlying asset: a redemption at the nominal value is guaranteed as long as the underlying asset has not touched its barrier during relevant barrier monitoring. If the underlying asset has touched its barrier but is again above the strike price at final fixing, the nominal price is also repaid. Nevertheless, if the underlying asset has touched its barrier during barrier monitoring and closes below the strike price at final fixing, the underlying asset is delivered or cash compensation paid, provided that no credit event by the reference entity has occurred. Depending on the characteristics of the product, either a coupon or a discount to the underlying asset can apply. A coupon is paid out regardless of the performance of the underlying asset, provided that no credit event by the reference entity has occurred.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">structured finance without capital protection</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;Tranche">
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;StructuredFinanceInstrument"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-pbs;hasEstimatedTotalCollateralValueAtIssuance"/>
+				<owl:onClass rdf:resource="&fibo-fbc-dae-dbt;CollateralValueAsOfDate"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-pbs;hasAttachmentPoint"/>
+				<owl:onClass rdf:resource="&fibo-sec-dbt-pbs;AttachmentPoint"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&fibo-sec-dbt-pbs;hasDetachmentPoint"/>
+				<owl:onClass rdf:resource="&fibo-sec-dbt-pbs;DetachmentPoint"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-col;comprises"/>
+				<owl:someValuesFrom>
+					<owl:Restriction>
+						<owl:onProperty rdf:resource="&cmns-col;isPartOf"/>
+						<owl:someValuesFrom rdf:resource="&fibo-sec-sec-pls;InstrumentPool"/>
+					</owl:Restriction>
+				</owl:someValuesFrom>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">tranche</rdfs:label>
+		<skos:definition xml:lang="en">segment of a pool of securities, typically debt instruments</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">A tranche is one of a number of related securities in the same offering that represents a partition of a debt pool whose cash flow is derived from the combined cash flows of the instruments in that partition.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;WeightedAverageCoupon">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;ArithmeticMean"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">weighted average coupon</rdfs:label>
+		<skos:definition xml:lang="en">weighted-average gross interest rates of the pool of mortgages that underlie a mortgage-backed security (MBS) weighed by their balances at the time the securities were issued</skos:definition>
+		<skos:editorialNote xml:lang="en">Provided by the Issuer (loan servicer?) along with the WALA etc. If you know the underlying loans you can calculate this yourself. For ABS you don&apos;t know this so you have to get this information from the loan servicer. Investopedia explains Weighted Average Coupon - WAC For example, suppose a MBS is composed of two different pools of mortgages: $6 million worth of mortgages that yield 7.5% and a pool of $4 million mortgages that yield 5%. The WAC would be 6.5%. The WAC on a mortgage-backed security is an important piece of information used by analysts to estimate the pre-pay characteristics of that security. It is an important relative value tool in MBS portfolio management and analysis.</skos:editorialNote>
+		<cmns-av:abbreviation xml:lang="en">WAC</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">The weighted average coupon (WAC) is calculated by taking the gross of the interest rates owed on the underlying mortgages of the MBS and weighting them according to the percentage of the security that each mortgage represents. The WAC represents the average interest rate of different pools of mortgages with varying interest rates. In the weighted average calculation, the principal balance of each underlying mortgage is used as the weighting factor. To calculate the WAC, the coupon rate of each mortgage or MBS is multiplied by its remaining principal balance. The results are added together, and the sum total is divided by the remaining balance. A mortgage-backed security&apos;s current WAC can differ from its original WAC as the underlying mortgages pay down at different speeds. In the weighted-average calculation, the principal balance of each underlying mortgage is used as the weighting factor.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;WeightedAverageLife">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;ArithmeticMean"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:subClassOf>
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="&cmns-doc;refersTo"/>
+				<owl:onClass rdf:resource="&fibo-sec-dbt-pbs;PrepaymentSpeed"/>
+				<owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+		<rdfs:label xml:lang="en">weighted average life</rdfs:label>
+		<skos:definition xml:lang="en">weighted average of the times of the principal repayments Average life is calculated using the weighted average time to the receipt of all future cash flows.</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">WAL</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">Average life is calculated using the weighted average time to the receipt of all future cash flows of an amortizing loan or amortizing bond. it&apos;s the average time until a dollar of principal is repaid.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">The time weightings used in weighted average life calculations are based on payments to the principal. In many loans, such as mortgages, each payment consists of payments to principal and payments to interest. In WAL, only the principal payments are considered and these payments tend to get larger over time, with early payments of a mortgage going mostly to interest, while payments made towards the end of the loan are applied mostly to the principal balance of the loan.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">Where it refers to pre-payment above, if the bond does not include prepayment then this is not included. However, analytics that refer to this e.g. Yield to Average Life, then this figure is relevant. It is not relevant for other types of bond where e.g. you would use yield to next call, yield to worst etc. Average Life used in place of Maturity for Yield Calculation. This is not only used for Yield calculations though. It is referred to as an analytic figure in its own right. Average Life uses one of a number of standard pre-payment models (for structured finance at least). For MBS, the average life includes some calculations to take account of pre-payments on the underlying mortgages. This takes account of the possibillity of borrowers paying early. This has to be modeled or forecast (not given) as it&apos;s a function of market conditions and interest rate. You would not see this in a market data feed. When you model MBS you calculate Average Life as part of the model i.e. you estimate the percentage of prepayment in the next x length of time and factor this into the Average Life. Refers to Weighted Average Time to receipt of future cash flows. For MBS, early payments will shorten the Average Life. For Student Loans, Credit Card, Loan etc, i.e. all Pool Backed (any bond that has securitized debt). Other bonds: Sinking Funds etc., also Early Payment - partial Call for a corporate / regular bond. Early Payment for pass through has the same effect. Sinking Fund: Each payment is part principal and part interest, this is implicit in the overall definition of &quot;Early payment&quot;.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">average life</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;WeightedAverageLoanAge">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;ArithmeticMean"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">weighted average loan age</rdfs:label>
+		<skos:definition xml:lang="en">dollar-weighted average measuring the age of the individual loans in a mortgage pass-through or pooled security</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">WALA</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">A weighted average loan age (WALA) may apply to pool-backed securities such as Ginnie Mae or Freddie Mac securities. The WALA is measured as the time in months since the origination of the loans, with the weighting based on each loan&apos;s size in proportion to the aggregate total of the pool.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">This is defined by the issuer. WALA is more official, not an analysis from a vendor. This changes but the values are relayed by the issuer on an ongoing basis. Investopedia explains Weighted Average Loan Age - WALA The weighted average age will change over time as some mortgages get paid off faster than others. Based on the issuer of the mortgage-backed securities (MBS), the WALA may be weighted on the remaining principal balance dollar figure, or the beginning notional value of the loan. The flip side of the WALA is the weighted average maturity (WAM), which is a dollar-weighted measure of the months remaining until the principal amounts are completely repaid on each loan in the pool.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;WeightedAverageMaturity">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;ArithmeticMean"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">weighted average maturity</rdfs:label>
+		<skos:definition xml:lang="en">weighted average amount of time until the maturities on mortgages in a mortgage-backed security (MBS)</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">WAM</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">The measure is calculated by totaling each mortgage value represented by the MBS. The weights of each mortgage is found by dividing the value of each into the total of all. To arrive at the WAM number the weight of each security is multiplied by the time until maturity of each mortgage, and then all the values are added together. For example say an MBS has three mortgages valued at $1,000, $2,000 and $3,000 (a total of $6,000) and mature in one, two and three years respectively. The weights of these are 1/6 (1,000/6,000), 1/3 (2,000/6,000) and 1/2 (3,000/6,000). The WAM is 2 1/3 years (1/6 x 1 year + 1/3 x 2 years + 1/2 x 3 years). Note that this calculation would need to be adjusted if there are multiple pools behind the MBS.</cmns-av:explanatoryNote>
+		<cmns-av:explanatoryNote xml:lang="en">This term is used more broadly to describe maturities in a portfolio of debt securities, including corporate debt and municipal bonds. The higher the WAM, the longer it takes for all of the mortgages or bonds in the portfolio to mature. WAM is used to manage debt portfolios and to assess the performance of debt portfolio managers.</cmns-av:explanatoryNote>
+	</owl:Class>
+	
+	<owl:Class rdf:about="&fibo-sec-dbt-pbs;WeightedAverageRemainingTerm">
+		<rdfs:subClassOf rdf:resource="&fibo-fnd-utl-alx;ArithmeticMean"/>
+		<rdfs:subClassOf rdf:resource="&fibo-sec-dbt-pbs;DebtPoolStatisticalMeasure"/>
+		<rdfs:label xml:lang="en">weighted average remaining term</rdfs:label>
+		<skos:definition xml:lang="en">weighted average time to maturity of a portfolio of asset-backed securities (ABS) or mortgage-backed (MBS) securities</skos:definition>
+		<cmns-av:abbreviation xml:lang="en">WART</cmns-av:abbreviation>
+		<cmns-av:explanatoryNote xml:lang="en">The longer the WART, the longer the portfolio&apos;s assets will take to mature, on average. WART is often used in relation to mortgage-backed securities (MBS) but can also be applied to any portfolio of fixed-income securities. WART is closely related to weighted average loan age (WALA), which is its inverse.</cmns-av:explanatoryNote>
+		<cmns-av:synonym xml:lang="en">weighted average remaining maturity</cmns-av:synonym>
+	</owl:Class>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-pbs;hasAttachmentPoint">
+		<rdfs:subPropertyOf rdf:resource="&cmns-qtu;hasQuantityValue"/>
+		<rdfs:label>has attachment point</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;AttachmentPoint"/>
+		<skos:definition>indicates the minimum (lower boundary) of the total value of the underlying collateral, either at issuance or as of some point in time, at which point a given tranche becomes liable for losses</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">When it is said that a tranche becomes &apos;liable for losses,&apos; it means that the tranche starts to absorb or incur financial losses due to defaults or impairments in the underlying assets. This is based on the contractual agreements and the structuring of the CDO, which dictate the order in which losses are allocated to different tranches. Note that the notion of &apos;liability for loss&apos; is in a financial or econonmic sense rather than a legal sense.</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-pbs;hasDetachmentPoint">
+		<rdfs:subPropertyOf rdf:resource="&cmns-qtu;hasQuantityValue"/>
+		<rdfs:label>has detachment point</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-sec-dbt-pbs;DetachmentPoint"/>
+		<skos:definition>indicates the maximum (upper boundary) of the total value of the underlying collateral, either at issuance or as of some point in time, at which point the value of given tranche is wiped out</skos:definition>
+		<cmns-av:explanatoryNote xml:lang="en">When it is said that a tranche becomes &apos;liable for losses,&apos; it means that the tranche starts to absorb or incur financial losses due to defaults or impairments in the underlying assets. This is based on the contractual agreements and the structuring of the CDO, which dictate the order in which losses are allocated to different tranches. Note that the notion of &apos;liability for loss&apos; is in a financial or econonmic sense rather than a legal sense.</cmns-av:explanatoryNote>
+	</owl:ObjectProperty>
+	
+	<owl:ObjectProperty rdf:about="&fibo-sec-dbt-pbs;hasEstimatedTotalCollateralValueAtIssuance">
+		<rdfs:subPropertyOf rdf:resource="&fibo-fnd-arr-asmt;isEstimatedValueOf"/>
+		<rdfs:label>is estimated value of</rdfs:label>
+		<rdfs:range rdf:resource="&fibo-fbc-dae-dbt;CollateralValueAsOfDate"/>
+		<skos:definition>indicates the estimated value of the combined underlying collateral for a given tranche at the time the instrument was issued</skos:definition>
+	</owl:ObjectProperty>
+	
+	<owl:DatatypeProperty rdf:about="&fibo-sec-dbt-pbs;isPassThrough">
+		<rdfs:label xml:lang="en">is pass through</rdfs:label>
+		<rdfs:domain rdf:resource="&fibo-sec-dbt-pbs;PoolBackedSecurity"/>
+		<rdfs:range rdf:resource="&xsd;boolean"/>
+		<skos:definition xml:lang="en">indicates whether the cash flows from the underlying asset pool are passed through to the investor by way of redemption payments</skos:definition>
+	</owl:DatatypeProperty>
+
+</rdf:RDF>

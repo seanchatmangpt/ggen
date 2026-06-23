@@ -1,0 +1,172 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "RuleML Initializing Base Patterns" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "RuleML, initialize, base patterns" ]
+dc:description [ "expansion module for initializing base patterns in the RuleML namespace." ]
+dc:language [ "en" ]
+start |= notAllowed
+# 
+# attrib.choice (ordered by appearance in modules)
+index-attrib.choice |= notAllowed
+# 
+# att.choice
+closure-att.choice |= notAllowed
+# 
+# att-fo.choice
+mapClosure-att-fo.choice |= notAllowed
+# 
+# edge.choice
+# 
+# stripe_optional_leaf
+# 
+# stripe_optional
+formula_And-const-edge.choice |= notAllowed
+formula_Deontic.edge.choice |= notAllowed
+formula_Exists-const-edge.choice |= notAllowed
+formula_Forall-const-edge.choice |= notAllowed
+formula_Or-const-edge.choice |= notAllowed
+formula_Suborder.edge.choice |= notAllowed
+strong-const-edge.choice |= notAllowed
+torso-const-edge.choice |= notAllowed
+argTimeData.edge.choice |= notAllowed
+# 
+# stripe_required
+# 
+#
+slotDeontic.edge.choice |= notAllowed
+# 
+# if-then
+body_Implies-const.name.choice |= notAllowed
+head_Implies-const.name.choice |= notAllowed
+body_ConstitutiveRule.edge.choice |= notAllowed
+head_ConstitutiveRule.edge.choice |= notAllowed
+body_PrescriptiveRule.edge.choice |= notAllowed
+head_PrescriptiveRule.edge.choice |= notAllowed
+# 
+# .content |=
+formula_And-const.content |= notAllowed
+formula_Deontic.content |= notAllowed
+formula_Exists-const.content |= notAllowed
+formula_Forall-const.content |= notAllowed
+formula_Or-const.content |= notAllowed
+formula_Suborder.content |= notAllowed
+# 
+#
+strong-const.content |= notAllowed
+torso-const.content |= notAllowed
+argTimeData.content |= notAllowed
+slotDeontic.content |= notAllowed
+body_Implies-const.content |= notAllowed
+head_Implies-const.content |= notAllowed
+body_ConstitutiveRule.content |= notAllowed
+head_ConstitutiveRule.content |= notAllowed
+body_PrescriptiveRule.content |= notAllowed
+head_PrescriptiveRule.content |= notAllowed
+# 
+# Node.choice |=
+Time.Node.choice |= notAllowed
+TimeData.Node.choice |= notAllowed
+# 
+# .main
+# initialize LegalRuleML patterns  for elements in RuleML namespace
+ConstitutiveRule.main |= notAllowed
+Implies-const.main |= notAllowed
+And-const.main |= notAllowed
+Or-const.main |= notAllowed
+Equivalent-const.main |= notAllowed
+Forall-const.main |= notAllowed
+Exists-const.main |= notAllowed
+Neg-const.main |= notAllowed
+PrescriptiveRule.main |= notAllowed
+Time.main |= notAllowed
+# 
+# Formula.choice (ordered according to stripe_content, then stripe_required)
+# 
+# .datatype |=
+# 
+AbsIRI.datatype |= notAllowed
+# .type.choice |=
+# 
+# 
+# .attlist
+body_Implies.attlist &= empty
+head_Implies.attlist &= empty
+reRule.attlist &= empty
+formula_Forall.attlist &= empty
+strong.attlist &= empty
+torso.attlist &= empty
+if_Rule.attlist &= empty
+then_Rule.attlist &= empty
+reslot.attlist &= empty
+# 
+# common
+# 
+# rule_module
+ConstitutiveRule-node.choice |= notAllowed
+And-const-node.choice |= notAllowed
+And-const-fo-node.choice |= notAllowed
+Equivalent-const-node.choice |= notAllowed
+Exists-const-node.choice |= notAllowed
+Exists-const-fo-node.choice |= notAllowed
+Forall-const-node.choice |= notAllowed
+Forall-const-fo-node.choice |= notAllowed
+Implication-const-node.choice |= notAllowed
+Implication-const-fo-node.choice |= notAllowed
+Negation-const-node.choice |= notAllowed
+Negation-const-fo-node.choice |= notAllowed
+Or-const-node.choice |= notAllowed
+Or-const-dis-node.choice |= notAllowed
+Or-const-fo-node.choice |= notAllowed
+PrescriptiveRule-node.choice |= notAllowed
+# 
+# RuleML
+SimpleFormula-node.choice |= notAllowed
+And-fo-node.choice |= notAllowed
+Or-fo-node.choice |= notAllowed
+Negation-node.choice |= notAllowed
+NegationAsFailure-node.notallowed |= notAllowed
+Operation-node.choice |= notAllowed
+Implication-fo-node.choice |= notAllowed
+Forall-fo-node.choice |= notAllowed
+Exists-fo-node.choice |= notAllowed
+Node.header &= empty
+Resource.attlist &= empty
+# 
+# datt.choice
+And-datt.choice |= notAllowed
+Or-datt.choice |= notAllowed
+Implies-datt.choice |= notAllowed
+Equivalent-datt.choice |= notAllowed
+Forall-datt.choice |= notAllowed
+Exists-datt.choice |= notAllowed
+Neg-datt.choice |= notAllowed
+# 
+#
+reImplies.attlist &= empty
+Implies.header &= empty
+reEquivalent.attlist &= empty
+Equivalent.header &= empty
+reForall.attlist &= empty
+Forall.header &= empty
+reExists.attlist &= empty
+Exists.header &= empty
+reNeg.attlist &= empty
+Neg.header &= empty
+reOr.attlist &= empty
+Or.header &= empty
+reAnd.attlist &= empty
+And.header &= empty
+formula_Deontic.attlist &= empty
+formula_Suborder.attlist &= empty
+commonInit.attlist &= empty
+arg_time.attlist &= empty
+
+#DummyRMLInit = element DummyRMLInit {commonInit.attlist}

@@ -1,0 +1,21 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Same As" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, equality" ]
+dc:description [ "The expansion module for equality (same as)." ]
+dc:language [ "en" ]
+start |= notAllowed
+sameAs.attrib.opt.choice |= sameAs.attrib.def?
+sameAs.attrib.def =
+  
+  ## an IRI that denotes the same thing as the Node Element.
+  attribute sameAs { iri.lrml.datatype }
+DummysameAsElement = element DummysameAsElement { sameAs.attrib.opt.choice }

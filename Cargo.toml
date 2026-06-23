@@ -789,16 +789,16 @@ unused-shlibs = []
 # still carried tower-lsp symbols internally; the local checkout has them stripped.
 # All crates that declare `lsp-max = "26.6.9"` in workspace.dependencies silently
 # resolve to the local path below. No version-number change needed.
-[patch.crates-io]
-lsp-max          = { path = "../lsp-max" }
-lsp-max-protocol = { path = "../lsp-max/lsp-max-protocol" }
-lsp-max-macros   = { path = "../lsp-max/lsp-max-macros" }
-lsp-max-client   = { path = "../lsp-max/crates/lsp-max-client" }
+# [patch.crates-io]
+# lsp-max          = { path = "../lsp-max" }
+# lsp-max-protocol = { path = "../lsp-max/lsp-max-protocol" }
+# lsp-max-macros   = { path = "../lsp-max/lsp-max-macros" }
+# lsp-max-client   = { path = "../lsp-max/crates/lsp-max-client" }
 # wasm4pm-compat and wasm4pm must be patched here so that lsp-max (which
 # is itself a non-member path dep) resolves their transitive uses from
 # the local sources rather than crates.io, which lacks newer modules.
-wasm4pm-compat   = { path = "../wasm4pm-compat" }
-wasm4pm          = { path = "../wasm4pm/wasm4pm" }
+# wasm4pm-compat   = { path = "../wasm4pm-compat" }
+# wasm4pm          = { path = "../wasm4pm/wasm4pm" }
 
 # NOTE on the clap-noun-verb kebab-case fix (--profile-id with --profile_id alias):
 # the fix is committed in ~/clap-noun-verb (313ba73). It was NOT integrated here via

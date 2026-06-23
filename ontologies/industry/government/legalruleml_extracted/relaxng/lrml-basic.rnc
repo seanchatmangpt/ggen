@@ -1,0 +1,23 @@
+namespace lrml = "http://docs.oasis-open.org/legalruleml/ns/v1.0/"
+namespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+namespace ruleml = "http://ruleml.org/spec"
+
+include "modules/document_module.rnc" inherit = lrml
+include "suites/basic.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "modules/stripe_required_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "../relaxng/modules/id_datatype_NCName_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "modules/time_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "xsi/xsi-schemalocation_module.rnc" inherit = lrml {
+  start |= notAllowed
+}
+include "ruleml/ruleml-lrml-basic.rnc" inherit = ruleml {
+  start |= notAllowed
+}

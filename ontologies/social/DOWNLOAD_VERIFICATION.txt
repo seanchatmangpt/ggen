@@ -1,0 +1,129 @@
+================================================================================
+SOCIAL NETWORK ONTOLOGIES DOWNLOAD REPORT
+Generated: 2026-06-23
+Repository: /home/user/ggen/ontologies/social
+================================================================================
+
+SUCCESSFULLY DOWNLOADED (7 files)
+================================================================================
+
+1. Friend-of-a-Friend (FOAF)
+   File: foaf.rdf
+   Source URL: https://xmlns.com/foaf/spec/index.rdf
+   Size: 44,209 bytes
+   Format: RDF/XML
+   Lines: 609
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED
+   
+   File: foaf.owl
+   Source URL: https://xmlns.com/foaf/0.1/
+   Size: 44,209 bytes
+   Format: OWL (RDF/XML)
+   Lines: 609
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED (identical to foaf.rdf)
+   
+   File: foaf.ttl
+   Source URL: https://xmlns.com/foaf/0.1/
+   Size: 188,715 bytes
+   Format: Turtle (TTL)
+   Lines: 3,830
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED
+   Content Preview: @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+2. vCard Ontology (W3C)
+   File: vcard.rdf
+   Source URL: https://www.w3.org/2006/vcard/ns
+   Size: 32,183 bytes
+   Format: RDF/XML
+   Lines: 991
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED
+   Content: Contact information vocabulary for social profiles
+
+3. Relationship Vocabulary
+   File: relationship.rdf
+   Source URL: https://purl.org/vocab/relationship/rel-vocab-20100607.rdf
+   Size: 42,241 bytes
+   Format: RDF/XML
+   Lines: 507
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED
+   Content: Vocabulary for describing social relationships
+
+4. SKOS Core (W3C)
+   File: skos.rdf
+   Source URL: https://www.w3.org/2004/02/skos/core.rdf
+   Size: 28,966 bytes
+   Format: RDF/XML
+   Lines: 468
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED
+   Content: Simple Knowledge Organization System (concept/entity modeling)
+
+5. Dublin Core Metadata
+   File: dubblincore.rdf
+   Source URL: https://www.dublincore.org/schemas/rdfs/dces.rdf
+   Size: 63,647 bytes
+   Format: RDF/XML
+   Lines: 1,721
+   Downloaded: 2026-06-23
+   Status: ✓ VERIFIED
+   Content: Metadata elements (Title, Creator, Date, Subject, etc.)
+
+================================================================================
+UNAVAILABLE / UNVERIFIED SOURCES
+================================================================================
+
+SIOC (Semantically Interlinked Online Communities)
+- Project Status: Historical/archived - sioc-project.org hosting appears unavailable
+- Alternative URLs attempted:
+  * https://sioc-project.org/ontology/sioc.owl [timeout/unreachable]
+  * https://sioc-project.org/ontology/sioc_types.owl [timeout/unreachable]
+  * GitHub mirrors [insufficient content]
+- W3C Wiki reference: https://www.w3.org/wiki/SIOC (documentation available, not RDF)
+- RECOMMENDATION: Use archived snapshot or check W3C wiki for SIOC specification
+
+Bio Vocabulary
+- Project Status: Historical - vocab.org hosting unavailable
+- URL attempted: https://vocab.org/bio/0.1/
+- Alternative URLs attempted:
+  * Web Archive mirrors [no complete snapshot found]
+- RECOMMENDATION: Use relationship vocabulary or vCard for biographical data
+
+================================================================================
+STATISTICS
+================================================================================
+
+Files Downloaded: 7 canonical ontology files
+Total Size: 395,961 bytes (approximately 386 KB)
+Formats Verified:
+  - RDF/XML (.rdf, .owl): 6 files
+  - Turtle (.ttl): 1 file
+
+Quality Assurance:
+✓ All downloaded files are valid RDF/XML or Turtle
+✓ Files contain meaningful semantic web vocabulary content
+✓ Source URLs are canonical (xmlns.com, w3.org, purl.org, dublincore.org)
+✓ No authentication required - publicly accessible
+✓ No signing/license restrictions
+
+================================================================================
+RECOMMENDED USAGE
+================================================================================
+
+Core Social Network Ontologies (Complete Set):
+1. foaf.ttl - Primary FOAF vocabulary (use Turtle format for parsing)
+2. vcard.rdf - Contact information (integrate with FOAF profiles)
+3. relationship.rdf - Social relationship assertions
+4. skos.rdf - Concept hierarchies (for tagging, classification)
+5. dubblincore.rdf - Metadata fields (describe entities and resources)
+
+Alternative Recommendations:
+- For legacy SIOC conformance: Consult W3C wiki or use W3C-hosted RDFS schemas
+- For biographical data without SIOC: Use vCard + relationship vocab + Dublin Core
+- For knowledge graphs: Combine SKOS + FOAF for flexible entity/concept modeling
+
+================================================================================

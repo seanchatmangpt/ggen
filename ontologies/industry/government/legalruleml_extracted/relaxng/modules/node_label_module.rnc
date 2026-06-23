@@ -1,0 +1,55 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Node Label" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, node label" ]
+dc:description [ "The expansion module for LegalRuleML and RuleML node labels." ]
+dc:language [ "en" ]
+start |= notAllowed
+# the LegalRuleML version of @key
+NodeLabel.attrib.choice |= key.lrml.attrib.def
+key.lrml.attrib.def =
+  
+  ## a Node Element label.
+  attribute key { id.datatype }
+# 
+# the LegalRuleML version of @keyref
+NodeReference.attrib.opt.choice |= keyref.lrml.attrib.def?
+NodeReference.attrib.choice |= keyref.lrml.attrib.def
+keyref.lrml.attrib.def =
+  
+  ## a Node Element reference.
+  attribute keyref { keyref.lrml.datatype }
+
+## refinement of xsd:anyURI that is a same-document relative IRI reference
+## with fragment identifier that belongs to the xsd:NCName lexical space
+keyref.lrml.datatype |= xsd:anyURI { pattern = "#[\i-[:]][\c-[:]]*" }
+
+## 
+iri.lrml.datatype |= curieOrIRI.datatype
+
+## CURIE or IRI reference
+curieOrIRI.datatype |= curie.datatype | xsd:anyURI
+
+## CURIE or (absolute) IRI
+curieOrAbsIRI.datatype |= curie.datatype | absIRI.datatype
+
+## (absolute) IRI
+absIRI.datatype |= xsd:anyURI { pattern = "[\i-[:]][\c-[:]]+:.+" }
+
+## CURIE
+curie.datatype |=
+  xsd:string {
+    minLength = "1"
+    pattern = "(([\i-[:]][\c-[:]]*)?:)?(/[^\s/][^\s]*|[^\s/][^\s]*|[^\s]?)"
+  }
+
+##
+DummykeyElementLRML = element DummykeyElementLRML { NodeLabel.attrib.choice?, NodeReference.attrib.choice? }

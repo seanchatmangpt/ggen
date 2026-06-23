@@ -1,0 +1,1 @@
+SELECT ?s WHERE {?s a <https://www.omg.org/spec/LCC/Languages/LanguageRepresentation/Identifier>} 

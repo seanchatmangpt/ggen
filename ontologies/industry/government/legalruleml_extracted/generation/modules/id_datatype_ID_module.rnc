@@ -1,0 +1,19 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Identifier Datatype xsd:ID" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, node label" ]
+dc:description [ "The expansion module for identifier datatype like xsd:NCName." ]
+dc:language [ "en" ]
+start |= notAllowed
+
+##
+id.datatype |= xsd:ID
+DummyIDElement = element DummyID{id.datatype}

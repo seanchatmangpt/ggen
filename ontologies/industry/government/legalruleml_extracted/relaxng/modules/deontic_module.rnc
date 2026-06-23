@@ -1,0 +1,150 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "Deontic Operators" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, deontic" ]
+dc:description [ "Expansion module for LegalRuleML deontic operators." ]
+dc:language [ "en" ]
+start |=  Obligation.Node.def
+  | Permission.Node.def
+  | Prohibition.Node.def
+  | Reparation.Node.def
+  | Right.Node.def
+  | Violation.Node.def
+  | Compliance.Node.def
+  | Bearer.Node.def
+  | AuxiliaryParty.Node.def
+##
+Violation.Node.choice |= Violation.Node.def
+Violation.Node.def =
+  
+  ## an indication that an Obligation or Prohibition has been violated.
+  element Violation { Violation.type.def }
+Violation.type.def = Violation.attlist, Violation.main
+Violation.attlist &= commonLRMLNodeInit.attlist?
+Violation.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?
+
+##
+Compliance.Node.choice |= Compliance.Node.def
+Compliance.Node.def =
+  
+  ## an indication that an Obligation has been fulfilled or a Prohibition has not been violated.
+  element Compliance { Compliance.type.def }
+Compliance.type.def = Compliance.attlist, Compliance.main
+Compliance.attlist &= commonLRMLNodeInit.attlist?
+Compliance.main |= hasComment.edge.choice?, hasParaphrase.edge.choice?
+
+## a role in a Deontic Specification.
+DeonticRole.Node.choice |= AuxiliaryParty.Node.choice | Bearer.Node.choice
+
+##
+Bearer.Node.choice |= Bearer.Node.def
+Bearer.Node.def =
+  
+  ## a role in a Deontic Specification to which the Deontic Specification is primarily directed.
+  element Bearer { Bearer.type.def }
+Bearer.type.def = Bearer.attlist, Bearer.main
+Bearer.attlist &= commonLRMLNodeInit.attlist?
+Bearer.attlist &= iri.lrml.attrib.opt.choice?
+Bearer.main |= hasComment.edge.choice?
+
+##
+AuxiliaryParty.Node.choice |= AuxiliaryParty.Node.def
+AuxiliaryParty.Node.def =
+  
+  ## a role in a Deontic Specification to which the Deontic Specification is related, but not primarily directed.
+  element AuxiliaryParty { AuxiliaryParty.type.def }
+AuxiliaryParty.type.def = AuxiliaryParty.attlist, AuxiliaryParty.main
+AuxiliaryParty.attlist &= commonLRMLNodeInit.attlist?
+AuxiliaryParty.attlist &= iri.lrml.attrib.opt.choice?
+AuxiliaryParty.main |= hasComment.edge.choice?
+
+## Deontic Specification: an indication of what states are legal or illegal. Deontic Specifications include Obligation, Permission, Prohibition, SuborderLIst, … or a Boolean combination of Deontic Specifications other than SuborderLists (at any depth).
+
+Deontic.Node.choice |=
+  Obligation.Node.choice
+  | Permission.Node.choice
+  | Prohibition.Node.choice
+  | Right.Node.choice
+  | Violation.Node.choice
+  | Compliance.Node.choice
+
+## Reparation is also a deontic specification.
+Deontic.Node.choice |= Reparation.Node.choice
+
+##
+Obligation.Node.choice |= Obligation.Node.def
+Obligation.Node.def =
+  
+  ## a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and if it is not achieved or performed results in a Violation.
+  element Obligation { Obligation.type.def }
+Obligation.type.def = Obligation.attlist, Obligation.main
+Obligation.attlist &= commonLRMLNodeInit.attlist?
+Obligation.attlist &= Resource.attlist?
+
+##
+Permission.Node.choice |= Permission.Node.def
+Permission.Node.def =
+  
+  ## a Deontic Specification for a state, an act, or a course of action where the Bearer has no Obligation or Prohibition to the contrary. A weak Permission is the absence of the Obligation or Prohibition to the contrary; a strong Permission is an exception or derogation of the Obligation or Prohibition to the contrary.
+  element Permission { Permission.type.def }
+Permission.type.def = Permission.attlist, Permission.main
+Permission.attlist &= commonLRMLNodeInit.attlist?
+Permission.attlist &= Resource.attlist?
+
+##
+Prohibition.Node.choice |= Prohibition.Node.def
+Prohibition.Node.def =
+  
+  ## a Deontic Specification for a state, an act, or a course of action to which a Bearer is legally bound, and if it is achieved or performed results in a Violation.
+  element Prohibition { Prohibition.type.def }
+Prohibition.type.def = Prohibition.attlist, Prohibition.main
+Prohibition.attlist &= commonLRMLNodeInit.attlist?
+
+##
+Reparation.Node.choice |= Reparation.Node.def
+Reparation.Node.def =
+  
+  ## an indication that a PenaltyStatement is linked with a PrescriptiveStatement, meaning that a sanction may apply when the PrescriptiveStatement entails a Deontic Specification, and there is a Violation of the Deontic Specification.
+  element Reparation { Reparation.type.def }
+Reparation.type.def = Reparation.attlist, Reparation.main
+Reparation.attlist &= commonLRMLNodeInit.attlist?
+
+##
+Right.Node.choice |= Right.Node.def
+Right.Node.def =
+  
+  ## (see also Permission) a Deontic Specification that gives a Permission to a party (the Bearer) and implies there are Obligations or Prohibitions on other parties (the AuxiliaryParty) such that the Bearer can (eventually) exercise the Right.
+  element Right { Right.type.def }
+Right.type.def = Right.attlist, Right.main
+Right.attlist &= commonLRMLNodeInit.attlist?
+
+##
+DeonticFormula.choice |=
+  SimpleFormula-node.choice
+  | And-fo-node.choice
+  | Or-fo-node.choice
+  | Negation-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-fo-node.choice
+  | Forall-fo-node.choice
+  | Exists-fo-node.choice
+  | Operation-node.choice
+  | Deontic.Node.choice
+
+##
+AndFormula.choice |= Deontic.Node.choice
+OrFormula.choice |= Deontic.Node.choice
+NegFormula.choice |= Deontic.Node.choice
+PremiseFormula.choice |= Deontic.Node.choice
+ConclusionFormula.choice |= Deontic.Node.choice
+ExistsFormula.choice |= Deontic.Node.choice
+ForallFormula.choice |= Deontic.Node.choice
+QualificationFormula.choice |= Deontic.Node.choice

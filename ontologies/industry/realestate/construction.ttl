@@ -1,0 +1,26 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix lso: <https://w3c-lbd-cg.github.io/lso#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://w3c-lbd-cg.github.io/lso> a owl:Ontology ;
+    dct:title "Linked Structures Ontology"@en ;
+    dct:description "An ontology for describing building structures and construction" ;
+    owl:versionInfo "1.0" .
+
+lso:Structure a owl:Class ;
+    rdfs:label "Structure"@en ;
+    rdfs:comment "A building structure" .
+
+lso:StructuralElement a owl:Class ;
+    rdfs:label "Structural Element"@en ;
+    rdfs:subClassOf lso:Structure .
+
+lso:Foundation a owl:Class ;
+    rdfs:label "Foundation"@en ;
+    rdfs:subClassOf lso:StructuralElement .
+
+lso:BeamOrColumn a owl:Class ;
+    rdfs:label "Beam or Column"@en ;
+    rdfs:subClassOf lso:StructuralElement .

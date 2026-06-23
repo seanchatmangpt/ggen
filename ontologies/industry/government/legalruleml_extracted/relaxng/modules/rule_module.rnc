@@ -1,0 +1,88 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+start |= notAllowed
+
+##
+ConstitutivePremiseFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-node.choice
+  | Or-const-node.choice
+  | Negation-const-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-node.choice
+  | Forall-const-node.choice
+  | Exists-const-node.choice
+ConstitutiveConclusionFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-fo-node.choice
+  | Or-const-dis-node.choice
+  | Negation-const-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-fo-node.choice
+  | Forall-const-fo-node.choice
+  | Exists-const-fo-node.choice
+
+##  
+ConstitutiveAndFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-node.choice
+  | Or-const-node.choice
+  | Negation-const-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-fo-node.choice
+  | Forall-const-fo-node.choice
+  | Exists-const-fo-node.choice
+
+##  
+ConstitutiveOrFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-node.choice
+  | Or-const-node.choice
+  | Negation-const-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-fo-node.choice
+  | Forall-const-fo-node.choice
+  | Exists-const-fo-node.choice
+
+##
+ConstitutiveNegFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-fo-node.choice
+  | Or-const-fo-node.choice
+  | Negation-const-fo-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-fo-node.choice
+  | Forall-const-fo-node.choice
+  | Exists-const-fo-node.choice
+
+##
+ConstitutiveForallFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-fo-node.choice
+  | Or-const-fo-node.choice
+  | Negation-const-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-node.choice
+  | Forall-const-node.choice
+  | Exists-const-fo-node.choice
+
+##
+ConstitutiveExistsFormula.choice |=
+  SimpleFormula-node.choice
+  | And-const-node.choice
+  | Or-const-node.choice
+  | Negation-const-node.choice
+  | NegationAsFailure-node.notallowed
+  | Implication-const-fo-node.choice
+  | Forall-const-fo-node.choice
+  | Exists-const-node.choice
+
+##
+PrescriptiveConclusionFormula.choice |= 
+  SuborderList.Node.choice 
+  | SuborderFormula.choice
+
+##
+Atom.main |= empty
+Equal.main |= empty

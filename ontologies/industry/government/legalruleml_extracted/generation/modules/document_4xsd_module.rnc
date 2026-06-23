@@ -1,0 +1,39 @@
+namespace dc = "http://purl.org/dc/elements/1.1/"
+namespace dcterms = "http://purl.org/dc/terms/"
+
+dc:title [ "LegalRuleML Document" ]
+dc:version [ "1.0" ]
+dc:creator [ "Tara Athan (taraathan AT gmail.com)" ]
+dc:contributor [ "Harold Boley" ]
+dc:contributor [ "Guido Governatori" ]
+dc:contributor [ "Monica Palmirani" ]
+dc:contributor [ "Adrian Paschke" ]
+dc:contributor [ "Adam Wyner" ]
+dc:subject [ "LegalRuleML, document" ]
+dc:description [ "The expansion module for LegalRuleML documents." ]
+dc:language [ "en" ]
+start |= notAllowed
+include "../../relaxng/modules/document_module.rnc" {
+    LegalRuleMLDocument.main |=
+        hasComment.edge.choice*,
+        (hasPrefix.edge.choice, (hasPrefix.edge.choice | hasComment.edge.choice)*)?,
+        (meta.edge.choice, (meta.edge.choice | hasComment.edge.choice)*)?,
+        (hasAssociationCollection.edge.choice, (hasAssociationCollection.edge.choice | hasComment.edge.choice)*)?,
+        (text.edge.choice, (text.edge.choice | hasComment.edge.choice)*)?
+}
+meta.edge.choice |=
+    hasLegalReferenceCollection.edge.choice
+    | hasLegalSourceCollection.edge.choice
+    | hasReferenceCollection.edge.choice
+    | hasSourceCollection.edge.choice
+    | hasTimeCollection.edge.choice
+    | hasTemporalCharacteristics.edge.choice
+    | hasAgentCollection.edge.choice
+    | hasFigureCollection.edge.choice
+    | hasRoleCollection.edge.choice
+    | hasAuthorityCollection.edge.choice
+    | hasJurisdictionCollection.edge.choice
+text.edge.choice |=
+    hasAlternativeCollection.edge.choice
+    | hasContext.edge.choice
+    | hasStatementCollection.edge.choice

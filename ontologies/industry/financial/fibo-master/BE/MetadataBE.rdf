@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+	<!ENTITY cmns-av "https://www.omg.org/spec/Commons/AnnotationVocabulary/">
+	<!ENTITY dct "http://purl.org/dc/terms/">
+	<!ENTITY fibo-be-fct-mod "https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/MetadataBEFunctionalEntities/">
+	<!ENTITY fibo-be-ge-mod "https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/MetadataBEGovernmentEntities/">
+	<!ENTITY fibo-be-le-mod "https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/MetadataBELegalEntities/">
+	<!ENTITY fibo-be-mod "https://spec.edmcouncil.org/fibo/ontology/BE/MetadataBE/">
+	<!ENTITY fibo-be-oac-mod "https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/MetadataBEOwnershipAndControl/">
+	<!ENTITY fibo-be-plc-mod "https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/MetadataBEPrivateLimitedCompanies/">
+	<!ENTITY fibo-be-ptr-mod "https://spec.edmcouncil.org/fibo/ontology/BE/Partnerships/MetadataBEPartnerships/">
+	<!ENTITY fibo-be-sps-mod "https://spec.edmcouncil.org/fibo/ontology/BE/SoleProprietorships/MetadataBESoleProprietorships/">
+	<!ENTITY fibo-be-tr-mod "https://spec.edmcouncil.org/fibo/ontology/BE/Trusts/MetadataBETrusts/">
+	<!ENTITY fibo-fnd-utl-av "https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/">
+	<!ENTITY owl "http://www.w3.org/2002/07/owl#">
+	<!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+	<!ENTITY skos "http://www.w3.org/2004/02/skos/core#">
+	<!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="https://spec.edmcouncil.org/fibo/ontology/BE/MetadataBE/"
+	xmlns:cmns-av="https://www.omg.org/spec/Commons/AnnotationVocabulary/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:fibo-be-fct-mod="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/MetadataBEFunctionalEntities/"
+	xmlns:fibo-be-ge-mod="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/MetadataBEGovernmentEntities/"
+	xmlns:fibo-be-le-mod="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/MetadataBELegalEntities/"
+	xmlns:fibo-be-mod="https://spec.edmcouncil.org/fibo/ontology/BE/MetadataBE/"
+	xmlns:fibo-be-oac-mod="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/MetadataBEOwnershipAndControl/"
+	xmlns:fibo-be-plc-mod="https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/MetadataBEPrivateLimitedCompanies/"
+	xmlns:fibo-be-ptr-mod="https://spec.edmcouncil.org/fibo/ontology/BE/Partnerships/MetadataBEPartnerships/"
+	xmlns:fibo-be-sps-mod="https://spec.edmcouncil.org/fibo/ontology/BE/SoleProprietorships/MetadataBESoleProprietorships/"
+	xmlns:fibo-be-tr-mod="https://spec.edmcouncil.org/fibo/ontology/BE/Trusts/MetadataBETrusts/"
+	xmlns:fibo-fnd-utl-av="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	
+	<owl:Ontology rdf:about="https://spec.edmcouncil.org/fibo/ontology/BE/MetadataBE/">
+		<rdfs:label>Metadata about the FIBO Business Entities (BE) Domain</rdfs:label>
+		<dct:abstract>This ontology provides metadata about the FIBO Business Entities (BE) Domain, which defines business concepts for data governance, interoperability, and in regulatory reporting about business entities.
+
+The scope of the BE domain includes business and legal entity concepts that are considered by financial industry firms, regulators and other industry participants relevant to financial services and more broadly, including:
+ - Legal entities generally
+ - Corporate structure, ownership and control, including primary executive roles for businesses,
+ - Functional entities such as governments and government entities, non-governmental organizations, international organizations, not-for-profit organizations, etc.
+ - Concepts specific to corporations, partnerships, private limited companies, sole proprietorships, and trusts.</dct:abstract>
+		<dct:issued rdf:datatype="&xsd;dateTime">2018-08-27T18:00:00</dct:issued>
+		<dct:license>Copyright (c) 2018-2026 EDM Association dba EDM Council, Inc.
+Copyright (c) 2018-2026 Object Management Group
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<dct:modified rdf:datatype="&xsd;dateTime">2026-04-15T18:00:00</dct:modified>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/FunctionalEntities/MetadataBEFunctionalEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/GovernmentEntities/MetadataBEGovernmentEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/MetadataBELegalEntities/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/OwnershipAndControl/MetadataBEOwnershipAndControl/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/Partnerships/MetadataBEPartnerships/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/PrivateLimitedCompanies/MetadataBEPrivateLimitedCompanies/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/SoleProprietorships/MetadataBESoleProprietorships/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/Trusts/MetadataBETrusts/"/>
+		<owl:imports rdf:resource="https://spec.edmcouncil.org/fibo/ontology/FND/Utilities/AnnotationVocabulary/"/>
+		<owl:imports rdf:resource="https://www.omg.org/spec/Commons/AnnotationVocabulary/"/>
+		<owl:versionIRI rdf:resource="https://spec.edmcouncil.org/fibo/ontology/BE/20260401/MetadataBE/"/>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20180801/BE/MetadataBE.rdf version of this ontology was modified to eliminate informative Functional Entities ontologies, merging their content into others as appropriate.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20190401/MetadataBE.rdf version of the ontology and subordinate module-specific BE metadata ontologies were modified to use the Commons Ontology Library (Commons) Annotation Vocabulary rather than the OMG&apos;s Specification Metadata vocabulary.</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20230301/MetadataBE.rdf version of the ontology was modified to merge details from the old corporations ontology into corporate bodies for consistency and useability (BE-259).</skos:changeNote>
+		<skos:changeNote>The https://spec.edmcouncil.org/fibo/ontology/BE/20251001/MetadataBE.rdf version of the ontology was modified to update metadata including providing an expanded domain name for usability in business glossaries (FND-404).</skos:changeNote>
+		<cmns-av:copyright>Copyright (c) 2018-2026 EDM Association dba EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2018-2026 Object Management Group</cmns-av:copyright>
+	</owl:Ontology>
+	
+	<owl:NamedIndividual rdf:about="&fibo-be-mod;BEDomain">
+		<rdf:type rdf:resource="&fibo-fnd-utl-av;Module"/>
+		<rdfs:label>business entities (BE) domain</rdfs:label>
+		<dct:abstract>The FIBO Business Entities (BE) Domain covers defines business concepts that are used for data governance, interoperability, and in regulatory reporting about business entities.
+
+The scope of the BE domain includes business and legal entity concepts that are considered by financial industry firms, regulators and other industry participants relevant to financial services and more broadly, including:
+ - Legal entities generally
+ - Corporate structure, ownership and control, including primary executive roles for businesses,
+ - Functional entities such as governments and government entities, non-governmental organizations, international organizations, not-for-profit organization, etc.
+ - Concepts specific to corporations, partnerships, private limited companies, sole proprietorships, and trusts.</dct:abstract>
+		<dct:contributor>Adaptive Analytics, Inc.</dct:contributor>
+		<dct:contributor>Bloomberg LP</dct:contributor>
+		<dct:contributor>Citigroup</dct:contributor>
+		<dct:contributor>Credit Suisse</dct:contributor>
+		<dct:contributor>Deutsche Bank</dct:contributor>
+		<dct:contributor>Exprentis</dct:contributor>
+		<dct:contributor>Federated Knowledge, LLC</dct:contributor>
+		<dct:contributor>Hypercube Ltd.</dct:contributor>
+		<dct:contributor>Intuitive Technology Partners, Inc.</dct:contributor>
+		<dct:contributor>John F. Gemski</dct:contributor>
+		<dct:contributor>Nordea Bank AB</dct:contributor>
+		<dct:contributor>Office of Financial Research (US Dept of the Treasury)</dct:contributor>
+		<dct:contributor>Pinnacle Bank (Morgan Hill, California)</dct:contributor>
+		<dct:contributor>State Street Bank and Trust</dct:contributor>
+		<dct:contributor>Statistics Canada</dct:contributor>
+		<dct:contributor>Tahoe Blue Ltd</dct:contributor>
+		<dct:contributor>Thematix Partners, LLC</dct:contributor>
+		<dct:contributor>Wells Fargo</dct:contributor>
+		<dct:contributor>Working Ontologist</dct:contributor>
+		<dct:contributor>agnos.ai UK Ltd.</dct:contributor>
+		<dct:creator rdf:datatype="&xsd;anyURI">https://wiki.edmcouncil.org/display/BE/FIBO+-+FCT+-+Business+Entities+Home</dct:creator>
+		<dct:hasPart rdf:resource="&fibo-be-fct-mod;FunctionalEntitiesModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-ge-mod;GovernmentEntitiesModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-le-mod;LegalEntitiesModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-oac-mod;OwnershipAndControlModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-ptr-mod;PartnershipsModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-plc-mod;PrivateLimitedCompaniesModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-sps-mod;SoleProprietorshipsModule"/>
+		<dct:hasPart rdf:resource="&fibo-be-tr-mod;TrustsModule"/>
+		<dct:issued rdf:datatype="&xsd;dateTime">2018-08-27T18:00:00</dct:issued>
+		<dct:license>Copyright (c) 2018-2026 EDM Association dba EDM Council, Inc.
+Copyright (c) 2018-2026 Object Management Group
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &apos;AS IS&apos;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+See https://opensource.org/licenses/MIT.</dct:license>
+		<dct:modified rdf:datatype="&xsd;dateTime">2026-04-15T18:00:00</dct:modified>
+		<dct:title>EDMC Financial Industry Business Ontology (FIBO) Business Entities (BE) Domain</dct:title>
+		<dct:title>FIBO BE Domain</dct:title>
+		<rdfs:seeAlso rdf:datatype="&xsd;anyURI">https://spec.edmcouncil.org/fibo/</rdfs:seeAlso>
+		<skos:altLabel>Business Entities (BE)</skos:altLabel>
+		<cmns-av:copyright>Copyright (c) 2018-2026 EDM Association dba EDM Council, Inc.</cmns-av:copyright>
+		<cmns-av:copyright>Copyright (c) 2018-2026 Object Management Group</cmns-av:copyright>
+	</owl:NamedIndividual>
+
+</rdf:RDF>

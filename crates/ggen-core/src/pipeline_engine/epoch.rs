@@ -3,6 +3,7 @@
 //! An epoch represents a frozen point-in-time snapshot of all input ontologies.
 //! This is the "O" in A = μ(O) - the immutable input substrate.
 
+use crate::ontology::OntologyLoader;
 use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -65,6 +66,66 @@ impl Epoch {
             let input = OntologyInput::from_file(&full_path, rel_path)?;
             total_triples += input.triple_count;
             inputs.insert(rel_path.clone(), input);
+        }
+
+        // Compute epoch ID from all input hashes
+        let id = Self::compute_epoch_id(&inputs);
+
+        Ok(Self {
+            id,
+            timestamp,
+            inputs,
+            total_triples,
+        })
+    }
+
+    /// Create a new epoch with fallback support for both file paths and namespace URIs
+    ///
+    /// This method attempts to load ontologies from either file paths or namespace URIs,
+    /// using the OntologyLoader's fallback chain:
+    /// 1. Core bundle (embedded, zero-copy)
+    /// 2. Local filesystem
+    /// 3. Future: Marketplace (download if needed)
+    ///
+    /// # Arguments
+    /// * `base_path` - Base directory for resolving file paths
+    /// * `identifiers` - Mix of file paths and namespace URIs
+    ///
+    /// # Returns
+    /// * `Ok(Epoch)` - Frozen epoch with all ontologies loaded and hashed
+    /// * `Err(Error)` - If any ontology cannot be found or loaded
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// let epoch = Epoch::create_with_fallback(
+    ///     Path::new("."),
+    ///     &[
+    ///         "ontology/custom.ttl",
+    ///         "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    ///     ]
+    /// )?;
+    /// ```
+    pub fn create_with_fallback(base_path: &Path, identifiers: &[&str]) -> Result<Self> {
+        let timestamp = chrono::Utc::now().to_rfc3339();
+        let mut inputs = BTreeMap::new();
+        let mut total_triples = 0;
+
+        for identifier in identifiers {
+            let is_uri = identifier.starts_with("http://") || identifier.starts_with("https://");
+
+            let input = if is_uri {
+                // Load from namespace URI using OntologyLoader fallback chain
+                OntologyInput::from_namespace(identifier, base_path, Some(identifier))?
+            } else {
+                // Load from file path
+                let rel_path = PathBuf::from(identifier);
+                let full_path = base_path.join(&rel_path);
+                OntologyInput::from_file(&full_path, &rel_path)?
+            };
+
+            total_triples += input.triple_count;
+            inputs.insert(PathBuf::from(*identifier), input);
         }
 
         // Compute epoch ID from all input hashes
@@ -194,6 +255,45 @@ impl OntologyInput {
         })
     }
 
+    /// Create an ontology input from a namespace URI using OntologyLoader
+    ///
+    /// # Arguments
+    /// * `uri` - Namespace URI (e.g., "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+    /// * `base_path` - Base path for relative file lookups
+    /// * `identifier` - Optional custom identifier for the ontology (uses URI by default)
+    ///
+    /// # Returns
+    /// * `Ok(OntologyInput)` - Successfully loaded ontology with computed hash
+    /// * `Err(Error)` - If ontology cannot be found or loaded
+    ///
+    /// # Fallback Chain
+    /// 1. Core bundle (embedded, zero-copy, always available)
+    /// 2. Local filesystem (for development)
+    /// 3. Future: Marketplace (download and cache)
+    pub fn from_namespace(uri: &str, base_path: &Path, identifier: Option<&str>) -> Result<Self> {
+        let content = OntologyLoader::load_content(uri, base_path).ok_or_else(|| {
+            Error::new(&format!(
+                "Failed to load ontology '{}': not found in core bundle, filesystem, or marketplace",
+                uri
+            ))
+        })?;
+
+        let hash = format!("{:x}", Sha256::digest(&content));
+        let size_bytes = content.len();
+
+        // Count triples from loaded content
+        let content_str = String::from_utf8_lossy(&content);
+        let triple_count = Self::estimate_triple_count(&content_str);
+
+        let path = identifier.unwrap_or(uri).to_string();
+        Ok(Self {
+            path: PathBuf::from(path),
+            hash,
+            size_bytes,
+            triple_count,
+        })
+    }
+
     /// Estimate triple count from Turtle content
     fn estimate_triple_count(content: &str) -> usize {
         // Simple heuristic: count statements (lines ending with . or ;)
@@ -272,5 +372,95 @@ mod tests {
 
         // Same content should produce same epoch ID (ignoring timestamp)
         assert_eq!(epoch1.id, epoch2.id);
+    }
+
+    #[test]
+    fn test_ontology_input_from_namespace_embedded() {
+        // Test loading RDF ontology from core bundle
+        let input = OntologyInput::from_namespace(
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            Path::new("."),
+            Some("rdf-syntax-ns"),
+        )
+        .expect("RDF ontology should be available in core bundle");
+
+        assert_eq!(input.path.to_string_lossy(), "rdf-syntax-ns");
+        assert!(!input.hash.is_empty());
+        assert_eq!(input.hash.len(), 64); // SHA-256 hex length
+        assert!(input.size_bytes > 0, "Ontology should have content");
+        assert!(input.triple_count > 0, "RDF ontology should have triples");
+    }
+
+    #[test]
+    fn test_ontology_input_from_namespace_fallback() {
+        // Test fallback for ontology not in core bundle (should fail gracefully)
+        let result = OntologyInput::from_namespace(
+            "http://example.com/nonexistent/ontology#",
+            Path::new("."),
+            Some("nonexistent"),
+        );
+        assert!(
+            result.is_err(),
+            "Nonexistent ontology should fail with clear error"
+        );
+    }
+
+    #[test]
+    fn test_epoch_create_with_fallback_mixed() {
+        let temp_dir = TempDir::new().unwrap();
+        let custom_path = temp_dir.path().join("custom.ttl");
+
+        // Create a custom ontology file
+        std::fs::write(
+            &custom_path,
+            r#"
+            @prefix ex: <http://example.org/> .
+            ex:Class1 a owl:Class .
+            ex:Class2 a owl:Class .
+        "#,
+        )
+        .unwrap();
+
+        // Create epoch with mixed identifiers: file path + core bundle URI
+        let epoch = Epoch::create_with_fallback(
+            temp_dir.path(),
+            &[
+                "custom.ttl",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            ],
+        )
+        .expect("Should load custom file and RDF from core bundle");
+
+        assert_eq!(epoch.inputs.len(), 2, "Should have 2 ontology inputs");
+        assert!(epoch.total_triples > 0, "Should have total triple count");
+        assert!(!epoch.id.is_empty(), "Epoch should have computed ID");
+
+        // Verify both inputs are present
+        assert!(
+            epoch.inputs.contains_key(&PathBuf::from("custom.ttl")),
+            "Should contain custom.ttl"
+        );
+        assert!(
+            epoch.inputs.contains_key(&PathBuf::from(
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            )),
+            "Should contain RDF URI"
+        );
+    }
+
+    #[test]
+    fn test_epoch_create_with_fallback_embedded_only() {
+        // Test creating epoch with only embedded ontologies (no file I/O)
+        let epoch = Epoch::create_with_fallback(
+            Path::new("."),
+            &[
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "http://www.w3.org/2002/07/owl#",
+            ],
+        )
+        .expect("Should load RDF and OWL from core bundle");
+
+        assert_eq!(epoch.inputs.len(), 2, "Should have 2 embedded ontologies");
+        assert!(epoch.total_triples > 0, "Should count triples across ontologies");
     }
 }
