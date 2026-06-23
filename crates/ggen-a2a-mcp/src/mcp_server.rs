@@ -194,6 +194,20 @@ impl GgenMcpServer {
     }
 
     #[tool(
+        name = "ggen.packs.compatibility",
+        description = "Check whether a set of packs can be composed without conflicts (overlapping packages or unloadable packs)."
+    )]
+    async fn packs_compatibility(
+        &self, Parameters(params): Parameters<crate::mcp_packs::PackCompatibilityParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        crate::mcp_packs::ocel_invoked("ggen.packs.compatibility", "-");
+        let value = crate::mcp_packs::compatibility_result(params)
+            .await
+            .map_err(crate::mcp_packs::mcp_err)?;
+        Ok(crate::mcp_packs::mcp_ok(value))
+    }
+
+    #[tool(
         name = "ggen.packs.status",
         description = "Report installed packs from the project lockfile (.ggen/packs.lock)."
     )]

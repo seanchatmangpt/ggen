@@ -47,6 +47,7 @@ GgenMcpServer::packs_*      PackToolsAdapter::from_a2a          │
 | List registry | `ggen.packs.list` | no | `{ total, packs: [PackRef] }` |
 | Show one pack | `ggen.packs.show` | no | `PackDetail` |
 | Resolve a capability surface | `ggen.packs.resolve` | no | `ResolveOutcome` |
+| Check multi-pack compatibility | `ggen.packs.compatibility` | no | `CompatibilityOutcome` |
 | Installed-pack status | `ggen.packs.status` | no | `AgentStatus` |
 | Verify a receipt | `ggen.packs.verify` | no | `VerifyOutcome` |
 | Install a pack | `ggen.packs.install` | **yes** | `InstallOutcome` |

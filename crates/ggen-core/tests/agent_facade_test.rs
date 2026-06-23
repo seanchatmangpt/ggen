@@ -43,6 +43,24 @@ keywords = ["{id}"]
     fs::write(registry_dir.join(format!("{id}.toml")), toml).expect("write pack toml");
 }
 
+/// Write a real pack TOML that declares a specific package name, so tests can
+/// construct overlapping-package conflicts between two packs.
+fn write_pack_with_package(registry_dir: &Path, id: &str, version: &str, package: &str) {
+    let toml = format!(
+        r#"[pack]
+id = "{id}"
+name = "Facade Pack {id}"
+version = "{version}"
+description = "Real pack fixture for agent_facade_test"
+category = "test"
+license = "MIT"
+production_ready = true
+packages = ["{package}"]
+"#
+    );
+    fs::write(registry_dir.join(format!("{id}.toml")), toml).expect("write pack toml");
+}
+
 /// Seed a real `.ggen/packs.lock` under `root` with the given packs.
 fn seed_lockfile(root: &Path, packs: &[(&str, &str)]) -> PathBuf {
     let mut entries = String::new();
@@ -394,6 +412,83 @@ fn resolve_capability_reports_missing_with_install_hints() {
     );
 
     std::env::remove_var("GGEN_PACKS_DIR");
+}
+
+// ── compatibility (real multi-pack composition check) ───────────────────────
+
+fn block_on<F: std::future::Future>(fut: F) -> F::Output {
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(fut)
+}
+
+#[test]
+fn compatibility_of_independent_packs_is_ok() {
+    let _guard = ENV_LOCK.lock().unwrap();
+    let registry = TempDir::new().unwrap();
+    write_pack_with_package(registry.path(), "alpha", "1.0.0", "alpha-core");
+    write_pack_with_package(registry.path(), "beta", "1.0.0", "beta-core");
+    std::env::set_var("GGEN_PACKS_DIR", registry.path());
+
+    let agent = PackAgent::new().expect("agent");
+    let outcome = block_on(agent.check_compatibility(&["alpha".to_string(), "beta".to_string()]))
+        .expect("compatibility");
+    assert!(
+        outcome.compatible,
+        "non-overlapping packs must compose: {outcome:?}"
+    );
+    assert!(outcome.conflicts.is_empty());
+
+    std::env::remove_var("GGEN_PACKS_DIR");
+}
+
+#[test]
+fn compatibility_detects_overlapping_packages() {
+    let _guard = ENV_LOCK.lock().unwrap();
+    let registry = TempDir::new().unwrap();
+    // Both packs declare the same package — a real composition conflict.
+    write_pack_with_package(registry.path(), "alpha", "1.0.0", "shared-core");
+    write_pack_with_package(registry.path(), "beta", "1.0.0", "shared-core");
+    std::env::set_var("GGEN_PACKS_DIR", registry.path());
+
+    let agent = PackAgent::new().expect("agent");
+    let outcome = block_on(agent.check_compatibility(&["alpha".to_string(), "beta".to_string()]))
+        .expect("compatibility");
+    assert!(!outcome.compatible, "overlapping packages must conflict");
+    assert!(
+        outcome.conflicts.iter().any(|c| c.contains("shared-core")),
+        "the conflict must name the overlapping package: {outcome:?}"
+    );
+
+    std::env::remove_var("GGEN_PACKS_DIR");
+}
+
+#[test]
+fn compatibility_missing_pack_is_incompatible() {
+    // Falsifiability: this fails on the OLD code, where `load_pack` fabricated a
+    // phantom `package-<id>` pack and reported a non-existent pack as compatible.
+    // With the real registry loader, an unloadable pack is fail-closed.
+    let _guard = ENV_LOCK.lock().unwrap();
+    let registry = TempDir::new().unwrap(); // empty
+    std::env::set_var("GGEN_PACKS_DIR", registry.path());
+
+    let agent = PackAgent::new().expect("agent");
+    let outcome = block_on(agent.check_compatibility(&["ghost".to_string()]))
+        .expect("compatibility call returns a verdict");
+    assert!(
+        !outcome.compatible,
+        "a pack that cannot be loaded must not be reported compatible: {outcome:?}"
+    );
+
+    std::env::remove_var("GGEN_PACKS_DIR");
+}
+
+#[test]
+fn compatibility_empty_list_is_rejected() {
+    let err = block_on(PackAgent::new().unwrap().check_compatibility(&[])).unwrap_err();
+    assert!(matches!(err, AgentError::InvalidRequest(_)), "got {err:?}");
 }
 
 // ── full lifecycle E2E: install → status → verify (multi-surface proof) ─────

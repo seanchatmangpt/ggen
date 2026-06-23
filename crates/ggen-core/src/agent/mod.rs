@@ -51,7 +51,7 @@ pub use receipt::{
     emit_install_receipt, verify_install_receipt, PackInstallClosure, PackReceiptError,
 };
 pub use types::{
-    AgentError, AgentResult, AgentStatus, Capabilities, CapabilityRef, DependencyRef,
-    InstallOutcome, InstallRequest, InstalledPackRef, OperationRef, PackDetail, PackRef,
-    PackValidation, ReceiptRef, RemoveOutcome, ResolveOutcome, SearchHit, VerifyOutcome,
+    AgentError, AgentResult, AgentStatus, Capabilities, CapabilityRef, CompatibilityOutcome,
+    DependencyRef, InstallOutcome, InstallRequest, InstalledPackRef, OperationRef, PackDetail,
+    PackRef, PackValidation, ReceiptRef, RemoveOutcome, ResolveOutcome, SearchHit, VerifyOutcome,
 };

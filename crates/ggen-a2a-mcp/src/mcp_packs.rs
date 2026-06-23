@@ -32,6 +32,7 @@ pub const PACK_TOOLS: &[&str] = &[
     "ggen.packs.list",
     "ggen.packs.show",
     "ggen.packs.resolve",
+    "ggen.packs.compatibility",
     "ggen.packs.status",
     "ggen.packs.verify",
     "ggen.packs.install",
@@ -80,6 +81,13 @@ pub struct PackResolveParams {
     /// Optional runtime narrowing (e.g. `stdio`, `axum`).
     #[serde(default)]
     pub runtime: Option<String>,
+}
+
+/// Parameters for `ggen.packs.compatibility`.
+#[derive(Debug, Clone, Deserialize, schemars::JsonSchema)]
+pub struct PackCompatibilityParams {
+    /// The set of pack IDs to check for composition conflicts.
+    pub pack_ids: Vec<String>,
 }
 
 /// Parameters for `ggen.packs.status`.
@@ -181,6 +189,13 @@ pub fn resolve_result(p: PackResolveParams) -> Result<Value, AgentError> {
     to_value(&outcome)
 }
 
+/// `ggen.packs.compatibility` — check whether a set of packs composes without
+/// conflicts. Async: loading each pack's metadata performs real I/O.
+pub async fn compatibility_result(p: PackCompatibilityParams) -> Result<Value, AgentError> {
+    let agent = PackAgent::new()?;
+    to_value(&agent.check_compatibility(&p.pack_ids).await?)
+}
+
 /// `ggen.packs.status` — installed packs from the project lockfile.
 pub fn status_result(p: PackStatusParams) -> Result<Value, AgentError> {
     let agent = agent_at(p.root.as_deref())?;
@@ -264,6 +279,7 @@ pub fn pack_agent_card() -> Value {
             "ggen.packs.list": "List registry packs, optionally by category.",
             "ggen.packs.show": "Full detail for one pack, including dependencies and validation.",
             "ggen.packs.resolve": "Resolve a capability surface to concrete pack IDs.",
+            "ggen.packs.compatibility": "Check whether a set of packs can be composed without conflicts.",
             "ggen.packs.status": "Report installed packs from the project lockfile.",
             "ggen.packs.verify": "Verify a provenance receipt against its signing key.",
             "ggen.packs.install": "Install a pack: write the lockfile and emit a signed receipt.",
@@ -287,6 +303,7 @@ pub async fn dispatch_pack_tool(tool: &str, args: &Value) -> Result<Value, Agent
         "ggen.packs.list" => list_result(parse_args(args)?),
         "ggen.packs.show" => show_result(parse_args(args)?),
         "ggen.packs.resolve" => resolve_result(parse_args(args)?),
+        "ggen.packs.compatibility" => compatibility_result(parse_args(args)?).await,
         "ggen.packs.status" => status_result(parse_args(args)?),
         "ggen.packs.verify" => verify_result(parse_args(args)?),
         "ggen.packs.install" => install_result(parse_args(args)?).await,

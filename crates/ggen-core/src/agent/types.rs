@@ -118,6 +118,24 @@ pub struct ResolveOutcome {
     pub install_hints: Vec<String>,
 }
 
+/// Outcome of checking whether a set of packs can be composed together.
+///
+/// Reports conflicts (the same package supplied by more than one pack, or a
+/// pack that cannot be loaded) so an agent can decide whether the composition is
+/// safe *before* installing anything. Fail-closed: a pack that cannot be loaded
+/// makes the set `compatible == false` rather than being silently ignored.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CompatibilityOutcome {
+    pub pack_ids: Vec<String>,
+    pub compatible: bool,
+    /// Hard conflicts (overlapping packages, load failures) that block composition.
+    pub conflicts: Vec<String>,
+    /// Non-blocking advisories.
+    pub warnings: Vec<String>,
+    /// Human-readable summary.
+    pub message: String,
+}
+
 /// A pointer to a signed provenance receipt produced by an install.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ReceiptRef {

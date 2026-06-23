@@ -15,11 +15,12 @@ use std::path::{Path, PathBuf};
 
 use crate::agent::receipt::{emit_install_receipt, verify_install_receipt, PackInstallClosure};
 use crate::agent::types::{
-    AgentError, AgentResult, AgentStatus, Capabilities, CapabilityRef, DependencyRef,
-    InstallOutcome, InstallRequest, InstalledPackRef, OperationRef, PackDetail, PackRef,
-    PackValidation, ReceiptRef, RemoveOutcome, ResolveOutcome, SearchHit, VerifyOutcome,
+    AgentError, AgentResult, AgentStatus, Capabilities, CapabilityRef, CompatibilityOutcome,
+    DependencyRef, InstallOutcome, InstallRequest, InstalledPackRef, OperationRef, PackDetail,
+    PackRef, PackValidation, ReceiptRef, RemoveOutcome, ResolveOutcome, SearchHit, VerifyOutcome,
 };
 use crate::domain::packs::capability_registry::{list_capabilities, resolve_capability_to_packs};
+use crate::domain::packs::check_packs_compatibility;
 use crate::domain::packs::install::{install_pack, InstallInput};
 use crate::domain::packs::metadata::{list_packs, load_pack_metadata, show_pack};
 use crate::domain::packs::types::Pack;
@@ -90,6 +91,12 @@ impl PackAgent {
             OperationRef {
                 name: "resolve".to_string(),
                 description: "Resolve a capability surface to concrete pack IDs.".to_string(),
+                mutating: false,
+            },
+            OperationRef {
+                name: "check_compatibility".to_string(),
+                description: "Check whether a set of packs can be composed without conflicts."
+                    .to_string(),
                 mutating: false,
             },
             OperationRef {
@@ -250,6 +257,38 @@ impl PackAgent {
             resolved,
             missing,
             install_hints,
+        })
+    }
+
+    /// Check whether a set of packs can be composed without conflicts, by
+    /// loading each pack's real metadata and detecting overlapping package sets.
+    ///
+    /// This is the pre-flight an agent runs before installing a multi-pack
+    /// composition. Fail-closed: an empty list is rejected, and a pack that
+    /// cannot be loaded makes the set incompatible (reported as a conflict)
+    /// rather than being silently dropped.
+    pub async fn check_compatibility(
+        &self, pack_ids: &[String],
+    ) -> AgentResult<CompatibilityOutcome> {
+        if pack_ids.is_empty() {
+            return Err(AgentError::InvalidRequest(
+                "at least one pack id is required".to_string(),
+            ));
+        }
+        for id in pack_ids {
+            validate_pack_name(id)?;
+        }
+
+        let result = check_packs_compatibility(pack_ids)
+            .await
+            .map_err(|e| AgentError::ResolveFailed(e.to_string()))?;
+
+        Ok(CompatibilityOutcome {
+            pack_ids: result.pack_ids,
+            compatible: result.compatible,
+            conflicts: result.conflicts,
+            warnings: result.warnings,
+            message: result.message,
         })
     }
 
