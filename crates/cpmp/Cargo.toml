@@ -8,7 +8,8 @@ repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
 uuid = { version = "1.8", features = ["v4"] }
-clap = { version = "4.0", features = ["derive"] }
+clap-noun-verb = { workspace = true }
+clap-noun-verb-macros = { workspace = true }
 rusqlite = { version = "0.40.0", features = ["bundled"] }
 anyhow = "1.0"
 blake3 = "1.4"
