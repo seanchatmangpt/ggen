@@ -1,0 +1,9 @@
+@prefix paper: <https://ggen.io/ontology/paper#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.io/papers/research-paper> a paper:AcademicPaper ;
+    dc:title "research-paper" ;
+    dc:creator "Author Name" ;
+    dc:date "2026-05-03" ;
+    paper:style "arxiv" .

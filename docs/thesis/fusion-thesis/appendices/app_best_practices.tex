@@ -1,0 +1,58 @@
+\chapter{Ecosystem Best Practices: Diataxis Synthesis}
+
+This appendix provides the official best practices for interacting with the \ggen\ ecosystem, as formalized by the Diataxis documentation framework. These guidelines ensure that developers and autonomous agents maintain the highest standards of semantic integrity and security.
+
+\section{Ontology Pack Configuration Reference}
+
+Ontology Packs are the primary unit of modularity. The following structure must be followed in \texttt{ggen.toml}:
+
+\begin{minted}[fontsize=\small]{toml}
+[ontology]
+default_namespace = "https://schema.org/"
+
+[[ontology.ontologies]]
+id = "schema.org"
+file_path = "ontologies/schema-org.ttl"
+format = "turtle"
+
+[[ontology.targets]]
+language = "typescript"
+features = ["zod", "graphql"]
+template_path = "templates/ts/model.tera"
+output_pattern = "{class_name}.ts"
+\end{minted}
+
+\section{Template Engine v2: Extraction and Emission}
+
+Developers should leverage the v2 engine's ability to declare its own data requirements.
+
+\subsection{Inline SPARQL Frontmatter}
+Avoid external SPARQL files where possible. Define queries in the template frontmatter to maintain local reasoning.
+
+\begin{minted}[fontsize=\small]{yaml}
+---
+sparql:
+  entities: "SELECT ?s WHERE { ?s a owl:Class }"
+---
+\end{minted}
+
+\subsection{Multi-File Emission Markers}
+Use the file marker syntax to drive directory-wide generation from a single template pass.
+
+\begin{minted}[fontsize=\small]{tera}
+{# FILE: src/types/{{ entity_name }}.ts #}
+export type {{ entity_name }} = { ... };
+\end{minted}
+
+\section{RdfControlPlane Governance}
+
+The \texttt{RdfControlPlane} is the mandatory gateway for all marketplace and agent operations.
+
+\subsection{Poka-Yoke Triple Builders}
+Never manually construct SPARQL strings for mutation. Use the typed builders provided by the Control Plane to ensure that invalid URIs or mismatched properties are caught at compile-time.
+
+\subsection{FMEA Mitigation Awareness}
+The system automatically monitors for and blocks suspicious query patterns (e.g., recursive graph deletions). Developers should design their queries to be as specific as possible to avoid triggering security mitigations.
+
+\subsection{SHACL-Validated State Transitions}
+All lifecycle changes (e.g., from \texttt{draft} to \texttt{published}) must pass SHACL structural validation. The Control Plane will reject any transition that results in an inconsistent or invalid graph state.

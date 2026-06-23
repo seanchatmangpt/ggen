@@ -1,0 +1,37 @@
+# Comments: {# comment #}
+
+# Variables
+{{ entity.name }}
+{{ field.type }}
+
+# Loops
+{% for field in entity.fields %}
+pub {{ field.name }}: {{ field.rust_type }},
+{% endfor %}
+
+# Conditionals
+{% if field.optional %}
+Option<{{ field.rust_type }}>,
+{% else %}
+{{ field.rust_type }},
+{% endif %}
+
+# Filters
+{{ entity.name | lower }}
+{{ field.type | snake_case }}
+
+# Macros
+{% macro rust_type(field) -%}
+  {%- match field.type -%}
+    {%- when "string" -%}
+      String
+    {%- when "integer" -%}
+      i64
+    {%- when "boolean" -%}
+      bool
+    {%- else -%}
+      String
+  {%- endmatch -%}
+{%- endmacro %}
+
+{{ self::rust_type(field) }}
