@@ -101,6 +101,9 @@ pub struct ConformanceReport {
     pub precision: f64,
     /// List of detected deviations from the expected model.
     pub deviations: Vec<ConformanceDrift>,
+    /// Optional advanced metrics from pm4py process discovery.
+    /// If pm4py is unavailable or discovery fails, this is None.
+    pub pm4py_stats: Option<crate::ocel::pm4py_bridge::Pm4pyStats>,
 }
 
 /// OCEL conformance checker against BPMN/YAWL process models.
@@ -207,6 +210,7 @@ impl OcelConformanceChecker {
             fitness,
             precision,
             deviations,
+            pm4py_stats: None, // Will be populated by callers if needed
         })
     }
 
@@ -318,6 +322,165 @@ mod tests {
             &["DiagnosticRaised", "RepairApplied", "GatePassed"],
         )?;
         assert!(!ok, "out-of-order repair must NOT conform");
+        Ok(())
+    }
+
+    #[test]
+    fn conformance_check_with_valid_model() -> Result<(), GraphError> {
+        // Arrange: pack lifecycle log that conforms to the expected model
+        use crate::ocel::{
+            emit_pack_install, emit_pack_publish, emit_pack_verify, pack_object,
+            lockfile_entry_object, receipt_object,
+        };
+        use chrono::{TimeZone, Utc};
+
+        fn ts(secs: i64) -> chrono::DateTime<chrono::Utc> {
+            Utc.timestamp_opt(secs, 0)
+                .single()
+                .unwrap_or_else(Utc::now)
+        }
+
+        let mut log = OcelLog::new();
+        const PACK_ID: &str = "acme/base";
+        const VERSION: &str = "1.0.0";
+        const DIGEST: &str = "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b";
+        const OPERATION_ID: &str = "11111111-1111-4111-8111-111111111111";
+
+        log.objects.push(pack_object(PACK_ID, VERSION, DIGEST));
+        log.objects
+            .push(lockfile_entry_object(PACK_ID, VERSION, DIGEST));
+        log.objects
+            .push(receipt_object(OPERATION_ID, "c2lnbmF0dXJl"));
+
+        log.events
+            .push(emit_pack_install("ev_install", ts(10), PACK_ID, VERSION));
+        log.events
+            .push(emit_pack_verify("ev_verify", ts(20), PACK_ID, VERSION));
+        log.events.push(emit_pack_publish(
+            "ev_publish",
+            ts(30),
+            PACK_ID,
+            VERSION,
+            OPERATION_ID,
+        ));
+
+        // Act: check conformance against the expected model
+        let model = "pack.install -> pack.verify -> pack.publish";
+        let report = OcelConformanceChecker::check(&log, model)?;
+
+        // Assert: high fitness and precision
+        assert!(
+            report.fitness >= 0.9,
+            "fitness should be high for conforming log, got {}",
+            report.fitness
+        );
+        assert!(
+            report.deviations.is_empty(),
+            "no deviations expected, got {:?}",
+            report.deviations
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn conformance_check_detects_deviations() -> Result<(), GraphError> {
+        // Arrange: log with unexpected activities
+        use crate::ocel::{emit_pack_install, pack_object};
+        use chrono::{TimeZone, Utc};
+        use std::collections::HashMap;
+
+        fn ts(secs: i64) -> chrono::DateTime<chrono::Utc> {
+            Utc.timestamp_opt(secs, 0)
+                .single()
+                .unwrap_or_else(Utc::now)
+        }
+
+        let mut log = OcelLog::new();
+        const PACK_ID: &str = "acme/base";
+        const VERSION: &str = "1.0.0";
+        const DIGEST: &str = "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b";
+
+        log.objects.push(pack_object(PACK_ID, VERSION, DIGEST));
+
+        // Expected: install -> verify -> publish
+        // Observed: install -> unexpected_action -> verify -> publish
+        log.events
+            .push(emit_pack_install("ev_install", ts(10), PACK_ID, VERSION));
+        log.events.push(OcelEvent {
+            id: "ev_unexpected".to_string(),
+            activity: "pack.unexpected".to_string(),
+            timestamp: ts(15),
+            objects: vec![OcelObjectRef {
+                id: format!("pack:{}@{}", PACK_ID, VERSION),
+                r#type: "pack".to_string(),
+                qualifier: Some("subject".to_string()),
+            }],
+            attributes: HashMap::new(),
+        });
+
+        // Act: check conformance
+        let model = "pack.install -> pack.verify -> pack.publish";
+        let report = OcelConformanceChecker::check(&log, model)?;
+
+        // Assert: deviations detected
+        assert!(
+            report.fitness < 1.0,
+            "fitness should be less than 1.0 for non-conforming log"
+        );
+        assert!(
+            !report.deviations.is_empty(),
+            "deviations should be detected"
+        );
+        assert!(
+            report
+                .deviations
+                .iter()
+                .any(|d| d.activity == "pack.unexpected"),
+            "unexpected activity should be in deviations"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn conformance_check_with_multiple_object_types() -> Result<(), GraphError> {
+        // Arrange: log with pack and lockfile-entry objects, each with their own expected model
+        use crate::ocel::{
+            emit_lockfile_write, emit_pack_install, pack_object, lockfile_entry_object,
+        };
+        use chrono::{TimeZone, Utc};
+
+        fn ts(secs: i64) -> chrono::DateTime<chrono::Utc> {
+            Utc.timestamp_opt(secs, 0)
+                .single()
+                .unwrap_or_else(Utc::now)
+        }
+
+        let mut log = OcelLog::new();
+        const PACK_ID: &str = "acme/base";
+        const VERSION: &str = "1.0.0";
+        const DIGEST: &str = "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b";
+
+        log.objects.push(pack_object(PACK_ID, VERSION, DIGEST));
+        log.objects
+            .push(lockfile_entry_object(PACK_ID, VERSION, DIGEST));
+
+        // Pack event
+        log.events
+            .push(emit_pack_install("ev_install", ts(10), PACK_ID, VERSION));
+
+        // Lockfile-entry event
+        log.events
+            .push(emit_lockfile_write("ev_lock", ts(5), PACK_ID, VERSION));
+
+        // Act: check conformance against a broad model that includes both activities
+        let model = "pack.install -> lockfile.write";
+        let report = OcelConformanceChecker::check(&log, model)?;
+
+        // Assert: events conform to the model
+        assert!(
+            report.fitness >= 0.5,
+            "at least some events should conform to the model"
+        );
         Ok(())
     }
 }

@@ -5,6 +5,7 @@ pub mod discovery;
 pub mod gall_projection;
 pub mod ocel_types;
 pub mod pack_events;
+pub mod pm4py_bridge;
 pub mod projection;
 pub mod prov_types;
 pub mod self_audit;
@@ -21,6 +22,7 @@ pub use pack_events::{
     receipt_object_id, ACT_LOCKFILE_WRITE, ACT_PACK_INSTALL, ACT_PACK_PUBLISH, ACT_PACK_REMOVE,
     ACT_PACK_VERIFY, OBJ_TYPE_LOCKFILE_ENTRY, OBJ_TYPE_PACK, OBJ_TYPE_RECEIPT,
 };
+pub use pm4py_bridge::{Pm4pyBridge, Pm4pyStats};
 pub use projection::EvidenceProjector;
 pub use prov_types::{
     ProvActivity, ProvAgent, ProvDerivation, ProvDocument, ProvEntity, ProvGeneration, ProvUsage,

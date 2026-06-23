@@ -8,6 +8,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 
 /// The five stages of the inverse pipeline.
@@ -50,6 +51,12 @@ pub struct InverseReceipt {
     /// is called. An empty signature makes [`InverseReceipt::verify`] return
     /// `false` (fail-closed), mirroring the forward `Receipt` provenance path.
     pub signature: String,
+    /// UUID v4 of the forward Receipt this inverse run links to (if any).
+    ///
+    /// This field enables bi-directional tracing: a forward Receipt (O → A)
+    /// can be linked to an inverse Receipt (A → O) via their operation_ids.
+    /// Used by [`InverseReceiptChain`] to maintain cryptographic provenance chains.
+    pub previous_operation_id: Option<String>,
 }
 
 impl InverseReceipt {
@@ -72,6 +79,24 @@ impl InverseReceipt {
         let json = serde_json::to_string(&unsigned)
             .map_err(|e| InversePipelineError::Serialization(e.to_string()))?;
         Ok(json.into_bytes())
+    }
+
+    /// Computes the BLAKE3 hex hash of this receipt (signed).
+    ///
+    /// The hash is deterministic across the entire receipt body including
+    /// the signature, timestamp, and all hashes. Used by
+    /// [`InverseReceiptChain`] to link receipts cryptographically.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`InversePipelineError::Serialization`] if the receipt cannot be
+    /// serialized to JSON.
+    pub fn hash(&self) -> InverseResult<String> {
+        let json = serde_json::to_string(self)
+            .map_err(|e| InversePipelineError::Serialization(e.to_string()))?;
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(json.as_bytes());
+        Ok(hasher.finalize().to_hex().to_string())
     }
 
     /// Signs the receipt with the given Ed25519 signing key, populating
@@ -116,6 +141,131 @@ impl InverseReceipt {
             Err(_) => return false,
         };
         verifying_key.verify(&message, &signature).is_ok()
+    }
+}
+
+/// A cryptographically linked chain of inverse receipts.
+///
+/// Each receipt in the chain is verified for:
+/// 1. Valid Ed25519 signature
+/// 2. Consistent BLAKE3 chain hashes (each receipt's hash is included in the next)
+///
+/// The chain maintains a running `chain_hash` that is the BLAKE3 of the concatenation
+/// of all receipt hashes, providing tamper-evident history of all inverse runs.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct InverseReceiptChain {
+    /// All receipts in order from first to latest.
+    pub receipts: Vec<InverseReceipt>,
+    /// BLAKE3 hex hash of concatenated receipt hashes (chain integrity proof).
+    pub chain_hash: String,
+    /// RFC-3339 timestamp when the chain was created/updated.
+    pub created_at: DateTime<Utc>,
+}
+
+impl InverseReceiptChain {
+    /// Creates a new empty chain with an initial chain hash.
+    ///
+    /// The initial chain hash is BLAKE3 of the empty string.
+    #[must_use]
+    pub fn new() -> Self {
+        let empty_hash = {
+            let mut hasher = blake3::Hasher::new();
+            hasher.update(b"");
+            hasher.finalize().to_hex().to_string()
+        };
+        Self {
+            receipts: Vec::new(),
+            chain_hash: empty_hash,
+            created_at: Utc::now(),
+        }
+    }
+
+    /// Appends a verified receipt to the chain.
+    ///
+    /// Before appending, the receipt's signature is verified with the given key.
+    /// If verification fails, the receipt is not appended and an error is returned
+    /// (fail-closed).
+    ///
+    /// After appending, `chain_hash` is recomputed as:
+    /// ```text
+    /// chain_hash = BLAKE3(previous_chain_hash || receipt.hash())
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns [`InversePipelineError::ValidateFailed`] if:
+    /// - The receipt signature is invalid
+    /// - The receipt hash cannot be computed
+    pub fn append(&mut self, receipt: InverseReceipt, verifying_key: &VerifyingKey) -> InverseResult<()> {
+        // Fail-closed: verify the receipt before appending.
+        if !receipt.verify(verifying_key) {
+            return Err(InversePipelineError::ValidateFailed(
+                "Receipt signature verification failed; cannot append to chain".to_string(),
+            ));
+        }
+
+        // Compute the receipt's hash for chain linkage.
+        let receipt_hash = receipt.hash()?;
+
+        // Update chain hash: BLAKE3(previous_chain_hash || receipt_hash)
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(self.chain_hash.as_bytes());
+        hasher.update(receipt_hash.as_bytes());
+        self.chain_hash = hasher.finalize().to_hex().to_string();
+
+        self.receipts.push(receipt);
+        Ok(())
+    }
+
+    /// Verifies the entire chain's integrity.
+    ///
+    /// Checks:
+    /// 1. All receipt signatures are valid
+    /// 2. Chain hash consistency (each step in the chain hash computation matches)
+    ///
+    /// Returns `true` if all checks pass, `false` otherwise (fail-closed).
+    /// Returns `false` on any error (serialization, signature, chain mismatch).
+    #[must_use]
+    pub fn verify(&self, verifying_key: &VerifyingKey) -> bool {
+        // Empty chain is trivially valid.
+        if self.receipts.is_empty() {
+            return true;
+        }
+
+        // Recompute chain hash from scratch.
+        let mut expected_chain_hash = {
+            let mut hasher = blake3::Hasher::new();
+            hasher.update(b"");
+            hasher.finalize().to_hex().to_string()
+        };
+
+        for receipt in &self.receipts {
+            // Fail-closed: any invalid signature fails the entire chain.
+            if !receipt.verify(verifying_key) {
+                return false;
+            }
+
+            // Fail-closed: any hash computation failure fails the chain.
+            let receipt_hash = match receipt.hash() {
+                Ok(h) => h,
+                Err(_) => return false,
+            };
+
+            // Recompute chain hash for this step.
+            let mut hasher = blake3::Hasher::new();
+            hasher.update(expected_chain_hash.as_bytes());
+            hasher.update(receipt_hash.as_bytes());
+            expected_chain_hash = hasher.finalize().to_hex().to_string();
+        }
+
+        // Chain hash must match the stored value.
+        expected_chain_hash == self.chain_hash
+    }
+}
+
+impl Default for InverseReceiptChain {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -291,6 +441,8 @@ impl InversePipeline {
             last_stage: InverseStage::Emit,
             // Unsigned by default — `run_signed` populates this in the Emit step.
             signature: String::new(),
+            // No forward receipt linkage by default. Set via `link_to_forward()` if needed.
+            previous_operation_id: None,
         };
 
         Ok(receipt)

@@ -155,12 +155,14 @@ impl CoherenceChecker {
     /// Compare up to three pole states against optional declared/expected fingerprints
     /// and produce a [`CoherenceReport`].
     ///
-    /// `expected` carries `(pole, declared_fingerprint)` pairs — typically the hashes
-    /// recorded in a prior coherence receipt. For each provided pole that also has a
-    /// declared fingerprint, the freshly computed `hash` is compared against the
-    /// declared one; a difference emits [`DriftKind::HashMismatch`]. This makes the
-    /// post-Chatman round-trip (O→A→O) auditable: silent regeneration drift becomes a
-    /// visible drift observation.
+    /// `expectations` is a map from `Pole` to previously recorded fingerprint (typically
+    /// from a prior coherence receipt). For each pole with a declared fingerprint,
+    /// the freshly computed `hash` is compared against the declared one; a difference
+    /// emits [`DriftKind::HashMismatch`]. This makes the post-Chatman round-trip (O→A→O)
+    /// auditable: silent regeneration drift becomes a visible drift observation.
+    ///
+    /// Additionally, implements Rule 6 (cross-pole hash comparison): if ontology (O) hash
+    /// differs from event-log (L) hash, emits a drift with source=Ontology, target=EventLog.
     ///
     /// All count/missing rules from [`CoherenceChecker::check`] also apply.
     ///
@@ -171,7 +173,7 @@ impl CoherenceChecker {
     /// Any hash mismatch or missing pole forces `admitted = false`.
     pub fn check_with_expectations(
         poles: &[PoleState],
-        expected: &[(Pole, &str)],
+        expectations: &HashMap<Pole, String>,
     ) -> CoherenceReport {
         let operation_id = Uuid::new_v4().to_string();
 
@@ -179,12 +181,6 @@ impl CoherenceChecker {
         let mut by_pole: HashMap<Pole, &PoleState> = HashMap::new();
         for p in poles {
             by_pole.insert(p.pole, p);
-        }
-
-        // Index declared fingerprints by pole for O(1) lookup.
-        let mut declared: HashMap<Pole, &str> = HashMap::new();
-        for (pole, fingerprint) in expected {
-            declared.insert(*pole, fingerprint);
         }
 
         let mut drifts: Vec<CoherenceDrift> = Vec::new();
@@ -251,21 +247,36 @@ impl CoherenceChecker {
         // Rule 5 — HashMismatch: freshly computed fingerprint vs. declared fingerprint.
         // A self-comparison across time for a single pole, so source == target.
         for required in [Pole::Ontology, Pole::Artifact, Pole::EventLog] {
-            if let (Some(state), Some(declared_hash)) =
-                (by_pole.get(&required), declared.get(&required))
-            {
-                if state.hash != *declared_hash {
+            if let (Some(state), Some(expected_hash)) = (by_pole.get(&required), expectations.get(&required)) {
+                if state.hash != *expected_hash {
                     drifts.push(CoherenceDrift {
                         kind: DriftKind::HashMismatch,
                         source_pole: required,
                         target_pole: required,
                         detail: format!(
-                            "{required:?} fingerprint drift: declared {declared} != computed {computed}",
-                            declared = declared_hash,
+                            "{required:?} fingerprint drift: declared {expected} != computed {computed}",
+                            expected = expected_hash,
                             computed = state.hash,
                         ),
                     });
                 }
+            }
+        }
+
+        // Rule 6 — Cross-pole hash comparison: if ontology (O) hash differs from
+        // event-log (L) hash, emit a drift with source=Ontology, target=EventLog.
+        // This captures when the ontology and event log are out of sync.
+        if let (Some(o), Some(l)) = (by_pole.get(&Pole::Ontology), by_pole.get(&Pole::EventLog)) {
+            if o.hash != l.hash {
+                drifts.push(CoherenceDrift {
+                    kind: DriftKind::HashMismatch,
+                    source_pole: Pole::Ontology,
+                    target_pole: Pole::EventLog,
+                    detail: format!(
+                        "Ontology and EventLog fingerprints diverge: O={} vs L={}",
+                        o.hash, l.hash
+                    ),
+                });
             }
         }
 

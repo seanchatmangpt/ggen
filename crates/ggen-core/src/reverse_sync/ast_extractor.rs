@@ -351,7 +351,7 @@ fn parse_type_params(raw: &str) -> Vec<String> {
 /// - "T" => ["Clone", "Send"]
 /// - "V" => ["Default"]
 /// (U has no bounds, so it is not included in the map)
-fn extract_bounds_from_type_params(raw: &str) -> std::collections::HashMap<String, Vec<String>> {
+pub fn extract_bounds_from_type_params(raw: &str) -> std::collections::HashMap<String, Vec<String>> {
     use std::collections::HashMap;
     let mut bounds_map: HashMap<String, Vec<String>> = HashMap::new();
 
@@ -410,11 +410,11 @@ fn parse_enum_variants(body: &str) -> Result<Vec<Variant>> {
             let name = cap_str(&cap, 1);
             // Skip lines that are clearly not variants (e.g. a stray attribute word).
             if !name.is_empty() {
-                let rest = cap.get(2).map(|m| m.as_str().trim()).unwrap_or("");
+                let rest = cap.get(2).map(|m| m.as_str()).unwrap_or("").trim();
                 // Extract payload if present (before `=` for explicit discriminant)
                 let payload = if rest.starts_with('(') || rest.starts_with('{') {
                     let payload_end = rest.find('=').unwrap_or(rest.len());
-                    let raw = &rest[..payload_end].trim();
+                    let raw = rest[..payload_end].trim();
                     if raw.is_empty() { None } else { Some(raw.to_string()) }
                 } else {
                     None
