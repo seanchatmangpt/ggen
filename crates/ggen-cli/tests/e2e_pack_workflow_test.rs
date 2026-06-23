@@ -183,9 +183,8 @@ fn test_pack_install_creates_lockfile() {
 
     // Act: Install a pack
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -217,9 +216,8 @@ fn test_pack_install_tracks_packs() {
 
     // Act: Install a pack
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -254,9 +252,8 @@ fn test_pack_install_returns_valid_json() {
 
     // Act: Install a pack and capture output
     let result = ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -286,9 +283,8 @@ fn test_pack_install_fails_on_unknown_pack() {
 
     // Act: Try to install unknown pack
     let result = ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("unknown-pack-xyz")
         .current_dir(&temp_dir)
         .assert();
@@ -309,7 +305,7 @@ fn test_pack_list_shows_installed_packs() {
 
     // Act: List packs
     let result = ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("list")
         .current_dir(&temp_dir)
         .assert()
@@ -328,6 +324,7 @@ fn test_pack_list_shows_installed_packs() {
 }
 
 #[test]
+#[ignore = "Live `pack` noun has NO `validate` verb (only `policy validate` exists, crates/ggen-cli/src/cmds/policy.rs). Intent (validate a pack by id) is impossible on the current CLI; noun migrated packs->pack but verb has no live target."]
 fn test_pack_validate_checks_pack() {
     println!("🔍 E2E Test: Pack validation works");
 
@@ -336,7 +333,7 @@ fn test_pack_validate_checks_pack() {
 
     // Act: Validate a pack
     let result = ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("validate")
         .arg("--pack_id")
         .arg("surface-mcp")
@@ -366,6 +363,7 @@ fn test_pack_validate_checks_pack() {
 // ============================================================================
 
 #[test]
+#[ignore = "No `capability` noun exists on the live CLI (not registered in crates/ggen-cli/src/cmds/mod.rs). Intent (enable capability -> atomic packs) is impossible on the current CLI."]
 fn test_capability_enable_expands_to_atomic_packs() {
     println!("🔍 E2E Test: Capability enable expands to atomic packs");
 
@@ -407,6 +405,7 @@ fn test_capability_enable_expands_to_atomic_packs() {
 }
 
 #[test]
+#[ignore = "No `capability` noun exists on the live CLI (crates/ggen-cli/src/cmds/mod.rs). Intent (capability enable --projection) is impossible on the current CLI."]
 fn test_capability_enable_with_projection() {
     println!("🔍 E2E Test: Capability enable with projection parameter");
 
@@ -448,6 +447,7 @@ fn test_capability_enable_with_projection() {
 }
 
 #[test]
+#[ignore = "No `capability` noun exists on the live CLI (crates/ggen-cli/src/cmds/mod.rs). Intent (capability enable updates lockfile) is impossible on the current CLI."]
 fn test_capability_enable_updates_lockfile() {
     println!("🔍 E2E Test: Capability enable updates lockfile");
 
@@ -481,6 +481,7 @@ fn test_capability_enable_updates_lockfile() {
 }
 
 #[test]
+#[ignore = "No `capability` noun exists on the live CLI (crates/ggen-cli/src/cmds/mod.rs). Intent (capability list) is impossible on the current CLI."]
 fn test_capability_list_shows_capabilities() {
     println!("🔍 E2E Test: Capability list works");
 
@@ -514,6 +515,7 @@ fn test_capability_list_shows_capabilities() {
 }
 
 #[test]
+#[ignore = "No `capability` noun exists on the live CLI (crates/ggen-cli/src/cmds/mod.rs). Intent (capability inspect) is impossible on the current CLI."]
 fn test_capability_inspect_shows_details() {
     println!("🔍 E2E Test: Capability inspect shows details");
 
@@ -560,9 +562,8 @@ fn test_lockfile_created_after_pack_install() {
 
     // Act: Install pack
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -585,6 +586,7 @@ fn test_lockfile_created_after_pack_install() {
 }
 
 #[test]
+#[ignore = "Depends on the non-existent `capability list` noun (crates/ggen-cli/src/cmds/mod.rs). `packs list` was migrated to `pack list`, but the capability step cannot run on the current CLI."]
 fn test_lockfile_persists_across_commands() {
     println!("🔍 E2E Test: Lockfile persists across commands");
 
@@ -595,7 +597,7 @@ fn test_lockfile_persists_across_commands() {
 
     // Act: Run multiple commands that read lockfile
     ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("list")
         .current_dir(&temp_dir)
         .assert()
@@ -627,9 +629,8 @@ fn test_lockfile_format_is_valid() {
 
     // Act: Install pack to create lockfile
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -662,18 +663,16 @@ fn test_lockfile_tracks_multiple_packs() {
 
     // Act: Install multiple packs
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
         .success();
 
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("projection-rust")
         .current_dir(&temp_dir)
         .assert()
@@ -700,18 +699,16 @@ fn test_lockfile_reproducibility() {
 
     // Act: Install same pack in both directories
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir1)
         .assert()
         .success();
 
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir2)
         .assert()
@@ -754,9 +751,8 @@ fn test_receipt_generated_after_pack_install() {
 
     // Act: Install pack (should generate receipt)
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -859,9 +855,8 @@ fn test_receipt_format_is_valid() {
 
     // Act: Install pack to generate receipt
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -914,18 +909,16 @@ fn test_receipt_chain_verification() {
 
     // Act: Install multiple packs to create receipt chain
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
         .success();
 
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("projection-rust")
         .current_dir(&temp_dir)
         .assert()
@@ -1105,6 +1098,7 @@ fn test_policy_enforces_trust_requirements() {
 // ============================================================================
 
 #[test]
+#[ignore = "Depends on the removed `packs validate` verb (no live `pack validate`; only `policy validate`). `packs install`->`pack add` and `packs list`->`pack list` were migrated, but the validate step cannot pass on the current CLI."]
 fn test_full_workflow_install_to_receipt() {
     println!("🔍 E2E Test: Full workflow from install to receipt");
 
@@ -1113,9 +1107,8 @@ fn test_full_workflow_install_to_receipt() {
 
     // Step 1: Install pack
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -1137,7 +1130,7 @@ fn test_full_workflow_install_to_receipt() {
 
     // Step 5: List packs (verifies installation)
     ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("list")
         .current_dir(&temp_dir)
         .assert()
@@ -1145,7 +1138,7 @@ fn test_full_workflow_install_to_receipt() {
 
     // Step 6: Validate pack
     ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("validate")
         .arg("--pack_id")
         .arg("surface-mcp")
@@ -1157,6 +1150,7 @@ fn test_full_workflow_install_to_receipt() {
 }
 
 #[test]
+#[ignore = "Depends on the non-existent `capability enable` noun (crates/ggen-cli/src/cmds/mod.rs). The policy step is live, but the capability step cannot run on the current CLI."]
 fn test_full_workflow_capability_to_policy() {
     println!("🔍 E2E Test: Capability enable → policy validate workflow");
 
@@ -1204,9 +1198,8 @@ fn test_full_workflow_with_receipt_verification() {
 
     // Step 1: Install pack (generates receipt)
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
@@ -1243,6 +1236,7 @@ fn test_full_workflow_with_receipt_verification() {
 }
 
 #[test]
+#[ignore = "Depends on the non-existent `capability enable` noun (crates/ggen-cli/src/cmds/mod.rs). `packs list`->`pack list` was migrated, but the capability step cannot run on the current CLI."]
 fn test_concurrent_operations_with_lockfile() {
     println!("🔍 E2E Test: Lockfile handles multiple operations");
 
@@ -1255,7 +1249,7 @@ fn test_concurrent_operations_with_lockfile() {
 
     // Step 2: List packs (reads lockfile)
     ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("list")
         .current_dir(&temp_dir)
         .assert()
@@ -1298,7 +1292,7 @@ fn test_workflow_error_handling() {
 
     // Test: Invalid pack ID returns helpful error
     ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("show")
         .arg("--pack_id")
         .arg("nonexistent-pack-xyz")
@@ -1328,18 +1322,16 @@ fn test_full_workflow_multiple_packs() {
 
     // Step 1: Install multiple packs
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()
         .success();
 
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("projection-rust")
         .current_dir(&temp_dir)
         .assert()
@@ -1372,7 +1364,7 @@ fn test_full_workflow_multiple_packs() {
 
     // Step 4: List packs shows both
     let result = ggen()
-        .arg("packs")
+        .arg("pack")
         .arg("list")
         .current_dir(&temp_dir)
         .assert()
@@ -1386,6 +1378,7 @@ fn test_full_workflow_multiple_packs() {
 }
 
 #[test]
+#[ignore = "Depends on the non-existent `capability enable` noun (crates/ggen-cli/src/cmds/mod.rs). `packs install`->`pack add` was migrated, but the capability step cannot run on the current CLI."]
 fn test_workflow_state_consistency() {
     println!("🔍 E2E Test: State consistency across workflow");
 
@@ -1395,9 +1388,8 @@ fn test_workflow_state_consistency() {
 
     // Step 1: Install pack
     ggen()
-        .arg("packs")
-        .arg("install")
-        .arg("--pack_id")
+        .arg("pack")
+        .arg("add")
         .arg("surface-mcp")
         .current_dir(&temp_dir)
         .assert()

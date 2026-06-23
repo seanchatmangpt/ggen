@@ -1,0 +1,327 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix pc:   <https://ggen.dev/ontology/post-chatman#> .
+
+# ═════════════════════════════════════════════════════════════════════════════
+# POST-CHATMAN — SHACL VALIDATION SHAPES
+# ═════════════════════════════════════════════════════════════════════════════
+# Companion to post_chatman.ttl. Encodes the runtime invariants of:
+#   • crates/ggen-graph/src/coherence.rs  (CoherenceReport, PoleState, CoherenceDrift)
+#   • crates/ggen-core/src/reverse_sync/inverse_pipeline.rs  (InverseReceipt)
+#
+# Each shape enforces a NECESSARY condition for an admitted coherence report or a
+# valid inverse receipt. Passing all shapes is the operational stand-in for the
+# isomorphism pc:isomorphicTo (see pc:CoherenceResidual in post_chatman.ttl for
+# why this is necessary-but-not-sufficient).
+#
+# Validate with:
+#   ggen validate .specify/specs/post-chatman/post_chatman.ttl
+# (load these shapes alongside the data graph being checked).
+# ═════════════════════════════════════════════════════════════════════════════
+
+<https://ggen.dev/ontology/post-chatman/shapes>
+    a owl:Ontology ;
+    rdfs:label "Post-Chatman SHACL Shapes"@en ;
+    rdfs:comment "Validation constraints for CoherenceReport, PoleState, CoherenceDrift, and InverseReceipt."@en ;
+    owl:versionInfo "1.0.0" ;
+    # Prefix declarations consumed by the sh:SPARQLTarget / sh:SPARQLConstraint
+    # bodies below (they reference this ontology IRI via sh:prefixes).
+    sh:declare [
+        sh:prefix "pc" ;
+        sh:namespace "https://ggen.dev/ontology/post-chatman#"^^xsd:anyURI ;
+    ] ;
+    sh:declare [
+        sh:prefix "rdf" ;
+        sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PoleStateShape
+# Code invariant: PoleState { hash: String (BLAKE3 hex, non-empty),
+#                             item_count: usize (>= 0),
+#                             timestamp: DateTime<Utc>,
+#                             pole: Pole }
+# Enforces pc:FingerprintEqualityCriterion data capture: every pole snapshot must
+# carry a non-empty fingerprint and a real timestamp, so cross-pole reconciliation
+# is possible.
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:PoleStateShape
+    a sh:NodeShape ;
+    sh:targetClass pc:PoleState ;
+    sh:closed false ;
+    rdfs:comment "Every PoleState must have a non-empty BLAKE3 fingerprint, a non-negative item count, a timestamp, and exactly one pole."@en ;
+
+    sh:property [
+        sh:path pc:fingerprint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "PoleState.hash must be a non-empty BLAKE3 hex fingerprint (coherence.rs PoleState.hash)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:itemCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "PoleState.item_count must be present and >= 0 (Rust usize)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:stateTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "PoleState.timestamp must be a real RFC-3339 dateTime (coherence.rs PoleState.timestamp)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:ofPole ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class pc:Pole ;
+        sh:message "PoleState must reference exactly one Pole (coherence.rs PoleState.pole)." ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CoherenceReportShape
+# Code invariant: CoherenceReport.admitted == (drifts.is_empty() && poles.len() == 3).
+# Enforces pc:PolePresenceCriterion: a report must reference exactly three pole
+# states. (Drift-freedom for *admitted* reports is enforced separately by
+# pc:AdmittedCoherenceReportShape so non-admitted reports remain representable.)
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:CoherenceReportShape
+    a sh:NodeShape ;
+    sh:targetClass pc:CoherenceReport ;
+    sh:closed false ;
+    rdfs:comment "A CoherenceReport must have a non-empty operation_id, a checkedAt timestamp, an admitted flag, and EXACTLY three pole states (one per pole)."@en ;
+
+    sh:property [
+        sh:path pc:hasOperationId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "CoherenceReport.operation_id must be a non-empty UUID string (coherence.rs CoherenceReport.operation_id)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:checkedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "CoherenceReport must record when the check ran (checkedAt)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:admitted ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "CoherenceReport.admitted must be a boolean (coherence.rs CoherenceReport.admitted)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:hasState ;
+        sh:minCount 3 ;
+        sh:maxCount 3 ;
+        sh:class pc:PoleState ;
+        sh:message "CoherenceReport must have EXACTLY 3 pole states (O, A, L) — coherence.rs requires poles.len() == 3 to admit." ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AdmittedCoherenceReportShape
+# Code invariant: an admitted report has zero drifts (drifts.is_empty()). In
+# particular it must contain NO Missing and NO HashMismatch drifts. This shape
+# targets only reports where pc:admitted = true.
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:AdmittedCoherenceReportShape
+    a sh:NodeShape ;
+    rdfs:comment "An ADMITTED CoherenceReport (admitted = true) must carry zero drifts; specifically no HashMismatch and no Missing drift."@en ;
+
+    # Target: instances of CoherenceReport whose pc:admitted is true.
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a pc:CoherenceReport ;
+                      pc:admitted true .
+            }
+        """ ;
+    ] ;
+
+    # No drift whose driftKind is Missing.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Admitted CoherenceReport must not contain a Missing drift (coherence.rs: Missing => admitted is false)." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:hasDrift ?d .
+                ?d pc:driftKind \"Missing\" .
+            }
+        """ ;
+    ] ;
+
+    # No drift whose driftKind is HashMismatch.
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Admitted CoherenceReport must not contain a HashMismatch drift (fingerprint-equality violation)." ;
+        sh:prefixes <https://ggen.dev/ontology/post-chatman/shapes> ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this pc:hasDrift ?d .
+                ?d pc:driftKind \"HashMismatch\" .
+            }
+        """ ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CoherenceDriftShape
+# Code invariant: CoherenceDrift { kind, source_pole, target_pole, detail }.
+# driftKind must be one of the three DriftKind variants.
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:CoherenceDriftShape
+    a sh:NodeShape ;
+    sh:targetClass pc:CoherenceDrift ;
+    sh:closed false ;
+    rdfs:comment "A CoherenceDrift must have a driftKind in {HashMismatch, CountDiscrepancy, Missing}, a source and target pole, and a non-empty detail."@en ;
+
+    sh:property [
+        sh:path pc:driftKind ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "HashMismatch" "CountDiscrepancy" "Missing" ) ;
+        sh:message "CoherenceDrift.kind must be one of HashMismatch | CountDiscrepancy | Missing (coherence.rs enum DriftKind)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:driftSourcePole ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class pc:Pole ;
+        sh:message "CoherenceDrift.source_pole must reference one Pole." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:driftTargetPole ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class pc:Pole ;
+        sh:message "CoherenceDrift.target_pole must reference one Pole." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:driftDetail ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "CoherenceDrift.detail must be a non-empty human-readable string." ;
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# InverseReceiptShape
+# Code invariant: InverseReceipt {
+#     operation_id: String (non-empty UUID v4),
+#     timestamp: DateTime<Utc> (real RFC-3339),
+#     input_hashes: HashMap<String,String>,
+#     output_hash: String (BLAKE3 hex),
+#     recovered_triple_count: usize (>= 0),
+#     shacl_valid: bool,
+#     last_stage: InverseStage,
+# }
+# PLUS the post-Chatman receipt contract requirement of a non-empty signature
+# (NOT yet present in the Rust struct — see pc:signature note in post_chatman.ttl).
+# ─────────────────────────────────────────────────────────────────────────────
+
+pc:InverseReceiptShape
+    a sh:NodeShape ;
+    sh:targetClass pc:InverseReceipt ;
+    sh:closed false ;
+    rdfs:comment "An InverseReceipt must have a non-empty operation_id, a real timestamp, recovered_triple_count >= 0, a non-empty output hash, a shacl_valid flag, a last_stage, and (per the post-Chatman receipt contract) a non-empty signature."@en ;
+
+    sh:property [
+        sh:path pc:receiptOperationId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "InverseReceipt.operation_id must be a non-empty UUID (inverse_pipeline.rs InverseReceipt.operation_id)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:receiptTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "InverseReceipt.timestamp must be a real RFC-3339 dateTime, never a zero/default value (inverse_pipeline.rs InverseReceipt.timestamp)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:recoveredTripleCount ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "InverseReceipt.recovered_triple_count must be present and >= 0 (Rust usize)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:outputHash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "InverseReceipt.output_hash must be a non-empty BLAKE3 hex string (inverse_pipeline.rs InverseReceipt.output_hash)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:shaclValid ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "InverseReceipt.shacl_valid must be a boolean (inverse_pipeline.rs InverseReceipt.shacl_valid)." ;
+    ] ;
+
+    sh:property [
+        sh:path pc:lastStage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class pc:InverseStage ;
+        sh:message "InverseReceipt.last_stage must reference an InverseStage individual (Emit on success)." ;
+    ] ;
+
+    # Each input hash, when present, must be a non-empty hex string. input_hashes
+    # may legitimately be empty only when scan found files but extraction yielded
+    # nothing, so we do not require minCount here; we constrain the values.
+    sh:property [
+        sh:path pc:inputHash ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Each InverseReceipt input hash must be a non-empty BLAKE3 hex string." ;
+    ] ;
+
+    # Receipt contract: a non-empty signature.
+    # ONTOLOGY-AHEAD-OF-CODE: the audited Rust InverseReceipt has NO signature field.
+    # This constraint enforces the documented receipt contract
+    # (.claude/rules/coding-agent-mistakes.md §4.2) and will fail any receipt that
+    # omits a signature — by design, to surface the missing implementation.
+    sh:property [
+        sh:path pc:signature ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "InverseReceipt must carry a non-empty signature per the post-Chatman receipt contract. NOTE: not yet emitted by inverse_pipeline.rs — divergence flagged." ;
+    ] .

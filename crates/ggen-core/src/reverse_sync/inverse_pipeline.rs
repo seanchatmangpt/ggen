@@ -8,6 +8,8 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+
 /// The five stages of the inverse pipeline.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum InverseStage {
@@ -42,6 +44,79 @@ pub struct InverseReceipt {
     pub shacl_valid: bool,
     /// Last stage successfully completed.
     pub last_stage: InverseStage,
+    /// Ed25519 signature over the receipt body, hex-encoded.
+    ///
+    /// Empty until [`InverseReceipt::sign`] (or [`InversePipeline::run_signed`])
+    /// is called. An empty signature makes [`InverseReceipt::verify`] return
+    /// `false` (fail-closed), mirroring the forward `Receipt` provenance path.
+    pub signature: String,
+}
+
+impl InverseReceipt {
+    /// Produces the canonical byte message that is signed/verified.
+    ///
+    /// The message is the JSON serialization of the receipt with the
+    /// `signature` field blanked, so signing and verification operate over an
+    /// identical, deterministic body. This mirrors the forward
+    /// `Receipt::signing_message` strategy.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`InversePipelineError::Serialization`] if the receipt cannot be
+    /// serialized to JSON.
+    fn signing_message(&self) -> InverseResult<Vec<u8>> {
+        let unsigned = Self {
+            signature: String::new(),
+            ..self.clone()
+        };
+        let json = serde_json::to_string(&unsigned)
+            .map_err(|e| InversePipelineError::Serialization(e.to_string()))?;
+        Ok(json.into_bytes())
+    }
+
+    /// Signs the receipt with the given Ed25519 signing key, populating
+    /// `signature` with the hex-encoded signature bytes.
+    ///
+    /// Mirrors the forward [`crate::Receipt::sign`] path: it consumes `self`
+    /// and returns the signed receipt so the emit step is a single expression.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`InversePipelineError::Serialization`] if the signing message
+    /// cannot be produced.
+    pub fn sign(mut self, signing_key: &SigningKey) -> InverseResult<Self> {
+        let message = self.signing_message()?;
+        let signature = signing_key.sign(&message);
+        self.signature = hex::encode(signature.to_bytes());
+        Ok(self)
+    }
+
+    /// Verifies the receipt's Ed25519 signature against the given verifying key.
+    ///
+    /// Fail-closed: returns `false` for an empty signature, a non-hex
+    /// signature, a malformed signature, a tampered receipt body, or a wrong
+    /// key. Returns `true` only when the signature was produced by the matching
+    /// signing key over the current receipt body.
+    #[must_use]
+    pub fn verify(&self, verifying_key: &VerifyingKey) -> bool {
+        // Fail-closed on an unsigned receipt — an empty signature is never valid.
+        if self.signature.is_empty() {
+            return false;
+        }
+        let message = match self.signing_message() {
+            Ok(m) => m,
+            Err(_) => return false,
+        };
+        let signature_bytes = match hex::decode(&self.signature) {
+            Ok(b) => b,
+            Err(_) => return false,
+        };
+        let signature = match Signature::from_slice(&signature_bytes) {
+            Ok(s) => s,
+            Err(_) => return false,
+        };
+        verifying_key.verify(&message, &signature).is_ok()
+    }
 }
 
 /// Errors that can occur during the inverse pipeline.
@@ -58,6 +133,9 @@ pub enum InversePipelineError {
 
     #[error("Validate failed: {0}")]
     ValidateFailed(String),
+
+    #[error("Receipt serialization failed: {0}")]
+    Serialization(String),
 
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
@@ -76,6 +154,11 @@ impl InversePipeline {
     /// Unknown extensions are skipped (not an error).
     ///
     /// Returns `InverseResult<InverseReceipt>` with full provenance.
+    ///
+    /// The receipt returned by `run` is **unsigned** (`signature` is empty),
+    /// mirroring the forward `Receipt::new` → `Receipt::sign` two-step. To
+    /// obtain a signed, verifiable provenance receipt, use
+    /// [`InversePipeline::run_signed`].
     pub fn run(paths: &[PathBuf]) -> InverseResult<InverseReceipt> {
         // μ⁻¹₁ Scan: filter to known, existing source files.
         let known_paths: Vec<&PathBuf> = paths
@@ -206,15 +289,42 @@ impl InversePipeline {
             recovered_triple_count,
             shacl_valid,
             last_stage: InverseStage::Emit,
+            // Unsigned by default — `run_signed` populates this in the Emit step.
+            signature: String::new(),
         };
 
         Ok(receipt)
+    }
+
+    /// Run all five inverse stages and sign the resulting receipt with the
+    /// given Ed25519 signing key, making A → O a first-class, **provable**
+    /// provenance path.
+    ///
+    /// This is the authoritative emit path: the μ⁻¹₅ Emit stage produces a
+    /// receipt whose `signature` is a non-empty Ed25519 signature over the
+    /// receipt body. The signing key is obtained from the same
+    /// [`crate::generate_keypair`] mechanism used by the forward `Receipt`
+    /// path, so forward and inverse provenance share one crypto surface.
+    ///
+    /// # Errors
+    ///
+    /// Returns the same errors as [`InversePipeline::run`], plus
+    /// [`InversePipelineError::Serialization`] if the receipt cannot be signed.
+    pub fn run_signed(
+        paths: &[PathBuf], signing_key: &SigningKey,
+    ) -> InverseResult<InverseReceipt> {
+        let receipt = Self::run(paths)?;
+        receipt.sign(signing_key)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    // Reuse the SAME keypair mechanism as the forward `Receipt` provenance path.
+    // `generate_keypair` is re-exported at the ggen-core crate root from
+    // `ggen_config` (see lib.rs) and returns real Ed25519 keys (no test doubles).
+    use crate::generate_keypair;
     use std::io::Write;
 
     fn write_temp_rust(content: &str) -> tempfile::NamedTempFile {
@@ -348,5 +458,164 @@ impl UserService {
             }
         }
         // If extraction found nothing and returned a typed error, skip the hash check.
+    }
+
+    // ── μ⁻¹ signed-receipt provenance (Chicago TDD) ──────────────────────────
+    //
+    // These tests exercise the A → O recovery path with REAL Ed25519 keys
+    // (no mocks/doubles), a REAL source file on disk, and state-based
+    // assertions on the observable receipt. They mirror the forward
+    // `Receipt` sign/verify contract and enforce coding-agent-mistakes.md
+    // §4.2 invariants (non-empty signature for a real run) and fail-closed
+    // verification (§1.3 fail-open is forbidden).
+
+    /// A minimal but extractor-friendly Rust source: `pub struct` + fields +
+    /// `impl` methods. This guarantees `convert_to_rdf` emits a
+    /// `code:Name a code:Service` declaration so μ⁻¹₄ Validate passes and
+    /// `recovered_triple_count > 0`.
+    const RECOVERABLE_RUST: &str = r#"
+pub struct OrderService {
+    pub id: u64,
+    pub region: String,
+}
+
+impl OrderService {
+    pub fn place(&self, sku: String) -> bool { false }
+    pub fn cancel(&self, id: u64) -> bool { false }
+}
+"#;
+
+    #[test]
+    fn test_run_signed_real_file_produces_verifiable_receipt() {
+        // Arrange — real temp source file + real Ed25519 keypair.
+        let tmp = write_temp_rust(RECOVERABLE_RUST);
+        let (signing_key, verifying_key) = generate_keypair();
+
+        // Act — run the inverse pipeline and sign the receipt.
+        let receipt = InversePipeline::run_signed(&[tmp.path().to_path_buf()], &signing_key)
+            .expect("inverse pipeline should recover an OrderService and sign the receipt");
+
+        // Assert — observable provenance state from a real A → O run.
+        assert!(
+            receipt.recovered_triple_count > 0,
+            "recovered_triple_count must be > 0 for a recoverable struct; got {}",
+            receipt.recovered_triple_count
+        );
+        assert!(receipt.shacl_valid, "validate stage must pass for recovered RDF");
+        assert_eq!(receipt.last_stage, InverseStage::Emit, "must complete through Emit");
+
+        // §4.2 invariant analogues: real UUID v4, non-empty signature.
+        assert!(
+            !receipt.signature.is_empty(),
+            "a real signed run must carry a NON-EMPTY signature"
+        );
+        let parsed_id = uuid::Uuid::parse_str(&receipt.operation_id)
+            .expect("operation_id must be a real UUID");
+        assert_eq!(parsed_id.get_version_num(), 4, "operation_id must be UUID v4");
+        assert_ne!(parsed_id, uuid::Uuid::nil(), "operation_id must be non-zero");
+        assert!(!receipt.output_hash.is_empty(), "output_hash must be populated");
+        assert!(!receipt.input_hashes.is_empty(), "input_hashes must record the source file");
+
+        // Verification with the matching key must SUCCEED.
+        assert!(
+            receipt.verify(&verifying_key),
+            "verify() must succeed for a correctly signed receipt"
+        );
+    }
+
+    #[test]
+    fn test_unsigned_run_receipt_fails_verification() {
+        // Arrange — `run` (not `run_signed`) leaves signature empty.
+        let tmp = write_temp_rust(RECOVERABLE_RUST);
+        let (_signing_key, verifying_key) = generate_keypair();
+
+        // Act
+        let receipt = InversePipeline::run(&[tmp.path().to_path_buf()])
+            .expect("inverse pipeline should produce an (unsigned) receipt");
+
+        // Assert — fail-closed: an empty signature is never valid.
+        assert!(receipt.signature.is_empty(), "run() must leave signature empty");
+        assert!(
+            !receipt.verify(&verifying_key),
+            "an unsigned receipt (empty signature) must fail verification (fail-closed)"
+        );
+    }
+
+    #[test]
+    fn test_tampered_body_fails_verification() {
+        // Arrange — produce a real signed receipt over a real run.
+        let tmp = write_temp_rust(RECOVERABLE_RUST);
+        let (signing_key, verifying_key) = generate_keypair();
+        let receipt = InversePipeline::run_signed(&[tmp.path().to_path_buf()], &signing_key)
+            .expect("signed run should succeed");
+        assert!(receipt.verify(&verifying_key), "precondition: receipt verifies before tampering");
+
+        // Act — tamper with the receipt BODY (the output_hash is part of the
+        // signed message). The signature no longer matches the mutated body.
+        let mut tampered = receipt.clone();
+        tampered.output_hash = format!("{}deadbeef", &tampered.output_hash);
+
+        // Assert — fail-closed: a body that disagrees with the signature is invalid.
+        assert!(
+            !tampered.verify(&verifying_key),
+            "tampering with the receipt body must invalidate the signature (fail-closed)"
+        );
+        // The pristine receipt still verifies — proves the failure is the tamper,
+        // not a flaky key/message.
+        assert!(receipt.verify(&verifying_key), "original receipt must still verify");
+    }
+
+    #[test]
+    fn test_blanked_signature_fails_verification() {
+        // Arrange — real signed receipt.
+        let tmp = write_temp_rust(RECOVERABLE_RUST);
+        let (signing_key, verifying_key) = generate_keypair();
+        let receipt = InversePipeline::run_signed(&[tmp.path().to_path_buf()], &signing_key)
+            .expect("signed run should succeed");
+
+        // Act — blank the signature field (the §1.5 contract-drift sentinel).
+        let mut blanked = receipt.clone();
+        blanked.signature = String::new();
+
+        // Assert — fail-closed: empty signature must verify false.
+        assert!(
+            !blanked.verify(&verifying_key),
+            "a blanked signature must fail verification (fail-closed)"
+        );
+    }
+
+    #[test]
+    fn test_corrupt_nonhex_signature_fails_verification() {
+        // Arrange — real signed receipt.
+        let tmp = write_temp_rust(RECOVERABLE_RUST);
+        let (signing_key, verifying_key) = generate_keypair();
+        let receipt = InversePipeline::run_signed(&[tmp.path().to_path_buf()], &signing_key)
+            .expect("signed run should succeed");
+
+        // Act — set signature to non-hex garbage (simulates a corrupt receipt file).
+        let mut corrupt = receipt.clone();
+        corrupt.signature = "{}".to_string();
+
+        // Assert — fail-closed: non-hex signature must verify false (no panic).
+        assert!(
+            !corrupt.verify(&verifying_key),
+            "a non-hex signature must fail verification (fail-closed)"
+        );
+    }
+
+    #[test]
+    fn test_wrong_key_fails_verification() {
+        // Arrange — sign with one key, verify with an unrelated key.
+        let tmp = write_temp_rust(RECOVERABLE_RUST);
+        let (signing_key, _verifying_key) = generate_keypair();
+        let (_other_signing, wrong_key) = generate_keypair();
+        let receipt = InversePipeline::run_signed(&[tmp.path().to_path_buf()], &signing_key)
+            .expect("signed run should succeed");
+
+        // Act + Assert — a signature from a different key must not verify.
+        assert!(
+            !receipt.verify(&wrong_key),
+            "verification with the wrong key must fail"
+        );
     }
 }

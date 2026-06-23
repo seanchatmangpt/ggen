@@ -61,6 +61,214 @@ pc:isomorphicTo
     rdfs:comment "Declares that two poles are informationally isomorphic under the post-Chatman equation."@en .
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Operational definition of coherence — what "isomorphic" means in practice
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# `pc:isomorphicTo` is an ASPIRATIONAL relation: it asserts that two poles encode
+# the same canonical formal object. True isomorphism (a structure-preserving
+# bijection between the contents of two poles) is not decidable by the runtime.
+# Instead, the implementation (crates/ggen-graph/src/coherence.rs ::
+# CoherenceChecker) approximates it with a battery of CHEAP, NECESSARY checks
+# called "coherence criteria". A report that passes every criterion is
+# `pc:admitted` — it is COHERENT, which is the operational stand-in for
+# isomorphic. See pc:CoherenceResidual for why coherent ⊉ isomorphic.
+
+pc:CoherenceCriterion
+    a owl:Class ;
+    rdfs:label "Coherence Criterion"@en ;
+    rdfs:comment """A concrete, runtime-checkable condition that MUST hold for two
+or three poles to be admitted as coherent. Each criterion is a NECESSARY but
+individually INSUFFICIENT condition for true isomorphism (pc:isomorphicTo).
+Maps to the drift rules implemented in CoherenceChecker::check."""@en .
+
+pc:approximates
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceCriterion ;
+    rdfs:range  pc:isomorphicTo ;
+    rdfs:label "approximates"@en ;
+    rdfs:comment "Links a runtime criterion to the (undecidable) isomorphism it stands in for."@en .
+
+# --- Criterion 1: pole presence -------------------------------------------------
+# Implemented as CoherenceChecker::check Rule 1: every one of O, A, L must have a
+# PoleState recorded in the report. A missing pole emits DriftKind::Missing and
+# `admitted` becomes false (the report also requires poles.len() == 3).
+
+pc:PolePresenceCriterion
+    a pc:CoherenceCriterion ;
+    rdfs:label "Pole-Presence Criterion"@en ;
+    rdfs:comment """All three poles (O, A, L) MUST be present in a CoherenceReport.
+A coherent system cannot be assessed if a pole is absent. Code: Rule 1 of
+CoherenceChecker::check; the absence of a required pole yields a Missing drift and
+admitted requires exactly three poles."""@en ;
+    pc:approximates pc:isomorphicTo ;
+    pc:violatedBy pc:Missing .
+
+# --- Criterion 2: item-count alignment O→A and A→L ------------------------------
+# Implemented as CoherenceChecker::check Rules 2 and 3. NOTE: the current code
+# checks only the degenerate zero-vs-nonzero direction (a.item_count == 0 while
+# o.item_count > 0, and l.item_count == 0 while a.item_count > 0). It does NOT
+# assert numeric equality of counts; an ontology with 10 triples and an artifact
+# pole with 3 files is currently admitted. The ontology models the intended
+# directional alignment; the residual records the gap.
+
+pc:CountAlignmentCriterion
+    a pc:CoherenceCriterion ;
+    rdfs:label "Item-Count Alignment Criterion"@en ;
+    rdfs:comment """Item counts must align along the generative flow O → A → L:
+if the ontology pole has content then the artifact pole must not be empty (O→A),
+and if the artifact pole has content then the event-log pole must not be empty
+(A→L). Code: Rules 2 and 3 of CoherenceChecker::check. UNVERIFIED-LIMITATION:
+the runtime checks only emptiness (count == 0 vs count > 0), not exact count
+parity — see pc:CoherenceResidual."""@en ;
+    pc:approximates pc:isomorphicTo ;
+    pc:violatedBy pc:CountDiscrepancy ;
+    pc:checksDirection "O->A" , "A->L" .
+
+# --- Criterion 3: fingerprint (hash) equality O↔A↔L -----------------------------
+# Each PoleState carries a hex-encoded BLAKE3 fingerprint (PoleState.hash). True
+# isomorphism would be witnessed by a canonical fingerprint shared (or provably
+# derivable) across poles. UNVERIFIED-LIMITATION: CoherenceChecker::check does NOT
+# currently compare PoleState.hash values across poles, and never emits
+# DriftKind::HashMismatch. The HashMismatch variant exists in the enum and is
+# documented as "the same pole produced a different hash at two points in time"
+# (a temporal self-comparison), but no code path produces it. This criterion is
+# therefore SPECIFIED-BUT-UNENFORCED at the cross-pole level today; the SHACL
+# shapes (post_chatman_shapes.ttl) require the hash field to be present and
+# non-empty so the data needed to enforce it is captured.
+
+pc:FingerprintEqualityCriterion
+    a pc:CoherenceCriterion ;
+    rdfs:label "Fingerprint-Equality Criterion"@en ;
+    rdfs:comment """The BLAKE3 fingerprint of each pole must be present, non-empty,
+and (for true coherence) reconcilable across O ↔ A ↔ L. Code: PoleState.hash is
+computed by CoherenceChecker::fingerprint_ontology / fingerprint_artifacts /
+fingerprint_event_log. UNVERIFIED-LIMITATION: cross-pole hash comparison and
+DriftKind::HashMismatch emission are NOT implemented in CoherenceChecker::check;
+this criterion is specified but unenforced at runtime as of the audited code."""@en ;
+    pc:approximates pc:isomorphicTo ;
+    pc:violatedBy pc:HashMismatch .
+
+# --- Binding DriftKind values to the criteria they violate ----------------------
+# These individuals mirror crates/ggen-graph/src/coherence.rs :: DriftKind so a
+# CoherenceDrift's driftKind can be linked to the criterion it breaks.
+
+pc:DriftKindValue
+    a owl:Class ;
+    rdfs:subClassOf pc:CoherenceDrift ;
+    rdfs:label "Drift Kind Value"@en ;
+    rdfs:comment "Enumerated drift classifications mirroring Rust enum DriftKind."@en .
+
+pc:violatedBy
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceCriterion ;
+    rdfs:range  pc:DriftKindValue ;
+    rdfs:label "violated by"@en ;
+    rdfs:comment "The drift kind that signals a violation of this criterion."@en .
+
+pc:checksDirection
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:CoherenceCriterion ;
+    rdfs:range  xsd:string ;
+    rdfs:label "checks direction"@en ;
+    rdfs:comment "Directional flow a criterion validates, e.g. 'O->A' or 'A->L'."@en .
+
+pc:HashMismatch
+    a pc:DriftKindValue ;
+    rdfs:label "HashMismatch"@en ;
+    rdfs:comment """Rust: DriftKind::HashMismatch. A pole's fingerprint diverges
+(documented intent: the same pole produced a different hash at two points in time;
+extended intent: O↔A↔L fingerprints fail to reconcile). Violates
+pc:FingerprintEqualityCriterion. UNVERIFIED: not emitted by CoherenceChecker::check
+in the audited code."""@en .
+
+pc:CountDiscrepancy
+    a pc:DriftKindValue ;
+    rdfs:label "CountDiscrepancy"@en ;
+    rdfs:comment """Rust: DriftKind::CountDiscrepancy. Item counts diverge along the
+O→A or A→L flow (current code: one pole empty while its predecessor is non-empty).
+Violates pc:CountAlignmentCriterion."""@en .
+
+pc:Missing
+    a pc:DriftKindValue ;
+    rdfs:label "Missing"@en ;
+    rdfs:comment """Rust: DriftKind::Missing. A required pole has no PoleState in the
+report. Violates pc:PolePresenceCriterion."""@en .
+
+# --- Coherence residual: why coherent is weaker than isomorphic -----------------
+
+pc:CoherenceResidual
+    a owl:Class ;
+    rdfs:label "Coherence Residual"@en ;
+    rdfs:comment """The semantic gap between an ADMITTED CoherenceReport
+(coherent: all criteria pass) and a TRUE isomorphism (pc:isomorphicTo).
+
+NECESSARY-BUT-NOT-SUFFICIENT: hash presence + emptiness-alignment + pole presence
+are necessary conditions for isomorphism, but passing them does NOT prove the
+poles encode the same formal object. Concrete unclosed residual, derived from the
+audited code in CoherenceChecker::check:
+
+  (R1) Hashes are captured but never compared across poles, so two poles with
+       totally different content but both non-empty are admitted.
+  (R2) Counts are only checked for emptiness, not parity, so |O| != |A| != |L|
+       (any non-zero counts) is admitted.
+  (R3) No structural/bijective check exists: ordering, naming, and per-item
+       correspondence are unverified.
+
+An admitted report is thus EVIDENCE OF COHERENCE, not PROOF OF ISOMORPHISM. This
+class exists so downstream consumers do not over-claim. UNVERIFIED against any
+future code that may close R1–R3."""@en .
+
+pc:residualOf
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceResidual ;
+    rdfs:range  pc:CoherenceReport ;
+    rdfs:label "residual of"@en ;
+    rdfs:comment "Associates an unclosed isomorphism residual with the report that admitted it."@en .
+
+# --- PoleState: the per-pole fingerprint snapshot (mirrors Rust PoleState) -------
+
+pc:PoleState
+    a owl:Class ;
+    rdfs:label "Pole State"@en ;
+    rdfs:comment """Snapshot of one pole's fingerprint and item count. Mirrors Rust
+struct PoleState in crates/ggen-graph/src/coherence.rs."""@en .
+
+pc:ofPole
+    a owl:ObjectProperty ;
+    rdfs:domain pc:PoleState ;
+    rdfs:range  pc:Pole ;
+    rdfs:label "of pole"@en ;
+    rdfs:comment "Which pole (O/A/L) this state represents. Rust: PoleState.pole."@en .
+
+pc:hasState
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceReport ;
+    rdfs:range  pc:PoleState ;
+    rdfs:label "has state"@en ;
+    rdfs:comment "Links a report to one of its pole states. Rust: CoherenceReport.poles[]."@en .
+
+pc:fingerprint
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:PoleState ;
+    rdfs:range  xsd:string ;
+    rdfs:label "fingerprint"@en ;
+    rdfs:comment "Hex-encoded BLAKE3 fingerprint of the pole contents. Rust: PoleState.hash (64 hex chars)."@en .
+
+pc:itemCount
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:PoleState ;
+    rdfs:range  xsd:integer ;
+    rdfs:label "item count"@en ;
+    rdfs:comment "Number of items ingested (triples / files / events). Rust: PoleState.item_count (usize, >= 0)."@en .
+
+pc:stateTimestamp
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:PoleState ;
+    rdfs:range  xsd:dateTime ;
+    rdfs:label "state timestamp"@en ;
+    rdfs:comment "When the fingerprint was computed. Rust: PoleState.timestamp (DateTime<Utc>)."@en .
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Coherence report concept
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -110,6 +318,27 @@ pc:hasDrift
     rdfs:range  pc:CoherenceDrift ;
     rdfs:label "has drift"@en .
 
+pc:driftSourcePole
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceDrift ;
+    rdfs:range  pc:Pole ;
+    rdfs:label "drift source pole"@en ;
+    rdfs:comment "Subject (or missing) pole of the drift. Rust: CoherenceDrift.source_pole."@en .
+
+pc:driftTargetPole
+    a owl:ObjectProperty ;
+    rdfs:domain pc:CoherenceDrift ;
+    rdfs:range  pc:Pole ;
+    rdfs:label "drift target pole"@en ;
+    rdfs:comment "Comparison-target pole of the drift. Rust: CoherenceDrift.target_pole."@en .
+
+pc:driftDetail
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:CoherenceDrift ;
+    rdfs:range  xsd:string ;
+    rdfs:label "drift detail"@en ;
+    rdfs:comment "Human-readable description of the drift. Rust: CoherenceDrift.detail."@en .
+
 # ─────────────────────────────────────────────────────────────────────────────
 # The canonical three-way isomorphism assertion
 # ─────────────────────────────────────────────────────────────────────────────
@@ -156,3 +385,98 @@ pc:stageOrder
     rdfs:domain pc:PipelineStage ;
     rdfs:range  xsd:integer ;
     rdfs:label "stage order"@en .
+
+# Inverse pipeline stage individuals — mirror Rust enum InverseStage
+# (crates/ggen-core/src/reverse_sync/inverse_pipeline.rs).
+
+pc:Scan      a pc:InverseStage ; rdfs:label "μ⁻¹₁ Scan"@en ;
+    rdfs:comment "Enumerate artifact file paths by language. Rust: InverseStage::Scan."@en ;
+    pc:stageOrder 1 .
+pc:Extract   a pc:InverseStage ; rdfs:label "μ⁻¹₂ Extract"@en ;
+    rdfs:comment "Parse AST/text to recover ServiceDef/structure. Rust: InverseStage::Extract."@en ;
+    pc:stageOrder 2 .
+pc:Convert   a pc:InverseStage ; rdfs:label "μ⁻¹₃ Convert"@en ;
+    rdfs:comment "Transform ServiceDef into RDF Turtle. Rust: InverseStage::Convert."@en ;
+    pc:stageOrder 3 .
+pc:Validate  a pc:InverseStage ; rdfs:label "μ⁻¹₄ Validate"@en ;
+    rdfs:comment "Check recovered triples are non-empty and well-formed. Rust: InverseStage::Validate."@en ;
+    pc:stageOrder 4 .
+pc:Emit      a pc:InverseStage ; rdfs:label "μ⁻¹₅ Emit"@en ;
+    rdfs:comment "Produce InverseReceipt with BLAKE3 hashes. Rust: InverseStage::Emit."@en ;
+    pc:stageOrder 5 .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Inverse receipt concept — provenance of the A → O recovery path (μ⁻¹)
+# ─────────────────────────────────────────────────────────────────────────────
+# Mirrors Rust struct InverseReceipt in
+# crates/ggen-core/src/reverse_sync/inverse_pipeline.rs. This is the proof object
+# of the EventLog/Artifact → Ontology direction of the post-Chatman isomorphism.
+
+pc:InverseReceipt
+    a owl:Class ;
+    rdfs:label "Inverse Receipt"@en ;
+    rdfs:comment """Provenance receipt produced by a successful inverse pipeline run
+(A → recovered O). Mirrors Rust struct InverseReceipt. It binds input file hashes
+to the recovered-RDF output hash, making A → O an auditable provenance path."""@en .
+
+pc:receiptOperationId
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:string ;
+    rdfs:label "receipt operation ID"@en ;
+    rdfs:comment "UUID v4 for the run. Rust: InverseReceipt.operation_id (non-empty)."@en .
+
+pc:receiptTimestamp
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:dateTime ;
+    rdfs:label "receipt timestamp"@en ;
+    rdfs:comment "RFC-3339 timestamp. Rust: InverseReceipt.timestamp."@en .
+
+pc:outputHash
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:string ;
+    rdfs:label "output hash"@en ;
+    rdfs:comment "BLAKE3 hex of all recovered RDF. Rust: InverseReceipt.output_hash (64 hex chars)."@en .
+
+pc:inputHash
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:string ;
+    rdfs:label "input hash"@en ;
+    rdfs:comment "BLAKE3 hex of one input file's content. Rust: InverseReceipt.input_hashes value."@en .
+
+pc:recoveredTripleCount
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:integer ;
+    rdfs:label "recovered triple count"@en ;
+    rdfs:comment "Count of non-empty, non-@prefix lines in recovered RDF. Rust: InverseReceipt.recovered_triple_count (usize, >= 0)."@en .
+
+pc:shaclValid
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label "shacl valid"@en ;
+    rdfs:comment "True if μ⁻¹₄ validation passed. Rust: InverseReceipt.shacl_valid."@en .
+
+pc:lastStage
+    a owl:ObjectProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  pc:InverseStage ;
+    rdfs:label "last stage"@en ;
+    rdfs:comment "Last stage successfully completed (Emit on success). Rust: InverseReceipt.last_stage."@en .
+
+pc:signature
+    a owl:DatatypeProperty ;
+    rdfs:domain pc:InverseReceipt ;
+    rdfs:range  xsd:string ;
+    rdfs:label "signature"@en ;
+    rdfs:comment """Cryptographic signature over the receipt body (per the post-Chatman
+receipt contract and .claude/rules/coding-agent-mistakes.md §4.2). UNVERIFIED /
+ONTOLOGY-AHEAD-OF-CODE: the audited Rust struct InverseReceipt in
+crates/ggen-core/src/reverse_sync/inverse_pipeline.rs has NO `signature` field as of
+this writing. The SHACL shape requires it; the code does not yet emit it. This is a
+deliberate, documented divergence flagging required future work, not an assertion
+that the field exists."""@en .

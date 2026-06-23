@@ -42,7 +42,9 @@ pub struct PoleState {
 /// Classifies the kind of drift detected between poles.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DriftKind {
-    /// The same pole produced a different hash at two points in time.
+    /// A pole's freshly computed fingerprint differs from a previously
+    /// declared/expected fingerprint (e.g., recorded in a prior receipt).
+    /// This is the rule the post-Chatman round-trip (O→A→O) depends on.
     HashMismatch,
     /// Item counts diverge unexpectedly between poles (e.g., O has triples but A has 0 files).
     CountDiscrepancy,
@@ -129,6 +131,11 @@ impl CoherenceChecker {
 
     /// Compare up to three pole states and produce a [`CoherenceReport`].
     ///
+    /// This is shorthand for [`CoherenceChecker::check_with_expectations`] with no
+    /// declared fingerprints, so it never emits [`DriftKind::HashMismatch`]. To detect
+    /// drift against a previously recorded fingerprint (e.g., a prior receipt), use
+    /// [`CoherenceChecker::check_with_expectations`].
+    ///
     /// # Drift rules
     ///
     /// 1. If any of O, A, or L is absent → [`DriftKind::Missing`].
@@ -136,15 +143,48 @@ impl CoherenceChecker {
     ///    [`DriftKind::CountDiscrepancy`] between O and A.
     /// 3. If event-log `item_count == 0` and artifact `item_count > 0` →
     ///    [`DriftKind::CountDiscrepancy`] between A and L.
+    /// 4. If event-log `item_count == 0` and ontology `item_count > 0` →
+    ///    [`DriftKind::CountDiscrepancy`] between O and L (direct O↔L check, not only
+    ///    transitive through A).
     ///
     /// `admitted` is `true` iff `drifts` is empty **and** all three poles are present.
     pub fn check(poles: &[PoleState]) -> CoherenceReport {
+        Self::check_with_expectations(poles, &[])
+    }
+
+    /// Compare up to three pole states against optional declared/expected fingerprints
+    /// and produce a [`CoherenceReport`].
+    ///
+    /// `expected` carries `(pole, declared_fingerprint)` pairs — typically the hashes
+    /// recorded in a prior coherence receipt. For each provided pole that also has a
+    /// declared fingerprint, the freshly computed `hash` is compared against the
+    /// declared one; a difference emits [`DriftKind::HashMismatch`]. This makes the
+    /// post-Chatman round-trip (O→A→O) auditable: silent regeneration drift becomes a
+    /// visible drift observation.
+    ///
+    /// All count/missing rules from [`CoherenceChecker::check`] also apply.
+    ///
+    /// # `admitted` invariant
+    ///
+    /// `admitted` is `true` **only if** all three poles are present **and** no
+    /// [`DriftKind::HashMismatch`] and no [`DriftKind::Missing`] drift was recorded.
+    /// Any hash mismatch or missing pole forces `admitted = false`.
+    pub fn check_with_expectations(
+        poles: &[PoleState],
+        expected: &[(Pole, &str)],
+    ) -> CoherenceReport {
         let operation_id = Uuid::new_v4().to_string();
 
         // Index poles by kind for O(1) lookup.
         let mut by_pole: HashMap<Pole, &PoleState> = HashMap::new();
         for p in poles {
             by_pole.insert(p.pole, p);
+        }
+
+        // Index declared fingerprints by pole for O(1) lookup.
+        let mut declared: HashMap<Pole, &str> = HashMap::new();
+        for (pole, fingerprint) in expected {
+            declared.insert(*pole, fingerprint);
         }
 
         let mut drifts: Vec<CoherenceDrift> = Vec::new();
@@ -191,7 +231,60 @@ impl CoherenceChecker {
             }
         }
 
+        // Rule 4 — O→L direct count discrepancy. An event log with no events cannot
+        // be coherent with a non-empty ontology; flag it directly rather than relying
+        // on the transitive O→A→L chain (which can be masked if A is also empty).
+        if let (Some(o), Some(l)) = (by_pole.get(&Pole::Ontology), by_pole.get(&Pole::EventLog)) {
+            if l.item_count == 0 && o.item_count > 0 {
+                drifts.push(CoherenceDrift {
+                    kind: DriftKind::CountDiscrepancy,
+                    source_pole: Pole::Ontology,
+                    target_pole: Pole::EventLog,
+                    detail: format!(
+                        "Ontology has {} triple(s) but event-log pole reports 0 events",
+                        o.item_count
+                    ),
+                });
+            }
+        }
+
+        // Rule 5 — HashMismatch: freshly computed fingerprint vs. declared fingerprint.
+        // A self-comparison across time for a single pole, so source == target.
+        for required in [Pole::Ontology, Pole::Artifact, Pole::EventLog] {
+            if let (Some(state), Some(declared_hash)) =
+                (by_pole.get(&required), declared.get(&required))
+            {
+                if state.hash != *declared_hash {
+                    drifts.push(CoherenceDrift {
+                        kind: DriftKind::HashMismatch,
+                        source_pole: required,
+                        target_pole: required,
+                        detail: format!(
+                            "{required:?} fingerprint drift: declared {declared} != computed {computed}",
+                            declared = declared_hash,
+                            computed = state.hash,
+                        ),
+                    });
+                }
+            }
+        }
+
+        // `admitted` invariant: all three poles present AND no drift of any kind.
+        // Because HashMismatch and Missing are always pushed into `drifts` when they
+        // occur, `drifts.is_empty()` already forces `admitted = false` for them — the
+        // hard-fail rules of Section 3.
         let admitted = drifts.is_empty() && poles.len() == 3;
+
+        // Guard the hard-fail invariant: if a report is admitted, it must contain no
+        // HashMismatch and no Missing drift. This documents Section 3 and prevents a
+        // future refactor from silently admitting a blocking drift.
+        debug_assert!(
+            !admitted
+                || !drifts
+                    .iter()
+                    .any(|d| matches!(d.kind, DriftKind::HashMismatch | DriftKind::Missing)),
+            "HashMismatch/Missing drift must never coexist with admitted == true"
+        );
 
         CoherenceReport {
             operation_id,
@@ -339,5 +432,156 @@ mod tests {
             r1.operation_id, r2.operation_id,
             "operation_ids must be unique across invocations"
         );
+    }
+
+    // ── HashMismatch detection (post-Chatman O→A→O round-trip) ──────────────────
+
+    #[test]
+    fn test_declared_equals_computed_no_hash_mismatch() {
+        // Arrange — real triples; the declared fingerprint is the genuine BLAKE3 of
+        // the SAME ontology (as a prior receipt would have recorded). Deterministic
+        // fingerprinting means declared == computed.
+        let triples = ["<s> <p> <o> .", "<s2> <p2> <o2> ."];
+        let declared_o = CoherenceChecker::fingerprint_ontology(&triples).hash;
+
+        let o = CoherenceChecker::fingerprint_ontology(&triples);
+        let a = CoherenceChecker::fingerprint_artifacts(&[("src/lib.rs", 128)]);
+        let l = CoherenceChecker::fingerprint_event_log(&[r#"{"activity":"sync"}"#]);
+
+        // Act
+        let report = CoherenceChecker::check_with_expectations(
+            &[o, a, l],
+            &[(Pole::Ontology, declared_o.as_str())],
+        );
+
+        // Assert — no HashMismatch, fully admitted.
+        assert!(
+            !report.drifts.iter().any(|d| d.kind == DriftKind::HashMismatch),
+            "matching fingerprints must not emit HashMismatch: {:?}",
+            report.drifts
+        );
+        assert!(
+            report.admitted,
+            "declared == computed with all poles present should be admitted: {:?}",
+            report.drifts
+        );
+    }
+
+    #[test]
+    fn test_declared_differs_from_computed_emits_hash_mismatch_not_admitted() {
+        // Arrange — the declared fingerprint is the genuine BLAKE3 of a DIFFERENT
+        // ontology (a real divergence, e.g., the ontology mutated since the last
+        // receipt). The computed fingerprint is of the current ontology.
+        let declared_o =
+            CoherenceChecker::fingerprint_ontology(&["<old> <old> <old> ."]).hash;
+        let o = CoherenceChecker::fingerprint_ontology(&["<new> <new> <new> ."]);
+        let a = CoherenceChecker::fingerprint_artifacts(&[("src/lib.rs", 64)]);
+        let l = CoherenceChecker::fingerprint_event_log(&[r#"{"activity":"sync"}"#]);
+
+        // Sanity: the two fingerprints really differ (no fabricated mismatch).
+        assert_ne!(
+            declared_o, o.hash,
+            "test precondition: declared and computed ontology hashes must differ"
+        );
+
+        // Act
+        let report = CoherenceChecker::check_with_expectations(
+            &[o, a, l],
+            &[(Pole::Ontology, declared_o.as_str())],
+        );
+
+        // Assert — a HashMismatch on the Ontology pole (source == target), with a
+        // detail that cites both the declared and the computed hash. Avoid `.expect()`
+        // here: the crate root denies `clippy::expect_used` even in test modules.
+        let computed_o = &report.poles[0].hash;
+        assert!(
+            report.drifts.iter().any(|d| d.kind == DriftKind::HashMismatch
+                && d.source_pole == Pole::Ontology
+                && d.target_pole == Pole::Ontology
+                && d.detail.contains(&declared_o)
+                && d.detail.contains(computed_o)),
+            "expected an Ontology HashMismatch citing declared+computed hashes: {:?}",
+            report.drifts
+        );
+
+        // Assert — any HashMismatch forces admitted = false (Section 3 invariant).
+        assert!(
+            !report.admitted,
+            "a HashMismatch must make the report not admitted"
+        );
+    }
+
+    // ── O→L direct coherence check ──────────────────────────────────────────────
+
+    #[test]
+    fn test_ontology_with_empty_event_log_emits_o_to_l_discrepancy() {
+        // Arrange — ontology has content, event log is empty. The O→L rule must flag
+        // this directly (an event log inconsistent with the ontology), independent of
+        // the A→L transitive path.
+        let o = CoherenceChecker::fingerprint_ontology(&["<s> <p> <o> ."]);
+        let a = CoherenceChecker::fingerprint_artifacts(&[("src/lib.rs", 32)]);
+        let l = CoherenceChecker::fingerprint_event_log(&[]); // empty log
+
+        // Act
+        let report = CoherenceChecker::check(&[o, a, l]);
+
+        // Assert — a direct O→L CountDiscrepancy is present.
+        assert!(
+            report.drifts.iter().any(|d| d.kind == DriftKind::CountDiscrepancy
+                && d.source_pole == Pole::Ontology
+                && d.target_pole == Pole::EventLog),
+            "expected a direct O→L CountDiscrepancy: {:?}",
+            report.drifts
+        );
+        assert!(!report.admitted);
+    }
+
+    // ── determinism / sensitivity of the whole report ───────────────────────────
+
+    #[test]
+    fn test_check_with_expectations_is_deterministic_same_inputs() {
+        // Same poles + same declared fingerprints → identical drift set and verdict.
+        // (operation_id is intentionally excluded — it is a fresh UUID by design.)
+        let triples = ["<s> <p> <o> ."];
+        let declared_o = CoherenceChecker::fingerprint_ontology(&triples).hash;
+
+        let build = || {
+            let o = CoherenceChecker::fingerprint_ontology(&triples);
+            let a = CoherenceChecker::fingerprint_artifacts(&[("src/lib.rs", 256)]);
+            let l = CoherenceChecker::fingerprint_event_log(&[r#"{"activity":"sync"}"#]);
+            CoherenceChecker::check_with_expectations(
+                &[o, a, l],
+                &[(Pole::Ontology, declared_o.as_str())],
+            )
+        };
+
+        let r1 = build();
+        let r2 = build();
+
+        // Observable fields match: pole hashes, drift kinds/poles, admitted verdict.
+        assert_eq!(r1.admitted, r2.admitted);
+        assert_eq!(r1.drifts.len(), r2.drifts.len());
+        let kinds1: Vec<DriftKind> = r1.drifts.iter().map(|d| d.kind).collect();
+        let kinds2: Vec<DriftKind> = r2.drifts.iter().map(|d| d.kind).collect();
+        assert_eq!(kinds1, kinds2, "drift kinds must be deterministic");
+        let pole_hashes1: Vec<&String> = r1.poles.iter().map(|p| &p.hash).collect();
+        let pole_hashes2: Vec<&String> = r2.poles.iter().map(|p| &p.hash).collect();
+        assert_eq!(
+            pole_hashes1, pole_hashes2,
+            "pole fingerprints must be deterministic across runs"
+        );
+    }
+
+    #[test]
+    fn test_different_inputs_produce_different_fingerprints() {
+        // Distinct ontology content → distinct fingerprints (mismatch is detectable).
+        let h1 = CoherenceChecker::fingerprint_ontology(&["<a> <b> <c> ."]).hash;
+        let h2 = CoherenceChecker::fingerprint_ontology(&["<x> <y> <z> ."]).hash;
+        assert_ne!(h1, h2, "different ontology content must yield different hashes");
+
+        // And the artifact pole is sensitive to size as well as path.
+        let a1 = CoherenceChecker::fingerprint_artifacts(&[("p.rs", 1)]).hash;
+        let a2 = CoherenceChecker::fingerprint_artifacts(&[("p.rs", 2)]).hash;
+        assert_ne!(a1, a2, "different artifact sizes must yield different hashes");
     }
 }

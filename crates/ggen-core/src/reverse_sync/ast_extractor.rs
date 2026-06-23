@@ -39,6 +39,29 @@ impl Language {
     }
 }
 
+/// Kind of code construct a [`ServiceDef`] represents.
+///
+/// Regex-based extraction recovers structs, enums, and traits from Rust source.
+/// Elixir/Go extraction continues to use [`ServiceKind::Struct`] (the historical
+/// default) since those extractors model modules/structs as services.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ServiceKind {
+    Struct,
+    Enum,
+    Trait,
+}
+
+impl ServiceKind {
+    /// RDF class name (under the `code:` namespace) for this kind.
+    fn rdf_class(&self) -> &'static str {
+        match self {
+            ServiceKind::Struct => "Service",
+            ServiceKind::Enum => "Enum",
+            ServiceKind::Trait => "Trait",
+        }
+    }
+}
+
 /// Represents a field in a struct/type
 #[derive(Debug, Clone)]
 pub struct Field {
@@ -54,13 +77,30 @@ pub struct Method {
     pub return_type: Option<String>,
 }
 
+/// Represents an enum variant.
+///
+/// Only the variant name is captured; variant payloads (tuple/struct fields) are
+/// not modeled by the regex extractor.
+#[derive(Debug, Clone)]
+pub struct Variant {
+    pub name: String,
+}
+
 /// Complete service definition extracted from source code
 #[derive(Debug, Clone)]
 pub struct ServiceDef {
     pub name: String,
     pub language: Language,
+    /// Whether this definition is a struct, enum, or trait. Defaults to
+    /// [`ServiceKind::Struct`] for backwards compatibility.
+    pub kind: ServiceKind,
     pub fields: Vec<Field>,
     pub methods: Vec<Method>,
+    /// Enum variants (empty for non-enum kinds).
+    pub variants: Vec<Variant>,
+    /// Generic type parameters captured as raw strings (e.g. `T`, `K`, `V`).
+    /// Bounds and lifetimes are not separated out.
+    pub type_params: Vec<String>,
 }
 
 /// Extract Rust struct definitions from a file
@@ -81,27 +121,329 @@ pub fn extract_rust_service(file_path: &str) -> Result<Vec<ServiceDef>> {
     let content = fs::read_to_string(file_path)
         .map_err(|e| Error::new(&format!("Failed to read {}: {}", file_path, e)))?;
 
-    let mut services = Vec::new();
+    extract_rust_service_from_str(&content)
+}
 
-    // Regex to match: pub struct Name { ... }
-    let struct_re = Regex::new(r"pub\s+struct\s+(\w+)\s*\{([^}]*)\}")
-        .map_err(|e| Error::new(&format!("Failed to compile struct regex: {}", e)))?;
+/// Extract Rust definitions from an in-memory source string.
+///
+/// Captures (regex-based headers + balanced-brace body scan):
+/// - `pub struct Name<...> { ... }` — name, generics, fields
+/// - `pub enum Name<...> { Variant, ... }` — name, generics, variant names
+/// - `pub trait Name<...> { fn ... }` — name, generics, required method signatures
+/// - `impl<...> Name<...> { fn ... }` (inherent and trait impls) — method signatures
+///   attached back to the matching struct/enum `ServiceDef`.
+///
+/// Block bodies are delimited with a brace-depth scan ([`balanced_block_body`])
+/// rather than a naive `{...}` regex, so nested braces (method bodies inside an
+/// `impl`, struct-variant payloads inside an `enum`) do not truncate the capture.
+///
+/// This is the workhorse behind [`extract_rust_service`]; it is separated so the
+/// extraction logic can be exercised without touching the filesystem.
+pub fn extract_rust_service_from_str(content: &str) -> Result<Vec<ServiceDef>> {
+    let mut services: Vec<ServiceDef> = Vec::new();
 
-    for cap in struct_re.captures_iter(&content) {
-        let name = cap.get(1).unwrap().as_str().to_string();
-        let body = cap.get(2).unwrap().as_str();
+    // --- Structs: pub struct Name<generics> { fields } ---
+    // The generics group is optional and non-greedy so it does not swallow the
+    // body. The body itself is captured with a balanced-brace scan so nested
+    // braces (rare in struct fields, common in struct-variant enums below) do
+    // not truncate the capture at the first `}`.
+    let struct_header_re = Regex::new(r"pub\s+struct\s+(\w+)\s*(?:<([^>]*)>)?\s*\{")
+        .map_err(|e| Error::new(&format!("Failed to compile struct header regex: {}", e)))?;
+
+    for cap in struct_header_re.captures_iter(content) {
+        let name = cap_str(&cap, 1);
+        let type_params = cap.get(2).map(|m| parse_type_params(m.as_str())).unwrap_or_default();
+
+        let open_brace_idx = match cap.get(0) {
+            Some(m) => m.end() - 1,
+            None => continue,
+        };
+        let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
 
         let fields = parse_struct_fields(body)?;
 
         services.push(ServiceDef {
             name,
             language: Language::Rust,
+            kind: ServiceKind::Struct,
             fields,
             methods: Vec::new(),
+            variants: Vec::new(),
+            type_params,
         });
     }
 
+    // --- Enums: pub enum Name<generics> { Variant, ... } ---
+    let enum_header_re = Regex::new(r"pub\s+enum\s+(\w+)\s*(?:<([^>]*)>)?\s*\{")
+        .map_err(|e| Error::new(&format!("Failed to compile enum header regex: {}", e)))?;
+
+    for cap in enum_header_re.captures_iter(content) {
+        let name = cap_str(&cap, 1);
+        let type_params = cap.get(2).map(|m| parse_type_params(m.as_str())).unwrap_or_default();
+
+        let open_brace_idx = match cap.get(0) {
+            Some(m) => m.end() - 1,
+            None => continue,
+        };
+        let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
+
+        let variants = parse_enum_variants(body)?;
+
+        services.push(ServiceDef {
+            name,
+            language: Language::Rust,
+            kind: ServiceKind::Enum,
+            fields: Vec::new(),
+            methods: Vec::new(),
+            variants,
+            type_params,
+        });
+    }
+
+    // --- Traits: pub trait Name<generics> [: bounds] { fn ...; } ---
+    // The trait header is matched with a regex, but the body is extracted with a
+    // balanced-brace scan so that default-method bodies (with their own `{ }`)
+    // and multiple methods are all captured — not just up to the first `}`.
+    let trait_header_re = Regex::new(r"pub\s+trait\s+(\w+)\s*(?:<([^>]*)>)?\s*(?::[^{]*)?\{")
+        .map_err(|e| Error::new(&format!("Failed to compile trait header regex: {}", e)))?;
+
+    for cap in trait_header_re.captures_iter(content) {
+        let name = cap_str(&cap, 1);
+        let type_params = cap.get(2).map(|m| parse_type_params(m.as_str())).unwrap_or_default();
+
+        // The full match ends at the opening `{`; scan from there for the body.
+        let open_brace_idx = match cap.get(0) {
+            Some(m) => m.end() - 1,
+            None => continue,
+        };
+        let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
+
+        let methods = parse_rust_fn_signatures(body)?;
+
+        services.push(ServiceDef {
+            name,
+            language: Language::Rust,
+            kind: ServiceKind::Trait,
+            fields: Vec::new(),
+            methods,
+            variants: Vec::new(),
+            type_params,
+        });
+    }
+
+    // --- impl blocks: attach inherent/trait-impl methods to their type ---
+    // Matches `impl<...> Type<...> {` and `impl<...> Trait for Type<...> {`.
+    // The captured type name (group 1) is the receiver type in both inherent and
+    // `impl Trait for Type` forms. The body is extracted with a balanced-brace
+    // scan so method bodies do not truncate the capture at the first `}`.
+    let impl_header_re = Regex::new(
+        r"impl(?:<[^>]*>)?\s+(?:[\w:]+(?:<[^>]*>)?\s+for\s+)?(\w+)(?:<[^>]*>)?\s*\{",
+    )
+    .map_err(|e| Error::new(&format!("Failed to compile impl header regex: {}", e)))?;
+
+    for cap in impl_header_re.captures_iter(content) {
+        let type_name = cap_str(&cap, 1);
+
+        let open_brace_idx = match cap.get(0) {
+            Some(m) => m.end() - 1,
+            None => continue,
+        };
+        let body = balanced_block_body(content, open_brace_idx).unwrap_or("");
+
+        let methods = parse_rust_fn_signatures(body)?;
+        if methods.is_empty() {
+            continue;
+        }
+
+        // Attach to an existing struct/enum of the same name if present,
+        // otherwise record a stand-alone struct-kind ServiceDef so the methods
+        // are not lost (e.g. impl on a type defined in another file).
+        if let Some(existing) = services.iter_mut().find(|s| s.name == type_name) {
+            existing.methods.extend(methods);
+        } else {
+            services.push(ServiceDef {
+                name: type_name,
+                language: Language::Rust,
+                kind: ServiceKind::Struct,
+                fields: Vec::new(),
+                methods,
+                variants: Vec::new(),
+                type_params: Vec::new(),
+            });
+        }
+    }
+
     Ok(services)
+}
+
+/// Safely extract a capture group as an owned `String`, returning an empty
+/// string when the group is absent (avoids `unwrap` on optional captures).
+fn cap_str(cap: &regex::Captures<'_>, idx: usize) -> String {
+    cap.get(idx).map(|m| m.as_str().to_string()).unwrap_or_default()
+}
+
+/// Given a byte index pointing at an opening `{` in `content`, return the inner
+/// body slice between that brace and its matching `}` (exclusive of both braces).
+///
+/// Uses a depth counter so nested braces (e.g. method bodies inside an `impl`
+/// block) are spanned correctly. Returns `None` if `open_idx` is not `{` or if
+/// no matching close brace is found. String/char-literal braces are NOT handled;
+/// this is a deliberate simplification of the regex-based extractor.
+fn balanced_block_body(content: &str, open_idx: usize) -> Option<&str> {
+    let bytes = content.as_bytes();
+    if open_idx >= bytes.len() || bytes[open_idx] != b'{' {
+        return None;
+    }
+
+    let mut depth = 0usize;
+    let body_start = open_idx + 1;
+    let mut i = open_idx;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    // body is everything between the opening and this closing brace
+                    return content.get(body_start..i);
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+
+    None
+}
+
+/// Parse a comma-separated generic parameter list (the text between `<` and `>`).
+///
+/// Each parameter is kept as a raw string with any bound stripped to the
+/// leading identifier (`T: Clone + Send` -> `T`). Lifetimes (`'a`) and const
+/// generics are returned verbatim. This is intentionally shallow.
+fn parse_type_params(raw: &str) -> Vec<String> {
+    raw.split(',')
+        .map(|p| {
+            // Take the portion before any bound (`:`) and trim.
+            let head = p.split(':').next().unwrap_or(p).trim();
+            head.to_string()
+        })
+        .filter(|p| !p.is_empty())
+        .collect()
+}
+
+/// Parse enum variant names from an enum body.
+///
+/// Splits the body on top-level commas (commas at brace/paren/angle depth 0) so
+/// payloads do not introduce spurious separators, then takes the leading
+/// identifier of each segment. Handles `Variant`, `Variant(T)`,
+/// `Variant { .. }`, and `Variant = 1` forms on one line or many. Tuple/struct
+/// payloads and explicit discriminants are ignored (only the name is captured).
+fn parse_enum_variants(body: &str) -> Result<Vec<Variant>> {
+    let mut variants = Vec::new();
+
+    // Leading identifier of a segment, allowing leading whitespace, attributes,
+    // and doc comments to be skipped by the trim below.
+    let ident_re = Regex::new(r"^\s*(?:#\[[^\]]*\]\s*)*(\w+)")
+        .map_err(|e| Error::new(&format!("Failed to compile variant ident regex: {}", e)))?;
+
+    for segment in split_top_level_commas(body) {
+        let segment = segment.trim();
+        if segment.is_empty() {
+            continue;
+        }
+        if let Some(cap) = ident_re.captures(segment) {
+            let name = cap_str(&cap, 1);
+            // Skip lines that are clearly not variants (e.g. a stray attribute
+            // word). A real variant identifier is non-empty.
+            if !name.is_empty() {
+                variants.push(Variant { name });
+            }
+        }
+    }
+
+    Ok(variants)
+}
+
+/// Split a string on commas that are at the top nesting level — i.e. not inside
+/// `()`, `[]`, `{}`, or `<>`. Used to separate enum variants without breaking on
+/// commas inside payloads like `Variant(A, B)` or `Variant { x: u8, y: u8 }`.
+fn split_top_level_commas(input: &str) -> Vec<&str> {
+    let bytes = input.as_bytes();
+    let mut segments = Vec::new();
+    let mut depth: i32 = 0;
+    let mut start = 0usize;
+
+    for (i, &b) in bytes.iter().enumerate() {
+        match b {
+            b'(' | b'[' | b'{' | b'<' => depth += 1,
+            b')' | b']' | b'}' | b'>' => {
+                if depth > 0 {
+                    depth -= 1;
+                }
+            }
+            b',' if depth == 0 => {
+                if let Some(seg) = input.get(start..i) {
+                    segments.push(seg);
+                }
+                start = i + 1;
+            }
+            _ => {}
+        }
+    }
+
+    if let Some(seg) = input.get(start..) {
+        segments.push(seg);
+    }
+
+    segments
+}
+
+/// Parse Rust function signatures from a trait body or impl block body.
+///
+/// Matches `fn name(params) -> ReturnType` and `fn name(params)` (with optional
+/// leading `pub`/`async`/`const`/`unsafe` qualifiers, which are simply not
+/// captured). The return type is taken lazily up to the first `{`, `;`, or
+/// `where`. Generic params on the fn and `where` clauses are not separately
+/// modeled. The body passed in is expected to already be the full balanced block
+/// (see [`balanced_block_body`]), so every method in a multi-method impl/trait is
+/// visited — not just the first. Method *bodies* themselves are not parsed; only
+/// signatures are recovered. A param whose type contains a top-level `,` (e.g.
+/// `cb: fn(a, b)`) will be split into multiple raw param strings — a known
+/// limitation of the comma-split param parsing.
+fn parse_rust_fn_signatures(body: &str) -> Result<Vec<Method>> {
+    let mut methods = Vec::new();
+
+    // Qualifiers are optional and order-tolerant enough for common cases.
+    // Return type captured up to `{`, `;`, or `where`.
+    let fn_re = Regex::new(
+        r"fn\s+(\w+)\s*(?:<[^>]*>)?\s*\(([^)]*)\)\s*(?:->\s*([^{;]+?))?\s*(?:where|\{|;)",
+    )
+    .map_err(|e| Error::new(&format!("Failed to compile fn regex: {}", e)))?;
+
+    for cap in fn_re.captures_iter(body) {
+        let name = cap_str(&cap, 1);
+        let params_str = cap.get(2).map(|m| m.as_str()).unwrap_or("");
+
+        let params: Vec<String> = params_str
+            .split(',')
+            .map(|p| p.trim().to_string())
+            .filter(|p| !p.is_empty())
+            .collect();
+
+        let return_type = cap
+            .get(3)
+            .map(|m| m.as_str().trim().to_string())
+            .filter(|s| !s.is_empty());
+
+        methods.push(Method {
+            name,
+            params,
+            return_type,
+        });
+    }
+
+    Ok(methods)
 }
 
 /// Extract Elixir GenServer definitions from a file
@@ -143,8 +485,11 @@ pub fn extract_elixir_genserver(file_path: &str) -> Result<Vec<ServiceDef>> {
         services.push(ServiceDef {
             name,
             language: Language::Elixir,
+            kind: ServiceKind::Struct,
             fields: Vec::new(),
             methods,
+            variants: Vec::new(),
+            type_params: Vec::new(),
         });
     }
 
@@ -214,8 +559,11 @@ pub fn extract_go_service(file_path: &str) -> Result<Vec<ServiceDef>> {
         services.push(ServiceDef {
             name,
             language: Language::Go,
+            kind: ServiceKind::Struct,
             fields,
             methods,
+            variants: Vec::new(),
+            type_params: Vec::new(),
         });
     }
 
@@ -321,11 +669,20 @@ pub fn convert_to_rdf(services: &[ServiceDef]) -> Result<String> {
         let safe_name = sanitize_iri(&service.name);
         let resource_id = format!("code:{}", safe_name);
 
-        // Service type and language
+        // Construct type (struct=Service / enum=Enum / trait=Trait) and language.
         turtle.push_str(&format!(
-            "{} a code:Service ;\n    code:language \"{}\" ;\n",
-            resource_id, service.language.as_str()
+            "{} a code:{} ;\n    code:language \"{}\" ;\n",
+            resource_id,
+            service.kind.rdf_class(),
+            service.language.as_str()
         ));
+
+        // Generic type parameters (captured as raw identifiers).
+        if !service.type_params.is_empty() {
+            for tp in &service.type_params {
+                turtle.push_str(&format!("    code:typeParam \"{}\" ;\n", tp));
+            }
+        }
 
         // Add fields as properties
         if !service.fields.is_empty() {
@@ -333,6 +690,16 @@ pub fn convert_to_rdf(services: &[ServiceDef]) -> Result<String> {
                 turtle.push_str(&format!(
                     "    code:hasField [ a code:Field ; code:fieldName \"{}\" ; code:fieldType \"{}\" ] ;\n",
                     field.name, field.field_type
+                ));
+            }
+        }
+
+        // Add enum variants
+        if !service.variants.is_empty() {
+            for variant in &service.variants {
+                turtle.push_str(&format!(
+                    "    code:hasVariant [ a code:Variant ; code:variantName \"{}\" ] ;\n",
+                    variant.name
                 ));
             }
         }
@@ -407,11 +774,14 @@ mod tests {
         let service = ServiceDef {
             name: "MyService".to_string(),
             language: Language::Rust,
+            kind: ServiceKind::Struct,
             fields: vec![Field {
                 name: "id".to_string(),
                 field_type: "u64".to_string(),
             }],
             methods: vec![],
+            variants: vec![],
+            type_params: vec![],
         };
 
         let rdf = convert_to_rdf(&[service]).unwrap();
@@ -427,12 +797,15 @@ mod tests {
         let service = ServiceDef {
             name: "Handler".to_string(),
             language: Language::Elixir,
+            kind: ServiceKind::Struct,
             fields: vec![],
             methods: vec![Method {
                 name: "handle_call".to_string(),
                 params: vec!["msg".to_string(), "from".to_string()],
                 return_type: Some("tuple".to_string()),
             }],
+            variants: vec![],
+            type_params: vec![],
         };
 
         let rdf = convert_to_rdf(&[service]).unwrap();
@@ -474,5 +847,75 @@ mod tests {
         let methods = extract_elixir_callbacks(content).unwrap();
         assert!(methods.iter().any(|m| m.name == "init"));
         assert!(methods.iter().any(|m| m.name == "handle_call"));
+    }
+
+    #[test]
+    fn test_parse_type_params_strips_bounds() {
+        let params = parse_type_params("T: Clone + Send, U, V: Default");
+        assert_eq!(params, vec!["T".to_string(), "U".to_string(), "V".to_string()]);
+    }
+
+    #[test]
+    fn test_parse_enum_variants() {
+        let body = "Active,\n    Inactive,\n    Pending(u32),\n    Custom { code: u16 },\n";
+        let variants = parse_enum_variants(body).unwrap();
+        let names: Vec<&str> = variants.iter().map(|v| v.name.as_str()).collect();
+        assert!(names.contains(&"Active"));
+        assert!(names.contains(&"Inactive"));
+        assert!(names.contains(&"Pending"));
+        assert!(names.contains(&"Custom"));
+    }
+
+    #[test]
+    fn test_parse_rust_fn_signatures() {
+        let body = "fn start(&self) -> bool { true }\n    fn stop(&mut self, force: bool) { }\n";
+        let methods = parse_rust_fn_signatures(body).unwrap();
+        let start = methods.iter().find(|m| m.name == "start").expect("start fn");
+        assert_eq!(start.return_type.as_deref(), Some("bool"));
+        let stop = methods.iter().find(|m| m.name == "stop").expect("stop fn");
+        assert!(stop.params.iter().any(|p| p.contains("force")));
+    }
+
+    #[test]
+    fn test_extract_rust_struct_with_generics() {
+        let src = "pub struct Container<T> { item: T, count: usize }";
+        let services = extract_rust_service_from_str(src).unwrap();
+        let c = services.iter().find(|s| s.name == "Container").expect("Container");
+        assert_eq!(c.kind, ServiceKind::Struct);
+        assert!(c.type_params.contains(&"T".to_string()));
+        assert!(c.fields.iter().any(|f| f.name == "item"));
+    }
+
+    #[test]
+    fn test_extract_rust_enum() {
+        let src = "pub enum Status { Ok, Err, Pending }";
+        let services = extract_rust_service_from_str(src).unwrap();
+        let e = services.iter().find(|s| s.name == "Status").expect("Status enum");
+        assert_eq!(e.kind, ServiceKind::Enum);
+        let names: Vec<&str> = e.variants.iter().map(|v| v.name.as_str()).collect();
+        assert!(names.contains(&"Ok"));
+        assert!(names.contains(&"Err"));
+        assert!(names.contains(&"Pending"));
+    }
+
+    #[test]
+    fn test_extract_rust_trait() {
+        let src = "pub trait Runnable { fn run(&self) -> i32; fn name(&self) -> String; }";
+        let services = extract_rust_service_from_str(src).unwrap();
+        let t = services.iter().find(|s| s.name == "Runnable").expect("Runnable trait");
+        assert_eq!(t.kind, ServiceKind::Trait);
+        assert!(t.methods.iter().any(|m| m.name == "run"));
+        assert!(t.methods.iter().any(|m| m.name == "name"));
+    }
+
+    #[test]
+    fn test_impl_methods_attached_to_struct() {
+        let src = "pub struct Worker { id: u32 }\n\
+                   impl Worker { fn process(&self) -> bool { true } fn reset(&mut self) { } }";
+        let services = extract_rust_service_from_str(src).unwrap();
+        let w = services.iter().find(|s| s.name == "Worker").expect("Worker");
+        assert_eq!(w.kind, ServiceKind::Struct);
+        assert!(w.methods.iter().any(|m| m.name == "process"));
+        assert!(w.methods.iter().any(|m| m.name == "reset"));
     }
 }
