@@ -21,7 +21,11 @@ use crate::ocel::{OcelEvent, OcelLog};
 use crate::GraphError;
 
 /// A discovered process model for a single object type.
-#[derive(Debug, Clone, PartialEq, Eq)]
+///
+/// Note: only `PartialEq` is derived (not `Eq`), because `variant_ratio` is an
+/// `f64` and floating-point values do not implement `Eq`. The struct is never
+/// used as a `HashMap`/`HashSet` key, so `Eq`/`Hash` are not required.
+#[derive(Debug, Clone, PartialEq)]
 pub struct ProcessModel {
     /// The object type this model describes (e.g., "pack", "lockfile-entry", "receipt").
     pub object_type: String,

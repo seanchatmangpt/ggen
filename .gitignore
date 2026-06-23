@@ -1,6 +1,10 @@
 # Rust build artifacts and dependencies
 /target/
-Cargo.lock
+# Cargo.lock IS committed: ggen is a binary workspace (produces the `ggen`
+# CLI), so the lockfile is tracked for reproducible builds. Several deps are
+# only resolvable to working versions via the committed lock + pinned toolchain
+# (see rust-toolchain.toml); leaving it untracked lets a fresh checkout resolve
+# newer, incompatible transitive versions.
 
 # Rust backup files
 **/*.rs.bk
